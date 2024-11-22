@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: App
-          path: ${{ github.workspace }}/app/build/outputs/apk/demo/app-demo.apk
+          path: ${{ github.workspace }}/app/release/app-release.apk
 
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
@@ -73,4 +73,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.previousTag.outputs.tag }}
           body: ${{ env.RELEASE_BODY }}
-          file: ${{ github.workspace }}/app/build/outputs/apk/demo/app-demo.apk
+          file: ${{ github.workspace }}/app/release/app-release.apk
