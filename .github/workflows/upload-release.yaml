@@ -59,7 +59,7 @@ jobs:
 
       # Manage release
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: App
           path: ${{ github.workspace }}/app/build/outputs/apk/demo/app-demo.apk
