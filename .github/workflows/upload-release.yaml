@@ -54,7 +54,7 @@ jobs:
           encodedString: ${{ secrets.KEYSTORE }}
 
       - name: gralew chmod
-        run: chmod +x ./gralew
+        run: chmod +x ./gradlew
 
       # Build
       - name: Build release
