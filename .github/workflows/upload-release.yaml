@@ -1,57 +1,76 @@
-name: Generated APK (Upload - Create Artifact To Github Action)
+on:
+  push:
+    branches:
+      shouldntBeTrigered
+name: Create Release
 
-env:
-  # The name of the main module repository
-  main_project_module: app
-
-on: push
-    #branches: - 'release/**'
-
-  # Allows you to run this workflow manually from the Actions tab
-  #workflow_dispatch:
+permissions:
+  contents: write
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # Setup
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      # Set Current Date As Env Variable
-      - name: Set current date as env variable
-        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-
-      # Set Repository Name As Env Variable
-      - name: Set repository name as env variable
-        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
-
-      - name: Set Up JDK
-        uses: actions/setup-java@v4
+      - name: set up JDK
+        uses: actions/setup-java@v1
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '17'
-          cache: 'gradle'
+          java-version: 17
 
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew
+      # Take global info
+      - name: Get app version
+        run: bash ./app_version.sh
 
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
-
-      # Create APK Release
-      - name: Build apk release project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assemble
-
-      # Create Bundle AAB Release
-      # Noted for main module build [main_project_module]:bundleRelease
-      - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
-        run: ./gradlew ${{ env.main_project_module }}:bundleRelease
-
-      # Noted For Output [main_project_module]/build/outputs/apk/release/
-      - name: Upload APK Release - ${{ env.repository_name }}
-        uses: actions/upload-artifact@v4
+      - name: Create Tag
+        uses: rickstaa/action-create-tag@v1
         with:
-          name: ${{ env.date_today }} - ${{ env.repository_name }} - APK(s) release generated
-          path: ${{ env.main_project_module }}/build/outputs/apk/release/
+          tag: v${{ env.APP_VERSION }}
+          force_push_tag: true
+
+      - name: Get Previous tag
+        id: previousTag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+
+      - name: Parse changelog.md
+        id: readRelease
+        run: bash ./parse_changelog.sh
+
+      # Generate temp files
+      - name: Create local.properties
+        run: touch local.properties
+
+      - name: Generate local.properties content
+        run: |
+          echo 'keystore.alias=${{ secrets.KEYSTORE_ALIAS }}' >> local.properties
+          echo 'keystore.password=${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+          echo 'keystore.key.password=${{ secrets.KEYSTORE_KEY_PASSWORD }}' >> local.properties
+
+      - name: Decode Keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: keystore.jks
+          fileDir: ${{ github.workspace }}/app/
+          encodedString: ${{ secrets.KEYSTORE }}
+
+      # Build
+      - name: Build release
+        run: ./gradlew assembleDemo
+
+      # Manage release
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: App
+          path: ${{ github.workspace }}/app/build/outputs/apk/demo/app-demo.apk
+
+      - name: Create Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.previousTag.outputs.tag }}
+          body: ${{ env.RELEASE_BODY }}
+          file: ${{ github.workspace }}/app/build/outputs/apk/demo/app-demo.apk

@@ -1,7 +1,13 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
+
+val properties = Properties()
+val keystoreFile = project.rootProject.file("local.properties")
+properties.load(keystoreFile.inputStream())
 
 android {
     namespace = "fr.jaetan.mybudget"
@@ -20,7 +26,19 @@ android {
         }
     }
 
+    signingConfigs {
+        create("default") {
+            storeFile = file("keystore.jks")
+            storePassword = properties.getProperty("keystore.password")
+            keyAlias = properties.getProperty("keystore.alias")
+            keyPassword = properties.getProperty("keystore.key.password")
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("default")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
