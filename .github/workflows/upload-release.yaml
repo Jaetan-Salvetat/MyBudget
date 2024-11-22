@@ -58,7 +58,7 @@ jobs:
 
       # Build
       - name: Build release
-        run: ./gradlew assembleDemo
+        run: ./gradlew assemble
 
       # Manage release
       - name: Upload APK
