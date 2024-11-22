@@ -5,6 +5,12 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+object AppVersion {
+    const val major = 0
+    const val minor = 0
+    const val patch = 1
+}
+
 val properties = Properties()
 val keystoreFile = project.rootProject.file("local.properties")
 properties.load(keystoreFile.inputStream())
@@ -18,7 +24,7 @@ android {
         minSdk = 34
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "${AppVersion.major}.${AppVersion.minor}.${AppVersion.patch}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
