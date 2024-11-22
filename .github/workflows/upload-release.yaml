@@ -53,6 +53,9 @@ jobs:
           fileDir: ${{ github.workspace }}/app/
           encodedString: ${{ secrets.KEYSTORE }}
 
+      - name: gralew chmod
+        run: chmod +x ./gralew
+
       # Build
       - name: Build release
         run: ./gradlew assembleDemo
