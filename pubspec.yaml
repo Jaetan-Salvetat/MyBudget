@@ -39,16 +39,32 @@ dependencies:
   appwrite: ^15.0.2
   flutter_dotenv: ^5.1.0
   package_info_plus: ^8.3.0
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
   uuid: ^4.2.2
+  share_plus: ^11.0.0
+
+dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_native_splash: ^2.3.7
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path_android: "icons/android/play_store_512.png"
+  image_path_ios: "icons/android/play_store_512.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "icons/android/play_store_512.png"
+  min_sdk_android: 21
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -57,7 +73,6 @@ dependencies:
   flutter_lints: ^3.0.0
   build_runner: ^2.4.7
   hive_generator: ^2.0.1
-  share_plus: ^11.0.0
 
 dependency_overrides:
   flutter_web_auth_2: 4.1.0
