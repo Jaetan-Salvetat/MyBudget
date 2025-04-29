@@ -7,7 +7,7 @@ import 'package:mybudget/presentation/providers/category_provider.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 import 'package:mybudget/presentation/widgets/common/app_dropdown_field.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
-import 'package:mybudget/presentation/widgets/expenses/adaptive_date_picker.dart';
+import 'package:mybudget/presentation/widgets/expenses/expense_date_picker.dart';
 import 'package:mybudget/presentation/widgets/expenses/frequency_selector.dart';
 
 class ExpenseBottomSheet extends ConsumerStatefulWidget {
@@ -244,7 +244,7 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
                 },
               ),
               const SizedBox(height: 16),
-              AdaptiveDatePicker(
+              ExpenseDatePicker(
                 selectedDate: selectedDate,
                 frequency: selectedFrequency,
                 onDateChanged: (date) {
