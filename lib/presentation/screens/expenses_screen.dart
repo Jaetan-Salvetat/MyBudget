@@ -4,7 +4,8 @@ import '../widgets/common/app_scaffold.dart';
 import '../providers/expense_provider.dart';
 import '../providers/account_provider.dart';
 import '../../domain/entities/expense.dart';
-import '../widgets/expenses/expense_form.dart';
+import '../../domain/entities/account.dart';
+import '../widgets/expenses/expense_bottom_sheet.dart';
 
 class ExpensesScreen extends ConsumerWidget {
   const ExpensesScreen({super.key});
@@ -12,40 +13,26 @@ class ExpensesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppScaffold(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Dépenses'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.filter_list),
-              onPressed: () {
-                // Fonctionnalité de filtrage à ajouter
-              },
-            ),
-          ],
-        ),
-        body: const ExpensesList(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder:
-                  (context) => ExpenseForm(
-                    accounts: ref.read(accountNotifierProvider),
-                    onSubmit: (expense) {
-                      ref
-                          .read(expenseNotifierProvider.notifier)
-                          .addExpense(expense);
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () => Navigator.of(context).pop(),
-                  ),
-            );
-          },
-          tooltip: 'Ajouter une dépense',
-          child: const Icon(Icons.add),
-        ),
+      title: 'Dépenses',
+      useNestedAppBar: false,
+      child: const ExpensesList(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddExpenseBottomSheet(context, ref),
+        tooltip: 'Ajouter une dépense',
+        child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showAddExpenseBottomSheet(BuildContext context, WidgetRef ref) {
+    ExpenseBottomSheet.show(
+      context: context,
+      accounts: ref.read(accountNotifierProvider),
+      onSubmit: (expense) {
+        ref.read(expenseNotifierProvider.notifier).addExpense(expense);
+        Navigator.of(context).pop();
+      },
+      onCancel: () => Navigator.of(context).pop(),
     );
   }
 }
@@ -76,19 +63,16 @@ class ExpensesList extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                showDialog(
+                ExpenseBottomSheet.show(
                   context: context,
-                  builder:
-                      (context) => ExpenseForm(
-                        accounts: ref.read(accountNotifierProvider),
-                        onSubmit: (expense) {
-                          ref
-                              .read(expenseNotifierProvider.notifier)
-                              .addExpense(expense);
-                          Navigator.of(context).pop();
-                        },
-                        onCancel: () => Navigator.of(context).pop(),
-                      ),
+                  accounts: ref.read(accountNotifierProvider),
+                  onSubmit: (expense) {
+                    ref
+                        .read(expenseNotifierProvider.notifier)
+                        .addExpense(expense);
+                    Navigator.of(context).pop();
+                  },
+                  onCancel: () => Navigator.of(context).pop(),
                 );
               },
               child: const Text('Ajouter une dépense'),
@@ -99,20 +83,23 @@ class ExpensesList extends ConsumerWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
       itemCount: expenses.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final expense = expenses[index];
         // Récupérer le compte associé à la dépense
         // S'assurer que le type est correct (Account)
-        final account =
-            accounts.isNotEmpty
-                ? accounts.firstWhere(
-                  (a) => a.id == expense.accountId,
-                  orElse: () => accounts.first,
-                )
-                : null;
+        // Recherche du compte associé à la dépense
+        Account? account;
+        if (accounts.isNotEmpty) {
+          try {
+            account = accounts.firstWhere((a) => a.id == expense.accountId);
+          } catch (_) {
+            // Si aucun compte correspondant n'est trouvé, on utilise le premier
+            account = accounts.first;
+          }
+        }
 
         return ExpenseCard(
           expense: expense,
@@ -123,20 +110,17 @@ class ExpensesList extends ConsumerWidget {
                 .deleteExpense(expense.id);
           },
           onEdit: () {
-            showDialog(
+            ExpenseBottomSheet.show(
               context: context,
-              builder:
-                  (context) => ExpenseForm(
-                    expense: expense,
-                    accounts: ref.read(accountNotifierProvider),
-                    onSubmit: (updatedExpense) {
-                      ref
-                          .read(expenseNotifierProvider.notifier)
-                          .updateExpense(updatedExpense);
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () => Navigator.of(context).pop(),
-                  ),
+              accounts: accounts,
+              expense: expense,
+              onSubmit: (updatedExpense) {
+                ref
+                    .read(expenseNotifierProvider.notifier)
+                    .updateExpense(updatedExpense);
+                Navigator.of(context).pop();
+              },
+              onCancel: () => Navigator.of(context).pop(),
             );
           },
         );
