@@ -6,7 +6,9 @@ import 'package:mybudget/presentation/providers/expense_provider.dart';
 import 'package:mybudget/presentation/providers/revenue_provider.dart';
 import 'package:mybudget/presentation/providers/theme_provider.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
-import 'package:mybudget/presentation/widgets/settings/category_list.dart';
+import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -26,32 +28,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
-    return showDialog<void>(
+    return DialogBottomSheet.showConfirmation(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Déconnexion'),
-          content: const SingleChildScrollView(
-            child: ListBody(
-              children: [Text('Voulez-vous vraiment vous déconnecter ?')],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ref.read(authProvider.notifier).logout();
-              },
-              child: const Text('Déconnexion'),
-            ),
-          ],
-        );
-      },
+      title: 'Déconnexion',
+      message: 'Voulez-vous vraiment vous déconnecter ?',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Déconnexion',
+      onConfirm: () => ref.read(authProvider.notifier).logout(),
     );
   }
 
@@ -68,98 +51,95 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final authState = ref.watch(authProvider);
 
     return AppScaffold(
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Paramètres')),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            SettingsSection(
-              title: 'Compte',
-              children: [
-                if (authState.value != null && authState.value!.isAuthenticated)
-                  SettingsTile(
-                    title: 'Déconnexion',
-                    subtitle:
-                        'Connecté en tant que ${authState.value?.email ?? ""}',
-                    leading: const Icon(Icons.logout),
-                    onTap: () => _showLogoutConfirmationDialog(context),
-                  )
-                else
-                  SettingsTile(
-                    title: 'Connexion / Inscription',
-                    subtitle: 'Connectez-vous pour synchroniser vos données',
-                    leading: const Icon(Icons.login),
-                    onTap: () => Navigator.pushNamed(context, '/login'),
-                  ),
-              ],
-            ),
-            SettingsSection(
-              title: 'Apparence',
-              children: [
-                SettingsTile(
-                  title: 'Thème',
-                  subtitle: _getThemeNameFromMode(themeMode),
-                  leading: const Icon(Icons.brightness_6),
-                  onTap: () {
-                    _showThemeSelectionDialog(context, themeMode);
-                  },
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: 'Catégories',
-              children: [
-                SettingsTile(
-                  title: 'Gérer les catégories',
-                  subtitle: 'Ajouter, modifier ou supprimer des catégories',
-                  leading: const Icon(Icons.category),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const CategoryList(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: 'Données',
-              children: [
-                SettingsTile(
-                  title: 'Effacer toutes les données',
-                  subtitle:
-                      'Supprimer définitivement toutes les données de l\'application',
-                  leading: Icon(
-                    Icons.delete_forever,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  onTap: () {
-                    _showDeleteDataConfirmationDialog(context);
-                  },
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: 'À propos',
-              children: [
-                SettingsTile(
-                  title: 'Version',
-                  subtitle:
-                      packageInfo != null
-                          ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                          : 'Chargement...',
-                  leading: const Icon(Icons.info_outline),
-                ),
-                SettingsTile(
-                  title: 'Développeur',
-                  subtitle: 'Jaetan Salvetat',
-                  leading: const Icon(Icons.code),
-                ),
-              ],
-            ),
-          ],
+      title: 'Paramètres',
+      child: ListView(
+        padding: const EdgeInsets.only(
+          top: 130,
+          bottom: 16,
+          left: 16,
+          right: 16,
         ),
+        children: [
+          SettingsSection(
+            title: 'Compte',
+            children: [
+              if (authState.value != null && authState.value!.isAuthenticated)
+                SettingsTile(
+                  title: 'Déconnexion',
+                  subtitle:
+                      'Connecté en tant que ${authState.value?.email ?? ""}',
+                  leading: const Icon(Icons.logout),
+                  onTap: () => _showLogoutConfirmationDialog(context),
+                )
+              else
+                SettingsTile(
+                  title: 'Connexion / Inscription',
+                  subtitle: 'Connectez-vous pour synchroniser vos données',
+                  leading: const Icon(Icons.login),
+                  onTap: () => Navigator.pushNamed(context, '/login'),
+                ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Apparence',
+            children: [
+              SettingsTile(
+                title: 'Thème',
+                subtitle: _getThemeNameFromMode(themeMode),
+                leading: const Icon(Icons.brightness_6),
+                onTap: () {
+                  _showThemeSelectionDialog(context, themeMode);
+                },
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Catégories',
+            children: [
+              SettingsTile(
+                title: 'Gérer les catégories',
+                subtitle: 'Ajouter, modifier ou supprimer des catégories',
+                leading: const Icon(Icons.category),
+                onTap: () => CategoriesBottomSheet.show(context: context),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Données',
+            children: [
+              SettingsTile(
+                title: 'Effacer toutes les données',
+                subtitle:
+                    'Supprimer définitivement toutes les données de l\'application',
+                leading: Icon(
+                  Icons.delete_forever,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                onTap: () {
+                  _showDeleteDataConfirmationDialog(context);
+                },
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'À propos',
+            children: [
+              SettingsTile(
+                title: 'Version',
+                subtitle:
+                    packageInfo != null
+                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
+                        : 'Chargement...',
+                leading: const Icon(Icons.info_outline),
+              ),
+              SettingsTile(
+                title: 'Développeur',
+                subtitle: 'Jaetan Salvetat',
+                leading: const Icon(Icons.code),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -176,117 +156,54 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) {
-    showDialog(
+    ThemeBottomSheet.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Choisir un thème'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<ThemeMode>(
-                title: const Text('Clair'),
-                value: ThemeMode.light,
-                groupValue: currentMode,
-                onChanged: (value) {
-                  ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
-                  Navigator.of(context).pop();
-                },
-              ),
-              RadioListTile<ThemeMode>(
-                title: const Text('Sombre'),
-                value: ThemeMode.dark,
-                groupValue: currentMode,
-                onChanged: (value) {
-                  ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
-                  Navigator.of(context).pop();
-                },
-              ),
-              RadioListTile<ThemeMode>(
-                title: const Text('Système'),
-                value: ThemeMode.system,
-                groupValue: currentMode,
-                onChanged: (value) {
-                  ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
-            ),
-          ],
-        );
+      currentMode: currentMode,
+      onThemeSelected: (ThemeMode value) {
+        ref.read(themeProvider.notifier).setTheme(value);
       },
     );
   }
 
   void _showDeleteDataConfirmationDialog(BuildContext context) {
-    showDialog(
+    DialogBottomSheet.showConfirmation(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Effacer toutes les données'),
-          content: const Text(
-            'Êtes-vous sûr de vouloir supprimer définitivement toutes les données ? Cette action est irréversible.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
+      title: 'Effacer toutes les données',
+      message:
+          'Êtes-vous sûr de vouloir supprimer définitivement toutes les données ? Cette action est irréversible.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Supprimer',
+      isDestructive: true,
+      onConfirm: () async {
+        final accountNotifier = ref.read(accountNotifierProvider.notifier);
+        final expenseNotifier = ref.read(expenseNotifierProvider.notifier);
+        final revenueNotifier = ref.read(revenueNotifierProvider.notifier);
+
+        final accountsList = ref.read(accountNotifierProvider);
+        final expensesList = ref.read(expenseNotifierProvider);
+        final revenuesList = ref.read(revenueNotifierProvider);
+
+        // Supprimer les transactions d'abord
+        for (final expense in expensesList) {
+          expenseNotifier.deleteExpense(expense.id);
+        }
+
+        for (final revenue in revenuesList) {
+          revenueNotifier.deleteRevenue(revenue.id);
+        }
+
+        // Supprimer les comptes ensuite
+        for (final account in accountsList) {
+          accountNotifier.deleteAccount(account.id);
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Toutes les données ont été supprimées'),
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              onPressed: () async {
-                final accountNotifier = ref.read(
-                  accountNotifierProvider.notifier,
-                );
-                final expenseNotifier = ref.read(
-                  expenseNotifierProvider.notifier,
-                );
-                final revenueNotifier = ref.read(
-                  revenueNotifierProvider.notifier,
-                );
-
-                // Supprimer la fonction _deleteAllData dupliquée
-
-                final accountsList = ref.read(accountNotifierProvider);
-                final expensesList = ref.read(expenseNotifierProvider);
-                final revenuesList = ref.read(revenueNotifierProvider);
-
-                // Supprimer les transactions d'abord
-                for (final expense in expensesList) {
-                  expenseNotifier.deleteExpense(expense.id);
-                }
-
-                for (final revenue in revenuesList) {
-                  revenueNotifier.deleteRevenue(revenue.id);
-                }
-
-                // Supprimer les comptes ensuite
-                for (final account in accountsList) {
-                  accountNotifier.deleteAccount(account.id);
-                }
-
-                if (mounted) {
-                  Navigator.of(context).pop();
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Toutes les données ont été supprimées'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Supprimer'),
-            ),
-          ],
-        );
+          );
+        }
       },
     );
   }
@@ -308,20 +225,21 @@ class SettingsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
-        Card(
+        Container(
           margin: const EdgeInsets.only(bottom: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(children: children),
         ),
@@ -346,12 +264,63 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      subtitle: subtitle != null ? Text(subtitle!) : null,
-      leading: SizedBox(width: 32, height: 32, child: Center(child: leading)),
-      trailing: onTap != null ? const Icon(Icons.chevron_right) : null,
-      onTap: onTap,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(child: leading),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (subtitle != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            subtitle!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (onTap != null)
+                  Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
