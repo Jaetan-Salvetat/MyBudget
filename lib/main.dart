@@ -8,10 +8,12 @@ import 'package:mybudget/presentation/screens/login_screen.dart';
 import 'package:mybudget/presentation/screens/register_screen.dart';
 import 'package:mybudget/presentation/screens/revenues_screen.dart';
 import 'package:mybudget/presentation/screens/settings_screen.dart';
+import 'package:mybudget/presentation/screens/forgot_password_screen.dart';
 import 'package:mybudget/presentation/screens/splash_screen.dart';
 import 'package:mybudget/core/services/hive_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/data/models/category_model.dart';
+import 'package:mybudget/data/models/privacy_settings_model.dart';
 import 'package:mybudget/data/models/user_model.dart';
 import 'package:mybudget/presentation/providers/auth_provider.dart';
 import 'package:mybudget/presentation/providers/account_provider.dart';
@@ -35,6 +37,7 @@ Future<void> main() async {
   // Enregistrer les adaptateurs
   hiveService.registerAdapter(CategoryModelAdapter());
   hiveService.registerAdapter(UserModelAdapter());
+  hiveService.registerAdapter(PrivacySettingsModelAdapter());
 
   final container = ProviderContainer();
   
@@ -73,6 +76,7 @@ class MyApp extends ConsumerWidget {
         '/revenues': (context) => const RevenuesScreen(),
         '/accounts': (context) => const AccountsScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
     );
   }

@@ -7,8 +7,10 @@ import 'package:mybudget/presentation/providers/revenue_provider.dart';
 import 'package:mybudget/presentation/providers/theme_provider.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/data_privacy_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
+import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -49,6 +51,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
     final authState = ref.watch(authProvider);
+    final isUserConnected = authState.value != null && authState.value!.isAuthenticated;
 
     return AppScaffold(
       title: 'Paramètres',
@@ -104,13 +107,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
+          if (isUserConnected)
+            SettingsSection(
+              title: 'Données personnelles',
+              children: [
+                SettingsTile(
+                  title: 'Confidentialité et RGPD',
+                  subtitle: 'Gérer vos données personnelles',
+                  leading: const Icon(Icons.privacy_tip),
+                  onTap: () => DataPrivacyBottomSheet.show(context: context),
+                ),
+                SettingsTile(
+                  title: 'Politique de confidentialité',
+                  subtitle: 'Consulter notre politique de confidentialité',
+                  leading: const Icon(Icons.policy),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+                  ),
+                ),
+              ],
+            ),
           SettingsSection(
             title: 'Données',
             children: [
               SettingsTile(
-                title: 'Effacer toutes les données',
-                subtitle:
-                    'Supprimer définitivement toutes les données de l\'application',
+                title: 'Effacer les données',
+                subtitle: 'Supprimer définitivement toutes les données de l\'application',
                 leading: Icon(
                   Icons.delete_forever,
                   color: Theme.of(context).colorScheme.error,

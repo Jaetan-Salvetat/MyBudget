@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/presentation/providers/auth_provider.dart';
-import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
+import 'package:mybudget/presentation/providers/privacy_provider.dart';
+import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_background.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_button.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_text_field.dart';
+import 'package:mybudget/presentation/widgets/auth/consent_checkbox.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +21,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
+  bool _privacyPolicyConsent = false;
+  bool _privacyPolicyError = false;
   String? _errorMessage;
+  String? _nameError;
+  String? _emailError;
+  String? _passwordError;
+  String? _confirmPasswordError;
 
   @override
   void dispose() {
@@ -28,22 +39,71 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _register() async {
-    if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty) {
+    bool isValid = true;
+    
+    // Valider tous les champs
+    if (_nameController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Veuillez remplir tous les champs';
+        _nameError = 'Veuillez saisir votre nom';
       });
-      return;
+      isValid = false;
+    } else {
+      setState(() {
+        _nameError = null;
+      });
+    }
+    
+    if (_emailController.text.isEmpty) {
+      setState(() {
+        _emailError = 'Veuillez saisir votre email';
+      });
+      isValid = false;
+    } else {
+      setState(() {
+        _emailError = null;
+      });
+    }
+    
+    if (_passwordController.text.isEmpty) {
+      setState(() {
+        _passwordError = 'Veuillez saisir un mot de passe';
+      });
+      isValid = false;
+    } else {
+      setState(() {
+        _passwordError = null;
+      });
+    }
+    
+    if (_confirmPasswordController.text.isEmpty) {
+      setState(() {
+        _confirmPasswordError = 'Veuillez confirmer votre mot de passe';
+      });
+      isValid = false;
+    } else if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _confirmPasswordError = 'Les mots de passe ne correspondent pas';
+      });
+      isValid = false;
+    } else {
+      setState(() {
+        _confirmPasswordError = null;
+      });
+    }
+    
+    // Vérifier le consentement obligatoire
+    if (!_privacyPolicyConsent) {
+      setState(() {
+        _privacyPolicyError = true;
+      });
+      isValid = false;
+    } else {
+      setState(() {
+        _privacyPolicyError = false;
+      });
     }
 
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _errorMessage = 'Les mots de passe ne correspondent pas';
-      });
-      return;
-    }
+    if (!isValid) return;
 
     setState(() {
       _isLoading = true;
@@ -51,14 +111,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     try {
-      await ref
-          .read(authProvider.notifier)
-          .register(
-            _nameController.text,
-            _emailController.text,
-            _passwordController.text,
-          );
+      final authNotifier = ref.read(authProvider.notifier);
+      final privacyNotifier = ref.read(privacySettingsProvider.notifier);
+      
+      // Enregistrer l'utilisateur
+      await authNotifier.register(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      );
 
+      // Enregistrer les consentements RGPD
+      await privacyNotifier.savePrivacySettings(
+        privacyPolicyAccepted: _privacyPolicyConsent,
+        marketingConsent: false,
+      );
+      
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -74,75 +142,103 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inscription'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.account_circle, size: 80, color: Colors.blue),
-              const SizedBox(height: 32),
-              AppTextField(
-                controller: _nameController,
-                label: 'Nom',
-                icon: Icons.person,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.email,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _passwordController,
-                label: 'Mot de passe',
-                icon: Icons.lock,
-                obscureText: true,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _confirmPasswordController,
-                label: 'Confirmer le mot de passe',
-                icon: Icons.lock_outline,
-                obscureText: true,
-              ),
-              const SizedBox(height: 8),
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
+    return AuthBackground(
+      title: 'Inscription',
+      onBackPressed: () => Navigator.pop(context),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_errorMessage != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
                   ),
                 ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _register,
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('S\'inscrire'),
               ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/login'),
-                child: const Text('Déjà un compte ? Se connecter'),
+            const SizedBox(height: 16),
+            Form(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AuthTextField(
+                    controller: _nameController,
+                    label: 'Nom',
+                    icon: Icons.person,
+                    keyboardType: TextInputType.name,
+                    errorText: _nameError,
+                  ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _emailController,
+                    label: 'Email',
+                    icon: Icons.email,
+                    keyboardType: TextInputType.emailAddress,
+                    errorText: _emailError,
+                  ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _passwordController,
+                    label: 'Mot de passe',
+                    icon: Icons.lock,
+                    obscureText: true,
+                    errorText: _passwordError,
+                  ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _confirmPasswordController,
+                    label: 'Confirmer le mot de passe',
+                    icon: Icons.lock_outline,
+                    obscureText: true,
+                    errorText: _confirmPasswordError,
+                  ),
+                  const SizedBox(height: 24),
+                  ConsentCheckbox(
+                    value: _privacyPolicyConsent,
+                    onChanged: (value) {
+                      setState(() {
+                        _privacyPolicyConsent = value ?? false;
+                        if (_privacyPolicyConsent) {
+                          _privacyPolicyError = false;
+                        }
+                      });
+                    },
+                    text: 'J\'ai lu et j\'accepte la',
+                    linkText: 'politique de confidentialité',
+                    onLinkTap: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+                      );
+                    },
+                    isError: _privacyPolicyError,
+                  ),
+                  const SizedBox(height: 32),
+                  AuthButton(
+                    label: 'S\'inscrire',
+                    onPressed: _register,
+                    isLoading: _isLoading,
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                    child: const Text('Déjà un compte ? Se connecter'),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
