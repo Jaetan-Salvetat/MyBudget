@@ -43,8 +43,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "MyBudget Debug")
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
-
+            resValue("string", "app_name", "MyBudget")
             signingConfig = signingConfigs.getByName("debug")
         }
     }
