@@ -1,22 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mybudget/core/usecases/usecase.dart';
 import '../../domain/entities/account.dart';
-import '../../domain/usecases/add_account_usecase.dart';
-import '../../domain/usecases/get_accounts_usecase.dart';
+import '../../domain/repositories/account_repository.dart';
+import '../../data/repositories/account_repository_impl.dart';
+
+final accountNotifierProvider = StateNotifierProvider<AccountNotifier, List<Account>>((ref) {
+  final repository = ref.watch(accountRepositoryProvider);
+  return AccountNotifier(repository);
+});
 
 class AccountNotifier extends StateNotifier<List<Account>> {
-  final GetAccountsUseCase getAccountsUseCase;
-  final AddAccountUseCase addAccountUseCase;
+  final AccountRepository _repository;
 
-  AccountNotifier(this.getAccountsUseCase, this.addAccountUseCase) : super([]);
+  AccountNotifier(this._repository) : super([]) {
+    getAccounts();
+  }
 
   Future<void> getAccounts() async {
-    final accounts = await getAccountsUseCase(NoParams());
+    final accounts = await _repository.getAccounts();
     state = accounts;
   }
 
-  Future<void> addAccount(Account account) async {
-    await addAccountUseCase(AddAccountParams(account: account));
-    state = [...state, account];
+  void addAccount(Account account) async {
+    await _repository.addAccount(account);
+    await getAccounts();
+  }
+  
+  void updateAccount(Account account) async {
+    await _repository.updateAccount(account);
+    await getAccounts();
+  }
+  
+  void deleteAccount(String id) async {
+    await _repository.deleteAccount(id);
+    await getAccounts();
   }
 }

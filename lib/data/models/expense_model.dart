@@ -23,15 +23,27 @@ class ExpenseModel extends Expense {
   @HiveField(5)
   @override
   final String frequency;
+  @HiveField(6)
+  @override
+  final String accountId;
 
-  const ExpenseModel({
+  ExpenseModel({
     required this.id,
     required this.name,
     required this.amount,
     required this.category,
     required this.date,
     required this.frequency,
-  });
+    required this.accountId,
+  }) : super(
+    id: id,
+    name: name,
+    amount: amount,
+    category: category,
+    date: date,
+    frequency: frequency,
+    accountId: accountId,
+  );
 
   ExpenseModel copyWith({
     String? id,
@@ -40,7 +52,8 @@ class ExpenseModel extends Expense {
     String? category,
     DateTime? date,
     String? frequency,
-  }) {    
+    String? accountId,
+  }) {
     return ExpenseModel(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -48,9 +61,11 @@ class ExpenseModel extends Expense {
       category: category ?? this.category,
       date: date ?? this.date,
       frequency: frequency ?? this.frequency,
+      accountId: accountId ?? this.accountId,
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -59,6 +74,7 @@ class ExpenseModel extends Expense {
       'category': category,
       'date': date.toIso8601String(),
       'frequency': frequency,
+      'accountId': accountId,
     };
   }
 
@@ -70,6 +86,7 @@ class ExpenseModel extends Expense {
       category: json['category'],
       date: DateTime.parse(json['date']),
       frequency: json['frequency'],
+      accountId: json['accountId'],
     );
   }
 }

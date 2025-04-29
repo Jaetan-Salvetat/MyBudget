@@ -1,43 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/presentation/screens/accounts_screen.dart';
 import 'package:mybudget/presentation/screens/dashboard_screen.dart';
 import 'package:mybudget/presentation/screens/expenses_screen.dart';
+import 'package:mybudget/presentation/screens/login_screen.dart';
+import 'package:mybudget/presentation/screens/register_screen.dart';
 import 'package:mybudget/presentation/screens/revenues_screen.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:mybudget/presentation/screens/settings_screen.dart';
+import 'package:mybudget/presentation/screens/splash_screen.dart';
+import 'package:mybudget/core/services/hive_service.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:mybudget/data/models/category_model.dart';
+import 'package:mybudget/data/models/user_model.dart';
+import 'package:mybudget/presentation/providers/auth_provider.dart';
+import 'package:mybudget/presentation/providers/account_provider.dart';
+import 'package:mybudget/presentation/providers/category_provider.dart';
+import 'package:mybudget/presentation/providers/expense_provider.dart';
+import 'package:mybudget/presentation/providers/revenue_provider.dart';
+import 'package:mybudget/presentation/providers/theme_provider.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    // Fichier .env non trouvé, mais ce n'est pas bloquant
+  }
+
+  final hiveService = HiveService();
+  await hiveService.init();
+  
+  // Enregistrer les adaptateurs
+  hiveService.registerAdapter(CategoryModelAdapter());
+  hiveService.registerAdapter(UserModelAdapter());
+
+  final container = ProviderContainer();
+  
+  // Précharger les données au démarrage
+  container.read(accountNotifierProvider.notifier).getAccounts();
+  container.read(expenseNotifierProvider.notifier).getExpenses();
+  container.read(revenueNotifierProvider.notifier).getRevenues();
+  container.read(categoryNotifierProvider.notifier).getCategories();
+  container.read(authProvider.notifier).getCurrentUser();
+
+  runApp(ProviderScope(parent: container, child: const MyApp()));
 }
 
-final _router = GoRouter(
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
-    GoRoute(path: '/expenses', builder: (context, state) => const ExpensesScreen()),
-    GoRoute(path: '/revenues', builder: (context, state) => const RevenuesScreen()),
-    GoRoute(path: '/accounts', builder: (context, state) => const AccountsScreen()),
-  ],
-);
+// On utilise le routeurProvider défini dans auth_middleware.dart
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-
-
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+    
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'My Budget',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      routerConfig: _router,
-
+      themeMode: themeMode,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/home': (context) => const DashboardScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/expenses': (context) => const ExpensesScreen(),
+        '/revenues': (context) => const RevenuesScreen(),
+        '/accounts': (context) => const AccountsScreen(),
+        '/settings': (context) => const SettingsScreen(),
+      },
     );
   }
 }
-
-

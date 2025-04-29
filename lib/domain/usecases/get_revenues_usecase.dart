@@ -1,4 +1,3 @@
-import 'package:mybudget/core/errors/failure.dart';
 import 'package:mybudget/core/usecases/usecase.dart';
 import 'package:mybudget/domain/entities/revenue.dart';
 import 'package:mybudget/domain/repositories/revenue_repository.dart';

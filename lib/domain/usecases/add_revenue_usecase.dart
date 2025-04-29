@@ -1,5 +1,4 @@
 import 'package:mybudget/core/usecases/usecase.dart';
-import 'package:mybudget/core/usecases/usecase.dart';
 import 'package:mybudget/domain/entities/revenue.dart';
 import 'package:mybudget/domain/repositories/revenue_repository.dart';
 
@@ -18,6 +17,4 @@ class AddRevenueParams {
   final Revenue revenue;
 
   AddRevenueParams(this.revenue);
-
-  
 }

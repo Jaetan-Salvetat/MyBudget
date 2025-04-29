@@ -1,11 +1,13 @@
-class Account {
+abstract class Account {
   final String id;
   final String name;
-  final double balance;
+  final String bank;
 
   Account({
     required this.id,
     required this.name,
-    required this.balance,
+    required this.bank,
   });
+
+  Map<String, dynamic> toJson();
 }

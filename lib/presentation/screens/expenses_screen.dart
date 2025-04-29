@@ -1,15 +1,346 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/common/app_scaffold.dart';
+import '../providers/expense_provider.dart';
+import '../providers/account_provider.dart';
+import '../../domain/entities/expense.dart';
+import '../widgets/expenses/expense_form.dart';
 
-class ExpensesScreen extends StatelessWidget {
+class ExpensesScreen extends ConsumerWidget {
   const ExpensesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Expenses'),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AppScaffold(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Dépenses'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () {
+                // Fonctionnalité de filtrage à ajouter
+              },
+            ),
+          ],
+        ),
+        body: const ExpensesList(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => ExpenseForm(
+                    accounts: ref.read(accountNotifierProvider),
+                    onSubmit: (expense) {
+                      ref
+                          .read(expenseNotifierProvider.notifier)
+                          .addExpense(expense);
+                      Navigator.of(context).pop();
+                    },
+                    onCancel: () => Navigator.of(context).pop(),
+                  ),
+            );
+          },
+          tooltip: 'Ajouter une dépense',
+          child: const Icon(Icons.add),
+        ),
       ),
-      body: const Placeholder(),
     );
+  }
+}
+
+class ExpensesList extends ConsumerWidget {
+  const ExpensesList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expenses = ref.watch(expenseNotifierProvider);
+    final accounts = ref.watch(accountNotifierProvider);
+
+    if (expenses.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.money_off,
+              size: 72,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Aucune dépense enregistrée',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => ExpenseForm(
+                        accounts: ref.read(accountNotifierProvider),
+                        onSubmit: (expense) {
+                          ref
+                              .read(expenseNotifierProvider.notifier)
+                              .addExpense(expense);
+                          Navigator.of(context).pop();
+                        },
+                        onCancel: () => Navigator.of(context).pop(),
+                      ),
+                );
+              },
+              child: const Text('Ajouter une dépense'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: expenses.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final expense = expenses[index];
+        // Récupérer le compte associé à la dépense
+        // S'assurer que le type est correct (Account)
+        final account =
+            accounts.isNotEmpty
+                ? accounts.firstWhere(
+                  (a) => a.id == expense.accountId,
+                  orElse: () => accounts.first,
+                )
+                : null;
+
+        return ExpenseCard(
+          expense: expense,
+          accountName: account?.name ?? 'Compte inconnu',
+          onDelete: () {
+            ref
+                .read(expenseNotifierProvider.notifier)
+                .deleteExpense(expense.id);
+          },
+          onEdit: () {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => ExpenseForm(
+                    expense: expense,
+                    accounts: ref.read(accountNotifierProvider),
+                    onSubmit: (updatedExpense) {
+                      ref
+                          .read(expenseNotifierProvider.notifier)
+                          .updateExpense(updatedExpense);
+                      Navigator.of(context).pop();
+                    },
+                    onCancel: () => Navigator.of(context).pop(),
+                  ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class ExpenseCard extends StatelessWidget {
+  final Expense expense;
+  final String accountName;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  const ExpenseCard({
+    required this.expense,
+    required this.accountName,
+    required this.onDelete,
+    required this.onEdit,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.error.withOpacity(0.2),
+                    child: Icon(
+                      _getCategoryIcon(expense.category),
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          accountName,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${expense.amount.toStringAsFixed(2)} €',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Chip(
+                    label: Text(expense.category),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceVariant,
+                  ),
+                  Row(
+                    children: [
+                      if (expense.frequency != 'Unique')
+                        Chip(
+                          label: Text(expense.frequency),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primaryContainer,
+                          labelStyle: TextStyle(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      const SizedBox(width: 8),
+                      Chip(
+                        label: Text(
+                          _formatDate(expense.date, expense.frequency),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        labelStyle: TextStyle(
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: const Text('Confirmer la suppression'),
+                              content: Text(
+                                'Voulez-vous vraiment supprimer ${expense.name} ?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Annuler'),
+                                ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                  onPressed: () {
+                                    onDelete();
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Supprimer'),
+                                ),
+                              ],
+                            ),
+                      );
+                    },
+                  ),
+                  IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Alimentation':
+        return Icons.restaurant;
+      case 'Transport':
+        return Icons.directions_car;
+      case 'Logement':
+        return Icons.home;
+      case 'Loisirs':
+        return Icons.sports_esports;
+      case 'Santé':
+        return Icons.medical_services;
+      case 'Vêtements':
+        return Icons.shopping_bag;
+      default:
+        return Icons.category;
+    }
+  }
+
+  String _formatDate(DateTime date, String frequency) {
+    switch (frequency) {
+      case 'Unique':
+        return '${date.day}/${date.month}/${date.year}';
+      case 'Mensuel':
+        return 'Jour ${date.day}';
+      case 'Hebdomadaire':
+        final days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        return days[date.weekday % 7];
+      case 'Annuel':
+        final months = [
+          'Jan',
+          'Fév',
+          'Mar',
+          'Avr',
+          'Mai',
+          'Juin',
+          'Juil',
+          'Août',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Déc',
+        ];
+        return '${date.day} ${months[date.month - 1]}';
+      default:
+        return '${date.day}/${date.month}/${date.year}';
+    }
   }
 }
