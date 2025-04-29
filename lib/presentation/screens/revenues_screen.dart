@@ -4,7 +4,8 @@ import '../widgets/common/app_scaffold.dart';
 import '../providers/revenue_provider.dart';
 import '../providers/account_provider.dart';
 import '../../domain/entities/revenue.dart';
-import '../widgets/revenues/revenue_form.dart';
+import '../../domain/entities/account.dart';
+import '../widgets/revenues/revenue_bottom_sheet.dart';
 
 class RevenuesScreen extends ConsumerWidget {
   const RevenuesScreen({super.key});
@@ -12,40 +13,26 @@ class RevenuesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppScaffold(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Revenus'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.filter_list),
-              onPressed: () {
-                // Fonctionnalité de filtrage à ajouter
-              },
-            ),
-          ],
-        ),
-        body: const RevenuesList(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder:
-                  (context) => RevenueForm(
-                    accounts: ref.read(accountNotifierProvider),
-                    onSubmit: (revenue) {
-                      ref
-                          .read(revenueNotifierProvider.notifier)
-                          .addRevenue(revenue);
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () => Navigator.of(context).pop(),
-                  ),
-            );
-          },
-          tooltip: 'Ajouter un revenu',
-          child: const Icon(Icons.add),
-        ),
+      title: 'Revenus',
+      useNestedAppBar: false,
+      child: const RevenuesList(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddRevenueBottomSheet(context, ref),
+        tooltip: 'Ajouter un revenu',
+        child: const Icon(Icons.add),
       ),
+    );
+  }
+  
+  void _showAddRevenueBottomSheet(BuildContext context, WidgetRef ref) {
+    RevenueBottomSheet.show(
+      context: context,
+      accounts: ref.read(accountNotifierProvider),
+      onSubmit: (revenue) {
+        ref.read(revenueNotifierProvider.notifier).addRevenue(revenue);
+        Navigator.of(context).pop();
+      },
+      onCancel: () => Navigator.of(context).pop(),
     );
   }
 }
@@ -76,19 +63,16 @@ class RevenuesList extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                showDialog(
+                RevenueBottomSheet.show(
                   context: context,
-                  builder:
-                      (context) => RevenueForm(
-                        accounts: ref.read(accountNotifierProvider),
-                        onSubmit: (revenue) {
-                          ref
-                              .read(revenueNotifierProvider.notifier)
-                              .addRevenue(revenue);
-                          Navigator.of(context).pop();
-                        },
-                        onCancel: () => Navigator.of(context).pop(),
-                      ),
+                  accounts: ref.read(accountNotifierProvider),
+                  onSubmit: (revenue) {
+                    ref
+                        .read(revenueNotifierProvider.notifier)
+                        .addRevenue(revenue);
+                    Navigator.of(context).pop();
+                  },
+                  onCancel: () => Navigator.of(context).pop(),
                 );
               },
               child: const Text('Ajouter un revenu'),
@@ -99,20 +83,22 @@ class RevenuesList extends ConsumerWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
       itemCount: revenues.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final revenue = revenues[index];
         // Récupérer le compte associé au revenu
-        // S'assurer que le type est correct (Account)
-        final account =
-            accounts.isNotEmpty
-                ? accounts.firstWhere(
-                  (a) => a.id == revenue.accountId,
-                  orElse: () => accounts.first,
-                )
-                : null;
+        // Recherche du compte associé au revenu
+        Account? account;
+        if (accounts.isNotEmpty) {
+          try {
+            account = accounts.firstWhere((a) => a.id == revenue.accountId);
+          } catch (_) {
+            // Si aucun compte correspondant n'est trouvé, on utilise le premier
+            account = accounts.first;
+          }
+        }
 
         return RevenueCard(
           revenue: revenue,
@@ -123,20 +109,17 @@ class RevenuesList extends ConsumerWidget {
                 .deleteRevenue(revenue.id);
           },
           onEdit: () {
-            showDialog(
+            RevenueBottomSheet.show(
               context: context,
-              builder:
-                  (context) => RevenueForm(
-                    revenue: revenue,
-                    accounts: ref.read(accountNotifierProvider),
-                    onSubmit: (updatedRevenue) {
-                      ref
-                          .read(revenueNotifierProvider.notifier)
-                          .updateRevenue(updatedRevenue);
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () => Navigator.of(context).pop(),
-                  ),
+              accounts: ref.read(accountNotifierProvider),
+              revenue: revenue,
+              onSubmit: (updatedRevenue) {
+                ref
+                    .read(revenueNotifierProvider.notifier)
+                    .updateRevenue(updatedRevenue);
+                Navigator.of(context).pop();
+              },
+              onCancel: () => Navigator.of(context).pop(),
             );
           },
         );
