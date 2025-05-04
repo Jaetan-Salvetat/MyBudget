@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/domain/entities/account.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 import 'package:mybudget/domain/entities/revenue.dart';
-import 'package:mybudget/presentation/providers/account_provider.dart';
-import 'package:mybudget/presentation/providers/expense_provider.dart';
-import 'package:mybudget/presentation/providers/revenue_provider.dart';
+import 'package:mybudget/core/controllers/account_controller.dart';
+import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/controllers/revenue_controller.dart';
 
 import 'package:mybudget/presentation/widgets/common/financial_card.dart';
 import 'package:mybudget/presentation/widgets/common/filter_chip.dart';
@@ -17,14 +17,18 @@ import 'package:mybudget/presentation/widgets/dashboard/section_header.dart';
 import 'package:mybudget/presentation/widgets/dashboard/empty_state.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final accounts = ref.watch(accountNotifierProvider);
-    final expenses = ref.watch(expenseNotifierProvider);
-    final revenues = ref.watch(revenueNotifierProvider);
+  Widget build(BuildContext context) {
+    final accountController = Get.find<AccountController>();
+    final expenseController = Get.find<ExpenseController>();
+    final revenueController = Get.find<RevenueController>();
+    
+    final accounts = accountController.accounts;
+    final expenses = expenseController.expenses;
+    final revenues = revenueController.revenues;
 
     final monthlyExpenses = _calculateMonthlyExpenses(expenses);
     final monthlyRevenues = _calculateMonthlyRevenues(revenues);
@@ -35,23 +39,23 @@ class DashboardScreen extends ConsumerWidget {
     return AppScaffold(
       title: 'MyBudget',
       child: Scaffold(
-        body:
-            accounts.isEmpty && expenses.isEmpty && revenues.isEmpty
-                ? EmptyDashboardState(
-                  onSetupPressed:
-                      () => Navigator.pushNamed(context, '/accounts'),
-                )
-                : _buildDashboard(
-                  context,
-                  netCashFlow,
-                  monthlyExpenses,
-                  monthlyRevenues,
-                  netCashFlow,
-                  savingsRate,
-                  accounts,
-                  expenses,
-                  revenues,
-                ),
+        body: Obx(() => 
+          accounts.isEmpty && expenses.isEmpty && revenues.isEmpty
+            ? EmptyDashboardState(
+                onSetupPressed: () => Get.toNamed('/accounts'),
+              )
+            : _buildDashboard(
+                context,
+                netCashFlow,
+                monthlyExpenses,
+                monthlyRevenues,
+                netCashFlow,
+                savingsRate,
+                accounts,
+                expenses,
+                revenues,
+              ),
+        ),
       ),
     );
   }
@@ -150,8 +154,7 @@ class DashboardScreen extends ConsumerWidget {
                         return AccountCard(
                           account: accounts[index],
                           formatter: formatter,
-                          onTap:
-                              () => Navigator.pushNamed(context, '/accounts'),
+                          onTap: () => Get.toNamed('/accounts'),
                         );
                       },
                     ),
@@ -161,7 +164,7 @@ class DashboardScreen extends ConsumerWidget {
           SectionHeader(
             title: 'Transactions récentes',
             actionText: 'Voir tout',
-            onActionPressed: () => Navigator.pushNamed(context, '/expenses'),
+            onActionPressed: () => Get.toNamed('/expenses'),
           ),
 
           // Filtres de transactions
@@ -174,25 +177,19 @@ class DashboardScreen extends ConsumerWidget {
                   CustomFilterChip(
                     label: 'Tout',
                     route: '/home',
-                    onTap:
-                        (route) =>
-                            Navigator.pushReplacementNamed(context, route),
+                    onTap: (route) => Get.offAllNamed(route),
                   ),
                   const SizedBox(width: 8),
                   CustomFilterChip(
                     label: 'Dépenses',
                     route: '/expenses',
-                    onTap:
-                        (route) =>
-                            Navigator.pushReplacementNamed(context, route),
+                    onTap: (route) => Get.offAllNamed(route),
                   ),
                   const SizedBox(width: 8),
                   CustomFilterChip(
                     label: 'Revenus',
                     route: '/revenues',
-                    onTap:
-                        (route) =>
-                            Navigator.pushReplacementNamed(context, route),
+                    onTap: (route) => Get.offAllNamed(route),
                   ),
                 ],
               ),

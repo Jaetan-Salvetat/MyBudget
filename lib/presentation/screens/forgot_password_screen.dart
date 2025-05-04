@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/presentation/widgets/auth/auth_background.dart';
 import 'package:mybudget/presentation/widgets/auth/auth_button.dart';
 import 'package:mybudget/presentation/widgets/auth/auth_text_field.dart';
 
-class ForgotPasswordScreen extends ConsumerStatefulWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
   bool _success = false;
@@ -67,7 +67,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return AuthBackground(
       title: 'Mot de passe oublié',
-      onBackPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+      onBackPressed: () => Get.offAllNamed('/login'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -191,7 +191,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       const SizedBox(height: 32),
                       AuthButton(
                         label: 'Retour à la connexion',
-                        onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                        onPressed: () => Get.offAllNamed('/login'),
                         isPrimary: false,
                       ),
                     ],

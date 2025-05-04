@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/presentation/screens/accounts_screen.dart';
 import 'package:mybudget/presentation/screens/dashboard_screen.dart';
 import 'package:mybudget/presentation/screens/expenses_screen.dart';
-import 'package:mybudget/presentation/screens/login_screen.dart';
-import 'package:mybudget/presentation/screens/register_screen.dart';
 import 'package:mybudget/presentation/screens/revenues_screen.dart';
 import 'package:mybudget/presentation/screens/settings_screen.dart';
-import 'package:mybudget/presentation/screens/forgot_password_screen.dart';
 import 'package:mybudget/presentation/screens/splash_screen.dart';
-import 'package:mybudget/core/services/hive_service.dart';
+import 'package:mybudget/presentation/screens/phone_input_screen.dart';
+import 'package:mybudget/presentation/screens/otp_verification_screen.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/data/models/category_model.dart';
-import 'package:mybudget/data/models/privacy_settings_model.dart';
-import 'package:mybudget/data/models/user_model.dart';
-import 'package:mybudget/presentation/providers/auth_provider.dart';
-import 'package:mybudget/presentation/providers/account_provider.dart';
-import 'package:mybudget/presentation/providers/category_provider.dart';
-import 'package:mybudget/presentation/providers/expense_provider.dart';
-import 'package:mybudget/presentation/providers/revenue_provider.dart';
-import 'package:mybudget/presentation/providers/theme_provider.dart';
+import 'package:mybudget/core/controllers/index.dart';
+import 'package:mybudget/core/controllers/theme_controller.dart';
+import 'package:mybudget/core/services/appwrite_service.dart';
+import 'package:mybudget/core/routes/app_routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,56 +21,52 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (e) {
-    // Fichier .env non trouvé, mais ce n'est pas bloquant
   }
-
-  final hiveService = HiveService();
-  await hiveService.init();
   
-  // Enregistrer les adaptateurs
-  hiveService.registerAdapter(CategoryModelAdapter());
-  hiveService.registerAdapter(UserModelAdapter());
-  hiveService.registerAdapter(PrivacySettingsModelAdapter());
+  initDependencies();
+  initControllers();
 
-  final container = ProviderContainer();
-  
-  // Précharger les données au démarrage
-  container.read(accountNotifierProvider.notifier).getAccounts();
-  container.read(expenseNotifierProvider.notifier).getExpenses();
-  container.read(revenueNotifierProvider.notifier).getRevenues();
-  container.read(categoryNotifierProvider.notifier).getCategories();
-  container.read(authProvider.notifier).getCurrentUser();
+  runApp(const MyApp());
+}
 
-  runApp(ProviderScope(parent: container, child: const MyApp()));
+void initDependencies() {
+  Get.put(AppwriteService(), permanent: true);
+}
+
+void initControllers() {
+  Get.put(AuthController(), permanent: true);
+  Get.put(AccountController(), permanent: true);
+  Get.put(CategoryController(), permanent: true);
+  Get.put(ExpenseController(), permanent: true);
+  Get.put(RevenueController(), permanent: true);
+  Get.put(PrivacyController(), permanent: true);
+  Get.put(ThemeController(), permanent: true);
 }
 
 // On utilise le routeurProvider défini dans auth_middleware.dart
 
-class MyApp extends ConsumerWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
-    
-    return MaterialApp(
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'My Budget',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      themeMode: ThemeMode.system,
       initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const DashboardScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/expenses': (context) => const ExpensesScreen(),
-        '/revenues': (context) => const RevenuesScreen(),
-        '/accounts': (context) => const AccountsScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-      },
+      getPages: [
+        GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
+        GetPage(name: AppRoutes.dashboard, page: () => const DashboardScreen()),
+        GetPage(name: AppRoutes.phoneInput, page: () => const PhoneInputScreen()),
+        GetPage(name: AppRoutes.otpVerification, page: () => const OtpVerificationScreen()),
+        GetPage(name: AppRoutes.expenses, page: () => const ExpensesScreen()),
+        GetPage(name: AppRoutes.revenues, page: () => const RevenuesScreen()),
+        GetPage(name: AppRoutes.accounts, page: () => const AccountsScreen()),
+        GetPage(name: AppRoutes.settings, page: () => const SettingsScreen()),
+      ],
     );
   }
 }

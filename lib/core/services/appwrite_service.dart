@@ -1,31 +1,30 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
-final appwriteClientProvider = Provider<Client>((ref) {
-  final client = Client();
+class AppwriteService extends GetxService {
+  late Client client;
+  late Account account;
+  late Databases databases;
 
-  final endpoint = dotenv.env['APPWRITE_ENDPOINT'] ?? '';
-  final projectId = dotenv.env['APPWRITE_PROJECT_ID'] ?? '';
+  AppwriteService() {
+    client = Client();
+    
+    final endpoint = dotenv.env['APPWRITE_ENDPOINT'] ?? '';
+    final projectId = dotenv.env['APPWRITE_PROJECT_ID'] ?? '';
 
-  client
-      .setEndpoint(endpoint)
-      .setProject(projectId)
-      .setSelfSigned(status: kDebugMode); // Active uniquement en mode debug
+    client
+        .setEndpoint(endpoint)
+        .setProject(projectId)
+        .setSelfSigned(status: kDebugMode); // Active uniquement en mode debug
 
-  return client;
-});
+    account = Account(client);
+    databases = Databases(client);
+  }
 
-final appwriteAccountProvider = Provider<Account>((ref) {
-  final client = ref.watch(appwriteClientProvider);
-  return Account(client);
-});
-
-final appwriteDatabaseProvider = Provider<Databases>((ref) {
-  final client = ref.watch(appwriteClientProvider);
-  return Databases(client);
-});
+  static AppwriteService get to => Get.find<AppwriteService>();
+}
 
 class AppwriteConstants {
   static String get databaseId => dotenv.env['APPWRITE_DATABASE_ID'] ?? '';

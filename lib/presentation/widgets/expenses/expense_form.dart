@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 import 'package:mybudget/domain/entities/account.dart';
 import 'package:mybudget/domain/entities/expense.dart';
-import 'package:mybudget/presentation/providers/category_provider.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 import 'package:mybudget/presentation/widgets/common/app_dropdown_field.dart';
 import 'package:mybudget/presentation/widgets/expenses/adaptive_date_picker.dart';
 import 'package:mybudget/presentation/widgets/expenses/frequency_selector.dart';
 
-class ExpenseForm extends ConsumerStatefulWidget {
+class ExpenseForm extends StatefulWidget {
   final List<Account> accounts;
   final Expense? expense;
   final Function(Expense) onSubmit;
@@ -24,10 +24,10 @@ class ExpenseForm extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExpenseForm> createState() => _ExpenseFormState();
+  State<ExpenseForm> createState() => _ExpenseFormState();
 }
 
-class _ExpenseFormState extends ConsumerState<ExpenseForm> {
+class _ExpenseFormState extends State<ExpenseForm> {
   final nameController = TextEditingController();
   final amountController = TextEditingController();
   String selectedCategory = '';
@@ -47,7 +47,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     super.initState();
 
     Future.microtask(() {
-      final categories = ref.read(categoryNotifierProvider);
+      final categoryController = Get.find<CategoryController>();
+      final categories = categoryController.categories;
       if (categories.isNotEmpty && selectedCategory.isEmpty) {
         setState(() {
           selectedCategory = categories.first.name;
@@ -130,7 +131,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               label: 'Catégorie',
               icon: Icons.category,
               items:
-                  ref.watch(categoryNotifierProvider).map((category) {
+                  Get.find<CategoryController>().categories.map((category) {
                     return DropdownMenuItem(
                       value: category.name,
                       child: Row(

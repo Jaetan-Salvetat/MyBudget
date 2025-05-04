@@ -1,62 +1,45 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/core/services/appwrite_service.dart';
 import 'package:mybudget/data/models/user_model.dart';
 
-final authDataSourceProvider = Provider<AuthDataSource>((ref) {
-  final account = ref.watch(appwriteAccountProvider);
-  return AuthDataSourceImpl(account);
-});
-
-abstract class AuthDataSource {
-  Future<UserModel?> getCurrentUser();
-  Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String name, String email, String password);
-  Future<void> logout();
-}
-
-class AuthDataSourceImpl implements AuthDataSource {
-  final Account _account;
-
-  AuthDataSourceImpl(this._account);
-
-  @override
+class AuthDatasource {
+  final AppwriteService _appwriteService = Get.find<AppwriteService>();
+  
   Future<UserModel?> getCurrentUser() async {
     try {
-      final user = await _account.get();
+      final user = await _appwriteService.account.get();
       return _mapUserToUserModel(user);
     } catch (e) {
       return null;
     }
   }
 
-  @override
   Future<UserModel> login(String email, String password) async {
     try {
-      await _account.createEmailPasswordSession(
+      await _appwriteService.account.createEmailPasswordSession(
         email: email,
         password: password
       );
       
-      final user = await _account.get();
+      final user = await _appwriteService.account.get();
       return _mapUserToUserModel(user);
     } catch (e) {
       throw _handleAuthException(e);
     }
   }
 
-  @override
   Future<UserModel> register(String name, String email, String password) async {
     try {
-      final user = await _account.create(
+      final user = await _appwriteService.account.create(
         userId: ID.unique(),
         email: email,
         password: password,
         name: name
       );
       
-      await _account.createEmailPasswordSession(
+      await _appwriteService.account.createEmailPasswordSession(
         email: email,
         password: password
       );
@@ -67,10 +50,20 @@ class AuthDataSourceImpl implements AuthDataSource {
     }
   }
 
-  @override
   Future<void> logout() async {
     try {
-      await _account.deleteSessions();
+      await _appwriteService.account.deleteSession(sessionId: 'current');
+    } catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await _appwriteService.account.createRecovery(
+        email: email,
+        url: 'https://mybudget.com/reset-password'
+      );
     } catch (e) {
       throw _handleAuthException(e);
     }
@@ -87,17 +80,15 @@ class AuthDataSourceImpl implements AuthDataSource {
 
   Exception _handleAuthException(dynamic e) {
     if (e is AppwriteException) {
-      switch (e.code) {
-        case 401:
-          return Exception('Email ou mot de passe incorrect');
-        case 409:
-          return Exception('Un compte existe déjà avec cet email');
-        case 429:
-          return Exception('Trop de tentatives de connexion, réessayez plus tard');
-        default:
-          return Exception('Erreur de connexion: ${e.message}');
+      if (e.code == 401) {
+        return Exception('Email ou mot de passe incorrect');
+      } else if (e.code == 409) {
+        return Exception('Un compte existe déjà avec cette adresse email');
+      } else if (e.code == 429) {
+        return Exception('Trop de tentatives, veuillez réessayer plus tard');
       }
+      return Exception('Erreur: ${e.message}');
     }
-    return Exception('Erreur inconnue: $e');
+    return Exception('Une erreur est survenue: ${e.toString()}');
   }
 }

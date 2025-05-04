@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mybudget/domain/entities/account.dart';
+import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
 
 class AccountBottomSheet extends StatefulWidget {
-  final Account? account;
+  final AccountModel? account;
   final Function(String name, String bank) onSubmit;
   final Function() onCancel;
 
@@ -19,7 +19,7 @@ class AccountBottomSheet extends StatefulWidget {
     required BuildContext context,
     required Function(String name, String bank) onSubmit,
     required Function() onCancel,
-    Account? account,
+    AccountModel? account,
   }) {
     return AppModalBottomSheet.show(
       context: context,

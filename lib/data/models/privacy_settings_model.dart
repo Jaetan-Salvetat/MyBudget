@@ -1,17 +1,8 @@
-import 'package:hive/hive.dart';
 import 'package:mybudget/domain/entities/privacy_settings.dart';
 
-part 'privacy_settings_model.g.dart';
-
-@HiveType(typeId: 6)
 class PrivacySettingsModel implements PrivacySettings {
-  @HiveField(0)
   final bool _privacyPolicyAccepted;
-
-  @HiveField(1)
   final bool _marketingConsent;
-
-  @HiveField(2)
   final DateTime _consentDate;
 
   PrivacySettingsModel({

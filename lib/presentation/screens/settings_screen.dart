@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mybudget/presentation/providers/account_provider.dart';
-import 'package:mybudget/presentation/providers/auth_provider.dart';
-import 'package:mybudget/presentation/providers/expense_provider.dart';
-import 'package:mybudget/presentation/providers/revenue_provider.dart';
-import 'package:mybudget/presentation/providers/theme_provider.dart';
+import 'package:get/get.dart';
+import 'package:mybudget/core/controllers/auth_controller.dart';
+import 'package:mybudget/core/controllers/account_controller.dart';
+import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/controllers/revenue_controller.dart';
+import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/data_privacy_bottom_sheet.dart';
@@ -13,19 +13,21 @@ import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
 import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class SettingsScreen extends ConsumerStatefulWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   PackageInfo? packageInfo;
+  late ThemeController themeController;
 
   @override
   void initState() {
     super.initState();
+    themeController = Get.find<ThemeController>();
     _loadPackageInfo();
   }
 
@@ -36,7 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       message: 'Voulez-vous vraiment vous déconnecter ?',
       cancelLabel: 'Annuler',
       confirmLabel: 'Déconnexion',
-      onConfirm: () => ref.read(authProvider.notifier).logout(),
+      onConfirm: () => Get.find<AuthController>().logout(),
     );
   }
 
@@ -49,184 +51,164 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeProvider);
-    final authState = ref.watch(authProvider);
-    final isUserConnected = authState.value != null && authState.value!.isAuthenticated;
+    final authController = Get.find<AuthController>();
 
     return AppScaffold(
       title: 'Paramètres',
-      child: ListView(
-        padding: const EdgeInsets.only(
-          top: 130,
-          bottom: 16,
-          left: 16,
-          right: 16,
-        ),
-        children: [
-          SettingsSection(
-            title: 'Compte',
-            children: [
-              if (authState.value != null && authState.value!.isAuthenticated)
-                SettingsTile(
-                  title: 'Déconnexion',
-                  subtitle:
-                      'Connecté en tant que ${authState.value?.email ?? ""}',
-                  leading: const Icon(Icons.logout),
-                  onTap: () => _showLogoutConfirmationDialog(context),
-                )
-              else
-                SettingsTile(
-                  title: 'Connexion / Inscription',
-                  subtitle: 'Connectez-vous pour synchroniser vos données',
-                  leading: const Icon(Icons.login),
-                  onTap: () => Navigator.pushNamed(context, '/login'),
-                ),
-            ],
+      child: Obx(() {
+        final isUserConnected = authController.isAuthenticated;
+        
+        return ListView(
+          padding: const EdgeInsets.only(
+            top: 130,
+            bottom: 16,
+            left: 16,
+            right: 16,
           ),
-          SettingsSection(
-            title: 'Apparence',
-            children: [
-              SettingsTile(
-                title: 'Thème',
-                subtitle: _getThemeNameFromMode(themeMode),
-                leading: const Icon(Icons.brightness_6),
-                onTap: () {
-                  _showThemeSelectionDialog(context, themeMode);
-                },
-              ),
-            ],
-          ),
-          SettingsSection(
-            title: 'Catégories',
-            children: [
-              SettingsTile(
-                title: 'Gérer les catégories',
-                subtitle: 'Ajouter, modifier ou supprimer des catégories',
-                leading: const Icon(Icons.category),
-                onTap: () => CategoriesBottomSheet.show(context: context),
-              ),
-            ],
-          ),
-          if (isUserConnected)
+          children: [
             SettingsSection(
-              title: 'Données personnelles',
+              title: 'Compte',
+              children: [
+                if (isUserConnected)
+                  SettingsTile(
+                    title: 'Déconnexion',
+                    subtitle:
+                        'Connecté en tant que ${authController.user.value?.email ?? ""}',
+                    leading: const Icon(Icons.logout),
+                    onTap: () => _showLogoutConfirmationDialog(context),
+                  )
+                else
+                  SettingsTile(
+                    title: 'Connexion / Inscription',
+                    subtitle: 'Connectez-vous pour synchroniser vos données',
+                    leading: const Icon(Icons.login),
+                    onTap: () => Get.toNamed('/login'),
+                  ),
+              ],
+            ),
+            SettingsSection(
+              title: 'Apparence',
               children: [
                 SettingsTile(
-                  title: 'Confidentialité et RGPD',
-                  subtitle: 'Gérer vos données personnelles',
-                  leading: const Icon(Icons.privacy_tip),
-                  onTap: () => DataPrivacyBottomSheet.show(context: context),
-                ),
-                SettingsTile(
-                  title: 'Politique de confidentialité',
-                  subtitle: 'Consulter notre politique de confidentialité',
-                  leading: const Icon(Icons.policy),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
-                  ),
+                  title: 'Thème',
+                  subtitle: _getThemeNameFromMode(themeController.themeMode),
+                  leading: const Icon(Icons.brightness_6),
+                  onTap: () {
+                    _showThemeSelectionDialog(context, themeController.themeMode);
+                  },
                 ),
               ],
             ),
-          SettingsSection(
-            title: 'Données',
-            children: [
-              SettingsTile(
-                title: 'Effacer les données',
-                subtitle: 'Supprimer définitivement toutes les données de l\'application',
-                leading: Icon(
-                  Icons.delete_forever,
-                  color: Theme.of(context).colorScheme.error,
+            SettingsSection(
+              title: 'Catégories',
+              children: [
+                SettingsTile(
+                  title: 'Gérer les catégories',
+                  subtitle: 'Ajouter, modifier ou supprimer des catégories',
+                  leading: const Icon(Icons.category),
+                  onTap: () => CategoriesBottomSheet.show(context: context),
                 ),
-                onTap: () {
-                  _showDeleteDataConfirmationDialog(context);
-                },
+              ],
+            ),
+            if (isUserConnected)
+              SettingsSection(
+                title: 'Données et confidentialité',
+                children: [
+                  SettingsTile(
+                    title: 'Politique de confidentialité',
+                    subtitle: 'Consultez notre politique de confidentialité',
+                    leading: const Icon(Icons.privacy_tip),
+                    onTap: () => Get.to(() => const PrivacyPolicyScreen()),
+                  ),
+                  SettingsTile(
+                    title: 'Gestion des données',
+                    subtitle: 'Gérer vos préférences de données',
+                    leading: const Icon(Icons.data_usage),
+                    onTap: () => DataPrivacyBottomSheet.show(context: context),
+                  ),
+                  SettingsTile(
+                    title: 'Supprimer toutes les données',
+                    subtitle: 'Supprime toutes vos données de l\'application',
+                    leading: const Icon(Icons.delete_forever, color: Colors.red),
+                    onTap: () => _showDeleteDataConfirmationDialog(context),
+                  ),
+                ],
               ),
-            ],
-          ),
-          SettingsSection(
-            title: 'À propos',
-            children: [
-              SettingsTile(
-                title: 'Version',
-                subtitle:
-                    packageInfo != null
-                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                        : 'Chargement...',
-                leading: const Icon(Icons.info_outline),
-              ),
-              SettingsTile(
-                title: 'Développeur',
-                subtitle: 'Jaetan Salvetat',
-                leading: const Icon(Icons.code),
-              ),
-            ],
-          ),
-        ],
-      ),
+            SettingsSection(
+              title: 'À propos',
+              children: [
+                SettingsTile(
+                  title: 'Version',
+                  subtitle: packageInfo?.version ?? 'Chargement...',
+                  leading: const Icon(Icons.info),
+                  onTap: null,
+                ),
+              ],
+            ),
+          ],
+        );
+      }),
     );
   }
 
   String _getThemeNameFromMode(ThemeMode mode) {
     switch (mode) {
+      case ThemeMode.system:
+        return 'Système';
       case ThemeMode.light:
         return 'Clair';
       case ThemeMode.dark:
         return 'Sombre';
-      case ThemeMode.system:
+      default:
         return 'Système';
     }
   }
 
-  void _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) {
+  Future<void> _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) async {
     ThemeBottomSheet.show(
       context: context,
+      onThemeSelected: (mode) => themeController.changeTheme(mode),
       currentMode: currentMode,
-      onThemeSelected: (ThemeMode value) {
-        ref.read(themeProvider.notifier).setTheme(value);
-      },
     );
   }
 
-  void _showDeleteDataConfirmationDialog(BuildContext context) {
-    DialogBottomSheet.showConfirmation(
+  Future<void> _showDeleteDataConfirmationDialog(BuildContext context) async {
+    return DialogBottomSheet.showConfirmation(
       context: context,
-      title: 'Effacer toutes les données',
-      message:
-          'Êtes-vous sûr de vouloir supprimer définitivement toutes les données ? Cette action est irréversible.',
+      title: 'Supprimer toutes les données',
+      message: 'Cette action supprimera définitivement toutes vos données. '
+          'Cette action est irréversible. Êtes-vous sûr de vouloir continuer ?',
       cancelLabel: 'Annuler',
       confirmLabel: 'Supprimer',
       isDestructive: true,
       onConfirm: () async {
-        final accountNotifier = ref.read(accountNotifierProvider.notifier);
-        final expenseNotifier = ref.read(expenseNotifierProvider.notifier);
-        final revenueNotifier = ref.read(revenueNotifierProvider.notifier);
+        final accountController = Get.find<AccountController>();
+        final expenseController = Get.find<ExpenseController>();
+        final revenueController = Get.find<RevenueController>();
 
-        final accountsList = ref.read(accountNotifierProvider);
-        final expensesList = ref.read(expenseNotifierProvider);
-        final revenuesList = ref.read(revenueNotifierProvider);
+        final accountsList = accountController.accounts;
+        final expensesList = expenseController.expenses;
+        final revenuesList = revenueController.revenues;
 
         // Supprimer les transactions d'abord
         for (final expense in expensesList) {
-          expenseNotifier.deleteExpense(expense.id);
+          expenseController.deleteExpense(expense.id);
         }
 
         for (final revenue in revenuesList) {
-          revenueNotifier.deleteRevenue(revenue.id);
+          revenueController.deleteRevenue(revenue.id);
         }
 
         // Supprimer les comptes ensuite
         for (final account in accountsList) {
-          accountNotifier.deleteAccount(account.id);
+          accountController.deleteAccount(account.id);
         }
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Toutes les données ont été supprimées'),
-            ),
-          );
-        }
+        Get.snackbar(
+          'Suppression terminée',
+          'Toutes les données ont été supprimées',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       },
     );
   }

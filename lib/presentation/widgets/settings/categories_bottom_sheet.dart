@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/data/models/category_model.dart';
 import 'package:mybudget/domain/entities/category.dart';
-import 'package:mybudget/presentation/providers/category_provider.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/category_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 
-class CategoriesBottomSheet extends ConsumerWidget {
+class CategoriesBottomSheet extends StatelessWidget {
   const CategoriesBottomSheet({super.key});
 
   static Future<void> show({
@@ -23,80 +23,84 @@ class CategoriesBottomSheet extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(categoryNotifierProvider);
+  Widget build(BuildContext context) {
+    final categoryController = Get.find<CategoryController>();
+    
+    return Obx(() {
+      final categories = categoryController.categories;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Catégories',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.primary,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Catégories',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                CategoryBottomSheet.show(
-                  context: context,
-                  onSubmit: (name, icon) {
-                    final newCategory = CategoryModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      name: name,
-                      icon: icon,
-                    );
-                    ref.read(categoryNotifierProvider.notifier).addCategory(newCategory);
-                  },
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Ajouter'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        if (categories.isEmpty)
-          Center(
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-                Icon(
-                  Icons.category_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Aucune catégorie',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return _buildCategoryTile(context, ref, category);
-            },
+              TextButton.icon(
+                onPressed: () {
+                  CategoryBottomSheet.show(
+                    context: context,
+                    onSubmit: (name, icon) {
+                      final newCategory = CategoryModel(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        icon: icon,
+                      );
+                      categoryController.addCategory(newCategory);
+                    },
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Ajouter'),
+              ),
+            ],
           ),
-      ],
-    );
+          const SizedBox(height: 16),
+          if (categories.isEmpty)
+            Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 32),
+                  Icon(
+                    Icons.category_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Aucune catégorie',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return _buildCategoryTile(context, category, categoryController);
+              },
+            ),
+        ],
+      );
+    });
   }
   
-  Widget _buildCategoryTile(BuildContext context, WidgetRef ref, Category category) {
+  Widget _buildCategoryTile(BuildContext context, Category category, CategoryController categoryController) {
     IconData iconData = Icons.category;
     try {
       iconData = IconData(
@@ -166,7 +170,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
                       name: name,
                       icon: icon,
                     );
-                    ref.read(categoryNotifierProvider.notifier).updateCategory(updatedCategory);
+                    categoryController.updateCategory(updatedCategory);
                   },
                 );
               },
@@ -185,7 +189,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
                   confirmLabel: 'Supprimer',
                   isDestructive: true,
                   onConfirm: () {
-                    ref.read(categoryNotifierProvider.notifier).deleteCategory(category.id);
+                    categoryController.deleteCategory(category.id);
                   },
                 );
               },

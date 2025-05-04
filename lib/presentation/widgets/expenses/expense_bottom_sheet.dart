@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/data/models/expense_model.dart';
-import 'package:mybudget/domain/entities/account.dart';
-import 'package:mybudget/domain/entities/expense.dart';
-import 'package:mybudget/presentation/providers/category_provider.dart';
+import 'package:mybudget/data/models/account_model.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 import 'package:mybudget/presentation/widgets/common/app_dropdown_field.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/expenses/expense_date_picker.dart';
 import 'package:mybudget/presentation/widgets/expenses/frequency_selector.dart';
 
-class ExpenseBottomSheet extends ConsumerStatefulWidget {
-  final List<Account> accounts;
-  final Expense? expense;
-  final Function(Expense) onSubmit;
+class ExpenseBottomSheet extends StatefulWidget {
+  final List<AccountModel> accounts;
+  final ExpenseModel? expense;
+  final Function(ExpenseModel) onSubmit;
   final Function() onCancel;
 
   const ExpenseBottomSheet({
@@ -26,10 +25,10 @@ class ExpenseBottomSheet extends ConsumerStatefulWidget {
 
   static Future<void> show({
     required BuildContext context,
-    required List<Account> accounts,
-    required Function(Expense) onSubmit,
+    required List<AccountModel> accounts,
+    required Function(ExpenseModel) onSubmit,
     required Function() onCancel,
-    Expense? expense,
+    ExpenseModel? expense,
   }) {
     if (accounts.isEmpty) {
       return showDialog(
@@ -64,10 +63,10 @@ class ExpenseBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<ExpenseBottomSheet> createState() => _ExpenseBottomSheetState();
+  State<ExpenseBottomSheet> createState() => _ExpenseBottomSheetState();
 }
 
-class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
+class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   final nameController = TextEditingController();
   final amountController = TextEditingController();
   String selectedCategory = '';
@@ -87,7 +86,8 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
     super.initState();
 
     Future.microtask(() {
-      final categories = ref.read(categoryNotifierProvider);
+      final categoryController = Get.find<CategoryController>();
+      final categories = categoryController.categories;
       if (categories.isNotEmpty && selectedCategory.isEmpty) {
         setState(() {
           selectedCategory = categories.first.name;
@@ -186,7 +186,7 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
                 value: selectedCategory,
                 label: 'Catégorie',
                 icon: Icons.category,
-                items: ref.watch(categoryNotifierProvider).map((category) {
+                items: Get.find<CategoryController>().categories.map((category) {
                   return DropdownMenuItem(
                     value: category.name,
                     child: Row(

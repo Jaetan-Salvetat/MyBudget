@@ -7,6 +7,8 @@ class AuthTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final String? errorText;
+  final String? hintText;
+  final int? maxLength;
 
   const AuthTextField({
     required this.controller,
@@ -15,6 +17,8 @@ class AuthTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.errorText,
+    this.hintText,
+    this.maxLength,
     super.key,
   });
 
@@ -93,6 +97,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
                     )
                   : null,
               labelText: widget.label,
+              hintText: widget.hintText,
               labelStyle: TextStyle(
                 color: _hasFocus
                     ? Theme.of(context).colorScheme.primary
@@ -101,6 +106,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              counterText: '',
             ),
           ),
         ),

@@ -1,35 +1,33 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/data/datasources/auth_datasource.dart';
-import 'package:mybudget/domain/entities/user.dart';
+import 'package:mybudget/data/models/user_model.dart';
 import 'package:mybudget/domain/repositories/auth_repository.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final authDataSource = ref.watch(authDataSourceProvider);
-  return AuthRepositoryImpl(authDataSource);
-});
-
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthDataSource _authDataSource;
+  final AuthDatasource _authDatasource;
 
-  AuthRepositoryImpl(this._authDataSource);
+  AuthRepositoryImpl() : _authDatasource = AuthDatasource();
 
   @override
-  Future<User?> getCurrentUser() async {
-    return await _authDataSource.getCurrentUser();
+  Future<UserModel?> getCurrentUser() async {
+    return await _authDatasource.getCurrentUser();
   }
 
   @override
-  Future<User> login(String email, String password) async {
-    return await _authDataSource.login(email, password);
+  Future<UserModel> login(String email, String password) async {
+    return await _authDatasource.login(email, password);
   }
 
   @override
-  Future<User> register(String name, String email, String password) async {
-    return await _authDataSource.register(name, email, password);
+  Future<UserModel> register(String name, String email, String password) async {
+    return await _authDatasource.register(name, email, password);
   }
 
   @override
   Future<void> logout() async {
-    await _authDataSource.logout();
+    await _authDatasource.logout();
+  }
+
+  Future<void> resetPassword(String email) async {
+    await _authDatasource.resetPassword(email);
   }
 }

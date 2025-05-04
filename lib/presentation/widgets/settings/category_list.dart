@@ -1,48 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:mybudget/data/models/category_model.dart';
 import 'package:mybudget/domain/entities/category.dart';
-import 'package:mybudget/presentation/providers/category_provider.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 
-class CategoryList extends ConsumerWidget {
+class CategoryList extends StatelessWidget {
   const CategoryList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(categoryNotifierProvider);
+  Widget build(BuildContext context) {
+    final categoryController = Get.find<CategoryController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Catégories')),
-      body:
-          categories.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
+      body: Obx(() {
+        final categories = categoryController.categories;
+
+        return categories.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
                   return CategoryTile(category: category);
                 },
-              ),
+              );
+      }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
-            builder:
-                (context) => AddEditCategoryDialog(
-                  onSubmit: (name, icon) {
-                    final newCategory = CategoryModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      name: name,
-                      icon: icon,
-                    );
-                    ref
-                        .read(categoryNotifierProvider.notifier)
-                        .addCategory(newCategory);
-                    Navigator.of(context).pop();
-                  },
-                ),
+            builder: (context) => AddEditCategoryDialog(
+              onSubmit: (name, icon) {
+                final newCategory = CategoryModel(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  icon: icon,
+                );
+                categoryController.addCategory(newCategory);
+                Navigator.of(context).pop();
+              },
+            ),
           );
         },
         child: const Icon(Icons.add),
@@ -51,13 +51,15 @@ class CategoryList extends ConsumerWidget {
   }
 }
 
-class CategoryTile extends ConsumerWidget {
+class CategoryTile extends StatelessWidget {
   final Category category;
 
   const CategoryTile({required this.category, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final categoryController = Get.find<CategoryController>();
+    
     IconData iconData = Icons.category;
     try {
       iconData = IconData(
@@ -95,56 +97,52 @@ class CategoryTile extends ConsumerWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder:
-                      (context) => AddEditCategoryDialog(
-                        initialName: category.name,
-                        initialIcon: category.icon,
-                        onSubmit: (name, icon) {
-                          final updatedCategory = CategoryModel(
-                            id: category.id,
-                            name: name,
-                            icon: icon,
-                          );
-                          ref
-                              .read(categoryNotifierProvider.notifier)
-                              .updateCategory(updatedCategory);
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                  builder: (context) => AddEditCategoryDialog(
+                    initialName: category.name,
+                    initialIcon: category.icon,
+                    onSubmit: (name, icon) {
+                      final updatedCategory = CategoryModel(
+                        id: category.id,
+                        name: name,
+                        icon: icon,
+                      );
+                      categoryController.updateCategory(updatedCategory);
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 );
               },
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
+              icon: Icon(
+                Icons.delete, 
+                color: Theme.of(context).colorScheme.error
+              ),
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: const Text('Supprimer la catégorie'),
-                        content: Text(
-                          'Voulez-vous vraiment supprimer "${category.name}"?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Annuler'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              ref
-                                  .read(categoryNotifierProvider.notifier)
-                                  .deleteCategory(category.id);
-                              Navigator.of(context).pop();
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                            child: const Text('Supprimer'),
-                          ),
-                        ],
+                  builder: (context) => AlertDialog(
+                    title: const Text('Supprimer la catégorie'),
+                    content: Text(
+                      'Êtes-vous sûr de vouloir supprimer la catégorie ${category.name} ?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Annuler'),
                       ),
+                      TextButton(
+                        onPressed: () {
+                          categoryController.deleteCategory(category.id);
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: const Text('Supprimer'),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -158,7 +156,7 @@ class CategoryTile extends ConsumerWidget {
 class AddEditCategoryDialog extends StatefulWidget {
   final String? initialName;
   final String? initialIcon;
-  final Function(String name, String icon) onSubmit;
+  final Function(String, String) onSubmit;
 
   const AddEditCategoryDialog({
     this.initialName,
@@ -173,26 +171,21 @@ class AddEditCategoryDialog extends StatefulWidget {
 
 class _AddEditCategoryDialogState extends State<AddEditCategoryDialog> {
   final nameController = TextEditingController();
-  String selectedIcon = 'more_horiz';
+  String selectedIcon = 'category';
 
   final List<Map<String, dynamic>> availableIcons = [
+    {'name': 'category', 'icon': Icons.category, 'label': 'Défaut'},
     {'name': 'restaurant', 'icon': Icons.restaurant, 'label': 'Restaurant'},
-    {
-      'name': 'directions_car',
-      'icon': Icons.directions_car,
-      'label': 'Transport',
-    },
+    {'name': 'directions_car', 'icon': Icons.directions_car, 'label': 'Transport'},
     {'name': 'home', 'icon': Icons.home, 'label': 'Maison'},
-    {
-      'name': 'sports_esports',
-      'icon': Icons.sports_esports,
-      'label': 'Loisirs',
-    },
+    {'name': 'sports_esports', 'icon': Icons.sports_esports, 'label': 'Jeux'},
     {
       'name': 'medical_services',
       'icon': Icons.medical_services,
       'label': 'Santé',
     },
+    {'name': 'fitness_center', 'icon': Icons.fitness_center, 'label': 'Sport'},
+    {'name': 'flight_takeoff', 'icon': Icons.flight_takeoff, 'label': 'Voyage'},
     {'name': 'checkroom', 'icon': Icons.checkroom, 'label': 'Vêtements'},
     {'name': 'shopping_cart', 'icon': Icons.shopping_cart, 'label': 'Shopping'},
     {'name': 'school', 'icon': Icons.school, 'label': 'Éducation'},
@@ -242,56 +235,46 @@ class _AddEditCategoryDialogState extends State<AddEditCategoryDialog> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children:
-                  availableIcons.map((iconData) {
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          selectedIcon = iconData['name'];
-                        });
-                      },
+              children: availableIcons.map((iconData) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedIcon = iconData['name'];
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: selectedIcon == iconData['name']
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color:
-                              selectedIcon == iconData['name']
-                                  ? Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          iconData['icon'],
+                          size: 32,
+                          color: selectedIcon == iconData['name']
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : null,
                         ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              iconData['icon'],
-                              size: 32,
-                              color:
-                                  selectedIcon == iconData['name']
-                                      ? Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer
-                                      : null,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              iconData['label'],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color:
-                                    selectedIcon == iconData['name']
-                                        ? Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer
-                                        : null,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        Text(
+                          iconData['label'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selectedIcon == iconData['name']
+                                ? Theme.of(context).colorScheme.onPrimaryContainer
+                                : null,
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),

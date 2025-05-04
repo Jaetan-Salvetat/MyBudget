@@ -1,35 +1,34 @@
-import 'package:hive/hive.dart';
+import 'package:mybudget/data/datasources/privacy_datasource.dart';
 import 'package:mybudget/data/models/privacy_settings_model.dart';
 import 'package:mybudget/domain/entities/privacy_settings.dart';
 import 'package:mybudget/domain/repositories/privacy_repository.dart';
 
 class PrivacyRepositoryImpl implements PrivacyRepository {
-  static const String _boxName = 'privacy_settings_box';
-  static const String _privacySettingsKey = 'privacy_settings';
+  final PrivacyDatasource _privacyDatasource;
+
+  PrivacyRepositoryImpl() : _privacyDatasource = PrivacyDatasource();
 
   @override
   Future<PrivacySettings?> getPrivacySettings() async {
-    final box = await Hive.openBox<PrivacySettingsModel>(_boxName);
-    final settings = box.get(_privacySettingsKey);
-    return settings;
+    return await _privacyDatasource.getPrivacySettings();
   }
 
   @override
   Future<void> savePrivacySettings(PrivacySettings settings) async {
     if (settings is PrivacySettingsModel) {
-      final box = await Hive.openBox<PrivacySettingsModel>(_boxName);
-      await box.put(_privacySettingsKey, settings);
+      await _privacyDatasource.savePrivacySettings(settings);
+    } else {
+      final settingsModel = PrivacySettingsModel(
+        privacyPolicyAccepted: settings.privacyPolicyAccepted,
+        marketingConsent: settings.marketingConsent,
+        consentDate: settings.consentDate
+      );
+      await _privacyDatasource.savePrivacySettings(settingsModel);
     }
   }
 
   @override
   Future<void> updateMarketingConsent(bool consent) async {
-    final box = await Hive.openBox<PrivacySettingsModel>(_boxName);
-    final settings = box.get(_privacySettingsKey);
-    
-    if (settings != null) {
-      final updatedSettings = settings.copyWith(marketingConsent: consent);
-      await box.put(_privacySettingsKey, updatedSettings);
-    }
+    await _privacyDatasource.updateMarketingConsent(consent);
   }
 }

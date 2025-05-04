@@ -1,1 +1,4 @@
 - Account.type
+- Expense.isActivated
+- Two type of usage: sample and full
+- How a warning if data and save locally and the user want to login

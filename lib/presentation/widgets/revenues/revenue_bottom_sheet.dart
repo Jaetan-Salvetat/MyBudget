@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/data/models/revenue_model.dart';
-import 'package:mybudget/domain/entities/account.dart';
-import 'package:mybudget/domain/entities/revenue.dart';
+import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
 import 'package:mybudget/presentation/widgets/common/app_dropdown_field.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/revenues/revenue_date_picker.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
-  final List<Account> accounts;
-  final Revenue? revenue;
-  final Function(Revenue) onSubmit;
+  final List<AccountModel> accounts;
+  final RevenueModel? revenue;
+  final Function(RevenueModel) onSubmit;
   final Function() onCancel;
 
   const RevenueBottomSheet({
@@ -23,10 +22,10 @@ class RevenueBottomSheet extends StatefulWidget {
 
   static Future<void> show({
     required BuildContext context,
-    required List<Account> accounts,
-    required Function(Revenue) onSubmit,
+    required List<AccountModel> accounts,
+    required Function(RevenueModel) onSubmit,
     required Function() onCancel,
-    Revenue? revenue,
+    RevenueModel? revenue,
   }) {
     if (accounts.isEmpty) {
       return showDialog(

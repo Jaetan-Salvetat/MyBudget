@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/domain/entities/account.dart';
+import 'package:mybudget/data/models/account_model.dart';
 
 class AccountListCard extends StatelessWidget {
-  final Account account;
+  final AccountModel account;
   final double balance;
   final VoidCallback onDelete;
   final VoidCallback onEdit;

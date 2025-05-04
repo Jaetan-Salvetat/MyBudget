@@ -1,29 +1,18 @@
-import 'package:hive/hive.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 
-part 'expense_model.g.dart';
-
-@HiveType(typeId: 0)
 class ExpenseModel extends Expense {
-  @HiveField(0)
   @override
   final String id;
-  @HiveField(1)
   @override
   final String name;
-  @HiveField(2)
   @override
   final double amount;
-  @HiveField(3)
   @override
   final String category;
-  @HiveField(4)
   @override
   final DateTime date;
-  @HiveField(5)
   @override
   final String frequency;
-  @HiveField(6)
   @override
   final String accountId;
 
