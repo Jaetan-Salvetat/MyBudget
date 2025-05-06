@@ -1,81 +1,95 @@
+import 'package:isar/isar.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 
-class ExpenseModel extends Expense {
-  @override
-  final String id;
-  @override
-  final String name;
-  @override
-  final double amount;
-  @override
-  final String category;
-  @override
-  final DateTime date;
-  @override
-  final String frequency;
-  @override
-  final String accountId;
+part 'expense_model.g.dart';
 
-  ExpenseModel({
-    required this.id,
+@collection
+class ExpenseModel implements Expense {
+  @override
+  Id id = Isar.autoIncrement;
+  
+  @override
+  @Index(type: IndexType.value)
+  late String name;
+  
+  @override
+  late double amount;
+  
+  @override
+  late int categoryId;
+  
+  @override
+  @Index()
+  late DateTime date;
+  
+  @override
+  late String frequency;
+  
+  @override
+  late int accountId;
+
+  ExpenseModel();
+  
+  ExpenseModel.create({
     required this.name,
     required this.amount,
-    required this.category,
+    required this.categoryId,
     required this.date,
     required this.frequency,
     required this.accountId,
-  }) : super(
-    id: id,
-    name: name,
-    amount: amount,
-    category: category,
-    date: date,
-    frequency: frequency,
-    accountId: accountId,
-  );
+  });
 
   ExpenseModel copyWith({
-    String? id,
     String? name,
     double? amount,
-    String? category,
+    int? categoryId,
     DateTime? date,
     String? frequency,
-    String? accountId,
+    int? accountId,
   }) {
-    return ExpenseModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      amount: amount ?? this.amount,
-      category: category ?? this.category,
-      date: date ?? this.date,
-      frequency: frequency ?? this.frequency,
-      accountId: accountId ?? this.accountId,
-    );
+    final model = ExpenseModel()
+      ..id = this.id
+      ..name = name ?? this.name
+      ..amount = amount ?? this.amount
+      ..categoryId = categoryId ?? this.categoryId
+      ..date = date ?? this.date
+      ..frequency = frequency ?? this.frequency
+      ..accountId = accountId ?? this.accountId;
+    return model;
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'name': name,
       'amount': amount,
-      'category': category,
+      'categoryId': categoryId.toString(),
       'date': date.toIso8601String(),
       'frequency': frequency,
-      'accountId': accountId,
+      'accountId': accountId.toString(),
     };
   }
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
-    return ExpenseModel(
-      id: json['id'] as String,
-      name: json['name'],
-      amount: json['amount'],
-      category: json['category'],
-      date: DateTime.parse(json['date']),
-      frequency: json['frequency'],
-      accountId: json['accountId'],
-    );
+    final model = ExpenseModel()
+      ..name = json['name'] ?? ''
+      ..amount = (json['amount'] ?? 0.0).toDouble()
+      ..date = json['date'] != null 
+          ? DateTime.parse(json['date']) 
+          : DateTime.now()
+      ..frequency = json['frequency'] ?? ''
+      ..categoryId = json['categoryId'] != null 
+          ? int.parse(json['categoryId'].toString()) 
+          : 0
+      ..accountId = json['accountId'] != null 
+          ? int.parse(json['accountId'].toString()) 
+          : 0;
+    
+    if (json['id'] != null) {
+      model.id = int.parse(json['id'].toString());
+    }
+    
+    return model;
   }
 }

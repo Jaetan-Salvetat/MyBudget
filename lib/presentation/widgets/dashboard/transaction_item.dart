@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
+import 'package:mybudget/data/models/category_model.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 
 class TransactionItem extends StatelessWidget {
@@ -27,9 +30,12 @@ class TransactionItem extends StatelessWidget {
     final DateTime date = transaction.date ?? DateTime.now();
     final String dateFormatted = DateFormat('dd/MM/yyyy').format(date);
     
-    // Déterminer la catégorie (existante pour Expense, valeur par défaut pour Revenue)
-    final String category = isExpense 
-        ? (transaction as Expense).category
+    final categoryController = Get.find<CategoryController>();
+    final String categoryName = isExpense 
+        ? categoryController.categories.firstWhere(
+            (cat) => cat.id == (transaction as Expense).categoryId,
+            orElse: () => CategoryModel()..name = 'Autre'
+          ).name
         : 'Revenu';
     
     return Card(
@@ -42,13 +48,13 @@ class TransactionItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: _getCategoryColor(category).withOpacity(0.2),
+            color: _getCategoryColor(categoryName).withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
           child: Icon(
-            _getCategoryIcon(category),
-            color: _getCategoryColor(category),
+            _getCategoryIcon(categoryName),
+            color: _getCategoryColor(categoryName),
             size: 20,
           ),
         ),
@@ -57,7 +63,7 @@ class TransactionItem extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          '${category} • ${dateFormatted}',
+          '$categoryName • $dateFormatted',
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),

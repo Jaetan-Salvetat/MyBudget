@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mybudget/core/controllers/auth_controller.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
-import 'package:mybudget/core/services/data_loading_service.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -13,30 +12,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final AuthController authController = Get.find<AuthController>();
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await checkAuthAndNavigate();
+      await Future.delayed(const Duration(seconds: 2));
+      await navigateToDashboard();
     });
   }
 
-  Future<void> checkAuthAndNavigate() async {
-    try {
-      await authController.getCurrentUser();
-
-      if (authController.isAuthenticated) {
-        await DataLoadingService.loadAllData();
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.phoneInput);
-      }
-    } catch (e) {
-      Get.offAllNamed(AppRoutes.phoneInput);
+  Future<void> navigateToDashboard() async {
+    bool isFirstLaunch = PreferencesService.isFirstLaunch();
+    if (isFirstLaunch) {
+      await PreferencesService.setNotFirstLaunch();
     }
+    Get.offAllNamed(AppRoutes.dashboard);
   }
 
   @override

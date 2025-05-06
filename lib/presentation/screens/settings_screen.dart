@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mybudget/core/controllers/auth_controller.dart';
+// import 'package:mybudget/core/controllers/auth_controller.dart'; // Commenté pour migration Isar
 import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
@@ -31,6 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadPackageInfo();
   }
 
+  // Fonction commentée pour migration Isar
+  /*
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return DialogBottomSheet.showConfirmation(
       context: context,
@@ -41,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       onConfirm: () => Get.find<AuthController>().logout(),
     );
   }
+  */
 
   Future<void> _loadPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
@@ -51,103 +54,104 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Get.find<AuthController>();
+    // Commenté pour migration Isar
+    // final authController = Get.find<AuthController>();
 
     return AppScaffold(
       title: 'Paramètres',
-      child: Obx(() {
-        final isUserConnected = authController.isAuthenticated;
-        
-        return ListView(
-          padding: const EdgeInsets.only(
-            top: 130,
-            bottom: 16,
-            left: 16,
-            right: 16,
+      child: ListView(
+        padding: const EdgeInsets.only(
+          top: 130,
+          bottom: 16,
+          left: 16,
+          right: 16,
+        ),
+        children: [
+          // Section Compte commentée pour migration Isar
+          /*
+          SettingsSection(
+            title: 'Compte',
+            children: [
+              if (isUserConnected)
+                SettingsTile(
+                  title: 'Déconnexion',
+                  subtitle:
+                      'Connecté en tant que ${authController.user.value?.email ?? ""}',
+                  leading: const Icon(Icons.logout),
+                  onTap: () => _showLogoutConfirmationDialog(context),
+                )
+              else
+                SettingsTile(
+                  title: 'Connexion / Inscription',
+                  subtitle: 'Connectez-vous pour synchroniser vos données',
+                  leading: const Icon(Icons.login),
+                  onTap: () => Get.toNamed('/login'),
+                ),
+            ],
           ),
-          children: [
-            SettingsSection(
-              title: 'Compte',
-              children: [
-                if (isUserConnected)
-                  SettingsTile(
-                    title: 'Déconnexion',
-                    subtitle:
-                        'Connecté en tant que ${authController.user.value?.email ?? ""}',
-                    leading: const Icon(Icons.logout),
-                    onTap: () => _showLogoutConfirmationDialog(context),
-                  )
-                else
-                  SettingsTile(
-                    title: 'Connexion / Inscription',
-                    subtitle: 'Connectez-vous pour synchroniser vos données',
-                    leading: const Icon(Icons.login),
-                    onTap: () => Get.toNamed('/login'),
-                  ),
-              ],
-            ),
-            SettingsSection(
-              title: 'Apparence',
-              children: [
-                SettingsTile(
-                  title: 'Thème',
-                  subtitle: _getThemeNameFromMode(themeController.themeMode),
-                  leading: const Icon(Icons.brightness_6),
-                  onTap: () {
-                    _showThemeSelectionDialog(context, themeController.themeMode);
-                  },
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: 'Catégories',
-              children: [
-                SettingsTile(
-                  title: 'Gérer les catégories',
-                  subtitle: 'Ajouter, modifier ou supprimer des catégories',
-                  leading: const Icon(Icons.category),
-                  onTap: () => CategoriesBottomSheet.show(context: context),
-                ),
-              ],
-            ),
-            if (isUserConnected)
-              SettingsSection(
-                title: 'Données et confidentialité',
-                children: [
-                  SettingsTile(
-                    title: 'Politique de confidentialité',
-                    subtitle: 'Consultez notre politique de confidentialité',
-                    leading: const Icon(Icons.privacy_tip),
-                    onTap: () => Get.to(() => const PrivacyPolicyScreen()),
-                  ),
-                  SettingsTile(
-                    title: 'Gestion des données',
-                    subtitle: 'Gérer vos préférences de données',
-                    leading: const Icon(Icons.data_usage),
-                    onTap: () => DataPrivacyBottomSheet.show(context: context),
-                  ),
-                  SettingsTile(
-                    title: 'Supprimer toutes les données',
-                    subtitle: 'Supprime toutes vos données de l\'application',
-                    leading: const Icon(Icons.delete_forever, color: Colors.red),
-                    onTap: () => _showDeleteDataConfirmationDialog(context),
-                  ),
-                ],
+          */
+          SettingsSection(
+            title: 'Apparence',
+            children: [
+              SettingsTile(
+                title: 'Thème',
+                subtitle: _getThemeNameFromMode(themeController.themeMode),
+                leading: const Icon(Icons.brightness_6),
+                onTap: () {
+                  _showThemeSelectionDialog(context, themeController.themeMode);
+                },
               ),
-            SettingsSection(
-              title: 'À propos',
-              children: [
-                SettingsTile(
-                  title: 'Version',
-                  subtitle: packageInfo?.version ?? 'Chargement...',
-                  leading: const Icon(Icons.info),
-                  onTap: null,
-                ),
-              ],
-            ),
-          ],
-        );
-      }),
+            ],
+          ),
+          SettingsSection(
+            title: 'Catégories',
+            children: [
+              SettingsTile(
+                title: 'Gérer les catégories',
+                subtitle: 'Ajouter, modifier ou supprimer des catégories',
+                leading: const Icon(Icons.category),
+                onTap: () => CategoriesBottomSheet.show(context: context),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Données',
+            children: [
+              SettingsTile(
+                title: 'Confidentialité et données',
+                subtitle: 'Exportez ou réinitialisez vos données',
+                leading: const Icon(Icons.security),
+                onTap: () => DataPrivacyBottomSheet.show(context: context),
+              ),
+              SettingsTile(
+                title: 'Tout supprimer',
+                subtitle: 'Supprimer toutes les transactions et tous les comptes',
+                leading: const Icon(Icons.delete_forever, color: Colors.red),
+                onTap: () => _showDeleteDataConfirmationDialog(context),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'À propos',
+            children: [
+              SettingsTile(
+                title: 'Politique de confidentialité',
+                subtitle: 'Consultez notre politique de confidentialité',
+                leading: const Icon(Icons.policy),
+                onTap: () => Get.to(() => const PrivacyPolicyScreen()),
+              ),
+              SettingsTile(
+                title: 'Version',
+                subtitle: packageInfo != null
+                    ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
+                    : 'Chargement...',
+                leading: const Icon(Icons.info_outline),
+                onTap: null,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -159,16 +163,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return 'Clair';
       case ThemeMode.dark:
         return 'Sombre';
-      default:
-        return 'Système';
     }
   }
 
   Future<void> _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) async {
     ThemeBottomSheet.show(
       context: context,
-      onThemeSelected: (mode) => themeController.changeTheme(mode),
       currentMode: currentMode,
+      onThemeSelected: (ThemeMode newMode) {
+        themeController.changeTheme(newMode);
+      },
     );
   }
 
@@ -176,11 +180,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return DialogBottomSheet.showConfirmation(
       context: context,
       title: 'Supprimer toutes les données',
-      message: 'Cette action supprimera définitivement toutes vos données. '
-          'Cette action est irréversible. Êtes-vous sûr de vouloir continuer ?',
-      cancelLabel: 'Annuler',
+      message:
+          'Cette action supprimera toutes vos transactions et tous vos comptes. Cette action est irréversible.',
       confirmLabel: 'Supprimer',
-      isDestructive: true,
+      cancelLabel: 'Annuler',
       onConfirm: () async {
         final accountController = Get.find<AccountController>();
         final expenseController = Get.find<ExpenseController>();

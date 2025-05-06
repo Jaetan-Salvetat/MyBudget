@@ -1,38 +1,50 @@
+import 'package:isar/isar.dart';
 import 'package:mybudget/domain/entities/category.dart';
 
+part 'category_model.g.dart';
+
+@collection
 class CategoryModel implements Category {
-  final String _id;
-  final String _name;
-  final String _icon;
+  Id id = Isar.autoIncrement;
+  
+  @Index(type: IndexType.value)
+  late String name;
+  
+  late String icon;
 
-  CategoryModel({
-    required String id,
-    required String name,
-    required String icon,
-  })  : _id = id,
-        _name = name,
-        _icon = icon;
-
-  @override
-  String get id => _id;
-
-  @override
-  String get name => _name;
-
-  @override
-  String get icon => _icon;
+  CategoryModel();
+  
+  CategoryModel.create({
+    required this.name,
+    required this.icon,
+  });
   
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    return CategoryModel(
-      id: json['id'],
-      name: json['name'],
-      icon: json['icon'],
-    );
+    final model = CategoryModel()
+      ..name = json['name'] ?? ''
+      ..icon = json['icon'] ?? '';
+    
+    if (json['id'] != null) {
+      model.id = int.parse(json['id'].toString());
+    }
+    
+    return model;
+  }
+  
+  CategoryModel copyWith({
+    String? name,
+    String? icon,
+  }) {
+    final model = CategoryModel()
+      ..id = id
+      ..name = name ?? this.name
+      ..icon = icon ?? this.icon;
+    return model;
   }
   
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'name': name,
       'icon': icon,
     };

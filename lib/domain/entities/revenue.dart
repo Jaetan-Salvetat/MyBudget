@@ -1,10 +1,10 @@
 abstract class Revenue {
-  final String id;
+  final int id;
   final String name;
   final double amount;
   final bool isRegular;
   final DateTime date;
-  final String accountId;
+  final int accountId;
 
   Revenue({
     required this.id,
@@ -17,12 +17,12 @@ abstract class Revenue {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'name': name,
       'amount': amount,
       'isRegular': isRegular,
       'date': date.toIso8601String(),
-      'accountId': accountId,
+      'accountId': accountId.toString(),
     };
   }
 }

@@ -3,10 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mybudget/core/controllers/auth_controller.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
-import 'package:mybudget/core/controllers/privacy_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
@@ -41,22 +39,15 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
     });
 
     try {
-      final authController = Get.find<AuthController>();
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
 
-      final user = authController.user.value;
       final userData = <String, dynamic>{
-        'user':
-            user != null
-                ? {
-                  'id': user.id,
-                  'email': user.email,
-                  'name': user.name,
-                  'isAuthenticated': user.isAuthenticated,
-                }
-                : null,
+        'user': {
+          'id': 'local_user',
+          'isAuthenticated': false,
+        },
         'accounts':
             accountController.accounts.map((acc) => acc.toJson()).toList(),
         'expenses':
@@ -101,7 +92,6 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final privacyController = Get.find<PrivacyController>();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -282,47 +272,37 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
   }
 
   Widget _buildConsentSettings(BuildContext context) {
-    final privacyController = Get.find<PrivacyController>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle(context, 'Préférences de confidentialité'),
         const SizedBox(height: 16),
-        Obx(() {
-          final settings = privacyController.privacySettings.value;
-
-          if (settings == null) {
-            return const Text('Aucune préférence configurée');
-          }
-
-          return Column(
-            children: [
-              ListTile(
-                title: const Text('Communications marketing'),
-                subtitle: const Text(
-                  'Recevoir des informations sur nos produits',
-                ),
-                trailing: Switch(
-                  value: settings.marketingConsent,
-                  onChanged: (value) {
-                    privacyController.updateMarketingConsent(value);
-                  },
-                ),
+        Column(
+          children: [
+            ListTile(
+              title: const Text('Communications marketing'),
+              subtitle: const Text(
+                'Recevoir des informations sur nos produits',
               ),
-              ListTile(
-                title: const Text('Politique de confidentialité acceptée'),
-                subtitle: Text(
-                  'Le ${settings.consentDate.day}/${settings.consentDate.month}/${settings.consentDate.year}',
-                ),
-                trailing: Icon(
-                  Icons.check_circle,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              trailing: Switch(
+                value: false,
+                onChanged: (value) {
+                  // Désactivé pendant la migration vers Isar
+                },
               ),
-            ],
-          );
-        }),
+            ),
+            ListTile(
+              title: const Text('Politique de confidentialité acceptée'),
+              subtitle: Text(
+                'Le ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+              ),
+              trailing: Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

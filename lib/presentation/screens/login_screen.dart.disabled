@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mybudget/core/controllers/auth_controller.dart';
+import 'package:mybudget/core/routes/app_routes.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_background.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_button.dart';
+import 'package:mybudget/presentation/widgets/auth/auth_text_field.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final AuthController authController = Get.find<AuthController>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  
+  bool _isLoading = false;
+  String _errorText = '';
+  String? _emailError;
+  String? _passwordError;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    // Validation manuelle
+    bool isValid = true;
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+    });
+    
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    
+    if (email.isEmpty) {
+      setState(() {
+        _emailError = 'Veuillez entrer votre email';
+      });
+      isValid = false;
+    } else if (!GetUtils.isEmail(email)) {
+      setState(() {
+        _emailError = 'Veuillez entrer un email valide';
+      });
+      isValid = false;
+    }
+    
+    if (password.isEmpty) {
+      setState(() {
+        _passwordError = 'Veuillez entrer votre mot de passe';
+      });
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorText = '';
+    });
+
+    try {
+      await authController.login(
+        emailController.text.trim(),
+        passwordController.text,
+      );
+      // En cas de succès, pas besoin de setState car nous naviguerons ailleurs
+    } catch (e) {
+      // Vérifie si le widget est encore monté avant de mettre à jour l'état
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Arrête le chargement en cas d'erreur
+          _errorText = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AuthBackground(
+        title: 'Connexion',
+        onBackPressed: () {},
+        showBackButton: false,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 40),
+                    Text(
+                      'Connectez-vous pour gérer vos finances',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    
+                    AuthTextField(
+                      controller: emailController,
+                      label: 'Email',
+                      icon: Icons.email,
+                      keyboardType: TextInputType.emailAddress,
+                      hintText: 'exemple@email.com',
+                      errorText: _emailError,
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    AuthTextField(
+                      controller: passwordController,
+                      label: 'Mot de passe',
+                      icon: Icons.lock,
+                      obscureText: true,
+                      errorText: _passwordError,
+                    ),
+                    
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.forgotPassword);
+                        },
+                        child: Text(
+                          'Mot de passe oublié?',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    if (_errorText.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _errorText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    AuthButton(
+                      label: 'Se connecter',
+                      onPressed: _login,
+                      isLoading: _isLoading,
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Vous n'avez pas de compte?",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Get.toNamed(AppRoutes.register);
+                          },
+                          child: Text(
+                            'Créer un compte',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

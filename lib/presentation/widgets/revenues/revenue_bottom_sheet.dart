@@ -77,9 +77,9 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       amountController.text = widget.revenue!.amount.toString();
       isRegular = widget.revenue!.isRegular;
       selectedDate = widget.revenue!.date;
-      selectedAccountId = widget.revenue!.accountId;
+      selectedAccountId = widget.revenue!.accountId.toString();
     } else if (widget.accounts.isNotEmpty) {
-      selectedAccountId = widget.accounts.first.id;
+      selectedAccountId = widget.accounts.first.id.toString();
     }
   }
 
@@ -235,7 +235,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             items:
                 widget.accounts.map((account) {
                   return DropdownMenuItem(
-                    value: account.id,
+                    value: account.id.toString(),
                     child: Text(account.name),
                   );
                 }).toList(),
@@ -273,16 +273,21 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                     ) ??
                     0.0;
 
-                final revenue = RevenueModel(
-                  id:
-                      widget.revenue?.id ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: nameController.text,
-                  amount: amount,
-                  isRegular: isRegular,
-                  date: selectedDate,
-                  accountId: selectedAccountId!,
-                );
+                final revenue = widget.revenue != null
+                  ? widget.revenue!.copyWith(
+                      name: nameController.text,
+                      amount: amount,
+                      isRegular: isRegular,
+                      date: selectedDate,
+                      accountId: int.parse(selectedAccountId!),
+                    )
+                  : RevenueModel.create(
+                      name: nameController.text,
+                      amount: amount,
+                      isRegular: isRegular,
+                      date: selectedDate,
+                      accountId: int.parse(selectedAccountId!),
+                    );
 
                 widget.onSubmit(revenue);
               }

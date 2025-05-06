@@ -4,11 +4,13 @@ class AuthBackground extends StatelessWidget {
   final Widget child;
   final String title;
   final VoidCallback onBackPressed;
+  final bool showBackButton;
 
   const AuthBackground({
     required this.child,
     required this.title,
     required this.onBackPressed,
+    this.showBackButton = true,
     super.key,
   });
 
@@ -21,10 +23,10 @@ class AuthBackground extends StatelessWidget {
           SliverAppBar.large(
             pinned: true,
             expandedHeight: 180,
-            leading: IconButton(
+            leading: showBackButton ? IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: onBackPressed,
-            ),
+            ) : null,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
               title: Text(

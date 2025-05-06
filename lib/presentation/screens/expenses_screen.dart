@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import '../widgets/common/app_scaffold.dart';
 import '../../core/controllers/expense_controller.dart';
 import '../../core/controllers/account_controller.dart';
+import '../../core/controllers/category_controller.dart';
 import '../../data/models/expense_model.dart';
 import '../../data/models/account_model.dart';
+import '../../data/models/category_model.dart';
 import '../widgets/expenses/expense_bottom_sheet.dart';
 
 class ExpensesScreen extends StatelessWidget {
@@ -162,7 +164,7 @@ class ExpenseCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    _getCategoryIcon(expense.category),
+                    _getCategoryIcon(expense.categoryId),
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
@@ -201,7 +203,7 @@ class ExpenseCard extends StatelessWidget {
             Row(
               children: [
                 Chip(
-                  label: Text(expense.category),
+                  label: Text(_getCategoryName(expense.categoryId)),
                   backgroundColor:
                       Theme.of(context).colorScheme.primaryContainer,
                   labelStyle: TextStyle(
@@ -264,23 +266,38 @@ class ExpenseCard extends StatelessWidget {
     );
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Alimentation':
+  IconData _getCategoryIcon(int categoryId) {
+    final categoryController = Get.find<CategoryController>();
+    final category = categoryController.categories.firstWhere(
+      (c) => c.id == categoryId,
+      orElse: () => CategoryModel()..icon = 'category', // Default icon
+    );
+    
+    switch (category.icon) {
+      case 'restaurant':
         return Icons.restaurant;
-      case 'Transport':
+      case 'directions_car':
         return Icons.directions_car;
-      case 'Logement':
+      case 'home':
         return Icons.home;
-      case 'Loisirs':
+      case 'sports_esports':
         return Icons.sports_esports;
-      case 'Santé':
+      case 'medical_services':
         return Icons.medical_services;
-      case 'Vêtements':
+      case 'shopping_bag':
         return Icons.shopping_bag;
       default:
         return Icons.category;
     }
+  }
+
+  String _getCategoryName(int categoryId) {
+    final categoryController = Get.find<CategoryController>();
+    final category = categoryController.categories.firstWhere(
+      (c) => c.id == categoryId,
+      orElse: () => CategoryModel()..name = 'Autre',
+    );
+    return category.name;
   }
 
   String _formatDate(DateTime date, String frequency) {

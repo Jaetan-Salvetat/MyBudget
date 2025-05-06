@@ -20,8 +20,8 @@ class AccountsScreen extends StatelessWidget {
       title: 'Mes Comptes',
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddAccountDialog(context),
-        child: const Icon(Icons.add),
         elevation: 4,
+        child: const Icon(Icons.add),
       ),
       child: Column(
         children: [
@@ -40,8 +40,10 @@ class AccountsScreen extends StatelessWidget {
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final id = DateTime.now().millisecondsSinceEpoch.toString();
-        final account = AccountModel(id: id, name: name, bank: bank);
+        final account = AccountModel.create(
+          name: name,
+          bank: bank,
+        );
 
         accountController.addAccount(account);
       },
@@ -123,7 +125,6 @@ class AccountsList extends StatelessWidget {
                 final accountExpenses = expenses.where((e) => e.accountId == account.id).toList();
                 final accountRevenues = revenues.where((r) => r.accountId == account.id).toList();
                 
-                // Calculer le total des dépenses et revenus pour ce compte
                 final totalExpenses = accountExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
                 final totalRevenues = accountRevenues.fold(0.0, (sum, revenue) => sum + revenue.amount);
                 final balance = totalRevenues - totalExpenses;
@@ -155,8 +156,10 @@ class AccountsList extends StatelessWidget {
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final id = DateTime.now().millisecondsSinceEpoch.toString();
-        final account = AccountModel(id: id, name: name, bank: bank);
+        final account = AccountModel.create(
+          name: name,
+          bank: bank,
+        );
 
         accountController.addAccount(account);
       },
@@ -173,8 +176,7 @@ class AccountsList extends StatelessWidget {
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final updatedAccount = AccountModel(
-          id: account.id,
+        final updatedAccount = account.copyWith(
           name: name,
           bank: bank,
         );
@@ -193,13 +195,11 @@ class AccountsList extends StatelessWidget {
   ) {
     final accountController = Get.find<AccountController>();
     
-    // Vérifier si le compte a des transactions
     if (expenses.isNotEmpty || revenues.isNotEmpty) {
       _showCannotDeleteDialog(context);
       return;
     }
     
-    // Confirmation de suppression
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -213,18 +213,17 @@ class AccountsList extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
             style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            child: const Text('Annuler'),
           ),
           ElevatedButton(
             onPressed: () {
               accountController.deleteAccount(account.id);
               Navigator.of(context).pop();
-              // Afficher un snackbar
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Le compte ${account.name} a été supprimé'),
@@ -232,7 +231,6 @@ class AccountsList extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('Supprimer'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Theme.of(context).colorScheme.onError,
@@ -240,6 +238,7 @@ class AccountsList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            child: const Text('Supprimer'),
           ),
         ],
       ),
@@ -261,12 +260,12 @@ class AccountsList extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
                 style: TextButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                child: const Text('OK'),
               ),
             ],
           ),

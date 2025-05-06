@@ -41,6 +41,8 @@ class AccountBottomSheet extends StatefulWidget {
 class _AccountBottomSheetState extends State<AccountBottomSheet> {
   final nameController = TextEditingController();
   final bankController = TextEditingController();
+  String? nameError;
+  String? bankError;
   final List<String> suggestedBanks = [
     'BNP Paribas',
     'Société Générale',
@@ -70,6 +72,14 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
   void initState() {
     super.initState();
 
+    bankController.addListener(() {
+      setState(() {
+        if (selectedBank != null && bankController.text != selectedBank) {
+          selectedBank = null;
+        }
+      });
+    });
+
     if (widget.account != null) {
       nameController.text = widget.account!.name;
       bankController.text = widget.account!.bank;
@@ -96,6 +106,10 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           controller: nameController,
           label: 'Nom du compte',
           icon: Icons.account_balance_wallet_outlined,
+          errorText: nameError,
+          onChanged: (_) => setState(() {
+            if (nameError != null) nameError = null;
+          }),
         ),
         const SizedBox(height: 20),
         if (selectedBank == null) ...[
@@ -103,6 +117,10 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             controller: bankController,
             label: 'Banque',
             icon: Icons.account_balance_outlined,
+            errorText: bankError,
+            onChanged: (_) => setState(() {
+              if (bankError != null) bankError = null;
+            }),
           ),
           const SizedBox(height: 16),
           _buildBankSuggestions(),
@@ -124,12 +142,26 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
                 label: widget.account == null ? 'Ajouter' : 'Enregistrer',
                 isPrimary: true,
                 onPressed: () {
-                  if (nameController.text.isNotEmpty && 
-                      (bankController.text.isNotEmpty || selectedBank != null)) {
+                  bool isValid = true;
+                  
+                  setState(() {
+                    if (nameController.text.isEmpty) {
+                      nameError = 'Le nom du compte est requis';
+                      isValid = false;
+                    }
+                    
+                    if (bankController.text.isEmpty && selectedBank == null) {
+                      bankError = 'La banque est requise';
+                      isValid = false;
+                    }
+                  });
+                  
+                  if (isValid) {
                     widget.onSubmit(
                       nameController.text.trim(),
                       selectedBank ?? bankController.text.trim(),
                     );
+                    Navigator.of(context).pop();
                   }
                 },
               ),
@@ -142,13 +174,16 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 
   Widget _buildBankSuggestions() {
     final searchQuery = bankController.text.toLowerCase();
-    final filteredBanks = searchQuery.isEmpty
-        ? suggestedBanks.take(8).toList()
-        : suggestedBanks
-            .where((bank) => bank.toLowerCase().contains(searchQuery))
-            .toList();
     
-    final hasMoreSuggestions = searchQuery.isEmpty && suggestedBanks.length > 8;
+    // Filtrage des banques selon le texte saisi
+    final filteredBanks = suggestedBanks
+        .where((bank) => bank.toLowerCase().contains(searchQuery))
+        .take(searchQuery.isEmpty ? 8 : 12)
+        .toList();
+    
+    // On affiche "Voir tout" uniquement quand il y a plus de banques que celles affichées
+    final hasMoreSuggestions = suggestedBanks.where((bank) => 
+        bank.toLowerCase().contains(searchQuery)).length > (searchQuery.isEmpty ? 8 : 12);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,15 +250,18 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _BankListBottomSheet(
-        banks: suggestedBanks,
-        onBankSelected: (bank) {
-          setState(() {
-            selectedBank = bank;
-            bankController.text = bank;
-          });
-        },
-      ),
+      builder: (context) {
+        return _BankListBottomSheet(
+          banks: suggestedBanks,
+          initialSearchQuery: bankController.text,
+          onBankSelected: (bank) {
+            setState(() {
+              selectedBank = bank;
+              bankController.text = bank;
+            });
+          },
+        );
+      },
     );
   }
 
@@ -288,10 +326,12 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 class _BankListBottomSheet extends StatefulWidget {
   final List<String> banks;
   final Function(String) onBankSelected;
+  final String initialSearchQuery;
 
   const _BankListBottomSheet({
     required this.banks,
     required this.onBankSelected,
+    this.initialSearchQuery = '',
   });
 
   @override
@@ -305,7 +345,12 @@ class _BankListBottomSheetState extends State<_BankListBottomSheet> {
   @override
   void initState() {
     super.initState();
-    filteredBanks = widget.banks;
+    searchController.text = widget.initialSearchQuery;
+    filteredBanks = widget.initialSearchQuery.isEmpty
+        ? widget.banks
+        : widget.banks
+            .where((bank) => bank.toLowerCase().contains(widget.initialSearchQuery.toLowerCase()))
+            .toList();
     searchController.addListener(_filterBanks);
   }
 

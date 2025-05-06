@@ -1,22 +1,56 @@
+import 'package:isar/isar.dart';
 import '../../domain/entities/account.dart';
 
-class AccountModel extends Account {
-  @override
-  final String id;
-  @override
-  final String name;
-  @override
-  final String bank;
+part 'account_model.g.dart';
 
-  AccountModel({required this.id, required this.name, required this.bank})
-    : super(id: id, name: name, bank: bank);
+@collection
+class AccountModel implements Account {
+  @override
+  Id id = Isar.autoIncrement;
+  
+  @override
+  @Index(type: IndexType.value)
+  late String name;
+  
+  @override
+  late String bank;
+
+  AccountModel();
+  
+  AccountModel.create({
+    required this.name,
+    required this.bank,
+  });
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
-    return AccountModel(id: json['id'], name: json['name'], bank: json['bank']);
+    final model = AccountModel()
+      ..name = json['name'] ?? ''
+      ..bank = json['bank'] ?? '';
+    
+    if (json['id'] != null) {
+      model.id = int.parse(json['id'].toString());
+    }
+    
+    return model;
+  }
+
+  AccountModel copyWith({
+    String? name,
+    String? bank,
+  }) {
+    final model = AccountModel()
+      ..id = this.id
+      ..name = name ?? this.name
+      ..bank = bank ?? this.bank;
+    return model;
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'bank': bank};
+    return {
+      'id': id.toString(),
+      'name': name,
+      'bank': bank,
+    };
   }
 }

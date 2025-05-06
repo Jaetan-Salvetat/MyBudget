@@ -1,5 +1,5 @@
 abstract class Category {
-  String get id;
+  int get id;
   String get name;
   String get icon;
 }

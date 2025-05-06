@@ -69,10 +69,10 @@ class ExpenseBottomSheet extends StatefulWidget {
 class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   final nameController = TextEditingController();
   final amountController = TextEditingController();
-  String selectedCategory = '';
+  int selectedCategoryId = 0;
   DateTime selectedDate = DateTime.now();
   String selectedFrequency = 'Unique';
-  String? selectedAccountId;
+  int? selectedAccountId;
 
   final List<String> frequencies = [
     'Unique',
@@ -88,9 +88,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     Future.microtask(() {
       final categoryController = Get.find<CategoryController>();
       final categories = categoryController.categories;
-      if (categories.isNotEmpty && selectedCategory.isEmpty) {
+      if (categories.isNotEmpty && selectedCategoryId == 0) {
         setState(() {
-          selectedCategory = categories.first.name;
+          selectedCategoryId = categories.first.id;
         });
       }
     });
@@ -98,7 +98,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     if (widget.expense != null) {
       nameController.text = widget.expense!.name;
       amountController.text = widget.expense!.amount.toString();
-      selectedCategory = widget.expense!.category;
+      selectedCategoryId = widget.expense!.categoryId;
       selectedDate = widget.expense!.date;
       selectedFrequency = widget.expense!.frequency;
       selectedAccountId = widget.expense!.accountId;
@@ -182,13 +182,13 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              AppDropdownField<String>(
-                value: selectedCategory,
+              AppDropdownField<int>(
+                value: selectedCategoryId,
                 label: 'Catégorie',
                 icon: Icons.category,
                 items: Get.find<CategoryController>().categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category.name,
+                  return DropdownMenuItem<int>(
+                    value: category.id,
                     child: Row(
                       children: [
                         Icon(_getIconData(category.icon)),
@@ -201,7 +201,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
-                      selectedCategory = value;
+                      selectedCategoryId = value;
                     });
                   }
                 },
@@ -279,12 +279,12 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
-          child: AppDropdownField<String>(
-            value: selectedAccountId ?? '',
+          child: AppDropdownField<int>(
+            value: selectedAccountId ?? 0,
             label: 'Compte associé',
             icon: Icons.account_balance,
             items: widget.accounts.map((account) {
-              return DropdownMenuItem(
+              return DropdownMenuItem<int>(
                 value: account.id,
                 child: Text(account.name),
               );
@@ -324,16 +324,23 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                         amountController.text.replaceAll(',', '.')) ??
                     0.0;
 
-                final expense = ExpenseModel(
-                  id: widget.expense?.id ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: nameController.text,
-                  amount: amount,
-                  category: selectedCategory,
-                  date: selectedDate,
-                  frequency: selectedFrequency,
-                  accountId: selectedAccountId!,
-                );
+                final expense = widget.expense != null
+                  ? widget.expense!.copyWith(
+                      name: nameController.text,
+                      amount: amount,
+                      categoryId: selectedCategoryId,
+                      date: selectedDate,
+                      frequency: selectedFrequency,
+                      accountId: selectedAccountId!,
+                    )
+                  : ExpenseModel.create(
+                      name: nameController.text,
+                      amount: amount,
+                      categoryId: selectedCategoryId,
+                      date: selectedDate,
+                      frequency: selectedFrequency,
+                      accountId: selectedAccountId!,
+                    );
 
                 widget.onSubmit(expense);
               }

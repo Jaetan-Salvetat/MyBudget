@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/data/models/expense_model.dart';
-import 'package:mybudget/domain/entities/account.dart';
+import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_text_field.dart';
@@ -10,7 +10,7 @@ import 'package:mybudget/presentation/widgets/expenses/adaptive_date_picker.dart
 import 'package:mybudget/presentation/widgets/expenses/frequency_selector.dart';
 
 class ExpenseForm extends StatefulWidget {
-  final List<Account> accounts;
+  final List<AccountModel> accounts;
   final Expense? expense;
   final Function(Expense) onSubmit;
   final Function() onCancel;
@@ -30,10 +30,10 @@ class ExpenseForm extends StatefulWidget {
 class _ExpenseFormState extends State<ExpenseForm> {
   final nameController = TextEditingController();
   final amountController = TextEditingController();
-  String selectedCategory = '';
+  int selectedCategoryId = 0;
   DateTime selectedDate = DateTime.now();
   String selectedFrequency = 'Unique';
-  String? selectedAccountId;
+  int? selectedAccountId;
 
   final List<String> frequencies = [
     'Unique',
@@ -49,9 +49,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
     Future.microtask(() {
       final categoryController = Get.find<CategoryController>();
       final categories = categoryController.categories;
-      if (categories.isNotEmpty && selectedCategory.isEmpty) {
+      if (categories.isNotEmpty && selectedCategoryId == 0) {
         setState(() {
-          selectedCategory = categories.first.name;
+          selectedCategoryId = categories.first.id;
         });
       }
     });
@@ -59,7 +59,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
     if (widget.expense != null) {
       nameController.text = widget.expense!.name;
       amountController.text = widget.expense!.amount.toString();
-      selectedCategory = widget.expense!.category;
+      selectedCategoryId = widget.expense!.categoryId;
       selectedDate = widget.expense!.date;
       selectedFrequency = widget.expense!.frequency;
       selectedAccountId = widget.expense!.accountId;
@@ -126,14 +126,14 @@ class _ExpenseFormState extends State<ExpenseForm> {
               ),
             ),
             const SizedBox(height: 16),
-            AppDropdownField<String>(
-              value: selectedCategory,
+            AppDropdownField<int>(
+              value: selectedCategoryId,
               label: 'Catégorie',
               icon: Icons.category,
               items:
                   Get.find<CategoryController>().categories.map((category) {
-                    return DropdownMenuItem(
-                      value: category.name,
+                    return DropdownMenuItem<int>(
+                      value: category.id,
                       child: Row(
                         children: [
                           Icon(_getIconData(category.icon)),
@@ -146,7 +146,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
-                    selectedCategory = value;
+                    selectedCategoryId = value;
                   });
                 }
               },
@@ -172,13 +172,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
               },
             ),
             const SizedBox(height: 16),
-            AppDropdownField<String>(
-              value: selectedAccountId ?? '',
+            AppDropdownField<int>(
+              value: selectedAccountId ?? 0,
               label: 'Compte',
               icon: Icons.account_balance,
               items:
                   widget.accounts.map((account) {
-                    return DropdownMenuItem(
+                    return DropdownMenuItem<int>(
                       value: account.id,
                       child: Text(account.name),
                     );
@@ -205,17 +205,23 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   double.tryParse(amountController.text.replaceAll(',', '.')) ??
                   0.0;
 
-              final expense = ExpenseModel(
-                id:
-                    widget.expense?.id ??
-                    DateTime.now().millisecondsSinceEpoch.toString(),
-                name: nameController.text,
-                amount: amount,
-                category: selectedCategory,
-                date: selectedDate,
-                frequency: selectedFrequency,
-                accountId: selectedAccountId!,
-              );
+              final expense = widget.expense != null
+                ? (widget.expense as ExpenseModel).copyWith(
+                  name: nameController.text,
+                  amount: amount,
+                  categoryId: selectedCategoryId,
+                  date: selectedDate,
+                  frequency: selectedFrequency,
+                  accountId: selectedAccountId!
+                )
+                : ExpenseModel.create(
+                  name: nameController.text,
+                  amount: amount,
+                  categoryId: selectedCategoryId,
+                  date: selectedDate,
+                  frequency: selectedFrequency,
+                  accountId: selectedAccountId!,
+                );
 
               widget.onSubmit(expense);
             }

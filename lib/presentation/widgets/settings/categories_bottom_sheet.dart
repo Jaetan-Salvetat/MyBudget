@@ -49,8 +49,7 @@ class CategoriesBottomSheet extends StatelessWidget {
                   CategoryBottomSheet.show(
                     context: context,
                     onSubmit: (name, icon) {
-                      final newCategory = CategoryModel(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      final newCategory = CategoryModel.create(
                         name: name,
                         icon: icon,
                       );
@@ -165,11 +164,10 @@ class CategoriesBottomSheet extends StatelessWidget {
                   initialName: category.name,
                   initialIcon: category.icon,
                   onSubmit: (name, icon) {
-                    final updatedCategory = CategoryModel(
-                      id: category.id,
-                      name: name,
-                      icon: icon,
-                    );
+                    final updatedCategory = CategoryModel()
+                      ..id = int.parse(category.id.toString())
+                      ..name = name
+                      ..icon = icon;
                     categoryController.updateCategory(updatedCategory);
                   },
                 );
@@ -189,7 +187,7 @@ class CategoriesBottomSheet extends StatelessWidget {
                   confirmLabel: 'Supprimer',
                   isDestructive: true,
                   onConfirm: () {
-                    categoryController.deleteCategory(category.id);
+                    categoryController.deleteCategory(int.parse(category.id.toString()));
                   },
                 );
               },

@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/controllers/auth_controller.dart';
-import 'package:mybudget/core/services/appwrite/index.dart';
+import 'package:mybudget/core/services/isar_service.dart';
 import 'package:mybudget/data/models/revenue_model.dart';
 
 class RevenueController extends GetxController {
@@ -11,17 +10,15 @@ class RevenueController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever(Get.find<AuthController>().user, (_) => getRevenues());
+    getRevenues();
   }
   
   Future<void> getRevenues() async {
     try {
-      if (!Get.find<AuthController>().isAuthenticated) return;
-      
       isLoading.value = true;
       error.value = '';
       
-      final revenuesList = await AppwriteRevenueService.getRevenues();
+      final revenuesList = await IsarService().getAllRevenues();
       revenues.value = revenuesList;
     } catch (e) {
       error.value = e.toString();
@@ -35,7 +32,7 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteRevenueService.createRevenue(revenue);
+      await IsarService().saveRevenue(revenue);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();
@@ -49,7 +46,7 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteRevenueService.updateRevenue(revenue);
+      await IsarService().saveRevenue(revenue);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();
@@ -58,12 +55,12 @@ class RevenueController extends GetxController {
     }
   }
   
-  Future<void> deleteRevenue(String id) async {
+  Future<void> deleteRevenue(int id) async {
     try {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteRevenueService.deleteRevenue(id);
+      await IsarService().deleteRevenue(id);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();

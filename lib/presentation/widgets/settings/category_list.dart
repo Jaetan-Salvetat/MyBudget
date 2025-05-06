@@ -34,8 +34,7 @@ class CategoryList extends StatelessWidget {
             context: context,
             builder: (context) => AddEditCategoryDialog(
               onSubmit: (name, icon) {
-                final newCategory = CategoryModel(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                final newCategory = CategoryModel.create(
                   name: name,
                   icon: icon,
                 );
@@ -101,8 +100,7 @@ class CategoryTile extends StatelessWidget {
                     initialName: category.name,
                     initialIcon: category.icon,
                     onSubmit: (name, icon) {
-                      final updatedCategory = CategoryModel(
-                        id: category.id,
+                      final updatedCategory = (category as CategoryModel).copyWith(
                         name: name,
                         icon: icon,
                       );

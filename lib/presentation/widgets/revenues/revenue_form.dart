@@ -29,7 +29,7 @@ class _RevenueFormState extends State<RevenueForm> {
   final amountController = TextEditingController();
   bool isRegular = true;
   DateTime selectedDate = DateTime.now();
-  String? selectedAccountId;
+  int? selectedAccountId;
 
   @override
   void initState() {
@@ -139,13 +139,13 @@ class _RevenueFormState extends State<RevenueForm> {
               },
             ),
             const SizedBox(height: 16),
-            AppDropdownField<String>(
-              value: selectedAccountId ?? '',
+            AppDropdownField<int>(
+              value: selectedAccountId ?? 0,
               label: 'Compte',
               icon: Icons.account_balance,
               items:
                   widget.accounts.map((account) {
-                    return DropdownMenuItem(
+                    return DropdownMenuItem<int>(
                       value: account.id,
                       child: Text(account.name),
                     );
@@ -172,16 +172,21 @@ class _RevenueFormState extends State<RevenueForm> {
                   double.tryParse(amountController.text.replaceAll(',', '.')) ??
                   0.0;
 
-              final revenue = RevenueModel(
-                id:
-                    widget.revenue?.id ??
-                    DateTime.now().millisecondsSinceEpoch.toString(),
-                name: nameController.text,
-                amount: amount,
-                isRegular: isRegular,
-                date: selectedDate,
-                accountId: selectedAccountId!,
-              );
+              final revenue = widget.revenue != null
+                ? (widget.revenue as RevenueModel).copyWith(
+                    name: nameController.text,
+                    amount: amount,
+                    isRegular: isRegular,
+                    date: selectedDate,
+                    accountId: selectedAccountId!,
+                  )
+                : RevenueModel.create(
+                    name: nameController.text,
+                    amount: amount,
+                    isRegular: isRegular,
+                    date: selectedDate,
+                    accountId: selectedAccountId!,
+                  );
 
               widget.onSubmit(revenue);
             }

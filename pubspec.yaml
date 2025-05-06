@@ -35,7 +35,6 @@ dependencies:
   intl: ^0.18.1
   path_provider: ^2.1.5
   flutter_svg: ^2.0.9
-  appwrite: ^15.0.2
   flutter_dotenv: ^5.1.0
   package_info_plus: ^8.3.0
   cupertino_icons: ^1.0.8
@@ -43,12 +42,18 @@ dependencies:
   uuid: ^4.2.2
   share_plus: ^11.0.0
   intl_phone_field: ^3.2.0
+  shared_preferences: ^2.2.2
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_native_splash: ^2.3.7
   flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.7
+  isar_generator: ^3.1.0+1
 
 flutter_launcher_icons:
   android: true
@@ -72,10 +77,10 @@ flutter_launcher_icons:
   # package. See that file for information about deactivating specific lint
   flutter_lints: ^3.0.0
   build_runner: ^2.4.7
+  isar_generator: ^3.1.0+1
 
 
-dependency_overrides:
-  flutter_web_auth_2: 4.1.0
+# Aucune substitution de dépendance n'est nécessaire avec Isar
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

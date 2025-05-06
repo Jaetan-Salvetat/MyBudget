@@ -1,17 +1,17 @@
 abstract class Expense {
-  final String id;
+  final int id;
   final String name;
   final double amount;
-  final String category;
+  final int categoryId;
   final DateTime date;
   final String frequency;
-  final String accountId;
+  final int accountId;
 
   Expense({
     required this.id,
     required this.name,
     required this.amount,
-    required this.category,
+    required this.categoryId,
     required this.date,
     required this.frequency,
     required this.accountId,
@@ -19,13 +19,13 @@ abstract class Expense {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'name': name,
       'amount': amount,
-      'category': category,
+      'categoryId': categoryId.toString(),
       'date': date.toIso8601String(),
       'frequency': frequency,
-      'accountId': accountId,
+      'accountId': accountId.toString(),
     };
   }
 }

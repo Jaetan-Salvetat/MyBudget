@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/controllers/auth_controller.dart';
-import 'package:mybudget/core/services/appwrite/index.dart';
+import 'package:mybudget/core/services/isar_service.dart';
 import 'package:mybudget/data/models/account_model.dart';
 
 class AccountController extends GetxController {
@@ -11,17 +10,15 @@ class AccountController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever(Get.find<AuthController>().user, (_) => getAccounts());
+    getAccounts();
   }
   
   Future<void> getAccounts() async {
     try {
-      if (!Get.find<AuthController>().isAuthenticated) return;
-      
       isLoading.value = true;
       error.value = '';
       
-      final accountsList = await AppwriteAccountService.getAccounts();
+      final accountsList = await IsarService().getAllAccounts();
       accounts.value = accountsList;
     } catch (e) {
       error.value = e.toString();
@@ -35,7 +32,7 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteAccountService.createAccount(account.name, account.bank);
+      await IsarService().saveAccount(account);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();
@@ -49,7 +46,7 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteAccountService.updateAccount(account);
+      await IsarService().saveAccount(account);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();
@@ -58,12 +55,12 @@ class AccountController extends GetxController {
     }
   }
   
-  Future<void> deleteAccount(String id) async {
+  Future<void> deleteAccount(int id) async {
     try {
       isLoading.value = true;
       error.value = '';
       
-      await AppwriteAccountService.deleteAccount(id);
+      await IsarService().deleteAccount(id);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();
