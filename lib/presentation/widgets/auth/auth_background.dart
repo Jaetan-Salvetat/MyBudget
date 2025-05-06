@@ -17,16 +17,19 @@ class AuthBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
             pinned: true,
             expandedHeight: 180,
-            leading: showBackButton ? IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: onBackPressed,
-            ) : null,
+            leading:
+                showBackButton
+                    ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: onBackPressed,
+                    )
+                    : null,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
               title: Text(
@@ -57,7 +60,9 @@ class AuthBackground extends StatelessWidget {
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.3),
                         ),
                       ),
                     ),
@@ -69,7 +74,9 @@ class AuthBackground extends StatelessWidget {
                         height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.tertiary.withOpacity(0.3),
                         ),
                       ),
                     ),

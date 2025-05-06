@@ -117,19 +117,28 @@ class ExpenseDatePicker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: Text(
                             day.toString(),
                             style: TextStyle(
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimary 
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -146,8 +155,16 @@ class ExpenseDatePicker extends StatelessWidget {
   }
 
   void _showWeekdayPicker(BuildContext context) {
-    final days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    
+    final days = [
+      'Lundi',
+      'Mardi',
+      'Mercredi',
+      'Jeudi',
+      'Vendredi',
+      'Samedi',
+      'Dimanche',
+    ];
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -186,11 +203,12 @@ class ExpenseDatePicker extends StatelessWidget {
                   ),
                   itemCount: 7,
                   itemBuilder: (context, index) {
-                    final isSelected = (index + 1 == selectedDate.weekday) || 
+                    final isSelected =
+                        (index + 1 == selectedDate.weekday) ||
                         (index == 6 && selectedDate.weekday == 0);
                     int weekday = index + 1;
                     if (weekday == 7) weekday = 0;
-                    
+
                     return InkWell(
                       onTap: () {
                         onDateChanged(_findNextWeekday(weekday));
@@ -199,19 +217,28 @@ class ExpenseDatePicker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
                           child: Text(
                             days[index],
                             style: TextStyle(
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimary 
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -229,10 +256,20 @@ class ExpenseDatePicker extends StatelessWidget {
 
   void _showYearlyDatePicker(BuildContext context) {
     final months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
     ];
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -257,10 +294,7 @@ class ExpenseDatePicker extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Mois',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Mois', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(
@@ -278,12 +312,13 @@ class ExpenseDatePicker extends StatelessWidget {
                         final newDate = DateTime(
                           selectedDate.year,
                           index + 1,
-                          selectedDate.day > _daysInMonth(index + 1, selectedDate.year)
+                          selectedDate.day >
+                                  _daysInMonth(index + 1, selectedDate.year)
                               ? _daysInMonth(index + 1, selectedDate.year)
                               : selectedDate.day,
                         );
                         onDateChanged(newDate);
-                        
+
                         // Après la sélection du mois, afficher le sélecteur de jour
                         Navigator.of(context).pop();
                         _showMonthDayPickerForYearly(context, index + 1);
@@ -291,19 +326,28 @@ class ExpenseDatePicker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
                           child: Text(
                             months[index],
                             style: TextStyle(
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimary 
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -321,7 +365,7 @@ class ExpenseDatePicker extends StatelessWidget {
 
   void _showMonthDayPickerForYearly(BuildContext context, int month) {
     final daysInMonth = _daysInMonth(month, selectedDate.year);
-    
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -361,33 +405,39 @@ class ExpenseDatePicker extends StatelessWidget {
                   itemCount: daysInMonth,
                   itemBuilder: (context, index) {
                     final day = index + 1;
-                    final isSelected = day == selectedDate.day && month == selectedDate.month;
+                    final isSelected =
+                        day == selectedDate.day && month == selectedDate.month;
                     return InkWell(
                       onTap: () {
-                        final newDate = DateTime(
-                          selectedDate.year,
-                          month,
-                          day,
-                        );
+                        final newDate = DateTime(selectedDate.year, month, day);
                         onDateChanged(newDate);
                         Navigator.of(context).pop();
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: Text(
                             day.toString(),
                             style: TextStyle(
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimary 
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -410,17 +460,37 @@ class ExpenseDatePicker extends StatelessWidget {
       case 'Mensuel':
         return 'Jour ${selectedDate.day} de chaque mois';
       case 'Hebdomadaire':
-        final days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        final days = [
+          'Dimanche',
+          'Lundi',
+          'Mardi',
+          'Mercredi',
+          'Jeudi',
+          'Vendredi',
+          'Samedi',
+        ];
         return days[selectedDate.weekday % 7];
       case 'Annuel':
-        final months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 
-                       'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        final months = [
+          'Janvier',
+          'Février',
+          'Mars',
+          'Avril',
+          'Mai',
+          'Juin',
+          'Juillet',
+          'Août',
+          'Septembre',
+          'Octobre',
+          'Novembre',
+          'Décembre',
+        ];
         return '${selectedDate.day} ${months[selectedDate.month - 1]}';
       default:
         return '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
     }
   }
-  
+
   DateTime _findNextWeekday(int weekday) {
     DateTime date = DateTime.now();
     while (date.weekday != weekday) {
@@ -428,7 +498,7 @@ class ExpenseDatePicker extends StatelessWidget {
     }
     return date;
   }
-  
+
   int _daysInMonth(int month, int year) {
     return DateTime(year, month + 1, 0).day;
   }

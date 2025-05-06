@@ -197,7 +197,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.surfaceVariant.withOpacity(0.5),
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -251,7 +251,8 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                 LinearProgressIndicator(
                   value: progress,
                   minHeight: 24,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 Text(

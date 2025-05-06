@@ -5,48 +5,43 @@ part 'category_model.g.dart';
 
 @collection
 class CategoryModel implements Category {
+  @override
   Id id = Isar.autoIncrement;
-  
+
+  @override
   @Index(type: IndexType.value)
   late String name;
-  
+
+  @override
   late String icon;
 
   CategoryModel();
-  
-  CategoryModel.create({
-    required this.name,
-    required this.icon,
-  });
-  
+
+  CategoryModel.create({required this.name, required this.icon});
+
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    final model = CategoryModel()
-      ..name = json['name'] ?? ''
-      ..icon = json['icon'] ?? '';
-    
+    final model =
+        CategoryModel()
+          ..name = json['name'] ?? ''
+          ..icon = json['icon'] ?? '';
+
     if (json['id'] != null) {
       model.id = int.parse(json['id'].toString());
     }
-    
+
     return model;
   }
-  
-  CategoryModel copyWith({
-    String? name,
-    String? icon,
-  }) {
-    final model = CategoryModel()
-      ..id = id
-      ..name = name ?? this.name
-      ..icon = icon ?? this.icon;
+
+  CategoryModel copyWith({String? name, String? icon}) {
+    final model =
+        CategoryModel()
+          ..id = id
+          ..name = name ?? this.name
+          ..icon = icon ?? this.icon;
     return model;
   }
-  
+
   Map<String, dynamic> toJson() {
-    return {
-      'id': id.toString(),
-      'name': name,
-      'icon': icon,
-    };
+    return {'id': id.toString(), 'name': name, 'icon': icon};
   }
 }

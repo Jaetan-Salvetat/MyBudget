@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/domain/entities/account.dart';
-import 'package:mybudget/domain/entities/expense.dart';
-import 'package:mybudget/domain/entities/revenue.dart';
-import 'package:mybudget/data/models/loan_model.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 
-import 'package:mybudget/presentation/widgets/common/financial_card.dart';
+
 import 'package:mybudget/presentation/widgets/common/filter_chip.dart';
 import 'package:mybudget/presentation/widgets/dashboard/balance_card.dart';
 import 'package:mybudget/presentation/widgets/dashboard/account_card.dart';
@@ -18,6 +14,7 @@ import 'package:mybudget/presentation/widgets/dashboard/transaction_item.dart';
 import 'package:mybudget/presentation/widgets/dashboard/section_header.dart';
 import 'package:mybudget/presentation/widgets/dashboard/empty_state.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
+import 'package:mybudget/presentation/widgets/dashboard/active_loans_card.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -27,18 +24,10 @@ class DashboardScreen extends StatelessWidget {
     final accountController = Get.find<AccountController>();
     final expenseController = Get.find<ExpenseController>();
     final revenueController = Get.find<RevenueController>();
-    final loanController = Get.find<LoanController>();
     
     final accounts = accountController.accounts;
     final expenses = expenseController.expenses;
     final revenues = revenueController.revenues;
-    final loans = loanController.loans;
-
-    final monthlyExpenses = _calculateMonthlyExpenses(expenses);
-    final monthlyRevenues = _calculateMonthlyRevenues(revenues);
-    final netCashFlow = _calculateNetCashFlow(monthlyRevenues, monthlyExpenses);
-    final double savingsRate =
-        monthlyRevenues > 0 ? (netCashFlow / monthlyRevenues) * 100 : 0;
 
     return AppScaffold(
       title: 'MyBudget',
@@ -48,273 +37,145 @@ class DashboardScreen extends StatelessWidget {
             ? EmptyDashboardState(
                 onSetupPressed: () => Get.toNamed('/accounts'),
               )
-            : _buildDashboard(
-                context,
-                netCashFlow,
-                monthlyExpenses,
-                monthlyRevenues,
-                netCashFlow,
-                savingsRate,
-                accounts,
-                expenses,
-                revenues,
-                loans,
-              ),
+            : _buildDashboard(context),
         ),
       ),
     );
   }
 
-  Widget _buildDashboard(
-    BuildContext context,
-    double netCashFlow,
-    double monthlyExpenses,
-    double monthlyRevenues,
-    double netFlow,
-    double savingsRate,
-    List<Account> accounts,
-    List<Expense> expenses,
-    List<Revenue> revenues,
-    RxList<LoanModel> loans,
-  ) {
+  Widget _buildDashboard(BuildContext context) {
+    final accountController = Get.find<AccountController>();
+    final expenseController = Get.find<ExpenseController>();
+    final revenueController = Get.find<RevenueController>();
+    final loanController = Get.find<LoanController>();
+    
+    final accounts = accountController.accounts;
+    
+    final netCashFlow = accountController.getNetCashFlow();
+    final savingsRate = accountController.getSavingsRate();
+    final totalLoanAmount = loanController.getTotalRemainingAmount();
+    final monthlyExpenses = expenseController.getMonthlyExpenses();
+    final monthlyRevenues = revenueController.getMonthlyRevenues();
+    final totalMonthlyLoanPayments = loanController.getTotalMonthlyPayments();
+    final totalExpenses = monthlyExpenses + totalMonthlyLoanPayments;
+
     final NumberFormat formatter = NumberFormat.currency(
       locale: 'fr_FR',
       symbol: '€',
     );
-
-    // Création des listes pour les transactions récentes limitées à 3
-    final recentExpenses = expenses.take(3).toList();
-    final recentRevenues = revenues.take(3).toList();
+    
+    final recentExpenses = expenseController.getRecentExpenses(3);
+    final recentRevenues = revenueController.getRecentRevenues(3);
+    final activeLoans = loanController.getActiveLoans();
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 100), // Espace pour l'AppBar
-          // Carte de solde total
+          const SizedBox(height: 100),
+          
+          // Carte de solde total avec toutes les informations financières
           BalanceCard(
             balance: netCashFlow,
-            netFlow: netFlow,
+            netFlow: totalLoanAmount,
             savingsRate: savingsRate,
             formatter: formatter,
+            expenses: totalExpenses,
+            revenues: monthlyRevenues,
+            loanTotal: totalLoanAmount,
+            loanMonthlyPayments: activeLoans.fold(0.0, (sum, loan) => sum + loan.monthlyPayment),
           ),
 
-          // Résumé financier
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 5),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: FinancialCard(
-                    title: 'Dépenses',
-                    amount: monthlyExpenses,
-                    formatter: formatter,
-                    icon: Icons.arrow_downward,
-                    color: Theme.of(context).colorScheme.error,
-                    iconBackgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.error.withOpacity(0.1),
+                const Text(
+                  'Comptes',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FinancialCard(
-                    title: 'Revenus',
-                    amount: monthlyRevenues,
-                    formatter: formatter,
-                    icon: Icons.arrow_upward,
-                    color: Colors.green.shade700,
-                    iconBackgroundColor: Colors.green.shade700.withOpacity(0.1),
-                  ),
+                Row(
+                  children: [
+                    Obx(() {
+                      final accountController = Get.find<AccountController>();
+                      final totalBalance = accountController.getTotalBalance();
+                      return Text(
+                        formatter.format(totalBalance),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: totalBalance >= 0
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.error,
+                        ),
+                      );
+                    }),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () => Get.toNamed('/accounts'),
+                      child: Text(
+                        'Voir tout',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          // En-tête des comptes
-          SectionHeader(
-            title: 'Comptes',
-            actionText: 'Voir tout',
-            onActionPressed: () => Navigator.pushNamed(context, '/accounts'),
-          ),
-
-          // Liste des comptes
-          SizedBox(
-            height: 130,
-            child:
-                accounts.isEmpty
-                    ? Center(
-                      child: Text(
-                        'Aucun compte',
-                        style: TextStyle(
-                          color: Theme.of(context).disabledColor,
-                        ),
-                      ),
-                    )
-                    : ListView.builder(
-                      padding: const EdgeInsets.only(left: 16),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: accounts.length,
-                      itemBuilder: (context, index) {
-                        return AccountCard(
-                          account: accounts[index],
-                          formatter: formatter,
-                          onTap: () => Get.toNamed('/accounts'),
-                        );
-                      },
-                    ),
-          ),
-
-          // Section des emprunts
-          if (loans.isNotEmpty) ...[  
-            SectionHeader(
-              title: 'Mes emprunts',
-              actionText: 'Voir tout',
-              onActionPressed: () => Get.toNamed('/loans'),
-            ),
-            
+          if (accounts.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: Text('Aucun compte disponible'),
+              ),
+            )
+          else
             SizedBox(
-              height: 120,
+              height: 140,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: loans.length > 3 ? 3 : loans.length,
+                itemCount: accounts.length,
                 itemBuilder: (context, index) {
-                  final loan = loans[index];
-                  final progress = loan.getProgressPercentage();
-                  final remainingAmount = loan.getRemainingAmount();
-                  
-                  return Container(
-                    width: 220,
-                    margin: EdgeInsets.only(
-                      right: 12, 
-                      bottom: 4,
-                      left: index == 0 ? 0 : 0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Theme.of(context).colorScheme.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).shadowColor.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => Get.toNamed('/loan-details', arguments: loan),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      loan.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                    ),
-                                    child: Text(
-                                      '${(progress * 100).toInt()}%',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.account_balance,
-                                    size: 14,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    loan.lenderName,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 4,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    formatter.format(remainingAmount),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${formatter.format(loan.monthlyPayment)}/mois',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  final account = accounts[index];
+                  return AccountCard(
+                    account: account,
+                    formatter: formatter,
+                    onTap: () => Get.toNamed('/account-details', arguments: account),
                   );
                 },
               ),
             ),
-            const SizedBox(height: 16),
+
+          if (activeLoans.isNotEmpty) ...[  
+            SectionHeader(
+              title: 'Prêts actifs',
+              actionText: 'Voir tout',
+              onActionPressed: () => Get.toNamed('/loans'),
+            ),
+            
+            ActiveLoansCard(
+              loans: activeLoans,
+              formatter: formatter,
+            ),
           ],
-          
-          // En-tête des transactions
+
           SectionHeader(
             title: 'Transactions récentes',
             actionText: 'Voir tout',
             onActionPressed: () => Get.toNamed('/expenses'),
           ),
 
-          // Filtres de transactions
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
@@ -323,20 +184,20 @@ class DashboardScreen extends StatelessWidget {
                 children: [
                   CustomFilterChip(
                     label: 'Tout',
-                    route: '/home',
-                    onTap: (route) => Get.offAllNamed(route),
+                    route: '/dashboard', // Corrigé de '/home' à '/dashboard'
+                    onTap: (route) => Get.toNamed(route), // Changé de offAllNamed à toNamed pour éviter de réinitialiser la pile
                   ),
                   const SizedBox(width: 8),
                   CustomFilterChip(
                     label: 'Dépenses',
                     route: '/expenses',
-                    onTap: (route) => Get.offAllNamed(route),
+                    onTap: (route) => Get.toNamed(route), // Changé de offAllNamed à toNamed
                   ),
                   const SizedBox(width: 8),
                   CustomFilterChip(
                     label: 'Revenus',
                     route: '/revenues',
-                    onTap: (route) => Get.offAllNamed(route),
+                    onTap: (route) => Get.toNamed(route), // Changé de offAllNamed à toNamed
                   ),
                 ],
               ),
@@ -345,7 +206,6 @@ class DashboardScreen extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Liste des transactions récentes
           if (recentExpenses.isEmpty && recentRevenues.isEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -361,15 +221,12 @@ class DashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  // Dépenses récentes
                   ...recentExpenses.map(
                     (expense) => TransactionItem(
                       transaction: expense,
                       formatter: formatter,
                     ),
                   ),
-
-                  // Revenus récents
                   ...recentRevenues.map(
                     (revenue) => TransactionItem(
                       transaction: revenue,
@@ -379,47 +236,12 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-          // Padding pour éviter que le contenu soit caché par la barre de navigation
+            
           const SizedBox(height: 80),
         ],
       ),
     );
   }
 
-  double _calculateNetCashFlow(double revenues, double expenses) {
-    return revenues - expenses;
-  }
 
-  double _calculateMonthlyExpenses(List<Expense> expenses) {
-    if (expenses.isEmpty) return 0.0;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    return expenses
-        .where(
-          (expense) =>
-              expense.date.isAfter(startOfMonth) &&
-              expense.date.isBefore(endOfMonth),
-        )
-        .fold(0.0, (sum, expense) => sum + expense.amount);
-  }
-
-  double _calculateMonthlyRevenues(List<Revenue> revenues) {
-    if (revenues.isEmpty) return 0.0;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    return revenues
-        .where(
-          (revenue) =>
-              revenue.date.isAfter(startOfMonth) &&
-              revenue.date.isBefore(endOfMonth),
-        )
-        .fold(0.0, (sum, revenue) => sum + revenue.amount);
-  }
 }

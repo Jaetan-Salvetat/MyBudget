@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/domain/entities/account.dart';
+import 'package:mybudget/core/controllers/account_controller.dart';
 
 class AccountCard extends StatelessWidget {
   final Account account;
@@ -16,7 +18,9 @@ class AccountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double balance = double.tryParse(account.bank) ?? 0.0;
+    final accountController = Get.find<AccountController>();
+    final double balance = accountController.getAccountBalance(account.id);
+    
     final Color amountColor = balance >= 0
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.error;

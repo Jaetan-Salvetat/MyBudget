@@ -30,18 +30,16 @@ class LoanBottomSheet extends StatefulWidget {
     if (accounts.isEmpty) {
       return showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Aucun compte disponible'),
-          content: const Text(
-            'Vous devez d\'abord créer un compte avant d\'ajouter un emprunt.'
-          ),
-          actions: [
-            TextButton(
-              onPressed: onCancel,
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Aucun compte disponible'),
+              content: const Text(
+                'Vous devez d\'abord créer un compte avant d\'ajouter un emprunt.',
+              ),
+              actions: [
+                TextButton(onPressed: onCancel, child: const Text('OK')),
+              ],
             ),
-          ],
-        ),
       );
     }
 
@@ -69,12 +67,12 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
   final monthlyPaymentController = TextEditingController();
   final lenderController = TextEditingController();
   final notesController = TextEditingController();
-  
+
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 365));
   int dayOfMonth = DateTime.now().day;
   int? selectedAccountId;
-  
+
   String? nameError;
   String? amountError;
   String? monthlyPaymentError;
@@ -99,7 +97,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
     } else if (widget.accounts.isNotEmpty) {
       selectedAccountId = widget.accounts.first.id;
     }
-    
+
     amountController.addListener(_updateMonthlyPayment);
   }
 
@@ -113,21 +111,22 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
     notesController.dispose();
     super.dispose();
   }
-  
+
   void _updateMonthlyPayment() {
     if (amountController.text.isEmpty) return;
-    
+
     final amount = double.tryParse(amountController.text.replaceAll(',', '.'));
     if (amount == null || amount <= 0) return;
-    
+
     final start = DateTime(startDate.year, startDate.month, 1);
     final end = DateTime(endDate.year, endDate.month, 1);
-    final durationMonths = (end.year - start.year) * 12 + end.month - start.month;
-    
+    final durationMonths =
+        (end.year - start.year) * 12 + end.month - start.month;
+
     if (durationMonths <= 0) return;
-    
+
     final monthlyPayment = amount / durationMonths;
-    
+
     setState(() {
       monthlyPaymentController.text = monthlyPayment.toStringAsFixed(2);
     });
@@ -144,9 +143,10 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
           label: 'Nom de l\'emprunt',
           icon: Icons.description,
           errorText: nameError,
-          onChanged: (_) => setState(() {
-            if (nameError != null) nameError = null;
-          }),
+          onChanged:
+              (_) => setState(() {
+                if (nameError != null) nameError = null;
+              }),
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -155,9 +155,10 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
           icon: Icons.euro,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           errorText: amountError,
-          onChanged: (_) => setState(() {
-            if (amountError != null) amountError = null;
-          }),
+          onChanged:
+              (_) => setState(() {
+                if (amountError != null) amountError = null;
+              }),
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -166,10 +167,15 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
           icon: Icons.calendar_view_month,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           errorText: monthlyPaymentError,
-          onChanged: (_) => setState(() {
-            if (monthlyPaymentError != null) monthlyPaymentError = null;
-          }),
-          suffixIcon: Icon(Icons.auto_awesome, size: 16, color: Theme.of(context).colorScheme.primary),
+          onChanged:
+              (_) => setState(() {
+                if (monthlyPaymentError != null) monthlyPaymentError = null;
+              }),
+          suffixIcon: Icon(
+            Icons.auto_awesome,
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -177,9 +183,10 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
           label: 'Prêteur',
           icon: Icons.person,
           errorText: lenderError,
-          onChanged: (_) => setState(() {
-            if (lenderError != null) lenderError = null;
-          }),
+          onChanged:
+              (_) => setState(() {
+                if (lenderError != null) lenderError = null;
+              }),
         ),
         const SizedBox(height: 16),
         _buildDayOfMonthSelector(),
@@ -233,7 +240,9 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -261,7 +270,9 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
                 data: SliderThemeData(
                   activeTrackColor: Theme.of(context).colorScheme.primary,
                   thumbColor: Theme.of(context).colorScheme.primary,
-                  overlayColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  overlayColor: Theme.of(
+                    context,
+                  ).colorScheme.primary.withOpacity(0.2),
                 ),
                 child: Slider(
                   value: dayOfMonth.toDouble(),
@@ -310,7 +321,9 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -319,12 +332,17 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
               GestureDetector(
                 onTap: () => _selectStartDate(context),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withOpacity(0.5),
                     ),
                   ),
                   child: Row(
@@ -364,12 +382,17 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
               GestureDetector(
                 onTap: () => _selectEndDate(context),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withOpacity(0.5),
                     ),
                   ),
                   child: Row(
@@ -427,7 +450,9 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -436,12 +461,13 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
             label: 'Sélectionnez un compte',
             icon: Icons.account_balance,
             errorText: accountError,
-            items: widget.accounts.map((account) {
-              return DropdownMenuItem<int>(
-                value: account.id,
-                child: Text(account.name),
-              );
-            }).toList(),
+            items:
+                widget.accounts.map((account) {
+                  return DropdownMenuItem<int>(
+                    value: account.id,
+                    child: Text(account.name),
+                  );
+                }).toList(),
             onChanged: (value) {
               if (value != null) {
                 setState(() {
@@ -463,7 +489,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    
+
     if (pickedDate != null && pickedDate != startDate) {
       setState(() {
         startDate = pickedDate;
@@ -478,11 +504,14 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
   Future<void> _selectEndDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: endDate.isAfter(startDate) ? endDate : startDate.add(const Duration(days: 30)),
+      initialDate:
+          endDate.isAfter(startDate)
+              ? endDate
+              : startDate.add(const Duration(days: 30)),
       firstDate: startDate,
       lastDate: DateTime(2100),
     );
-    
+
     if (pickedDate != null && pickedDate != endDate) {
       setState(() {
         endDate = pickedDate;
@@ -493,79 +522,93 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
 
   void _validateAndSubmit() {
     bool isValid = true;
-    
+
     setState(() {
       if (nameController.text.isEmpty) {
         nameError = 'Le nom de l\'emprunt est requis';
         isValid = false;
       }
-      
+
       if (amountController.text.isEmpty) {
         amountError = 'Le montant est requis';
         isValid = false;
       } else {
-        final amount = double.tryParse(amountController.text.replaceAll(',', '.'));
+        final amount = double.tryParse(
+          amountController.text.replaceAll(',', '.'),
+        );
         if (amount == null || amount <= 0) {
           amountError = 'Veuillez entrer un montant valide';
           isValid = false;
         }
       }
-      
+
       if (monthlyPaymentController.text.isEmpty) {
         monthlyPaymentError = 'La mensualité est requise';
         isValid = false;
       } else {
-        final monthlyPayment = double.tryParse(monthlyPaymentController.text.replaceAll(',', '.'));
+        final monthlyPayment = double.tryParse(
+          monthlyPaymentController.text.replaceAll(',', '.'),
+        );
         if (monthlyPayment == null || monthlyPayment <= 0) {
           monthlyPaymentError = 'Veuillez entrer une mensualité valide';
           isValid = false;
         }
       }
-      
+
       if (lenderController.text.isEmpty) {
         lenderError = 'Le nom du prêteur est requis';
         isValid = false;
       }
-      
+
       if (selectedAccountId == null) {
         accountError = 'Veuillez sélectionner un compte';
         isValid = false;
       }
-      
+
       if (dayOfMonth < 1 || dayOfMonth > 31) {
         dayError = 'Jour invalide';
         isValid = false;
       }
     });
-    
+
     if (isValid) {
-      final amount = double.tryParse(amountController.text.replaceAll(',', '.')) ?? 0.0;
-      final monthlyPayment = double.tryParse(monthlyPaymentController.text.replaceAll(',', '.')) ?? 0.0;
-      
-      final loan = widget.loan != null
-        ? widget.loan!.copyWith(
-            name: nameController.text.trim(),
-            amount: amount,
-            monthlyPayment: monthlyPayment,
-            lenderName: lenderController.text.trim(),
-            dayOfMonth: dayOfMonth,
-            startDate: startDate,
-            endDate: endDate,
-            accountId: selectedAccountId!,
-            notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
-          )
-        : LoanModel.create(
-            name: nameController.text.trim(),
-            amount: amount,
-            monthlyPayment: monthlyPayment,
-            lenderName: lenderController.text.trim(),
-            dayOfMonth: dayOfMonth,
-            startDate: startDate,
-            endDate: endDate,
-            accountId: selectedAccountId!,
-            notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
-          );
-      
+      final amount =
+          double.tryParse(amountController.text.replaceAll(',', '.')) ?? 0.0;
+      final monthlyPayment =
+          double.tryParse(monthlyPaymentController.text.replaceAll(',', '.')) ??
+          0.0;
+
+      final loan =
+          widget.loan != null
+              ? widget.loan!.copyWith(
+                name: nameController.text.trim(),
+                amount: amount,
+                monthlyPayment: monthlyPayment,
+                lenderName: lenderController.text.trim(),
+                dayOfMonth: dayOfMonth,
+                startDate: startDate,
+                endDate: endDate,
+                accountId: selectedAccountId!,
+                notes:
+                    notesController.text.trim().isEmpty
+                        ? null
+                        : notesController.text.trim(),
+              )
+              : LoanModel.create(
+                name: nameController.text.trim(),
+                amount: amount,
+                monthlyPayment: monthlyPayment,
+                lenderName: lenderController.text.trim(),
+                dayOfMonth: dayOfMonth,
+                startDate: startDate,
+                endDate: endDate,
+                accountId: selectedAccountId!,
+                notes:
+                    notesController.text.trim().isEmpty
+                        ? null
+                        : notesController.text.trim(),
+              );
+
       widget.onSubmit(loan);
       Navigator.of(context).pop();
     }

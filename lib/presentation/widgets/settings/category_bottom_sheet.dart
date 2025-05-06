@@ -22,7 +22,10 @@ class CategoryBottomSheet extends StatefulWidget {
   }) {
     return AppModalBottomSheet.show(
       context: context,
-      title: initialName == null ? 'Ajouter une catégorie' : 'Modifier la catégorie',
+      title:
+          initialName == null
+              ? 'Ajouter une catégorie'
+              : 'Modifier la catégorie',
       content: CategoryBottomSheet(
         initialName: initialName,
         initialIcon: initialIcon,
@@ -43,10 +46,18 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
   final List<Map<String, dynamic>> availableIcons = [
     {'name': 'restaurant', 'icon': Icons.restaurant, 'label': 'Restaurant'},
     {'name': 'shopping_cart', 'icon': Icons.shopping_cart, 'label': 'Shopping'},
-    {'name': 'directions_car', 'icon': Icons.directions_car, 'label': 'Transport'},
+    {
+      'name': 'directions_car',
+      'icon': Icons.directions_car,
+      'label': 'Transport',
+    },
     {'name': 'home', 'icon': Icons.home, 'label': 'Maison'},
     {'name': 'fitness_center', 'icon': Icons.fitness_center, 'label': 'Sport'},
-    {'name': 'medical_services', 'icon': Icons.medical_services, 'label': 'Santé'},
+    {
+      'name': 'medical_services',
+      'icon': Icons.medical_services,
+      'label': 'Santé',
+    },
     {'name': 'sports_esports', 'icon': Icons.sports_esports, 'label': 'Jeux'},
     {'name': 'school', 'icon': Icons.school, 'label': 'Éducation'},
     {'name': 'movie', 'icon': Icons.movie, 'label': 'Divertissement'},
@@ -97,7 +108,9 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -123,9 +136,12 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.surfaceVariant,
+                    color:
+                        isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -134,18 +150,24 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                       Icon(
                         iconData['icon'],
                         size: 24,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                        color:
+                            isSelected
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         iconData['label'],
                         style: TextStyle(
                           fontSize: 10,
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 1,

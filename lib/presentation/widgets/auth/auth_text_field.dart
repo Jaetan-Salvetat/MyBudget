@@ -56,14 +56,20 @@ class _AuthTextFieldState extends State<AuthTextField> {
         Container(
           height: 60,
           decoration: BoxDecoration(
-            color: _hasFocus
-                ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4)
-                : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+            color:
+                _hasFocus
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withOpacity(0.4)
+                    : Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest.withOpacity(0.4),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _hasFocus
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
+              color:
+                  _hasFocus
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.transparent,
               width: 2,
             ),
           ),
@@ -79,33 +85,41 @@ class _AuthTextFieldState extends State<AuthTextField> {
             decoration: InputDecoration(
               prefixIcon: Icon(
                 widget.icon,
-                color: _hasFocus
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                color:
+                    _hasFocus
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              suffixIcon: widget.obscureText
-                  ? IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility : Icons.visibility_off,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    )
-                  : null,
+              suffixIcon:
+                  widget.obscureText
+                      ? IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      )
+                      : null,
               labelText: widget.label,
               hintText: widget.hintText,
               labelStyle: TextStyle(
-                color: _hasFocus
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                color:
+                    _hasFocus
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               counterText: '',
             ),
           ),

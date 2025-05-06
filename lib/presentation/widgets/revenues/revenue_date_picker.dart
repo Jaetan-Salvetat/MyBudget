@@ -14,7 +14,7 @@ class RevenueDatePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isRegularRevenue 
+    return isRegularRevenue
         ? _buildMonthDayPicker(context)
         : _buildFullDatePicker(context);
   }
@@ -32,9 +32,7 @@ class RevenueDatePicker extends StatelessWidget {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.calendar_today),
           ),
-          child: Text(
-            'Le ${selectedDate.day} de chaque mois',
-          ),
+          child: Text('Le ${selectedDate.day} de chaque mois'),
         ),
       ),
     );
@@ -125,19 +123,28 @@ class RevenueDatePicker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.surfaceVariant,
+                          color:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: Text(
                             day.toString(),
                             style: TextStyle(
-                              color: isSelected 
-                                  ? Theme.of(context).colorScheme.onPrimary 
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                             ),
                           ),
                         ),

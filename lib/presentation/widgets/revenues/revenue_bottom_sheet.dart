@@ -124,7 +124,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.surfaceVariant.withOpacity(0.3),
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -168,7 +168,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.surfaceVariant.withOpacity(0.3),
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -224,7 +224,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.surfaceVariant.withOpacity(0.3),
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -273,21 +273,22 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                     ) ??
                     0.0;
 
-                final revenue = widget.revenue != null
-                  ? widget.revenue!.copyWith(
-                      name: nameController.text,
-                      amount: amount,
-                      isRegular: isRegular,
-                      date: selectedDate,
-                      accountId: int.parse(selectedAccountId!),
-                    )
-                  : RevenueModel.create(
-                      name: nameController.text,
-                      amount: amount,
-                      isRegular: isRegular,
-                      date: selectedDate,
-                      accountId: int.parse(selectedAccountId!),
-                    );
+                final revenue =
+                    widget.revenue != null
+                        ? widget.revenue!.copyWith(
+                          name: nameController.text,
+                          amount: amount,
+                          isRegular: isRegular,
+                          date: selectedDate,
+                          accountId: int.parse(selectedAccountId!),
+                        )
+                        : RevenueModel.create(
+                          name: nameController.text,
+                          amount: amount,
+                          isRegular: isRegular,
+                          date: selectedDate,
+                          accountId: int.parse(selectedAccountId!),
+                        );
 
                 widget.onSubmit(revenue);
               }

@@ -17,19 +17,19 @@ class ExpensesScreen extends StatelessWidget {
     return AppScaffold(
       title: 'Dépenses',
       useNestedAppBar: false,
-      child: const ExpensesList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddExpenseBottomSheet(context),
         tooltip: 'Ajouter une dépense',
         child: const Icon(Icons.add),
       ),
+      child: const ExpensesList(),
     );
   }
 
   void _showAddExpenseBottomSheet(BuildContext context) {
     final accountController = Get.find<AccountController>();
     final expenseController = Get.find<ExpenseController>();
-    
+
     ExpenseBottomSheet.show(
       context: context,
       accounts: accountController.accounts,
@@ -49,7 +49,7 @@ class ExpensesList extends StatelessWidget {
   Widget build(BuildContext context) {
     final expenseController = Get.find<ExpenseController>();
     final accountController = Get.find<AccountController>();
-    
+
     return Obx(() {
       final expenses = expenseController.expenses;
       final accounts = accountController.accounts;
@@ -90,7 +90,12 @@ class ExpensesList extends StatelessWidget {
       }
 
       return ListView.separated(
-        padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
+        padding: const EdgeInsets.only(
+          top: 130,
+          bottom: 16,
+          left: 16,
+          right: 16,
+        ),
         itemCount: expenses.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
@@ -175,9 +180,8 @@ class ExpenseCard extends StatelessWidget {
                     children: [
                       Text(
                         expense.name,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -193,9 +197,9 @@ class ExpenseCard extends StatelessWidget {
                 Text(
                   '${expense.amount.toStringAsFixed(2)} €',
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -212,9 +216,7 @@ class ExpenseCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Chip(
-                  label: Text(
-                    _formatDate(expense.date, expense.frequency),
-                  ),
+                  label: Text(_formatDate(expense.date, expense.frequency)),
                   backgroundColor:
                       Theme.of(context).colorScheme.secondaryContainer,
                   labelStyle: TextStyle(
@@ -231,29 +233,30 @@ class ExpenseCard extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Confirmer la suppression'),
-                        content: Text(
-                          'Voulez-vous vraiment supprimer ${expense.name} ?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Annuler'),
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.error,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Confirmer la suppression'),
+                            content: Text(
+                              'Voulez-vous vraiment supprimer ${expense.name} ?',
                             ),
-                            onPressed: () {
-                              onDelete();
-                              Get.back();
-                            },
-                            child: const Text('Supprimer'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Get.back(),
+                                child: const Text('Annuler'),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.error,
+                                ),
+                                onPressed: () {
+                                  onDelete();
+                                  Get.back();
+                                },
+                                child: const Text('Supprimer'),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                     );
                   },
                 ),
@@ -272,7 +275,7 @@ class ExpenseCard extends StatelessWidget {
       (c) => c.id == categoryId,
       orElse: () => CategoryModel()..icon = 'category', // Default icon
     );
-    
+
     switch (category.icon) {
       case 'restaurant':
         return Icons.restaurant;

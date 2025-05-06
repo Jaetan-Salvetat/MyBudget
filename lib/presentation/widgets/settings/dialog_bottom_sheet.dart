@@ -20,9 +20,14 @@ class DialogBottomSheet {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isDestructive
-                  ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.5)
-                  : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+              color:
+                  isDestructive
+                      ? Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withOpacity(0.5)
+                      : Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(16),
@@ -33,9 +38,10 @@ class DialogBottomSheet {
                   children: [
                     Icon(
                       isDestructive ? Icons.warning_amber_rounded : Icons.info,
-                      color: isDestructive
-                          ? Theme.of(context).colorScheme.error
-                          : Theme.of(context).colorScheme.primary,
+                      color:
+                          isDestructive
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.primary,
                       size: 24,
                     ),
                     const SizedBox(width: 12),

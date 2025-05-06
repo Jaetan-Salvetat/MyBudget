@@ -1,11 +1,18 @@
 import 'package:get/get.dart';
 import 'package:mybudget/core/services/isar_service.dart';
 import 'package:mybudget/data/models/account_model.dart';
+import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/controllers/revenue_controller.dart';
+import 'package:mybudget/core/controllers/loan_controller.dart';
 
 class AccountController extends GetxController {
   final RxList<AccountModel> accounts = <AccountModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
+  
+  final _expenseController = Get.find<ExpenseController>();
+  final _revenueController = Get.find<RevenueController>();
+  final _loanController = Get.find<LoanController>();
   
   @override
   void onInit() {
@@ -72,5 +79,75 @@ class AccountController extends GetxController {
   void reset() {
     accounts.clear();
     error.value = '';
+  }
+  
+  double getAccountBalance(int accountId) {
+    final accountRevenues = _revenueController.revenues
+        .where((revenue) => revenue.accountId == accountId)
+        .toList();
+    
+    final accountExpenses = _expenseController.expenses
+        .where((expense) => expense.accountId == accountId)
+        .toList();
+        
+    final activeLoans = _loanController.loans
+        .where((loan) => loan.accountId == accountId && !loan.isCompleted())
+        .toList();
+    
+    final totalRevenues = accountRevenues.fold<double>(
+      0.0, 
+      (sum, revenue) => sum + revenue.amount
+    );
+    
+    final totalExpenses = accountExpenses.fold<double>(
+      0.0, 
+      (sum, expense) => sum + expense.amount
+    );
+    
+    final totalLoanPayments = activeLoans.fold<double>(
+      0.0,
+      (sum, loan) => sum + loan.monthlyPayment
+    );
+    
+    return totalRevenues - totalExpenses - totalLoanPayments;
+  }
+  
+  double getTotalBalance() {
+    double total = 0.0;
+    
+    for (final account in accounts) {
+      total += getAccountBalance(account.id);
+    }
+    
+    return total;
+  }
+  
+  double getNetCashFlow() {
+    final revenueController = Get.find<RevenueController>();
+    final expenseController = Get.find<ExpenseController>();
+    final loanController = Get.find<LoanController>();
+    
+    final monthlyRevenues = revenueController.getMonthlyRevenues();
+    final monthlyExpenses = expenseController.getMonthlyExpenses();
+    final monthlyLoanPayments = loanController.getTotalMonthlyPayments();
+    
+    return monthlyRevenues - (monthlyExpenses + monthlyLoanPayments);
+  }
+  
+  double getSavingsRate() {
+    final revenueController = Get.find<RevenueController>();
+    final monthlyRevenues = revenueController.getMonthlyRevenues();
+    
+    if (monthlyRevenues <= 0) return 0.0;
+    
+    final netCashFlow = getNetCashFlow();
+    return (netCashFlow / monthlyRevenues) * 100;
+  }
+  
+  int getTotalTransactionsCount() {
+    final expenseController = Get.find<ExpenseController>();
+    final revenueController = Get.find<RevenueController>();
+    
+    return expenseController.expenses.length + revenueController.revenues.length;
   }
 }

@@ -33,18 +33,16 @@ class ExpenseBottomSheet extends StatefulWidget {
     if (accounts.isEmpty) {
       return showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Aucun compte disponible'),
-          content: const Text(
-            'Vous devez d\'abord créer un compte avant d\'ajouter une dépense.'
-          ),
-          actions: [
-            TextButton(
-              onPressed: onCancel,
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Aucun compte disponible'),
+              content: const Text(
+                'Vous devez d\'abord créer un compte avant d\'ajouter une dépense.',
+              ),
+              actions: [
+                TextButton(onPressed: onCancel, child: const Text('OK')),
+              ],
             ),
-          ],
-        ),
       );
     }
 
@@ -145,7 +143,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       ],
     );
   }
-  
+
   Widget _buildInfoSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +159,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -186,18 +186,19 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 value: selectedCategoryId,
                 label: 'Catégorie',
                 icon: Icons.category,
-                items: Get.find<CategoryController>().categories.map((category) {
-                  return DropdownMenuItem<int>(
-                    value: category.id,
-                    child: Row(
-                      children: [
-                        Icon(_getIconData(category.icon)),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                items:
+                    Get.find<CategoryController>().categories.map((category) {
+                      return DropdownMenuItem<int>(
+                        value: category.id,
+                        child: Row(
+                          children: [
+                            Icon(_getIconData(category.icon)),
+                            const SizedBox(width: 8),
+                            Text(category.name),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -212,7 +213,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       ],
     );
   }
-  
+
   Widget _buildScheduleSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +229,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -259,7 +262,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       ],
     );
   }
-  
+
   Widget _buildAccountSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +278,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(16),
@@ -283,12 +288,13 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             value: selectedAccountId ?? 0,
             label: 'Compte associé',
             icon: Icons.account_balance,
-            items: widget.accounts.map((account) {
-              return DropdownMenuItem<int>(
-                value: account.id,
-                child: Text(account.name),
-              );
-            }).toList(),
+            items:
+                widget.accounts.map((account) {
+                  return DropdownMenuItem<int>(
+                    value: account.id,
+                    child: Text(account.name),
+                  );
+                }).toList(),
             onChanged: (value) {
               if (value != null) {
                 setState(() {
@@ -301,15 +307,12 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       ],
     );
   }
-  
+
   Widget _buildActionButtons() {
     return Row(
       children: [
         Expanded(
-          child: AppModalButton(
-            label: 'Annuler',
-            onPressed: widget.onCancel,
-          ),
+          child: AppModalButton(label: 'Annuler', onPressed: widget.onCancel),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -320,27 +323,30 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               if (nameController.text.isNotEmpty &&
                   amountController.text.isNotEmpty &&
                   selectedAccountId != null) {
-                final amount = double.tryParse(
-                        amountController.text.replaceAll(',', '.')) ??
+                final amount =
+                    double.tryParse(
+                      amountController.text.replaceAll(',', '.'),
+                    ) ??
                     0.0;
 
-                final expense = widget.expense != null
-                  ? widget.expense!.copyWith(
-                      name: nameController.text,
-                      amount: amount,
-                      categoryId: selectedCategoryId,
-                      date: selectedDate,
-                      frequency: selectedFrequency,
-                      accountId: selectedAccountId!,
-                    )
-                  : ExpenseModel.create(
-                      name: nameController.text,
-                      amount: amount,
-                      categoryId: selectedCategoryId,
-                      date: selectedDate,
-                      frequency: selectedFrequency,
-                      accountId: selectedAccountId!,
-                    );
+                final expense =
+                    widget.expense != null
+                        ? widget.expense!.copyWith(
+                          name: nameController.text,
+                          amount: amount,
+                          categoryId: selectedCategoryId,
+                          date: selectedDate,
+                          frequency: selectedFrequency,
+                          accountId: selectedAccountId!,
+                        )
+                        : ExpenseModel.create(
+                          name: nameController.text,
+                          amount: amount,
+                          categoryId: selectedCategoryId,
+                          date: selectedDate,
+                          frequency: selectedFrequency,
+                          accountId: selectedAccountId!,
+                        );
 
                 widget.onSubmit(expense);
               }

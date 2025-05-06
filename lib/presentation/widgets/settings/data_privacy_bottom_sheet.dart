@@ -44,10 +44,7 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
       final revenueController = Get.find<RevenueController>();
 
       final userData = <String, dynamic>{
-        'user': {
-          'id': 'local_user',
-          'isAuthenticated': false,
-        },
+        'user': {'id': 'local_user', 'isAuthenticated': false},
         'accounts':
             accountController.accounts.map((acc) => acc.toJson()).toList(),
         'expenses':
@@ -92,7 +89,6 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,7 +178,9 @@ class _DataPrivacyBottomSheetState extends State<DataPrivacyBottomSheet> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

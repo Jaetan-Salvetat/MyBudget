@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mybudget/core/routes/app_routes.dart';
 import 'package:mybudget/presentation/widgets/common/gradient_app_bar.dart';
 
 class AppScaffold extends StatelessWidget {
@@ -20,12 +22,12 @@ class AppScaffold extends StatelessWidget {
   });
 
   static final List<_NavItem> _items = [
-    const _NavItem('Accueil', Icons.dashboard_outlined, '/home'),
-    const _NavItem('Comptes', Icons.account_balance_outlined, '/accounts'),
-    const _NavItem('Dépenses', Icons.money_off_outlined, '/expenses'),
-    const _NavItem('Revenus', Icons.attach_money_outlined, '/revenues'),
-    const _NavItem('Emprunts', Icons.account_balance_wallet_outlined, '/loans'),
-    const _NavItem('Paramètres', Icons.settings_outlined, '/settings'),
+    const _NavItem('Accueil', Icons.dashboard_outlined, AppRoutes.dashboard),
+    const _NavItem('Comptes', Icons.account_balance_outlined, AppRoutes.accounts),
+    const _NavItem('Dépenses', Icons.money_off_outlined, AppRoutes.expenses),
+    const _NavItem('Revenus', Icons.attach_money_outlined, AppRoutes.revenues),
+    const _NavItem('Emprunts', Icons.account_balance_wallet_outlined, AppRoutes.loans),
+    const _NavItem('Paramètres', Icons.settings_outlined, AppRoutes.settings),
   ];
 
   int _locationToIndex(String location) {
@@ -56,7 +58,7 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/home';
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? AppRoutes.dashboard;
     final selectedIndex = _locationToIndex(currentRoute);
 
     return Scaffold(
@@ -95,7 +97,9 @@ class AppScaffold extends StatelessWidget {
             onDestinationSelected: (index) {
               final route = _items[index].route;
               if (currentRoute != route) {
-                Navigator.pushReplacementNamed(context, route);
+                // Utilisation de Get.toNamed au lieu de Navigator.pushReplacementNamed
+                // pour maintenir la cohérence avec le reste de l'application et éviter de réinitialiser la pile
+                Get.toNamed(route);
               }
             },
           ),

@@ -7,26 +7,26 @@ part 'revenue_model.g.dart';
 class RevenueModel implements Revenue {
   @override
   Id id = Isar.autoIncrement;
-  
+
   @override
   @Index(type: IndexType.value)
   late String name;
-  
+
   @override
   late int accountId;
-  
+
   @override
   late double amount;
-  
+
   @override
   late bool isRegular;
-  
+
   @override
   @Index()
   late DateTime date;
 
   RevenueModel();
-  
+
   RevenueModel.create({
     required this.name,
     required this.amount,
@@ -36,21 +36,24 @@ class RevenueModel implements Revenue {
   });
 
   factory RevenueModel.fromJson(Map<String, dynamic> json) {
-    final model = RevenueModel()
-      ..name = json['name'] ?? ''
-      ..amount = (json['amount'] ?? 0.0).toDouble()
-      ..isRegular = json['isRegular'] ?? false
-      ..date = json['date'] != null 
-          ? DateTime.parse(json['date']) 
-          : DateTime.now()
-      ..accountId = json['accountId'] != null 
-          ? int.parse(json['accountId'].toString()) 
-          : 0;
-    
+    final model =
+        RevenueModel()
+          ..name = json['name'] ?? ''
+          ..amount = (json['amount'] ?? 0.0).toDouble()
+          ..isRegular = json['isRegular'] ?? false
+          ..date =
+              json['date'] != null
+                  ? DateTime.parse(json['date'])
+                  : DateTime.now()
+          ..accountId =
+              json['accountId'] != null
+                  ? int.parse(json['accountId'].toString())
+                  : 0;
+
     if (json['id'] != null) {
       model.id = int.parse(json['id'].toString());
     }
-    
+
     return model;
   }
 
@@ -61,13 +64,14 @@ class RevenueModel implements Revenue {
     DateTime? date,
     int? accountId,
   }) {
-    final model = RevenueModel()
-      ..id = this.id
-      ..name = name ?? this.name
-      ..amount = amount ?? this.amount
-      ..isRegular = isRegular ?? this.isRegular
-      ..date = date ?? this.date
-      ..accountId = accountId ?? this.accountId;
+    final model =
+        RevenueModel()
+          ..id = id
+          ..name = name ?? this.name
+          ..amount = amount ?? this.amount
+          ..isRegular = isRegular ?? this.isRegular
+          ..date = date ?? this.date
+          ..accountId = accountId ?? this.accountId;
     return model;
   }
 

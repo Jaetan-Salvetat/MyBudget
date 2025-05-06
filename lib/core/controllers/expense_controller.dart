@@ -73,4 +73,36 @@ class ExpenseController extends GetxController {
     expenses.clear();
     error.value = '';
   }
+  
+  double getMonthlyExpenses() {
+    if (expenses.isEmpty) return 0.0;
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    return expenses
+        .where(
+          (expense) =>
+              expense.date.isAtSameMomentAs(startOfMonth) ||
+              expense.date.isAtSameMomentAs(endOfMonth) ||
+              (expense.date.isAfter(startOfMonth) &&
+              expense.date.isBefore(endOfMonth)),
+        )
+        .fold(0.0, (sum, expense) => sum + expense.amount);
+  }
+  
+  List<ExpenseModel> getRecentExpenses(int count) {
+    final sortedExpenses = [...expenses];
+    sortedExpenses.sort((a, b) => b.date.compareTo(a.date));
+    return sortedExpenses.take(count).toList();
+  }
+  
+  double getTotalExpenses() {
+    return expenses.fold(0.0, (sum, expense) => sum + expense.amount);
+  }
+  
+  List<ExpenseModel> getExpensesForAccount(int accountId) {
+    return expenses.where((expense) => expense.accountId == accountId).toList();
+  }
 }

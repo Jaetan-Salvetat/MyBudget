@@ -15,19 +15,19 @@ class RevenuesScreen extends StatelessWidget {
     return AppScaffold(
       title: 'Revenus',
       useNestedAppBar: false,
-      child: const RevenuesList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddRevenueBottomSheet(context),
         tooltip: 'Ajouter un revenu',
         child: const Icon(Icons.add),
       ),
+      child: const RevenuesList(),
     );
   }
-  
+
   void _showAddRevenueBottomSheet(BuildContext context) {
     final accountController = Get.find<AccountController>();
     final revenueController = Get.find<RevenueController>();
-    
+
     RevenueBottomSheet.show(
       context: context,
       accounts: accountController.accounts,
@@ -88,7 +88,12 @@ class RevenuesList extends StatelessWidget {
       }
 
       return ListView.separated(
-        padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
+        padding: const EdgeInsets.only(
+          top: 130,
+          bottom: 16,
+          left: 16,
+          right: 16,
+        ),
         itemCount: revenues.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
@@ -147,9 +152,7 @@ class RevenueCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

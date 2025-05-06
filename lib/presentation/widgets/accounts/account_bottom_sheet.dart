@@ -107,9 +107,10 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           label: 'Nom du compte',
           icon: Icons.account_balance_wallet_outlined,
           errorText: nameError,
-          onChanged: (_) => setState(() {
-            if (nameError != null) nameError = null;
-          }),
+          onChanged:
+              (_) => setState(() {
+                if (nameError != null) nameError = null;
+              }),
         ),
         const SizedBox(height: 20),
         if (selectedBank == null) ...[
@@ -118,9 +119,10 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             label: 'Banque',
             icon: Icons.account_balance_outlined,
             errorText: bankError,
-            onChanged: (_) => setState(() {
-              if (bankError != null) bankError = null;
-            }),
+            onChanged:
+                (_) => setState(() {
+                  if (bankError != null) bankError = null;
+                }),
           ),
           const SizedBox(height: 16),
           _buildBankSuggestions(),
@@ -143,19 +145,19 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
                 isPrimary: true,
                 onPressed: () {
                   bool isValid = true;
-                  
+
                   setState(() {
                     if (nameController.text.isEmpty) {
                       nameError = 'Le nom du compte est requis';
                       isValid = false;
                     }
-                    
+
                     if (bankController.text.isEmpty && selectedBank == null) {
                       bankError = 'La banque est requise';
                       isValid = false;
                     }
                   });
-                  
+
                   if (isValid) {
                     widget.onSubmit(
                       nameController.text.trim(),
@@ -174,17 +176,21 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 
   Widget _buildBankSuggestions() {
     final searchQuery = bankController.text.toLowerCase();
-    
+
     // Filtrage des banques selon le texte saisi
-    final filteredBanks = suggestedBanks
-        .where((bank) => bank.toLowerCase().contains(searchQuery))
-        .take(searchQuery.isEmpty ? 8 : 12)
-        .toList();
-    
+    final filteredBanks =
+        suggestedBanks
+            .where((bank) => bank.toLowerCase().contains(searchQuery))
+            .take(searchQuery.isEmpty ? 8 : 12)
+            .toList();
+
     // On affiche "Voir tout" uniquement quand il y a plus de banques que celles affichées
-    final hasMoreSuggestions = suggestedBanks.where((bank) => 
-        bank.toLowerCase().contains(searchQuery)).length > (searchQuery.isEmpty ? 8 : 12);
-    
+    final hasMoreSuggestions =
+        suggestedBanks
+            .where((bank) => bank.toLowerCase().contains(searchQuery))
+            .length >
+        (searchQuery.isEmpty ? 8 : 12);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -225,21 +231,23 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: filteredBanks.map((bank) {
-            return InkWell(
-              onTap: () {
-                setState(() {
-                  selectedBank = bank;
-                  bankController.text = bank;
-                });
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Chip(
-                label: Text(bank),
-                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-              ),
-            );
-          }).toList(),
+          children:
+              filteredBanks.map((bank) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedBank = bank;
+                      bankController.text = bank;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Chip(
+                    label: Text(bank),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
+                );
+              }).toList(),
         ),
       ],
     );
@@ -346,11 +354,16 @@ class _BankListBottomSheetState extends State<_BankListBottomSheet> {
   void initState() {
     super.initState();
     searchController.text = widget.initialSearchQuery;
-    filteredBanks = widget.initialSearchQuery.isEmpty
-        ? widget.banks
-        : widget.banks
-            .where((bank) => bank.toLowerCase().contains(widget.initialSearchQuery.toLowerCase()))
-            .toList();
+    filteredBanks =
+        widget.initialSearchQuery.isEmpty
+            ? widget.banks
+            : widget.banks
+                .where(
+                  (bank) => bank.toLowerCase().contains(
+                    widget.initialSearchQuery.toLowerCase(),
+                  ),
+                )
+                .toList();
     searchController.addListener(_filterBanks);
   }
 
@@ -364,9 +377,12 @@ class _BankListBottomSheetState extends State<_BankListBottomSheet> {
   void _filterBanks() {
     final query = searchController.text.toLowerCase();
     setState(() {
-      filteredBanks = query.isEmpty
-          ? widget.banks
-          : widget.banks.where((bank) => bank.toLowerCase().contains(query)).toList();
+      filteredBanks =
+          query.isEmpty
+              ? widget.banks
+              : widget.banks
+                  .where((bank) => bank.toLowerCase().contains(query))
+                  .toList();
     });
   }
 
@@ -426,51 +442,62 @@ class _BankListBottomSheetState extends State<_BankListBottomSheet> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: filteredBanks.isEmpty
-                ? Center(
-                    child: Text(
-                      'Aucune banque trouvée',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+            child:
+                filteredBanks.isEmpty
+                    ? Center(
+                      child: Text(
+                        'Aucune banque trouvée',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  )
-                : GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 3,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemCount: filteredBanks.length,
-                    itemBuilder: (context, index) {
-                      final bank = filteredBanks[index];
-                      return InkWell(
-                        onTap: () {
-                          widget.onBankSelected(bank);
-                          Navigator.of(context).pop();
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                    )
+                    : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
                           ),
-                          child: Center(
-                            child: Text(
-                              bank,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
+                      itemCount: filteredBanks.length,
+                      itemBuilder: (context, index) {
+                        final bank = filteredBanks[index];
+                        return InkWell(
+                          onTap: () {
+                            widget.onBankSelected(bank);
+                            Navigator.of(context).pop();
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                bank,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),

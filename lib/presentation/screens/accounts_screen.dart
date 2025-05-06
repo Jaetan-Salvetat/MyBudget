@@ -23,27 +23,21 @@ class AccountsScreen extends StatelessWidget {
         elevation: 4,
         child: const Icon(Icons.add),
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 130),
-          const Expanded(child: AccountsList()),
-        ],
+      child: const Column(
+        children: [SizedBox(height: 130), Expanded(child: AccountsList())],
       ),
     );
   }
 
   void _showAddAccountDialog(BuildContext context) {
     final accountController = Get.find<AccountController>();
-    
+
     AccountBottomSheet.show(
       context: context,
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final account = AccountModel.create(
-          name: name,
-          bank: bank,
-        );
+        final account = AccountModel.create(name: name, bank: bank);
 
         accountController.addAccount(account);
       },
@@ -122,23 +116,13 @@ class AccountsList extends StatelessWidget {
               itemBuilder: (context, index) {
                 final account = accounts[index];
 
-                final accountExpenses = expenses.where((e) => e.accountId == account.id).toList();
-                final accountRevenues = revenues.where((r) => r.accountId == account.id).toList();
-                
-                final totalExpenses = accountExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
-                final totalRevenues = accountRevenues.fold(0.0, (sum, revenue) => sum + revenue.amount);
-                final balance = totalRevenues - totalExpenses;
-                
+                final balance = accountController.getAccountBalance(account.id);
+
                 return AccountListCard(
                   account: account,
                   balance: balance,
                   onEdit: () => _editAccount(context, account),
-                  onDelete: () => _deleteAccount(
-                    context, 
-                    account, 
-                    accountExpenses, 
-                    accountRevenues,
-                  ),
+                  onDelete: () => _deleteAccount(context, account),
                 );
               },
             ),
@@ -150,16 +134,13 @@ class AccountsList extends StatelessWidget {
 
   void _showAddAccountDialog(BuildContext context) {
     final accountController = Get.find<AccountController>();
-    
+
     AccountBottomSheet.show(
       context: context,
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final account = AccountModel.create(
-          name: name,
-          bank: bank,
-        );
+        final account = AccountModel.create(name: name, bank: bank);
 
         accountController.addAccount(account);
       },
@@ -169,17 +150,14 @@ class AccountsList extends StatelessWidget {
 
   void _editAccount(BuildContext context, AccountModel account) {
     final accountController = Get.find<AccountController>();
-    
+
     AccountBottomSheet.show(
       context: context,
       account: account,
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final updatedAccount = account.copyWith(
-          name: name,
-          bank: bank,
-        );
+        final updatedAccount = account.copyWith(name: name, bank: bank);
 
         accountController.updateAccount(updatedAccount);
       },
@@ -190,58 +168,66 @@ class AccountsList extends StatelessWidget {
   void _deleteAccount(
     BuildContext context,
     AccountModel account,
-    List<dynamic> expenses,
-    List<dynamic> revenues,
   ) {
     final accountController = Get.find<AccountController>();
+    final expenseController = Get.find<ExpenseController>();
+    final revenueController = Get.find<RevenueController>();
     
-    if (expenses.isNotEmpty || revenues.isNotEmpty) {
+    final accountExpenses = expenseController.expenses
+        .where((expense) => expense.accountId == account.id)
+        .toList();
+    final accountRevenues = revenueController.revenues
+        .where((revenue) => revenue.accountId == account.id)
+        .toList();
+
+    if (accountExpenses.isNotEmpty || accountRevenues.isNotEmpty) {
       _showCannotDeleteDialog(context);
       return;
     }
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmer la suppression'),
-        content: Text(
-          'Êtes-vous sûr de vouloir supprimer le compte "${account.name}" ?',
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmer la suppression'),
+            content: Text(
+              'Êtes-vous sûr de vouloir supprimer le compte "${account.name}" ?',
             ),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              accountController.deleteAccount(account.id);
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Le compte ${account.name} a été supprimé'),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                child: const Text('Annuler'),
               ),
-            ),
-            child: const Text('Supprimer'),
+              ElevatedButton(
+                onPressed: () {
+                  accountController.deleteAccount(account.id);
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Le compte ${account.name} a été supprimé'),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Supprimer'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -288,16 +274,9 @@ class SummaryCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-
-    final totalExpenses = expenses.fold(
-      0.0,
-      (sum, expense) => sum + expense.amount,
-    );
-    final totalRevenues = revenues.fold(
-      0.0,
-      (sum, revenue) => sum + revenue.amount,
-    );
-    final totalBalance = totalRevenues - totalExpenses;
+    final accountController = Get.find<AccountController>();
+    
+    final totalBalance = accountController.getTotalBalance();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -320,7 +299,7 @@ class SummaryCards extends StatelessWidget {
             child: _buildSummaryCard(
               context,
               'Transactions',
-              expenses.length + revenues.length,
+              accountController.getTotalTransactionsCount(),
               null,
               Theme.of(context).colorScheme.primary,
               Icons.compare_arrows,

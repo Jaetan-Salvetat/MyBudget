@@ -73,4 +73,36 @@ class RevenueController extends GetxController {
     revenues.clear();
     error.value = '';
   }
+  
+  double getMonthlyRevenues() {
+    if (revenues.isEmpty) return 0.0;
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    return revenues
+        .where(
+          (revenue) =>
+              revenue.date.isAtSameMomentAs(startOfMonth) ||
+              revenue.date.isAtSameMomentAs(endOfMonth) ||
+              (revenue.date.isAfter(startOfMonth) &&
+              revenue.date.isBefore(endOfMonth)),
+        )
+        .fold(0.0, (sum, revenue) => sum + revenue.amount);
+  }
+  
+  List<RevenueModel> getRecentRevenues(int count) {
+    final sortedRevenues = [...revenues];
+    sortedRevenues.sort((a, b) => b.date.compareTo(a.date));
+    return sortedRevenues.take(count).toList();
+  }
+  
+  double getTotalRevenues() {
+    return revenues.fold(0.0, (sum, revenue) => sum + revenue.amount);
+  }
+  
+  List<RevenueModel> getRevenuesForAccount(int accountId) {
+    return revenues.where((revenue) => revenue.accountId == accountId).toList();
+  }
 }

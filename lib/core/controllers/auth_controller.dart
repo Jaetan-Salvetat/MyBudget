@@ -1,11 +1,6 @@
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
   Future<void> getCurrentUser() async {}
 
   Future<void> login(String email, String password) async {}

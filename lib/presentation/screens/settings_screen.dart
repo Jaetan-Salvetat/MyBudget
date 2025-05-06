@@ -125,7 +125,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsTile(
                 title: 'Tout supprimer',
-                subtitle: 'Supprimer toutes les transactions et tous les comptes',
+                subtitle:
+                    'Supprimer toutes les transactions et tous les comptes',
                 leading: const Icon(Icons.delete_forever, color: Colors.red),
                 onTap: () => _showDeleteDataConfirmationDialog(context),
               ),
@@ -142,9 +143,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SettingsTile(
                 title: 'Version',
-                subtitle: packageInfo != null
-                    ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                    : 'Chargement...',
+                subtitle:
+                    packageInfo != null
+                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
+                        : 'Chargement...',
                 leading: const Icon(Icons.info_outline),
                 onTap: null,
               ),
@@ -166,7 +168,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) async {
+  Future<void> _showThemeSelectionDialog(
+    BuildContext context,
+    ThemeMode currentMode,
+  ) async {
     ThemeBottomSheet.show(
       context: context,
       currentMode: currentMode,
@@ -246,7 +251,9 @@ class SettingsSection extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(children: children),
@@ -288,7 +295,9 @@ class SettingsTile extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(child: leading),
@@ -312,7 +321,10 @@ class SettingsTile extends StatelessWidget {
                             subtitle!,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
