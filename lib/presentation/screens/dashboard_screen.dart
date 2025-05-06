@@ -4,9 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:mybudget/domain/entities/account.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 import 'package:mybudget/domain/entities/revenue.dart';
+import 'package:mybudget/data/models/loan_model.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
+import 'package:mybudget/core/controllers/loan_controller.dart';
 
 import 'package:mybudget/presentation/widgets/common/financial_card.dart';
 import 'package:mybudget/presentation/widgets/common/filter_chip.dart';
@@ -25,10 +27,12 @@ class DashboardScreen extends StatelessWidget {
     final accountController = Get.find<AccountController>();
     final expenseController = Get.find<ExpenseController>();
     final revenueController = Get.find<RevenueController>();
+    final loanController = Get.find<LoanController>();
     
     final accounts = accountController.accounts;
     final expenses = expenseController.expenses;
     final revenues = revenueController.revenues;
+    final loans = loanController.loans;
 
     final monthlyExpenses = _calculateMonthlyExpenses(expenses);
     final monthlyRevenues = _calculateMonthlyRevenues(revenues);
@@ -54,6 +58,7 @@ class DashboardScreen extends StatelessWidget {
                 accounts,
                 expenses,
                 revenues,
+                loans,
               ),
         ),
       ),
@@ -70,6 +75,7 @@ class DashboardScreen extends StatelessWidget {
     List<Account> accounts,
     List<Expense> expenses,
     List<Revenue> revenues,
+    RxList<LoanModel> loans,
   ) {
     final NumberFormat formatter = NumberFormat.currency(
       locale: 'fr_FR',
@@ -160,6 +166,147 @@ class DashboardScreen extends StatelessWidget {
                     ),
           ),
 
+          // Section des emprunts
+          if (loans.isNotEmpty) ...[  
+            SectionHeader(
+              title: 'Mes emprunts',
+              actionText: 'Voir tout',
+              onActionPressed: () => Get.toNamed('/loans'),
+            ),
+            
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: loans.length > 3 ? 3 : loans.length,
+                itemBuilder: (context, index) {
+                  final loan = loans[index];
+                  final progress = loan.getProgressPercentage();
+                  final remainingAmount = loan.getRemainingAmount();
+                  
+                  return Container(
+                    width: 220,
+                    margin: EdgeInsets.only(
+                      right: 12, 
+                      bottom: 4,
+                      left: index == 0 ? 0 : 0,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.surface,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => Get.toNamed('/loan-details', arguments: loan),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      loan.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                    ),
+                                    child: Text(
+                                      '${(progress * 100).toInt()}%',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.account_balance,
+                                    size: 14,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    loan.lenderName,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              LinearProgressIndicator(
+                                value: progress,
+                                minHeight: 4,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    formatter.format(remainingAmount),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${formatter.format(loan.monthlyPayment)}/mois',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          
           // En-tête des transactions
           SectionHeader(
             title: 'Transactions récentes',

@@ -1,4 +1,4 @@
-- Account.type
-- Expense.isActivated
+- Account.type (saving, tracking, etc)
+- Expense.isActivated (activate or desavtivate an expense). same for loans
 - Two type of usage: sample and full
-- How a warning if data and save locally and the user want to login
+- notifications for expenses and loans

@@ -6,6 +6,7 @@ class AppDropdownField<T> extends StatelessWidget {
   final void Function(T?) onChanged;
   final String label;
   final IconData? icon;
+  final String? errorText;
 
   const AppDropdownField({
     required this.value,
@@ -13,6 +14,7 @@ class AppDropdownField<T> extends StatelessWidget {
     required this.onChanged,
     required this.label,
     this.icon,
+    this.errorText,
     super.key,
   });
 
@@ -29,6 +31,15 @@ class AppDropdownField<T> extends StatelessWidget {
           labelText: label,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           prefixIcon: icon != null ? Icon(icon) : null,
+          errorText: errorText,
+          errorBorder: errorText != null ? OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
+          ) : null,
+          focusedErrorBorder: errorText != null ? OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
+          ) : null,
         ),
       ),
     );

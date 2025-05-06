@@ -4,6 +4,7 @@ import 'package:mybudget/data/models/category_model.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 import 'package:mybudget/data/models/revenue_model.dart';
 import 'package:mybudget/data/models/account_model.dart';
+import 'package:mybudget/data/models/loan_model.dart';
 
 class IsarService {
   static late Isar isar;
@@ -16,6 +17,7 @@ class IsarService {
         ExpenseModelSchema, 
         RevenueModelSchema,
         AccountModelSchema,
+        LoanModelSchema,
       ],
       directory: dir.path,
     );
@@ -89,6 +91,23 @@ class IsarService {
     await isar.writeTxn(() => isar.accountModels.delete(id));
   }
   
+  // Loans
+  Future<List<LoanModel>> getLoans() async {
+    return await isar.loanModels.where().findAll();
+  }
+  
+  Future<LoanModel?> getLoanById(int id) async {
+    return await isar.loanModels.get(id);
+  }
+  
+  Future<void> saveLoan(LoanModel loan) async {
+    await isar.writeTxn(() => isar.loanModels.put(loan));
+  }
+  
+  Future<void> deleteLoan(int id) async {
+    await isar.writeTxn(() => isar.loanModels.delete(id));
+  }
+
   // Clear all data (for reset)
   Future<void> clearAllData() async {
     await isar.writeTxn(() async {
@@ -96,6 +115,7 @@ class IsarService {
       await isar.expenseModels.clear();
       await isar.revenueModels.clear();
       await isar.accountModels.clear();
+      await isar.loanModels.clear();
     });
   }
 }

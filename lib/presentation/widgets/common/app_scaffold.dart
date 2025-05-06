@@ -6,11 +6,16 @@ class AppScaffold extends StatelessWidget {
   final String title;
   final bool useNestedAppBar;
   final FloatingActionButton? floatingActionButton;
+  final List<Widget>? actions;
+  final bool hideBottomBar;
+  
   const AppScaffold({
     required this.child,
     this.title = 'MyBudget',
     this.useNestedAppBar = false,
     this.floatingActionButton,
+    this.actions,
+    this.hideBottomBar = false,
     super.key,
   });
 
@@ -19,6 +24,7 @@ class AppScaffold extends StatelessWidget {
     const _NavItem('Comptes', Icons.account_balance_outlined, '/accounts'),
     const _NavItem('Dépenses', Icons.money_off_outlined, '/expenses'),
     const _NavItem('Revenus', Icons.attach_money_outlined, '/revenues'),
+    const _NavItem('Emprunts', Icons.account_balance_wallet_outlined, '/loans'),
     const _NavItem('Paramètres', Icons.settings_outlined, '/settings'),
   ];
 
@@ -40,6 +46,8 @@ class AppScaffold extends StatelessWidget {
     if (icon == Icons.money_off_outlined) return Icons.money_off;
     if (icon == Icons.attach_money) return Icons.attach_money;
     if (icon == Icons.attach_money_outlined) return Icons.attach_money;
+    if (icon == Icons.account_balance_wallet) return Icons.account_balance_wallet;
+    if (icon == Icons.account_balance_wallet_outlined) return Icons.account_balance_wallet;
     if (icon == Icons.settings) return Icons.settings;
     if (icon == Icons.settings_outlined) return Icons.settings;
 
@@ -56,7 +64,7 @@ class AppScaffold extends StatelessWidget {
       extendBodyBehindAppBar: !useNestedAppBar,
       body: child,
       floatingActionButton: floatingActionButton,
-      bottomNavigationBar: Container(
+      bottomNavigationBar: hideBottomBar ? null : Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
@@ -97,7 +105,7 @@ class AppScaffold extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildGradientAppBar(BuildContext context) {
-    return GradientAppBar(title: title);
+    return GradientAppBar(title: title, actions: actions);
   }
 }
 

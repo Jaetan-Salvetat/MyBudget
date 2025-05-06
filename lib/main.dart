@@ -7,9 +7,12 @@ import 'package:mybudget/presentation/screens/expenses_screen.dart';
 import 'package:mybudget/presentation/screens/revenues_screen.dart';
 import 'package:mybudget/presentation/screens/settings_screen.dart';
 import 'package:mybudget/presentation/screens/splash_screen.dart';
+import 'package:mybudget/presentation/screens/loans_screen.dart';
+import 'package:mybudget/presentation/screens/loan_details_screen.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/controllers/index.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
+import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
 import 'package:mybudget/core/services/isar_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -30,6 +33,9 @@ Future<void> main() async {
 Future<void> initServices() async {
   await PreferencesService.init();
   await IsarService.init();
+  
+  // Enregistrement des services dans GetX
+  Get.put(IsarService(), permanent: true);
 }
 
 void initControllers() {
@@ -38,7 +44,7 @@ void initControllers() {
   Get.put(ExpenseController(), permanent: true);
   Get.put(RevenueController(), permanent: true);
   Get.put(ThemeController(), permanent: true);
-  // Privacy et Auth controllers temporairement désactivés pendant la migration vers Isar
+  Get.put(LoanController(), permanent: true);
 }
 
 class MyApp extends StatelessWidget {
@@ -60,6 +66,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: AppRoutes.revenues, page: () => const RevenuesScreen()),
         GetPage(name: AppRoutes.accounts, page: () => const AccountsScreen()),
         GetPage(name: AppRoutes.settings, page: () => const SettingsScreen()),
+        GetPage(name: AppRoutes.loans, page: () => LoansScreen()),
+        GetPage(name: AppRoutes.loanDetails, page: () => const LoanDetailsScreen()),
 
         // Écrans d'authentification temporairement désactivés pendant la migration vers Isar
         // GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
