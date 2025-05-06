@@ -7,14 +7,14 @@ enum LoanStatus {
   pending('À commencer', Icons.schedule),
   partiallyPaid('En cours', Icons.pending_actions),
   completed('Remboursé', Icons.check_circle);
-  
+
   final String label;
   final IconData icon;
-  
+
   const LoanStatus(this.label, this.icon);
-  
+
   Color getColor(BuildContext context) {
-    switch(this) {
+    switch (this) {
       case LoanStatus.pending:
         return Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
       case LoanStatus.partiallyPaid:
@@ -32,16 +32,17 @@ class LoanModel {
   String name;
   double amount;
   String lenderName;
-  
+
   int dayOfMonth;
   DateTime startDate;
   DateTime endDate;
-  
+
   double monthlyPayment;
-  
+
   int accountId;
-  double paidAmount = 0.0;
   String? notes;
+
+  double get paidAmount => getAutomaticPaidAmount();
 
   LoanModel({
     this.id = Isar.autoIncrement,
@@ -53,7 +54,6 @@ class LoanModel {
     required this.endDate,
     required this.accountId,
     required this.monthlyPayment,
-    this.paidAmount = 0.0,
     this.notes,
   });
 
@@ -90,7 +90,6 @@ class LoanModel {
     DateTime? endDate,
     int? accountId,
     double? monthlyPayment,
-    double? paidAmount,
     String? notes,
   }) {
     return LoanModel(
@@ -103,13 +102,12 @@ class LoanModel {
       endDate: endDate ?? this.endDate,
       accountId: accountId ?? this.accountId,
       monthlyPayment: monthlyPayment ?? this.monthlyPayment,
-      paidAmount: paidAmount ?? this.paidAmount,
       notes: notes ?? this.notes,
     );
   }
 
   double getRemainingAmount() {
-    return amount - paidAmount;
+    return amount - getAutomaticPaidAmount();
   }
 
   double getProgressPercentage() {
@@ -119,45 +117,45 @@ class LoanModel {
   bool isCompleted() {
     return getAutomaticStatus() == LoanStatus.completed;
   }
-  
+
   LoanStatus getAutomaticStatus() {
     final paidAmount = getAutomaticPaidAmount();
-    
+
     if (paidAmount >= amount) {
       return LoanStatus.completed;
     }
-    
+
     final now = DateTime.now();
-    
+
     if (now.isBefore(startDate)) {
       return LoanStatus.pending;
     }
-    
+
     if (paidAmount > 0) {
       return LoanStatus.partiallyPaid;
     }
-    
+
     return LoanStatus.pending;
   }
-  
+
   double getAutomaticPaidAmount() {
     final now = DateTime.now();
-    
+
     if (now.isBefore(startDate)) {
       return 0.0;
     }
-    
+
     if (now.isAfter(endDate)) {
       return amount;
     }
-    
+
     final startYearMonth = startDate.year * 12 + startDate.month - 1;
     final nowYearMonth = now.year * 12 + now.month - 1;
     final daysPassed = now.day >= dayOfMonth ? 1 : 0;
-    
+
     final monthsPassed = (nowYearMonth - startYearMonth) + daysPassed;
     final automaticPaidAmount = monthsPassed * monthlyPayment;
-    
+
     return automaticPaidAmount > amount ? amount : automaticPaidAmount;
   }
 }

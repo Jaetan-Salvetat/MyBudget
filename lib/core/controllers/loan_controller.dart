@@ -69,6 +69,20 @@ class LoanController extends GetxController {
     return activeLoans.fold(0.0, (sum, loan) => sum + loan.monthlyPayment);
   }
   
+  double getTotalInitialAmount() {
+    return loans.fold(0, (sum, loan) => sum + loan.amount);
+  }
+  
+  double getTotalActiveInitialAmount() {
+    final activeLoans = getActiveLoans();
+    return activeLoans.fold(0, (sum, loan) => sum + loan.amount);
+  }
+  
+  double getTotalCompletedAmount() {
+    final completedLoans = loans.where((loan) => loan.isCompleted()).toList();
+    return completedLoans.fold(0, (sum, loan) => sum + loan.amount);
+  }
+  
   List<LoanModel> getLoansForAccount(int accountId) {
     return loans.where((loan) => loan.accountId == accountId).toList();
   }

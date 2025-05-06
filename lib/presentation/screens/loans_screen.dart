@@ -101,33 +101,240 @@ class LoansScreen extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(BuildContext context) {
+    final totalActiveInitialAmount = loanController.getTotalActiveInitialAmount();
     final totalRemainingAmount = loanController.getTotalRemainingAmount();
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    final totalMonthlyPayment = loanController.getTotalMonthlyPayments();
+    final progressValue = _calculateOverallProgress();
+    final amountPaid = totalActiveInitialAmount - totalRemainingAmount;
+    
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final tertiaryColor = Theme.of(context).colorScheme.tertiary;
+    
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
+      child: Card(
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Total à rembourser',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              formatter.format(totalRemainingAmount),
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+            // En-tête avec dégradé
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    primaryColor.withOpacity(0.05),
+                    primaryColor.withOpacity(0.1),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: _calculateOverallProgress(),
-              borderRadius: BorderRadius.circular(8),
-              minHeight: 8,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Titre avec icône
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.account_balance_wallet,
+                          color: primaryColor,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Récapitulatif',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Badge de progression
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: (progressValue > 0.5 ? Colors.green : Colors.orange).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              progressValue > 0.5 ? Icons.trending_up : Icons.trending_flat,
+                              color: progressValue > 0.5 ? Colors.green : Colors.orange,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${(progressValue * 100).toInt()}%',
+                              style: TextStyle(
+                                color: progressValue > 0.5 ? Colors.green : Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Montants initiaux et remboursés
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total emprunté',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatter.format(totalActiveInitialAmount),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 30,
+                        width: 1,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Déjà remboursé',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatter.format(amountPaid),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: tertiaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+                  
+                  // Reste à payer et paiement mensuel
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Reste à payer',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatter.format(totalRemainingAmount),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 30,
+                        width: 1,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Paiement mensuel',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatter.format(totalMonthlyPayment),
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: secondaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Barre de progression
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: progressValue,
+                      minHeight: 8,
+                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        progressValue > 0.5 ? Colors.green : Colors.orange,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -276,11 +483,12 @@ class LoansScreen extends StatelessWidget {
   }
 
   double _calculateOverallProgress() {
-    final totalAmount = loanController.loans.fold(
+    final activeLoans = loanController.getActiveLoans();
+    final totalAmount = activeLoans.fold(
       0.0,
       (sum, loan) => sum + loan.amount,
     );
-    final totalPaid = loanController.loans.fold(
+    final totalPaid = activeLoans.fold(
       0.0,
       (sum, loan) => sum + loan.getAutomaticPaidAmount(),
     );

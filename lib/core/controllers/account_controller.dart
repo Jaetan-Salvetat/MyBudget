@@ -147,7 +147,10 @@ class AccountController extends GetxController {
   int getTotalTransactionsCount() {
     final expenseController = Get.find<ExpenseController>();
     final revenueController = Get.find<RevenueController>();
+    final loanController = Get.find<LoanController>();
     
-    return expenseController.expenses.length + revenueController.revenues.length;
+    return expenseController.expenses.length + 
+           revenueController.revenues.length + 
+           loanController.getActiveLoans().length;
   }
 }

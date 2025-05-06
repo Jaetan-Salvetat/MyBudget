@@ -133,7 +133,6 @@ LoanModel _loanModelDeserialize(
     monthlyPayment: reader.readDouble(offsets[5]),
     name: reader.readString(offsets[6]),
     notes: reader.readStringOrNull(offsets[7]),
-    paidAmount: reader.readDoubleOrNull(offsets[8]) ?? 0.0,
     startDate: reader.readDateTime(offsets[9]),
   );
   return object;
@@ -163,7 +162,7 @@ P _loanModelDeserializeProp<P>(
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readDoubleOrNull(offset) ?? 0.0) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readDateTime(offset)) as P;
     default:
