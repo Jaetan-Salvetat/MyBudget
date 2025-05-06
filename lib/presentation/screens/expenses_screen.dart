@@ -90,6 +90,7 @@ class ExpensesList extends StatelessWidget {
       }
 
       return ListView.separated(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: 130,
           bottom: 16,
@@ -100,13 +101,11 @@ class ExpensesList extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final expense = expenses[index];
-          // Récupérer le compte associé à la dépense
           AccountModel? account;
           if (accounts.isNotEmpty) {
             try {
               account = accounts.firstWhere((a) => a.id == expense.accountId);
             } catch (_) {
-              // Si aucun compte correspondant n'est trouvé, on utilise le premier
               account = accounts.first;
             }
           }

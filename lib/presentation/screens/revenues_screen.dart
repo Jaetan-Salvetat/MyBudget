@@ -88,6 +88,7 @@ class RevenuesList extends StatelessWidget {
       }
 
       return ListView.separated(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: 130,
           bottom: 16,

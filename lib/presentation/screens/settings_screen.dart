@@ -60,6 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return AppScaffold(
       title: 'Paramètres',
       child: ListView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: 130,
           bottom: 16,

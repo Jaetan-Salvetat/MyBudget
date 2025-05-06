@@ -92,6 +92,7 @@ class AppModalBottomSheet extends StatelessWidget {
               if (isScrollable)
                 Flexible(
                   child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
                     child: content,
                   ),
                 )

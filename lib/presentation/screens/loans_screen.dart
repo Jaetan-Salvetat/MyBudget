@@ -69,6 +69,7 @@ class LoansScreen extends StatelessWidget {
     final activeLoans = loanController.getActiveLoans();
 
     return ListView(
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
       children: [
         _buildSummaryCard(context),

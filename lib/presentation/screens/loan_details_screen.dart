@@ -53,6 +53,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
         ),
       ],
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: 130,
           bottom: 16,

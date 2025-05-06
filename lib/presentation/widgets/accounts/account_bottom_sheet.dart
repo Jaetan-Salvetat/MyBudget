@@ -453,6 +453,7 @@ class _BankListBottomSheetState extends State<_BankListBottomSheet> {
                       ),
                     )
                     : GridView.builder(
+                      physics: const BouncingScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,

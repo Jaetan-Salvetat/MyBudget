@@ -111,6 +111,7 @@ class AccountsList extends StatelessWidget {
 
           Expanded(
             child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: accounts.length,
               itemBuilder: (context, index) {
@@ -165,20 +166,19 @@ class AccountsList extends StatelessWidget {
     );
   }
 
-  void _deleteAccount(
-    BuildContext context,
-    AccountModel account,
-  ) {
+  void _deleteAccount(BuildContext context, AccountModel account) {
     final accountController = Get.find<AccountController>();
     final expenseController = Get.find<ExpenseController>();
     final revenueController = Get.find<RevenueController>();
-    
-    final accountExpenses = expenseController.expenses
-        .where((expense) => expense.accountId == account.id)
-        .toList();
-    final accountRevenues = revenueController.revenues
-        .where((revenue) => revenue.accountId == account.id)
-        .toList();
+
+    final accountExpenses =
+        expenseController.expenses
+            .where((expense) => expense.accountId == account.id)
+            .toList();
+    final accountRevenues =
+        revenueController.revenues
+            .where((revenue) => revenue.accountId == account.id)
+            .toList();
 
     if (accountExpenses.isNotEmpty || accountRevenues.isNotEmpty) {
       _showCannotDeleteDialog(context);
@@ -275,7 +275,7 @@ class SummaryCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final accountController = Get.find<AccountController>();
-    
+
     final totalBalance = accountController.getTotalBalance();
 
     return Padding(
