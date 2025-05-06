@@ -10,14 +10,40 @@ import '../../data/models/category_model.dart';
 import '../widgets/expenses/expense_bottom_sheet.dart';
 
 class ExpensesScreen extends StatelessWidget {
-  const ExpensesScreen({super.key});
+  final bool isNested;
+  final String fabTag;
+  
+  const ExpensesScreen({
+    this.isNested = false,
+    this.fabTag = 'expenses_fab',
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (isNested) {
+      return Stack(
+        children: [
+          const ExpensesList(isNested: true),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton(
+              heroTag: fabTag,
+              onPressed: () => _showAddExpenseBottomSheet(context),
+              tooltip: 'Ajouter une dépense',
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ],
+      );
+    }
+    
     return AppScaffold(
       title: 'Dépenses',
       useNestedAppBar: false,
       floatingActionButton: FloatingActionButton(
+        heroTag: fabTag,
         onPressed: () => _showAddExpenseBottomSheet(context),
         tooltip: 'Ajouter une dépense',
         child: const Icon(Icons.add),
@@ -43,7 +69,12 @@ class ExpensesScreen extends StatelessWidget {
 }
 
 class ExpensesList extends StatelessWidget {
-  const ExpensesList({super.key});
+  final bool isNested;
+  
+  const ExpensesList({
+    this.isNested = false,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +123,7 @@ class ExpensesList extends StatelessWidget {
       return ListView.separated(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
-          top: 130,
+          top: 100,
           bottom: 16,
           left: 16,
           right: 16,

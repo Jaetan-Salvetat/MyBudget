@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:mybudget/presentation/screens/accounts_screen.dart';
-import 'package:mybudget/presentation/screens/dashboard_screen.dart';
-import 'package:mybudget/presentation/screens/expenses_screen.dart';
-import 'package:mybudget/presentation/screens/revenues_screen.dart';
-import 'package:mybudget/presentation/screens/settings_screen.dart';
 import 'package:mybudget/presentation/screens/splash_screen.dart';
-import 'package:mybudget/presentation/screens/loans_screen.dart';
 import 'package:mybudget/presentation/screens/loan_details_screen.dart';
+import 'package:mybudget/presentation/screens/home_screen.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/controllers/index.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
@@ -39,12 +34,17 @@ Future<void> initServices() async {
 }
 
 void initControllers() {
-  Get.put(AccountController(), permanent: true);
+  // Initialiser d'abord les contrôleurs qui n'ont pas de dépendances
   Get.put(CategoryController(), permanent: true);
+  Get.put(ThemeController(), permanent: true);
+  
+  // Initialiser ensuite les contrôleurs qui peuvent avoir des dépendances mutuelles
   Get.put(ExpenseController(), permanent: true);
   Get.put(RevenueController(), permanent: true);
-  Get.put(ThemeController(), permanent: true);
   Get.put(LoanController(), permanent: true);
+  
+  // Initialiser en dernier le contrôleur qui dépend des autres
+  Get.put(AccountController(), permanent: true);
 }
 
 class MyApp extends StatelessWidget {
@@ -61,12 +61,12 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(),
       getPages: [
         GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-        GetPage(name: AppRoutes.dashboard, page: () => const DashboardScreen()),
-        GetPage(name: AppRoutes.expenses, page: () => const ExpensesScreen()),
-        GetPage(name: AppRoutes.revenues, page: () => const RevenuesScreen()),
-        GetPage(name: AppRoutes.accounts, page: () => const AccountsScreen()),
-        GetPage(name: AppRoutes.settings, page: () => const SettingsScreen()),
-        GetPage(name: AppRoutes.loans, page: () => LoansScreen()),
+        GetPage(name: AppRoutes.dashboard, page: () => const HomeScreen()),
+        GetPage(name: AppRoutes.expenses, page: () => const HomeScreen(initialIndex: 2)),
+        GetPage(name: AppRoutes.revenues, page: () => const HomeScreen(initialIndex: 3)),
+        GetPage(name: AppRoutes.accounts, page: () => const HomeScreen(initialIndex: 1)),
+        GetPage(name: AppRoutes.settings, page: () => const HomeScreen(initialIndex: 5)),
+        GetPage(name: AppRoutes.loans, page: () => const HomeScreen(initialIndex: 4)),
         GetPage(name: AppRoutes.loanDetails, page: () => const LoanDetailsScreen()),
 
         // Écrans d'authentification temporairement désactivés pendant la migration vers Isar

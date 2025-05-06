@@ -17,7 +17,14 @@ import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/dashboard/active_loans_card.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  final bool isNested;
+  final String fabTag;
+  
+  const DashboardScreen({
+    this.isNested = false,
+    this.fabTag = 'dashboard_fab',
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +36,18 @@ class DashboardScreen extends StatelessWidget {
     final expenses = expenseController.expenses;
     final revenues = revenueController.revenues;
 
+    // Si imbriqué dans HomeScreen, on ne retourne que le contenu principal
+    if (isNested) {
+      return Obx(() => 
+        accounts.isEmpty && expenses.isEmpty && revenues.isEmpty
+          ? EmptyDashboardState(
+              onSetupPressed: () => Get.toNamed('/accounts'),
+            )
+          : _buildDashboard(context),
+      );
+    }
+    
+    // Sinon, on utilise l'ancienne structure avec AppScaffold
     return AppScaffold(
       title: 'MyBudget',
       child: Scaffold(

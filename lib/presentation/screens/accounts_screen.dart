@@ -12,20 +12,48 @@ import 'package:mybudget/presentation/widgets/common/section_header.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 
 class AccountsScreen extends StatelessWidget {
-  const AccountsScreen({super.key});
+  final bool isNested;
+  final String fabTag;
+  
+  const AccountsScreen({
+    this.isNested = false,
+    this.fabTag = 'accounts_fab',
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final content = Column(
+      children: [const SizedBox(height: 100), Expanded(child: AccountsList())],
+    );
+    
+    if (isNested) {
+      return Stack(
+        children: [
+          content,
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton(
+              heroTag: fabTag,
+              onPressed: () => _showAddAccountDialog(context),
+              elevation: 4,
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ],
+      );
+    }
+    
     return AppScaffold(
       title: 'Mes Comptes',
       floatingActionButton: FloatingActionButton(
+        heroTag: fabTag,
         onPressed: () => _showAddAccountDialog(context),
         elevation: 4,
         child: const Icon(Icons.add),
       ),
-      child: const Column(
-        children: [SizedBox(height: 130), Expanded(child: AccountsList())],
-      ),
+      child: content,
     );
   }
 

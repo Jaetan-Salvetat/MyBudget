@@ -10,10 +10,6 @@ class AccountController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
   
-  final _expenseController = Get.find<ExpenseController>();
-  final _revenueController = Get.find<RevenueController>();
-  final _loanController = Get.find<LoanController>();
-  
   @override
   void onInit() {
     super.onInit();
@@ -82,15 +78,19 @@ class AccountController extends GetxController {
   }
   
   double getAccountBalance(int accountId) {
-    final accountRevenues = _revenueController.revenues
+    final revenueController = Get.find<RevenueController>();
+    final expenseController = Get.find<ExpenseController>();
+    final loanController = Get.find<LoanController>();
+    
+    final accountRevenues = revenueController.revenues
         .where((revenue) => revenue.accountId == accountId)
         .toList();
     
-    final accountExpenses = _expenseController.expenses
+    final accountExpenses = expenseController.expenses
         .where((expense) => expense.accountId == accountId)
         .toList();
         
-    final activeLoans = _loanController.loans
+    final activeLoans = loanController.loans
         .where((loan) => loan.accountId == accountId && !loan.isCompleted())
         .toList();
     

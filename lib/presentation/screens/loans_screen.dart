@@ -1,84 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
+import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/data/models/loan_model.dart';
-import 'package:mybudget/presentation/widgets/loans/loan_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
+import 'package:mybudget/presentation/widgets/loans/loan_bottom_sheet.dart';
 
 class LoansScreen extends StatelessWidget {
+  final bool isNested;
+  final String fabTag;
+
+  LoansScreen({this.isNested = false, this.fabTag = 'loans_fab', super.key});
+
   final loanController = Get.find<LoanController>();
   final accountController = Get.find<AccountController>();
-  final formatter = NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-    decimalDigits: 2,
-  );
-
-  LoansScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: 'Mes Emprunts',
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddLoanBottomSheet(context),
-        child: const Icon(Icons.add),
-      ),
-      child: Obx(() {
-        if (loanController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (loanController.loans.isEmpty) {
-          return _buildEmptyState(context);
-        }
-
-        return _buildLoansList(context);
-      }),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    if (isNested) {
+      return Stack(
         children: [
-          Icon(
-            Icons.account_balance,
-            size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text('Aucun emprunt', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(
-            'Ajoutez votre premier emprunt en cliquant sur le bouton +',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          Obx(() => _buildLoansList(context)),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton(
+              heroTag: fabTag,
+              onPressed: () => _showAddLoanBottomSheet(context),
+              elevation: 4,
+              child: const Icon(Icons.add),
             ),
           ),
         ],
+      );
+    }
+
+    return AppScaffold(
+      title: 'Mes Emprunts',
+      floatingActionButton: FloatingActionButton(
+        heroTag: fabTag,
+        onPressed: () => _showAddLoanBottomSheet(context),
+        elevation: 4,
+        child: const Icon(Icons.add),
       ),
+      child: Obx(() => _buildLoansList(context)),
     );
   }
 
   Widget _buildLoansList(BuildContext context) {
     final activeLoans = loanController.getActiveLoans();
 
+    if (loanController.loans.isEmpty) {
+      return const Center(
+        child: Text('Aucun emprunt enregistré'),
+      );
+    }
+
     return ListView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
       children: [
         _buildSummaryCard(context),
         const SizedBox(height: 24),
         Text(
           'Emprunts actifs (${activeLoans.length})',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         ...activeLoans.map((loan) => _buildLoanCard(context, loan)),
@@ -87,9 +74,7 @@ class LoansScreen extends StatelessWidget {
           const SizedBox(height: 32),
           Text(
             'Emprunts remboursés (${loanController.loans.length - activeLoans.length})',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...loanController.loans
@@ -106,28 +91,25 @@ class LoansScreen extends StatelessWidget {
     final totalMonthlyPayment = loanController.getTotalMonthlyPayments();
     final progressValue = _calculateOverallProgress();
     final amountPaid = totalActiveInitialAmount - totalRemainingAmount;
-    
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-    final tertiaryColor = Theme.of(context).colorScheme.tertiary;
-    
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
+      margin: const EdgeInsets.fromLTRB(0, 30, 0, 5),
       child: Card(
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.3),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Column(
           children: [
-            // En-tête avec dégradé
+            // Partie supérieure - Header avec gradient
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    primaryColor.withOpacity(0.05),
-                    primaryColor.withOpacity(0.1),
+                    Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -135,28 +117,27 @@ class LoansScreen extends StatelessWidget {
                   topRight: Radius.circular(20),
                 ),
               ),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Titre avec icône
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.1),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.account_balance_wallet,
-                          color: primaryColor,
+                          Icons.payments,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 24,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Récapitulatif',
+                        'Récapitulatif des Prêts',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -164,28 +145,36 @@ class LoansScreen extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      // Badge de progression
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: (progressValue > 0.5 ? Colors.green : Colors.orange).withOpacity(0.1),
+                          color: (progressValue > 0.5
+                                  ? Colors.green.shade700
+                                  : Colors.orange)
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              progressValue > 0.5 ? Icons.trending_up : Icons.trending_flat,
-                              color: progressValue > 0.5 ? Colors.green : Colors.orange,
+                              progressValue > 0.5
+                                  ? Icons.trending_up
+                                  : Icons.trending_flat,
+                              color: progressValue > 0.5
+                                  ? Colors.green.shade700
+                                  : Colors.orange,
                               size: 16,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
-                              '${(progressValue * 100).toInt()}%',
+                              '${(progressValue * 100).toStringAsFixed(1)}%',
                               style: TextStyle(
-                                color: progressValue > 0.5 ? Colors.green : Colors.orange,
-                                fontWeight: FontWeight.bold,
                                 fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: progressValue > 0.5
+                                    ? Colors.green.shade700
+                                    : Colors.orange,
                               ),
                             ),
                           ],
@@ -193,147 +182,98 @@ class LoansScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  
-                  // Montants initiaux et remboursés
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total emprunté',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              formatter.format(totalActiveInitialAmount),
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        height: 30,
-                        width: 1,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Déjà remboursé',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                formatter.format(amountPaid),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: tertiaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  Text(
+                    'Reste à payer',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    ),
                   ),
-                  
-                  const SizedBox(height: 16),
-                  const Divider(height: 1),
-                  const SizedBox(height: 16),
-                  
-                  // Reste à payer et paiement mensuel
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Reste à payer',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              formatter.format(totalRemainingAmount),
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        height: 30,
-                        width: 1,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Paiement mensuel',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                formatter.format(totalMonthlyPayment),
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: secondaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Barre de progression
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progressValue,
-                      minHeight: 8,
-                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        progressValue > 0.5 ? Colors.green : Colors.orange,
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    formatter.format(totalRemainingAmount),
+                    style: TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                      letterSpacing: -0.5,
                     ),
                   ),
                 ],
+              ),
+            ),
+            
+            // Partie intermédiaire - Montants des prêts
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildFinancialSummary(
+                      'Total emprunté',
+                      totalActiveInitialAmount,
+                      Icons.attach_money,
+                      Theme.of(context).colorScheme.error,
+                      formatter,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildFinancialSummary(
+                      'Déjà remboursé',
+                      amountPaid,
+                      Icons.arrow_upward,
+                      Theme.of(context).colorScheme.primary,
+                      formatter,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Partie inférieure - Paiements mensuels
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Paiement mensuel',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatter.format(totalMonthlyPayment),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -342,7 +282,46 @@ class LoansScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildFinancialSummary(String title, double amount, IconData icon, Color color, NumberFormat formatter) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: color.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            formatter.format(amount),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLoanCard(BuildContext context, LoanModel loan) {
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final account = accountController.accounts.firstWhere(
       (a) => a.id == loan.accountId,
       orElse: () => accountController.accounts.first,
@@ -351,7 +330,6 @@ class LoansScreen extends StatelessWidget {
     final paidAmount = loan.getAutomaticPaidAmount();
     final progress = paidAmount / loan.amount;
     final remainingAmount = loan.amount - paidAmount;
-    final status = loan.getAutomaticStatus();
     final nextPaymentDate = _getNextPaymentDate(loan);
 
     return Card(
@@ -384,40 +362,21 @@ class LoansScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(context, status),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          status.icon,
-                          size: 12,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _getStatusText(status),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      account.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Prêteur: ${loan.lenderName}',
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Compte: ${account.name}',
-                style: const TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 12),
               Row(
@@ -452,24 +411,14 @@ class LoansScreen extends StatelessWidget {
                     Icon(
                       Icons.calendar_today,
                       size: 14,
-                      color:
-                          _isPaymentSoon(nextPaymentDate)
-                              ? Theme.of(context).colorScheme.error
-                              : Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       'Échéance le ${DateFormat('dd/MM/yyyy').format(nextPaymentDate)}',
                       style: TextStyle(
                         fontSize: 13,
-                        color:
-                            _isPaymentSoon(nextPaymentDate)
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -484,10 +433,7 @@ class LoansScreen extends StatelessWidget {
 
   double _calculateOverallProgress() {
     final activeLoans = loanController.getActiveLoans();
-    final totalAmount = activeLoans.fold(
-      0.0,
-      (sum, loan) => sum + loan.amount,
-    );
+    final totalAmount = activeLoans.fold(0.0, (sum, loan) => sum + loan.amount);
     final totalPaid = activeLoans.fold(
       0.0,
       (sum, loan) => sum + loan.getAutomaticPaidAmount(),
@@ -495,14 +441,6 @@ class LoansScreen extends StatelessWidget {
 
     if (totalAmount == 0) return 0;
     return totalPaid / totalAmount;
-  }
-
-  Color _getStatusColor(BuildContext context, LoanStatus status) {
-    return status.getColor(context);
-  }
-
-  String _getStatusText(LoanStatus status) {
-    return status.label;
   }
 
   DateTime? _getNextPaymentDate(LoanModel loan) {
@@ -522,12 +460,6 @@ class LoansScreen extends StatelessWidget {
     }
 
     return nextDate;
-  }
-
-  bool _isPaymentSoon(DateTime paymentDate) {
-    final now = DateTime.now();
-    final difference = paymentDate.difference(now).inDays;
-    return difference <= 5;
   }
 
   void _showAddLoanBottomSheet(BuildContext context) {

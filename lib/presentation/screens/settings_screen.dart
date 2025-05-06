@@ -14,7 +14,14 @@ import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final bool isNested;
+  final String fabTag;
+  
+  const SettingsScreen({
+    this.isNested = false,
+    this.fabTag = 'settings_fab',
+    super.key,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -56,105 +63,111 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     // Commenté pour migration Isar
     // final authController = Get.find<AuthController>();
-
+    
+    final content = ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(
+        top: 100,
+        bottom: 16,
+        left: 16,
+        right: 16,
+      ),
+      children: [
+        // Section Compte commentée pour migration Isar
+        /*
+        SettingsSection(
+          title: 'Compte',
+          children: [
+            if (isUserConnected)
+              SettingsTile(
+                title: 'Déconnexion',
+                subtitle:
+                    'Connecté en tant que ${authController.user.value?.email ?? ""}',
+                leading: const Icon(Icons.logout),
+                onTap: () => _showLogoutConfirmationDialog(context),
+              )
+            else
+              SettingsTile(
+                title: 'Connexion / Inscription',
+                subtitle: 'Connectez-vous pour synchroniser vos données',
+                leading: const Icon(Icons.login),
+                onTap: () => Get.toNamed('/login'),
+              ),
+          ],
+        ),
+        */
+        SettingsSection(
+          title: 'Apparence',
+          children: [
+            SettingsTile(
+              title: 'Thème',
+              subtitle: _getThemeNameFromMode(themeController.themeMode),
+              leading: const Icon(Icons.brightness_6),
+              onTap: () {
+                _showThemeSelectionDialog(context, themeController.themeMode);
+              },
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: 'Catégories',
+          children: [
+            SettingsTile(
+              title: 'Gérer les catégories',
+              subtitle: 'Ajouter, modifier ou supprimer des catégories',
+              leading: const Icon(Icons.category),
+              onTap: () => CategoriesBottomSheet.show(context: context),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: 'Données',
+          children: [
+            SettingsTile(
+              title: 'Confidentialité et données',
+              subtitle: 'Exportez ou réinitialisez vos données',
+              leading: const Icon(Icons.security),
+              onTap: () => DataPrivacyBottomSheet.show(context: context),
+            ),
+            SettingsTile(
+              title: 'Tout supprimer',
+              subtitle:
+                  'Supprimer toutes les transactions et tous les comptes',
+              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              onTap: () => _showDeleteDataConfirmationDialog(context),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: 'À propos',
+          children: [
+            SettingsTile(
+              title: 'Politique de confidentialité',
+              subtitle: 'Consultez notre politique de confidentialité',
+              leading: const Icon(Icons.policy),
+              onTap: () => Get.to(() => const PrivacyPolicyScreen()),
+            ),
+            SettingsTile(
+              title: 'Version',
+              subtitle:
+                  packageInfo != null
+                      ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
+                      : 'Chargement...',
+              leading: const Icon(Icons.info_outline),
+              onTap: null,
+            ),
+          ],
+        ),
+      ],
+    );
+    
+    if (widget.isNested) {
+      return content;
+    }
+    
     return AppScaffold(
       title: 'Paramètres',
-      child: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(
-          top: 130,
-          bottom: 16,
-          left: 16,
-          right: 16,
-        ),
-        children: [
-          // Section Compte commentée pour migration Isar
-          /*
-          SettingsSection(
-            title: 'Compte',
-            children: [
-              if (isUserConnected)
-                SettingsTile(
-                  title: 'Déconnexion',
-                  subtitle:
-                      'Connecté en tant que ${authController.user.value?.email ?? ""}',
-                  leading: const Icon(Icons.logout),
-                  onTap: () => _showLogoutConfirmationDialog(context),
-                )
-              else
-                SettingsTile(
-                  title: 'Connexion / Inscription',
-                  subtitle: 'Connectez-vous pour synchroniser vos données',
-                  leading: const Icon(Icons.login),
-                  onTap: () => Get.toNamed('/login'),
-                ),
-            ],
-          ),
-          */
-          SettingsSection(
-            title: 'Apparence',
-            children: [
-              SettingsTile(
-                title: 'Thème',
-                subtitle: _getThemeNameFromMode(themeController.themeMode),
-                leading: const Icon(Icons.brightness_6),
-                onTap: () {
-                  _showThemeSelectionDialog(context, themeController.themeMode);
-                },
-              ),
-            ],
-          ),
-          SettingsSection(
-            title: 'Catégories',
-            children: [
-              SettingsTile(
-                title: 'Gérer les catégories',
-                subtitle: 'Ajouter, modifier ou supprimer des catégories',
-                leading: const Icon(Icons.category),
-                onTap: () => CategoriesBottomSheet.show(context: context),
-              ),
-            ],
-          ),
-          SettingsSection(
-            title: 'Données',
-            children: [
-              SettingsTile(
-                title: 'Confidentialité et données',
-                subtitle: 'Exportez ou réinitialisez vos données',
-                leading: const Icon(Icons.security),
-                onTap: () => DataPrivacyBottomSheet.show(context: context),
-              ),
-              SettingsTile(
-                title: 'Tout supprimer',
-                subtitle:
-                    'Supprimer toutes les transactions et tous les comptes',
-                leading: const Icon(Icons.delete_forever, color: Colors.red),
-                onTap: () => _showDeleteDataConfirmationDialog(context),
-              ),
-            ],
-          ),
-          SettingsSection(
-            title: 'À propos',
-            children: [
-              SettingsTile(
-                title: 'Politique de confidentialité',
-                subtitle: 'Consultez notre politique de confidentialité',
-                leading: const Icon(Icons.policy),
-                onTap: () => Get.to(() => const PrivacyPolicyScreen()),
-              ),
-              SettingsTile(
-                title: 'Version',
-                subtitle:
-                    packageInfo != null
-                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                        : 'Chargement...',
-                leading: const Icon(Icons.info_outline),
-                onTap: null,
-              ),
-            ],
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 
