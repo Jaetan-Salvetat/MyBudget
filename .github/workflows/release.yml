@@ -1,0 +1,91 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+      build_number:
+        description: 'Build number'
+        required: true
+        default: '1'
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: 'stable'
+
+      - name: Setup key.properties
+        run: |
+          echo "storeFile=${{ secrets.KEYSTORE_PATH }}" > android/app/key.properties
+          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/app/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/app/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/app/key.properties
+
+      - name: Decode Keystore
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p android/app/keystore
+          echo $ENCODED_KEYSTORE | base64 -d > android/app/keystore/mybudget_key.jks
+
+      - name: Update version in pubspec.yaml
+        run: |
+          sed -i "s/version: .*/version: ${{ github.event.inputs.version }}+${{ github.event.inputs.build_number }}/" pubspec.yaml
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build apk
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Create Tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
+          git push origin v${{ github.event.inputs.version }}
+
+      - name: Read release notes
+        id: release_notes
+        run: echo "::set-output name=notes::$(cat release_notes.md)"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: MyBudget v${{ github.event.inputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+
+      - name: Upload APK asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: mybudget-v${{ github.event.inputs.version }}.apk
+          asset_content_type: application/vnd.android.package-archive
