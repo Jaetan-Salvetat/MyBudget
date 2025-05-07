@@ -7,4 +7,5 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String loans = '/loans';
   static const String loanDetails = '/loan-details';
+  static const String accountDetails = '/account-details';
 }

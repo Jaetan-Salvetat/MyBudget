@@ -11,7 +11,7 @@ import '../widgets/revenues/revenue_bottom_sheet.dart';
 class RevenuesScreen extends StatelessWidget {
   final bool isNested;
   final String fabTag;
-  
+
   const RevenuesScreen({
     this.isNested = false,
     this.fabTag = 'revenues_fab',
@@ -37,7 +37,7 @@ class RevenuesScreen extends StatelessWidget {
         ],
       );
     }
-    
+
     return AppScaffold(
       title: 'Revenus',
       useNestedAppBar: false,
@@ -69,11 +69,8 @@ class RevenuesScreen extends StatelessWidget {
 
 class RevenuesList extends StatelessWidget {
   final bool isNested;
-  
-  const RevenuesList({
-    this.isNested = false,
-    super.key,
-  });
+
+  const RevenuesList({this.isNested = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -123,11 +120,13 @@ class RevenuesList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
+            margin: const EdgeInsets.fromLTRB(16, 130, 16, 5),
             child: Card(
               elevation: 8,
               shadowColor: Colors.black.withOpacity(0.3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: Column(
                 children: [
                   Container(
@@ -137,8 +136,12 @@ class RevenuesList extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Theme.of(context).colorScheme.primary.withOpacity(0.05),
-                          Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.05),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.1),
                         ],
                       ),
                       borderRadius: const BorderRadius.only(
@@ -155,7 +158,9 @@ class RevenuesList extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -175,9 +180,14 @@ class RevenuesList extends StatelessWidget {
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Row(
@@ -185,7 +195,8 @@ class RevenuesList extends StatelessWidget {
                                 children: [
                                   Icon(
                                     Icons.trending_up,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 16,
                                   ),
                                   const SizedBox(width: 6),
@@ -194,7 +205,8 @@ class RevenuesList extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                 ],
@@ -204,9 +216,13 @@ class RevenuesList extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Obx(() {
-                          final totalRevenues = revenueController.getTotalRevenues();
-                          final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-                          
+                          final totalRevenues =
+                              revenueController.getTotalRevenues();
+                          final formatter = NumberFormat.currency(
+                            locale: 'fr_FR',
+                            symbol: '€',
+                          );
+
                           return Text(
                             formatter.format(totalRevenues),
                             style: TextStyle(
@@ -228,7 +244,9 @@ class RevenuesList extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -236,13 +254,20 @@ class RevenuesList extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.arrow_upward, size: 16, color: Theme.of(context).colorScheme.primary),
+                                    Icon(
+                                      Icons.arrow_upward,
+                                      size: 16,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Mensuel',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.8),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -250,15 +275,20 @@ class RevenuesList extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Obx(() {
-                                  final monthlyRevenues = revenueController.getTotalRevenues();
-                                  final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-                                  
+                                  final monthlyRevenues =
+                                      revenueController.getTotalRevenues();
+                                  final formatter = NumberFormat.currency(
+                                    locale: 'fr_FR',
+                                    symbol: '€',
+                                  );
+
                                   return Text(
                                     formatter.format(monthlyRevenues),
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   );
                                 }),
@@ -271,7 +301,9 @@ class RevenuesList extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -279,13 +311,20 @@ class RevenuesList extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.date_range, size: 16, color: Theme.of(context).colorScheme.primary),
+                                    Icon(
+                                      Icons.date_range,
+                                      size: 16,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Annuel',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.8),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -293,15 +332,20 @@ class RevenuesList extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Obx(() {
-                                  final annualRevenues = revenueController.getTotalRevenues() * 12;
-                                  final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-                                  
+                                  final annualRevenues =
+                                      revenueController.getTotalRevenues() * 12;
+                                  final formatter = NumberFormat.currency(
+                                    locale: 'fr_FR',
+                                    symbol: '€',
+                                  );
+
                                   return Text(
                                     formatter.format(annualRevenues),
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   );
                                 }),
@@ -316,7 +360,7 @@ class RevenuesList extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView.separated(
               physics: const BouncingScrollPhysics(),
@@ -329,7 +373,9 @@ class RevenuesList extends StatelessWidget {
                 AccountModel? account;
                 if (accounts.isNotEmpty) {
                   try {
-                    account = accounts.firstWhere((a) => a.id == revenue.accountId);
+                    account = accounts.firstWhere(
+                      (a) => a.id == revenue.accountId,
+                    );
                   } catch (_) {
                     account = accounts.first;
                   }
@@ -381,9 +427,7 @@ class RevenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -462,29 +506,30 @@ class RevenueCard extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Confirmer la suppression'),
-                        content: Text(
-                          'Voulez-vous vraiment supprimer ${revenue.name} ?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Annuler'),
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.error,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Confirmer la suppression'),
+                            content: Text(
+                              'Voulez-vous vraiment supprimer ${revenue.name} ?',
                             ),
-                            onPressed: () {
-                              onDelete();
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Supprimer'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Annuler'),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.error,
+                                ),
+                                onPressed: () {
+                                  onDelete();
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Supprimer'),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                     );
                   },
                 ),

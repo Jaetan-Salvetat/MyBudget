@@ -22,27 +22,29 @@ class _SplashScreenState extends State<SplashScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final startTime = DateTime.now();
-      
+
       await _loadInitialData();
-      
+
       final elapsedTime = DateTime.now().difference(startTime).inMilliseconds;
-      final minimumDelay = 1000;
-      
+      const minimumDelay = 1000;
+
       if (elapsedTime < minimumDelay) {
-        await Future.delayed(Duration(milliseconds: minimumDelay - elapsedTime));
+        await Future.delayed(
+          Duration(milliseconds: minimumDelay - elapsedTime),
+        );
       }
-      
+
       await navigateToDashboard();
     });
   }
-  
+
   Future<void> _loadInitialData() async {
     try {
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
       final loanController = Get.find<LoanController>();
-      
+
       await Future.wait([
         accountController.getAccounts(),
         expenseController.getExpenses(),
