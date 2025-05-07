@@ -80,148 +80,72 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       orElse: () => accountController.accounts.first,
     );
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.account_balance,
+              color: Theme.of(context).colorScheme.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                Text(
+                  loan.name,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Icon(
-                    Icons.account_balance,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 24,
-                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        loan.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Prêteur: ${loan.lenderName}',
+                      child: Text(
+                        account.name,
                         style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      height: 12,
+                      width: 1,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Prêteur: ${loan.lenderName}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInfoItem(
-                  context,
-                  'Montant total',
-                  formatter.format(loan.amount),
-                  Icons.euro,
-                ),
-                _buildInfoItem(
-                  context,
-                  'Mensualité',
-                  formatter.format(loan.monthlyPayment),
-                  Icons.calendar_view_month,
-                ),
-                _buildInfoItem(
-                  context,
-                  'Reste à payer',
-                  formatter.format(loan.getRemainingAmount()),
-                  Icons.payment,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInfoItem(
-                  context,
-                  'Durée totale',
-                  '${_calculateLoanDuration(loan)} mois',
-                  Icons.date_range,
-                ),
-                _buildInfoItem(
-                  context,
-                  'Compte',
-                  account.name,
-                  Icons.account_balance_wallet,
-                ),
-                _buildInfoItem(
-                  context,
-                  'Taux effectif',
-                  '${_calculateEffectiveRate(loan)}%',
-                  Icons.percent,
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildInfoItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
     );
   }
 
@@ -337,6 +261,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               'Date de fin prévue',
               DateFormat('dd/MM/yyyy').format(loan.endDate),
               Icons.event,
+              null,
+            ),
+            const Divider(height: 24),
+            _buildDetailRow(
+              'Durée totale',
+              '${_calculateLoanDuration(loan)} mois',
+              Icons.timelapse,
               null,
             ),
             const Divider(height: 24),
@@ -487,25 +418,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     final months =
         (endDate.year - startDate.year) * 12 + endDate.month - startDate.month;
     return months > 0 ? months : 1;
-  }
-
-  String _calculateEffectiveRate(LoanModel loan) {
-    // Calcul approximatif du taux d'intérêt en utilisant la formule de crédit
-    // Cette méthode est une simplification pour illustration
-    final months = _calculateLoanDuration(loan);
-    final totalPayment = loan.monthlyPayment * months;
-
-    if (loan.amount <= 0 || totalPayment <= loan.amount) {
-      return '0.0'; // Pas d'intérêt ou données invalides
-    }
-
-    // Différence entre ce qui est payé et le montant du prêt = intérêts
-    final interestAmount = totalPayment - loan.amount;
-
-    // Taux d'intérêt simple annualisé (approximatif)
-    final yearRate = (interestAmount / loan.amount) * (12 / months) * 100;
-
-    return yearRate.toStringAsFixed(2);
   }
 
   void _showDeleteConfirmation(BuildContext context) {
