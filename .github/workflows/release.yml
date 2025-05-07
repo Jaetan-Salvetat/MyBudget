@@ -33,7 +33,6 @@ jobs:
 
       - name: Setup key.properties
         run: |
-          echo "storeFile=${{ secrets.KEYSTORE_PATH }}" > android/app/key.properties
           echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/app/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/app/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/app/key.properties

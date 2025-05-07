@@ -25,7 +25,7 @@ android {
             if (keystorePropertiesFile.exists()) {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = keystoreProperties["storeFile"]?.let { File(it as String) }
+                storeFile = File("/app/keystore/mybudget_key.jks")
                 storePassword = keystoreProperties["storePassword"] as String
             }
         }
