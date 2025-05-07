@@ -5,14 +5,16 @@ import 'package:mybudget/data/models/account_model.dart';
 class AccountListCard extends StatelessWidget {
   final AccountModel account;
   final double balance;
-  final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback? onTap;
 
   const AccountListCard({
     required this.account,
     required this.balance,
-    required this.onDelete,
     required this.onEdit,
+    required this.onDelete,
+    this.onTap,
     super.key,
   });
 
@@ -29,7 +31,7 @@ class AccountListCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: onEdit,
+        onTap: onTap ?? onEdit,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

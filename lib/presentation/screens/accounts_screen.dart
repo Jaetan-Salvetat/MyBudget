@@ -7,6 +7,7 @@ import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/presentation/widgets/accounts/account_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/accounts/account_list_card.dart';
+import './account_details_screen.dart';
 import 'package:mybudget/presentation/widgets/accounts/empty_accounts_state.dart';
 import 'package:mybudget/presentation/widgets/common/section_header.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
@@ -351,6 +352,7 @@ class AccountsList extends StatelessWidget {
                 return AccountListCard(
                   account: account,
                   balance: balance,
+                  onTap: () => _openAccountDetails(context, account),
                   onEdit: () => _editAccount(context, account),
                   onDelete: () => _deleteAccount(context, account),
                 );
@@ -393,6 +395,10 @@ class AccountsList extends StatelessWidget {
       },
       onCancel: () {},
     );
+  }
+
+  void _openAccountDetails(BuildContext context, AccountModel account) {
+    Get.to(() => AccountDetailsScreen(), arguments: account);
   }
 
   void _deleteAccount(BuildContext context, AccountModel account) {
