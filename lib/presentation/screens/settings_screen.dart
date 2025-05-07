@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:mybudget/core/controllers/auth_controller.dart'; // Commenté pour migration Isar
-import 'package:mybudget/core/controllers/account_controller.dart';
-import 'package:mybudget/core/controllers/expense_controller.dart';
-import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
+import 'package:mybudget/core/controllers/data_controller.dart';
+import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
-import 'package:mybudget/presentation/widgets/settings/data_privacy_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
-import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class SettingsScreen extends StatefulWidget {
   final bool isNested;
   final String fabTag;
-  
+
   const SettingsScreen({
     this.isNested = false,
     this.fabTag = 'settings_fab',
@@ -28,13 +26,13 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final _themeController = Get.find<ThemeController>();
+  final _dataController = Get.put(DataController());
   PackageInfo? packageInfo;
-  late ThemeController themeController;
 
   @override
   void initState() {
     super.initState();
-    themeController = Get.find<ThemeController>();
     _loadPackageInfo();
   }
 
@@ -63,15 +61,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     // Commenté pour migration Isar
     // final authController = Get.find<AuthController>();
-    
+
     final content = ListView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(
-        top: 100,
-        bottom: 16,
-        left: 16,
-        right: 16,
-      ),
+      padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
       children: [
         // Section Compte commentée pour migration Isar
         /*
@@ -101,10 +94,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             SettingsTile(
               title: 'Thème',
-              subtitle: _getThemeNameFromMode(themeController.themeMode),
+              subtitle: _getThemeNameFromMode(_themeController.themeMode),
               leading: const Icon(Icons.brightness_6),
               onTap: () {
-                _showThemeSelectionDialog(context, themeController.themeMode);
+                _showThemeSelectionDialog(context, _themeController.themeMode);
               },
             ),
           ],
@@ -124,15 +117,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: 'Données',
           children: [
             SettingsTile(
-              title: 'Confidentialité et données',
-              subtitle: 'Exportez ou réinitialisez vos données',
-              leading: const Icon(Icons.security),
-              onTap: () => DataPrivacyBottomSheet.show(context: context),
+              title: 'Exporter mes données',
+              subtitle: 'Télécharger vos données au format JSON',
+              leading: const Icon(Icons.download_rounded),
+              onTap: () => _exportUserData(context),
+            ),
+            SettingsTile(
+              title: 'Importer des données',
+              subtitle: 'Restaurer depuis un fichier JSON',
+              leading: const Icon(Icons.upload_rounded),
+              onTap: () => _importUserData(context),
             ),
             SettingsTile(
               title: 'Tout supprimer',
-              subtitle:
-                  'Supprimer toutes les transactions et tous les comptes',
+              subtitle: 'Supprimer toutes les transactions et tous les comptes',
               leading: const Icon(Icons.delete_forever, color: Colors.red),
               onTap: () => _showDeleteDataConfirmationDialog(context),
             ),
@@ -160,15 +158,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
-    
+
     if (widget.isNested) {
       return content;
     }
-    
-    return AppScaffold(
-      title: 'Paramètres',
-      child: content,
-    );
+
+    return AppScaffold(title: 'Paramètres', child: content);
   }
 
   String _getThemeNameFromMode(ThemeMode mode) {
@@ -182,6 +177,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _exportUserData(BuildContext context) async {
+    await _dataController.exportUserData(context);
+  }
+
+  Future<void> _importUserData(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      
+      if (result == null || result.files.isEmpty) {
+        return;
+      }
+      
+      final path = result.files.single.path;
+      if (path == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chemin du fichier invalide')),
+        );
+        return;
+      }
+      
+      final file = File(path);
+      if (!await file.exists()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fichier introuvable')),
+        );
+        return;
+      }
+      
+      _showImportConfirmationDialog(context, file);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la sélection du fichier: $e')),
+      );
+    }
+  }
+
+
+  
   Future<void> _showThemeSelectionDialog(
     BuildContext context,
     ThemeMode currentMode,
@@ -190,8 +226,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       currentMode: currentMode,
       onThemeSelected: (ThemeMode newMode) {
-        themeController.changeTheme(newMode);
+        _themeController.changeTheme(newMode);
       },
+    );
+  }
+
+  void _showImportConfirmationDialog(BuildContext context, File file) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Importer des données'),
+        content: const Text(
+          'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _dataController.importUserData(context, file);
+            },
+            child: const Text('Importer'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -203,35 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Cette action supprimera toutes vos transactions et tous vos comptes. Cette action est irréversible.',
       confirmLabel: 'Supprimer',
       cancelLabel: 'Annuler',
-      onConfirm: () async {
-        final accountController = Get.find<AccountController>();
-        final expenseController = Get.find<ExpenseController>();
-        final revenueController = Get.find<RevenueController>();
-
-        final accountsList = accountController.accounts;
-        final expensesList = expenseController.expenses;
-        final revenuesList = revenueController.revenues;
-
-        // Supprimer les transactions d'abord
-        for (final expense in expensesList) {
-          expenseController.deleteExpense(expense.id);
-        }
-
-        for (final revenue in revenuesList) {
-          revenueController.deleteRevenue(revenue.id);
-        }
-
-        // Supprimer les comptes ensuite
-        for (final account in accountsList) {
-          accountController.deleteAccount(account.id);
-        }
-
-        Get.snackbar(
-          'Suppression terminée',
-          'Toutes les données ont été supprimées',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      },
+      onConfirm: () => _dataController.deleteAllUserData(context),
     );
   }
 }
