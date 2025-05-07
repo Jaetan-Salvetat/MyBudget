@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/controllers/account_controller.dart';
+import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/controllers/revenue_controller.dart';
+import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -17,9 +21,37 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(seconds: 2));
+      final startTime = DateTime.now();
+      
+      await _loadInitialData();
+      
+      final elapsedTime = DateTime.now().difference(startTime).inMilliseconds;
+      final minimumDelay = 1000;
+      
+      if (elapsedTime < minimumDelay) {
+        await Future.delayed(Duration(milliseconds: minimumDelay - elapsedTime));
+      }
+      
       await navigateToDashboard();
     });
+  }
+  
+  Future<void> _loadInitialData() async {
+    try {
+      final accountController = Get.find<AccountController>();
+      final expenseController = Get.find<ExpenseController>();
+      final revenueController = Get.find<RevenueController>();
+      final loanController = Get.find<LoanController>();
+      
+      await Future.wait([
+        accountController.getAccounts(),
+        expenseController.getExpenses(),
+        revenueController.getRevenues(),
+        loanController.fetchLoans(),
+      ]);
+    } catch (e) {
+      print('Error loading initial data: $e');
+    }
   }
 
   Future<void> navigateToDashboard() async {
