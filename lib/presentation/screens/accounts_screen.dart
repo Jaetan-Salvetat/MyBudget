@@ -98,10 +98,11 @@ class AccountsList extends StatelessWidget {
             child: Card(
               elevation: 8,
               shadowColor: Colors.black.withOpacity(0.3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: Column(
                 children: [
-
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -109,8 +110,12 @@ class AccountsList extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Theme.of(context).colorScheme.primary.withOpacity(0.05),
-                          Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.05),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.1),
                         ],
                       ),
                       borderRadius: const BorderRadius.only(
@@ -127,7 +132,9 @@ class AccountsList extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -147,7 +154,10 @@ class AccountsList extends StatelessWidget {
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green.shade700.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(14),
@@ -176,13 +186,19 @@ class AccountsList extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Obx(() {
-                          final accountController = Get.find<AccountController>();
-                          final totalBalance = accountController.getTotalBalance();
-                          final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-                          final color = totalBalance >= 0 
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.error;
-                          
+                          final accountController =
+                              Get.find<AccountController>();
+                          final totalBalance =
+                              accountController.getTotalBalance();
+                          final formatter = NumberFormat.currency(
+                            locale: 'fr_FR',
+                            symbol: '€',
+                          );
+                          final color =
+                              totalBalance >= 0
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error;
+
                           return Text(
                             formatter.format(totalBalance),
                             style: TextStyle(
@@ -212,13 +228,18 @@ class AccountsList extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.arrow_upward, size: 16, color: Colors.green.shade700),
+                                    Icon(
+                                      Icons.arrow_upward,
+                                      size: 16,
+                                      color: Colors.green.shade700,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Solde Total',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.green.shade700.withOpacity(0.8),
+                                        color: Colors.green.shade700
+                                            .withOpacity(0.8),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -226,11 +247,19 @@ class AccountsList extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Obx(() {
-                                  final accountController = Get.find<AccountController>();
-                                  final totalBalance = accountController.getTotalBalance();
-                                  final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-                                  final color = totalBalance >= 0 ? Colors.green.shade700 : Theme.of(context).colorScheme.error;
-                                  
+                                  final accountController =
+                                      Get.find<AccountController>();
+                                  final totalBalance =
+                                      accountController.getTotalBalance();
+                                  final formatter = NumberFormat.currency(
+                                    locale: 'fr_FR',
+                                    symbol: '€',
+                                  );
+                                  final color =
+                                      totalBalance >= 0
+                                          ? Colors.green.shade700
+                                          : Theme.of(context).colorScheme.error;
+
                                   return Text(
                                     formatter.format(totalBalance),
                                     style: TextStyle(
@@ -249,7 +278,9 @@ class AccountsList extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -257,13 +288,20 @@ class AccountsList extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.compare_arrows, size: 16, color: Theme.of(context).colorScheme.primary),
+                                    Icon(
+                                      Icons.compare_arrows,
+                                      size: 16,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Transactions',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.8),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -271,13 +309,15 @@ class AccountsList extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Obx(() {
-                                  final accountController = Get.find<AccountController>();
+                                  final accountController =
+                                      Get.find<AccountController>();
                                   return Text(
                                     '${accountController.getTotalTransactionsCount()}',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   );
                                 }),
@@ -291,7 +331,7 @@ class AccountsList extends StatelessWidget {
                 ],
               ),
             ),
-          ), 
+          ),
           SectionHeader(
             title: 'Mes comptes bancaires',
             actionText: 'Trier',
