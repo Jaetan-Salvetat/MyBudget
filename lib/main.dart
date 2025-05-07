@@ -8,16 +8,13 @@ import 'package:mybudget/presentation/screens/account_details_screen.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: '.env');
+  // await dotenv.load(fileName: '.env');
 
   runApp(const MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
