@@ -99,39 +99,29 @@ class CategoriesBottomSheet extends StatelessWidget {
     });
   }
   
+  static final Map<String, IconData> iconMap = {
+    'restaurant': Icons.restaurant,
+    'directions_car': Icons.directions_car,
+    'home': Icons.home,
+    'sports_esports': Icons.sports_esports,
+    'medical_services': Icons.medical_services,
+    'checkroom': Icons.checkroom,
+    'more_horiz': Icons.more_horiz,
+    'shopping_cart': Icons.shopping_cart,
+    'fitness_center': Icons.fitness_center,
+    'school': Icons.school,
+    'movie': Icons.movie,
+    'flight': Icons.flight,
+    'flight_takeoff': Icons.flight_takeoff,
+    'card_giftcard': Icons.card_giftcard,
+    'account_balance': Icons.account_balance,
+  };
+  
   Widget _buildCategoryTile(BuildContext context, Category category, CategoryController categoryController) {
     IconData iconData = Icons.category;
-    try {
-      iconData = IconData(
-        int.parse(category.icon, radix: 16),
-        fontFamily: 'MaterialIcons',
-      );
-    } catch (e) {
-      if (category.icon == 'restaurant') {
-        iconData = Icons.restaurant;
-      } else if (category.icon == 'directions_car') {
-        iconData = Icons.directions_car;
-      } else if (category.icon == 'home') {
-        iconData = Icons.home;
-      } else if (category.icon == 'sports_esports') {
-        iconData = Icons.sports_esports;
-      } else if (category.icon == 'medical_services') {
-        iconData = Icons.medical_services;
-      } else if (category.icon == 'checkroom') {
-        iconData = Icons.checkroom;
-      } else if (category.icon == 'more_horiz') {
-        iconData = Icons.more_horiz;
-      } else if (category.icon == 'shopping_cart') {
-        iconData = Icons.shopping_cart;
-      } else if (category.icon == 'fitness_center') {
-        iconData = Icons.fitness_center;
-      } else if (category.icon == 'school') {
-        iconData = Icons.school;
-      } else if (category.icon == 'movie') {
-        iconData = Icons.movie;
-      } else if (category.icon == 'flight_takeoff') {
-        iconData = Icons.flight_takeoff;
-      }
+    
+    if (iconMap.containsKey(category.icon)) {
+      iconData = iconMap[category.icon]!;
     }
 
     return Card(
