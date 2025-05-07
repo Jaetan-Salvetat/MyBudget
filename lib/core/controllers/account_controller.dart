@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
@@ -21,7 +21,8 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final accountsList = await IsarService().getAllAccounts();
+      final objectBoxService = Get.find<ObjectBoxService>();
+      final accountsList = objectBoxService.accountBox.getAll();
       accounts.value = accountsList;
     } catch (e) {
       error.value = e.toString();
@@ -35,7 +36,8 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveAccount(account);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.accountBox.put(account);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();
@@ -49,7 +51,8 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveAccount(account);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.accountBox.put(account);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();
@@ -63,7 +66,8 @@ class AccountController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().deleteAccount(id);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.accountBox.remove(id);
       await getAccounts();
     } catch (e) {
       error.value = e.toString();

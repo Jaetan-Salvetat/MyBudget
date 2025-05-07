@@ -1,9 +1,8 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/loan_model.dart';
 
 class LoanController extends GetxController {
-  final _isarService = Get.find<IsarService>();
   final loans = <LoanModel>[].obs;
   final isLoading = false.obs;
 
@@ -17,7 +16,8 @@ class LoanController extends GetxController {
     isLoading.value = true;
 
     try {
-      final loansList = await _isarService.getLoans();
+      final objectBoxService = Get.find<ObjectBoxService>();
+      final loansList = objectBoxService.loanBox.getAll();
       loans.value = loansList;
     } catch (error) {
       print('Error fetching loans: $error');
@@ -28,7 +28,8 @@ class LoanController extends GetxController {
 
   Future<void> addLoan(LoanModel loan) async {
     try {
-      await _isarService.saveLoan(loan);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.loanBox.put(loan);
       await fetchLoans();
     } catch (error) {
       print('Error adding loan: $error');
@@ -37,7 +38,8 @@ class LoanController extends GetxController {
 
   Future<void> updateLoan(LoanModel loan) async {
     try {
-      await _isarService.saveLoan(loan);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.loanBox.put(loan);
       await fetchLoans();
     } catch (error) {
       print('Error updating loan: $error');
@@ -46,7 +48,8 @@ class LoanController extends GetxController {
 
   Future<void> deleteLoan(int id) async {
     try {
-      await _isarService.deleteLoan(id);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.loanBox.remove(id);
       await fetchLoans();
     } catch (error) {
       print('Error deleting loan: $error');

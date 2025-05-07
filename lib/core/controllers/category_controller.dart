@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/category_model.dart';
 
 class CategoryController extends GetxController {
@@ -18,10 +18,11 @@ class CategoryController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final categoriesList = await IsarService().getAllCategories();
+      final objectBoxService = Get.find<ObjectBoxService>();
+      final categoriesList = objectBoxService.categoryBox.getAll();
       if (categoriesList.isEmpty) {
         await _initializeDefaultCategories();
-        categories.value = await IsarService().getAllCategories();
+        categories.value = objectBoxService.categoryBox.getAll();
       } else {
         categories.value = categoriesList;
       }
@@ -37,7 +38,8 @@ class CategoryController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveCategory(category);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.categoryBox.put(category);
       await getCategories();
     } catch (e) {
       error.value = e.toString();
@@ -51,7 +53,8 @@ class CategoryController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveCategory(category);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.categoryBox.put(category);
       await getCategories();
     } catch (e) {
       error.value = e.toString();
@@ -65,7 +68,8 @@ class CategoryController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().deleteCategory(id);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.categoryBox.remove(id);
       await getCategories();
     } catch (e) {
       error.value = e.toString();
@@ -86,8 +90,9 @@ class CategoryController extends GetxController {
         CategoryModel.create(name: 'Autre', icon: 'more_horiz'),
       ];
 
+      final objectBoxService = Get.find<ObjectBoxService>();
       for (final category in defaultCategories) {
-        await IsarService().saveCategory(category);
+        objectBoxService.categoryBox.put(category);
       }
     } catch (e) {
       error.value = e.toString();

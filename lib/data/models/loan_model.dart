@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-
-part 'loan_model.g.dart';
+import 'package:objectbox/objectbox.dart';
 
 enum LoanStatus {
   pending('À commencer', Icons.schedule),
@@ -31,16 +29,21 @@ enum LoanStatus {
   }
 }
 
-@collection
+@Entity()
 class LoanModel {
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id = 0; // 0 signifie auto-increment dans ObjectBox
 
   String name;
   double amount;
   String lenderName;
 
   int dayOfMonth;
+  
+  @Property()
   DateTime startDate;
+  
+  @Property()
   DateTime endDate;
 
   double monthlyPayment;
@@ -51,7 +54,7 @@ class LoanModel {
   double get paidAmount => getAutomaticPaidAmount();
 
   LoanModel({
-    this.id = Isar.autoIncrement,
+    this.id = 0,
     required this.name,
     required this.amount,
     required this.lenderName,

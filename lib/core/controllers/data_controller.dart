@@ -6,7 +6,7 @@ import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 import 'package:mybudget/data/models/loan_model.dart';
@@ -87,14 +87,14 @@ class DataController extends GetxController {
       final data = jsonDecode(jsonData) as Map<String, dynamic>;
       
       // Get service and controllers
-      final isarService = Get.find<IsarService>();
+      final objectBoxService = Get.find<ObjectBoxService>();
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
       final loanController = Get.find<LoanController>();
       
       // Clear all existing data
-      await isarService.clearAllData();
+      await objectBoxService.clearAllData();
       
       // Import accounts
       if (data['accounts'] != null && data['accounts'] is List) {
@@ -183,14 +183,14 @@ class DataController extends GetxController {
       );
       
       // Get service and controllers
-      final isarService = Get.find<IsarService>();
+      final objectBoxService = Get.find<ObjectBoxService>();
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
       final loanController = Get.find<LoanController>();
       
-      // Clear all data using isar service
-      await isarService.clearAllData();
+      // Clear all data using ObjectBox service
+      await objectBoxService.clearAllData();
       
       // Refresh controllers
       await accountController.getAccounts();

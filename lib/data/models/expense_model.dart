@@ -1,15 +1,14 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:mybudget/domain/entities/expense.dart';
 
-part 'expense_model.g.dart';
-
-@collection
+@Entity()
 class ExpenseModel implements Expense {
   @override
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id = 0; // 0 signifie auto-increment dans ObjectBox
 
   @override
-  @Index(type: IndexType.value)
+  @Index()
   late String name;
 
   @override
@@ -19,7 +18,7 @@ class ExpenseModel implements Expense {
   late int categoryId;
 
   @override
-  @Index()
+  @Property()
   late DateTime date;
 
   @override

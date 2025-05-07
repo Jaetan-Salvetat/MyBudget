@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
+import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
+import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -40,6 +43,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _loadInitialData() async {
     try {
+      await PreferencesService.init();
+      
+      final objectBoxService = await ObjectBoxService.getInstance();
+      Get.put(objectBoxService, permanent: true);
+      
+      Get.put(CategoryController(), permanent: true);
+      Get.put(ThemeController(), permanent: true);
+      
+      Get.put(ExpenseController(), permanent: true);
+      Get.put(RevenueController(), permanent: true);
+      Get.put(LoanController(), permanent: true);
+      
+      Get.put(AccountController(), permanent: true);
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();

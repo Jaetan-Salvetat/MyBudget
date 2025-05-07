@@ -1,15 +1,14 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 import '../../domain/entities/account.dart';
 
-part 'account_model.g.dart';
-
-@collection
+@Entity()
 class AccountModel implements Account {
   @override
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id = 0;
 
   @override
-  @Index(type: IndexType.value)
+  @Index()
   late String name;
 
   @override

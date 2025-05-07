@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 
 class ExpenseController extends GetxController {
@@ -18,7 +18,8 @@ class ExpenseController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final expensesList = await IsarService().getAllExpenses();
+      final objectBoxService = Get.find<ObjectBoxService>();
+      final expensesList = objectBoxService.expenseBox.getAll();
       expenses.value = expensesList;
     } catch (e) {
       error.value = e.toString();
@@ -32,7 +33,8 @@ class ExpenseController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveExpense(expense);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.expenseBox.put(expense);
       await getExpenses();
     } catch (e) {
       error.value = e.toString();
@@ -46,7 +48,8 @@ class ExpenseController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveExpense(expense);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.expenseBox.put(expense);
       await getExpenses();
     } catch (e) {
       error.value = e.toString();
@@ -60,7 +63,8 @@ class ExpenseController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().deleteExpense(id);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.expenseBox.remove(id);
       await getExpenses();
     } catch (e) {
       error.value = e.toString();

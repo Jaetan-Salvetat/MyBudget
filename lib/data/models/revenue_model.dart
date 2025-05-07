@@ -1,15 +1,14 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:mybudget/domain/entities/revenue.dart';
 
-part 'revenue_model.g.dart';
-
-@collection
+@Entity()
 class RevenueModel implements Revenue {
   @override
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id = 0;
 
   @override
-  @Index(type: IndexType.value)
+  @Index()
   late String name;
 
   @override
@@ -22,7 +21,7 @@ class RevenueModel implements Revenue {
   late bool isRegular;
 
   @override
-  @Index()
+  @Property()
   late DateTime date;
 
   RevenueModel();

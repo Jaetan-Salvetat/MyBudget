@@ -1,0 +1,216 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:5409636033012054049",
+      "lastPropertyId": "3:8108667115683580211",
+      "name": "AccountModel",
+      "properties": [
+        {
+          "id": "1:8880387107288098797",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1374454396313032353",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "1:6911216159507346562"
+        },
+        {
+          "id": "3:8108667115683580211",
+          "name": "bank",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:637957068368109063",
+      "lastPropertyId": "3:2964126038854478579",
+      "name": "CategoryModel",
+      "properties": [
+        {
+          "id": "1:4274885399649890297",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6079627583281643679",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "2:2810518327203723333"
+        },
+        {
+          "id": "3:2964126038854478579",
+          "name": "icon",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:1032015678209972615",
+      "lastPropertyId": "7:4626612722441888507",
+      "name": "ExpenseModel",
+      "properties": [
+        {
+          "id": "1:5234756340208447805",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8782177432325581071",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "3:6881701850497049454"
+        },
+        {
+          "id": "3:197846412074687742",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "4:6567315342602454646",
+          "name": "categoryId",
+          "type": 6
+        },
+        {
+          "id": "5:7133072174613285923",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "6:7344930449792724154",
+          "name": "frequency",
+          "type": 9
+        },
+        {
+          "id": "7:4626612722441888507",
+          "name": "accountId",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:8471750721460440152",
+      "lastPropertyId": "10:2010142483118272076",
+      "name": "LoanModel",
+      "properties": [
+        {
+          "id": "1:4357997451877774757",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8082422302266592395",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:1133056242518733964",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "4:6672806474502141075",
+          "name": "lenderName",
+          "type": 9
+        },
+        {
+          "id": "5:6021243847321742199",
+          "name": "dayOfMonth",
+          "type": 6
+        },
+        {
+          "id": "6:4746855994874418532",
+          "name": "startDate",
+          "type": 10
+        },
+        {
+          "id": "7:554819563813483883",
+          "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "8:2052082936511433960",
+          "name": "monthlyPayment",
+          "type": 8
+        },
+        {
+          "id": "9:8068317565478007606",
+          "name": "accountId",
+          "type": 6
+        },
+        {
+          "id": "10:2010142483118272076",
+          "name": "notes",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:3358114112895883942",
+      "lastPropertyId": "6:1213904468792118615",
+      "name": "RevenueModel",
+      "properties": [
+        {
+          "id": "1:283227371286293118",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7226995627464060847",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "4:3572496844486688498"
+        },
+        {
+          "id": "3:3937663112501782454",
+          "name": "accountId",
+          "type": 6
+        },
+        {
+          "id": "4:6346179344971325834",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "5:5939978804947497821",
+          "name": "isRegular",
+          "type": 1
+        },
+        {
+          "id": "6:1213904468792118615",
+          "name": "date",
+          "type": 10
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "5:3358114112895883942",
+  "lastIndexId": "4:3572496844486688498",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

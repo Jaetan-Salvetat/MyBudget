@@ -1,15 +1,14 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:mybudget/domain/entities/category.dart';
 
-part 'category_model.g.dart';
-
-@collection
+@Entity()
 class CategoryModel implements Category {
   @override
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id = 0; // 0 signifie auto-increment dans ObjectBox
 
   @override
-  @Index(type: IndexType.value)
+  @Index()
   late String name;
 
   @override

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:mybudget/core/services/isar_service.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/revenue_model.dart';
 
 class RevenueController extends GetxController {
@@ -18,7 +18,8 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final revenuesList = await IsarService().getAllRevenues();
+      final objectBoxService = Get.find<ObjectBoxService>();
+      final revenuesList = objectBoxService.revenueBox.getAll();
       revenues.value = revenuesList;
     } catch (e) {
       error.value = e.toString();
@@ -32,7 +33,8 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveRevenue(revenue);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.revenueBox.put(revenue);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();
@@ -46,7 +48,8 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().saveRevenue(revenue);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.revenueBox.put(revenue);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();
@@ -60,7 +63,8 @@ class RevenueController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      await IsarService().deleteRevenue(id);
+      final objectBoxService = Get.find<ObjectBoxService>();
+      objectBoxService.revenueBox.remove(id);
       await getRevenues();
     } catch (e) {
       error.value = e.toString();
