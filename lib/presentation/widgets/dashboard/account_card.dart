@@ -29,7 +29,7 @@ class AccountCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 160,
-        margin: const EdgeInsets.only(right: 12),
+        margin: const EdgeInsets.only(right: 16),
         child: Card(
           elevation: 3,
           shadowColor: Colors.black.withOpacity(0.2),

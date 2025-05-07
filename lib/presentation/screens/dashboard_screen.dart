@@ -107,7 +107,7 @@ class DashboardScreen extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -163,7 +163,7 @@ class DashboardScreen extends StatelessWidget {
               height: 140,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(left: 16, right: 4),
                 itemCount: accounts.length,
                 itemBuilder: (context, index) {
                   final account = accounts[index];

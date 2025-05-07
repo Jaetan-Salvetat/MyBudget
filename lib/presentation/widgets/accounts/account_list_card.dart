@@ -108,39 +108,7 @@ class AccountListCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Modifier'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      showDeleteConfirmationDialog(context);
-                    },
-                    icon: const Icon(Icons.delete, size: 16),
-                    label: const Text('Supprimer'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.error.withOpacity(0.1),
-                      foregroundColor: colorScheme.error,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                  ),
-                ],
-              ),
+
             ],
           ),
         ),
