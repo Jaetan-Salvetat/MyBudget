@@ -16,11 +16,17 @@ enum LoanStatus {
   Color getColor(BuildContext context) {
     switch (this) {
       case LoanStatus.pending:
-        return Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
+        return Theme.of(context).brightness == Brightness.dark
+          ? Colors.amber.shade300
+          : Colors.amber.shade700; // Ambre pour "à commencer" (attention/attente)
       case LoanStatus.partiallyPaid:
-        return Theme.of(context).colorScheme.primary;
+        return Theme.of(context).brightness == Brightness.dark
+          ? Colors.blue.shade300
+          : Colors.blue.shade600; // Bleu pour "en cours" (progression/activité)
       case LoanStatus.completed:
-        return Theme.of(context).colorScheme.secondary;
+        return Theme.of(context).brightness == Brightness.dark
+          ? Colors.green.shade300
+          : Colors.green.shade600; // Vert pour "remboursé" (succès/terminé)
     }
   }
 }

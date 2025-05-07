@@ -4,7 +4,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool centerTitle;
-  
+
   const GradientAppBar({
     required this.title,
     this.actions,
@@ -36,8 +36,8 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.7),
+              Theme.of(context).colorScheme.primaryContainer,
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
             ],
           ),
           borderRadius: const BorderRadius.only(
@@ -56,7 +56,7 @@ class GradientSliverAppBar extends StatelessWidget {
   final bool floating;
   final bool pinned;
   final List<Widget>? actions;
-  
+
   const GradientSliverAppBar({
     required this.title,
     this.expandedHeight = 120,
@@ -75,10 +75,7 @@ class GradientSliverAppBar extends StatelessWidget {
       elevation: 0,
       actions: actions,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
