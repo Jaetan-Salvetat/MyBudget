@@ -1,20 +1,18 @@
 name: Create Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number (e.g., 1.0.0)'
-        required: true
-      build_number:
-        description: 'Build number'
-        required: true
-        default: '1'
+  push:
+    branches:
+      - main
+      - master
 
 jobs:
   create_release:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,9 +45,7 @@ jobs:
           mkdir -p android/app/keystore
           echo $ENCODED_KEYSTORE | base64 -d > android/app/keystore/mybudget_key.jks
 
-      - name: Update version in pubspec.yaml
-        run: |
-          sed -i "s/version: .*/version: ${{ github.event.inputs.version }}+${{ github.event.inputs.build_number }}/" pubspec.yaml
+
 
       - name: Flutter pub get
         run: flutter pub get
@@ -57,12 +53,20 @@ jobs:
       - name: Build apk
         run: flutter build apk --release --no-tree-shake-icons
 
+      - name: Extract version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | sed -e 's/version: //' -e 's/+.*//')
+          BUILD=$(grep 'version:' pubspec.yaml | sed -e 's/version: //' -e 's/.*+//')
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=build::$BUILD"
+      
       - name: Create Tag
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
-          git push origin v${{ github.event.inputs.version }}
+          git tag -a v${{ steps.get_version.outputs.version }} -m "Release v${{ steps.get_version.outputs.version }}"
+          git push origin v${{ steps.get_version.outputs.version }}
 
       - name: Read release notes
         id: release_notes
@@ -74,8 +78,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: MyBudget v${{ github.event.inputs.version }}
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: MyBudget v${{ steps.get_version.outputs.version }}
           body_path: release_notes.md
           draft: false
           prerelease: false
@@ -87,5 +91,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/app/outputs/flutter-apk/app-release.apk
-          asset_name: mybudget-v${{ github.event.inputs.version }}.apk
+          asset_name: mybudget-v${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}.apk
           asset_content_type: application/vnd.android.package-archive
