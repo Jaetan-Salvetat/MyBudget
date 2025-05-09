@@ -33,16 +33,14 @@ jobs:
 
       - name: Setup key.properties
         run: |
-          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/app/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/app/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/app/key.properties
+          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
 
       - name: Decode Keystore
         run: |
           mkdir -p android/app/keystore
           echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > android/app/keystore/mybudget_key.jks
-          cat android/app/keystore/mybudget_key.jks
-          cat android/app/key.properties
 
 
 

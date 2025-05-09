@@ -9,7 +9,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val keystorePropertiesFile = rootProject.file("app/key.properties")
+val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
@@ -22,12 +22,10 @@ android {
     
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = File("/keystore/mybudget_key.jks")
-                storePassword = keystoreProperties["storePassword"] as String
-            }
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = rootProject.file("app/keystore/mybudget_key.jks")
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
@@ -46,18 +44,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
-
-        val localProperties = project.file("../local.properties")
-        var appwriteProjectId = if (localProperties.exists()) {
-            val properties = Properties()
-            properties.load(localProperties.inputStream())
-            properties.getProperty("appwrite.projectId", "default")
-        } else {
-            "default"
-        }
-        
-        manifestPlaceholders["appwriteCallbackScheme"] = "appwrite-callback-$appwriteProjectId"
     }
 
     buildTypes {
@@ -68,11 +54,7 @@ android {
         }
         release {
             resValue("string", "app_name", "MyBudget")
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
