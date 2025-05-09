@@ -5,6 +5,7 @@ import 'package:mybudget/presentation/screens/splash_screen.dart';
 import 'package:mybudget/presentation/screens/home_screen.dart';
 import 'package:mybudget/presentation/screens/loan_details_screen.dart';
 import 'package:mybudget/presentation/screens/account_details_screen.dart';
+import 'package:mybudget/presentation/screens/onboarding_screen.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(),
       getPages: [
         GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
+        GetPage(name: AppRoutes.onboarding, page: () => const OnboardingScreen()),
         GetPage(name: AppRoutes.dashboard, page: () => const HomeScreen()),
         GetPage(
           name: AppRoutes.expenses,

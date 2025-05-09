@@ -11,6 +11,7 @@ import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/update_controller.dart';
 import 'package:mybudget/presentation/screens/update_screen.dart';
+import 'package:mybudget/presentation/screens/onboarding_screen.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -78,11 +79,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> navigateToDashboard() async {
     bool isFirstLaunch = PreferencesService.isFirstLaunch();
+    
+
+    final updateController = Get.put(UpdateController(), permanent: true);
+    
     if (isFirstLaunch) {
-      await PreferencesService.setNotFirstLaunch();
+      Get.offAll(() => const OnboardingScreen());
+      return;
     }
     
-    final updateController = Get.find<UpdateController>();
     final hasUpdate = await updateController.checkForUpdates();
     
     if (hasUpdate) {
