@@ -9,6 +9,8 @@ import 'package:mybudget/core/controllers/expense_controller.dart';
 import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
+import 'package:mybudget/core/controllers/update_controller.dart';
+import 'package:mybudget/presentation/screens/update_screen.dart';
 import 'dart:math' as math;
 
 class SplashScreen extends StatefulWidget {
@@ -60,6 +62,8 @@ class _SplashScreenState extends State<SplashScreen> {
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
       final loanController = Get.find<LoanController>();
+      
+      Get.put(UpdateController(), permanent: true);
 
       await Future.wait([
         accountController.getAccounts(),
@@ -77,7 +81,15 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isFirstLaunch) {
       await PreferencesService.setNotFirstLaunch();
     }
-    Get.offAllNamed(AppRoutes.dashboard);
+    
+    final updateController = Get.find<UpdateController>();
+    final hasUpdate = await updateController.checkForUpdates();
+    
+    if (hasUpdate) {
+      Get.to(() => const UpdateScreen());
+    } else {
+      Get.offAllNamed(AppRoutes.dashboard);
+    }
   }
 
   @override
