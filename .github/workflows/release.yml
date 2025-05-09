@@ -38,11 +38,11 @@ jobs:
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/app/key.properties
 
       - name: Decode Keystore
-        env:
-          ENCODED_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           mkdir -p android/app/keystore
-          echo $ENCODED_KEYSTORE | base64 -d > android/app/keystore/mybudget_key.jks
+          echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > android/app/keystore/mybudget_key.jks
+          cat android/app/keystore/mybudget_key.jks
+          cat android/app/key.properties
 
 
 
