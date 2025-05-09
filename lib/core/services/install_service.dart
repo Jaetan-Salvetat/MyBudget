@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:app_installer/app_installer.dart';
 
 class InstallService {
   Future<bool> installApk(String filePath) async {
@@ -8,17 +7,10 @@ class InstallService {
     if (!file.existsSync()) {
       return false;
     }
-    
+
     try {
-      if (await Permission.requestInstallPackages.request().isGranted) {
-        final uri = Uri.file(filePath);
-        return await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        return false;
-      }
+      AppInstaller.installApk(filePath);
+      return true;
     } catch (e) {
       return false;
     }
