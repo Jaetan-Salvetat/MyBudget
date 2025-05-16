@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../widgets/common/app_scaffold.dart';
+import '../widgets/common/financial_summary_card.dart';
 import '../../core/controllers/expense_controller.dart';
 import '../../core/controllers/account_controller.dart';
 import '../../core/controllers/category_controller.dart';
@@ -123,243 +124,114 @@ class ExpensesList extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.fromLTRB(16, 130, 16, 5),
-            child: Card(
-              elevation: 8,
-              shadowColor: Colors.black.withOpacity(0.3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.05),
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.1),
-                        ],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.error.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.money_off,
-                                color: Theme.of(context).colorScheme.error,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Dépenses',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.error.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+            child: Obx(() {
+              final totalExpenses = expenseController.getTotalExpenses();
+              final formatter = NumberFormat.currency(
+                locale: 'fr_FR',
+                symbol: '€',
+              );
+              final errorColor = Theme.of(context).colorScheme.error;
+              
+              return FinancialSummaryCard(
+                title: 'Dépenses',
+                titleIcon: Icons.money_off,
+                primaryColor: errorColor,
+                amount: totalExpenses,
+                trendIcon: Icons.trending_down,
+                itemCount: expenses.length,
+                formatter: formatter,
+                childContent: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: errorColor.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
                                   Icon(
-                                    Icons.trending_down,
-                                    color: Theme.of(context).colorScheme.error,
+                                    Icons.arrow_downward,
                                     size: 16,
+                                    color: errorColor,
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    '${expenses.length}',
+                                    'Mensuel',
                                     style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
+                                      color: errorColor.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Obx(() {
-                          final totalExpenses =
-                              expenseController.getTotalExpenses();
-                          final formatter = NumberFormat.currency(
-                            locale: 'fr_FR',
-                            symbol: '€',
-                          );
-
-                          return Text(
-                            formatter.format(totalExpenses),
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.error,
-                              letterSpacing: -0.5,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.error.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.arrow_downward,
-                                      size: 16,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Mensuel',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 8),
+                              Text(
+                                formatter.format(totalExpenses),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: errorColor,
                                 ),
-                                const SizedBox(height: 8),
-                                Obx(() {
-                                  final monthlyExpenses =
-                                      expenseController.getTotalExpenses();
-                                  final formatter = NumberFormat.currency(
-                                    locale: 'fr_FR',
-                                    symbol: '€',
-                                  );
-
-                                  return Text(
-                                    formatter.format(monthlyExpenses),
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.error.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.date_range,
-                                      size: 16,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Annuel',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Obx(() {
-                                  final totalExpenses =
-                                      expenseController.getTotalExpenses() * 12;
-                                  final formatter = NumberFormat.currency(
-                                    locale: 'fr_FR',
-                                    symbol: '€',
-                                  );
-
-                                  return Text(
-                                    formatter.format(totalExpenses),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: errorColor.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.date_range,
+                                    size: 16,
+                                    color: errorColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Annuel',
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
+                                      fontSize: 14,
+                                      color: errorColor.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  );
-                                }),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                formatter.format(totalExpenses * 12),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: errorColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            }),
           ),
 
           Expanded(

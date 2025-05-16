@@ -11,6 +11,7 @@ import './account_details_screen.dart';
 import 'package:mybudget/presentation/widgets/accounts/empty_accounts_state.dart';
 import 'package:mybudget/presentation/widgets/common/section_header.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
+import 'package:mybudget/presentation/widgets/common/financial_summary_card.dart';
 
 class AccountsScreen extends StatelessWidget {
   final bool isNested;
@@ -96,242 +97,125 @@ class AccountsList extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
-            child: Card(
-              elevation: 8,
-              shadowColor: Colors.black.withOpacity(0.3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.05),
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.1),
-                        ],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.account_balance,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Solde total',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade700.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+            child: Obx(() {
+              final accountController = Get.find<AccountController>();
+              final totalBalance = accountController.getTotalBalance();
+              final formatter = NumberFormat.currency(
+                locale: 'fr_FR',
+                symbol: '€',
+              );
+              final isPositive = totalBalance >= 0;
+              final primaryColor = isPositive 
+                  ? Colors.green.shade700 
+                  : Theme.of(context).colorScheme.error;
+              
+              return FinancialSummaryCard(
+                title: 'Solde total',
+                titleIcon: Icons.account_balance,
+                primaryColor: primaryColor,
+                amount: totalBalance,
+                trendIcon: isPositive ? Icons.trending_up : Icons.trending_down,
+                trendLabel: '85.5%',
+                formatter: formatter,
+                childContent: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade700.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
                                   Icon(
-                                    Icons.trending_up,
-                                    color: Colors.green.shade700,
+                                    Icons.arrow_upward,
                                     size: 16,
+                                    color: Colors.green.shade700,
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    '85.5%',
+                                    'Solde Total',
                                     style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green.shade700,
+                                      color: Colors.green.shade700
+                                          .withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Obx(() {
-                          final accountController =
-                              Get.find<AccountController>();
-                          final totalBalance =
-                              accountController.getTotalBalance();
-                          final formatter = NumberFormat.currency(
-                            locale: 'fr_FR',
-                            symbol: '€',
-                          );
-                          final color =
-                              totalBalance >= 0
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.error;
-
-                          return Text(
-                            formatter.format(totalBalance),
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
-                              color: color,
-                              letterSpacing: -0.5,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade700.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.arrow_upward,
-                                      size: 16,
-                                      color: Colors.green.shade700,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Solde Total',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.green.shade700
-                                            .withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 8),
+                              Text(
+                                formatter.format(totalBalance),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryColor,
                                 ),
-                                const SizedBox(height: 8),
-                                Obx(() {
-                                  final accountController =
-                                      Get.find<AccountController>();
-                                  final totalBalance =
-                                      accountController.getTotalBalance();
-                                  final formatter = NumberFormat.currency(
-                                    locale: 'fr_FR',
-                                    symbol: '€',
-                                  );
-                                  final color =
-                                      totalBalance >= 0
-                                          ? Colors.green.shade700
-                                          : Theme.of(context).colorScheme.error;
-
-                                  return Text(
-                                    formatter.format(totalBalance),
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: color,
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.compare_arrows,
-                                      size: 16,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Transactions',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Obx(() {
-                                  final accountController =
-                                      Get.find<AccountController>();
-                                  return Text(
-                                    '${accountController.getTotalTransactionsCount()}',
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.compare_arrows,
+                                    size: 16,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Transactions',
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      fontSize: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  );
-                                }),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${accountController.getTotalTransactionsCount()}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            }),
           ),
           SectionHeader(
             title: 'Mes comptes bancaires',
