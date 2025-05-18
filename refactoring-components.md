@@ -2,35 +2,21 @@
 
 ## Composants UI
 
-- [ ] **FinancialSummaryCard** - Carte de résumé financier avec indicateur de tendance et solde
-  - Utilisé dans: AccountsScreen, ExpensesScreen, RevenuesScreen
+- [x] **FinancialSummaryCard** - Carte de résumé financier avec indicateur de tendance et solde
+  - Utilisé dans: AccountsScreen, ExpensesScreen, RevenuesScreen, LoansScreen
   - Contient: Titre, Icône, Montant avec formatage, Indicateur de tendance
 
-- [ ] **StatisticsPair** - Paire de statistiques affichées côte à côte
-  - Utilisé dans: AccountsScreen, ExpensesScreen, RevenuesScreen
-  - Contient: Titre, Icône, Valeur avec formatage
-
-- [ ] **DeleteConfirmationDialog** - Dialogue de confirmation de suppression
-  - Utilisé dans: AccountsScreen, ExpensesScreen, RevenuesScreen
+- [x] **DeleteConfirmationDialog** - Dialogue de confirmation de suppression
+  - Utilisé dans: AccountsScreen, ExpensesScreen, RevenuesScreen, LoansScreen
   - Permet de standardiser les dialogues de confirmation
 
-- [ ] **ErrorDialog** - Dialogue d'erreur (ex: _showCannotDeleteDialog)
+- [x] **ErrorDialog** - Dialogue d'erreur (ex: _showCannotDeleteDialog)
   - Utilisé dans: AccountsScreen
 
-- [ ] **ItemListCard** - Template de carte pour listes d'éléments
-  - Variantes: AccountListCard, ExpenseCard, RevenueCard
-  - Structure commune: Icône, Titre, Sous-titre, Montant, Actions
+- [x] **EmptyStateView** - Affichage d'état vide configurable
+  - Utilisé dans: AccountsList, ExpensesList, RevenuesList, LoansList
 
-- [ ] **StatusChip** - Badge de statut pour afficher des indicateurs
-  - Utilisé dans: ExpenseCard (frequency), RevenueCard (isRegular)
-
-- [ ] **EmptyStateView** - Affichage d'état vide configurable
-  - Utilisé dans: AccountsList, ExpensesList, RevenuesList
-
-- [ ] **BottomSheetForm** - Template de formulaire en bas d'écran
-  - Variantes: AccountBottomSheet, ExpenseBottomSheet, RevenueBottomSheet
-
-- [ ] **IconMapper** - Utilitaire pour mapper types/catégories aux icônes
+- [ ] **CategoryIconMapper** - Utilitaire pour mapper types/catégories aux icônes
   - Utilisé dans: AccountListCard._getIconForBank, ExpenseCard._getCategoryIcon
 
 - [ ] **ActionButtonsRow** - Rangée de boutons d'actions (modifier, supprimer)

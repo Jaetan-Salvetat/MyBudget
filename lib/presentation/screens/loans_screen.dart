@@ -5,6 +5,8 @@ import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/data/models/loan_model.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
+import 'package:mybudget/presentation/widgets/common/delete_confirmation_dialog.dart';
+import 'package:mybudget/presentation/widgets/common/empty_state_view.dart';
 import 'package:mybudget/presentation/widgets/common/financial_summary_card.dart';
 import 'package:mybudget/presentation/widgets/loans/loan_bottom_sheet.dart';
 
@@ -53,8 +55,12 @@ class LoansScreen extends StatelessWidget {
     final activeLoans = loanController.getActiveLoans();
 
     if (loanController.loans.isEmpty) {
-      return const Center(
-        child: Text('Aucun emprunt enregistré'),
+      return EmptyStateView(
+        title: 'Aucun emprunt enregistré',
+        message: 'Ajoutez vos emprunts pour suivre vos remboursements',
+        icon: Icons.payments,
+        buttonText: 'Ajouter un emprunt',
+        onButtonPressed: () => _showAddLoanBottomSheet(context),
       );
     }
 
@@ -244,10 +250,14 @@ class LoansScreen extends StatelessWidget {
 
   Widget _buildLoanCard(BuildContext context, LoanModel loan) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final account = accountController.accounts.firstWhere(
-      (a) => a.id == loan.accountId,
-      orElse: () => accountController.accounts.first,
-    );
+    
+    // Gérer le cas où la liste des comptes est vide
+    final accountName = accountController.accounts.isEmpty
+        ? 'Compte inconnu'
+        : accountController.accounts.firstWhere(
+            (a) => a.id == loan.accountId,
+            orElse: () => accountController.accounts.first,
+          ).name;
 
     final paidAmount = loan.getAutomaticPaidAmount();
     final progress = paidAmount / loan.amount;
@@ -288,7 +298,7 @@ class LoansScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      account.name,
+                      accountName,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

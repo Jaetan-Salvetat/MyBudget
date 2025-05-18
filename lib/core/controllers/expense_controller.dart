@@ -6,18 +6,18 @@ class ExpenseController extends GetxController {
   final RxList<ExpenseModel> expenses = <ExpenseModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
-  
+
   @override
   void onInit() {
     super.onInit();
     getExpenses();
   }
-  
+
   Future<void> getExpenses() async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       final expensesList = objectBoxService.expenseBox.getAll();
       expenses.value = expensesList;
@@ -27,12 +27,12 @@ class ExpenseController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> addExpense(ExpenseModel expense) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.expenseBox.put(expense);
       await getExpenses();
@@ -42,12 +42,12 @@ class ExpenseController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> updateExpense(ExpenseModel expense) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.expenseBox.put(expense);
       await getExpenses();
@@ -57,12 +57,12 @@ class ExpenseController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> deleteExpense(int id) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.expenseBox.remove(id);
       await getExpenses();
@@ -72,12 +72,12 @@ class ExpenseController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   void reset() {
     expenses.clear();
     error.value = '';
   }
-  
+
   double getMonthlyExpenses() {
     if (expenses.isEmpty) return 0.0;
 
@@ -91,21 +91,21 @@ class ExpenseController extends GetxController {
               expense.date.isAtSameMomentAs(startOfMonth) ||
               expense.date.isAtSameMomentAs(endOfMonth) ||
               (expense.date.isAfter(startOfMonth) &&
-              expense.date.isBefore(endOfMonth)),
+                  expense.date.isBefore(endOfMonth)),
         )
         .fold(0.0, (sum, expense) => sum + expense.amount);
   }
-  
+
   List<ExpenseModel> getRecentExpenses(int count) {
     final sortedExpenses = [...expenses];
     sortedExpenses.sort((a, b) => b.date.compareTo(a.date));
     return sortedExpenses.take(count).toList();
   }
-  
+
   double getTotalExpenses() {
     return expenses.fold(0.0, (sum, expense) => sum + expense.amount);
   }
-  
+
   List<ExpenseModel> getExpensesForAccount(int accountId) {
     return expenses.where((expense) => expense.accountId == accountId).toList();
   }

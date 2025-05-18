@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
-  final String? actionText;
+  final IconData? actionIcon;
   final VoidCallback? onActionPressed;
-  
+
   const SectionHeader({
     required this.title,
-    this.actionText,
+    this.actionIcon,
     this.onActionPressed,
     super.key,
   });
@@ -21,22 +21,10 @@ class SectionHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          if (actionText != null)
-            TextButton(
-              onPressed: onActionPressed,
-              child: Text(
-                actionText!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          if (actionIcon != null)
+            IconButton(icon: Icon(actionIcon!), onPressed: onActionPressed),
         ],
       ),
     );

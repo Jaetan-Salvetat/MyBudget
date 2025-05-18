@@ -15,7 +15,6 @@ class PreferencesService {
   }
 
   static bool isFirstLaunch() {
-    return true;
     return _prefs.getBool(keyIsFirstLaunch) ?? true;
   }
 

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../widgets/common/app_scaffold.dart';
 import '../widgets/common/financial_summary_card.dart';
+import '../widgets/common/delete_confirmation_dialog.dart';
+import '../widgets/common/empty_state_view.dart';
 import '../../core/controllers/revenue_controller.dart';
 import '../../core/controllers/account_controller.dart';
 import '../../data/models/revenue_model.dart';
@@ -83,37 +85,23 @@ class RevenuesList extends StatelessWidget {
       final accounts = accountController.accounts;
 
       if (revenues.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.account_balance_wallet,
-                size: 72,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Aucun revenu enregistré',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  RevenueBottomSheet.show(
-                    context: context,
-                    accounts: accountController.accounts,
-                    onSubmit: (revenue) {
-                      revenueController.addRevenue(revenue);
-                      Navigator.of(context).pop();
-                    },
-                    onCancel: () => Navigator.of(context).pop(),
-                  );
-                },
-                child: const Text('Ajouter un revenu'),
-              ),
-            ],
-          ),
+        return EmptyStateView(
+          title: 'Aucun revenu enregistré',
+          message: 'Ajoutez des revenus pour suivre vos finances',
+          icon: Icons.account_balance_wallet,
+          iconColor: Theme.of(context).colorScheme.primary,
+          buttonText: 'Ajouter un revenu',
+          onButtonPressed: () {
+            RevenueBottomSheet.show(
+              context: context,
+              accounts: accountController.accounts,
+              onSubmit: (revenue) {
+                revenueController.addRevenue(revenue);
+                Get.back();
+              },
+              onCancel: () => Get.back(),
+            );
+          },
         );
       }
 
@@ -376,32 +364,11 @@ class RevenueCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    showDialog(
+                    DeleteConfirmationDialog.show(
                       context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Confirmer la suppression'),
-                            content: Text(
-                              'Voulez-vous vraiment supprimer ${revenue.name} ?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Annuler'),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.error,
-                                ),
-                                onPressed: () {
-                                  onDelete();
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Supprimer'),
-                              ),
-                            ],
-                          ),
+                      title: 'Confirmer la suppression',
+                      message: 'Voulez-vous vraiment supprimer ${revenue.name} ?',
+                      onConfirm: onDelete,
                     );
                   },
                 ),
