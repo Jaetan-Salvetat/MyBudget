@@ -69,15 +69,10 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   final amountController = TextEditingController();
   int selectedCategoryId = 0;
   DateTime selectedDate = DateTime.now();
-  String selectedFrequency = 'Unique';
+  String selectedFrequency = 'Mensuel';
   int? selectedAccountId;
 
-  final List<String> frequencies = [
-    'Unique',
-    'Hebdomadaire',
-    'Mensuel',
-    'Annuel',
-  ];
+  final List<String> frequencies = ['Mensuel', 'Annuel'];
 
   @override
   void initState() {
