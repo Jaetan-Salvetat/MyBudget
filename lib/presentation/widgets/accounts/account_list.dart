@@ -25,7 +25,12 @@ class AccountsList extends StatelessWidget {
       return Expanded(
         child: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            top: 16,
+            bottom: 100,
+            left: 16,
+            right: 16,
+          ),
           itemCount: accounts.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {

@@ -24,16 +24,18 @@ class ExpensesList extends StatefulWidget {
 class _ExpensesListState extends State<ExpensesList> {
   final RxList<ExpenseModel> filteredExpenses = <ExpenseModel>[].obs;
   final Rx<ExpenseFilterData> filterData = ExpenseFilterData().obs;
-  
+
   @override
   void initState() {
     super.initState();
     _updateFilteredExpenses();
   }
-  
+
   void _updateFilteredExpenses() {
     final expenseController = Get.find<ExpenseController>();
-    filteredExpenses.value = expenseController.expenses.applyFilter(filterData.value);
+    filteredExpenses.value = expenseController.expenses.applyFilter(
+      filterData.value,
+    );
   }
 
   @override
@@ -44,16 +46,21 @@ class _ExpensesListState extends State<ExpensesList> {
     return Obx(() {
       final expenses = expenseController.expenses;
       final accounts = accountController.accounts;
-      final displayedExpenses = filteredExpenses.isEmpty && filterData.value.isEmpty 
-          ? expenses 
-          : filteredExpenses;
+      final displayedExpenses =
+          filteredExpenses.isEmpty && filterData.value.isEmpty
+              ? expenses
+              : filteredExpenses;
 
       return Expanded(
-        child: ListView.separated(
+        child: ListView.builder(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            top: 16,
+            bottom: 100,
+            left: 16,
+            right: 16,
+          ),
           itemCount: displayedExpenses.length + 1,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             if (index == 0) {
               return _buildHeaderContainer(context, displayedExpenses.isEmpty);
@@ -91,7 +98,7 @@ class _ExpensesListState extends State<ExpensesList> {
       );
     });
   }
-  
+
   void _showFilterBottomSheet(BuildContext context) {
     ExpenseFilterBottomSheet.show(
       context: context,
