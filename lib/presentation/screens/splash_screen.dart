@@ -10,6 +10,7 @@ import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/update_controller.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/presentation/screens/update_screen.dart';
 import 'package:mybudget/presentation/screens/onboarding_screen.dart';
 import 'dart:math' as math;
@@ -53,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Get.put(CategoryController(), permanent: true);
       Get.put(ThemeController(), permanent: true);
+      Get.put(SettingsController(), permanent: true);
 
       Get.put(ExpenseController(), permanent: true);
       Get.put(RevenueController(), permanent: true);

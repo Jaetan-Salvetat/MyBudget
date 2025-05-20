@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 
@@ -84,16 +85,34 @@ class ExpenseController extends GetxController {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    return expenses
-        .where(
-          (expense) =>
-              expense.date.isAtSameMomentAs(startOfMonth) ||
-              expense.date.isAtSameMomentAs(endOfMonth) ||
-              (expense.date.isAfter(startOfMonth) &&
-                  expense.date.isBefore(endOfMonth)),
-        )
-        .fold(0.0, (sum, expense) => sum + expense.amount);
+    
+    final settingsController = Get.find<SettingsController>();
+    final calculationMode = settingsController.annualExpenseCalculationMode.value;
+    
+    double total = 0.0;
+    
+    for (var expense in expenses) {
+      final isCurrentMonth = expense.date.isAtSameMomentAs(startOfMonth) ||
+          expense.date.isAtSameMomentAs(endOfMonth) ||
+          (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth));
+          
+      if (expense.frequency == 'Mensuel' && isCurrentMonth) {
+        total += expense.amount;
+      } else if (expense.frequency == 'Annuel') {
+        switch (calculationMode) {
+          case AnnualExpenseCalculationMode.monthlyAmortized:
+            total += expense.amount / 12;
+            break;
+          case AnnualExpenseCalculationMode.dateBasedOnly:
+            if (isCurrentMonth) {
+              total += expense.amount;
+            }
+            break;
+        }
+      }
+    }
+    
+    return total;
   }
 
   List<ExpenseModel> getRecentExpenses(int count) {
@@ -103,10 +122,54 @@ class ExpenseController extends GetxController {
   }
 
   double getTotalExpenses() {
-    return expenses.fold(0.0, (sum, expense) => sum + expense.amount);
+    final settingsController = Get.find<SettingsController>();
+    final calculationMode = settingsController.annualExpenseCalculationMode.value;
+    
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    
+    double total = 0.0;
+    
+    for (var expense in expenses) {
+      if (expense.frequency == 'Mensuel') {
+        total += expense.amount;
+      } else if (expense.frequency == 'Annuel') {
+        switch (calculationMode) {
+          case AnnualExpenseCalculationMode.monthlyAmortized:
+            total += expense.amount / 12;
+            break;
+          case AnnualExpenseCalculationMode.dateBasedOnly:
+            final isCurrentMonth = expense.date.isAtSameMomentAs(startOfMonth) ||
+                expense.date.isAtSameMomentAs(endOfMonth) ||
+                (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth));
+                
+            if (isCurrentMonth) {
+              total += expense.amount;
+            }
+            break;
+        }
+      }
+    }
+    
+    return total;
   }
 
   List<ExpenseModel> getExpensesForAccount(int accountId) {
     return expenses.where((expense) => expense.accountId == accountId).toList();
+  }
+  
+  double getAnnualExpenses() {
+    double total = 0.0;
+    
+    for (var expense in expenses) {
+      if (expense.frequency == 'Mensuel') {
+        total += expense.amount * 12;
+      } else if (expense.frequency == 'Annuel') {
+        total += expense.amount;
+      }
+    }
+    
+    return total;
   }
 }

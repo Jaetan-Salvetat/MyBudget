@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/data_controller.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/expense_calculation_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -27,6 +29,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _themeController = Get.find<ThemeController>();
   final _dataController = Get.put(DataController());
+  final _settingsController = Get.put(SettingsController());
   PackageInfo? packageInfo;
 
   @override
@@ -102,6 +105,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
+          title: 'Calculs financiers',
+          children: [
+            Obx(() {
+              return SettingsTile(
+                title: 'Calcul des dépenses annuelles',
+                subtitle: _getAnnualExpenseCalculationModeName(
+                  _settingsController.annualExpenseCalculationMode.value,
+                ),
+                leading: const Icon(Icons.calculate),
+                onTap: () {
+                  _showExpenseCalculationModeDialog(
+                    context,
+                    _settingsController.annualExpenseCalculationMode.value,
+                  );
+                },
+              );
+            }),
+          ],
+        ),
+        SettingsSection(
           title: 'Catégories',
           children: [
             SettingsTile(
@@ -168,11 +191,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getThemeNameFromMode(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
-        return 'Système';
+        return 'Automatique';
       case ThemeMode.light:
         return 'Clair';
       case ThemeMode.dark:
         return 'Sombre';
+    }
+  }
+
+  String _getAnnualExpenseCalculationModeName(
+    AnnualExpenseCalculationMode mode,
+  ) {
+    switch (mode) {
+      case AnnualExpenseCalculationMode.monthlyAmortized:
+        return 'Amortissement mensuel';
+      case AnnualExpenseCalculationMode.dateBasedOnly:
+        return 'Mois spécifique uniquement';
     }
   }
 
@@ -219,11 +253,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     ThemeMode currentMode,
   ) async {
-    ThemeBottomSheet.show(
+    return ThemeBottomSheet.show(
       context: context,
       currentMode: currentMode,
-      onThemeSelected: (ThemeMode newMode) {
-        _themeController.changeTheme(newMode);
+      onThemeSelected: (ThemeMode mode) {
+        _themeController.changeTheme(mode);
+        setState(() {});
+      },
+    );
+  }
+
+  Future<void> _showExpenseCalculationModeDialog(
+    BuildContext context,
+    AnnualExpenseCalculationMode currentMode,
+  ) async {
+    return ExpenseCalculationBottomSheet.show(
+      context: context,
+      currentMode: currentMode,
+      onModeSelected: (AnnualExpenseCalculationMode mode) {
+        _settingsController.setAnnualExpenseCalculationMode(mode);
       },
     );
   }

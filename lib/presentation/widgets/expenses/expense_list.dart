@@ -121,6 +121,7 @@ class _ExpensesListState extends State<ExpensesList> {
 
     final expenses = expenseController.expenses;
     final totalExpenses = expenseController.getTotalExpenses();
+    final annualExpenses = expenseController.getAnnualExpenses();
     final errorColor = Theme.of(context).colorScheme.error;
 
     return Column(
@@ -217,7 +218,7 @@ class _ExpensesListState extends State<ExpensesList> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              formatter.format(totalExpenses * 12),
+                              formatter.format(annualExpenses),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
