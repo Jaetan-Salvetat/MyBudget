@@ -16,13 +16,17 @@ class ExpensesList extends StatefulWidget {
   final bool isNested;
 
   const ExpensesList({this.isNested = false, super.key});
-  
+
   static void updateFilteredExpenses() {
     if (Get.isRegistered<RxList<ExpenseModel>>(tag: 'filteredExpenses')) {
-      final filterData = Get.find<Rx<ExpenseFilterData>>(tag: 'expenseFilterData');
+      final filterData = Get.find<Rx<ExpenseFilterData>>(
+        tag: 'expenseFilterData',
+      );
       final expenseController = Get.find<ExpenseController>();
-      final filteredExpenses = Get.find<RxList<ExpenseModel>>(tag: 'filteredExpenses');
-      
+      final filteredExpenses = Get.find<RxList<ExpenseModel>>(
+        tag: 'filteredExpenses',
+      );
+
       filteredExpenses.value = expenseController.expenses.applyFilter(
         filterData.value,
       );

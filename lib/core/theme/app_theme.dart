@@ -8,6 +8,11 @@ class AppTheme {
       brightness: Brightness.light,
     ),
     useMaterial3: true,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+      },
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -17,5 +22,10 @@ class AppTheme {
       brightness: Brightness.dark,
     ),
     useMaterial3: true,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+      },
+    ),
   );
 }

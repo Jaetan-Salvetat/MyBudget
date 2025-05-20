@@ -107,21 +107,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     super.dispose();
   }
 
-  IconData _getIconData(String icon) {
-    switch (icon) {
-      case 'shopping_cart':
-        return Icons.shopping_cart;
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'gas_station':
-        return Icons.local_gas_station;
-      case 'home':
-        return Icons.home;
-      default:
-        return Icons.category;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -140,6 +125,8 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   }
 
   Widget _buildInfoSection() {
+    final categoryController = Get.find<CategoryController>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -180,14 +167,13 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               AppDropdownField<int>(
                 value: selectedCategoryId,
                 label: 'Catégorie',
-                icon: Icons.category,
                 items:
-                    Get.find<CategoryController>().categories.map((category) {
+                    categoryController.categories.map((category) {
                       return DropdownMenuItem<int>(
                         value: category.id,
                         child: Row(
                           children: [
-                            Icon(_getIconData(category.icon)),
+                            Icon(category.getIconData()),
                             const SizedBox(width: 8),
                             Text(category.name),
                           ],

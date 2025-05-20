@@ -21,97 +21,163 @@ class ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    _getCategoryIcon(expense.categoryId),
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        expense.name,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        accountName,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '${expense.amount.toStringAsFixed(2)} €',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (expense.frequency != 'Unique')
-                  Chip(
-                    label: Text(expense.frequency),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.1), width: 1)
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      _getCategoryIcon(expense.categoryId),
+                      color: colorScheme.onErrorContainer,
+                      size: 24,
                     ),
                   ),
-                const SizedBox(width: 8),
-                Chip(
-                  label: Text(_formatDate(expense.date, expense.frequency)),
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense.name,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet,
+                              size: 14,
+                              color: colorScheme.outline,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              accountName,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colorScheme.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    DeleteConfirmationDialog.show(
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${expense.amount.toStringAsFixed(2)} €',
+                      style: TextStyle(
+                        color: colorScheme.error,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  if (expense.frequency != 'Unique')
+                    _buildInfoChip(
                       context: context,
-                      title: 'Confirmer la suppression',
-                      message:
-                          'Voulez-vous vraiment supprimer ${expense.name} ?',
-                      onConfirm: onDelete,
-                    );
-                  },
-                ),
-                IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
-              ],
-            ),
-          ],
+                      label: expense.frequency,
+                      icon: Icons.repeat,
+                      backgroundColor: colorScheme.primaryContainer,
+                      textColor: colorScheme.onPrimaryContainer,
+                    ),
+                  if (expense.frequency != 'Unique')
+                    const SizedBox(width: 8),
+                  _buildInfoChip(
+                    context: context,
+                    label: _formatDate(expense.date, expense.frequency),
+                    icon: Icons.calendar_today,
+                    backgroundColor: colorScheme.secondaryContainer,
+                    textColor: colorScheme.onSecondaryContainer,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    style: IconButton.styleFrom(
+                      backgroundColor: colorScheme.errorContainer.withOpacity(0.2),
+                      minimumSize: const Size(36, 36),
+                    ),
+                    onPressed: () {
+                      DeleteConfirmationDialog.show(
+                        context: context,
+                        title: 'Confirmer la suppression',
+                        message: 'Voulez-vous vraiment supprimer ${expense.name} ?',
+                        onConfirm: onDelete,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: textColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: textColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -122,23 +188,8 @@ class ExpenseCard extends StatelessWidget {
       (c) => c.id == categoryId,
       orElse: () => CategoryModel()..icon = 'category',
     );
-
-    switch (category.icon) {
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'directions_car':
-        return Icons.directions_car;
-      case 'home':
-        return Icons.home;
-      case 'sports_esports':
-        return Icons.sports_esports;
-      case 'medical_services':
-        return Icons.medical_services;
-      case 'shopping_bag':
-        return Icons.shopping_bag;
-      default:
-        return Icons.category;
-    }
+    
+    return category.getIconData();
   }
 
   String _formatDate(DateTime date, String frequency) {
