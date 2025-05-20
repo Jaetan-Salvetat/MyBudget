@@ -139,12 +139,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SettingsSection(
           title: 'À propos',
           children: [
-            SettingsTile(
+            /*SettingsTile(
               title: 'Politique de confidentialité',
               subtitle: 'Consultez notre politique de confidentialité',
               leading: const Icon(Icons.policy),
               onTap: () => Get.to(() => const PrivacyPolicyScreen()),
-            ),
+            ),*/
             SettingsTile(
               title: 'Version',
               subtitle:
@@ -187,11 +187,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      
+
       if (result == null || result.files.isEmpty) {
         return;
       }
-      
+
       final path = result.files.single.path;
       if (path == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -199,15 +199,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         return;
       }
-      
+
       final file = File(path);
       if (!await file.exists()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fichier introuvable')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Fichier introuvable')));
         return;
       }
-      
+
       _showImportConfirmationDialog(context, file);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,8 +216,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-
-  
   Future<void> _showThemeSelectionDialog(
     BuildContext context,
     ThemeMode currentMode,
@@ -234,28 +232,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showImportConfirmationDialog(BuildContext context, File file) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Importer des données'),
-        content: const Text(
-          'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Importer des données'),
+            content: const Text(
+              'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _dataController.importUserData(context, file);
-            },
-            child: const Text('Importer'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _dataController.importUserData(context, file);
+                },
+                child: const Text('Importer'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 

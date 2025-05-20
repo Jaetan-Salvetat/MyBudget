@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -54,28 +55,28 @@ class LoansScreen extends StatelessWidget {
   Widget _buildLoansList(BuildContext context) {
     final activeLoans = loanController.getActiveLoans();
 
-    if (loanController.loans.isEmpty) {
-      return EmptyStateView(
-        title: 'Aucun emprunt enregistré',
-        message: 'Ajoutez vos emprunts pour suivre vos remboursements',
-        icon: Icons.payments,
-        buttonText: 'Ajouter un emprunt',
-        onButtonPressed: () => _showAddLoanBottomSheet(context),
-      );
-    }
-
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
       children: [
         _buildSummaryCard(context),
         const SizedBox(height: 24),
-        Text(
-          'Emprunts actifs (${activeLoans.length})',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        ...activeLoans.map((loan) => _buildLoanCard(context, loan)),
+        if (loanController.loans.isEmpty)
+          EmptyStateView(
+            title: 'Aucun emprunt enregistré',
+            message: 'Ajoutez vos emprunts pour suivre vos remboursements',
+            icon: Icons.payments,
+            buttonText: 'Ajouter un emprunt',
+            onButtonPressed: () => _showAddLoanBottomSheet(context),
+          ),
+        if (activeLoans.isNotEmpty)
+          Text(
+            'Emprunts actifs (${activeLoans.length})',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        if (activeLoans.isNotEmpty) const SizedBox(height: 16),
+        if (activeLoans.isNotEmpty)
+          ...activeLoans.map((loan) => _buildLoanCard(context, loan)),
 
         if (loanController.loans.length > activeLoans.length) ...[
           const SizedBox(height: 32),
@@ -93,7 +94,8 @@ class LoansScreen extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(BuildContext context) {
-    final totalActiveInitialAmount = loanController.getTotalActiveInitialAmount();
+    final totalActiveInitialAmount =
+        loanController.getTotalActiveInitialAmount();
     final totalRemainingAmount = loanController.getTotalRemainingAmount();
     final totalMonthlyPayment = loanController.getTotalMonthlyPayments();
     final progressValue = _calculateOverallProgress();
@@ -107,10 +109,12 @@ class LoansScreen extends StatelessWidget {
       child: FinancialSummaryCard(
         title: 'Récapitulatif des Prêts',
         titleIcon: Icons.payments,
-        primaryColor: errorColor, // Utilisation de la couleur d'erreur pour le montant à payer
+        primaryColor:
+            errorColor, // Utilisation de la couleur d'erreur pour le montant à payer
         amount: totalRemainingAmount,
         formatter: formatter,
-        trendIcon: progressValue > 0.5 ? Icons.trending_up : Icons.trending_flat,
+        trendIcon:
+            progressValue > 0.5 ? Icons.trending_up : Icons.trending_flat,
         trendLabel: '${(progressValue * 100).toStringAsFixed(1)}%',
         childContent: Padding(
           padding: const EdgeInsets.all(16),
@@ -141,10 +145,9 @@ class LoansScreen extends StatelessWidget {
                           'Total remboursé',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.6),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -162,7 +165,9 @@ class LoansScreen extends StatelessWidget {
                   Container(
                     height: 30,
                     width: 1,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.1),
                   ),
                   Expanded(
                     child: Padding(
@@ -174,10 +179,9 @@ class LoansScreen extends StatelessWidget {
                             'Montant initial',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.6),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -250,14 +254,17 @@ class LoansScreen extends StatelessWidget {
 
   Widget _buildLoanCard(BuildContext context, LoanModel loan) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    
+
     // Gérer le cas où la liste des comptes est vide
-    final accountName = accountController.accounts.isEmpty
-        ? 'Compte inconnu'
-        : accountController.accounts.firstWhere(
-            (a) => a.id == loan.accountId,
-            orElse: () => accountController.accounts.first,
-          ).name;
+    final accountName =
+        accountController.accounts.isEmpty
+            ? 'Compte inconnu'
+            : accountController.accounts
+                .firstWhere(
+                  (a) => a.id == loan.accountId,
+                  orElse: () => accountController.accounts.first,
+                )
+                .name;
 
     final paidAmount = loan.getAutomaticPaidAmount();
     final progress = paidAmount / loan.amount;
@@ -294,7 +301,9 @@ class LoansScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -343,14 +352,18 @@ class LoansScreen extends StatelessWidget {
                     Icon(
                       Icons.calendar_today,
                       size: 14,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       'Échéance le ${DateFormat('dd/MM/yyyy').format(nextPaymentDate)}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
