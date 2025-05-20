@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/data_controller.dart';
-import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
