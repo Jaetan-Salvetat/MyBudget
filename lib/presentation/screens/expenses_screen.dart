@@ -18,9 +18,7 @@ class ExpensesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const content = Column(
-      children: [SizedBox(height: 100), Expanded(child: ExpensesList())],
-    );
+    const content = Column(children: [SizedBox(height: 100), ExpensesList()]);
 
     if (isNested) {
       return Stack(
