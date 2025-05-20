@@ -8,6 +8,7 @@ import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.d
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/expense_calculation_bottom_sheet.dart';
+import 'package:mybudget/presentation/screens/help_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -140,21 +141,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             SettingsTile(
               title: 'Exporter mes données',
-              subtitle: 'Télécharger vos données au format JSON',
-              leading: const Icon(Icons.download_rounded),
+              subtitle: 'Sauvegardez vos données financières',
+              leading: const Icon(Icons.upload_file),
               onTap: () => _exportUserData(context),
             ),
             SettingsTile(
-              title: 'Importer des données',
-              subtitle: 'Restaurer depuis un fichier JSON',
-              leading: const Icon(Icons.upload_rounded),
+              title: 'Importer mes données',
+              subtitle: 'Restaurez vos données depuis une sauvegarde',
+              leading: const Icon(Icons.download),
               onTap: () => _importUserData(context),
             ),
             SettingsTile(
-              title: 'Tout supprimer',
-              subtitle: 'Supprimer toutes les transactions et tous les comptes',
-              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              title: 'Supprimer toutes mes données',
+              subtitle: 'Cette action est irréversible',
+              leading: const Icon(Icons.delete_forever),
               onTap: () => _showDeleteDataConfirmationDialog(context),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: 'Aide et informations',
+          children: [
+            SettingsTile(
+              title: 'Guide d\'utilisation',
+              subtitle: 'Consultez l\'aide et les explications',
+              leading: const Icon(Icons.help_outline),
+              onTap: () => Get.to(() => const HelpScreen()),
             ),
           ],
         ),
