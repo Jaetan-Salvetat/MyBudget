@@ -120,10 +120,6 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () => Navigator.pop(context),
-                        ),
                         Text(
                           'Filtrer et trier',
                           style: Theme.of(context).textTheme.headlineSmall
@@ -150,24 +146,19 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
                       children: [
                         Expanded(
                           child: AppModalButton(
-                            label: 'Annuler',
+                            label: 'Quitter',
                             onPressed: onCancel,
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: AppModalButton(
-                            label: 'Réinitialiser',
+                            label: 'Effacer',
                             isDestructive: true,
-                            onPressed: onClear,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: AppModalButton(
-                            label: 'Appliquer',
-                            isPrimary: true,
-                            onPressed: () => onApply(initialFilterData),
+                            onPressed: () {
+                              onApply(ExpenseFilterData());
+                              onClear();
+                            },
                           ),
                         ),
                       ],
@@ -262,7 +253,10 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                     onChanged: (value) {
                       if (value != null) {
                         setState(() {
-                          filterData = filterData.copyWith(sortOption: value);
+                          filterData = filterData.copyWith(
+                            sortOption: value,
+                          );
+                          widget.onApply(filterData);
                         });
                       }
                     },
@@ -322,6 +316,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                         filterData = filterData.copyWith(
                           selectedCategoryIds: updatedCategoryIds,
                         );
+                        widget.onApply(filterData);
                       });
                     },
                   );
@@ -378,6 +373,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                         filterData = filterData.copyWith(
                           selectedAccountIds: updatedAccountIds,
                         );
+                        widget.onApply(filterData);
                       });
                     },
                   );
@@ -434,6 +430,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                         filterData = filterData.copyWith(
                           selectedFrequencies: updatedFrequencies,
                         );
+                        widget.onApply(filterData);
                       });
                     },
                   );
@@ -443,7 +440,6 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       ],
     );
   }
-
 }
 
 extension ExpenseFilterExtension on List<ExpenseModel> {
@@ -479,8 +475,6 @@ extension ExpenseFilterExtension on List<ExpenseModel> {
               )
               .toList();
     }
-
-
 
     switch (filterData.sortOption) {
       case ExpenseSortOption.dateDesc:

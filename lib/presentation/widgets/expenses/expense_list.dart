@@ -106,7 +106,6 @@ class _ExpensesListState extends State<ExpensesList> {
       onApply: (updatedFilterData) {
         filterData.value = updatedFilterData;
         _updateFilteredExpenses();
-        Get.back();
       },
       onCancel: () => Get.back(),
       onClear: () {
