@@ -58,8 +58,9 @@ class ExpensesScreen extends StatelessWidget {
     ExpenseBottomSheet.show(
       context: context,
       accounts: accountController.accounts,
-      onSubmit: (expense) {
-        expenseController.addExpense(expense);
+      onSubmit: (expense) async {
+        await expenseController.addExpense(expense);
+        ExpensesList.updateFilteredExpenses();
         Get.back();
       },
       onCancel: () => Get.back(),

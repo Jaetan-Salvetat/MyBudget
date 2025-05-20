@@ -16,6 +16,18 @@ class ExpensesList extends StatefulWidget {
   final bool isNested;
 
   const ExpensesList({this.isNested = false, super.key});
+  
+  static void updateFilteredExpenses() {
+    if (Get.isRegistered<RxList<ExpenseModel>>(tag: 'filteredExpenses')) {
+      final filterData = Get.find<Rx<ExpenseFilterData>>(tag: 'expenseFilterData');
+      final expenseController = Get.find<ExpenseController>();
+      final filteredExpenses = Get.find<RxList<ExpenseModel>>(tag: 'filteredExpenses');
+      
+      filteredExpenses.value = expenseController.expenses.applyFilter(
+        filterData.value,
+      );
+    }
+  }
 
   @override
   State<ExpensesList> createState() => _ExpensesListState();
@@ -28,6 +40,8 @@ class _ExpensesListState extends State<ExpensesList> {
   @override
   void initState() {
     super.initState();
+    Get.put(filteredExpenses, tag: 'filteredExpenses', permanent: true);
+    Get.put(filterData, tag: 'expenseFilterData', permanent: true);
     _updateFilteredExpenses();
   }
 
@@ -118,10 +132,6 @@ class _ExpensesListState extends State<ExpensesList> {
 
   Widget _buildHeaderContainer(BuildContext context, bool isEmpty) {
     final expenseController = Get.find<ExpenseController>();
-
-    final expenses = expenseController.expenses;
-    final totalExpenses = expenseController.getTotalExpenses();
-    final annualExpenses = expenseController.getAnnualExpenses();
     final errorColor = Theme.of(context).colorScheme.error;
 
     return Column(
@@ -129,6 +139,9 @@ class _ExpensesListState extends State<ExpensesList> {
         Container(
           margin: const EdgeInsets.only(top: 15, bottom: 5),
           child: Obx(() {
+            final expenses = expenseController.expenses;
+            final totalExpenses = expenseController.getTotalExpenses();
+            final annualExpenses = expenseController.getAnnualExpenses();
             final formatter = NumberFormat.currency(
               locale: 'fr_FR',
               symbol: '€',

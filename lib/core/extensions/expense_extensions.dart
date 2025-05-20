@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/data/models/category_model.dart';
 
 extension ExpenseControllerExtension on ExpenseController {
   List<CategoryExpenseSummary> getExpensesByCategory({int limit = 5}) {
     if (expenses.isEmpty) return [];
 
+    final settingsController = Get.find<SettingsController>();
+    final calculationMode = settingsController.annualExpenseCalculationMode.value;
+    
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
@@ -17,13 +21,29 @@ extension ExpenseControllerExtension on ExpenseController {
     double totalAmount = 0.0;
     
     for (final expense in expenses) {
-      if (expense.date.isAtSameMomentAs(startOfMonth) ||
+      final isCurrentMonth = expense.date.isAtSameMomentAs(startOfMonth) ||
           expense.date.isAtSameMomentAs(endOfMonth) ||
-          (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth))) {
-        
+          (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth));
+          
+      if (expense.frequency == 'Mensuel' && isCurrentMonth) {
         categoryAmounts[expense.categoryId] = 
             (categoryAmounts[expense.categoryId] ?? 0.0) + expense.amount;
         totalAmount += expense.amount;
+      } else if (expense.frequency == 'Annuel') {
+        switch (calculationMode) {
+          case AnnualExpenseCalculationMode.monthlyAmortized:
+            categoryAmounts[expense.categoryId] = 
+                (categoryAmounts[expense.categoryId] ?? 0.0) + (expense.amount / 12);
+            totalAmount += expense.amount / 12;
+            break;
+          case AnnualExpenseCalculationMode.dateBasedOnly:
+            if (isCurrentMonth) {
+              categoryAmounts[expense.categoryId] = 
+                  (categoryAmounts[expense.categoryId] ?? 0.0) + expense.amount;
+              totalAmount += expense.amount;
+            }
+            break;
+        }
       }
     }
     
