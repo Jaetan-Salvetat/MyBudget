@@ -94,6 +94,7 @@ class ExpenseDatePicker extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7,
                     childAspectRatio: 1,
@@ -195,6 +196,7 @@ class ExpenseDatePicker extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 3,
@@ -298,6 +300,7 @@ class ExpenseDatePicker extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     childAspectRatio: 2,
@@ -309,19 +312,30 @@ class ExpenseDatePicker extends StatelessWidget {
                     final isSelected = index + 1 == selectedDate.month;
                     return InkWell(
                       onTap: () {
+                        final int selectedMonth = index + 1;
+                        
+                        // Calculer un jour valide pour ce mois
+                        final int maxDaysInMonth = _daysInMonth(selectedMonth, selectedDate.year);
+                        final int validDay = selectedDate.day > maxDaysInMonth ? maxDaysInMonth : selectedDate.day;
+                        
+                        // Créer la nouvelle date
                         final newDate = DateTime(
                           selectedDate.year,
-                          index + 1,
-                          selectedDate.day >
-                                  _daysInMonth(index + 1, selectedDate.year)
-                              ? _daysInMonth(index + 1, selectedDate.year)
-                              : selectedDate.day,
+                          selectedMonth,
+                          validDay,
                         );
+                        
+                        // Mettre à jour la date
                         onDateChanged(newDate);
 
-                        // Après la sélection du mois, afficher le sélecteur de jour
+                        // Fermer le sélecteur de mois et attendre sa fermeture
                         Navigator.of(context).pop();
-                        _showMonthDayPickerForYearly(context, index + 1);
+                        
+                        // Après un court délai pour éviter un conflit d'interfaces
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          // Ouvrir le sélecteur de jour
+                          _showMonthDayPickerForYearly(context, selectedMonth);
+                        });
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
@@ -396,6 +410,7 @@ class ExpenseDatePicker extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7,
                     childAspectRatio: 1,

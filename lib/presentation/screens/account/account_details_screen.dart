@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../core/controllers/account_controller.dart';
-import '../../core/controllers/expense_controller.dart';
-import '../../core/controllers/revenue_controller.dart';
-import '../../core/controllers/loan_controller.dart';
-import '../../data/models/account_model.dart';
-import '../../data/models/loan_model.dart';
+import '../../../core/controllers/account_controller.dart';
+import '../../../core/controllers/expense_controller.dart';
+import '../../../core/controllers/revenue_controller.dart';
+import '../../../core/controllers/loan_controller.dart';
+import '../../../data/models/account_model.dart';
+import '../../../data/models/loan_model.dart';
 
-import '../widgets/common/app_scaffold.dart';
-import '../widgets/accounts/account_bottom_sheet.dart';
-import '../screens/loan_details_screen.dart';
+import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/accounts/account_bottom_sheet.dart';
+import '../loan/loan_details_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   const AccountDetailsScreen({super.key});
@@ -99,9 +99,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               children: [
                 Text(
                   account.name,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -109,9 +109,14 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -134,17 +139,19 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
   Widget _buildBalanceSection(BuildContext context) {
     final loanController = Get.find<LoanController>();
-    
+
     final balance = accountController.getAccountBalance(account.id);
     final totalRevenues = revenueController.revenues
         .where((r) => r.accountId == account.id)
         .fold(0.0, (sum, revenue) => sum + revenue.amount);
-    
+
     final totalExpenses = expenseController.expenses
         .where((e) => e.accountId == account.id)
         .fold(0.0, (sum, expense) => sum + expense.amount);
-        
-    final totalLoanPayments = loanController.getTotalMonthlyPaymentsForAccount(account.id);
+
+    final totalLoanPayments = loanController.getTotalMonthlyPaymentsForAccount(
+      account.id,
+    );
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -156,17 +163,18 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           children: [
             Text(
               'Solde et transactions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: (balance >= 0
-                    ? Colors.green.shade700
-                    : Theme.of(context).colorScheme.error).withOpacity(0.1),
+                        ? Colors.green.shade700
+                        : Theme.of(context).colorScheme.error)
+                    .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -178,7 +186,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       Text(
                         'Solde total',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                           fontSize: 14,
                         ),
                       ),
@@ -188,18 +198,20 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: balance >= 0
-                              ? Colors.green.shade700
-                              : Theme.of(context).colorScheme.error,
+                          color:
+                              balance >= 0
+                                  ? Colors.green.shade700
+                                  : Theme.of(context).colorScheme.error,
                         ),
                       ),
                     ],
                   ),
                   Icon(
                     balance >= 0 ? Icons.trending_up : Icons.trending_down,
-                    color: balance >= 0
-                        ? Colors.green.shade700
-                        : Theme.of(context).colorScheme.error,
+                    color:
+                        balance >= 0
+                            ? Colors.green.shade700
+                            : Theme.of(context).colorScheme.error,
                     size: 32,
                   ),
                 ],
@@ -280,17 +292,25 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   }
 
   Widget _buildTransactionsSection(BuildContext context) {
-    final expenses = expenseController.expenses.where((e) => e.accountId == account.id).toList();
+    final expenses =
+        expenseController.expenses
+            .where((e) => e.accountId == account.id)
+            .toList();
     expenses.sort((a, b) => b.date.compareTo(a.date));
-    
-    final revenues = revenueController.revenues.where((r) => r.accountId == account.id).toList();
+
+    final revenues =
+        revenueController.revenues
+            .where((r) => r.accountId == account.id)
+            .toList();
     revenues.sort((a, b) => b.date.compareTo(a.date));
-    
+
     final loanController = Get.find<LoanController>();
-    final loans = loanController.getLoansForAccount(account.id)
-        .where((loan) => loan.getAutomaticStatus() != LoanStatus.completed)
-        .toList();
-    
+    final loans =
+        loanController
+            .getLoansForAccount(account.id)
+            .where((loan) => loan.getAutomaticStatus() != LoanStatus.completed)
+            .toList();
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -301,9 +321,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           children: [
             Text(
               'Transactions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (expenses.isEmpty && revenues.isEmpty && loans.isEmpty)
@@ -315,13 +335,17 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       Icon(
                         Icons.receipt_long,
                         size: 48,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.4),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Aucune transaction pour ce compte',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -332,50 +356,65 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (revenues.isNotEmpty) ..._buildTransactionsList(
-                    context,
-                    'Revenus',
-                    revenues.length,
-                    Theme.of(context).colorScheme.primary, 
-                    revenues.map((revenue) => {
-                      'name': revenue.name,
-                      'amount': revenue.amount,
-                      'date': revenue.date,
-                      'type': 'revenue',
-                      'icon': Icons.arrow_upward,
-                      'color': Theme.of(context).colorScheme.primary,
-                    }).toList(),
-                  ),
-                  
-                  if (expenses.isNotEmpty) ..._buildTransactionsList(
-                    context,
-                    'Dépenses',
-                    expenses.length,
-                    Theme.of(context).colorScheme.error,
-                    expenses.map((expense) => {
-                      'name': expense.name,
-                      'amount': expense.amount,
-                      'date': expense.date,
-                      'type': 'expense',
-                      'icon': Icons.arrow_downward,
-                      'color': Theme.of(context).colorScheme.error,
-                    }).toList(),
-                  ),
-                  
-                  if (loans.isNotEmpty) ..._buildTransactionsList(
-                    context,
-                    'Mensualités',
-                    loans.length,
-                    Theme.of(context).colorScheme.secondary,
-                    loans.map((loan) => {
-                      'name': loan.name,
-                      'amount': loan.monthlyPayment,
-                      'date': loan.startDate,
-                      'type': 'loan',
-                      'icon': Icons.account_balance,
-                      'color': Theme.of(context).colorScheme.secondary,
-                    }).toList(),
-                  ),
+                  if (revenues.isNotEmpty)
+                    ..._buildTransactionsList(
+                      context,
+                      'Revenus',
+                      revenues.length,
+                      Theme.of(context).colorScheme.primary,
+                      revenues
+                          .map(
+                            (revenue) => {
+                              'name': revenue.name,
+                              'amount': revenue.amount,
+                              'date': revenue.date,
+                              'type': 'revenue',
+                              'icon': Icons.arrow_upward,
+                              'color': Theme.of(context).colorScheme.primary,
+                            },
+                          )
+                          .toList(),
+                    ),
+
+                  if (expenses.isNotEmpty)
+                    ..._buildTransactionsList(
+                      context,
+                      'Dépenses',
+                      expenses.length,
+                      Theme.of(context).colorScheme.error,
+                      expenses
+                          .map(
+                            (expense) => {
+                              'name': expense.name,
+                              'amount': expense.amount,
+                              'date': expense.date,
+                              'type': 'expense',
+                              'icon': Icons.arrow_downward,
+                              'color': Theme.of(context).colorScheme.error,
+                            },
+                          )
+                          .toList(),
+                    ),
+
+                  if (loans.isNotEmpty)
+                    ..._buildTransactionsList(
+                      context,
+                      'Mensualités',
+                      loans.length,
+                      Theme.of(context).colorScheme.secondary,
+                      loans
+                          .map(
+                            (loan) => {
+                              'name': loan.name,
+                              'amount': loan.monthlyPayment,
+                              'date': loan.startDate,
+                              'type': 'loan',
+                              'icon': Icons.account_balance,
+                              'color': Theme.of(context).colorScheme.secondary,
+                            },
+                          )
+                          .toList(),
+                    ),
                 ],
               ),
           ],
@@ -383,8 +422,14 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       ),
     );
   }
-  
-  List<Widget> _buildTransactionsList(BuildContext context, String title, int count, Color badgeColor, List<Map<String, dynamic>> items) {
+
+  List<Widget> _buildTransactionsList(
+    BuildContext context,
+    String title,
+    int count,
+    Color badgeColor,
+    List<Map<String, dynamic>> items,
+  ) {
     return [
       const SizedBox(height: 16),
       Padding(
@@ -416,11 +461,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ),
             ),
             const Spacer(),
-            if (items.length > 5) 
-              TextButton(
-                onPressed: () {},
-                child: const Text('Voir plus'),
-              ),
+            if (items.length > 5)
+              TextButton(onPressed: () {}, child: const Text('Voir plus')),
           ],
         ),
       ),
@@ -432,7 +474,9 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         itemBuilder: (context, index) {
           final item = items[index];
           return Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             margin: const EdgeInsets.only(bottom: 8),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -445,17 +489,19 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: item['type'] == 'expense'
-                            ? Theme.of(context).colorScheme.errorContainer
-                            : item['type'] == 'loan'
-                              ? Theme.of(context).colorScheme.secondaryContainer
-                              : Theme.of(context).colorScheme.primaryContainer,
+                          color:
+                              item['type'] == 'expense'
+                                  ? Theme.of(context).colorScheme.errorContainer
+                                  : item['type'] == 'loan'
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.secondaryContainer
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          item['icon'],
-                          color: item['color'],
-                        ),
+                        child: Icon(item['icon'], color: item['color']),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -476,10 +522,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       ),
                       Text(
                         formatter.format(item['amount']),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: item['type'] == 'expense' 
-                            ? Theme.of(context).colorScheme.error 
-                            : Theme.of(context).colorScheme.primary,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          color:
+                              item['type'] == 'expense'
+                                  ? Theme.of(context).colorScheme.error
+                                  : Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -490,9 +539,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          final loan = Get.find<LoanController>().loans.firstWhere(
-                            (l) => l.name == item['name'] && l.amount == item['amount'],
-                          );
+                          final loan = Get.find<LoanController>().loans
+                              .firstWhere(
+                                (l) =>
+                                    l.name == item['name'] &&
+                                    l.amount == item['amount'],
+                              );
                           Get.to(() => LoanDetailsScreen(), arguments: loan);
                         },
                         child: const Text('Voir détails'),
@@ -506,6 +558,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       ),
     ];
   }
+
   void _showEditAccountBottomSheet(BuildContext context) {
     AccountBottomSheet.show(
       context: context,
@@ -524,29 +577,30 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmer la suppression'),
-        content: Text(
-          'Voulez-vous vraiment supprimer le compte ${account.name} ?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmer la suppression'),
+            content: Text(
+              'Voulez-vous vraiment supprimer le compte ${account.name} ?',
             ),
-            onPressed: () {
-              accountController.deleteAccount(account.id);
-              Navigator.of(context).pop();
-              Get.back();
-            },
-            child: const Text('Supprimer'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                onPressed: () {
+                  accountController.deleteAccount(account.id);
+                  Navigator.of(context).pop();
+                  Get.back();
+                },
+                child: const Text('Supprimer'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

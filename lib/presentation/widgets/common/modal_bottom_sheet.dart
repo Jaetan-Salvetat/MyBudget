@@ -12,7 +12,7 @@ class AppModalBottomSheet extends StatelessWidget {
     required this.title,
     required this.content,
     required this.actions,
-    this.isScrollable = true, 
+    this.isScrollable = true,
     this.isDismissible = true,
     this.enableDrag = true,
     super.key,
@@ -33,12 +33,13 @@ class AppModalBottomSheet extends StatelessWidget {
       enableDrag: enableDrag,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AppModalBottomSheet(
-        title: title,
-        content: content,
-        actions: actions,
-        isScrollable: isScrollable,
-      ),
+      builder:
+          (context) => AppModalBottomSheet(
+            title: title,
+            content: content,
+            actions: actions,
+            isScrollable: isScrollable,
+          ),
     );
   }
 
@@ -133,20 +134,20 @@ class AppModalButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isPrimary
-            ? theme.colorScheme.primary
-            : isDestructive
+        backgroundColor:
+            isPrimary
+                ? theme.colorScheme.primary
+                : isDestructive
                 ? theme.colorScheme.error
-                : theme.colorScheme.surface,
-        foregroundColor: isPrimary
-            ? theme.colorScheme.onPrimary
-            : isDestructive
+                : theme.colorScheme.surfaceContainer,
+        foregroundColor:
+            isPrimary
+                ? theme.colorScheme.onPrimary
+                : isDestructive
                 ? theme.colorScheme.onError
                 : theme.colorScheme.onSurface,
         elevation: isPrimary ? 4 : 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
       child: Text(label),

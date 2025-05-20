@@ -10,6 +10,7 @@ import 'package:mybudget/core/controllers/revenue_controller.dart';
 import 'package:mybudget/core/controllers/loan_controller.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/update_controller.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/presentation/screens/update_screen.dart';
 import 'package:mybudget/presentation/screens/onboarding_screen.dart';
 import 'dart:math' as math;
@@ -47,23 +48,24 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _loadInitialData() async {
     try {
       await PreferencesService.init();
-      
+
       final objectBoxService = await ObjectBoxService.getInstance();
       Get.put(objectBoxService, permanent: true);
-      
+
       Get.put(CategoryController(), permanent: true);
       Get.put(ThemeController(), permanent: true);
-      
+      Get.put(SettingsController(), permanent: true);
+
       Get.put(ExpenseController(), permanent: true);
       Get.put(RevenueController(), permanent: true);
       Get.put(LoanController(), permanent: true);
-      
+
       Get.put(AccountController(), permanent: true);
       final accountController = Get.find<AccountController>();
       final expenseController = Get.find<ExpenseController>();
       final revenueController = Get.find<RevenueController>();
       final loanController = Get.find<LoanController>();
-      
+
       Get.put(UpdateController(), permanent: true);
 
       await Future.wait([
@@ -79,17 +81,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> navigateToDashboard() async {
     bool isFirstLaunch = PreferencesService.isFirstLaunch();
-    
+    final updateController = Get.find<UpdateController>();
 
-    final updateController = Get.put(UpdateController(), permanent: true);
-    
     if (isFirstLaunch) {
       Get.offAll(() => const OnboardingScreen());
       return;
     }
-    
+
     final hasUpdate = await updateController.checkForUpdates();
-    
+
     if (hasUpdate) {
       Get.to(() => const UpdateScreen());
     } else {

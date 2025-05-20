@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/presentation/widgets/common/app_button.dart';
 
 class EmptyDashboardState extends StatelessWidget {
   final VoidCallback onSetupPressed;
@@ -38,16 +39,10 @@ class EmptyDashboardState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
+            AppButton(
+              label: 'Ajouter un compte',
+              icon: Icons.add,
               onPressed: onSetupPressed,
-              icon: const Icon(Icons.add),
-              label: const Text('Ajouter un compte'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
             ),
           ],
         ),

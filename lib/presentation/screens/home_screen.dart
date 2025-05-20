@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/routes/app_routes.dart';
-import 'package:mybudget/presentation/screens/accounts_screen.dart';
+import 'package:mybudget/presentation/screens/account/accounts_screen.dart';
 import 'package:mybudget/presentation/screens/dashboard_screen.dart';
 import 'package:mybudget/presentation/screens/expenses_screen.dart';
-import 'package:mybudget/presentation/screens/loans_screen.dart';
+import 'package:mybudget/presentation/screens/loan/loans_screen.dart';
 import 'package:mybudget/presentation/screens/revenues_screen.dart';
 import 'package:mybudget/presentation/screens/settings_screen.dart';
 import 'package:mybudget/presentation/widgets/common/gradient_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
-  
-  const HomeScreen({
-    this.initialIndex = 0,
-    super.key,
-  });
+
+  const HomeScreen({this.initialIndex = 0, super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,33 +21,70 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
   late RxString _currentTitle;
-  
+
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
     _currentTitle = _getTitleForIndex(_selectedIndex).obs;
   }
-  
+
   String _getTitleForIndex(int index) {
     switch (index) {
-      case 0: return 'MyBudget';
-      case 1: return 'Comptes';
-      case 2: return 'Dépenses';
-      case 3: return 'Revenus';
-      case 4: return 'Emprunts';
-      case 5: return 'Paramètres';
-      default: return 'MyBudget';
+      case 0:
+        return 'MyBudget';
+      case 1:
+        return 'Comptes';
+      case 2:
+        return 'Dépenses';
+      case 3:
+        return 'Revenus';
+      case 4:
+        return 'Emprunts';
+      case 5:
+        return 'Paramètres';
+      default:
+        return 'MyBudget';
     }
   }
-  
+
   static final List<_NavItem> _items = [
-    const _NavItem('Accueil', Icons.dashboard_outlined, Icons.dashboard, AppRoutes.dashboard),
-    const _NavItem('Comptes', Icons.account_balance_outlined, Icons.account_balance, AppRoutes.accounts),
-    const _NavItem('Dépenses', Icons.money_off_outlined, Icons.money_off, AppRoutes.expenses),
-    const _NavItem('Revenus', Icons.attach_money_outlined, Icons.attach_money, AppRoutes.revenues),
-    const _NavItem('Emprunts', Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, AppRoutes.loans),
-    const _NavItem('Paramètres', Icons.settings_outlined, Icons.settings, AppRoutes.settings),
+    const _NavItem(
+      'Accueil',
+      Icons.dashboard_outlined,
+      Icons.dashboard,
+      AppRoutes.dashboard,
+    ),
+    const _NavItem(
+      'Comptes',
+      Icons.account_balance_outlined,
+      Icons.account_balance,
+      AppRoutes.accounts,
+    ),
+    const _NavItem(
+      'Dépenses',
+      Icons.money_off_outlined,
+      Icons.money_off,
+      AppRoutes.expenses,
+    ),
+    const _NavItem(
+      'Revenus',
+      Icons.attach_money_outlined,
+      Icons.attach_money,
+      AppRoutes.revenues,
+    ),
+    const _NavItem(
+      'Emprunts',
+      Icons.account_balance_wallet_outlined,
+      Icons.account_balance_wallet,
+      AppRoutes.loans,
+    ),
+    const _NavItem(
+      'Paramètres',
+      Icons.settings_outlined,
+      Icons.settings,
+      AppRoutes.settings,
+    ),
   ];
 
   final List<Widget> _screens = [
@@ -74,10 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Obx(() => GradientAppBar(title: _currentTitle.value)),
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -126,6 +157,6 @@ class _NavItem {
   final IconData icon;
   final IconData selectedIcon;
   final String route;
-  
+
   const _NavItem(this.label, this.icon, this.selectedIcon, this.route);
 }

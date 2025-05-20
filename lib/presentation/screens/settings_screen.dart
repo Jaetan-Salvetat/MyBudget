@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/controllers/theme_controller.dart';
 import 'package:mybudget/core/controllers/data_controller.dart';
-import 'package:mybudget/presentation/screens/privacy_policy_screen.dart';
+import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
 import 'package:mybudget/presentation/widgets/settings/categories_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/theme_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/expense_calculation_bottom_sheet.dart';
+import 'package:mybudget/presentation/screens/help_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -28,6 +30,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _themeController = Get.find<ThemeController>();
   final _dataController = Get.put(DataController());
+  final _settingsController = Get.put(SettingsController());
   PackageInfo? packageInfo;
 
   @override
@@ -103,6 +106,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
+          title: 'Calculs financiers',
+          children: [
+            Obx(() {
+              return SettingsTile(
+                title: 'Calcul des dépenses annuelles',
+                subtitle: _getAnnualExpenseCalculationModeName(
+                  _settingsController.annualExpenseCalculationMode.value,
+                ),
+                leading: const Icon(Icons.calculate),
+                onTap: () {
+                  _showExpenseCalculationModeDialog(
+                    context,
+                    _settingsController.annualExpenseCalculationMode.value,
+                  );
+                },
+              );
+            }),
+          ],
+        ),
+        SettingsSection(
           title: 'Catégories',
           children: [
             SettingsTile(
@@ -118,33 +141,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             SettingsTile(
               title: 'Exporter mes données',
-              subtitle: 'Télécharger vos données au format JSON',
-              leading: const Icon(Icons.download_rounded),
+              subtitle: 'Sauvegardez vos données financières',
+              leading: const Icon(Icons.upload_file),
               onTap: () => _exportUserData(context),
             ),
             SettingsTile(
-              title: 'Importer des données',
-              subtitle: 'Restaurer depuis un fichier JSON',
-              leading: const Icon(Icons.upload_rounded),
+              title: 'Importer mes données',
+              subtitle: 'Restaurez vos données depuis une sauvegarde',
+              leading: const Icon(Icons.download),
               onTap: () => _importUserData(context),
             ),
             SettingsTile(
-              title: 'Tout supprimer',
-              subtitle: 'Supprimer toutes les transactions et tous les comptes',
-              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              title: 'Supprimer toutes mes données',
+              subtitle: 'Cette action est irréversible',
+              leading: const Icon(Icons.delete_forever),
               onTap: () => _showDeleteDataConfirmationDialog(context),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: 'Aide et informations',
+          children: [
+            SettingsTile(
+              title: 'Guide d\'utilisation',
+              subtitle: 'Consultez l\'aide et les explications',
+              leading: const Icon(Icons.help_outline),
+              onTap: () => Get.to(() => const HelpScreen()),
             ),
           ],
         ),
         SettingsSection(
           title: 'À propos',
           children: [
-            SettingsTile(
+            /*SettingsTile(
               title: 'Politique de confidentialité',
               subtitle: 'Consultez notre politique de confidentialité',
               leading: const Icon(Icons.policy),
               onTap: () => Get.to(() => const PrivacyPolicyScreen()),
-            ),
+            ),*/
             SettingsTile(
               title: 'Version',
               subtitle:
@@ -169,11 +203,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getThemeNameFromMode(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
-        return 'Système';
+        return 'Automatique';
       case ThemeMode.light:
         return 'Clair';
       case ThemeMode.dark:
         return 'Sombre';
+    }
+  }
+
+  String _getAnnualExpenseCalculationModeName(
+    AnnualExpenseCalculationMode mode,
+  ) {
+    switch (mode) {
+      case AnnualExpenseCalculationMode.monthlyAmortized:
+        return 'Amortissement mensuel';
+      case AnnualExpenseCalculationMode.dateBasedOnly:
+        return 'Mois spécifique uniquement';
     }
   }
 
@@ -187,11 +232,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      
+
       if (result == null || result.files.isEmpty) {
         return;
       }
-      
+
       final path = result.files.single.path;
       if (path == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -199,15 +244,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         return;
       }
-      
+
       final file = File(path);
       if (!await file.exists()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fichier introuvable')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Fichier introuvable')));
         return;
       }
-      
+
       _showImportConfirmationDialog(context, file);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,17 +261,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-
-  
   Future<void> _showThemeSelectionDialog(
     BuildContext context,
     ThemeMode currentMode,
   ) async {
-    ThemeBottomSheet.show(
+    return ThemeBottomSheet.show(
       context: context,
       currentMode: currentMode,
-      onThemeSelected: (ThemeMode newMode) {
-        _themeController.changeTheme(newMode);
+      onThemeSelected: (ThemeMode mode) {
+        _themeController.changeTheme(mode);
+        setState(() {});
+      },
+    );
+  }
+
+  Future<void> _showExpenseCalculationModeDialog(
+    BuildContext context,
+    AnnualExpenseCalculationMode currentMode,
+  ) async {
+    return ExpenseCalculationBottomSheet.show(
+      context: context,
+      currentMode: currentMode,
+      onModeSelected: (AnnualExpenseCalculationMode mode) {
+        _settingsController.setAnnualExpenseCalculationMode(mode);
       },
     );
   }
@@ -234,28 +291,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showImportConfirmationDialog(BuildContext context, File file) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Importer des données'),
-        content: const Text(
-          'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Importer des données'),
+            content: const Text(
+              'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _dataController.importUserData(context, file);
-            },
-            child: const Text('Importer'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _dataController.importUserData(context, file);
+                },
+                child: const Text('Importer'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 

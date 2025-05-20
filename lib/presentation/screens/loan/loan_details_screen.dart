@@ -6,6 +6,7 @@ import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/data/models/loan_model.dart';
 import 'package:mybudget/presentation/widgets/loans/loan_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/common/app_scaffold.dart';
+import 'package:mybudget/presentation/widgets/common/delete_confirmation_dialog.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
   const LoanDetailsScreen({super.key});
@@ -75,10 +76,12 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   Widget _buildLoanHeader(BuildContext context) {
-    final account = accountController.accounts.firstWhere(
-      (a) => a.id == loan.accountId,
-      orElse: () => accountController.accounts.first,
-    );
+    final accountName = accountController.accounts.isEmpty
+        ? 'Compte inconnu'
+        : accountController.accounts.firstWhere(
+            (a) => a.id == loan.accountId,
+            orElse: () => accountController.accounts.first,
+          ).name;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -119,7 +122,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        account.name,
+                        accountName,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -421,37 +424,19 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
+    DeleteConfirmationDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Supprimer l\'emprunt'),
-            content: const Text(
-              'Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  loanController.deleteLoan(loan.id);
-                  Get.back();
-                  Get.snackbar(
-                    'Emprunt supprimé',
-                    'L\'emprunt a été supprimé avec succès.',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: const Text('Supprimer'),
-              ),
-            ],
-          ),
+      title: 'Supprimer l\'emprunt',
+      message: 'Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.',
+      onConfirm: () {
+        loanController.deleteLoan(loan.id);
+        Get.back();
+        Get.snackbar(
+          'Emprunt supprimé',
+          'L\'emprunt a été supprimé avec succès.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      },
     );
   }
 }
