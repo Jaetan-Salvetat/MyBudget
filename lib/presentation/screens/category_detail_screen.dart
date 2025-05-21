@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/controllers/account_controller.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
-import 'package:mybudget/data/models/account_model.dart';
 import 'package:mybudget/data/models/category_model.dart';
+import 'package:mybudget/presentation/widgets/category_details/account_usage_section.dart';
+import 'package:mybudget/presentation/widgets/category_details/category_expenses_list.dart';
+import 'package:mybudget/presentation/widgets/category_details/category_statistics_section.dart';
 import 'package:mybudget/presentation/widgets/common/gradient_app_bar.dart';
+import 'package:mybudget/presentation/widgets/settings/category_bottom_sheet.dart';
+import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/common/section_header.dart';
-import 'package:mybudget/presentation/widgets/expenses/expense_card.dart';
-import 'package:mybudget/presentation/widgets/expenses/expense_bottom_sheet.dart';
 
 class CategoryDetailScreen extends StatelessWidget {
   final int categoryId;
@@ -31,7 +32,19 @@ class CategoryDetailScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: GradientAppBar(title: category.name),
+      appBar: GradientAppBar(
+        title: category.name,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _showEditCategoryDialog(context, category),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _showDeleteConfirmation(context, category),
+          ),
+        ],
+      ),
       body: Obx(() => _buildCategoryDetail(context, category)),
     );
   }
@@ -57,8 +70,6 @@ class CategoryDetailScreen extends StatelessWidget {
           (accountUsage[accountId] ?? 0.0) + expense.amount;
     }
 
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -74,138 +85,10 @@ class CategoryDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 2,
-              clipBehavior: Clip.hardEdge,
-              child: InkWell(
-                onTap: () {},
-                splashColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withAlpha(25),
-                highlightColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withAlpha(15),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withAlpha(25),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.calculate_outlined,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Total des dépenses',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            Text(
-                              formatter.format(totalAmount),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withAlpha(25),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.percent,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Pourcentage du total',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            Text(
-                              '${(percentageOfTotal * 100).toStringAsFixed(1)}%',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withAlpha(25),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.receipt_long,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Nombre de transactions',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            Text(
-                              categoryExpenses.length.toString(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            CategoryStatisticsSection(
+              totalAmount: totalAmount,
+              percentageOfTotal: percentageOfTotal,
+              transactionCount: categoryExpenses.length,
             ),
 
             const SizedBox(height: 24),
@@ -219,82 +102,9 @@ class CategoryDetailScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 2,
-                clipBehavior: Clip.hardEdge,
-                child: ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  itemCount: accountUsage.length,
-                  itemBuilder: (context, index) {
-                    final entry = accountUsage.entries.elementAt(index);
-                    final account = accounts.firstWhere(
-                      (a) => a.id == entry.key,
-                      orElse: () => AccountModel()..name = 'Compte inconnu',
-                    );
-
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (index > 0)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Divider(height: 1),
-                          ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => Get.toNamed('/accounts/${account.id}'),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary.withAlpha(25),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.account_balance,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      account.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    formatter.format(entry.value),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+              AccountUsageSection(
+                accountUsage: accountUsage,
+                accounts: accounts,
               ),
 
               const SizedBox(height: 24),
@@ -308,48 +118,58 @@ class CategoryDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            if (categoryExpenses.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Text('Aucune dépense dans cette catégorie'),
-                ),
-              )
-            else
-              ...categoryExpenses.map((expense) {
-                final account = accounts.firstWhere(
-                  (a) => a.id == expense.accountId,
-                  orElse: () => AccountModel()..name = 'Compte inconnu',
-                );
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: ExpenseCard(
-                    expense: expense,
-                    accountName: account.name,
-                    onDelete: () {
-                      expenseController.deleteExpense(expense.id);
-                    },
-                    onEdit: () {
-                      ExpenseBottomSheet.show(
-                        context: context,
-                        accounts: accounts,
-                        expense: expense,
-                        onSubmit: (updatedExpense) {
-                          Get.find<ExpenseController>().updateExpense(
-                            updatedExpense,
-                          );
-                          Get.back();
-                        },
-                        onCancel: () => Get.back(),
-                      );
-                    },
-                  ),
-                );
-              }).toList(),
+            CategoryExpensesList(
+              expenses: categoryExpenses,
+              accounts: accounts,
+            ),
           ],
         ),
       ),
     );
+  }
+  
+  void _showEditCategoryDialog(BuildContext context, CategoryModel category) {
+    CategoryBottomSheet.show(
+      context: context,
+      initialName: category.name,
+      initialIcon: category.icon,
+      onSubmit: (name, icon) {
+        final updatedCategory = CategoryModel()
+          ..id = category.id
+          ..name = name
+          ..icon = icon;
+        Get.find<CategoryController>().updateCategory(updatedCategory);
+      },
+    );
+  }
+  
+  void _showDeleteConfirmation(BuildContext context, CategoryModel category) {
+    final expenseController = Get.find<ExpenseController>();
+    final categoryExpenses = expenseController.expenses.where((e) => e.categoryId == category.id).toList();
+    
+    if (categoryExpenses.isNotEmpty) {
+      // La catégorie a des dépenses, empêcher la suppression
+      DialogBottomSheet.showConfirmation(
+        context: context,
+        title: 'Suppression impossible',
+        message: 'La catégorie ${category.name} ne peut pas être supprimée car elle est utilisée par ${categoryExpenses.length} dépense(s).\n\nVeuillez d\'abord supprimer ou réaffecter ces dépenses avant de supprimer la catégorie.',
+        cancelLabel: 'Compris',
+        showConfirmButton: false,
+      );
+    } else {
+      // La catégorie n'a pas de dépenses, autoriser la suppression
+      DialogBottomSheet.showConfirmation(
+        context: context,
+        title: 'Supprimer la catégorie',
+        message: 'Êtes-vous sûr de vouloir supprimer la catégorie ${category.name} ?',
+        cancelLabel: 'Annuler',
+        confirmLabel: 'Supprimer',
+        isDestructive: true,
+        onConfirm: () {
+          Get.find<CategoryController>().deleteCategory(category.id);
+          Get.back();
+        },
+      );
+    }
   }
 }

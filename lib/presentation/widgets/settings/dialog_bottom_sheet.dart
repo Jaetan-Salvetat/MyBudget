@@ -7,9 +7,10 @@ class DialogBottomSheet {
     required String title,
     required String message,
     required String cancelLabel,
-    required String confirmLabel,
-    required VoidCallback onConfirm,
+    String confirmLabel = '',
+    VoidCallback? onConfirm,
     bool isDestructive = false,
+    bool showConfirmButton = true,
   }) {
     return AppModalBottomSheet.show(
       context: context,
@@ -59,28 +60,35 @@ class DialogBottomSheet {
         ],
       ),
       actions: [
-        Row(
-          children: [
-            Expanded(
-              child: AppModalButton(
-                label: cancelLabel,
-                onPressed: () => Navigator.of(context).pop(),
+        if (showConfirmButton) 
+          Row(
+            children: [
+              Expanded(
+                child: AppModalButton(
+                  label: cancelLabel,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: AppModalButton(
-                label: confirmLabel,
-                isPrimary: true,
-                isDestructive: isDestructive,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onConfirm();
-                },
+              const SizedBox(width: 16),
+              Expanded(
+                child: AppModalButton(
+                  label: confirmLabel,
+                  isPrimary: true,
+                  isDestructive: isDestructive,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onConfirm?.call();
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          )
+        else
+          AppModalButton(
+            label: cancelLabel,
+            isPrimary: true,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
       ],
     );
   }

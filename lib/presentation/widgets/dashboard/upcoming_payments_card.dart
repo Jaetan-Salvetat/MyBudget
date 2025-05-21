@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
 import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/core/extensions/category_model_extensions.dart';
 import 'package:mybudget/core/extensions/expense_extensions.dart';
-import 'package:mybudget/data/models/category_model.dart';
 
 class UpcomingPaymentsCard extends StatefulWidget {
   final NumberFormat formatter;
@@ -74,7 +74,7 @@ class HorizontalPaymentCard extends StatelessWidget {
     
     final category = categoryController.categories.firstWhere(
       (cat) => cat.id == expense.categoryId,
-      orElse: () => CategoryModel()..name = 'Autre'
+      orElse: () => CategoryModelExtensions.unknown()
     );
     
     final String formattedDate = DateFormat('dd/MM').format(expense.date);

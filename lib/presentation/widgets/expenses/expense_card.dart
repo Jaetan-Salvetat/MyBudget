@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
-import 'package:mybudget/data/models/category_model.dart';
+import 'package:mybudget/core/extensions/category_model_extensions.dart';
 import 'package:mybudget/data/models/expense_model.dart';
 import 'package:mybudget/presentation/widgets/common/delete_confirmation_dialog.dart';
 
@@ -186,7 +186,7 @@ class ExpenseCard extends StatelessWidget {
     final categoryController = Get.find<CategoryController>();
     final category = categoryController.categories.firstWhere(
       (c) => c.id == categoryId,
-      orElse: () => CategoryModel()..icon = 'category',
+      orElse: () => CategoryModelExtensions.unknown(),
     );
     
     return category.getIconData();
