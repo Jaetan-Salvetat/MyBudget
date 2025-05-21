@@ -6,7 +6,7 @@ import 'package:mybudget/core/controllers/settings_controller.dart';
 import 'package:mybudget/data/models/category_model.dart';
 
 extension ExpenseControllerExtension on ExpenseController {
-  List<CategoryExpenseSummary> getExpensesByCategory({int limit = 5}) {
+  List<CategoryExpenseSummary> getExpensesByCategory({int? limit}) {
     if (expenses.isEmpty) return [];
 
     final settingsController = Get.find<SettingsController>();
@@ -67,7 +67,7 @@ extension ExpenseControllerExtension on ExpenseController {
     
     result.sort((a, b) => b.amount.compareTo(a.amount));
     
-    if (result.length <= limit) return result;
+    if (limit == null || result.length <= limit) return result;
     
     final topCategories = result.sublist(0, limit - 1);
     final otherAmount = result.sublist(limit - 1).fold<double>(
