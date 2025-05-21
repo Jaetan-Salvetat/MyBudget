@@ -144,8 +144,11 @@ class _ExpensesListState extends State<ExpensesList> {
           margin: const EdgeInsets.only(top: 15, bottom: 5),
           child: Obx(() {
             final expenses = expenseController.expenses;
-            final totalExpenses = expenseController.getTotalExpenses();
-            final annualExpenses = expenseController.getAnnualExpenses();
+            final displayedExpenses = filteredExpenses.isEmpty && filterData.value.isEmpty
+                ? expenses
+                : filteredExpenses;
+            final totalExpenses = expenseController.getTotalExpenses(displayedExpenses);
+            final annualExpenses = expenseController.getAnnualExpenses(displayedExpenses);
             final formatter = NumberFormat.currency(
               locale: 'fr_FR',
               symbol: '€',

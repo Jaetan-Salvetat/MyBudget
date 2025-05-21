@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:mybudget/data/models/category_model.dart';
 import 'package:mybudget/domain/entities/category.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
+import 'package:mybudget/core/controllers/expense_controller.dart';
+import 'package:mybudget/presentation/screens/category_detail_screen.dart';
 import 'package:mybudget/presentation/widgets/common/modal_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/category_bottom_sheet.dart';
 import 'package:mybudget/presentation/widgets/settings/dialog_bottom_sheet.dart';
@@ -129,60 +131,96 @@ class CategoriesBottomSheet extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            iconData,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
-        title: Text(category.name),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                CategoryBottomSheet.show(
-                  context: context,
-                  initialName: category.name,
-                  initialIcon: category.icon,
-                  onSubmit: (name, icon) {
-                    final updatedCategory = CategoryModel()
-                      ..id = int.parse(category.id.toString())
-                      ..name = name
-                      ..icon = icon;
-                    categoryController.updateCategory(updatedCategory);
-                  },
-                );
-              },
+      clipBehavior: Clip.hardEdge,
+      child: Material(
+        color: Theme.of(context).cardColor,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop(); // Ferme la bottom sheet
+            Get.to(() => CategoryDetailScreen(categoryId: int.parse(category.id.toString())));
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    iconData,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(category.name),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        CategoryBottomSheet.show(
+                          context: context,
+                          initialName: category.name,
+                          initialIcon: category.icon,
+                          onSubmit: (name, icon) {
+                            final updatedCategory = CategoryModel()
+                              ..id = int.parse(category.id.toString())
+                              ..name = name
+                              ..icon = icon;
+                            categoryController.updateCategory(updatedCategory);
+                          },
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () {
+                        final expenseController = Get.find<ExpenseController>();
+                        final categoryId = int.parse(category.id.toString());
+                        final categoryExpenses = expenseController.expenses
+                          .where((e) => e.categoryId == categoryId)
+                          .toList();
+                        
+                        if (categoryExpenses.isNotEmpty) {
+                          // La catégorie a des dépenses, empêcher la suppression
+                          DialogBottomSheet.showConfirmation(
+                            context: context,
+                            title: 'Suppression impossible',
+                            message: 'La catégorie ${category.name} ne peut pas être supprimée car elle est utilisée par ${categoryExpenses.length} dépense(s).\n\nVeuillez d\'abord supprimer ou réaffecter ces dépenses avant de supprimer la catégorie.',
+                            cancelLabel: 'Compris',
+                            showConfirmButton: false,
+                          );
+                        } else {
+                          // La catégorie n'a pas de dépenses, autoriser la suppression
+                          DialogBottomSheet.showConfirmation(
+                            context: context,
+                            title: 'Supprimer la catégorie',
+                            message: 'Êtes-vous sûr de vouloir supprimer la catégorie ${category.name} ?',
+                            cancelLabel: 'Annuler',
+                            confirmLabel: 'Supprimer',
+                            isDestructive: true,
+                            onConfirm: () {
+                              categoryController.deleteCategory(categoryId);
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(
-                Icons.delete,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              onPressed: () {
-                DialogBottomSheet.showConfirmation(
-                  context: context,
-                  title: 'Supprimer la catégorie',
-                  message: 'Êtes-vous sûr de vouloir supprimer la catégorie ${category.name} ?',
-                  cancelLabel: 'Annuler',
-                  confirmLabel: 'Supprimer',
-                  isDestructive: true,
-                  onConfirm: () {
-                    categoryController.deleteCategory(int.parse(category.id.toString()));
-                  },
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

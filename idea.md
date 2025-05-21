@@ -1,4 +1,5 @@
+- Manage payments between accounts
 - Account.type (saving, tracking, etc)
+- notifications, what type of notification?
 - Expense.isActivated (activate or desavtivate an expense). same for loans
 - Two type of usage: sample and full
-- notifications for expenses and loans

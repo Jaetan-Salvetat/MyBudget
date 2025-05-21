@@ -103,4 +103,12 @@ class CategoryController extends GetxController {
     categories.clear();
     error.value = '';
   }
+  
+  CategoryModel? getCategoryById(int id) {
+    try {
+      return categories.firstWhere((category) => category.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }

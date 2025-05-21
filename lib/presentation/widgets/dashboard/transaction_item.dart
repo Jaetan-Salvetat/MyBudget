@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/controllers/category_controller.dart';
-import 'package:mybudget/data/models/category_model.dart';
-import 'package:mybudget/domain/entities/expense.dart';
+import 'package:mybudget/core/extensions/category_model_extensions.dart';
+import 'package:mybudget/data/models/expense_model.dart';
 
 class TransactionItem extends StatelessWidget {
   final dynamic transaction; // Either Expense or Revenue
@@ -17,7 +17,7 @@ class TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isExpense = transaction is Expense;
+    final bool isExpense = transaction is ExpenseModel;
     final Color amountColor = isExpense
         ? Theme.of(context).colorScheme.error
         : Colors.green.shade700;
@@ -33,8 +33,8 @@ class TransactionItem extends StatelessWidget {
     final categoryController = Get.find<CategoryController>();
     final String categoryName = isExpense 
         ? categoryController.categories.firstWhere(
-            (cat) => cat.id == (transaction as Expense).categoryId,
-            orElse: () => CategoryModel()..name = 'Autre'
+            (cat) => cat.id == (transaction as ExpenseModel).categoryId,
+            orElse: () => CategoryModelExtensions.unknown()
           ).name
         : 'Revenu';
     
