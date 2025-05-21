@@ -1,6 +1,6 @@
 ## ✨ Fonctionnalités
 
-***RAS***
+- Création de la page de gestion des catégories accessible depuis le menu des paramètres et depuis le dashboard
 
 ## 🐛 Corrections de bugs
 
