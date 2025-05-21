@@ -124,7 +124,7 @@ class ExpenseController extends GetxController {
     return sortedExpenses.take(count).toList();
   }
 
-  double getTotalExpenses() {
+  double getTotalExpenses([List<ExpenseModel>? expensesList]) {
     final settingsController = Get.find<SettingsController>();
     final calculationMode =
         settingsController.annualExpenseCalculationMode.value;
@@ -134,8 +134,9 @@ class ExpenseController extends GetxController {
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
 
     double total = 0.0;
+    final listToUse = expensesList ?? expenses;
 
-    for (var expense in expenses) {
+    for (var expense in listToUse) {
       if (expense.frequency == 'Mensuel') {
         total += expense.amount;
       } else if (expense.frequency == 'Annuel') {
@@ -168,10 +169,11 @@ class ExpenseController extends GetxController {
     return accountExpenses;
   }
 
-  double getAnnualExpenses() {
+  double getAnnualExpenses([List<ExpenseModel>? expensesList]) {
     double total = 0.0;
+    final listToUse = expensesList ?? expenses;
 
-    for (var expense in expenses) {
+    for (var expense in listToUse) {
       if (expense.frequency == 'Mensuel') {
         total += expense.amount * 12;
       } else if (expense.frequency == 'Annuel') {
