@@ -85,17 +85,20 @@ class ExpenseController extends GetxController {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-    
+
     final settingsController = Get.find<SettingsController>();
-    final calculationMode = settingsController.annualExpenseCalculationMode.value;
-    
+    final calculationMode =
+        settingsController.annualExpenseCalculationMode.value;
+
     double total = 0.0;
-    
+
     for (var expense in expenses) {
-      final isCurrentMonth = expense.date.isAtSameMomentAs(startOfMonth) ||
+      final isCurrentMonth =
+          expense.date.isAtSameMomentAs(startOfMonth) ||
           expense.date.isAtSameMomentAs(endOfMonth) ||
-          (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth));
-          
+          (expense.date.isAfter(startOfMonth) &&
+              expense.date.isBefore(endOfMonth));
+
       if (expense.frequency == 'Mensuel' && isCurrentMonth) {
         total += expense.amount;
       } else if (expense.frequency == 'Annuel') {
@@ -111,7 +114,7 @@ class ExpenseController extends GetxController {
         }
       }
     }
-    
+
     return total;
   }
 
@@ -123,14 +126,15 @@ class ExpenseController extends GetxController {
 
   double getTotalExpenses() {
     final settingsController = Get.find<SettingsController>();
-    final calculationMode = settingsController.annualExpenseCalculationMode.value;
-    
+    final calculationMode =
+        settingsController.annualExpenseCalculationMode.value;
+
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-    
+
     double total = 0.0;
-    
+
     for (var expense in expenses) {
       if (expense.frequency == 'Mensuel') {
         total += expense.amount;
@@ -140,10 +144,12 @@ class ExpenseController extends GetxController {
             total += expense.amount / 12;
             break;
           case AnnualExpenseCalculationMode.dateBasedOnly:
-            final isCurrentMonth = expense.date.isAtSameMomentAs(startOfMonth) ||
+            final isCurrentMonth =
+                expense.date.isAtSameMomentAs(startOfMonth) ||
                 expense.date.isAtSameMomentAs(endOfMonth) ||
-                (expense.date.isAfter(startOfMonth) && expense.date.isBefore(endOfMonth));
-                
+                (expense.date.isAfter(startOfMonth) &&
+                    expense.date.isBefore(endOfMonth));
+
             if (isCurrentMonth) {
               total += expense.amount;
             }
@@ -151,17 +157,20 @@ class ExpenseController extends GetxController {
         }
       }
     }
-    
+
     return total;
   }
 
   List<ExpenseModel> getExpensesForAccount(int accountId) {
-    return expenses.where((expense) => expense.accountId == accountId).toList();
+    final accountExpenses =
+        expenses.where((expense) => expense.accountId == accountId).toList();
+    accountExpenses.sort((a, b) => a.date.day.compareTo(b.date.day));
+    return accountExpenses;
   }
-  
+
   double getAnnualExpenses() {
     double total = 0.0;
-    
+
     for (var expense in expenses) {
       if (expense.frequency == 'Mensuel') {
         total += expense.amount * 12;
@@ -169,7 +178,7 @@ class ExpenseController extends GetxController {
         total += expense.amount;
       }
     }
-    
+
     return total;
   }
 }

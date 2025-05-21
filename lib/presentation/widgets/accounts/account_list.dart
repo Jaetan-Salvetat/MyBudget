@@ -17,9 +17,8 @@ class AccountsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accountController = Get.find<AccountController>();
-
     return Obx(() {
+      final accountController = Get.find<AccountController>();
       final accounts = accountController.accounts;
 
       return Expanded(

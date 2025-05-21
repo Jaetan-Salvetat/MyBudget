@@ -6,18 +6,18 @@ class RevenueController extends GetxController {
   final RxList<RevenueModel> revenues = <RevenueModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
-  
+
   @override
   void onInit() {
     super.onInit();
     getRevenues();
   }
-  
+
   Future<void> getRevenues() async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       final revenuesList = objectBoxService.revenueBox.getAll();
       revenues.value = revenuesList;
@@ -27,12 +27,12 @@ class RevenueController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> addRevenue(RevenueModel revenue) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.revenueBox.put(revenue);
       await getRevenues();
@@ -42,12 +42,12 @@ class RevenueController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> updateRevenue(RevenueModel revenue) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.revenueBox.put(revenue);
       await getRevenues();
@@ -57,12 +57,12 @@ class RevenueController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> deleteRevenue(int id) async {
     try {
       isLoading.value = true;
       error.value = '';
-      
+
       final objectBoxService = Get.find<ObjectBoxService>();
       objectBoxService.revenueBox.remove(id);
       await getRevenues();
@@ -72,12 +72,12 @@ class RevenueController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   void reset() {
     revenues.clear();
     error.value = '';
   }
-  
+
   double getMonthlyRevenues() {
     if (revenues.isEmpty) return 0.0;
 
@@ -91,21 +91,21 @@ class RevenueController extends GetxController {
               revenue.date.isAtSameMomentAs(startOfMonth) ||
               revenue.date.isAtSameMomentAs(endOfMonth) ||
               (revenue.date.isAfter(startOfMonth) &&
-              revenue.date.isBefore(endOfMonth)),
+                  revenue.date.isBefore(endOfMonth)),
         )
         .fold(0.0, (sum, revenue) => sum + revenue.amount);
   }
-  
+
   List<RevenueModel> getRecentRevenues(int count) {
     final sortedRevenues = [...revenues];
     sortedRevenues.sort((a, b) => b.date.compareTo(a.date));
     return sortedRevenues.take(count).toList();
   }
-  
+
   double getTotalRevenues() {
     return revenues.fold(0.0, (sum, revenue) => sum + revenue.amount);
   }
-  
+
   List<RevenueModel> getRevenuesForAccount(int accountId) {
     return revenues.where((revenue) => revenue.accountId == accountId).toList();
   }

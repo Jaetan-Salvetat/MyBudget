@@ -10,6 +10,10 @@ import '../../../data/models/loan_model.dart';
 
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/accounts/account_bottom_sheet.dart';
+import '../../widgets/account_details/transaction_tabs.dart';
+import '../../widgets/account_details/expense_list.dart';
+import '../../widgets/account_details/revenue_list.dart';
+import '../../widgets/account_details/loan_list.dart';
 import '../loan/loan_details_screen.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
@@ -19,12 +23,16 @@ class AccountDetailsScreen extends StatefulWidget {
   State<AccountDetailsScreen> createState() => _AccountDetailsScreenState();
 }
 
-class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
+class _AccountDetailsScreenState extends State<AccountDetailsScreen>
+    with SingleTickerProviderStateMixin {
   final AccountController accountController = Get.find<AccountController>();
   final ExpenseController expenseController = Get.find<ExpenseController>();
   final RevenueController revenueController = Get.find<RevenueController>();
+  final LoanController loanController = Get.find<LoanController>();
 
   late AccountModel account;
+  // Initialiser directement le TabController pour éviter LateInitializationError
+  TabController? _tabController;
 
   final formatter = NumberFormat.currency(
     locale: 'fr_FR',
@@ -32,10 +40,36 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     decimalDigits: 2,
   );
 
+  final List<String> _tabLabels = ['Dépenses', 'Revenus', 'Mensualités'];
+  List<Color> _tabColors = [];
+
   @override
   void initState() {
     super.initState();
     account = Get.arguments as AccountModel;
+
+    _tabController = TabController(length: _tabLabels.length, vsync: this);
+    
+    _tabController!.addListener(_handleTabSelection);
+
+    _tabColors = [
+      Theme.of(Get.context!).colorScheme.error, // Dépenses
+      Theme.of(Get.context!).colorScheme.primary, // Revenus
+      Theme.of(Get.context!).colorScheme.secondary, // Mensualités
+    ];
+  }
+  
+  void _handleTabSelection() {
+    if (_tabController!.indexIsChanging) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.removeListener(_handleTabSelection);
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -292,24 +326,58 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   }
 
   Widget _buildTransactionsSection(BuildContext context) {
-    final expenses =
-        expenseController.expenses
-            .where((e) => e.accountId == account.id)
-            .toList();
-    expenses.sort((a, b) => b.date.compareTo(a.date));
+    final expenses = expenseController.getExpensesForAccount(account.id);
 
     final revenues =
         revenueController.revenues
             .where((r) => r.accountId == account.id)
             .toList();
-    revenues.sort((a, b) => b.date.compareTo(a.date));
+    revenues.sort((a, b) => b.date.day.compareTo(a.date.day));
 
-    final loanController = Get.find<LoanController>();
     final loans =
         loanController
             .getLoansForAccount(account.id)
             .where((loan) => loan.getAutomaticStatus() != LoanStatus.completed)
             .toList();
+
+    final allTransactions = [
+      ...expenses.map(
+        (e) => {
+          'name': e.name,
+          'amount': e.amount,
+          'date': e.date,
+          'type': 'expense',
+          'icon': Icons.arrow_downward,
+          'color': Theme.of(context).colorScheme.error,
+        },
+      ),
+      ...revenues.map(
+        (r) => {
+          'name': r.name,
+          'amount': r.amount,
+          'date': r.date,
+          'type': 'revenue',
+          'icon': Icons.arrow_upward,
+          'color': Theme.of(context).colorScheme.primary,
+        },
+      ),
+      ...loans.map(
+        (l) => {
+          'name': l.name,
+          'amount': l.monthlyPayment,
+          'date': l.startDate,
+          'type': 'loan',
+          'icon': Icons.account_balance,
+          'color': Theme.of(context).colorScheme.secondary,
+        },
+      ),
+    ];
+
+    // Trier toutes les transactions par jour
+    allTransactions.sort(
+      (a, b) =>
+          (b['date'] as DateTime).day.compareTo((a['date'] as DateTime).day),
+    );
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -319,13 +387,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Transactions',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
             if (expenses.isEmpty && revenues.isEmpty && loans.isEmpty)
               Center(
                 child: Padding(
@@ -354,209 +415,48 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               )
             else
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (revenues.isNotEmpty)
-                    ..._buildTransactionsList(
-                      context,
-                      'Revenus',
-                      revenues.length,
-                      Theme.of(context).colorScheme.primary,
-                      revenues
-                          .map(
-                            (revenue) => {
-                              'name': revenue.name,
-                              'amount': revenue.amount,
-                              'date': revenue.date,
-                              'type': 'revenue',
-                              'icon': Icons.arrow_upward,
-                              'color': Theme.of(context).colorScheme.primary,
-                            },
-                          )
-                          .toList(),
+                  if (_tabController != null)
+                    TransactionTabs(
+                      tabController: _tabController!,
+                      tabLabels: _tabLabels,
+                      tabColors: _tabColors,
                     ),
-
-                  if (expenses.isNotEmpty)
-                    ..._buildTransactionsList(
-                      context,
-                      'Dépenses',
-                      expenses.length,
-                      Theme.of(context).colorScheme.error,
-                      expenses
-                          .map(
-                            (expense) => {
-                              'name': expense.name,
-                              'amount': expense.amount,
-                              'date': expense.date,
-                              'type': 'expense',
-                              'icon': Icons.arrow_downward,
-                              'color': Theme.of(context).colorScheme.error,
-                            },
-                          )
-                          .toList(),
-                    ),
-
-                  if (loans.isNotEmpty)
-                    ..._buildTransactionsList(
-                      context,
-                      'Mensualités',
-                      loans.length,
-                      Theme.of(context).colorScheme.secondary,
-                      loans
-                          .map(
-                            (loan) => {
-                              'name': loan.name,
-                              'amount': loan.monthlyPayment,
-                              'date': loan.startDate,
-                              'type': 'loan',
-                              'icon': Icons.account_balance,
-                              'color': Theme.of(context).colorScheme.secondary,
-                            },
-                          )
-                          .toList(),
-                    ),
+                  const SizedBox(height: 16),
+                  _tabController == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : Builder(builder: (context) {
+                          // Affiche le contenu en fonction de l'onglet actif
+                          final int currentIndex = _tabController!.index;
+                          
+                          // Retourne le widget approprié selon l'onglet actif
+                          switch (currentIndex) {
+                            case 0: // Dépenses
+                              return
+ExpenseList(
+                                expenses: expenses,
+                                formatter: formatter,
+                              );
+                            case 1: // Revenus
+                              return RevenueList(
+                                revenues: revenues,
+                                formatter: formatter,
+                              );
+                            case 2: // Mensualités
+                              return LoanList(
+                                loans: loans,
+                                formatter: formatter
+                              );
+                            default:
+                              return const SizedBox.shrink();
+                          }
+                        }),
                 ],
               ),
           ],
         ),
       ),
     );
-  }
-
-  List<Widget> _buildTransactionsList(
-    BuildContext context,
-    String title,
-    int count,
-    Color badgeColor,
-    List<Map<String, dynamic>> items,
-  ) {
-    return [
-      const SizedBox(height: 16),
-      Padding(
-        padding: const EdgeInsets.only(left: 16, bottom: 8),
-        child: Row(
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: badgeColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                count.toString(),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: badgeColor,
-                ),
-              ),
-            ),
-            const Spacer(),
-            if (items.length > 5)
-              TextButton(onPressed: () {}, child: const Text('Voir plus')),
-          ],
-        ),
-      ),
-      ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        shrinkWrap: true,
-        itemCount: items.length > 5 ? 5 : items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color:
-                              item['type'] == 'expense'
-                                  ? Theme.of(context).colorScheme.errorContainer
-                                  : item['type'] == 'loan'
-                                  ? Theme.of(
-                                    context,
-                                  ).colorScheme.secondaryContainer
-                                  : Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(item['icon'], color: item['color']),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['name'],
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('dd/MM/yyyy').format(item['date']),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        formatter.format(item['amount']),
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          color:
-                              item['type'] == 'expense'
-                                  ? Theme.of(context).colorScheme.error
-                                  : Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (item['type'] == 'loan')
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          final loan = Get.find<LoanController>().loans
-                              .firstWhere(
-                                (l) =>
-                                    l.name == item['name'] &&
-                                    l.amount == item['amount'],
-                              );
-                          Get.to(() => LoanDetailsScreen(), arguments: loan);
-                        },
-                        child: const Text('Voir détails'),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    ];
   }
 
   void _showEditAccountBottomSheet(BuildContext context) {

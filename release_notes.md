@@ -2,11 +2,11 @@
 
 ## ✨ Features
 
-- Interface redesignée pour les cartes de dépenses
+- Refonte de la page détail des comptes
 
 ## 🐛 Bug Fixes
 
-- Correction de l'affichage des icônes de catégories dans les formulaires d'édition
+- Fixe problème de rafraîchissement des comptes en cas de modifications des dépenses, des revenus et des prêts
 
 ## 📱 Compatibility
 
