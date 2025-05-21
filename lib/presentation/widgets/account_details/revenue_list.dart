@@ -46,6 +46,7 @@ class RevenueList extends StatelessWidget {
       itemBuilder: (context, index) {
         final revenue = revenues[index];
         return Card(
+          key: ValueKey(revenue.id),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

@@ -48,6 +48,7 @@ class LoanList extends StatelessWidget {
       itemBuilder: (context, index) {
         final loan = loans[index];
         return Card(
+          key: ValueKey(loan.id),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

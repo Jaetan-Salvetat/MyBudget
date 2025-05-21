@@ -43,7 +43,7 @@ class TransactionTabs extends StatelessWidget {
           if (states.contains(MaterialState.pressed)) {
             return Theme.of(
               context,
-            ).colorScheme.primaryContainer.withOpacity(0.3);
+            ).colorScheme.primaryContainer.withValues(alpha: 0.3);
           }
           return null;
         }),

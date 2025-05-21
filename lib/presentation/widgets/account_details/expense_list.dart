@@ -46,6 +46,7 @@ class ExpenseList extends StatelessWidget {
       itemBuilder: (context, index) {
         final expense = expenses[index];
         return Card(
+          key: ValueKey(expense.id),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
