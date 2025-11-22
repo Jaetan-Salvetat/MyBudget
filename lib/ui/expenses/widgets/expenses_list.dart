@@ -337,9 +337,14 @@ class _ExpensesListState extends State<ExpensesList> {
   }
 
   void _showFilterBottomSheet(BuildContext context) {
+    final categoryVM = Provider.of<CategoryViewModel>(context, listen: false);
+    final accountVM = Provider.of<AccountViewModel>(context, listen: false);
+
     ExpenseFilterBottomSheet.show(
       context: context,
       initialFilterData: _filterData,
+      categories: categoryVM.categories,
+      accounts: accountVM.accounts,
       onApply: (updatedFilterData) {
         setState(() {
           _filterData = updatedFilterData;
