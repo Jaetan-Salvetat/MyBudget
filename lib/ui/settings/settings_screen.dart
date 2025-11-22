@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+
 import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
+import 'package:mybudget/ui/settings/update_viewmodel.dart';
+
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/ui/settings/widgets/categories_bottom_sheet.dart';
@@ -22,18 +24,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  PackageInfo? packageInfo;
+  // PackageInfo no longer needed here as UpdateViewModel handles it
 
   @override
   void initState() {
     super.initState();
-    _loadPackageInfo();
-  }
-
-  Future<void> _loadPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
-    setState(() {
-      packageInfo = info;
+    // Check for updates on enter? Or just rely on VM state?
+    // Better to let user initiate or rely on Home auto-check.
+    // But we should fetch current version if not already fetched.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Just ensure version is loaded if possible, or do nothing.
     });
   }
 
@@ -41,6 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final settingsVM = Provider.of<SettingsViewModel>(context);
     final dataVM = Provider.of<DataViewModel>(context);
+    final updateVM = Provider.of<UpdateViewModel>(context);
 
     return FrostedScaffold(
       appBar: FrostedAppBar(
@@ -143,12 +144,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               SettingsTile(
                 title: 'Version',
-                subtitle:
-                    packageInfo != null
-                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                        : 'Chargement...',
-                leading: const Icon(Icons.info_outline),
-                onTap: null,
+                subtitle: updateVM.currentVersion ?? 'Chargement...',
+                leading:
+                    updateVM.isChecking
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.info_outline),
+                onTap: () => updateVM.checkForUpdates(context),
               ),
             ],
           ),

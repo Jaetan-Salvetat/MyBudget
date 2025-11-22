@@ -13,6 +13,7 @@ import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
@@ -36,6 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _selectedIndex = widget.initialIndex;
     _currentTitle = _getTitleForIndex(_selectedIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UpdateViewModel>(
+        context,
+        listen: false,
+      ).checkForUpdates(context, silent: true);
+    });
   }
 
   String _getTitleForIndex(int index) {

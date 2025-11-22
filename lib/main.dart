@@ -11,6 +11,7 @@ import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
+import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/ui/dashboard/dashboard_viewmodel.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         ),
 
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => UpdateViewModel()),
 
         ChangeNotifierProvider(
           create:

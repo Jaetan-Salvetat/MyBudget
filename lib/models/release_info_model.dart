@@ -5,6 +5,7 @@ class ReleaseInfo {
   final String downloadUrl;
   final DateTime publishedAt;
   final int assetSize;
+  final bool isPrerelease;
 
   ReleaseInfo({
     required this.version,
@@ -13,5 +14,6 @@ class ReleaseInfo {
     required this.downloadUrl,
     required this.publishedAt,
     required this.assetSize,
+    this.isPrerelease = false,
   });
 }
