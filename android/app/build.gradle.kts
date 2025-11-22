@@ -46,14 +46,26 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "env"
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "MyBudget")
+        }
+        create("beta") {
+            dimension = "env"
+            applicationIdSuffix = ".beta"
+            versionNameSuffix = "-beta"
+            resValue("string", "app_name", "MyBudget Beta")
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "MyBudget Debug")
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            resValue("string", "app_name", "MyBudget")
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
