@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -32,10 +33,8 @@ class ExpensesScreen extends StatelessWidget {
           Positioned(
             right: 16,
             bottom: 16,
-            child: FloatingActionButton(
-              heroTag: fabTag,
+            child: FrostedFloatingActionButton(
               onPressed: () => _showAddExpenseBottomSheet(context),
-              tooltip: 'Ajouter une dépense',
               child: const Icon(Icons.add),
             ),
           ),
@@ -43,15 +42,13 @@ class ExpensesScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Dépenses'), elevation: 0),
-      floatingActionButton: FloatingActionButton(
-        heroTag: fabTag,
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Dépenses'),
+      floatingActionButton: FrostedFloatingActionButton(
         onPressed: () => _showAddExpenseBottomSheet(context),
-        tooltip: 'Ajouter une dépense',
         child: const Icon(Icons.add),
       ),
-      body: content,
+      child: content,
     );
   }
 
@@ -70,29 +67,24 @@ class ExpensesScreen extends StatelessWidget {
     );
 
     if (accountViewModel.accounts.isEmpty) {
-      showDialog(
+      FrostedDialog.show(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Aucun compte disponible'),
-              content: const Text(
-                'Vous devez d\'abord créer un compte avant d\'ajouter une dépense.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+        barrierDismissible: false,
+        title: const Text('Aucun compte disponible'),
+        content: const Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter une dépense.',
+        ),
+        actions: [
+          FrostedTextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
       );
       return;
     }
 
-     
-    if (categoryViewModel.categories.isEmpty) {
-       
-    }
+    if (categoryViewModel.categories.isEmpty) {}
 
     ExpenseBottomSheet.show(
       context: context,
@@ -101,11 +93,11 @@ class ExpensesScreen extends StatelessWidget {
       onSubmit: (expense) async {
         try {
           await expenseViewModel.addExpense(expense);
-           
         } catch (e) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erreur lors de l\'ajout: $e')),
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de l\'ajout: $e',
             );
           }
         }

@@ -14,10 +14,10 @@ class LoanViewModel extends ChangeNotifier {
   String get error => _error;
 
   LoanViewModel(this._loanRepository) {
-    _loadLoans();
+    loadLoans();
   }
 
-  Future<void> _loadLoans() async {
+  Future<void> loadLoans() async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -43,7 +43,7 @@ class LoanViewModel extends ChangeNotifier {
       notifyListeners();
 
       _loanRepository.add(loan);
-      await _loadLoans();
+      await loadLoans();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -57,7 +57,7 @@ class LoanViewModel extends ChangeNotifier {
       notifyListeners();
 
       _loanRepository.update(loan);
-      await _loadLoans();
+      await loadLoans();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -71,7 +71,7 @@ class LoanViewModel extends ChangeNotifier {
       notifyListeners();
 
       _loanRepository.delete(id);
-      await _loadLoans();
+      await loadLoans();
     } catch (e) {
       _error = e.toString();
       notifyListeners();

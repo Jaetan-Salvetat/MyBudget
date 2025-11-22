@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
@@ -32,10 +33,8 @@ class LoansScreen extends StatelessWidget {
           Positioned(
             right: 16,
             bottom: 16,
-            child: FloatingActionButton(
-              heroTag: fabTag,
+            child: FrostedFloatingActionButton(
               onPressed: () => _showAddLoanBottomSheet(context),
-              tooltip: 'Ajouter un emprunt',
               child: const Icon(Icons.add),
             ),
           ),
@@ -43,15 +42,13 @@ class LoansScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mes Emprunts'), elevation: 0),
-      floatingActionButton: FloatingActionButton(
-        heroTag: fabTag,
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Mes Emprunts'),
+      floatingActionButton: FrostedFloatingActionButton(
         onPressed: () => _showAddLoanBottomSheet(context),
-        tooltip: 'Ajouter un emprunt',
         child: const Icon(Icons.add),
       ),
-      body: content,
+      child: content,
     );
   }
 
@@ -63,21 +60,19 @@ class LoansScreen extends StatelessWidget {
     final loanViewModel = Provider.of<LoanViewModel>(context, listen: false);
 
     if (accountViewModel.accounts.isEmpty) {
-      showDialog(
+      FrostedDialog.show(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Aucun compte disponible'),
-              content: const Text(
-                'Vous devez d\'abord créer un compte avant d\'ajouter un emprunt.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+        barrierDismissible: false,
+        title: const Text('Aucun compte disponible'),
+        content: const Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter un emprunt.',
+        ),
+        actions: [
+          FrostedTextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       );
       return;
     }

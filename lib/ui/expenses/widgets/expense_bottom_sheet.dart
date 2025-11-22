@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -31,9 +32,7 @@ class ExpenseBottomSheet extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder:
           (context) => Padding(
             padding: EdgeInsets.only(
@@ -121,7 +120,8 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FrostedCard(
+      borderRadius: 20,
       padding: const EdgeInsets.all(24),
       child: Form(
         key: _formKey,
@@ -139,7 +139,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ),
             const SizedBox(height: 24),
 
-             
             Text(
               'Informations',
               style: TextStyle(
@@ -164,26 +163,13 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
+            FrostedTextField(
               controller: _amountController,
-              decoration: const InputDecoration(
-                labelText: 'Montant',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.euro),
-              ),
+              labelText: 'Montant',
+              prefixIcon: const Icon(Icons.euro),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Veuillez entrer un montant';
-                }
-                final amount = double.tryParse(value.replaceAll(',', '.'));
-                if (amount == null || amount <= 0) {
-                  return 'Montant invalide';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
@@ -216,7 +202,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ),
 
             const SizedBox(height: 24),
-             
+
             ExpenseFrequencyDateSection(
               frequency: _selectedFrequency,
               date: _selectedDate,
@@ -229,7 +215,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ),
 
             const SizedBox(height: 24),
-             
+
             Text(
               'Compte',
               style: TextStyle(
@@ -271,7 +257,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
+                FrostedTextButton(
                   onPressed: () {
                     widget.onCancel();
                     Navigator.pop(context);
@@ -279,7 +265,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                   child: const Text('Annuler'),
                 ),
                 const SizedBox(width: 16),
-                FilledButton(
+                FrostedFilledButton(
                   onPressed: _handleSubmit,
                   child: Text(
                     widget.expense == null ? 'Ajouter' : 'Enregistrer',

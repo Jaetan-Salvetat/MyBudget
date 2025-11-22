@@ -5,7 +5,7 @@ import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
-import 'package:mybudget/ui/home/widgets/gradient_app_bar.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -80,51 +80,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FrostedScaffold(
       extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: GradientAppBar(title: _currentTitle),
-      ),
-      body: IndexedStack(index: _selectedIndex, children: _screens),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          child: NavigationBar(
-            elevation: 0,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-            selectedIndex: _selectedIndex,
-            destinations: [
-              for (int i = 0; i < _items.length; i++)
-                NavigationDestination(
-                  icon: Icon(_items[i].icon),
-                  selectedIcon: Icon(_items[i].selectedIcon),
-                  label: _items[i].label,
-                ),
-            ],
-            onDestinationSelected: (index) {
-              if (_selectedIndex != index) {
-                setState(() {
-                  _selectedIndex = index;
-                  _updateTitle();
-                });
-              }
-            },
-          ),
-        ),
+      appBar: FrostedAppBar(title: _currentTitle),
+      child: IndexedStack(index: _selectedIndex, children: _screens),
+      bottomNavigationBar: FrostedBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          if (_selectedIndex != index) {
+            setState(() {
+              _selectedIndex = index;
+              _updateTitle();
+            });
+          }
+        },
+        items:
+            _items
+                .map(
+                  (item) => BottomNavigationBarItem(
+                    icon: Icon(item.icon),
+                    activeIcon: Icon(item.selectedIcon),
+                    label: item.label,
+                  ),
+                )
+                .toList(),
       ),
     );
   }

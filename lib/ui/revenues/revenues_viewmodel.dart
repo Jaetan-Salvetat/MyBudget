@@ -14,10 +14,10 @@ class RevenueViewModel extends ChangeNotifier {
   String get error => _error;
 
   RevenueViewModel(this._revenueRepository) {
-    _loadRevenues();
+    loadRevenues();
   }
 
-  Future<void> _loadRevenues() async {
+  Future<void> loadRevenues() async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -39,7 +39,7 @@ class RevenueViewModel extends ChangeNotifier {
       notifyListeners();
 
       _revenueRepository.add(revenue);
-      await _loadRevenues();
+      await loadRevenues();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -53,7 +53,7 @@ class RevenueViewModel extends ChangeNotifier {
       notifyListeners();
 
       _revenueRepository.update(revenue);
-      await _loadRevenues();
+      await loadRevenues();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -67,7 +67,7 @@ class RevenueViewModel extends ChangeNotifier {
       notifyListeners();
 
       _revenueRepository.delete(id);
-      await _loadRevenues();
+      await loadRevenues();
     } catch (e) {
       _error = e.toString();
       notifyListeners();

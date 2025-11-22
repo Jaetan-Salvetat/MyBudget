@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
 class FinancialSummaryCard extends StatelessWidget {
@@ -25,10 +26,9 @@ class FinancialSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.black.withValues(alpha: 0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return FrostedCard(
+      borderRadius: 20,
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
           Container(

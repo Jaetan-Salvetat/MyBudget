@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -10,6 +11,7 @@ class CategoriesBottomSheet extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -25,69 +27,73 @@ class CategoriesBottomSheet extends StatelessWidget {
       maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Gérer les catégories',
-                style: Theme.of(context).textTheme.titleLarge,
+        return FrostedCard(
+          borderRadius: 20,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Gérer les catégories',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
-            Expanded(
-              child: Consumer<CategoryViewModel>(
-                builder: (context, categoryVM, child) {
-                  if (categoryVM.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              Expanded(
+                child: Consumer<CategoryViewModel>(
+                  builder: (context, categoryVM, child) {
+                    if (categoryVM.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  return ListView.separated(
-                    controller: scrollController,
-                    itemCount: categoryVM.categories.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final category = categoryVM.categories[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Color(
-                            category.color,
-                          ).withAlpha(0x20),
-                          child: Icon(
-                            category.getIconData(),
-                            color: Color(category.color),
+                    return ListView.separated(
+                      controller: scrollController,
+                      itemCount: categoryVM.categories.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final category = categoryVM.categories[index];
+                        return FrostedListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Color(
+                              category.color,
+                            ).withAlpha(0x20),
+                            child: Icon(
+                              category.getIconData(),
+                              color: Color(category.color),
+                            ),
                           ),
-                        ),
-                        title: Text(category.name),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed:
-                              () => _showDeleteConfirmation(
+                          title: Text(category.name),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed:
+                                () => _showDeleteConfirmation(
+                                  context,
+                                  categoryVM,
+                                  category,
+                                ),
+                          ),
+                          onTap:
+                              () => _showEditCategoryDialog(
                                 context,
                                 categoryVM,
                                 category,
                               ),
-                        ),
-                        onTap:
-                            () => _showEditCategoryDialog(
-                              context,
-                              categoryVM,
-                              category,
-                            ),
-                      );
-                    },
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FilledButton.icon(
-                onPressed: () => _showAddCategoryDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Ajouter une catégorie'),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FilledButton.icon(
+                  onPressed: () => _showAddCategoryDialog(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Ajouter une catégorie'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

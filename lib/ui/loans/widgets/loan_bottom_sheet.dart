@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/account_model.dart';
 
@@ -26,9 +27,7 @@ class LoanBottomSheet extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder:
           (context) => Padding(
             padding: EdgeInsets.only(
@@ -56,9 +55,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
   late TextEditingController _dayOfMonthController;
 
   DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(
-    const Duration(days: 365),
-  );  
+  DateTime _endDate = DateTime.now().add(const Duration(days: 365));
   int? _selectedAccountId;
 
   @override
@@ -124,7 +121,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
               dayOfMonth: dayOfMonth,
             )
             : LoanModel(
-              id: 0,  
+              id: 0,
               name: _nameController.text.trim(),
               amount: amount,
               accountId: _selectedAccountId!,
@@ -152,7 +149,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
       setState(() {
         if (isStartDate) {
           _startDate = picked;
-           
+
           if (_endDate.isBefore(_startDate)) {
             _endDate = _startDate.add(const Duration(days: 365));
           }
@@ -165,7 +162,8 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FrostedCard(
+      borderRadius: 20,
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -197,26 +195,19 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 16),
-          TextField(
+          FrostedTextField(
             controller: _lenderController,
-            decoration: const InputDecoration(
-              labelText: 'Prêteur',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.person),
-            ),
-            textCapitalization: TextCapitalization.sentences,
+            labelText: 'Prêteur',
+            prefixIcon: const Icon(Icons.person),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: FrostedTextField(
                   controller: _amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Montant total',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.euro),
-                  ),
+                  labelText: 'Montant total',
+                  prefixIcon: const Icon(Icons.euro),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -224,13 +215,10 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: TextField(
+                child: FrostedTextField(
                   controller: _monthlyPaymentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Mensualité',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.payments),
-                  ),
+                  labelText: 'Mensualité',
+                  prefixIcon: const Icon(Icons.payments),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -284,13 +272,10 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          TextField(
+          FrostedTextField(
             controller: _dayOfMonthController,
-            decoration: const InputDecoration(
-              labelText: 'Jour du prélèvement (1-31)',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.calendar_view_day),
-            ),
+            labelText: 'Jour du prélèvement (1-31)',
+            prefixIcon: const Icon(Icons.calendar_view_day),
             keyboardType: TextInputType.number,
           ),
 
@@ -330,7 +315,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              FrostedTextButton(
                 onPressed: () {
                   widget.onCancel();
                   Navigator.pop(context);
@@ -338,7 +323,7 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
                 child: const Text('Annuler'),
               ),
               const SizedBox(width: 16),
-              FilledButton(
+              FrostedFilledButton(
                 onPressed: _handleSubmit,
                 child: Text(widget.loan == null ? 'Ajouter' : 'Enregistrer'),
               ),

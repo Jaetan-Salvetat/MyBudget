@@ -19,10 +19,10 @@ class ExpenseViewModel extends ChangeNotifier {
   String get error => _error;
 
   ExpenseViewModel(this._expenseRepository, this._categoryRepository) {
-    _loadExpenses();
+    loadExpenses();
   }
 
-  Future<void> _loadExpenses() async {
+  Future<void> loadExpenses() async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -44,7 +44,7 @@ class ExpenseViewModel extends ChangeNotifier {
       notifyListeners();
 
       _expenseRepository.add(expense);
-      await _loadExpenses();
+      await loadExpenses();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -58,7 +58,7 @@ class ExpenseViewModel extends ChangeNotifier {
       notifyListeners();
 
       _expenseRepository.update(expense);
-      await _loadExpenses();
+      await loadExpenses();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -72,7 +72,7 @@ class ExpenseViewModel extends ChangeNotifier {
       notifyListeners();
 
       _expenseRepository.delete(id);
-      await _loadExpenses();
+      await loadExpenses();
     } catch (e) {
       _error = e.toString();
       notifyListeners();

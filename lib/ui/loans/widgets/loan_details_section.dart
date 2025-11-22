@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/loan_model.dart';
 
@@ -11,92 +12,89 @@ class LoanDetailsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final nextPaymentDate = _getNextPaymentDate(loan);
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Informations',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow(
+    return FrostedCard(
+      borderRadius: 16,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Informations',
+            style: Theme.of(
               context,
-              'Statut',
-              loan.getAutomaticStatus().label,
-              loan.getAutomaticStatus().icon,
-              loan.getAutomaticStatus().getColor(context),
-            ),
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Statut',
+            loan.getAutomaticStatus().label,
+            loan.getAutomaticStatus().icon,
+            loan.getAutomaticStatus().getColor(context),
+          ),
+          const Divider(height: 24),
+          _buildDetailRow(
+            context,
+            'Date de début',
+            DateFormat('dd/MM/yyyy').format(loan.startDate),
+            Icons.calendar_today,
+            null,
+          ),
+          const Divider(height: 24),
+          _buildDetailRow(
+            context,
+            'Date de fin prévue',
+            DateFormat('dd/MM/yyyy').format(loan.endDate),
+            Icons.event,
+            null,
+          ),
+          const Divider(height: 24),
+          _buildDetailRow(
+            context,
+            'Durée totale',
+            '${_calculateLoanDuration(loan)} mois',
+            Icons.timelapse,
+            null,
+          ),
+          const Divider(height: 24),
+          _buildDetailRow(
+            context,
+            'Jour d\'échéance',
+            'Jour ${loan.dayOfMonth} de chaque mois',
+            Icons.date_range,
+            null,
+          ),
+          if (nextPaymentDate != null) ...[
             const Divider(height: 24),
             _buildDetailRow(
               context,
-              'Date de début',
-              DateFormat('dd/MM/yyyy').format(loan.startDate),
-              Icons.calendar_today,
-              null,
+              'Prochaine échéance',
+              DateFormat('dd/MM/yyyy').format(nextPaymentDate),
+              Icons.alarm,
+              _isPaymentSoon(nextPaymentDate)
+                  ? Theme.of(context).colorScheme.error
+                  : null,
             ),
-            const Divider(height: 24),
-            _buildDetailRow(
-              context,
-              'Date de fin prévue',
-              DateFormat('dd/MM/yyyy').format(loan.endDate),
-              Icons.event,
-              null,
-            ),
-            const Divider(height: 24),
-            _buildDetailRow(
-              context,
-              'Durée totale',
-              '${_calculateLoanDuration(loan)} mois',
-              Icons.timelapse,
-              null,
-            ),
-            const Divider(height: 24),
-            _buildDetailRow(
-              context,
-              'Jour d\'échéance',
-              'Jour ${loan.dayOfMonth} de chaque mois',
-              Icons.date_range,
-              null,
-            ),
-            if (nextPaymentDate != null) ...[
-              const Divider(height: 24),
-              _buildDetailRow(
-                context,
-                'Prochaine échéance',
-                DateFormat('dd/MM/yyyy').format(nextPaymentDate),
-                Icons.alarm,
-                _isPaymentSoon(nextPaymentDate)
-                    ? Theme.of(context).colorScheme.error
-                    : null,
-              ),
-            ],
-            if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-              const Divider(height: 24),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Notes',
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(loan.notes!),
-                ],
-              ),
-            ],
           ],
-        ),
+          if (loan.notes != null && loan.notes!.isNotEmpty) ...[
+            const Divider(height: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Notes',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(loan.notes!),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

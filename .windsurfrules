@@ -24,3 +24,4 @@ You are an expert in Flutter 3.29, TypeScript, and related libraries. You are fo
 - Avoid discontinued packages like `css_colors`, `flutter_adaptive_scaffold`, `flutter_image`, `flutter_markdown`, `ios_platform_images`, and `palette_generator` by April 30, 2025, and seek alternatives.
 - never use dark coded color. use theme color instead.
 - never comment your code.
+- for UI, always use frosted_ui library and flutter material 3 if frosted_ui doesn't have the component. 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
 
@@ -23,9 +24,7 @@ class AccountBottomSheet extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder:
           (context) => Padding(
             padding: EdgeInsets.only(
@@ -55,7 +54,6 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
     _nameController = TextEditingController(text: widget.account?.name ?? '');
     _bankController = TextEditingController(text: widget.account?.bank ?? '');
 
-     
     _validateForm();
 
     _nameController.addListener(_validateForm);
@@ -89,7 +87,8 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return FrostedCard(
+      borderRadius: 20,
       padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -102,17 +101,11 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          TextField(
+          FrostedTextField(
             controller: _nameController,
-            decoration: InputDecoration(
-              labelText: 'Nom du compte',
-              hintText: 'Ex: Compte Courant',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
-            ),
-            textCapitalization: TextCapitalization.sentences,
+            labelText: 'Nom du compte',
+            hintText: 'Ex: Compte Courant',
+            prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
             autofocus: widget.account == null,
           ),
           const SizedBox(height: 16),
@@ -140,7 +133,6 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
                   FocusNode focusNode,
                   VoidCallback onFieldSubmitted,
                 ) {
-                   
                   return TextField(
                     controller: textEditingController,
                     focusNode: focusNode,
@@ -157,11 +149,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
                       prefixIcon: const Icon(Icons.account_balance_outlined),
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.arrow_drop_down),
-                        onPressed: () {
-                           
-                           
-                           
-                        },
+                        onPressed: () {},
                       ),
                     ),
                     textCapitalization: TextCapitalization.sentences,
@@ -207,7 +195,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              FrostedTextButton(
                 onPressed: () {
                   widget.onCancel();
                   Navigator.pop(context);
@@ -215,7 +203,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
                 child: const Text('Annuler'),
               ),
               const SizedBox(width: 16),
-              FilledButton(
+              FrostedFilledButton(
                 onPressed: _isFormValid ? _handleSubmit : null,
                 child: Text(widget.account == null ? 'Ajouter' : 'Enregistrer'),
               ),

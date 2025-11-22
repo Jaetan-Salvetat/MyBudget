@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 
 class SettingsSection extends StatelessWidget {
   final String title;
@@ -26,14 +27,10 @@ class SettingsSection extends StatelessWidget {
             ),
           ),
         ),
-        Container(
+        FrostedCard(
           margin: const EdgeInsets.only(bottom: 24),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(16),
-          ),
+          borderRadius: 16,
+          padding: EdgeInsets.zero,
           child: Column(children: children),
         ),
       ],

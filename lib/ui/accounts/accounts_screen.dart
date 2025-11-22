@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_list.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
- 
- 
- 
 
 class AccountsScreen extends StatelessWidget {
   final bool isNested;
@@ -20,13 +18,8 @@ class AccountsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     
-     
-
     final content = Column(
       children: [
-         
-         
         const SizedBox(height: 100),
         Expanded(child: const AccountList()),
       ],
@@ -38,11 +31,9 @@ class AccountsScreen extends StatelessWidget {
           content,
           Positioned(
             right: 16,
-            bottom: 16,  
-            child: FloatingActionButton(
-              heroTag: fabTag,
+            bottom: 16,
+            child: FrostedFloatingActionButton(
               onPressed: () => _showAddAccountDialog(context),
-              elevation: 4,
               child: const Icon(Icons.add),
             ),
           ),
@@ -50,20 +41,17 @@ class AccountsScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mes Comptes')),
-      floatingActionButton: FloatingActionButton(
-        heroTag: fabTag,
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Mes Comptes'),
+      floatingActionButton: FrostedFloatingActionButton(
         onPressed: () => _showAddAccountDialog(context),
-        elevation: 4,
         child: const Icon(Icons.add),
       ),
-      body: content,
+      child: content,
     );
   }
 
   void _showAddAccountDialog(BuildContext context) {
-     
     final accountViewModel = Provider.of<AccountViewModel>(
       context,
       listen: false,

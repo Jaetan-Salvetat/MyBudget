@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';  
+import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
@@ -153,9 +154,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return content;
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Paramètres')),
-      body: content,
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Paramètres'),
+      child: content,
     );
   }
 
@@ -193,10 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     DataViewModel dataVM,
   ) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
+      final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
       if (result == null || result.files.isEmpty) {
         return;
@@ -291,13 +289,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  dataVM.importUserData(context, file);
+                  Navigator.of(context).pop(); // Ferme la confirmation
+                  _showImportProgressDialog(context, file, dataVM);
                 },
                 child: const Text('Importer'),
               ),
             ],
           ),
+    );
+  }
+
+  void _showImportProgressDialog(
+    BuildContext context,
+    File file,
+    DataViewModel dataVM,
+  ) {
+    dataVM.importUserData(context, file);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: Consumer<DataViewModel>(
+            builder: (context, vm, child) {
+              if (vm.isImporting) {
+                return AlertDialog(
+                  title: const Text('Importation en cours'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Veuillez ne pas quitter l\'application pendant l\'importation.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+                      LinearProgressIndicator(value: vm.importProgress),
+                      const SizedBox(height: 10),
+                      Text(
+                        vm.importStatus,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (vm.error.isNotEmpty) {
+                return AlertDialog(
+                  title: const Text('Erreur d\'importation'),
+                  content: Text(vm.error),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      child: const Text('Fermer'),
+                    ),
+                  ],
+                );
+              }
+
+              return AlertDialog(
+                title: const Text('Importation réussie'),
+                content: const Text(
+                  'Les données ont été importées avec succès.\n\n'
+                  'Pour finaliser l\'opération et éviter tout problème d\'affichage, '
+                  'l\'application va se fermer. Veuillez la relancer manuellement.',
+                ),
+                actions: [
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    onPressed: () => exit(0), // Force quit l'app
+                    child: const Text('Quitter l\'application'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -311,7 +385,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => AlertDialog(
             title: const Text('Supprimer toutes les données'),
             content: const Text(
-              'Cette action supprimera toutes vos transactions et tous vos comptes. Cette action est irréversible.',
+              'Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.',
             ),
             actions: [
               TextButton(
@@ -322,9 +396,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop();
-                  dataVM.deleteAllUserData(context);
+                  await dataVM.deleteAllUserData(context);
                 },
                 child: const Text('Supprimer'),
               ),

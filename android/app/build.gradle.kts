@@ -48,6 +48,10 @@ android {
 
     flavorDimensions += "env"
     productFlavors {
+        create("debugFlavor") {
+            dimension = "env"
+            resValue("string", "app_name", "MyBudget Debug")
+        }
         create("prod") {
             dimension = "env"
             resValue("string", "app_name", "MyBudget")

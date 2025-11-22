@@ -26,17 +26,11 @@ class _ExpensesListState extends State<ExpensesList> {
   Widget build(BuildContext context) {
     return Consumer3<ExpenseViewModel, AccountViewModel, CategoryViewModel>(
       builder: (context, expenseVM, accountVM, categoryVM, child) {
-         
-         
-         
-
-         
         List<ExpenseModel> displayedExpenses = expenseVM.expenses;
 
         if (!_filterData.isEmpty) {
           displayedExpenses =
               displayedExpenses.where((expense) {
-                 
                 if (_filterData.startDate != null &&
                     expense.date.isBefore(_filterData.startDate!)) {
                   return false;
@@ -46,7 +40,6 @@ class _ExpensesListState extends State<ExpensesList> {
                   return false;
                 }
 
-                 
                 if (_filterData.minAmount != null &&
                     expense.amount < _filterData.minAmount!) {
                   return false;
@@ -56,13 +49,11 @@ class _ExpensesListState extends State<ExpensesList> {
                   return false;
                 }
 
-                 
                 if (_filterData.categoryIds.isNotEmpty &&
                     !_filterData.categoryIds.contains(expense.categoryId)) {
                   return false;
                 }
 
-                 
                 if (_filterData.accountIds.isNotEmpty &&
                     !_filterData.accountIds.contains(expense.accountId)) {
                   return false;
@@ -298,15 +289,7 @@ class _ExpensesListState extends State<ExpensesList> {
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () {
-               
-               
-               
-               
-               
-               
-               
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Ajouter une dépense'),
           ),

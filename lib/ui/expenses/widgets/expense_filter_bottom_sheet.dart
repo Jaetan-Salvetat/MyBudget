@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 
 class ExpenseFilterBottomSheet extends StatelessWidget {
@@ -25,9 +26,7 @@ class ExpenseFilterBottomSheet extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder:
           (context) => ExpenseFilterBottomSheet(
             initialFilterData: initialFilterData,
@@ -40,11 +39,8 @@ class ExpenseFilterBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     
-     
-     
-
-    return Padding(
+    return FrostedCard(
+      borderRadius: 20,
       padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -57,7 +53,7 @@ class ExpenseFilterBottomSheet extends StatelessWidget {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-           
+
           const Text(
             'Filtres non implémentés dans cette version de migration rapide.',
           ),
@@ -65,14 +61,14 @@ class ExpenseFilterBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              FrostedTextButton(
                 onPressed: () {
                   onClear();
                   Navigator.pop(context);
                 },
                 child: const Text('Effacer'),
               ),
-              TextButton(
+              FrostedTextButton(
                 onPressed: () {
                   onCancel();
                   Navigator.pop(context);
@@ -80,9 +76,8 @@ class ExpenseFilterBottomSheet extends StatelessWidget {
                 child: const Text('Annuler'),
               ),
               const SizedBox(width: 16),
-              FilledButton(
+              FrostedFilledButton(
                 onPressed: () {
-                   
                   onApply(initialFilterData);
                   Navigator.pop(context);
                 },

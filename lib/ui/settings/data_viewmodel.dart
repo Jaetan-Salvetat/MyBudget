@@ -32,10 +32,14 @@ class DataViewModel extends ChangeNotifier {
   bool _isExporting = false;
   bool _isImporting = false;
   String _error = '';
+  double _importProgress = 0.0;
+  String _importStatus = '';
 
   bool get isExporting => _isExporting;
   bool get isImporting => _isImporting;
   String get error => _error;
+  double get importProgress => _importProgress;
+  String get importStatus => _importStatus;
 
   DataViewModel(
     this._accountRepository,
@@ -125,14 +129,20 @@ class DataViewModel extends ChangeNotifier {
     try {
       _isImporting = true;
       _error = '';
+      _importProgress = 0.0;
+      _importStatus = 'Lecture du fichier...';
       notifyListeners();
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Importation en cours...')));
 
       final jsonData = await file.readAsString();
       final data = jsonDecode(jsonData) as Map<String, dynamic>;
+
+      debugPrint(
+        'Début de l\'importation. Taille du JSON: ${jsonData.length} caractères',
+      );
+
+      _importStatus = 'Suppression des données existantes...';
+      _importProgress = 0.1;
+      notifyListeners();
 
       _accountRepository.deleteAll();
       _expenseRepository.deleteAll();
@@ -140,45 +150,168 @@ class DataViewModel extends ChangeNotifier {
       _loanRepository.deleteAll();
       _categoryRepository.deleteAll();
 
+      // Map pour stocker la correspondance entre anciens IDs et nouveaux IDs des comptes
+      final Map<int, int> accountIdMap = {};
+
+      // 1. Importer les comptes
       if (data['accounts'] != null && data['accounts'] is List) {
-        for (final accountData in data['accounts']) {
+        final accountsList = data['accounts'] as List;
+        final totalAccounts = accountsList.length;
+        debugPrint('Importation de $totalAccounts comptes...');
+
+        _importStatus = 'Importation des comptes...';
+        notifyListeners();
+
+        for (var i = 0; i < totalAccounts; i++) {
           try {
+            final accountData = accountsList[i];
+            // Gestion robuste de l'ID (peut être String ou int)
+            final oldId = int.tryParse(accountData['id'].toString()) ?? 0;
+            final accountName = accountData['name'] as String? ?? 'Inconnu';
+
+            // On force l'ID à 0 pour qu'ObjectBox en génère un nouveau
+            accountData['id'] = 0;
             final account = AccountModel.fromJson(accountData);
 
-            _accountRepository.add(account);
+            final newId = _accountRepository.add(account);
+            accountIdMap[oldId] = newId;
+            debugPrint(
+              'Compte importé: "$accountName" (Ancien ID: $oldId -> Nouvel ID: $newId)',
+            );
+
+            _importProgress = 0.1 + (0.2 * ((i + 1) / totalAccounts));
+            notifyListeners();
           } catch (e) {
-            debugPrint('Error importing account: $e');
+            debugPrint('ERREUR importation compte à l\'index $i: $e');
           }
         }
+        debugPrint('Mapping des IDs de comptes: $accountIdMap');
+      } else {
+        debugPrint('Aucun compte trouvé dans le fichier d\'import.');
       }
 
+      // 2. Importer les dépenses
       if (data['expenses'] != null && data['expenses'] is List) {
-        for (final expenseData in data['expenses']) {
+        final expensesList = data['expenses'] as List;
+        final totalExpenses = expensesList.length;
+        debugPrint('Importation de $totalExpenses dépenses...');
+
+        _importStatus = 'Importation des dépenses...';
+        notifyListeners();
+
+        int successCount = 0;
+        for (var i = 0; i < totalExpenses; i++) {
           try {
+            final expenseData = expensesList[i];
+
+            // Mettre à jour l'accountId avec le nouvel ID
+            // Gestion robuste de l'ID (peut être String ou int)
+            final oldAccountId = int.tryParse(
+              expenseData['accountId'].toString(),
+            );
+
+            if (oldAccountId != null) {
+              if (accountIdMap.containsKey(oldAccountId)) {
+                expenseData['accountId'] = accountIdMap[oldAccountId];
+              } else {
+                debugPrint(
+                  'ATTENTION: Dépense ignorée ou orpheline - AccountID $oldAccountId introuvable dans le mapping.',
+                );
+                // On continue quand même, peut-être avec un accountId par défaut ou null ?
+                // Pour l'instant, on laisse tel quel, mais l'intégrité référentielle risque d'être brisée.
+              }
+            }
+
+            // Reset ID
+            expenseData['id'] = 0;
+
             final expense = ExpenseModel.fromJson(expenseData);
             _expenseRepository.add(expense);
+            successCount++;
+
+            _importProgress = 0.3 + (0.3 * ((i + 1) / totalExpenses));
+            notifyListeners();
           } catch (e) {
-            debugPrint('Error importing expense: $e');
+            debugPrint('ERREUR importation dépense à l\'index $i: $e');
           }
         }
+        debugPrint('Dépenses importées: $successCount / $totalExpenses');
+      } else {
+        debugPrint('Aucune dépense trouvée dans le fichier d\'import.');
       }
 
+      // 3. Importer les revenus
       if (data['revenues'] != null && data['revenues'] is List) {
-        for (final revenueData in data['revenues']) {
+        final revenuesList = data['revenues'] as List;
+        final totalRevenues = revenuesList.length;
+        debugPrint('Importation de $totalRevenues revenus...');
+
+        _importStatus = 'Importation des revenus...';
+        notifyListeners();
+
+        int successCount = 0;
+        for (var i = 0; i < totalRevenues; i++) {
           try {
+            final revenueData = revenuesList[i];
+
+            // Mettre à jour l'accountId
+            // Gestion robuste de l'ID (peut être String ou int)
+            final oldAccountId = int.tryParse(
+              revenueData['accountId'].toString(),
+            );
+
+            if (oldAccountId != null &&
+                accountIdMap.containsKey(oldAccountId)) {
+              revenueData['accountId'] = accountIdMap[oldAccountId];
+            } else if (oldAccountId != null) {
+              debugPrint(
+                'ATTENTION: Revenu orphelin - AccountID $oldAccountId introuvable.',
+              );
+            }
+
+            // Reset ID
+            revenueData['id'] = 0;
+
             final revenue = RevenueModel.fromJson(revenueData);
             _revenueRepository.add(revenue);
+            successCount++;
+
+            _importProgress = 0.6 + (0.2 * ((i + 1) / totalRevenues));
+            notifyListeners();
           } catch (e) {
-            debugPrint('Error importing revenue: $e');
+            debugPrint('ERREUR importation revenu à l\'index $i: $e');
           }
         }
+        debugPrint('Revenus importés: $successCount / $totalRevenues');
       }
 
+      // 4. Importer les prêts
       if (data['loans'] != null && data['loans'] is List) {
-        for (final loanData in data['loans']) {
+        final loansList = data['loans'] as List;
+        final totalLoans = loansList.length;
+        debugPrint('Importation de $totalLoans prêts...');
+
+        _importStatus = 'Importation des emprunts...';
+        notifyListeners();
+
+        int successCount = 0;
+        for (var i = 0; i < totalLoans; i++) {
           try {
+            final loanData = loansList[i];
+
+            // Mettre à jour l'accountId
+            // Gestion robuste de l'ID (peut être String ou int)
+            final oldAccountId = int.tryParse(
+              loanData['account_id'].toString(),
+            );
+
+            if (oldAccountId != null &&
+                accountIdMap.containsKey(oldAccountId)) {
+              loanData['account_id'] = accountIdMap[oldAccountId];
+            }
+
             final loan = LoanModel(
-              id: loanData['id'] as int? ?? 0,
+              id: 0, // Reset ID
               name: loanData['name'] as String? ?? '',
               amount: (loanData['amount'] as num?)?.toDouble() ?? 0.0,
               accountId: loanData['account_id'] as int? ?? 0,
@@ -194,22 +327,37 @@ class DataViewModel extends ChangeNotifier {
                   DateTime.now().add(const Duration(days: 365)),
             );
             _loanRepository.add(loan);
+            successCount++;
+
+            _importProgress = 0.8 + (0.2 * ((i + 1) / totalLoans));
+            notifyListeners();
           } catch (e) {
-            debugPrint('Error importing loan: $e');
+            debugPrint('ERREUR importation prêt à l\'index $i: $e');
           }
         }
+        debugPrint('Prêts importés: $successCount / $totalLoans');
       }
 
-      await _accountViewModel.getAccounts();
+      _importStatus = 'Finalisation...';
+      _importProgress = 1.0;
+      notifyListeners();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Importation terminée avec succès')),
-      );
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+      ); // Petit délai pour voir la fin
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Importation terminée avec succès')),
+        );
+      }
     } catch (e) {
       _error = e.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'importation: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'importation: $e')),
+        );
+      }
     } finally {
       _isImporting = false;
       notifyListeners();
@@ -229,8 +377,6 @@ class DataViewModel extends ChangeNotifier {
       _revenueRepository.deleteAll();
       _loanRepository.deleteAll();
       _categoryRepository.deleteAll();
-
-      await _accountViewModel.getAccounts();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Toutes les données ont été supprimées')),

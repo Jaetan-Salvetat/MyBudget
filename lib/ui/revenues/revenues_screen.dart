@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -31,10 +32,8 @@ class RevenuesScreen extends StatelessWidget {
           Positioned(
             right: 16,
             bottom: 16,
-            child: FloatingActionButton(
-              heroTag: fabTag,
+            child: FrostedFloatingActionButton(
               onPressed: () => _showAddRevenueBottomSheet(context),
-              tooltip: 'Ajouter un revenu',
               child: const Icon(Icons.add),
             ),
           ),
@@ -42,15 +41,13 @@ class RevenuesScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Revenus'), elevation: 0),
-      floatingActionButton: FloatingActionButton(
-        heroTag: fabTag,
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Revenus'),
+      floatingActionButton: FrostedFloatingActionButton(
         onPressed: () => _showAddRevenueBottomSheet(context),
-        tooltip: 'Ajouter un revenu',
         child: const Icon(Icons.add),
       ),
-      body: content,
+      child: content,
     );
   }
 
@@ -65,21 +62,19 @@ class RevenuesScreen extends StatelessWidget {
     );
 
     if (accountViewModel.accounts.isEmpty) {
-      showDialog(
+      FrostedDialog.show(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Aucun compte disponible'),
-              content: const Text(
-                'Vous devez d\'abord créer un compte avant d\'ajouter un revenu.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+        barrierDismissible: false,
+        title: const Text('Aucun compte disponible'),
+        content: const Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter un revenu.',
+        ),
+        actions: [
+          FrostedTextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       );
       return;
     }
