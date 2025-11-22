@@ -21,6 +21,20 @@ class ExpensesList extends StatefulWidget {
 
 class _ExpensesListState extends State<ExpensesList> {
   ExpenseFilterData _filterData = ExpenseFilterData();
+  bool _isSearchVisible = false;
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +45,14 @@ class _ExpensesListState extends State<ExpensesList> {
         if (!_filterData.isEmpty) {
           displayedExpenses =
               displayedExpenses.where((expense) {
+                if (_filterData.searchQuery != null &&
+                    _filterData.searchQuery!.isNotEmpty &&
+                    !expense.name.toLowerCase().contains(
+                      _filterData.searchQuery!.toLowerCase(),
+                    )) {
+                  return false;
+                }
+
                 if (_filterData.startDate != null &&
                     expense.date.isBefore(_filterData.startDate!)) {
                   return false;
@@ -275,26 +297,101 @@ class _ExpensesListState extends State<ExpensesList> {
   Widget _buildSectionHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Mes transactions',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.filter_list,
-              color:
-                  _filterData.isEmpty
-                      ? Theme.of(context).iconTheme.color
-                      : Theme.of(context).colorScheme.primary,
-            ),
-            onPressed: () => _showFilterBottomSheet(context),
-          ),
-        ],
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          // Determine direction based on the child key
+          // Title moves Left <-> Center
+          // Search moves Right <-> Center
+          final isSearch = child.key == const ValueKey('search');
+          final beginOffset =
+              isSearch ? const Offset(0.2, 0.0) : const Offset(-0.2, 0.0);
+
+          final offsetAnimation = Tween<Offset>(
+            begin: beginOffset,
+            end: Offset.zero,
+          ).animate(animation);
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: offsetAnimation, child: child),
+          );
+        },
+        child:
+            _isSearchVisible
+                ? SizedBox(
+                  key: const ValueKey('search'),
+                  height: 60, // Fixed height to prevent jumping
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FrostedTextField(
+                          controller: _searchController,
+                          hintText: 'Rechercher une dépense...',
+                          prefixIcon: const Icon(Icons.search),
+                          onChanged: (value) {
+                            setState(() {
+                              _filterData.searchQuery = value;
+                            });
+                          },
+                          autofocus: true,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          setState(() {
+                            _isSearchVisible = false;
+                            _searchController.clear();
+                            _filterData.searchQuery = '';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                )
+                : SizedBox(
+                  key: const ValueKey('title'),
+                  height: 60, // Matching height
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Mes transactions',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isSearchVisible = true;
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.filter_list,
+                              color:
+                                  _filterData.isEmpty
+                                      ? Theme.of(context).iconTheme.color
+                                      : Theme.of(context).colorScheme.primary,
+                            ),
+                            onPressed: () => _showFilterBottomSheet(context),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
       ),
     );
   }

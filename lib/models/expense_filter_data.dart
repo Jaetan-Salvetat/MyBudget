@@ -3,6 +3,7 @@ class ExpenseFilterData {
   DateTime? endDate;
   double? minAmount;
   double? maxAmount;
+  String? searchQuery;
   List<int> categoryIds;
   List<int> accountIds;
 
@@ -11,6 +12,7 @@ class ExpenseFilterData {
     this.endDate,
     this.minAmount,
     this.maxAmount,
+    this.searchQuery,
     this.categoryIds = const [],
     this.accountIds = const [],
   });
@@ -20,6 +22,7 @@ class ExpenseFilterData {
         endDate == null &&
         minAmount == null &&
         maxAmount == null &&
+        (searchQuery == null || searchQuery!.isEmpty) &&
         categoryIds.isEmpty &&
         accountIds.isEmpty;
   }
