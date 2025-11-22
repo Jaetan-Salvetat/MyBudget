@@ -8,94 +8,69 @@ class CategoriesBottomSheet extends StatelessWidget {
   const CategoriesBottomSheet({super.key});
 
   static void show({required BuildContext context}) {
-    showModalBottomSheet(
+    FrostedBottomSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => const CategoriesBottomSheet(),
+      title: 'Gérer les catégories',
+      child: const CategoriesBottomSheet(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.5,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return FrostedCard(
-          borderRadius: 20,
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Gérer les catégories',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              Expanded(
-                child: Consumer<CategoryViewModel>(
-                  builder: (context, categoryVM, child) {
-                    if (categoryVM.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Consumer<CategoryViewModel>(
+          builder: (context, categoryVM, child) {
+            if (categoryVM.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-                    return ListView.separated(
-                      controller: scrollController,
-                      itemCount: categoryVM.categories.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final category = categoryVM.categories[index];
-                        return FrostedListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Color(
-                              category.color,
-                            ).withAlpha(0x20),
-                            child: Icon(
-                              category.getIconData(),
-                              color: Color(category.color),
-                            ),
-                          ),
-                          title: Text(category.name),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed:
-                                () => _showDeleteConfirmation(
-                                  context,
-                                  categoryVM,
-                                  category,
-                                ),
-                          ),
-                          onTap:
-                              () => _showEditCategoryDialog(
-                                context,
-                                categoryVM,
-                                category,
-                              ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FilledButton.icon(
-                  onPressed: () => _showAddCategoryDialog(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Ajouter une catégorie'),
-                ),
-              ),
-            ],
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: categoryVM.categories.length,
+              separatorBuilder: (context, index) => const Divider(),
+              itemBuilder: (context, index) {
+                final category = categoryVM.categories[index];
+                return FrostedListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Color(category.color).withAlpha(0x20),
+                    child: Icon(
+                      category.getIconData(),
+                      color: Color(category.color),
+                    ),
+                  ),
+                  title: Text(category.name),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed:
+                        () => _showDeleteConfirmation(
+                          context,
+                          categoryVM,
+                          category,
+                        ),
+                  ),
+                  onTap:
+                      () => _showEditCategoryDialog(
+                        context,
+                        categoryVM,
+                        category,
+                      ),
+                );
+              },
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FrostedFilledButton.icon(
+            onPressed: () => _showAddCategoryDialog(context),
+            icon: const Icon(Icons.add),
+            label: const Text('Ajouter une catégorie'),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -103,37 +78,31 @@ class CategoriesBottomSheet extends StatelessWidget {
     final categoryVM = Provider.of<CategoryViewModel>(context, listen: false);
     final nameController = TextEditingController();
 
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Nouvelle catégorie'),
-            content: TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nom'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (nameController.text.isNotEmpty) {
-                    categoryVM.addCategory(
-                      CategoryModel.create(
-                        name: nameController.text,
-                        icon: Icons.category.codePoint.toString(),
-                        color: Colors.blue.value,
-                      ),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Ajouter'),
-              ),
-            ],
-          ),
+      title: const Text('Nouvelle catégorie'),
+      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
+      actions: [
+        FrostedTonalButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () {
+            if (nameController.text.isNotEmpty) {
+              categoryVM.addCategory(
+                CategoryModel.create(
+                  name: nameController.text,
+                  icon: Icons.category.codePoint.toString(),
+                  color: Colors.blue.value,
+                ),
+              );
+              Navigator.pop(context);
+            }
+          },
+          child: const Text('Ajouter'),
+        ),
+      ],
     );
   }
 
@@ -144,33 +113,25 @@ class CategoriesBottomSheet extends StatelessWidget {
   ) {
     final nameController = TextEditingController(text: category.name);
 
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Modifier la catégorie'),
-            content: TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nom'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (nameController.text.isNotEmpty) {
-                    vm.updateCategory(
-                      category.copyWith(name: nameController.text),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Enregistrer'),
-              ),
-            ],
-          ),
+      title: const Text('Modifier la catégorie'),
+      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
+      actions: [
+        FrostedTonalButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () {
+            if (nameController.text.isNotEmpty) {
+              vm.updateCategory(category.copyWith(name: nameController.text));
+              Navigator.pop(context);
+            }
+          },
+          child: const Text('Enregistrer'),
+        ),
+      ],
     );
   }
 
@@ -179,29 +140,25 @@ class CategoriesBottomSheet extends StatelessWidget {
     CategoryViewModel vm,
     CategoryModel category,
   ) {
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Supprimer la catégorie'),
-            content: Text(
-              'Voulez-vous vraiment supprimer la catégorie "${category.name}" ?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                onPressed: () {
-                  vm.deleteCategory(category.id);
-                  Navigator.pop(context);
-                },
-                child: const Text('Supprimer'),
-              ),
-            ],
-          ),
+      title: const Text('Supprimer la catégorie'),
+      content: Text(
+        'Voulez-vous vraiment supprimer la catégorie "${category.name}" ?',
+      ),
+      actions: [
+        FrostedTonalButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () {
+            vm.deleteCategory(category.id);
+            Navigator.pop(context);
+          },
+          child: const Text('Supprimer'),
+        ),
+      ],
     );
   }
 }

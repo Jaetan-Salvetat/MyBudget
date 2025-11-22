@@ -268,31 +268,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     File file,
     DataViewModel dataVM,
   ) {
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Importer des données'),
-            content: const Text(
-              'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Ferme la confirmation
-                  _showImportProgressDialog(context, file, dataVM);
-                },
-                child: const Text('Importer'),
-              ),
-            ],
-          ),
+      title: const Text('Importer des données'),
+      content: const Text(
+        'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
+      ),
+      actions: [
+        FrostedTonalButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Ferme la confirmation
+            _showImportProgressDialog(context, file, dataVM);
+          },
+          child: const Text('Importer'),
+        ),
+      ],
     );
   }
 
@@ -312,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Consumer<DataViewModel>(
             builder: (context, vm, child) {
               if (vm.isImporting) {
-                return AlertDialog(
+                return FrostedDialog(
                   title: const Text('Importation en cours'),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -336,11 +330,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
 
               if (vm.error.isNotEmpty) {
-                return AlertDialog(
+                return FrostedDialog(
                   title: const Text('Erreur d\'importation'),
                   content: Text(vm.error),
                   actions: [
-                    TextButton(
+                    FrostedTonalButton(
                       onPressed: () => Navigator.of(dialogContext).pop(),
                       child: const Text('Fermer'),
                     ),
@@ -348,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               }
 
-              return AlertDialog(
+              return FrostedDialog(
                 title: const Text('Importation réussie'),
                 content: const Text(
                   'Les données ont été importées avec succès.\n\n'
@@ -356,10 +350,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'l\'application va se fermer. Veuillez la relancer manuellement.',
                 ),
                 actions: [
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
+                  FrostedFilledButton(
                     onPressed: () => exit(0), // Force quit l'app
                     child: const Text('Quitter l\'application'),
                   ),
@@ -376,31 +367,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     DataViewModel dataVM,
   ) async {
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Supprimer toutes les données'),
-            content: const Text(
-              'Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await dataVM.deleteAllUserData(context);
-                },
-                child: const Text('Supprimer'),
-              ),
-            ],
-          ),
+      title: const Text('Supprimer toutes les données'),
+      content: const Text(
+        'Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.',
+      ),
+      actions: [
+        FrostedTonalButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () async {
+            Navigator.of(context).pop();
+            await dataVM.deleteAllUserData(context);
+          },
+          child: const Text('Supprimer'),
+        ),
+      ],
     );
   }
 }

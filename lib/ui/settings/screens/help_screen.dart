@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Aide et Guide')),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
+    return FrostedScaffold(
+      appBar: const FrostedAppBar(title: 'Aide et Guide'),
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 120, 16, 16),
         children: [
           _buildSection(
             context,
@@ -62,13 +64,8 @@ class HelpScreen extends StatelessWidget {
     String content,
     IconData icon,
   ) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerLowest,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
+    return FrostedCard(
+      borderRadius: 16,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
