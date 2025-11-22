@@ -122,47 +122,43 @@ class ExpenseCard extends StatelessWidget {
               ),
             ],
           ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'edit') {
-                onEdit();
-              } else if (value == 'delete') {
-                _showDeleteConfirmation(context);
-              }
+          FrostedIconButton(
+            icon: Icons.more_vert,
+            onPressed: () => _showOptionsBottomSheet(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOptionsBottomSheet(BuildContext context) {
+    FrostedBottomSheet.show(
+      context: context,
+      title: 'Actions',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FrostedListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Modifier'),
+            onTap: () {
+              Navigator.pop(context);
+              onEdit();
             },
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, size: 20),
-                        SizedBox(width: 8),
-                        Text('Modifier'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete,
-                          color: Theme.of(context).colorScheme.error,
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Supprimer',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          ),
+          FrostedListTile(
+            leading: Icon(
+              Icons.delete,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              'Supprimer',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              _showDeleteConfirmation(context);
+            },
           ),
         ],
       ),

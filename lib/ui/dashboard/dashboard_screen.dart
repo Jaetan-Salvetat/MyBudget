@@ -46,7 +46,7 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 100),
+              const SizedBox(height: 56),
 
               BalanceCard(
                 balance: netCashFlow,
@@ -87,7 +87,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 100),
+              const SizedBox(height: 56),
             ],
           ),
         );

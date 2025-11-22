@@ -21,21 +21,14 @@ class AccountBottomSheet extends StatefulWidget {
     required Function(String name, String bank) onSubmit,
     required VoidCallback onCancel,
   }) {
-    showModalBottomSheet(
+    FrostedBottomSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (context) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: AccountBottomSheet(
-              account: account,
-              onSubmit: onSubmit,
-              onCancel: onCancel,
-            ),
-          ),
+      title: account == null ? 'Ajouter un compte' : 'Modifier le compte',
+      child: AccountBottomSheet(
+        account: account,
+        onSubmit: onSubmit,
+        onCancel: onCancel,
+      ),
     );
   }
 
@@ -87,130 +80,129 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return FrostedCard(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.account == null ? 'Ajouter un compte' : 'Modifier le compte',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          FrostedTextField(
-            controller: _nameController,
-            labelText: 'Nom du compte',
-            hintText: 'Ex: Compte Courant',
-            prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
-            autofocus: widget.account == null,
-          ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return Autocomplete<String>(
-                initialValue: TextEditingValue(text: _bankController.text),
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text == '') {
-                    return BanksList.frenchBanks.take(5);
-                  }
-                  return BanksList.frenchBanks.where((String option) {
-                    return option.toLowerCase().contains(
-                      textEditingValue.text.toLowerCase(),
-                    );
-                  });
-                },
-                onSelected: (String selection) {
-                  _bankController.text = selection;
-                  _validateForm();
-                },
-                fieldViewBuilder: (
-                  BuildContext context,
-                  TextEditingController textEditingController,
-                  FocusNode focusNode,
-                  VoidCallback onFieldSubmitted,
-                ) {
-                  return TextField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    onChanged: (value) {
-                      _bankController.text = value;
-                      _validateForm();
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Nom de la banque',
-                      hintText: 'Ex: Crédit Agricole',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.account_balance_outlined),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.arrow_drop_down),
-                        onPressed: () {},
-                      ),
-                    ),
-                    textCapitalization: TextCapitalization.sentences,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FrostedTextField(
+          controller: _nameController,
+          labelText: 'Nom du compte',
+          hintText: 'Ex: Compte Courant',
+          prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
+          autofocus: widget.account == null,
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Autocomplete<String>(
+              initialValue: TextEditingValue(text: _bankController.text),
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text == '') {
+                  return BanksList.frenchBanks.take(5);
+                }
+                return BanksList.frenchBanks.where((String option) {
+                  return option.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
                   );
-                },
-                optionsViewBuilder: (
-                  BuildContext context,
-                  AutocompleteOnSelected<String> onSelected,
-                  Iterable<String> options,
-                ) {
-                  return Align(
-                    alignment: Alignment.topLeft,
+                });
+              },
+              onSelected: (String selection) {
+                _bankController.text = selection;
+                _validateForm();
+              },
+              fieldViewBuilder: (
+                BuildContext context,
+                TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted,
+              ) {
+                return FrostedTextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  onChanged: (value) {
+                    _bankController.text = value;
+                    _validateForm();
+                  },
+                  labelText: 'Nom de la banque',
+                  hintText: 'Ex: Crédit Agricole',
+                  prefixIcon: const Icon(Icons.account_balance_outlined),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.arrow_drop_down),
+                    onPressed: () {
+                      // Trigger autocomplete?
+                      // Autocomplete doesn't expose a way to manually trigger open easily without a key or hack.
+                      // For now, we keep the icon for visual consistency.
+                    },
+                  ),
+                );
+              },
+              optionsViewBuilder: (
+                BuildContext context,
+                AutocompleteOnSelected<String> onSelected,
+                Iterable<String> options,
+              ) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: Material(
-                      elevation: 4.0,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: constraints.maxWidth,
-                        constraints: const BoxConstraints(maxHeight: 200),
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: options.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final String option = options.elementAt(index);
-                            return InkWell(
-                              onTap: () {
-                                onSelected(option);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(option),
-                              ),
-                            );
-                          },
+                      color: Colors.transparent,
+                      child: FrostedCard(
+                        borderRadius: 12,
+                        padding: EdgeInsets.zero,
+                        child: SizedBox(
+                          width: constraints.maxWidth,
+                          height: 200,
+                          child: ListView.separated(
+                            padding: EdgeInsets.zero,
+                            itemCount: options.length,
+                            separatorBuilder:
+                                (context, index) => FrostedDivider(
+                                  height: 1,
+                                  color: Theme.of(
+                                    context,
+                                  ).dividerColor.withValues(alpha: 0.1),
+                                ),
+                            itemBuilder: (BuildContext context, int index) {
+                              final String option = options.elementAt(index);
+                              return FrostedListTile(
+                                onTap: () => onSelected(option),
+                                title: Text(option),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  );
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FrostedTextButton(
-                onPressed: () {
-                  widget.onCancel();
-                  Navigator.pop(context);
-                },
-                child: const Text('Annuler'),
-              ),
-              const SizedBox(width: 16),
-              FrostedFilledButton(
-                onPressed: _isFormValid ? _handleSubmit : null,
-                child: Text(widget.account == null ? 'Ajouter' : 'Enregistrer'),
-              ),
-            ],
-          ),
-        ],
-      ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FrostedTextButton(
+              onPressed: () {
+                widget.onCancel();
+                Navigator.pop(context);
+              },
+              child: const Text('Annuler'),
+            ),
+            const SizedBox(width: 16),
+            FrostedFilledButton(
+              onPressed: _isFormValid ? _handleSubmit : null,
+              child: Text(widget.account == null ? 'Ajouter' : 'Enregistrer'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -15,7 +15,7 @@ class AccountList extends StatelessWidget {
     return Consumer<AccountViewModel>(
       builder: (context, accountViewModel, child) {
         if (accountViewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: FrostedCircularProgressIndicator());
         }
 
         if (accountViewModel.accounts.isEmpty) {
@@ -46,7 +46,12 @@ class AccountList extends StatelessWidget {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            top: 120,
+            bottom: 145,
+            left: 16,
+            right: 16,
+          ),
           itemCount: accountViewModel.accounts.length,
           itemBuilder: (context, index) {
             final account = accountViewModel.accounts[index];
@@ -106,76 +111,68 @@ class AccountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    final balanceColor =
+        balance >= 0
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.error;
 
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 16),
-      borderRadius: 16,
-      padding: const EdgeInsets.all(16),
+      borderRadius: 20,
+      padding: const EdgeInsets.all(24),
       onClick: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: Bank Name & Icon
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      account.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      account.bank,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+              Text(
+                account.bank.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.account_balance,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+              Icon(
+                Icons.contactless,
+                size: 20,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Solde actuel',
-                style: Theme.of(context).textTheme.bodyMedium,
+          const SizedBox(height: 24),
+
+          // Body: Account Name
+          Text(
+            account.name,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+
+          const SizedBox(height: 32),
+
+          // Footer: Balance
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              currencyFormat.format(balance),
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: balanceColor,
+                letterSpacing: -0.5,
               ),
-              Text(
-                currencyFormat.format(balance),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color:
-                      balance >= 0
-                          ? Colors.green.shade700
-                          : Theme.of(context).colorScheme.error,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

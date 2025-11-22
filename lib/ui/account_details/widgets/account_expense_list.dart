@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
 
@@ -22,14 +23,22 @@ class AccountExpenseList extends StatelessWidget {
     }
 
     return ListView.separated(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: expenses.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
+      separatorBuilder:
+          (context, index) => FrostedDivider(
+            height: 1,
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+          ),
       itemBuilder: (context, index) {
         final expense = expenses[index];
         return ListTile(
-          contentPadding: EdgeInsets.zero,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 8,
+          ),
           leading: CircleAvatar(
             backgroundColor: Theme.of(
               context,

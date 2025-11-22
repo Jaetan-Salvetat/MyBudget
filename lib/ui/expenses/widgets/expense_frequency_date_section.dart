@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
 class ExpenseFrequencyDateSection extends StatefulWidget {
@@ -41,12 +42,11 @@ class _ExpenseFrequencyDateSectionState
                 final isSelected = widget.frequency == freq;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(freq),
+                  child: _FrostedChoiceChip(
+                    label: freq,
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                         
                         widget.onChanged(freq, widget.date);
                       }
                     },
@@ -57,13 +57,37 @@ class _ExpenseFrequencyDateSectionState
         const SizedBox(height: 16),
         InkWell(
           onTap: () => _selectDate(context),
-          child: InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Date',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.calendar_today),
+          borderRadius: BorderRadius.circular(12),
+          child: FrostedCard(
+            borderRadius: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Date',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatDate(widget.date),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            child: Text(_formatDate(widget.date)),
           ),
         ),
       ],
@@ -74,7 +98,6 @@ class _ExpenseFrequencyDateSectionState
     if (widget.frequency == 'Mensuel') {
       return 'Le ${date.day} du mois';
     } else {
-       
       return DateFormat('d MMMM', 'fr_FR').format(date);
     }
   }
@@ -88,68 +111,44 @@ class _ExpenseFrequencyDateSectionState
   }
 
   Future<void> _selectDayOnly(BuildContext context) async {
-    await showDialog(
+    await FrostedDialog.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Choisir le jour du mois'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 300,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-              ),
-              itemCount: 31,
-              itemBuilder: (context, index) {
-                final day = index + 1;
-                final isSelected = widget.date.day == day;
-                return InkWell(
-                  onTap: () {
-                    final newDate = DateTime(
-                      widget.date.year,
-                      widget.date.month,
-                      day,
-                    );
-                    widget.onChanged(widget.frequency, newDate);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '$day',
-                      style: TextStyle(
-                        color:
-                            isSelected
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+      title: const Text('Choisir le jour du mois'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 300,
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler'),
-            ),
-          ],
-        );
-      },
+          itemCount: 31,
+          itemBuilder: (context, index) {
+            final day = index + 1;
+            final isSelected = widget.date.day == day;
+            return _DateSelectionItem(
+              label: '$day',
+              isSelected: isSelected,
+              onTap: () {
+                final newDate = DateTime(
+                  widget.date.year,
+                  widget.date.month,
+                  day,
+                );
+                widget.onChanged(widget.frequency, newDate);
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+      ],
     );
   }
 
@@ -157,167 +156,204 @@ class _ExpenseFrequencyDateSectionState
     int tempMonth = widget.date.month;
     int tempDay = widget.date.day;
 
-    await showDialog(
+    await FrostedDialog.show(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            final daysInMonth = DateTime(2024, tempMonth + 1, 0).day;
-            if (tempDay > daysInMonth) tempDay = daysInMonth;
+      title: const Text('Choisir la date'),
+      content: StatefulBuilder(
+        builder: (context, setStateDialog) {
+          final daysInMonth = DateTime(2024, tempMonth + 1, 0).day;
+          if (tempDay > daysInMonth) tempDay = daysInMonth;
 
-            return AlertDialog(
-              title: const Text('Choisir la date'),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Mois',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 8,
-                              crossAxisSpacing: 8,
-                              childAspectRatio: 2.5,
-                            ),
-                        itemCount: 12,
-                        itemBuilder: (context, index) {
-                          final month = index + 1;
-                          final isSelected = tempMonth == month;
-                          final monthName = DateFormat(
-                            'MMM',
-                            'fr_FR',
-                          ).format(DateTime(2024, month));
-                          final label = monthName.replaceFirst(
-                            monthName[0],
-                            monthName[0].toUpperCase(),
-                          );
-
-                          return InkWell(
-                            onTap: () {
-                              setStateDialog(() {
-                                tempMonth = month;
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                label,
-                                style: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimary
-                                          : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Jour',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 7,
-                              mainAxisSpacing: 8,
-                              crossAxisSpacing: 8,
-                            ),
-                        itemCount: daysInMonth,
-                        itemBuilder: (context, index) {
-                          final day = index + 1;
-                          final isSelected = tempDay == day;
-                          return InkWell(
-                            onTap: () {
-                              setStateDialog(() {
-                                tempDay = day;
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '$day',
-                                style: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimary
-                                          : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+          return SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Mois',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: 2.5,
+                        ),
+                    itemCount: 12,
+                    itemBuilder: (context, index) {
+                      final month = index + 1;
+                      final isSelected = tempMonth == month;
+                      final monthName = DateFormat(
+                        'MMM',
+                        'fr_FR',
+                      ).format(DateTime(2024, month));
+                      final label = monthName.replaceFirst(
+                        monthName[0],
+                        monthName[0].toUpperCase(),
+                      );
+
+                      return _DateSelectionItem(
+                        label: label,
+                        isSelected: isSelected,
+                        onTap: () {
+                          setStateDialog(() {
+                            tempMonth = month;
+                          });
+                        },
+                        fontSize: 12,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Jour',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 7,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                        ),
+                    itemCount: daysInMonth,
+                    itemBuilder: (context, index) {
+                      final day = index + 1;
+                      final isSelected = tempDay == day;
+                      return _DateSelectionItem(
+                        label: '$day',
+                        isSelected: isSelected,
+                        onTap: () {
+                          setStateDialog(() {
+                            tempDay = day;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Annuler'),
-                ),
-                FilledButton(
-                  onPressed: () {
-                    final newDate = DateTime(
-                      widget.date.year,
-                      tempMonth,
-                      tempDay,
-                    );
-                    widget.onChanged(widget.frequency, newDate);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Valider'),
-                ),
-              ],
-            );
+            ),
+          );
+        },
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FrostedFilledButton(
+          onPressed: () {
+            final newDate = DateTime(widget.date.year, tempMonth, tempDay);
+            widget.onChanged(widget.frequency, newDate);
+            Navigator.pop(context);
           },
-        );
-      },
+          child: const Text('Valider'),
+        ),
+      ],
+    );
+  }
+}
+
+class _FrostedChoiceChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Function(bool) onSelected;
+
+  const _FrostedChoiceChip({
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: () => onSelected(!selected),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color:
+              selected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color:
+                selected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color:
+                selected
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DateSelectionItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final double fontSize;
+
+  const _DateSelectionItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.fontSize = 14,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+            fontSize: fontSize,
+          ),
+        ),
+      ),
     );
   }
 }

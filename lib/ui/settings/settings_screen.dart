@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,14 +14,7 @@ import 'package:mybudget/ui/settings/widgets/expense_calculation_bottom_sheet.da
 import 'package:mybudget/ui/settings/screens/help_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final bool isNested;
-  final String fabTag;
-
-  const SettingsScreen({
-    this.isNested = false,
-    this.fabTag = 'settings_fab',
-    super.key,
-  });
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -49,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settingsVM = Provider.of<SettingsViewModel>(context);
     final dataVM = Provider.of<DataViewModel>(context);
 
-    final content = ListView(
+    return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
       children: [
@@ -148,15 +140,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ],
-    );
-
-    if (widget.isNested) {
-      return content;
-    }
-
-    return FrostedScaffold(
-      appBar: const FrostedAppBar(title: 'Paramètres'),
-      child: content,
     );
   }
 

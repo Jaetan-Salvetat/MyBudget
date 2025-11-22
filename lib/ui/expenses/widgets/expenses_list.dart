@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
@@ -10,7 +11,6 @@ import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_card.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
-import 'package:mybudget/ui/expenses/widgets/financial_summary_card.dart';
 
 class ExpensesList extends StatefulWidget {
   const ExpensesList({super.key});
@@ -69,58 +69,52 @@ class _ExpensesListState extends State<ExpensesList> {
 
         final isEmpty = displayedExpenses.isEmpty && _filterData.isEmpty;
 
-        return Column(
-          children: [
-            _buildHeaderContainer(
-              context,
-              displayedExpenses,
-              expenseVM,
-              isEmpty,
-            ),
-            Expanded(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(
-                  top: 16,
-                  bottom: 100,
-                  left: 16,
-                  right: 16,
-                ),
-                itemCount: displayedExpenses.length,
-                itemBuilder: (context, index) {
-                  final expense = displayedExpenses[index];
-                  final account = accountVM.accounts.firstWhere(
-                    (a) => a.id == expense.accountId,
-                    orElse:
-                        () => AccountModel.create(
-                          name: 'Compte inconnu',
-                          bank: '',
-                        ),
-                  );
+        return ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(
+            top: 120, // Added top padding for visual spacing
+            bottom: 145,
+            left: 16,
+            right: 16,
+          ),
+          itemCount: displayedExpenses.length + 1, // +1 for header
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return _buildHeaderContainer(
+                context,
+                displayedExpenses,
+                expenseVM,
+                isEmpty,
+              );
+            }
 
-                  return ExpenseCard(
-                    expense: expense,
-                    accountName: account.name,
-                    onDelete: () {
-                      expenseVM.deleteExpense(expense.id);
-                    },
-                    onEdit: () {
-                      ExpenseBottomSheet.show(
-                        context: context,
-                        accounts: accountVM.accounts,
-                        categories: categoryVM.categories,
-                        expense: expense,
-                        onSubmit: (updatedExpense) {
-                          expenseVM.updateExpense(updatedExpense);
-                        },
-                        onCancel: () {},
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+            final expense = displayedExpenses[index - 1];
+            final account = accountVM.accounts.firstWhere(
+              (a) => a.id == expense.accountId,
+              orElse:
+                  () => AccountModel.create(name: 'Compte inconnu', bank: ''),
+            );
+
+            return ExpenseCard(
+              expense: expense,
+              accountName: account.name,
+              onDelete: () {
+                expenseVM.deleteExpense(expense.id);
+              },
+              onEdit: () {
+                ExpenseBottomSheet.show(
+                  context: context,
+                  accounts: accountVM.accounts,
+                  categories: categoryVM.categories,
+                  expense: expense,
+                  onSubmit: (updatedExpense) {
+                    expenseVM.updateExpense(updatedExpense);
+                  },
+                  onCancel: () {},
+                );
+              },
+            );
+          },
         );
       },
     );
@@ -138,54 +132,98 @@ class _ExpensesListState extends State<ExpensesList> {
 
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 15, bottom: 5),
-            child: FinancialSummaryCard(
-              title: 'Dépenses',
-              titleIcon: Icons.money_off,
-              primaryColor: errorColor,
-              amount: totalExpenses,
-              trendIcon: Icons.trending_down,
-              itemCount: displayedExpenses.length,
-              formatter: formatter,
-              childContent: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatBox(
-                        context: context,
-                        title: 'Mensuel',
-                        amount: totalExpenses,
-                        icon: Icons.arrow_downward,
-                        color: errorColor,
-                        formatter: formatter,
-                      ),
+    return Column(
+      children: [
+        FrostedCard(
+          margin: const EdgeInsets.only(bottom: 24),
+          borderRadius: 20,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Dépenses',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildStatBox(
-                        context: context,
-                        title: 'Annuel',
-                        amount: annualExpenses,
-                        icon: Icons.date_range,
-                        color: errorColor,
-                        formatter: formatter,
-                      ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
                     ),
-                  ],
+                    decoration: BoxDecoration(
+                      color: errorColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.trending_down, color: errorColor, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${displayedExpenses.length} trans.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: errorColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  formatter.format(totalExpenses),
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: errorColor,
+                    letterSpacing: -1.0,
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatBox(
+                      context: context,
+                      title: 'Mensuel',
+                      amount: totalExpenses,
+                      icon: Icons.calendar_view_month,
+                      color: errorColor,
+                      formatter: formatter,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildStatBox(
+                      context: context,
+                      title: 'Annuel',
+                      amount: annualExpenses,
+                      icon: Icons.calendar_today,
+                      color: errorColor,
+                      formatter: formatter,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          _buildSectionHeader(context),
-          if (isEmpty) _buildEmptyState(context),
-        ],
-      ),
+        ),
+        _buildSectionHeader(context),
+        if (isEmpty) _buildEmptyState(context),
+      ],
     );
   }
 
@@ -224,7 +262,7 @@ class _ExpensesListState extends State<ExpensesList> {
           Text(
             formatter.format(amount),
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: color,
             ),

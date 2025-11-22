@@ -22,14 +22,22 @@ class AccountRevenueList extends StatelessWidget {
     }
 
     return ListView.separated(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: revenues.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
+      separatorBuilder:
+          (context, index) => Divider(
+            height: 1,
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+          ),
       itemBuilder: (context, index) {
         final revenue = revenues[index];
         return ListTile(
-          contentPadding: EdgeInsets.zero,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 4,
+            horizontal: 8,
+          ),
           leading: CircleAvatar(
             backgroundColor: Theme.of(
               context,
