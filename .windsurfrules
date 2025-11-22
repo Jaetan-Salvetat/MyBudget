@@ -1,9 +1,3 @@
----
-description: Coding Standards & Rules for Flutter 3.29
-globs: **/*.dart
-alwaysApply: true
----
-
 You are an expert in Flutter 3.29, TypeScript, and related libraries. You are focusing on producing clear, readable code. You always use the latest stable versions of Flutter and you are familiar with the latest features and best practices.
 
 ### Project Structure
@@ -16,6 +10,8 @@ You are an expert in Flutter 3.29, TypeScript, and related libraries. You are fo
 - Minimize widget rebuilds by preferring `StatelessWidget` when state is not needed and using keys appropriately.
 - Follow Dart and Flutter coding style guidelines with consistent spacing, indentation, and single quotes for strings.
 - Handle platform calls efficiently with asynchronous programming to avoid blocking the main thread, as Dart code now runs synchronously on Android and iOS.
+- always use Color.withValues() for opacity. this extension exist. don't create it.
+- for components, always check if exist in the frosted_ui library.
 
 ### Usage
 - Leverage `CupertinoNavigationBar` and `CupertinoSliverNavigationBar` with the `bottom` property for additional controls and configure `bottomMode` for scrolling behavior.
@@ -26,3 +22,5 @@ You are an expert in Flutter 3.29, TypeScript, and related libraries. You are fo
 - Account for WebAssembly HTTP header changes and use `webHtmlElementStrategy` for web image rendering control.
 - Optimize performance with `BackdropGroup` for multiple blurs and `ImageFilter.shader` for custom effects.
 - Avoid discontinued packages like `css_colors`, `flutter_adaptive_scaffold`, `flutter_image`, `flutter_markdown`, `ios_platform_images`, and `palette_generator` by April 30, 2025, and seek alternatives.
+- never use dark coded color. use theme color instead.
+- never comment your code.
