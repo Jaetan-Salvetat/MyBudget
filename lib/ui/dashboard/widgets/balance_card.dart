@@ -40,59 +40,35 @@ class BalanceCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                ],
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
+          Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: balanceColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        color: balanceColor,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Text(
                       'Solde total',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
                         color: Theme.of(
                           context,
-                        ).colorScheme.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: (savingsRate > 20
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error)
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -105,13 +81,13 @@ class BalanceCard extends StatelessWidget {
                                 savingsRate > 20
                                     ? Theme.of(context).colorScheme.primary
                                     : Theme.of(context).colorScheme.error,
-                            size: 16,
+                            size: 14,
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           Text(
                             '${savingsRate.toStringAsFixed(1)}%',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color:
                                   savingsRate > 20
@@ -124,14 +100,16 @@ class BalanceCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  formatter.format(balance),
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: balanceColor,
-                    letterSpacing: -0.5,
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    formatter.format(balance),
+                    style: TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: balanceColor,
+                      letterSpacing: -1.0,
+                    ),
                   ),
                 ),
               ],

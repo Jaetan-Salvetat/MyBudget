@@ -81,38 +81,7 @@ class ExpenseViewModel extends ChangeNotifier {
   }
 
   double getMonthlyExpenses(AnnualExpenseCalculationMode calculationMode) {
-    if (_expenses.isEmpty) return 0.0;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    double total = 0.0;
-
-    for (var expense in _expenses) {
-      final isCurrentMonth =
-          expense.date.isAtSameMomentAs(startOfMonth) ||
-          expense.date.isAtSameMomentAs(endOfMonth) ||
-          (expense.date.isAfter(startOfMonth) &&
-              expense.date.isBefore(endOfMonth));
-
-      if (expense.frequencyEnum == Frequency.monthly && isCurrentMonth) {
-        total += expense.amount;
-      } else if (expense.frequencyEnum == Frequency.annual) {
-        switch (calculationMode) {
-          case AnnualExpenseCalculationMode.monthlyAmortized:
-            total += expense.amount / 12;
-            break;
-          case AnnualExpenseCalculationMode.dateBasedOnly:
-            if (isCurrentMonth) {
-              total += expense.amount;
-            }
-            break;
-        }
-      }
-    }
-
-    return total;
+    return getTotalExpenses(_expenses, calculationMode);
   }
 
   List<ExpenseModel> getUpcomingExpenses() {
