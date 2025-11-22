@@ -50,8 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return 'Revenus';
       case 4:
         return 'Emprunts';
-      case 5:
-        return 'Paramètres';
       default:
         return 'MyBudget';
     }
@@ -71,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
       Icons.account_balance_wallet_outlined,
       Icons.account_balance_wallet,
     ),
-    const _NavItem('Paramètres', Icons.settings_outlined, Icons.settings),
   ];
 
   final List<Widget> _screens = [
@@ -80,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const ExpensesScreen(),
     const RevenuesScreen(),
     const LoansScreen(),
-    const SettingsScreen(),
   ];
 
   void _updateTitle() {
@@ -92,7 +88,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
-      appBar: FrostedAppBar(title: _currentTitle),
+      appBar: FrostedAppBar(
+        title: _currentTitle,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                ),
+          ),
+        ],
+      ),
       floatingActionButton: _buildFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: FrostedBottomNavigationBar(

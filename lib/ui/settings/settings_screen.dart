@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
@@ -41,105 +42,118 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settingsVM = Provider.of<SettingsViewModel>(context);
     final dataVM = Provider.of<DataViewModel>(context);
 
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(top: 130, bottom: 16, left: 16, right: 16),
-      children: [
-        SettingsSection(
-          title: 'Apparence',
-          children: [
-            SettingsTile(
-              title: 'Thème',
-              subtitle: _getThemeNameFromMode(settingsVM.themeMode),
-              leading: const Icon(Icons.brightness_6),
-              onTap: () {
-                _showThemeSelectionDialog(context, settingsVM.themeMode);
-              },
-            ),
-          ],
+    return FrostedScaffold(
+      appBar: FrostedAppBar(
+        title: 'Paramètres',
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(
+          top: 130,
+          bottom: 16,
+          left: 16,
+          right: 16,
         ),
-        SettingsSection(
-          title: 'Calculs financiers',
-          children: [
-            SettingsTile(
-              title: 'Calcul des dépenses annuelles',
-              subtitle: _getAnnualExpenseCalculationModeName(
-                settingsVM.annualExpenseCalculationMode,
+        children: [
+          SettingsSection(
+            title: 'Apparence',
+            children: [
+              SettingsTile(
+                title: 'Thème',
+                subtitle: _getThemeNameFromMode(settingsVM.themeMode),
+                leading: const Icon(Icons.brightness_6),
+                onTap: () {
+                  _showThemeSelectionDialog(context, settingsVM.themeMode);
+                },
               ),
-              leading: const Icon(Icons.calculate),
-              onTap: () {
-                _showExpenseCalculationModeDialog(
-                  context,
+            ],
+          ),
+          SettingsSection(
+            title: 'Calculs financiers',
+            children: [
+              SettingsTile(
+                title: 'Calcul des dépenses annuelles',
+                subtitle: _getAnnualExpenseCalculationModeName(
                   settingsVM.annualExpenseCalculationMode,
-                );
-              },
-            ),
-          ],
-        ),
-        SettingsSection(
-          title: 'Catégories',
-          children: [
-            SettingsTile(
-              title: 'Gérer les catégories',
-              subtitle: 'Ajouter, modifier ou supprimer des catégories',
-              leading: const Icon(Icons.category),
-              onTap: () => CategoriesBottomSheet.show(context: context),
-            ),
-          ],
-        ),
-        SettingsSection(
-          title: 'Données',
-          children: [
-            SettingsTile(
-              title: 'Exporter mes données',
-              subtitle: 'Sauvegardez vos données financières',
-              leading: const Icon(Icons.upload_file),
-              onTap: () => _exportUserData(context, dataVM),
-            ),
-            SettingsTile(
-              title: 'Importer mes données',
-              subtitle: 'Restaurez vos données depuis une sauvegarde',
-              leading: const Icon(Icons.download),
-              onTap: () => _importUserData(context, dataVM),
-            ),
-            SettingsTile(
-              title: 'Supprimer toutes mes données',
-              subtitle: 'Cette action est irréversible',
-              leading: const Icon(Icons.delete_forever),
-              onTap: () => _showDeleteDataConfirmationDialog(context, dataVM),
-            ),
-          ],
-        ),
-        SettingsSection(
-          title: 'Aide et informations',
-          children: [
-            SettingsTile(
-              title: 'Guide d\'utilisation',
-              subtitle: 'Consultez l\'aide et les explications',
-              leading: const Icon(Icons.help_outline),
-              onTap:
-                  () => Navigator.push(
+                ),
+                leading: const Icon(Icons.calculate),
+                onTap: () {
+                  _showExpenseCalculationModeDialog(
                     context,
-                    MaterialPageRoute(builder: (context) => const HelpScreen()),
-                  ),
-            ),
-          ],
-        ),
-        SettingsSection(
-          title: 'À propos',
-          children: [
-            SettingsTile(
-              title: 'Version',
-              subtitle:
-                  packageInfo != null
-                      ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
-                      : 'Chargement...',
-              leading: const Icon(Icons.info_outline),
-              onTap: null,
-            ),
-          ],
-        ),
-      ],
+                    settingsVM.annualExpenseCalculationMode,
+                  );
+                },
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Catégories',
+            children: [
+              SettingsTile(
+                title: 'Gérer les catégories',
+                subtitle: 'Ajouter, modifier ou supprimer des catégories',
+                leading: const Icon(Icons.category),
+                onTap: () => CategoriesBottomSheet.show(context: context),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Données',
+            children: [
+              SettingsTile(
+                title: 'Exporter mes données',
+                subtitle: 'Sauvegardez vos données financières',
+                leading: const Icon(Icons.upload_file),
+                onTap: () => _exportUserData(context, dataVM),
+              ),
+              SettingsTile(
+                title: 'Importer mes données',
+                subtitle: 'Restaurez vos données depuis une sauvegarde',
+                leading: const Icon(Icons.download),
+                onTap: () => _importUserData(context, dataVM),
+              ),
+              SettingsTile(
+                title: 'Supprimer toutes mes données',
+                subtitle: 'Cette action est irréversible',
+                leading: const Icon(Icons.delete_forever),
+                onTap: () => _showDeleteDataConfirmationDialog(context, dataVM),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'Aide et informations',
+            children: [
+              SettingsTile(
+                title: 'Guide d\'utilisation',
+                subtitle: 'Consultez l\'aide et les explications',
+                leading: const Icon(Icons.help_outline),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HelpScreen(),
+                      ),
+                    ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'À propos',
+            children: [
+              SettingsTile(
+                title: 'Version',
+                subtitle:
+                    packageInfo != null
+                        ? '${packageInfo!.version} (${packageInfo!.buildNumber})'
+                        : 'Chargement...',
+                leading: const Icon(Icons.info_outline),
+                onTap: null,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
