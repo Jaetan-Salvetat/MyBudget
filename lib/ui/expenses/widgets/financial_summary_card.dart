@@ -55,7 +55,9 @@ class FinancialSummaryCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surface.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(titleIcon, color: primaryColor, size: 24),
