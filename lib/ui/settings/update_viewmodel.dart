@@ -190,30 +190,21 @@ class UpdateViewModel extends ChangeNotifier {
   }
 
   void _showDownloadDialog(BuildContext context) {
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      barrierDismissible: false,
-      builder:
-          (context) => PopScope(
-            canPop: false,
-            child: Consumer<UpdateViewModel>(
-              builder: (context, vm, child) {
-                return FrostedDialog(
-                  title: const Text('Téléchargement...'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LinearProgressIndicator(value: vm.downloadProgress),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${(vm.downloadProgress * 100).toStringAsFixed(0)}%',
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
+      title: const Text('Téléchargement...'),
+      content: Consumer<UpdateViewModel>(
+        builder: (context, vm, child) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FrostedLinearProgressIndicator(value: vm.downloadProgress),
+              const SizedBox(height: 10),
+              Text('${(vm.downloadProgress * 100).toStringAsFixed(0)}%'),
+            ],
+          );
+        },
+      ),
     );
   }
 }
