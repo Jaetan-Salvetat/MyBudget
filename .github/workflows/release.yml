@@ -65,28 +65,21 @@ jobs:
           git tag -a v${{ steps.get_version.outputs.version }} -m "Release v${{ steps.get_version.outputs.version }}"
           git push origin v${{ steps.get_version.outputs.version }}
 
-      - name: Read release notes
-        id: release_notes
-        run: echo "::set-output name=notes::$(cat release_notes.md)"
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-prod-release.apk build/app/outputs/flutter-apk/mybudget-v${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}.apk
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: MyBudget v${{ steps.get_version.outputs.version }}
+          name: MyBudget v${{ steps.get_version.outputs.version }}
           body_path: release_notes.md
+          generate_release_notes: false
           draft: false
           prerelease: false
-
-      - name: Upload APK asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-prod-release.apk
-          asset_name: mybudget-v${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}.apk
-          asset_content_type: application/vnd.android.package-archive
+          files: |
+            build/app/outputs/flutter-apk/mybudget-v${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}.apk

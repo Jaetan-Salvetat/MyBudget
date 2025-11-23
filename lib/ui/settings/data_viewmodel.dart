@@ -16,9 +16,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:provider/provider.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 
 class DataViewModel extends ChangeNotifier {
   final AccountRepository _accountRepository;
