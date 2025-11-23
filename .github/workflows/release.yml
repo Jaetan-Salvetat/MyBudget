@@ -48,7 +48,7 @@ jobs:
         run: flutter pub get
 
       - name: Build apk
-        run: flutter build apk --release --no-tree-shake-icons
+        run: flutter build apk --flavor prod --release --no-tree-shake-icons
 
       - name: Extract version from pubspec.yaml
         id: get_version
@@ -87,6 +87,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_path: build/app/outputs/flutter-apk/app-prod-release.apk
           asset_name: mybudget-v${{ steps.get_version.outputs.version }}+${{ steps.get_version.outputs.build }}.apk
           asset_content_type: application/vnd.android.package-archive

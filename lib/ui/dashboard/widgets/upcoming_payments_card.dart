@@ -1,0 +1,168 @@
+import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
+import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/models/expense_model.dart';
+
+class UpcomingPaymentsCard extends StatelessWidget {
+  final NumberFormat formatter;
+
+  const UpcomingPaymentsCard({required this.formatter, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ExpenseViewModel>(
+      builder: (context, expenseViewModel, child) {
+        final upcomingExpenses = expenseViewModel.getUpcomingExpenses();
+
+        if (upcomingExpenses.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Center(child: Text('Aucun paiement prévu')),
+          );
+        }
+
+        return SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: upcomingExpenses.length,
+            itemBuilder: (context, index) {
+              final expense = upcomingExpenses[index];
+              return HorizontalPaymentCard(
+                expense: expense,
+                formatter: formatter,
+                index: index,
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class HorizontalPaymentCard extends StatelessWidget {
+  final ExpenseModel expense;
+  final NumberFormat formatter;
+  final int index;
+
+  const HorizontalPaymentCard({
+    required this.expense,
+    required this.formatter,
+    required this.index,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final categoryViewModel = Provider.of<CategoryViewModel>(
+      context,
+      listen: false,
+    );
+    final categoryName =
+        categoryViewModel.categories.isEmpty
+            ? '...'
+            : categoryViewModel.categories
+                .firstWhere(
+                  (cat) => cat.id == expense.categoryId,
+                  orElse: () => categoryViewModel.categories.first,
+                )
+                .name;
+
+    String dateDisplay;
+    final now = DateTime.now();
+
+    if (expense.frequency == 'Mensuel') {
+      final isToday = expense.date.day == now.day;
+      dateDisplay = isToday ? 'Aujourd\'hui' : 'Le ${expense.date.day}';
+    } else {
+      final isToday =
+          expense.date.day == now.day && expense.date.month == now.month;
+      dateDisplay =
+          isToday
+              ? 'Aujourd\'hui'
+              : DateFormat('d MMMM', 'fr_FR').format(expense.date);
+    }
+
+    return FrostedCard(
+      margin: EdgeInsets.only(right: 12, left: index == 0 ? 0 : 0),
+      borderRadius: 16,
+      padding: const EdgeInsets.all(12),
+      child: SizedBox(
+        width: 136, // 160 - 24 (padding)
+        height: 116, // 140 - 24 (padding)
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.calendar_today,
+                    size: 14,
+                    color:
+                        dateDisplay == 'Aujourd\'hui'
+                            ? Colors.green
+                            : Colors.blueGrey,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  dateDisplay,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color:
+                        dateDisplay == 'Aujourd\'hui'
+                            ? Colors.green
+                            : Colors.blueGrey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              expense.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              categoryName,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            Text(
+              formatter.format(expense.amount),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

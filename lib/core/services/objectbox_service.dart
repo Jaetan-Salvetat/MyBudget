@@ -1,9 +1,9 @@
 import 'package:path_provider/path_provider.dart';
-import 'package:mybudget/data/models/category_model.dart';
-import 'package:mybudget/data/models/expense_model.dart';
-import 'package:mybudget/data/models/revenue_model.dart';
-import 'package:mybudget/data/models/account_model.dart';
-import 'package:mybudget/data/models/loan_model.dart';
+import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/loan_model.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:mybudget/objectbox.g.dart';

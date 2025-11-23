@@ -1,12 +1,12 @@
 class AppConstants {
-  // Tables
+   
   static const String tableAccounts = 'accounts';
   static const String tableCategories = 'categories';
   static const String tableExpenses = 'expenses';
   static const String tableRevenues = 'revenues';
   static const String tablePrivacySettings = 'privacy_settings';
 
-  // Fields
+   
   static const String fieldId = 'id';
   static const String fieldName = 'name';
   static const String fieldUserId = 'user_id';
@@ -26,12 +26,12 @@ class AppConstants {
   static const String fieldPassword = 'password';
   static const String fieldIsAuthenticated = 'isAuthenticated';
 
-  // Messages
+   
   static const String errorUserNotAuthenticated = 'User not authenticated';
   static const String errorInvalidCredentials = 'Invalid credentials';
   static const String errorRegistrationFailed = 'Registration failed';
 
-  // Routes
+   
   static const String routeSplash = '/splash';
   static const String routeLogin = '/login';
   static const String routeRegister = '/register';

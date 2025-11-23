@@ -1,0 +1,100 @@
+name: Create Beta Release
+
+on:
+  push:
+    branches:
+      - beta
+
+jobs:
+  create_beta_release:
+    name: Create Beta Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+
+      - name: Setup key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
+      - name: Decode Keystore
+        run: |
+          mkdir -p android/app/keystore
+          echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > android/app/keystore/mybudget_key.jks
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build apk
+        run: flutter build apk --flavor beta --release --no-tree-shake-icons
+
+      - name: Extract version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | sed -e 's/version: //' -e 's/+.*//')
+          BUILD=$(grep 'version:' pubspec.yaml | sed -e 's/version: //' -e 's/.*+//')
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=build::$BUILD"
+      
+      - name: Create Tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # We use the version from pubspec. The -beta suffix is now handled by Gradle for the build artifact,
+          # but for the git tag we might want to append -beta manually if we want distinct tags.
+          # However, the user asked for the version name to end in -beta.
+          # Gradle handles the app version name.
+          # For the git tag, if we want it to match, we should append -beta here since pubspec doesn't have it.
+          git tag -a v${{ steps.get_version.outputs.version }}-beta -m "Beta Release v${{ steps.get_version.outputs.version }}-beta"
+          git push origin v${{ steps.get_version.outputs.version }}-beta
+
+      - name: Read release notes
+        id: release_notes
+        # If release_notes.md exists, use it, otherwise use a default message
+        run: |
+          if [ -f release_notes.md ]; then
+            echo "::set-output name=notes::$(cat release_notes.md)"
+          else
+            echo "::set-output name=notes::Beta Release"
+          fi
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}-beta
+          release_name: MyBudget Beta v${{ steps.get_version.outputs.version }}-beta
+          body: ${{ steps.release_notes.outputs.notes }}
+          draft: false
+          prerelease: true
+
+      - name: Upload APK asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-beta-release.apk
+          asset_name: mybudget-beta-v${{ steps.get_version.outputs.version }}-beta+${{ steps.get_version.outputs.build }}.apk
+          asset_content_type: application/vnd.android.package-archive

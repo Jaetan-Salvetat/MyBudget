@@ -1,0 +1,1 @@
+enum AnnualExpenseCalculationMode { monthlyAmortized, dateBasedOnly }

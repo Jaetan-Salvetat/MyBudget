@@ -1,8 +1,6 @@
-## ✨ Fonctionnalités
+# 🚧 Gros Refactoring en cours 🚧
 
-- Création de la page de gestion des catégories accessible depuis le menu des paramètres et depuis le dashboard
+Une mise à jour majeure de l'architecture de l'application est en cours pour améliorer la stabilité et la maintenabilité. Une refonte graphique complète (UI/UX) accompagne ces changements pour offrir une interface plus moderne et cohérente.
 
-## 🐛 Corrections de bugs
-
-- Fixe d'un problème de rafraîchissement des statistiques de la page des dépenses
-- Suppression de la limite à 5 catégories dans l'accueil
+## Note
+Cette version contient des changements structurels importants. Si vous rencontrez des bugs, merci de les signaler !
