@@ -42,7 +42,16 @@ class ObjectBoxService {
   }
 
   void closeStore() {
-    store.close();
+    if (!store.isClosed()) {
+      store.close();
+    }
+  }
+
+  static Future<void> resetInstance() async {
+    if (_instance != null) {
+      _instance!.closeStore();
+      _instance = null;
+    }
   }
 
   Future<void> clearAllData() async {

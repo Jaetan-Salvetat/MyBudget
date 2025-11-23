@@ -21,6 +21,8 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 
 import 'package:mybudget/core/services/preferences_service.dart';
 
+import 'package:mybudget/utils/restart_widget.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -28,120 +30,172 @@ void main() async {
 
   await initializeDateFormatting('fr_FR', null);
 
-  final objectBoxService = await ObjectBoxService.getInstance();
-
-  runApp(MyApp(objectBoxService: objectBoxService));
+  // Wrap app in RestartWidget
+  runApp(
+    RestartWidget(
+      onRestart: () async {
+        // Reset ObjectBox instance on restart
+        await ObjectBoxService.resetInstance();
+        // Re-initialize it
+        await ObjectBoxService.getInstance();
+      },
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  final ObjectBoxService objectBoxService;
-
-  const MyApp({super.key, required this.objectBoxService});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<ObjectBoxService>.value(value: objectBoxService),
-
-        // Repositories
-        Provider<ExpenseRepository>(
-          create: (_) => ExpenseRepository(objectBoxService.expenseBox),
-        ),
-        Provider<RevenueRepository>(
-          create: (_) => RevenueRepository(objectBoxService.revenueBox),
-        ),
-        Provider<AccountRepository>(
-          create: (_) => AccountRepository(objectBoxService.accountBox),
-        ),
-        Provider<LoanRepository>(
-          create: (_) => LoanRepository(objectBoxService.loanBox),
-        ),
-        Provider<CategoryRepository>(
-          create: (_) => CategoryRepository(objectBoxService.categoryBox),
-        ),
-
-        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
-        ChangeNotifierProvider(create: (_) => UpdateViewModel()),
-
-        ChangeNotifierProvider(
-          create:
-              (context) =>
-                  CategoryViewModel(context.read<CategoryRepository>()),
-        ),
-        ChangeNotifierProvider(
-          create:
-              (context) => ExpenseViewModel(
-                context.read<ExpenseRepository>(),
-                context.read<CategoryRepository>(),
-              ),
-        ),
-        ChangeNotifierProvider(
-          create:
-              (context) => RevenueViewModel(context.read<RevenueRepository>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => LoanViewModel(context.read<LoanRepository>()),
-        ),
-
-        ChangeNotifierProxyProvider4<
-          AccountRepository,
-          ExpenseViewModel,
-          RevenueViewModel,
-          LoanViewModel,
-          AccountViewModel
-        >(
-          create:
-              (context) => AccountViewModel(
-                context.read<AccountRepository>(),
-                context.read<ExpenseViewModel>(),
-                context.read<RevenueViewModel>(),
-                context.read<LoanViewModel>(),
-              ),
-          update:
-              (context, accountRepo, expenseVM, revenueVM, loanVM, previous) =>
-                  previous ??
-                  AccountViewModel(accountRepo, expenseVM, revenueVM, loanVM),
-        ),
-
-        ChangeNotifierProvider(
-          create:
-              (context) => DataViewModel(
-                context.read<AccountRepository>(),
-                context.read<ExpenseRepository>(),
-                context.read<RevenueRepository>(),
-                context.read<LoanRepository>(),
-                context.read<CategoryRepository>(),
-                context.read<AccountViewModel>(),
-                context.read<ExpenseViewModel>(),
-                context.read<RevenueViewModel>(),
-                context.read<LoanViewModel>(),
-              ),
-        ),
-
-        ChangeNotifierProvider(
-          create:
-              (context) => DashboardViewModel(
-                context.read<AccountViewModel>(),
-                context.read<ExpenseViewModel>(),
-                context.read<RevenueViewModel>(),
-                context.read<LoanViewModel>(),
-                context.read<SettingsViewModel>(),
-              ),
-        ),
-      ],
-      child: Consumer<SettingsViewModel>(
-        builder: (context, settingsViewModel, child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'My Budget',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: settingsViewModel.themeMode,
-            home: const SplashScreen(),
+    return FutureBuilder<ObjectBoxService>(
+      future: ObjectBoxService.getInstance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show a native-like splash or empty container while DB initializes
+          return const Directionality(
+            textDirection: TextDirection.ltr,
+            child: ColoredBox(color: Colors.white),
           );
-        },
-      ),
+        }
+
+        if (snapshot.hasError) {
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Container(
+              color: Colors.red,
+              child: Center(
+                child: Text(
+                  'Erreur critique: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final objectBoxService = snapshot.data!;
+
+        return MultiProvider(
+          providers: [
+            Provider<ObjectBoxService>.value(value: objectBoxService),
+
+            // Repositories
+            Provider<ExpenseRepository>(
+              create: (_) => ExpenseRepository(objectBoxService.expenseBox),
+            ),
+            Provider<RevenueRepository>(
+              create: (_) => RevenueRepository(objectBoxService.revenueBox),
+            ),
+            Provider<AccountRepository>(
+              create: (_) => AccountRepository(objectBoxService.accountBox),
+            ),
+            Provider<LoanRepository>(
+              create: (_) => LoanRepository(objectBoxService.loanBox),
+            ),
+            Provider<CategoryRepository>(
+              create: (_) => CategoryRepository(objectBoxService.categoryBox),
+            ),
+
+            ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+            ChangeNotifierProvider(create: (_) => UpdateViewModel()),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) =>
+                      CategoryViewModel(context.read<CategoryRepository>()),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => ExpenseViewModel(
+                    context.read<ExpenseRepository>(),
+                    context.read<CategoryRepository>(),
+                  ),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) =>
+                      RevenueViewModel(context.read<RevenueRepository>()),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => LoanViewModel(context.read<LoanRepository>()),
+            ),
+
+            ChangeNotifierProxyProvider4<
+              AccountRepository,
+              ExpenseViewModel,
+              RevenueViewModel,
+              LoanViewModel,
+              AccountViewModel
+            >(
+              create:
+                  (context) => AccountViewModel(
+                    context.read<AccountRepository>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                  ),
+              update:
+                  (
+                    context,
+                    accountRepo,
+                    expenseVM,
+                    revenueVM,
+                    loanVM,
+                    previous,
+                  ) =>
+                      previous ??
+                      AccountViewModel(
+                        accountRepo,
+                        expenseVM,
+                        revenueVM,
+                        loanVM,
+                      ),
+            ),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) => DataViewModel(
+                    context.read<AccountRepository>(),
+                    context.read<ExpenseRepository>(),
+                    context.read<RevenueRepository>(),
+                    context.read<LoanRepository>(),
+                    context.read<CategoryRepository>(),
+                    context.read<AccountViewModel>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                  ),
+            ),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) => DashboardViewModel(
+                    context.read<AccountViewModel>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                    context.read<SettingsViewModel>(),
+                  ),
+            ),
+          ],
+          child: Consumer<SettingsViewModel>(
+            builder: (context, settingsViewModel, child) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'My Budget',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: settingsViewModel.themeMode,
+                home: const SplashScreen(),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

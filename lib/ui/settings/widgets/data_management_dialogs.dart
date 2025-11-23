@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/utils/app_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
 
@@ -93,13 +94,12 @@ class DataManagementDialogs {
           title: const Text('Importation réussie'),
           content: const Text(
             'Les données ont été importées avec succès.\n\n'
-            'Pour finaliser l\'opération et éviter tout problème d\'affichage, '
-            'l\'application va se fermer. Veuillez la relancer manuellement.',
+            'L\'application va redémarrer pour prendre en compte les changements.',
           ),
           actions: [
             FrostedFilledButton(
-              onPressed: () => exit(0), // Force quit l'app
-              child: const Text('Quitter l\'application'),
+              onPressed: () => AppUtils.restartApp(context),
+              child: const Text('Redémarrer'),
             ),
           ],
         );
@@ -183,13 +183,12 @@ class DataManagementDialogs {
           title: const Text('Suppression réussie'),
           content: const Text(
             'Toutes les données ont été supprimées avec succès.\n\n'
-            'Pour finaliser l\'opération et éviter tout problème d\'affichage, '
-            'l\'application va se fermer. Veuillez la relancer manuellement.',
+            'L\'application va redémarrer pour prendre en compte les changements.',
           ),
           actions: [
             FrostedFilledButton(
-              onPressed: () => exit(0), // Force quit l'app
-              child: const Text('Quitter l\'application'),
+              onPressed: () => AppUtils.restartApp(context),
+              child: const Text('Redémarrer'),
             ),
           ],
         );
