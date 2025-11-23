@@ -3,7 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_frequency_date_section.dart';
+import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 
 class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;

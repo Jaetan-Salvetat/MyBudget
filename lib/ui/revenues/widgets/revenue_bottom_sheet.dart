@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
@@ -53,6 +54,9 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   bool _isRegular = true;
   DateTime _selectedDate = DateTime.now();
   int? _selectedAccountId;
+  String? _accountError;
+  String? _nameError;
+  String? _amountError;
 
   @override
   void initState() {
@@ -77,9 +81,16 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   }
 
   void _handleSubmit() {
-    if (_nameController.text.isEmpty ||
-        _amountController.text.isEmpty ||
-        _selectedAccountId == null) {
+    setState(() {
+      _nameError =
+          _nameController.text.isEmpty ? 'Veuillez saisir un nom' : null;
+      _amountError =
+          _amountController.text.isEmpty ? 'Veuillez saisir un montant' : null;
+      _accountError =
+          _selectedAccountId == null ? 'Veuillez sélectionner un compte' : null;
+    });
+
+    if (_nameError != null || _amountError != null || _accountError != null) {
       return;
     }
 
@@ -135,14 +146,92 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           FrostedTextField(
             controller: _nameController,
             labelText: 'Nom',
+            hintText: 'Ex: Salaire',
             prefixIcon: const Icon(Icons.edit),
           ),
+          if (_nameError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _nameError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
           FrostedTextField(
             controller: _amountController,
             labelText: 'Montant',
+            hintText: '0.00',
             prefixIcon: const Icon(Icons.euro),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          if (_amountError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _amountError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 24),
+
+          Text(
+            'Compte',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Compte associé',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
+              FrostedDropdown<int>(
+                value: _selectedAccountId,
+                items:
+                    widget.accounts.map((account) {
+                      return DropdownMenuItem<int>(
+                        value: account.id,
+                        child: Text(account.name),
+                      );
+                    }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedAccountId = value;
+                      _accountError = null;
+                    });
+                  }
+                },
+              ),
+              if (_accountError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    _accountError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+            ],
           ),
 
           const SizedBox(height: 24),
@@ -156,64 +245,128 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           ),
           const SizedBox(height: 12),
 
+          // Fréquence (Régulier / Ponctuel)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _isRegular ? Icons.repeat : Icons.event,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isRegular ? 'Revenu régulier' : 'Revenu ponctuel',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        _isRegular
+                            ? 'Salaire, rente, etc.'
+                            : 'Vente, cadeau, etc.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch.adaptive(
+                  value: _isRegular,
+                  onChanged: (value) {
+                    setState(() {
+                      _isRegular = value;
+                    });
+                  },
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 16),
+
+          // Date Picker
           InkWell(
             onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate,
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
+              DateTime? picked;
+              if (_isRegular) {
+                picked = await FrostedDateSelector.showDayPicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                );
+              } else {
+                picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: Theme.of(context).colorScheme.copyWith(
+                          surface: Theme.of(context).colorScheme.surface,
+                        ),
+                        dialogBackgroundColor:
+                            Theme.of(context).colorScheme.surface,
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+              }
+
               if (picked != null) {
                 setState(() {
-                  _selectedDate = picked;
+                  _selectedDate = picked!;
                 });
               }
             },
+            borderRadius: BorderRadius.circular(12),
             child: InputDecorator(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Date',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.calendar_today),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                ),
+                prefixIcon: const Icon(Icons.calendar_today),
+                filled: true,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.3),
               ),
               child: Text(
-                "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
+                _isRegular
+                    ? "Le ${_selectedDate.day} du mois"
+                    : "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
               ),
             ),
-          ),
-
-          const SizedBox(height: 24),
-
-          Text(
-            'Compte',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<int>(
-            value: _selectedAccountId,
-            decoration: const InputDecoration(
-              labelText: 'Compte associé',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.account_balance),
-            ),
-            items:
-                widget.accounts.map((account) {
-                  return DropdownMenuItem<int>(
-                    value: account.id,
-                    child: Text(account.name),
-                  );
-                }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() {
-                  _selectedAccountId = value;
-                });
-              }
-            },
           ),
 
           const SizedBox(height: 32),

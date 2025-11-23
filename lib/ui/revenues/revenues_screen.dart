@@ -6,8 +6,6 @@ class RevenuesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [SizedBox(height: 100), Expanded(child: RevenuesList())],
-    );
+    return const Column(children: [Expanded(child: RevenuesList())]);
   }
 }

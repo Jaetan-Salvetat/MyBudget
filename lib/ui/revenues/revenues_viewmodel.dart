@@ -99,6 +99,58 @@ class RevenueViewModel extends ChangeNotifier {
     return total;
   }
 
+  double getMonthlyFixedRevenues() {
+    if (_revenues.isEmpty) return 0.0;
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    double total = 0.0;
+
+    for (var revenue in _revenues) {
+      if (!revenue.isRegular) continue;
+
+      final isCurrentMonth =
+          revenue.date.isAtSameMomentAs(startOfMonth) ||
+          revenue.date.isAtSameMomentAs(endOfMonth) ||
+          (revenue.date.isAfter(startOfMonth) &&
+              revenue.date.isBefore(endOfMonth));
+
+      if (isCurrentMonth) {
+        total += revenue.amount;
+      }
+    }
+
+    return total;
+  }
+
+  double getMonthlyPunctualRevenues() {
+    if (_revenues.isEmpty) return 0.0;
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    double total = 0.0;
+
+    for (var revenue in _revenues) {
+      if (revenue.isRegular) continue;
+
+      final isCurrentMonth =
+          revenue.date.isAtSameMomentAs(startOfMonth) ||
+          revenue.date.isAtSameMomentAs(endOfMonth) ||
+          (revenue.date.isAfter(startOfMonth) &&
+              revenue.date.isBefore(endOfMonth));
+
+      if (isCurrentMonth) {
+        total += revenue.amount;
+      }
+    }
+
+    return total;
+  }
+
   List<RevenueModel> getRecentRevenues(int count) {
     return _revenues.take(count).toList();
   }
