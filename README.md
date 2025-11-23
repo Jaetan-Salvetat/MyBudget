@@ -67,7 +67,7 @@ Les modèles sont annotés avec `@Entity` pour ObjectBox.
 *   **AccountModel**: Compte bancaire (Nom, Banque).
 *   **ExpenseModel**: Dépense (Montant, Catégorie, Date, Fréquence, Compte).
 *   **RevenueModel**: Revenu (Montant, Date, Régularité, Compte).
-*   **LoanModel**: Emprunt (Montant, Prêteur, Mensualité, Dates, Statut).
+*   **LoanModel**: Emprunt (Montant, Prêteur, Mensualité, Dates, Jour de prélèvement, Statut).
 *   **CategoryModel**: Catégorie de dépense (Nom, Icône, Couleur).
 
 ### 4. Gestion de l'État (State Management)
@@ -92,10 +92,9 @@ L'application utilise `Provider` pour injecter les dépendances et gérer l'éta
 
 #### Design System (Frosted UI)
 L'application utilise une esthétique "verre givré" personnalisée.
-*   `FrostedScaffold`: Fond d'écran avec effet de flou.
-*   `FrostedAppBar`: Barre d'application translucide.
-*   `FrostedGlassContainer`: Conteneur de base pour les cartes.
-*   `FrostedTextField`, `FrostedButton`: Composants de formulaire stylisés.
+*   **Composants**: `FrostedScaffold`, `FrostedAppBar`, `FrostedGlassContainer`.
+*   **Formulaires Intelligents**: Validation "Inline" (messages d'erreur contextuels) et feedback immédiat pour une UX fluide.
+*   **Widgets**: `FrostedTextField`, `FrostedButton` stylisés.
 
 ### 6. Gestion des Dates
 
