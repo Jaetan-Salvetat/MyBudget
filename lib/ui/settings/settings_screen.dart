@@ -7,6 +7,8 @@ import 'package:mybudget/ui/settings/widgets/sections/categories_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
+import 'package:flutter/foundation.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -46,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           DataSection(),
           HelpSection(),
           AboutSection(),
+          if (kDebugMode) DebugSection(),
         ],
       ),
     );

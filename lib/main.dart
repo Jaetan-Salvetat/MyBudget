@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/ui/home/home_screen.dart';
+import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
@@ -138,7 +138,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: settingsViewModel.themeMode,
-            home: const HomeScreen(),
+            home: const SplashScreen(),
           );
         },
       ),
