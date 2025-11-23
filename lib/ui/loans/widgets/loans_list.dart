@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/loans/widgets/loan_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/expenses/widgets/financial_summary_card.dart';
 
 class LoansList extends StatelessWidget {
   const LoansList({super.key});
@@ -74,150 +72,20 @@ class LoansList extends StatelessWidget {
     final totalActiveInitialAmount = loanVM.getTotalActiveInitialAmount();
     final totalRemainingAmount = loanVM.getTotalRemainingAmount();
     final totalMonthlyPayment = loanVM.getTotalMonthlyPayments();
+    final activeLoanCount = loanVM.getActiveLoans().length;
 
-     
-    final activeLoans = loanVM.getActiveLoans();
-    final totalAmount = activeLoans.fold(0.0, (sum, loan) => sum + loan.amount);
-    final totalPaid = activeLoans.fold(
-      0.0,
-      (sum, loan) => sum + loan.getAutomaticPaidAmount(),
-    );
-    final progressValue = totalAmount == 0 ? 0.0 : totalPaid / totalAmount;
+    final progress =
+        totalActiveInitialAmount == 0
+            ? 0.0
+            : (totalActiveInitialAmount - totalRemainingAmount) /
+                totalActiveInitialAmount;
 
-    final amountPaid = totalActiveInitialAmount - totalRemainingAmount;
-
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final errorColor = Theme.of(context).colorScheme.error;
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 15, 0, 5),
-      child: FinancialSummaryCard(
-        title: 'Récapitulatif des Prêts',
-        titleIcon: Icons.payments,
-        primaryColor: errorColor,
-        amount: totalRemainingAmount,
-        formatter: formatter,
-        trendIcon:
-            progressValue > 0.5 ? Icons.trending_up : Icons.trending_flat,
-        itemCount: activeLoans.length,
-        childContent: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: LinearProgressIndicator(
-                  value: progressValue,
-                  minHeight: 12,
-                  backgroundColor: primaryColor.withValues(alpha: 0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    progressValue > 0.5
-                        ? Theme.of(context).colorScheme.primary
-                        : primaryColor,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatBox(
-                      context: context,
-                      title: 'Total remboursé',
-                      amount: amountPaid,
-                      color: Theme.of(context).colorScheme.primary,
-                      formatter: formatter,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildStatBox(
-                      context: context,
-                      title: 'Montant initial',
-                      amount: totalActiveInitialAmount,
-                      color: primaryColor,
-                      formatter: formatter,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatBox(
-                      context: context,
-                      title: 'Mensuel',
-                      amount: totalMonthlyPayment,
-                      color: primaryColor,
-                      formatter: formatter,
-                      icon: Icons.calendar_today,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatBox({
-    required BuildContext context,
-    required String title,
-    required double amount,
-    required Color color,
-    required NumberFormat formatter,
-    IconData? icon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (icon != null) ...[
-            Row(
-              children: [
-                Icon(icon, size: 16, color: color),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: color.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ] else
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          const SizedBox(height: 4),
-          Text(
-            formatter.format(amount),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
+    return LoanSummaryCard(
+      totalDebt: totalRemainingAmount,
+      monthlyPayment: totalMonthlyPayment,
+      progress: progress,
+      activeLoanCount: activeLoanCount,
+      initialDebt: totalActiveInitialAmount,
     );
   }
 
