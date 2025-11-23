@@ -31,7 +31,7 @@
     },
     {
       "id": "2:637957068368109063",
-      "lastPropertyId": "3:2964126038854478579",
+      "lastPropertyId": "4:6632633250043774965",
       "name": "CategoryModel",
       "properties": [
         {
@@ -51,6 +51,11 @@
           "id": "3:2964126038854478579",
           "name": "icon",
           "type": 9
+        },
+        {
+          "id": "4:6632633250043774965",
+          "name": "color",
+          "type": 6
         }
       ],
       "relations": []

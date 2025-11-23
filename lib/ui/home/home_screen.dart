@@ -17,7 +17,7 @@ import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
-import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -259,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    LoanBottomSheet.show(
+    LoanCreationBottomSheet.show(
       context: context,
       accounts: accountViewModel.accounts,
       onSubmit: (loan) {

@@ -7,7 +7,7 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/loans/widgets/loan_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 
 class LoansList extends StatelessWidget {
@@ -133,7 +133,7 @@ class LoansList extends StatelessWidget {
         final accountVM = Provider.of<AccountViewModel>(context, listen: false);
         final loanVM = Provider.of<LoanViewModel>(context, listen: false);
 
-        LoanBottomSheet.show(
+        LoanCreationBottomSheet.show(
           context: context,
           accounts: accountVM.accounts,
           onSubmit: (newLoan) {

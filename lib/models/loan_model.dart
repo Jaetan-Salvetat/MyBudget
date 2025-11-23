@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:objectbox/objectbox.dart';
 
 enum LoanStatus {
@@ -15,16 +16,16 @@ enum LoanStatus {
     switch (this) {
       case LoanStatus.pending:
         return Theme.of(context).brightness == Brightness.dark
-          ? Colors.amber.shade300
-          : Colors.amber.shade700;  
+            ? Colors.amber.shade300
+            : Colors.amber.shade700;
       case LoanStatus.partiallyPaid:
         return Theme.of(context).brightness == Brightness.dark
-          ? Colors.blue.shade300
-          : Colors.blue.shade600;  
+            ? Colors.blue.shade300
+            : Colors.blue.shade600;
       case LoanStatus.completed:
         return Theme.of(context).brightness == Brightness.dark
-          ? Colors.green.shade300
-          : Colors.green.shade600;  
+            ? Colors.green.shade300
+            : Colors.green.shade600;
     }
   }
 }
@@ -32,17 +33,17 @@ enum LoanStatus {
 @Entity()
 class LoanModel {
   @Id()
-  int id = 0;  
+  int id = 0;
 
   String name;
   double amount;
   String lenderName;
 
   int dayOfMonth;
-  
+
   @Property()
   DateTime startDate;
-  
+
   @Property()
   DateTime endDate;
 
@@ -51,7 +52,28 @@ class LoanModel {
   int accountId;
   String? notes;
 
+  // Nouveaux champs pour le calcul précis
+  double interestRate; // Taux annuel en %
+  int duration; // Durée en mois
+
+  // Stockage de l'enum en int pour ObjectBox
+  int insuranceTypeIndex;
+  double insuranceValue; // Valeur de l'assurance (Montant ou %)
+
   double get paidAmount => getAutomaticPaidAmount();
+
+  // Helper pour l'enum InsuranceType
+  LoanInsuranceType get insuranceType {
+    if (insuranceTypeIndex >= 0 &&
+        insuranceTypeIndex < LoanInsuranceType.values.length) {
+      return LoanInsuranceType.values[insuranceTypeIndex];
+    }
+    return LoanInsuranceType.none;
+  }
+
+  set insuranceType(LoanInsuranceType type) {
+    insuranceTypeIndex = type.index;
+  }
 
   LoanModel({
     this.id = 0,
@@ -64,6 +86,10 @@ class LoanModel {
     required this.accountId,
     required this.monthlyPayment,
     this.notes,
+    this.interestRate = 0.0,
+    this.duration = 0,
+    this.insuranceTypeIndex = 0, // Default to none
+    this.insuranceValue = 0.0,
   });
 
   static LoanModel create({
@@ -76,6 +102,10 @@ class LoanModel {
     required int accountId,
     required double monthlyPayment,
     String? notes,
+    double interestRate = 0.0,
+    int duration = 0,
+    LoanInsuranceType insuranceType = LoanInsuranceType.none,
+    double insuranceValue = 0.0,
   }) {
     return LoanModel(
       name: name,
@@ -87,6 +117,10 @@ class LoanModel {
       accountId: accountId,
       monthlyPayment: monthlyPayment,
       notes: notes,
+      interestRate: interestRate,
+      duration: duration,
+      insuranceTypeIndex: insuranceType.index,
+      insuranceValue: insuranceValue,
     );
   }
 
@@ -100,6 +134,10 @@ class LoanModel {
     int? accountId,
     double? monthlyPayment,
     String? notes,
+    double? interestRate,
+    int? duration,
+    LoanInsuranceType? insuranceType,
+    double? insuranceValue,
   }) {
     return LoanModel(
       id: id,
@@ -112,6 +150,10 @@ class LoanModel {
       accountId: accountId ?? this.accountId,
       monthlyPayment: monthlyPayment ?? this.monthlyPayment,
       notes: notes ?? this.notes,
+      interestRate: interestRate ?? this.interestRate,
+      duration: duration ?? this.duration,
+      insuranceTypeIndex: insuranceType?.index ?? this.insuranceTypeIndex,
+      insuranceValue: insuranceValue ?? this.insuranceValue,
     );
   }
 

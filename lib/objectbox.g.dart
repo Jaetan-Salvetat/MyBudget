@@ -55,7 +55,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 637957068368109063),
     name: 'CategoryModel',
-    lastPropertyId: const obx_int.IdUid(4, 4923595990531005066),
+    lastPropertyId: const obx_int.IdUid(4, 6632633250043774965),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -78,7 +78,7 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 4923595990531005066),
+        id: const obx_int.IdUid(4, 6632633250043774965),
         name: 'color',
         type: 6,
         flags: 0,
