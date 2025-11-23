@@ -35,8 +35,11 @@ class DataViewModel extends ChangeNotifier {
   double _importProgress = 0.0;
   String _importStatus = '';
 
+  bool _isDeleting = false;
+
   bool get isExporting => _isExporting;
   bool get isImporting => _isImporting;
+  bool get isDeleting => _isDeleting;
   String get error => _error;
   double get importProgress => _importProgress;
   String get importStatus => _importStatus;
@@ -366,11 +369,12 @@ class DataViewModel extends ChangeNotifier {
 
   Future<void> deleteAllUserData(BuildContext context) async {
     try {
+      _isDeleting = true;
       _error = '';
+      notifyListeners();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Suppression des données en cours...')),
-      );
+      // Simulate a small delay to show loading state
+      await Future.delayed(const Duration(seconds: 1));
 
       _accountRepository.deleteAll();
       _expenseRepository.deleteAll();
@@ -378,14 +382,17 @@ class DataViewModel extends ChangeNotifier {
       _loanRepository.deleteAll();
       _categoryRepository.deleteAll();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Toutes les données ont été supprimées')),
-      );
+      // Success is handled by UI dialog
     } catch (e) {
       _error = e.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la suppression: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la suppression: $e')),
+        );
+      }
+    } finally {
+      _isDeleting = false;
+      notifyListeners();
     }
   }
 }

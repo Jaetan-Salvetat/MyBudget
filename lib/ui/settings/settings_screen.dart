@@ -384,13 +384,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: const Text('Annuler'),
         ),
         FrostedFilledButton(
-          onPressed: () async {
+          onPressed: () {
             Navigator.of(context).pop();
-            await dataVM.deleteAllUserData(context);
+            _showDeleteProgressDialog(context, dataVM);
           },
           child: const Text('Supprimer'),
         ),
       ],
     );
+  }
+
+  Future<void> _showDeleteProgressDialog(
+    BuildContext context,
+    DataViewModel dataVM,
+  ) async {
+    // 1. Show Loading Dialog
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Suppression en cours'),
+      content: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Veuillez patienter pendant la suppression des données...',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          CircularProgressIndicator(),
+        ],
+      ),
+      // No actions for loading state
+    );
+
+    // 2. Perform Delete
+    await dataVM.deleteAllUserData(context);
+
+    // 3. Close Loading Dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+
+    // 4. Show Result Dialog
+    if (context.mounted) {
+      if (dataVM.error.isNotEmpty) {
+        FrostedDialog.show(
+          context: context,
+          title: const Text('Erreur de suppression'),
+          content: Text(dataVM.error),
+          actions: [
+            FrostedTonalButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fermer'),
+            ),
+          ],
+        );
+      } else {
+        FrostedDialog.show(
+          context: context,
+          title: const Text('Suppression réussie'),
+          content: const Text(
+            'Toutes les données ont été supprimées avec succès.\n\n'
+            'Pour finaliser l\'opération et éviter tout problème d\'affichage, '
+            'l\'application va se fermer. Veuillez la relancer manuellement.',
+          ),
+          actions: [
+            FrostedFilledButton(
+              onPressed: () => exit(0), // Force quit l'app
+              child: const Text('Quitter l\'application'),
+            ),
+          ],
+        );
+      }
+    }
   }
 }
