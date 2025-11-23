@@ -13,88 +13,127 @@ class LoanDetailsSection extends StatelessWidget {
     final nextPaymentDate = _getNextPaymentDate(loan);
 
     return FrostedCard(
-      borderRadius: 16,
-      padding: const EdgeInsets.all(16),
+      borderRadius: 20,
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Informations',
+            'Détails du contrat',
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 24),
+
+          // Dates Section
+          _buildSectionTitle(context, 'Calendrier'),
           const SizedBox(height: 16),
-          _buildDetailRow(
-            context,
-            'Statut',
-            loan.getAutomaticStatus().label,
-            loan.getAutomaticStatus().icon,
-            loan.getAutomaticStatus().getColor(context),
-          ),
-          const Divider(height: 24),
           _buildDetailRow(
             context,
             'Date de début',
             DateFormat('dd/MM/yyyy').format(loan.startDate),
-            Icons.calendar_today,
-            null,
+            Icons.calendar_today_outlined,
           ),
-          const Divider(height: 24),
+          const SizedBox(height: 16),
           _buildDetailRow(
             context,
-            'Date de fin prévue',
+            'Date de fin',
             DateFormat('dd/MM/yyyy').format(loan.endDate),
-            Icons.event,
-            null,
-          ),
-          const Divider(height: 24),
-          _buildDetailRow(
-            context,
-            'Durée totale',
-            '${_calculateLoanDuration(loan)} mois',
-            Icons.timelapse,
-            null,
-          ),
-          const Divider(height: 24),
-          _buildDetailRow(
-            context,
-            'Jour d\'échéance',
-            'Jour ${loan.dayOfMonth} de chaque mois',
-            Icons.date_range,
-            null,
+            Icons.event_outlined,
           ),
           if (nextPaymentDate != null) ...[
-            const Divider(height: 24),
+            const SizedBox(height: 16),
             _buildDetailRow(
               context,
               'Prochaine échéance',
               DateFormat('dd/MM/yyyy').format(nextPaymentDate),
               Icons.alarm,
-              _isPaymentSoon(nextPaymentDate)
-                  ? Theme.of(context).colorScheme.error
-                  : null,
+              valueColor:
+                  _isPaymentSoon(nextPaymentDate)
+                      ? Theme.of(context).colorScheme.error
+                      : null,
             ),
           ],
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: FrostedDivider(height: 1),
+          ),
+
+          // Info Section
+          _buildSectionTitle(context, 'Informations'),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Prêteur',
+            loan.lenderName,
+            Icons.business_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Jour de prélèvement',
+            'Le ${loan.dayOfMonth} du mois',
+            Icons.date_range_outlined,
+          ),
+
           if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-            const Divider(height: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Notes',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.note_outlined,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Notes',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(loan.notes!),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    loan.notes!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(
+      title.toUpperCase(),
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.2,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -103,17 +142,24 @@ class LoanDetailsSection extends StatelessWidget {
     BuildContext context,
     String label,
     String value,
-    IconData icon,
-    Color? iconColor,
-  ) {
+    IconData icon, {
+    Color? valueColor,
+  }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: iconColor ?? Theme.of(context).colorScheme.primary,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,18 +167,17 @@ class LoanDetailsSection extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                  fontSize: 15,
+                  color: valueColor ?? Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -165,13 +210,5 @@ class LoanDetailsSection extends StatelessWidget {
     final now = DateTime.now();
     final difference = paymentDate.difference(now).inDays;
     return difference <= 5;
-  }
-
-  int _calculateLoanDuration(LoanModel loan) {
-    final startDate = DateTime(loan.startDate.year, loan.startDate.month, 1);
-    final endDate = DateTime(loan.endDate.year, loan.endDate.month, 1);
-    final months =
-        (endDate.year - startDate.year) * 12 + endDate.month - startDate.month;
-    return months > 0 ? months : 1;
   }
 }
