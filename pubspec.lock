@@ -373,10 +373,10 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "9e2d941685b8d169a02e7ef975a0637c9620fc05"
+      resolved-ref: f552f36e550bf738f0c74312cb813a9c90f1caf0
       url: "https://github.com/Jaetan-Salvetat/frosted_ui"
     source: git
-    version: "0.0.1"
+    version: "0.0.3"
   glob:
     dependency: transitive
     description:

@@ -92,97 +92,27 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           autofocus: widget.account == null,
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Autocomplete<String>(
-              initialValue: TextEditingValue(text: _bankController.text),
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text == '') {
-                  return BanksList.frenchBanks.take(5);
-                }
-                return BanksList.frenchBanks.where((String option) {
-                  return option.toLowerCase().contains(
-                    textEditingValue.text.toLowerCase(),
-                  );
-                });
-              },
-              onSelected: (String selection) {
-                _bankController.text = selection;
-                _validateForm();
-              },
-              fieldViewBuilder: (
-                BuildContext context,
-                TextEditingController textEditingController,
-                FocusNode focusNode,
-                VoidCallback onFieldSubmitted,
-              ) {
-                return FrostedTextField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  onChanged: (value) {
-                    _bankController.text = value;
-                    _validateForm();
-                  },
-                  labelText: 'Nom de la banque',
-                  hintText: 'Ex: Crédit Agricole',
-                  prefixIcon: const Icon(Icons.account_balance_outlined),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_drop_down),
-                    onPressed: () {
-                      // Trigger autocomplete?
-                      // Autocomplete doesn't expose a way to manually trigger open easily without a key or hack.
-                      // For now, we keep the icon for visual consistency.
-                    },
-                  ),
-                );
-              },
-              optionsViewBuilder: (
-                BuildContext context,
-                AutocompleteOnSelected<String> onSelected,
-                Iterable<String> options,
-              ) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: FrostedCard(
-                        borderRadius: 12,
-                        padding: EdgeInsets.zero,
-                        child: SizedBox(
-                          width: constraints.maxWidth,
-                          height: 200,
-                          child: ListView.separated(
-                            padding: EdgeInsets.zero,
-                            itemCount: options.length,
-                            separatorBuilder:
-                                (context, index) => FrostedDivider(
-                                  height: 1,
-                                  color: Theme.of(
-                                    context,
-                                  ).dividerColor.withValues(alpha: 0.1),
-                                ),
-                            itemBuilder: (BuildContext context, int index) {
-                              final String option = options.elementAt(index);
-                              return FrostedListTile(
-                                onTap: () => onSelected(option),
-                                title: Text(option),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
+        FrostedAutocomplete<String>(
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            if (textEditingValue.text == '') {
+              return BanksList.frenchBanks.take(5);
+            }
+            return BanksList.frenchBanks.where((String option) {
+              return option.toLowerCase().contains(
+                textEditingValue.text.toLowerCase(),
+              );
+            });
           },
+          onSelected: (String selection) {
+            _bankController.text = selection;
+            _validateForm();
+          },
+          textEditingController: _bankController,
+          focusNode:
+              FocusNode(), // Optional, managed internally if not provided, but here we want to keep it simple
+          labelText: 'Nom de la banque',
+          hintText: 'Ex: Crédit Agricole',
+          prefixIcon: const Icon(Icons.account_balance_outlined),
         ),
         const SizedBox(height: 32),
         Row(
