@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
@@ -43,33 +44,49 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) Navigator.pop(context);
           });
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const FrostedScaffold(
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
-        
-        final updatedLoan = loanVM.loans.firstWhere((l) => l.id == loan.id);
-        
-        final accountName = accountVM.accounts.isEmpty
-            ? 'Compte inconnu'
-            : accountVM.accounts.firstWhere(
-                (a) => a.id == updatedLoan.accountId,
-                orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
-              ).name;
 
-        return Scaffold(
+        final updatedLoan = loanVM.loans.firstWhere((l) => l.id == loan.id);
+
+        final accountName =
+            accountVM.accounts.isEmpty
+                ? 'Compte inconnu'
+                : accountVM.accounts
+                    .firstWhere(
+                      (a) => a.id == updatedLoan.accountId,
+                      orElse:
+                          () => AccountModel.create(
+                            name: 'Compte inconnu',
+                            bank: '',
+                          ),
+                    )
+                    .name;
+
+        return FrostedScaffold(
           appBar: AppBar(
             title: const Text('Détails de l\'emprunt'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit),
-                onPressed: () => _showEditLoanBottomSheet(context, updatedLoan, accountVM.accounts, loanVM),
+                onPressed:
+                    () => _showEditLoanBottomSheet(
+                      context,
+                      updatedLoan,
+                      accountVM.accounts,
+                      loanVM,
+                    ),
               ),
               IconButton(
                 icon: const Icon(Icons.delete),
-                onPressed: () => _showDeleteConfirmation(context, updatedLoan, loanVM),
+                onPressed:
+                    () => _showDeleteConfirmation(context, updatedLoan, loanVM),
               ),
             ],
           ),
-          body: SingleChildScrollView(
+          child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -89,10 +106,10 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   void _showEditLoanBottomSheet(
-    BuildContext context, 
-    LoanModel loan, 
+    BuildContext context,
+    LoanModel loan,
     List<AccountModel> accounts,
-    LoanViewModel loanVM
+    LoanViewModel loanVM,
   ) {
     LoanBottomSheet.show(
       context: context,
@@ -100,9 +117,9 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       loan: loan,
       onSubmit: (updatedLoan) {
         loanVM.updateLoan(updatedLoan);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Emprunt mis à jour')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Emprunt mis à jour')));
       },
       onCancel: () {},
     );
@@ -111,30 +128,28 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   void _showDeleteConfirmation(
     BuildContext context,
     LoanModel loan,
-    LoanViewModel loanVM
+    LoanViewModel loanVM,
   ) {
-    showDialog(
+    FrostedDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmer la suppression'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              loanVM.deleteLoan(loan.id);
-              Navigator.pop(context); 
-            },
-            child: const Text('Supprimer'),
-          ),
-        ],
+      title: const Text('Confirmer la suppression'),
+      content: const Text(
+        'Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.',
       ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        FrostedTextButton(
+          foregroundColor: Theme.of(context).colorScheme.error,
+          onPressed: () {
+            loanVM.deleteLoan(loan.id);
+            Navigator.pop(context);
+          },
+          child: const Text('Supprimer'),
+        ),
+      ],
     );
   }
 }

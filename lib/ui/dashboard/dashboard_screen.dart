@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/ui/dashboard/dashboard_viewmodel.dart';
@@ -22,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
       return _buildDashboardContent(context);
     }
 
-    return Scaffold(body: _buildDashboardContent(context));
+    return FrostedScaffold(child: _buildDashboardContent(context));
   }
 
   Widget _buildDashboardContent(BuildContext context) {
