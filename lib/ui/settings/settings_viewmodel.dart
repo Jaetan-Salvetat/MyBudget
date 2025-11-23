@@ -71,4 +71,17 @@ class SettingsViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_privacyKey, enabled);
   }
+
+  Future<void> resetSettings() async {
+    _themeMode = ThemeMode.system;
+    _annualExpenseCalculationMode =
+        AnnualExpenseCalculationMode.monthlyAmortized;
+    _privacyEnabled = false;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_themeKey);
+    await prefs.remove(_calculationModeKey);
+    await prefs.remove(_privacyKey);
+  }
 }
