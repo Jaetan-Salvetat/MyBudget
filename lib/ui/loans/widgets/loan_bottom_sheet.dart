@@ -261,203 +261,209 @@ class _LoanBottomSheetState extends State<LoanBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Informations',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Informations',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        _buildFieldWithValidation(
-          errorText: _nameError,
-          child: FrostedTextField(
-            controller: _nameController,
-            labelText: 'Nom',
-            hintText: 'Ex: Prêt Immobilier',
-            prefixIcon: const Icon(Icons.edit),
+          const SizedBox(height: 12),
+          _buildFieldWithValidation(
+            errorText: _nameError,
+            child: FrostedTextField(
+              controller: _nameController,
+              labelText: 'Nom',
+              hintText: 'Ex: Prêt Immobilier',
+              prefixIcon: const Icon(Icons.edit),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _buildFieldWithValidation(
-          errorText: _lenderError,
-          child: FrostedTextField(
-            controller: _lenderController,
-            labelText: 'Prêteur',
-            hintText: 'Ex: Banque Populaire',
-            prefixIcon: const Icon(Icons.person),
+          const SizedBox(height: 16),
+          _buildFieldWithValidation(
+            errorText: _lenderError,
+            child: FrostedTextField(
+              controller: _lenderController,
+              labelText: 'Prêteur',
+              hintText: 'Ex: Banque Populaire',
+              prefixIcon: const Icon(Icons.person),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _buildFieldWithValidation(
-                errorText: _amountError,
-                child: FrostedTextField(
-                  controller: _amountController,
-                  labelText: 'Montant total',
-                  hintText: 'Ex: 250000',
-                  prefixIcon: const Icon(Icons.euro),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _buildFieldWithValidation(
+                  errorText: _amountError,
+                  child: FrostedTextField(
+                    controller: _amountController,
+                    labelText: 'Montant total',
+                    hintText: 'Ex: 250000',
+                    prefixIcon: const Icon(Icons.euro),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildFieldWithValidation(
-                errorText: _monthlyError,
-                child: FrostedTextField(
-                  controller: _monthlyPaymentController,
-                  labelText: 'Mensualité',
-                  hintText: 'Ex: 1200.50',
-                  prefixIcon: const Icon(Icons.payments),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildFieldWithValidation(
+                  errorText: _monthlyError,
+                  child: FrostedTextField(
+                    controller: _monthlyPaymentController,
+                    labelText: 'Mensualité',
+                    hintText: 'Ex: 1200.50',
+                    prefixIcon: const Icon(Icons.payments),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 24),
-        Text(
-          'Calendrier',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: FrostedTextField(
-                controller: _startDateController,
-                labelText: 'Date de début',
-                prefixIcon: const Icon(Icons.calendar_today),
-                readOnly: true,
-                onTap: () => _selectDate(context, true),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: FrostedTextField(
-                controller: _endDateController,
-                labelText: 'Date de fin',
-                prefixIcon: const Icon(Icons.event),
-                readOnly: true,
-                onTap: () => _selectDate(context, false),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        FrostedTextField(
-          controller: _dayOfMonthController,
-          labelText: 'Jour du prélèvement (1-31)',
-          hintText: 'Ex: 5',
-          prefixIcon: const Icon(Icons.calendar_view_day),
-          keyboardType: TextInputType.number,
-        ),
 
-        const SizedBox(height: 24),
-        Text(
-          'Compte',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildFieldWithValidation(
-          errorText: _accountError,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color:
-                    _accountError != null
-                        ? Theme.of(context).colorScheme.error
-                        : Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.2),
-              ),
+          const SizedBox(height: 24),
+          Text(
+            'Calendrier',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: _selectedAccountId,
-                isExpanded: true,
-                icon: Icon(
-                  Icons.arrow_drop_down,
-                  color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FrostedTextField(
+                  controller: _startDateController,
+                  labelText: 'Date de début',
+                  prefixIcon: const Icon(Icons.calendar_today),
+                  readOnly: true,
+                  onTap: () => _selectDate(context, true),
                 ),
-                items:
-                    widget.accounts.map((account) {
-                      return DropdownMenuItem<int>(
-                        value: account.id,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.account_balance,
-                              size: 20,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              account.name,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: FrostedTextField(
+                  controller: _endDateController,
+                  labelText: 'Date de fin',
+                  prefixIcon: const Icon(Icons.event),
+                  readOnly: true,
+                  onTap: () => _selectDate(context, false),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          FrostedTextField(
+            controller: _dayOfMonthController,
+            labelText: 'Jour du prélèvement (1-31)',
+            hintText: 'Ex: 5',
+            prefixIcon: const Icon(Icons.calendar_view_day),
+            keyboardType: TextInputType.number,
+          ),
+
+          const SizedBox(height: 24),
+          Text(
+            'Compte',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildFieldWithValidation(
+            errorText: _accountError,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color:
+                      _accountError != null
+                          ? Theme.of(context).colorScheme.error
+                          : Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: _selectedAccountId,
+                  isExpanded: true,
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  items:
+                      widget.accounts.map((account) {
+                        return DropdownMenuItem<int>(
+                          value: account.id,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_balance,
+                                size: 20,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedAccountId = value;
-                      _clearError('account');
-                    });
-                  }
-                },
+                              const SizedBox(width: 12),
+                              Text(
+                                account.name,
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedAccountId = value;
+                        _clearError('account');
+                      });
+                    }
+                  },
+                ),
               ),
             ),
           ),
-        ),
 
-        const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FrostedTextButton(
-              onPressed: () {
-                widget.onCancel();
-                Navigator.pop(context);
-              },
-              child: const Text('Annuler'),
-            ),
-            const SizedBox(width: 16),
-            FrostedFilledButton(
-              onPressed: _handleSubmit,
-              child: Text(widget.loan == null ? 'Ajouter' : 'Enregistrer'),
-            ),
-          ],
-        ),
-      ],
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FrostedTextButton(
+                onPressed: () {
+                  widget.onCancel();
+                  Navigator.pop(context);
+                },
+                child: const Text('Annuler'),
+              ),
+              const SizedBox(width: 16),
+              FrostedFilledButton(
+                onPressed: _handleSubmit,
+                child: Text(widget.loan == null ? 'Ajouter' : 'Enregistrer'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

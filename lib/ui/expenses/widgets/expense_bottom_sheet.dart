@@ -135,167 +135,176 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Informations',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Informations',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          FrostedTextField(
-            controller: _nameController,
-            labelText: 'Nom',
-            hintText: 'Ex: Courses',
-            prefixIcon: const Icon(Icons.edit),
-          ),
-          const SizedBox(height: 16),
-          FrostedTextField(
-            controller: _amountController,
-            labelText: 'Montant',
-            hintText: '0.00',
-            prefixIcon: const Icon(Icons.euro),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            FrostedTextField(
+              controller: _nameController,
+              labelText: 'Nom',
+              hintText: 'Ex: Courses',
+              prefixIcon: const Icon(Icons.edit),
+            ),
+            const SizedBox(height: 16),
+            FrostedTextField(
+              controller: _amountController,
+              labelText: 'Montant',
+              hintText: '0.00',
+              prefixIcon: const Icon(Icons.euro),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+            const SizedBox(height: 16),
 
-          // Category Dropdown
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Catégorie',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              FrostedDropdown<int>(
-                value: _selectedCategoryId,
-                items:
-                    widget.categories.map((category) {
-                      return DropdownMenuItem<int>(
-                        value: category.id,
-                        child: Text(category.name),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedCategoryId = value;
-                      _categoryError = null;
-                    });
-                  }
-                },
-              ),
-              if (_categoryError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                  child: Text(
-                    _categoryError!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 12,
-                    ),
+            // Category Dropdown
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Catégorie',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          ExpenseFrequencyDateSection(
-            frequency: _selectedFrequency,
-            date: _selectedDate,
-            onChanged: (freq, date) {
-              setState(() {
-                _selectedFrequency = freq;
-                _selectedDate = date;
-              });
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          Text(
-            'Compte',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Account Dropdown
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Compte associé',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                const SizedBox(height: 8),
+                FrostedDropdown<int>(
+                  value: _selectedCategoryId,
+                  items:
+                      widget.categories.map((category) {
+                        return DropdownMenuItem<int>(
+                          value: category.id,
+                          child: Text(category.name),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedCategoryId = value;
+                        _categoryError = null;
+                      });
+                    }
+                  },
                 ),
-              ),
-              const SizedBox(height: 8),
-              FrostedDropdown<int>(
-                value: _selectedAccountId,
-                items:
-                    widget.accounts.map((account) {
-                      return DropdownMenuItem<int>(
-                        value: account.id,
-                        child: Text(account.name),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedAccountId = value;
-                      _accountError = null;
-                    });
-                  }
-                },
-              ),
-              if (_accountError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                  child: Text(
-                    _accountError!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 12,
+                if (_categoryError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                    child: Text(
+                      _categoryError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
 
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FrostedTextButton(
-                onPressed: () {
-                  widget.onCancel();
-                  Navigator.pop(context);
-                },
-                child: const Text('Annuler'),
+            const SizedBox(height: 24),
+
+            ExpenseFrequencyDateSection(
+              frequency: _selectedFrequency,
+              date: _selectedDate,
+              onChanged: (freq, date) {
+                setState(() {
+                  _selectedFrequency = freq;
+                  _selectedDate = date;
+                });
+              },
+            ),
+
+            const SizedBox(height: 24),
+
+            Text(
+              'Compte',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(width: 16),
-              FrostedFilledButton(
-                onPressed: _handleSubmit,
-                child: Text(widget.expense == null ? 'Ajouter' : 'Enregistrer'),
-              ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 12),
+
+            // Account Dropdown
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Compte associé',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FrostedDropdown<int>(
+                  value: _selectedAccountId,
+                  items:
+                      widget.accounts.map((account) {
+                        return DropdownMenuItem<int>(
+                          value: account.id,
+                          child: Text(account.name),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedAccountId = value;
+                        _accountError = null;
+                      });
+                    }
+                  },
+                ),
+                if (_accountError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                    child: Text(
+                      _accountError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FrostedTextButton(
+                  onPressed: () {
+                    widget.onCancel();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Annuler'),
+                ),
+                const SizedBox(width: 16),
+                FrostedFilledButton(
+                  onPressed: _handleSubmit,
+                  child: Text(
+                    widget.expense == null ? 'Ajouter' : 'Enregistrer',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

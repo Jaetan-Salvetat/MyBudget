@@ -25,22 +25,15 @@ class RevenueBottomSheet extends StatefulWidget {
     required VoidCallback onCancel,
     RevenueModel? revenue,
   }) {
-    showModalBottomSheet(
+    FrostedBottomSheet.show(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (context) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: RevenueBottomSheet(
-              accounts: accounts,
-              onSubmit: onSubmit,
-              onCancel: onCancel,
-              revenue: revenue,
-            ),
-          ),
+      title: revenue == null ? 'Ajouter un revenu' : 'Modifier le revenu',
+      child: RevenueBottomSheet(
+        accounts: accounts,
+        onSubmit: onSubmit,
+        onCancel: onCancel,
+        revenue: revenue,
+      ),
     );
   }
 
@@ -120,21 +113,11 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return FrostedCard(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(24),
+    return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            widget.revenue == null ? 'Ajouter un revenu' : 'Modifier le revenu',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-
           Text(
             'Informations',
             style: TextStyle(
