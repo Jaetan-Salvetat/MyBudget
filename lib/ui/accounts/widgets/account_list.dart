@@ -6,6 +6,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
+import 'package:mybudget/ui/common/empty_state.dart';
 
 class AccountList extends StatelessWidget {
   const AccountList({super.key});
@@ -20,27 +21,12 @@ class AccountList extends StatelessWidget {
 
         if (accountViewModel.accounts.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Aucun compte',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FilledButton.tonal(
-                  onPressed: () => _showAddAccountDialog(context),
-                  child: const Text('Ajouter un compte'),
-                ),
-              ],
+            child: EmptyState(
+              message: 'Aucun compte',
+              subMessage: 'Ajoutez un compte pour commencer',
+              icon: Icons.account_balance_wallet_outlined,
+              buttonText: 'Ajouter un compte',
+              onPressed: () => _showAddAccountDialog(context),
             ),
           );
         }

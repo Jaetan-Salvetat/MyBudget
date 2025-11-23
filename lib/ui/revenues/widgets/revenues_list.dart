@@ -8,6 +8,7 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_card.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
+import 'package:mybudget/ui/common/empty_state.dart';
 
 class RevenuesList extends StatelessWidget {
   const RevenuesList({super.key});
@@ -172,33 +173,24 @@ class RevenuesList extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            size: 64,
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucun revenu enregistré',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ajoutez vos revenus pour commencer à gérer vos finances',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return EmptyState(
+      message: 'Aucun revenu enregistré',
+      subMessage: 'Ajoutez vos revenus pour commencer à gérer vos finances',
+      icon: Icons.trending_up,
+      buttonText: 'Ajouter un revenu',
+      onPressed: () {
+        final accountVM = Provider.of<AccountViewModel>(context, listen: false);
+        final revenueVM = Provider.of<RevenueViewModel>(context, listen: false);
+
+        RevenueBottomSheet.show(
+          context: context,
+          accounts: accountVM.accounts,
+          onSubmit: (newRevenue) {
+            revenueVM.addRevenue(newRevenue);
+          },
+          onCancel: () {},
+        );
+      },
     );
   }
 }

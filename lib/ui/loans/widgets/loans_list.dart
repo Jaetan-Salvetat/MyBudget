@@ -7,6 +7,8 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/loans/widgets/loan_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
+import 'package:mybudget/ui/common/empty_state.dart';
 
 class LoansList extends StatelessWidget {
   const LoansList({super.key});
@@ -122,33 +124,24 @@ class LoansList extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        children: [
-          Icon(
-            Icons.payments,
-            size: 64,
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucun emprunt enregistré',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ajoutez vos emprunts pour suivre vos remboursements',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return EmptyState(
+      message: 'Aucun emprunt enregistré',
+      subMessage: 'Ajoutez vos emprunts pour suivre vos remboursements',
+      icon: Icons.payments,
+      buttonText: 'Ajouter un emprunt',
+      onPressed: () {
+        final accountVM = Provider.of<AccountViewModel>(context, listen: false);
+        final loanVM = Provider.of<LoanViewModel>(context, listen: false);
+
+        LoanBottomSheet.show(
+          context: context,
+          accounts: accountVM.accounts,
+          onSubmit: (newLoan) {
+            loanVM.addLoan(newLoan);
+          },
+          onCancel: () {},
+        );
+      },
     );
   }
 }

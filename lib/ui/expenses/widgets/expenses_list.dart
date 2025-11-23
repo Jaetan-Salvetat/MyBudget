@@ -12,6 +12,7 @@ import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
 
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
+import 'package:mybudget/ui/common/empty_state.dart';
 
 class ExpensesList extends StatefulWidget {
   const ExpensesList({super.key});
@@ -269,39 +270,29 @@ class _ExpensesListState extends State<ExpensesList> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            size: 64,
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Aucune dépense enregistrée',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ajoutez vos dépenses pour commencer à gérer vos finances',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter une dépense'),
-          ),
-        ],
-      ),
+    return EmptyState(
+      message: 'Aucune dépense enregistrée',
+      subMessage: 'Ajoutez vos dépenses pour commencer à gérer vos finances',
+      icon: Icons.receipt_long_outlined,
+      buttonText: 'Ajouter une dépense',
+      onPressed: () {
+        final categoryVM = Provider.of<CategoryViewModel>(
+          context,
+          listen: false,
+        );
+        final accountVM = Provider.of<AccountViewModel>(context, listen: false);
+        final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
+
+        ExpenseBottomSheet.show(
+          context: context,
+          accounts: accountVM.accounts,
+          categories: categoryVM.categories,
+          onSubmit: (newExpense) {
+            expenseVM.addExpense(newExpense);
+          },
+          onCancel: () {},
+        );
+      },
     );
   }
 
