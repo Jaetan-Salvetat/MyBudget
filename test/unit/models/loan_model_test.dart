@@ -2,86 +2,89 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 void main() {
-  group('LoanModel', () {
-    test('should create a valid instance', () {
-      final startDate = DateTime(2023, 1, 1);
-      final endDate = DateTime(2024, 1, 1);
-      final loan = LoanModel.create(
-        name: 'Car Loan',
-        amount: 12000.0,
+  group('LoanModel Financial Logic', () {
+    test(
+      'totalCost should be calculated correctly (Total Payments - Amount)',
+      () {
+        final loan = LoanModel(
+          name: 'Test Loan',
+          amount: 10000,
+          monthlyPayment: 1000,
+          duration: 12,
+          interestRate: 0,
+          lenderName: 'Bank',
+          accountId: 1,
+          startDate: DateTime(2024, 1, 1),
+          endDate: DateTime(2025, 1, 1),
+          dayOfMonth: 1,
+        );
+
+        expect(loan.totalCost, 2000.0);
+      },
+    );
+
+    test(
+      'totalCost should handle legacy loans with duration 0 by calculating real duration',
+      () {
+        final startDate = DateTime(2024, 1, 1);
+        final endDate = DateTime(2024, 11, 1);
+
+        final loan = LoanModel(
+          name: 'Legacy Loan',
+          amount: 1000,
+          monthlyPayment: 110,
+          duration: 0,
+          lenderName: 'Bank',
+          accountId: 1,
+          startDate: startDate,
+          endDate: endDate,
+          dayOfMonth: 1,
+        );
+
+        expect(loan.totalCost, 100.0);
+      },
+    );
+
+    test('remainingCapital should respect amortization logic (Not Linear)', () {
+      final now = DateTime.now();
+      final startDate = DateTime(now.year, now.month - 6, now.day);
+      final endDate = DateTime(now.year, now.month + 6, now.day);
+
+      final loan = LoanModel(
+        name: 'Amortization Test',
+        amount: 12000,
+        monthlyPayment: 1100,
+        duration: 12,
+        interestRate: 10,
         lenderName: 'Bank',
-        dayOfMonth: 5,
+        accountId: 1,
         startDate: startDate,
         endDate: endDate,
-        accountId: 1,
-        monthlyPayment: 1000.0,
+        dayOfMonth: 1,
       );
 
-      expect(loan.name, 'Car Loan');
-      expect(loan.amount, 12000.0);
-      expect(loan.lenderName, 'Bank');
-      expect(loan.dayOfMonth, 5);
-      expect(loan.startDate, startDate);
-      expect(loan.endDate, endDate);
-      expect(loan.accountId, 1);
-      expect(loan.monthlyPayment, 1000.0);
+      expect(loan.remainingCapital, lessThan(12000));
+      expect(loan.remainingCapital, greaterThan(0));
+
+      expect(loan.getProgressPercentage(), inInclusiveRange(0.4, 0.6));
     });
 
-    test('copyWith should return a new instance with updated values', () {
-      final loan = LoanModel.create(
-        name: 'Original',
-        amount: 1000.0,
-        lenderName: 'Lender',
-        dayOfMonth: 1,
-        startDate: DateTime.now(),
-        endDate: DateTime.now(),
+    test('isCompleted should return true if end date is passed', () {
+      final pastDate = DateTime.now().subtract(const Duration(days: 400));
+      final loan = LoanModel(
+        name: 'Past Loan',
+        amount: 5000,
+        monthlyPayment: 100,
+        duration: 12,
+        lenderName: 'Bank',
         accountId: 1,
-        monthlyPayment: 100.0,
+        startDate: pastDate,
+        endDate: pastDate.add(const Duration(days: 300)),
+        dayOfMonth: 1,
       );
 
-      final updated = loan.copyWith(name: 'Updated', amount: 2000.0);
-
-      expect(updated.name, 'Updated');
-      expect(updated.amount, 2000.0);
-      expect(updated.lenderName, loan.lenderName);
-    });
-
-    test('getAutomaticPaidAmount should calculate correctly', () {
-      final now = DateTime.now();
-      final startDate = DateTime(now.year, now.month - 2, 1);
-      final endDate = DateTime(now.year + 1, 1, 1);
-
-      final loan = LoanModel.create(
-        name: 'Test',
-        amount: 1000.0,
-        lenderName: 'Lender',
-        dayOfMonth: 1,
-        startDate: startDate,
-        endDate: endDate,
-        accountId: 1,
-        monthlyPayment: 100.0,
-      );
-
-      expect(loan.getAutomaticPaidAmount(), 300.0);
-    });
-
-    test('getAutomaticStatus should return completed if fully paid', () {
-      final now = DateTime.now();
-      final startDate = DateTime(now.year - 1, 1, 1);
-      final endDate = DateTime(now.year - 1, 12, 31);
-
-      final loan = LoanModel.create(
-        name: 'Test',
-        amount: 1200.0,
-        lenderName: 'Lender',
-        dayOfMonth: 1,
-        startDate: startDate,
-        endDate: endDate,
-        accountId: 1,
-        monthlyPayment: 100.0,
-      );
-
-      expect(loan.getAutomaticStatus(), LoanStatus.completed);
+      expect(loan.isCompleted(), isTrue);
+      expect(loan.remainingCapital, 0.0);
     });
   });
 }
