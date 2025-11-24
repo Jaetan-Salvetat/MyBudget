@@ -143,7 +143,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 8471750721460440152),
     name: 'LoanModel',
-    lastPropertyId: const obx_int.IdUid(10, 2010142483118272076),
+    lastPropertyId: const obx_int.IdUid(15, 6813580747910956692),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -203,6 +203,30 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(10, 2010142483118272076),
         name: 'notes',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 6774604440405766602),
+        name: 'interestRate',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 3338998208392848667),
+        name: 'duration',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 602772844799010819),
+        name: 'insuranceValue',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(15, 6813580747910956692),
+        name: 'insuranceTypeId',
         type: 9,
         flags: 0,
       ),
@@ -303,7 +327,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [],
+    retiredPropertyUids: const [3745183620062731729],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -454,7 +478,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final notesOffset = object.notes == null
             ? null
             : fbb.writeString(object.notes!);
-        fbb.startTable(11);
+        final insuranceTypeIdOffset = fbb.writeString(object.insuranceTypeId);
+        fbb.startTable(16);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -465,6 +490,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addFloat64(7, object.monthlyPayment);
         fbb.addInt64(8, object.accountId);
         fbb.addOffset(9, notesOffset);
+        fbb.addFloat64(10, object.interestRate);
+        fbb.addInt64(11, object.duration);
+        fbb.addFloat64(13, object.insuranceValue);
+        fbb.addOffset(14, insuranceTypeIdOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -516,6 +545,27 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final notesParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 22);
+        final interestRateParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          24,
+          0,
+        );
+        final durationParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          26,
+          0,
+        );
+        final insuranceTypeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 32, '');
+        final insuranceValueParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          30,
+          0,
+        );
         final object = LoanModel(
           id: idParam,
           name: nameParam,
@@ -527,6 +577,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           accountId: accountIdParam,
           monthlyPayment: monthlyPaymentParam,
           notes: notesParam,
+          interestRate: interestRateParam,
+          duration: durationParam,
+          insuranceTypeId: insuranceTypeIdParam,
+          insuranceValue: insuranceValueParam,
         );
 
         return object;
@@ -720,6 +774,26 @@ class LoanModel_ {
   /// See [LoanModel.notes].
   static final notes = obx.QueryStringProperty<LoanModel>(
     _entities[3].properties[9],
+  );
+
+  /// See [LoanModel.interestRate].
+  static final interestRate = obx.QueryDoubleProperty<LoanModel>(
+    _entities[3].properties[10],
+  );
+
+  /// See [LoanModel.duration].
+  static final duration = obx.QueryIntegerProperty<LoanModel>(
+    _entities[3].properties[11],
+  );
+
+  /// See [LoanModel.insuranceValue].
+  static final insuranceValue = obx.QueryDoubleProperty<LoanModel>(
+    _entities[3].properties[12],
+  );
+
+  /// See [LoanModel.insuranceTypeId].
+  static final insuranceTypeId = obx.QueryStringProperty<LoanModel>(
+    _entities[3].properties[13],
   );
 }
 

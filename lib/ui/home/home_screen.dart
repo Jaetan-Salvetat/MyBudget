@@ -140,22 +140,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget? _buildFab(BuildContext context) {
     switch (_selectedIndex) {
-      case 1: // Comptes
+      case 1:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddAccountDialog(context),
           child: const Icon(Icons.add),
         );
-      case 2: // Dépenses
+      case 2:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddExpenseBottomSheet(context),
           child: const Icon(Icons.add),
         );
-      case 3: // Revenus
+      case 3:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddRevenueBottomSheet(context),
           child: const Icon(Icons.add),
         );
-      case 4: // Emprunts
+      case 4:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddLoanBottomSheet(context),
           child: const Icon(Icons.add),

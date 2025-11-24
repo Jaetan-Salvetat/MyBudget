@@ -45,14 +45,8 @@ void main() {
     testWidgets('shows validation errors on empty submit', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
-      // Tap submit without entering data
       await tester.tap(find.text('Ajouter'));
       await tester.pumpAndSettle();
-
-      // Expect validation errors (default validator behavior)
-      // Note: FrostedTextField might not show standard error text immediately visible
-      // without specific implementation, but Form validation should fail.
-      // We check if onSubmit was NOT called.
     });
 
     testWidgets('calls onSubmit with valid data', (tester) async {
@@ -63,16 +57,10 @@ void main() {
         ),
       );
 
-      // Enter Name
       await tester.enterText(find.byType(TextField).at(0), 'Groceries');
 
-      // Enter Amount
       await tester.enterText(find.byType(TextField).at(1), '50.0');
 
-      // Select Category (Default is already selected as id 1)
-      // Select Account (Default is already selected as id 1)
-
-      // Tap Submit
       final submitButton = find.text('Ajouter');
       await tester.ensureVisible(submitButton);
       await tester.tap(submitButton);

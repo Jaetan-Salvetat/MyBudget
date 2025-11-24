@@ -40,25 +40,11 @@ class UpdateViewModel extends ChangeNotifier {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       _currentVersion = packageInfo.version;
-
-      // Determine if current app is Beta
-      // Beta versions usually have a build name suffix or we check if version contains "beta".
-      // However, standard Flutter version string is X.Y.Z.
-      // We can rely on the package name suffix or build signature, but for now, let's assume
-      // we detect beta if the version string from packageInfo implies it (it might not on Android if versionName is simple).
-      // A more robust way: check package name.
       final isBeta = packageInfo.packageName.endsWith('.beta');
-
-      // We need to handle version parsing carefully.
-      // version package parses semantic versions.
-      // If currentVersion is "1.0.0", Version.parse works.
-      // If "1.0.0-beta", it works.
-
       Version currentVersionObj;
       try {
         currentVersionObj = Version.parse(_currentVersion!);
       } catch (e) {
-        // Fallback if version is not standard
         currentVersionObj = Version(1, 0, 0);
       }
 
@@ -71,15 +57,13 @@ class UpdateViewModel extends ChangeNotifier {
           final releaseVersion = Version.parse(release.version);
 
           if (isBeta) {
-            // Beta Channel: Only update to newer Beta (prerelease: true)
             if (release.isPrerelease && release.version.contains('beta')) {
               if (releaseVersion > currentVersionObj) {
                 targetRelease = release;
-                break; // Found the latest applicable beta (assuming list is sorted by date desc from GitHub)
+                break;
               }
             }
           } else {
-            // Prod Channel: Only update to newer Prod (prerelease: false)
             if (!release.isPrerelease) {
               if (releaseVersion > currentVersionObj) {
                 targetRelease = release;
@@ -88,7 +72,7 @@ class UpdateViewModel extends ChangeNotifier {
             }
           }
         } catch (e) {
-          continue; // Skip malformed versions
+          continue;
         }
       }
 
@@ -118,7 +102,6 @@ class UpdateViewModel extends ChangeNotifier {
     _downloadProgress = 0.0;
     notifyListeners();
 
-    // Show progress dialog
     if (context.mounted) {
       _showDownloadDialog(context);
     }
@@ -136,12 +119,12 @@ class UpdateViewModel extends ChangeNotifier {
 
     if (filePath != null) {
       if (context.mounted) {
-        Navigator.of(context).pop(); // Close download dialog
+        Navigator.of(context).pop();
       }
       await _installService.installApk(filePath);
     } else {
       if (context.mounted) {
-        Navigator.of(context).pop(); // Close download dialog
+        Navigator.of(context).pop();
         FrostedSnackbar.show(context, message: "Erreur lors du téléchargement");
       }
     }

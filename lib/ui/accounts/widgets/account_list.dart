@@ -110,7 +110,6 @@ class AccountCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Bank Name & Icon
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -135,7 +134,6 @@ class AccountCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Body: Account Name
           Text(
             account.name,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -148,7 +146,6 @@ class AccountCard extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          // Footer: Balance
           Align(
             alignment: Alignment.centerRight,
             child: Text(

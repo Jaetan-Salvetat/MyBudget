@@ -44,13 +44,10 @@ void main() {
         ),
       );
 
-      // Enter Name
       await tester.enterText(find.byType(TextField).at(0), 'Salary');
 
-      // Enter Amount
       await tester.enterText(find.byType(TextField).at(1), '2000.0');
 
-      // Tap Submit
       final submitButton = find.text('Ajouter');
       await tester.ensureVisible(submitButton);
       await tester.tap(submitButton);
@@ -60,7 +57,7 @@ void main() {
       expect(submittedRevenue!.name, 'Salary');
       expect(submittedRevenue!.amount, 2000.0);
       expect(submittedRevenue!.accountId, 1);
-      expect(submittedRevenue!.isRegular, true); // Default is true
+      expect(submittedRevenue!.isRegular, true);
     });
   });
 }

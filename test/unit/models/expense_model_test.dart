@@ -37,7 +37,7 @@ void main() {
 
       expect(updated.name, 'Updated');
       expect(updated.amount, 75.0);
-      expect(updated.categoryId, expense.categoryId); // Unchanged
+      expect(updated.categoryId, expense.categoryId);
     });
 
     test('toJson should return correct map', () {

@@ -13,7 +13,6 @@ void main() {
   setUp(() {
     mockRevenueRepository = MockRevenueRepository();
 
-    // Default behavior
     when(() => mockRevenueRepository.getAll()).thenReturn([]);
 
     viewModel = RevenueViewModel(mockRevenueRepository);
@@ -41,7 +40,7 @@ void main() {
       await viewModel.addRevenue(revenue);
 
       verify(() => mockRevenueRepository.add(revenue)).called(1);
-      verify(() => mockRevenueRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockRevenueRepository.getAll()).called(2);
       expect(viewModel.revenues.length, 1);
     });
 
@@ -51,7 +50,7 @@ void main() {
       await viewModel.deleteRevenue(1);
 
       verify(() => mockRevenueRepository.delete(1)).called(1);
-      verify(() => mockRevenueRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockRevenueRepository.getAll()).called(2);
     });
 
     test('getTotalRevenues should calculate correctly', () {
@@ -71,7 +70,6 @@ void main() {
       );
 
       when(() => mockRevenueRepository.getAll()).thenReturn([r1, r2]);
-      // Re-init viewmodel to load these revenues
       viewModel = RevenueViewModel(mockRevenueRepository);
 
       expect(viewModel.getTotalRevenues(), 300.0);

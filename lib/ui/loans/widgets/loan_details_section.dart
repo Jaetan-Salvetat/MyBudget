@@ -26,7 +26,6 @@ class LoanDetailsSection extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Dates Section
           _buildSectionTitle(context, 'Calendrier'),
           const SizedBox(height: 16),
           _buildDetailRow(
@@ -61,7 +60,6 @@ class LoanDetailsSection extends StatelessWidget {
             child: FrostedDivider(height: 1),
           ),
 
-          // Info Section
           _buildSectionTitle(context, 'Informations'),
           const SizedBox(height: 16),
           _buildDetailRow(

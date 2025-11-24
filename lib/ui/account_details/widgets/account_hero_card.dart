@@ -32,7 +32,6 @@ class AccountHeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Bank Name
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -69,7 +68,6 @@ class AccountHeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // Body: Account Name & Balance
           Text(
             account.name,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -93,7 +91,6 @@ class AccountHeroCard extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 16),
 
-          // Footer: Stats
           Row(
             children: [
               Expanded(

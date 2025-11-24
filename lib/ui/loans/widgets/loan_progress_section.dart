@@ -19,7 +19,6 @@ class LoanProgressSection extends StatelessWidget {
     final progress = loan.amount == 0 ? 0.0 : paidAmount / loan.amount;
     final remainingAmount = loan.amount - paidAmount;
 
-    // Calculate remaining months
     final now = DateTime.now();
     int remainingMonths = 0;
     if (!loan.isCompleted() && loan.endDate.isAfter(now)) {
@@ -82,7 +81,6 @@ class LoanProgressSection extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Progress Bar
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -125,7 +123,6 @@ class LoanProgressSection extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Stats Row
           Row(
             children: [
               Expanded(

@@ -7,14 +7,14 @@ class LoanSummaryCard extends StatelessWidget {
   final double monthlyPayment;
   final double progress;
   final int activeLoanCount;
-  final double initialDebt;
+  final double remainingCost;
 
   const LoanSummaryCard({
     required this.totalDebt,
     required this.monthlyPayment,
     required this.progress,
     required this.activeLoanCount,
-    required this.initialDebt,
+    required this.remainingCost,
     super.key,
   });
 
@@ -96,9 +96,9 @@ class LoanSummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildSummaryCard(
-                    'Total Emprunté',
-                    initialDebt,
-                    Icons.account_balance,
+                    'Coût du crédit',
+                    remainingCost,
+                    Icons.pie_chart_outline,
                     primaryColor,
                     formatter,
                   ),
@@ -106,7 +106,7 @@ class LoanSummaryCard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildSummaryCard(
-                    'Restant',
+                    'Capital Restant',
                     totalDebt,
                     Icons.savings,
                     color,
@@ -190,7 +190,7 @@ class LoanSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Progression globale',
+                'Capital Amorti',
                 style: TextStyle(
                   fontSize: 14,
                   color: color.withValues(alpha: 0.8),

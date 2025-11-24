@@ -29,7 +29,6 @@ class EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon Container
             Container(
               width: 80,
               height: 80,
@@ -41,7 +40,6 @@ class EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Message
             Text(
               message,
               style: textTheme.titleLarge?.copyWith(
@@ -53,7 +51,6 @@ class EmptyState extends StatelessWidget {
 
             if (subMessage != null) ...[
               const SizedBox(height: 8),
-              // SubMessage
               Text(
                 subMessage!,
                 style: textTheme.bodyMedium?.copyWith(
@@ -64,7 +61,6 @@ class EmptyState extends StatelessWidget {
             ],
 
             const SizedBox(height: 32),
-            // Action Button
             FrostedFilledButton.icon(
               onPressed: onPressed,
               icon: const Icon(Icons.add),

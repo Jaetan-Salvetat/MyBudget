@@ -60,15 +60,14 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
 
       await tester.tap(find.text('Ajouter une catégorie'));
-      await tester.pump(); // Start animation
-      await tester.pump(const Duration(seconds: 1)); // Wait for animation
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.text('Nouvelle catégorie'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), 'New Category');
       await tester.pump();
 
-      // Find the 'Ajouter' button specifically in the dialog actions
       final addButton = find.descendant(
         of: find.byType(FrostedFilledButton),
         matching: find.text('Ajouter'),
@@ -76,7 +75,7 @@ void main() {
 
       await tester.tap(addButton);
       await tester.pump();
-      await tester.pump(const Duration(seconds: 1)); // Wait for close animation
+      await tester.pump(const Duration(seconds: 1));
 
       verify(() => mockCategoryViewModel.addCategory(any())).called(1);
     });

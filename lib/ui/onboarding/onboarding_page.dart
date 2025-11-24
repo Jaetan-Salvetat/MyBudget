@@ -53,14 +53,12 @@ class _OnboardingContent extends StatelessWidget {
             ],
           ),
 
-          // Controls
           Positioned(
             bottom: 40,
             left: 24,
             right: 24,
             child: Column(
               children: [
-                // Page Indicator
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(3, (index) {
@@ -85,7 +83,6 @@ class _OnboardingContent extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                // Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,

@@ -19,7 +19,6 @@ void main() {
     mockExpenseRepository = MockExpenseRepository();
     mockCategoryRepository = MockCategoryRepository();
 
-    // Default behavior
     when(() => mockExpenseRepository.getAll()).thenReturn([]);
 
     viewModel = ExpenseViewModel(mockExpenseRepository, mockCategoryRepository);
@@ -48,7 +47,7 @@ void main() {
       await viewModel.addExpense(expense);
 
       verify(() => mockExpenseRepository.add(expense)).called(1);
-      verify(() => mockExpenseRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockExpenseRepository.getAll()).called(2);
       expect(viewModel.expenses.length, 1);
     });
 
@@ -58,7 +57,7 @@ void main() {
       await viewModel.deleteExpense(1);
 
       verify(() => mockExpenseRepository.delete(1)).called(1);
-      verify(() => mockExpenseRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockExpenseRepository.getAll()).called(2);
     });
 
     test('getTotalExpenses should calculate correctly', () {
@@ -79,7 +78,6 @@ void main() {
         accountId: 1,
       );
 
-      // Monthly Amortized: 100 + (1200 / 12) = 200
       final total = viewModel.getTotalExpenses([
         expense1,
         expense2,

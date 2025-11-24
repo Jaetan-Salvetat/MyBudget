@@ -74,6 +74,7 @@ class LoansList extends StatelessWidget {
     final totalActiveInitialAmount = loanVM.getTotalActiveInitialAmount();
     final totalRemainingAmount = loanVM.getTotalRemainingAmount();
     final totalMonthlyPayment = loanVM.getTotalMonthlyPayments();
+    final totalRemainingCost = loanVM.getTotalRemainingCost();
     final activeLoanCount = loanVM.getActiveLoans().length;
 
     final progress =
@@ -87,7 +88,7 @@ class LoansList extends StatelessWidget {
       monthlyPayment: totalMonthlyPayment,
       progress: progress,
       activeLoanCount: activeLoanCount,
-      initialDebt: totalActiveInitialAmount,
+      remainingCost: totalRemainingCost,
     );
   }
 

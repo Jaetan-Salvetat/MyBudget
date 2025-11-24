@@ -2,8 +2,6 @@ import 'dart:math';
 import 'package:mybudget/core/enums/loan_enums.dart';
 
 class LoanCalculator {
-  /// Calcule la mensualité du crédit (hors assurance)
-  /// Formule: M = C * (r / (1 - (1 + r)^-n))
   static double calculatePrincipalPayment({
     required double amount,
     required double annualRate,
@@ -17,7 +15,6 @@ class LoanCalculator {
         (monthlyRate / (1 - pow(1 + monthlyRate, -durationInMonths)));
   }
 
-  /// Calcule le coût mensuel de l'assurance
   static double calculateMonthlyInsurance({
     required double amount,
     required LoanInsuranceType type,
@@ -29,14 +26,12 @@ class LoanCalculator {
       case LoanInsuranceType.fixed:
         return value;
       case LoanInsuranceType.percentage:
-        // Taux annuel sur le capital initial divisé par 12
         return (amount * (value / 100)) / 12;
       case LoanInsuranceType.none:
         return 0.0;
     }
   }
 
-  /// Calcule le total mensuel (Crédit + Assurance)
   static double calculateTotalMonthlyPayment({
     required double amount,
     required double annualRate,
@@ -57,5 +52,27 @@ class LoanCalculator {
     );
 
     return principalPayment + insurancePayment;
+  }
+
+  static double calculateRemainingPrincipal({
+    required double amount,
+    required double annualRate,
+    required int durationInMonths,
+    required int monthsPassed,
+  }) {
+    if (monthsPassed <= 0) return amount;
+    if (monthsPassed >= durationInMonths) return 0.0;
+    if (annualRate == 0) {
+      return amount - (amount / durationInMonths * monthsPassed);
+    }
+
+    final monthlyRate = annualRate / 100 / 12;
+
+    final numerator =
+        pow(1 + monthlyRate, durationInMonths) -
+        pow(1 + monthlyRate, monthsPassed);
+    final denominator = pow(1 + monthlyRate, durationInMonths) - 1;
+
+    return amount * (numerator / denominator);
   }
 }

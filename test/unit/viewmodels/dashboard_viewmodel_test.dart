@@ -37,7 +37,6 @@ void main() {
     mockLoanViewModel = MockLoanViewModel();
     mockSettingsViewModel = MockSettingsViewModel();
 
-    // Stub listeners
     when(() => mockAccountViewModel.addListener(any())).thenReturn(null);
     when(() => mockExpenseViewModel.addListener(any())).thenReturn(null);
     when(() => mockRevenueViewModel.addListener(any())).thenReturn(null);
@@ -49,7 +48,6 @@ void main() {
     when(() => mockLoanViewModel.removeListener(any())).thenReturn(null);
     when(() => mockSettingsViewModel.removeListener(any())).thenReturn(null);
 
-    // Default settings
     when(
       () => mockSettingsViewModel.annualExpenseCalculationMode,
     ).thenReturn(AnnualExpenseCalculationMode.monthlyAmortized);

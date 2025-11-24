@@ -6,7 +6,6 @@ import 'package:mybudget/utils/loan_calculator.dart';
 enum DurationUnit { years, months }
 
 class LoanCreationViewModel extends ChangeNotifier {
-  // --- Controllers ---
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lenderController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
@@ -15,7 +14,6 @@ class LoanCreationViewModel extends ChangeNotifier {
   final TextEditingController insuranceValueController =
       TextEditingController();
 
-  // --- State ---
   String _name = '';
   String _lenderName = '';
   double _amount = 0.0;
@@ -74,13 +72,10 @@ class LoanCreationViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  // --- Stepper State ---
   int _currentStep = 0;
   int get currentStep => _currentStep;
-  int get totalSteps =>
-      4; // 0:Identity/Capital, 1:Conditions, 2:Insurance, 3:Review
+  int get totalSteps => 4;
 
-  // --- Getters ---
   String get name => _name;
   String get lenderName => _lenderName;
   double get amount => _amount;
@@ -92,8 +87,6 @@ class LoanCreationViewModel extends ChangeNotifier {
   double get interestRate => _interestRate;
   LoanInsuranceType get insuranceType => _insuranceType;
   double get insuranceValue => _insuranceValue;
-
-  // --- Computed Properties ---
 
   int get durationInMonths {
     return _durationUnit == DurationUnit.years
@@ -131,8 +124,6 @@ class LoanCreationViewModel extends ChangeNotifier {
     );
   }
 
-  // --- Validation ---
-
   bool get isStep1Valid {
     return _name.isNotEmpty &&
         _lenderName.isNotEmpty &&
@@ -145,9 +136,6 @@ class LoanCreationViewModel extends ChangeNotifier {
   }
 
   bool get isStep3Valid {
-    // Assurance step is always valid (default is None or 0)
-    // Unless we want to enforce value > 0 if type is not none?
-    // Let's keep it flexible for now.
     return true;
   }
 
@@ -159,10 +147,8 @@ class LoanCreationViewModel extends ChangeNotifier {
     if (_currentStep == 0) return isStep1Valid;
     if (_currentStep == 1) return isStep2Valid;
     if (_currentStep == 2) return isStep3Valid;
-    return false; // Last step (Review) doesn't go "next", it submits
+    return false;
   }
-
-  // --- Setters & Actions ---
 
   void nextStep() {
     if (_currentStep < totalSteps - 1) {
@@ -185,8 +171,6 @@ class LoanCreationViewModel extends ChangeNotifier {
     }
   }
 
-  // Text Setters removed in favor of Controllers listeners
-
   void setAccountId(int id) {
     _selectedAccountId = id;
     notifyListeners();
@@ -202,23 +186,15 @@ class LoanCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Duration Value setter removed (controller)
-
   void setDurationUnit(DurationUnit unit) {
     _durationUnit = unit;
     notifyListeners();
   }
 
-  // Rate setter removed (controller)
-
   void setInsuranceType(LoanInsuranceType type) {
     _insuranceType = type;
     notifyListeners();
   }
-
-  // Insurance Value setter removed (controller)
-
-  // --- Create Model ---
 
   LoanModel createLoanModel() {
     return LoanModel.create(

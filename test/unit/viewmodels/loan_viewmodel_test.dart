@@ -13,7 +13,6 @@ void main() {
   setUp(() {
     mockLoanRepository = MockLoanRepository();
 
-    // Default behavior
     when(() => mockLoanRepository.getAll()).thenReturn([]);
 
     viewModel = LoanViewModel(mockLoanRepository);
@@ -44,7 +43,7 @@ void main() {
       await viewModel.addLoan(loan);
 
       verify(() => mockLoanRepository.add(loan)).called(1);
-      verify(() => mockLoanRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockLoanRepository.getAll()).called(2);
       expect(viewModel.loans.length, 1);
     });
 
@@ -54,12 +53,10 @@ void main() {
       await viewModel.deleteLoan(1);
 
       verify(() => mockLoanRepository.delete(1)).called(1);
-      verify(() => mockLoanRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockLoanRepository.getAll()).called(2);
     });
 
     test('getTotalRemainingAmount should calculate correctly', () {
-      // Mock a loan that is NOT completed
-      // We'll use a future start date so paid amount is 0
       final futureDate = DateTime.now().add(const Duration(days: 30));
       final loan = LoanModel.create(
         name: 'Future Loan',

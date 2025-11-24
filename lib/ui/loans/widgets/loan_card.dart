@@ -20,19 +20,9 @@ class LoanCard extends StatelessWidget {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final theme = Theme.of(context);
 
-    final paidAmount = loan.getAutomaticPaidAmount();
-    final progress = loan.amount == 0 ? 0.0 : paidAmount / loan.amount;
-    final remainingAmount = loan.amount - paidAmount;
-
-    // Calculate remaining months
-    final now = DateTime.now();
-    int remainingMonths = 0;
-    if (!loan.isCompleted() && loan.endDate.isAfter(now)) {
-      int months =
-          (loan.endDate.year - now.year) * 12 + loan.endDate.month - now.month;
-      if (now.day > loan.dayOfMonth) months--;
-      remainingMonths = months > 0 ? months : 0;
-    }
+    final progress = loan.getProgressPercentage();
+    final remainingCapital = loan.remainingCapital;
+    final remainingMonths = loan.remainingMonths;
 
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -42,7 +32,6 @@ class LoanCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -57,7 +46,6 @@ class LoanCard extends StatelessWidget {
           ),
           const SizedBox(width: 16),
 
-          // Main Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +96,6 @@ class LoanCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // Right Side (Amount & Badge)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -122,7 +109,7 @@ class LoanCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Reste ${formatter.format(remainingAmount)}',
+                'Capital : ${formatter.format(remainingCapital)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.outline,

@@ -24,7 +24,6 @@ class RevenuesList extends StatelessWidget {
         final revenues = revenueVM.revenues;
         final isEmpty = revenues.isEmpty;
 
-        // Séparation des revenus
         final now = DateTime.now();
         final startOfMonth = DateTime(now.year, now.month, 1);
 
@@ -37,21 +36,16 @@ class RevenuesList extends StatelessWidget {
 
         final pastRevenues =
             revenues.where((r) {
-              // Ponctuel ET Date < Début du mois
               if (r.isRegular) return false;
               final rDate = DateTime(r.date.year, r.date.month, r.date.day);
               return rDate.isBefore(startOfMonth);
             }).toList();
 
-        // Construction de la liste d'affichage
         final items = [];
-        // 1. Header
         items.add('HEADER');
 
-        // 2. Revenus Actifs
         items.addAll(activeRevenues);
 
-        // 3. Séparateur et Revenus Passés (si existants)
         if (pastRevenues.isNotEmpty) {
           items.add('DIVIDER');
           items.addAll(pastRevenues);
@@ -78,7 +72,7 @@ class RevenuesList extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Row(
                   children: [
-                    Expanded(child: FrostedDivider()),
+                    const Expanded(child: FrostedDivider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -92,7 +86,7 @@ class RevenuesList extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Expanded(child: FrostedDivider()),
+                    const Expanded(child: FrostedDivider()),
                   ],
                 ),
               );

@@ -33,7 +33,7 @@ void main() {
 
       expect(updated.name, 'Updated');
       expect(updated.amount, 150.0);
-      expect(updated.isRegular, revenue.isRegular); // Unchanged
+      expect(updated.isRegular, revenue.isRegular);
     });
 
     test('toJson should return correct map', () {

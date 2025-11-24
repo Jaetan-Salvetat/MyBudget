@@ -26,7 +26,7 @@ void main() {
       final updated = category.copyWith(name: 'Updated');
 
       expect(updated.name, 'Updated');
-      expect(updated.icon, 'icon'); // Unchanged
+      expect(updated.icon, 'icon');
     });
 
     test('toJson should return correct map', () {

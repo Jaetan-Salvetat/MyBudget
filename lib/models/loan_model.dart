@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
+import 'package:mybudget/utils/loan_calculator.dart';
 import 'package:objectbox/objectbox.dart';
 
 enum LoanStatus {
@@ -52,27 +53,23 @@ class LoanModel {
   int accountId;
   String? notes;
 
-  // Nouveaux champs pour le calcul précis
-  double interestRate; // Taux annuel en %
-  int duration; // Durée en mois
+  double interestRate;
+  int duration;
 
-  // Stockage de l'enum en int pour ObjectBox
-  int insuranceTypeIndex;
-  double insuranceValue; // Valeur de l'assurance (Montant ou %)
+  String insuranceTypeId;
+  double insuranceValue;
 
-  double get paidAmount => getAutomaticPaidAmount();
+  double get paidAmount => totalPaidCash;
 
-  // Helper pour l'enum InsuranceType
   LoanInsuranceType get insuranceType {
-    if (insuranceTypeIndex >= 0 &&
-        insuranceTypeIndex < LoanInsuranceType.values.length) {
-      return LoanInsuranceType.values[insuranceTypeIndex];
-    }
-    return LoanInsuranceType.none;
+    return LoanInsuranceType.values.firstWhere(
+      (e) => e.name == insuranceTypeId,
+      orElse: () => LoanInsuranceType.none,
+    );
   }
 
   set insuranceType(LoanInsuranceType type) {
-    insuranceTypeIndex = type.index;
+    insuranceTypeId = type.name;
   }
 
   LoanModel({
@@ -88,7 +85,7 @@ class LoanModel {
     this.notes,
     this.interestRate = 0.0,
     this.duration = 0,
-    this.insuranceTypeIndex = 0, // Default to none
+    this.insuranceTypeId = 'none',
     this.insuranceValue = 0.0,
   });
 
@@ -119,7 +116,7 @@ class LoanModel {
       notes: notes,
       interestRate: interestRate,
       duration: duration,
-      insuranceTypeIndex: insuranceType.index,
+      insuranceTypeId: insuranceType.name,
       insuranceValue: insuranceValue,
     );
   }
@@ -152,17 +149,69 @@ class LoanModel {
       notes: notes ?? this.notes,
       interestRate: interestRate ?? this.interestRate,
       duration: duration ?? this.duration,
-      insuranceTypeIndex: insuranceType?.index ?? this.insuranceTypeIndex,
+      insuranceTypeId: insuranceType?.name ?? this.insuranceTypeId,
       insuranceValue: insuranceValue ?? this.insuranceValue,
     );
   }
 
+  double get remainingCapital {
+    final now = DateTime.now();
+
+    if (now.isBefore(startDate)) {
+      return amount;
+    }
+
+    if (now.isAfter(endDate)) {
+      return 0.0;
+    }
+
+    final startYearMonth = startDate.year * 12 + startDate.month - 1;
+    final nowYearMonth = now.year * 12 + now.month - 1;
+    final daysPassed = now.day >= dayOfMonth ? 1 : 0;
+
+    final monthsPassed = (nowYearMonth - startYearMonth) + daysPassed;
+
+    if (duration == 0) {
+      final paidNaive = monthsPassed * monthlyPayment;
+      return (amount - paidNaive).clamp(0.0, amount);
+    }
+
+    return LoanCalculator.calculateRemainingPrincipal(
+      amount: amount,
+      annualRate: interestRate,
+      durationInMonths: duration,
+      monthsPassed: monthsPassed,
+    );
+  }
+
+  int get remainingMonths {
+    final now = DateTime.now();
+    if (now.isAfter(endDate)) return 0;
+
+    final realDuration =
+        duration > 0
+            ? duration
+            : (endDate.year - startDate.year) * 12 +
+                endDate.month -
+                startDate.month;
+
+    if (now.isBefore(startDate)) return realDuration;
+
+    final endYearMonth = endDate.year * 12 + endDate.month;
+    final nowYearMonth = now.year * 12 + now.month;
+
+    final diff = endYearMonth - nowYearMonth;
+    return diff.clamp(0, realDuration);
+  }
+
   double getRemainingAmount() {
-    return amount - getAutomaticPaidAmount();
+    return remainingCapital;
   }
 
   double getProgressPercentage() {
-    return getAutomaticPaidAmount() / amount;
+    if (amount == 0) return 0.0;
+    final remaining = remainingCapital;
+    return (amount - remaining) / amount;
   }
 
   bool isCompleted() {
@@ -170,24 +219,24 @@ class LoanModel {
   }
 
   LoanStatus getAutomaticStatus() {
-    final paidAmount = getAutomaticPaidAmount();
+    final now = DateTime.now();
 
-    if (paidAmount >= amount) {
+    if (now.isAfter(endDate)) {
       return LoanStatus.completed;
     }
 
-    final now = DateTime.now();
+    if (remainingCapital <= 0) {
+      return LoanStatus.completed;
+    }
 
     if (now.isBefore(startDate)) {
       return LoanStatus.pending;
     }
 
-    if (paidAmount > 0) {
-      return LoanStatus.partiallyPaid;
-    }
-
-    return LoanStatus.pending;
+    return LoanStatus.partiallyPaid;
   }
+
+  double get totalPaidCash => getAutomaticPaidAmount();
 
   double getAutomaticPaidAmount() {
     final now = DateTime.now();
@@ -196,17 +245,15 @@ class LoanModel {
       return 0.0;
     }
 
-    if (now.isAfter(endDate)) {
-      return amount;
-    }
+    final effectiveEndDate = now.isAfter(endDate) ? endDate : now;
 
     final startYearMonth = startDate.year * 12 + startDate.month - 1;
-    final nowYearMonth = now.year * 12 + now.month - 1;
-    final daysPassed = now.day >= dayOfMonth ? 1 : 0;
+    final endYearMonth =
+        effectiveEndDate.year * 12 + effectiveEndDate.month - 1;
+    final daysPassed = effectiveEndDate.day >= dayOfMonth ? 1 : 0;
 
-    final monthsPassed = (nowYearMonth - startYearMonth) + daysPassed;
-    final automaticPaidAmount = monthsPassed * monthlyPayment;
+    final monthsPassed = (endYearMonth - startYearMonth) + daysPassed;
 
-    return automaticPaidAmount > amount ? amount : automaticPaidAmount;
+    return monthsPassed * monthlyPayment;
   }
 }

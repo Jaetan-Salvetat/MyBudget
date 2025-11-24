@@ -108,8 +108,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             _validateForm();
           },
           textEditingController: _bankController,
-          focusNode:
-              FocusNode(), // Optional, managed internally if not provided, but here we want to keep it simple
+          focusNode: FocusNode(),
           labelText: 'Nom de la banque',
           hintText: 'Ex: Crédit Agricole',
           prefixIcon: const Icon(Icons.account_balance_outlined),

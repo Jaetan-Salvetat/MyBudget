@@ -481,7 +481,6 @@ class LoanCreationBottomSheet extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Magic Card
         if (showMagicCard) ...[
           _buildMagicCard(context, viewModel),
           const SizedBox(height: 16),

@@ -16,7 +16,7 @@ void main() {
       final updated = account.copyWith(name: 'Updated');
 
       expect(updated.name, 'Updated');
-      expect(updated.bank, 'Bank A'); // Unchanged
+      expect(updated.bank, 'Bank A');
     });
 
     test('toJson should return correct map', () {

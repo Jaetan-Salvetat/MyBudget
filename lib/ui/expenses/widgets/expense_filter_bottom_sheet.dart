@@ -85,7 +85,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
     );
 
     final filterData = ExpenseFilterData(
-      startDate: widget.initialFilterData.startDate, // Preserve dates if any
+      startDate: widget.initialFilterData.startDate,
       endDate: widget.initialFilterData.endDate,
       minAmount: minAmount,
       maxAmount: maxAmount,
@@ -128,7 +128,6 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Amount Section
         Text(
           'Montant',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -167,7 +166,6 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
 
         const SizedBox(height: 24),
 
-        // Categories Section
         if (widget.categories.isNotEmpty) ...[
           Text(
             'Catégories',
@@ -193,7 +191,6 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           const SizedBox(height: 24),
         ],
 
-        // Accounts Section
         if (widget.accounts.isNotEmpty) ...[
           Text(
             'Comptes',
@@ -219,7 +216,6 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           const SizedBox(height: 32),
         ],
 
-        // Actions
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [

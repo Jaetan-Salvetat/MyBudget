@@ -31,13 +31,11 @@ void main() {
     mockRevenueViewModel = MockRevenueViewModel();
     mockLoanViewModel = MockLoanViewModel();
 
-    // Default behavior
     when(() => mockAccountRepository.getAll()).thenReturn([]);
     when(() => mockExpenseViewModel.expenses).thenReturn([]);
     when(() => mockRevenueViewModel.revenues).thenReturn([]);
     when(() => mockLoanViewModel.loans).thenReturn([]);
 
-    // Stub addListener/removeListener for ViewModels
     when(() => mockExpenseViewModel.addListener(any())).thenReturn(null);
     when(() => mockRevenueViewModel.addListener(any())).thenReturn(null);
     when(() => mockLoanViewModel.addListener(any())).thenReturn(null);
@@ -69,14 +67,13 @@ void main() {
       await viewModel.addAccount(account);
 
       verify(() => mockAccountRepository.add(account)).called(1);
-      verify(() => mockAccountRepository.getAll()).called(2); // Init + Reload
+      verify(() => mockAccountRepository.getAll()).called(2);
       expect(viewModel.accounts.length, 1);
     });
 
     test('getAccountBalance should calculate correctly', () {
-      final accountId = 1;
+      const accountId = 1;
 
-      // Mock Revenue: +1000
       final revenue = RevenueModel.create(
         name: 'Salary',
         amount: 1000.0,
@@ -86,7 +83,6 @@ void main() {
       );
       when(() => mockRevenueViewModel.revenues).thenReturn([revenue]);
 
-      // Mock Expense: -200
       final expense = ExpenseModel.create(
         name: 'Food',
         amount: 200.0,
@@ -97,7 +93,6 @@ void main() {
       );
       when(() => mockExpenseViewModel.expenses).thenReturn([expense]);
 
-      // Mock Loan Payment: -100
       final loan = LoanModel.create(
         name: 'Loan',
         amount: 1000.0,
@@ -110,7 +105,6 @@ void main() {
       );
       when(() => mockLoanViewModel.loans).thenReturn([loan]);
 
-      // Expected: 1000 - 200 - 100 = 700
       expect(viewModel.getAccountBalance(accountId), 700.0);
     });
   });

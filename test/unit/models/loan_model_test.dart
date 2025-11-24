@@ -43,18 +43,12 @@ void main() {
 
       expect(updated.name, 'Updated');
       expect(updated.amount, 2000.0);
-      expect(updated.lenderName, loan.lenderName); // Unchanged
+      expect(updated.lenderName, loan.lenderName);
     });
 
     test('getAutomaticPaidAmount should calculate correctly', () {
-      // Start date: 1st Jan 2023
-      // Monthly payment: 100
-      // Current date (mocked conceptually): 1st Mar 2023 -> 2 months passed (Jan, Feb)
-      // Note: Since getAutomaticPaidAmount uses DateTime.now(), we can't easily mock time without a wrapper or library.
-      // For this unit test, we'll test the logic by setting start date relative to now.
-
       final now = DateTime.now();
-      final startDate = DateTime(now.year, now.month - 2, 1); // 2 months ago
+      final startDate = DateTime(now.year, now.month - 2, 1);
       final endDate = DateTime(now.year + 1, 1, 1);
 
       final loan = LoanModel.create(
@@ -68,23 +62,13 @@ void main() {
         monthlyPayment: 100.0,
       );
 
-      // 2 months passed (Month-2, Month-1) + current month if day >= 1
-      // If today is >= 1st, then 3 payments (Month-2, Month-1, Current)
-      // If today is < 1st (impossible since 1 is min), always 3 payments.
-      // Wait, let's trace:
-      // startYearMonth = Y*12 + M-2
-      // nowYearMonth = Y*12 + M
-      // diff = 2
-      // daysPassed = now.day >= 1 ? 1 : 0 -> 1
-      // total months = 2 + 1 = 3
-
       expect(loan.getAutomaticPaidAmount(), 300.0);
     });
 
     test('getAutomaticStatus should return completed if fully paid', () {
       final now = DateTime.now();
       final startDate = DateTime(now.year - 1, 1, 1);
-      final endDate = DateTime(now.year - 1, 12, 31); // Ended in past
+      final endDate = DateTime(now.year - 1, 12, 31);
 
       final loan = LoanModel.create(
         name: 'Test',
@@ -97,7 +81,6 @@ void main() {
         monthlyPayment: 100.0,
       );
 
-      // Should be fully paid
       expect(loan.getAutomaticStatus(), LoanStatus.completed);
     });
   });

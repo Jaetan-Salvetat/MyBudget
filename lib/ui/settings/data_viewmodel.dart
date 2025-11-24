@@ -154,10 +154,8 @@ class DataViewModel extends ChangeNotifier {
       _loanRepository.deleteAll();
       _categoryRepository.deleteAll();
 
-      // Map pour stocker la correspondance entre anciens IDs et nouveaux IDs des comptes
       final Map<int, int> accountIdMap = {};
 
-      // 1. Importer les comptes
       if (data['accounts'] != null && data['accounts'] is List) {
         final accountsList = data['accounts'] as List;
         final totalAccounts = accountsList.length;
@@ -169,11 +167,9 @@ class DataViewModel extends ChangeNotifier {
         for (var i = 0; i < totalAccounts; i++) {
           try {
             final accountData = accountsList[i];
-            // Gestion robuste de l'ID (peut être String ou int)
             final oldId = int.tryParse(accountData['id'].toString()) ?? 0;
             final accountName = accountData['name'] as String? ?? 'Inconnu';
 
-            // On force l'ID à 0 pour qu'ObjectBox en génère un nouveau
             accountData['id'] = 0;
             final account = AccountModel.fromJson(accountData);
 
@@ -194,7 +190,6 @@ class DataViewModel extends ChangeNotifier {
         debugPrint('Aucun compte trouvé dans le fichier d\'import.');
       }
 
-      // 2. Importer les dépenses
       if (data['expenses'] != null && data['expenses'] is List) {
         final expensesList = data['expenses'] as List;
         final totalExpenses = expensesList.length;
@@ -208,8 +203,6 @@ class DataViewModel extends ChangeNotifier {
           try {
             final expenseData = expensesList[i];
 
-            // Mettre à jour l'accountId avec le nouvel ID
-            // Gestion robuste de l'ID (peut être String ou int)
             final oldAccountId = int.tryParse(
               expenseData['accountId'].toString(),
             );
@@ -221,12 +214,9 @@ class DataViewModel extends ChangeNotifier {
                 debugPrint(
                   'ATTENTION: Dépense ignorée ou orpheline - AccountID $oldAccountId introuvable dans le mapping.',
                 );
-                // On continue quand même, peut-être avec un accountId par défaut ou null ?
-                // Pour l'instant, on laisse tel quel, mais l'intégrité référentielle risque d'être brisée.
               }
             }
 
-            // Reset ID
             expenseData['id'] = 0;
 
             final expense = ExpenseModel.fromJson(expenseData);
@@ -244,7 +234,6 @@ class DataViewModel extends ChangeNotifier {
         debugPrint('Aucune dépense trouvée dans le fichier d\'import.');
       }
 
-      // 3. Importer les revenus
       if (data['revenues'] != null && data['revenues'] is List) {
         final revenuesList = data['revenues'] as List;
         final totalRevenues = revenuesList.length;
@@ -258,8 +247,6 @@ class DataViewModel extends ChangeNotifier {
           try {
             final revenueData = revenuesList[i];
 
-            // Mettre à jour l'accountId
-            // Gestion robuste de l'ID (peut être String ou int)
             final oldAccountId = int.tryParse(
               revenueData['accountId'].toString(),
             );
@@ -273,7 +260,6 @@ class DataViewModel extends ChangeNotifier {
               );
             }
 
-            // Reset ID
             revenueData['id'] = 0;
 
             final revenue = RevenueModel.fromJson(revenueData);
@@ -289,7 +275,6 @@ class DataViewModel extends ChangeNotifier {
         debugPrint('Revenus importés: $successCount / $totalRevenues');
       }
 
-      // 4. Importer les prêts
       if (data['loans'] != null && data['loans'] is List) {
         final loansList = data['loans'] as List;
         final totalLoans = loansList.length;
@@ -303,8 +288,6 @@ class DataViewModel extends ChangeNotifier {
           try {
             final loanData = loansList[i];
 
-            // Mettre à jour l'accountId
-            // Gestion robuste de l'ID (peut être String ou int)
             final oldAccountId = int.tryParse(
               loanData['account_id'].toString(),
             );
@@ -315,7 +298,7 @@ class DataViewModel extends ChangeNotifier {
             }
 
             final loan = LoanModel(
-              id: 0, // Reset ID
+              id: 0,
               name: loanData['name'] as String? ?? '',
               amount: (loanData['amount'] as num?)?.toDouble() ?? 0.0,
               accountId: loanData['account_id'] as int? ?? 0,
@@ -346,9 +329,7 @@ class DataViewModel extends ChangeNotifier {
       _importProgress = 1.0;
       notifyListeners();
 
-      await Future.delayed(
-        const Duration(milliseconds: 500),
-      ); // Petit délai pour voir la fin
+      await Future.delayed(const Duration(milliseconds: 500));
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -374,7 +355,6 @@ class DataViewModel extends ChangeNotifier {
       _error = '';
       notifyListeners();
 
-      // Simulate a small delay to show loading state
       await Future.delayed(const Duration(seconds: 1));
 
       _accountRepository.deleteAll();
@@ -386,8 +366,6 @@ class DataViewModel extends ChangeNotifier {
       if (context.mounted) {
         await PreferencesService.clearAll();
       }
-
-      // Success is handled by UI dialog
     } catch (e) {
       _error = e.toString();
       if (context.mounted) {

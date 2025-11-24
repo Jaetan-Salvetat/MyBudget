@@ -96,12 +96,12 @@ class _ExpensesListState extends State<ExpensesList> {
         return ListView.builder(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(
-            top: 120, // Added top padding for visual spacing
+            top: 120,
             bottom: 145,
             left: 16,
             right: 16,
           ),
-          itemCount: displayedExpenses.length + 1, // +1 for header
+          itemCount: displayedExpenses.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return _buildHeaderContainer(
@@ -175,9 +175,6 @@ class _ExpensesListState extends State<ExpensesList> {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (Widget child, Animation<double> animation) {
-          // Determine direction based on the child key
-          // Title moves Left <-> Center
-          // Search moves Right <-> Center
           final isSearch = child.key == const ValueKey('search');
           final beginOffset =
               isSearch ? const Offset(0.2, 0.0) : const Offset(-0.2, 0.0);
@@ -196,7 +193,7 @@ class _ExpensesListState extends State<ExpensesList> {
             _isSearchVisible
                 ? SizedBox(
                   key: const ValueKey('search'),
-                  height: 60, // Fixed height to prevent jumping
+                  height: 60,
                   child: Row(
                     children: [
                       Expanded(
@@ -227,7 +224,7 @@ class _ExpensesListState extends State<ExpensesList> {
                 )
                 : SizedBox(
                   key: const ValueKey('title'),
-                  height: 60, // Matching height
+                  height: 60,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
