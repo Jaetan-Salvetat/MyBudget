@@ -111,9 +111,30 @@ class _ColorSelectorItem extends StatelessWidget {
             height: isSelected ? 40 : 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
+              gradient:
+                  type == AppThemeType.dynamicColor
+                      ? const SweepGradient(
+                        colors: [
+                          Colors.blue,
+                          Colors.purple,
+                          Colors.red,
+                          Colors.orange,
+                          Colors.yellow,
+                          Colors.green,
+                          Colors.blue,
+                        ],
+                      )
+                      : null,
+              color: type == AppThemeType.dynamicColor ? null : type.seedColor,
               border:
                   isSelected
-                      ? Border.all(color: type.seedColor, width: 2)
+                      ? Border.all(
+                        color:
+                            type == AppThemeType.dynamicColor
+                                ? Theme.of(context).colorScheme.primary
+                                : type.seedColor,
+                        width: 2,
+                      )
                       : Border.all(color: Colors.transparent, width: 0),
             ),
             child: Padding(
@@ -121,12 +142,30 @@ class _ColorSelectorItem extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: type.seedColor,
+                  gradient:
+                      type == AppThemeType.dynamicColor
+                          ? const SweepGradient(
+                            colors: [
+                              Colors.blue,
+                              Colors.purple,
+                              Colors.red,
+                              Colors.orange,
+                              Colors.yellow,
+                              Colors.green,
+                              Colors.blue,
+                            ],
+                          )
+                          : null,
+                  color:
+                      type == AppThemeType.dynamicColor ? null : type.seedColor,
                   boxShadow:
                       isSelected
                           ? [
                             BoxShadow(
-                              color: type.seedColor.withOpacity(0.4),
+                              color: (type == AppThemeType.dynamicColor
+                                      ? Theme.of(context).colorScheme.primary
+                                      : type.seedColor)
+                                  .withOpacity(0.4),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),

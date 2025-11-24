@@ -31,14 +31,23 @@ class AppTheme {
 
   static ThemeData generateTheme(
     Brightness brightness,
-    AppThemeType themeType,
-  ) {
-    return ThemeData(
-      brightness: brightness,
-      colorScheme: ColorScheme.fromSeed(
+    AppThemeType themeType, {
+    ColorScheme? dynamicColorScheme,
+  }) {
+    ColorScheme? scheme;
+
+    if (themeType == AppThemeType.dynamicColor && dynamicColorScheme != null) {
+      scheme = dynamicColorScheme;
+    } else {
+      scheme = ColorScheme.fromSeed(
         seedColor: themeType.seedColor,
         brightness: brightness,
-      ),
+      );
+    }
+
+    return ThemeData(
+      brightness: brightness,
+      colorScheme: scheme,
       useMaterial3: true,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -50,6 +59,7 @@ class AppTheme {
 }
 
 enum AppThemeType {
+  dynamicColor,
   purple,
   green,
   blue,
@@ -59,6 +69,8 @@ enum AppThemeType {
 
   Color get seedColor {
     switch (this) {
+      case AppThemeType.dynamicColor:
+        return Colors.transparent; // Special case handled in UI
       case AppThemeType.blue:
         return const Color(0xFF1565C0);
       case AppThemeType.purple:
@@ -76,6 +88,8 @@ enum AppThemeType {
 
   String get label {
     switch (this) {
+      case AppThemeType.dynamicColor:
+        return 'Dynamique';
       case AppThemeType.blue:
         return 'Bleu';
       case AppThemeType.purple:

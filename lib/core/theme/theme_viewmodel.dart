@@ -31,11 +31,19 @@ class ThemeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeData getLightTheme() {
-    return AppTheme.generateTheme(Brightness.light, _themeType);
+  ThemeData getLightTheme({ColorScheme? dynamicColorScheme}) {
+    return AppTheme.generateTheme(
+      Brightness.light,
+      _themeType,
+      dynamicColorScheme: dynamicColorScheme,
+    );
   }
 
-  ThemeData getDarkTheme() {
-    return AppTheme.generateTheme(Brightness.dark, _themeType);
+  ThemeData getDarkTheme({ColorScheme? dynamicColorScheme}) {
+    return AppTheme.generateTheme(
+      Brightness.dark,
+      _themeType,
+      dynamicColorScheme: dynamicColorScheme,
+    );
   }
 }

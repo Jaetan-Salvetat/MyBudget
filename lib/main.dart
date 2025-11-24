@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
@@ -179,15 +180,23 @@ class MyApp extends StatelessWidget {
                   ),
             ),
           ],
-          child: Consumer<ThemeViewModel>(
-            builder: (context, themeViewModel, child) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: 'My Budget',
-                theme: themeViewModel.getLightTheme(),
-                darkTheme: themeViewModel.getDarkTheme(),
-                themeMode: themeViewModel.themeMode,
-                home: const SplashScreen(),
+          child: DynamicColorBuilder(
+            builder: (lightDynamic, darkDynamic) {
+              return Consumer<ThemeViewModel>(
+                builder: (context, themeViewModel, child) {
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    title: 'My Budget',
+                    theme: themeViewModel.getLightTheme(
+                      dynamicColorScheme: lightDynamic,
+                    ),
+                    darkTheme: themeViewModel.getDarkTheme(
+                      dynamicColorScheme: darkDynamic,
+                    ),
+                    themeMode: themeViewModel.themeMode,
+                    home: const SplashScreen(),
+                  );
+                },
               );
             },
           ),
