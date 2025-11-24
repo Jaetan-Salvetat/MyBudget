@@ -9,9 +9,17 @@ import 'package:mybudget/core/services/install_service.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
 class UpdateViewModel extends ChangeNotifier {
-  final GitHubService _gitHubService = GitHubService();
-  final DownloadService _downloadService = DownloadService();
-  final InstallService _installService = InstallService();
+  final GitHubService _gitHubService;
+  final DownloadService _downloadService;
+  final InstallService _installService;
+
+  UpdateViewModel({
+    GitHubService? gitHubService,
+    DownloadService? downloadService,
+    InstallService? installService,
+  }) : _gitHubService = gitHubService ?? GitHubService(),
+       _downloadService = downloadService ?? DownloadService(),
+       _installService = installService ?? InstallService();
 
   bool _isChecking = false;
   bool _isDownloading = false;
@@ -28,7 +36,7 @@ class UpdateViewModel extends ChangeNotifier {
   String? get currentVersion => _currentVersion;
 
   Future<void> checkForUpdates(
-    BuildContext context, {
+    BuildContext? context, {
     bool silent = false,
   }) async {
     if (_isChecking) return;
@@ -78,15 +86,15 @@ class UpdateViewModel extends ChangeNotifier {
 
       if (targetRelease != null) {
         _availableUpdate = targetRelease;
-        if (context.mounted) {
+        if (context != null && context.mounted) {
           _showUpdateDialog(context);
         }
-      } else if (!silent && context.mounted) {
+      } else if (!silent && context != null && context.mounted) {
         FrostedSnackbar.show(context, message: "Votre application est à jour");
       }
     } catch (e) {
       _error = e.toString();
-      if (!silent && context.mounted) {
+      if (!silent && context != null && context.mounted) {
         FrostedSnackbar.show(context, message: "Erreur: $_error");
       }
     } finally {

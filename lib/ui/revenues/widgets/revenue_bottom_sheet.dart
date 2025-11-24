@@ -271,14 +271,13 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                     ],
                   ),
                 ),
-                Switch.adaptive(
+                FrostedSwitch(
                   value: _isRegular,
                   onChanged: (value) {
                     setState(() {
                       _isRegular = value;
                     });
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),
@@ -306,8 +305,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                         colorScheme: Theme.of(context).colorScheme.copyWith(
                           surface: Theme.of(context).colorScheme.surface,
                         ),
-                        dialogBackgroundColor:
-                            Theme.of(context).colorScheme.surface,
                       ),
                       child: child!,
                     );

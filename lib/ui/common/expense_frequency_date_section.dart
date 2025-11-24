@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 
 class ExpenseFrequencyDateSection extends StatefulWidget {
   final String frequency;
@@ -21,8 +22,6 @@ class ExpenseFrequencyDateSection extends StatefulWidget {
 
 class _ExpenseFrequencyDateSectionState
     extends State<ExpenseFrequencyDateSection> {
-  final List<String> _frequencies = ['Mensuel', 'Annuel'];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,16 +37,16 @@ class _ExpenseFrequencyDateSectionState
         const SizedBox(height: 12),
         Row(
           children:
-              _frequencies.map((freq) {
-                final isSelected = widget.frequency == freq;
+              Frequency.values.map((freq) {
+                final isSelected = widget.frequency == freq.label;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: _FrostedChoiceChip(
-                    label: freq,
+                  child: FrostedChip(
+                    label: Text(freq.label),
                     selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        widget.onChanged(freq, widget.date);
+                    onPressed: () {
+                      if (!isSelected) {
+                        widget.onChanged(freq.label, widget.date);
                       }
                     },
                   ),
@@ -95,7 +94,7 @@ class _ExpenseFrequencyDateSectionState
   }
 
   String _formatDate(DateTime date) {
-    if (widget.frequency == 'Mensuel') {
+    if (widget.frequency == Frequency.monthly.label) {
       return 'Le ${date.day} du mois';
     } else {
       return DateFormat('d MMMM', 'fr_FR').format(date);
@@ -103,7 +102,7 @@ class _ExpenseFrequencyDateSectionState
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    if (widget.frequency == 'Mensuel') {
+    if (widget.frequency == Frequency.monthly.label) {
       await _selectDayOnly(context);
     } else {
       await _selectDayAndMonth(context);
@@ -261,54 +260,6 @@ class _ExpenseFrequencyDateSectionState
           child: const Text('Valider'),
         ),
       ],
-    );
-  }
-}
-
-class _FrostedChoiceChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Function(bool) onSelected;
-
-  const _FrostedChoiceChip({
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: () => onSelected(!selected),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color:
-              selected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.5,
-                  ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color:
-                selected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color:
-                selected
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface,
-            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
     );
   }
 }

@@ -52,7 +52,7 @@ class AccountLoanList extends StatelessWidget {
             loan.name,
             style: const TextStyle(fontWeight: FontWeight.w500),
           ),
-          subtitle: Text('Mensualité'),
+          subtitle: const Text('Mensualité'),
           trailing: Text(
             formatter.format(loan.monthlyPayment),
             style: TextStyle(

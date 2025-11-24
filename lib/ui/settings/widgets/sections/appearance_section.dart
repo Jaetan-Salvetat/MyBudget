@@ -165,7 +165,7 @@ class _ColorSelectorItem extends StatelessWidget {
                               color: (type == AppThemeType.dynamicColor
                                       ? Theme.of(context).colorScheme.primary
                                       : type.seedColor)
-                                  .withOpacity(0.4),
+                                  .withValues(alpha: 0.4),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
