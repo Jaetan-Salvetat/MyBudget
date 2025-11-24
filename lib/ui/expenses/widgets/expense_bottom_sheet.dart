@@ -50,7 +50,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  int _selectedCategoryId = 0;
+  int? _selectedCategoryId;
   DateTime _selectedDate = DateTime.now();
   String _selectedFrequency = 'Mensuel';
   int? _selectedAccountId;
@@ -67,7 +67,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
     _selectedCategoryId =
         widget.expense?.categoryId ??
-        (widget.categories.isNotEmpty ? widget.categories.first.id : 0);
+        (widget.categories.isNotEmpty ? widget.categories.first.id : null);
     _selectedDate = widget.expense?.date ?? DateTime.now();
     _selectedFrequency = widget.expense?.frequency ?? 'Mensuel';
     _selectedAccountId =
@@ -85,7 +85,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   bool _validateDropdowns() {
     bool isValid = true;
     setState(() {
-      if (_selectedCategoryId == 0) {
+      if (_selectedCategoryId == null) {
         _categoryError = 'Veuillez sélectionner une catégorie';
         isValid = false;
       } else {
@@ -115,7 +115,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ? widget.expense!.copyWith(
               name: _nameController.text.trim(),
               amount: amount,
-              categoryId: _selectedCategoryId,
+              categoryId: _selectedCategoryId!,
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
@@ -123,7 +123,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             : ExpenseModel.create(
               name: _nameController.text.trim(),
               amount: amount,
-              categoryId: _selectedCategoryId,
+              categoryId: _selectedCategoryId!,
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
@@ -201,7 +201,18 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                     }
                   },
                 ),
-                if (_categoryError != null)
+                if (widget.categories.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                    child: Text(
+                      'Aucune catégorie disponible. Veuillez en créer une dans les paramètres.',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                else if (_categoryError != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                     child: Text(
