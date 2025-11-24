@@ -171,7 +171,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ),
             const SizedBox(height: 16),
 
-            // Category Dropdown
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -250,7 +249,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ),
             const SizedBox(height: 12),
 
-            // Account Dropdown
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

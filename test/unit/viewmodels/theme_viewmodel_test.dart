@@ -46,9 +46,6 @@ void main() {
       final theme = viewModel.getLightTheme();
 
       expect(theme.brightness, Brightness.light);
-      // Verify primary color is derived from seed (approximate check or check scheme)
-      // Note: ColorScheme.fromSeed might not result in exact seed color as primary
-      // But we can check if the scheme was generated.
       expect(theme.colorScheme.brightness, Brightness.light);
     });
 
@@ -78,12 +75,8 @@ void main() {
       () {
         viewModel.setThemeType(AppThemeType.dynamicColor);
 
-        // No dynamic scheme provided
         final theme = viewModel.getLightTheme();
 
-        // Should fallback to seed color (transparent for dynamicColor in AppThemeType)
-        // Wait, AppThemeType.dynamicColor.seedColor is Colors.transparent.
-        // ColorScheme.fromSeed(seedColor: Colors.transparent) might be weird but valid.
         expect(theme.brightness, Brightness.light);
         expect(theme.useMaterial3, true);
       },
@@ -96,7 +89,6 @@ void main() {
       });
       await PreferencesService.init();
 
-      // Re-initialize ViewModel to pick up new prefs
       viewModel = ThemeViewModel();
 
       expect(viewModel.themeMode, ThemeMode.light);

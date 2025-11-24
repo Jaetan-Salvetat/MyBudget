@@ -70,7 +70,7 @@ enum AppThemeType {
   Color get seedColor {
     switch (this) {
       case AppThemeType.dynamicColor:
-        return Colors.transparent; // Special case handled in UI
+        return Colors.transparent;
       case AppThemeType.blue:
         return const Color(0xFF1565C0);
       case AppThemeType.purple:

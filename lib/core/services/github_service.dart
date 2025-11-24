@@ -5,10 +5,13 @@ import 'package:mybudget/models/release_info_model.dart';
 class GitHubService {
   final String _baseUrl =
       'https://api.github.com/repos/Jaetan-Salvetat/MyBudget';
+  final http.Client _client;
+
+  GitHubService({http.Client? client}) : _client = client ?? http.Client();
 
   Future<List<ReleaseInfo>> getReleases() async {
     try {
-      final response = await http.get(
+      final response = await _client.get(
         Uri.parse('$_baseUrl/releases'),
         headers: {'Accept': 'application/vnd.github.v3+json'},
       );
@@ -55,7 +58,7 @@ class GitHubService {
 
   Future<ReleaseInfo?> getLatestRelease() async {
     try {
-      final response = await http.get(
+      final response = await _client.get(
         Uri.parse('$_baseUrl/releases/latest'),
         headers: {'Accept': 'application/vnd.github.v3+json'},
       );

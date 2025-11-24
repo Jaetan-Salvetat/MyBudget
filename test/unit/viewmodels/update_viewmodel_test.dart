@@ -8,7 +8,6 @@ import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Mocks
 class MockGitHubService extends Mock implements GitHubService {}
 
 class MockDownloadService extends Mock implements DownloadService {}
@@ -26,7 +25,6 @@ void main() {
     mockDownloadService = MockDownloadService();
     mockInstallService = MockInstallService();
 
-    // Initialisation nécessaire pour PackageInfo
     SharedPreferences.setMockInitialValues({});
     PackageInfo.setMockInitialValues(
       appName: 'MyBudget',
@@ -67,10 +65,9 @@ void main() {
     test(
       'Should detect update when current is PROD and newer PROD release exists',
       () async {
-        // Arrange: App is Prod (1.0.0)
         PackageInfo.setMockInitialValues(
           appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget', // Prod ID
+          packageName: 'fr.jaetan.mybudget',
           version: '1.0.0',
           buildNumber: '1',
           buildSignature: '',
@@ -80,13 +77,8 @@ void main() {
           () => mockGitHubService.getReleases(),
         ).thenAnswer((_) async => [prodRelease]);
 
-        // Act
-        await viewModel.checkForUpdates(
-          null,
-          silent: true,
-        ); // context null for unit test
+        await viewModel.checkForUpdates(null, silent: true);
 
-        // Assert
         expect(viewModel.availableUpdate, isNotNull);
         expect(viewModel.availableUpdate?.version, '1.1.0');
         expect(viewModel.error, isNull);
@@ -94,7 +86,6 @@ void main() {
     );
 
     test('Should IGNORE beta release when current is PROD', () async {
-      // Arrange: App is Prod
       PackageInfo.setMockInitialValues(
         appName: 'MyBudget',
         packageName: 'fr.jaetan.mybudget',
@@ -105,22 +96,18 @@ void main() {
 
       when(
         () => mockGitHubService.getReleases(),
-      ).thenAnswer((_) async => [betaRelease]); // Only beta available
+      ).thenAnswer((_) async => [betaRelease]);
 
-      // Act
       await viewModel.checkForUpdates(null, silent: true);
-
-      // Assert
       expect(viewModel.availableUpdate, isNull);
     });
 
     test(
       'Should detect update when current is BETA and newer BETA release exists',
       () async {
-        // Arrange: App is Beta (1.0.0-beta)
         PackageInfo.setMockInitialValues(
           appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta', // Beta ID
+          packageName: 'fr.jaetan.mybudget.beta',
           version: '1.0.0-beta',
           buildNumber: '1',
           buildSignature: '',
@@ -140,10 +127,8 @@ void main() {
           () => mockGitHubService.getReleases(),
         ).thenAnswer((_) async => [newerBeta]);
 
-        // Act
         await viewModel.checkForUpdates(null, silent: true);
 
-        // Assert
         expect(viewModel.availableUpdate, isNotNull);
         expect(viewModel.availableUpdate?.version, '1.0.1-beta');
       },
@@ -165,14 +150,14 @@ void main() {
       PackageInfo.setMockInitialValues(
         appName: 'MyBudget',
         packageName: 'fr.jaetan.mybudget',
-        version: '2.0.0', // Very new version
+        version: '2.0.0',
         buildNumber: '1',
         buildSignature: '',
       );
 
       when(
         () => mockGitHubService.getReleases(),
-      ).thenAnswer((_) async => [prodRelease]); // Old release 1.1.0
+      ).thenAnswer((_) async => [prodRelease]);
 
       await viewModel.checkForUpdates(null, silent: true);
 
