@@ -24,9 +24,9 @@ class CategoryViewModel extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      if (PreferencesService.isFirstLaunch()) {
+      if (!PreferencesService.isCategoriesCreated()) {
         await _initDefaultCategories();
-        await PreferencesService.setNotFirstLaunch();
+        await PreferencesService.setCategoriesCreated();
       }
 
       _categories = _categoryRepository.getAll();

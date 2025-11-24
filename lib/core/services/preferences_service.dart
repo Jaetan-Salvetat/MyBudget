@@ -14,6 +14,7 @@ class PreferencesService {
   static const String keyAnnualExpenseCalculationMode =
       'annual_expense_calculation_mode';
   static const String keyThemeType = 'themeType';
+  static const String keyIsCategoriesCreated = 'isCategoriesCreated';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -87,6 +88,14 @@ class PreferencesService {
 
   static Future<void> setThemeType(AppThemeType themeType) async {
     await _prefs.setString(keyThemeType, themeType.name);
+  }
+
+  static bool isCategoriesCreated() {
+    return _prefs.getBool(keyIsCategoriesCreated) ?? false;
+  }
+
+  static Future<void> setCategoriesCreated() async {
+    await _prefs.setBool(keyIsCategoriesCreated, true);
   }
 
   static Future<void> clearAll() async {
