@@ -15,18 +15,10 @@ class LoanProgressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paidAmount = loan.getAutomaticPaidAmount();
-    final progress = loan.amount == 0 ? 0.0 : paidAmount / loan.amount;
-    final remainingAmount = loan.amount - paidAmount;
-
-    final now = DateTime.now();
-    int remainingMonths = 0;
-    if (!loan.isCompleted() && loan.endDate.isAfter(now)) {
-      int months =
-          (loan.endDate.year - now.year) * 12 + loan.endDate.month - now.month;
-      if (now.day > loan.dayOfMonth) months--;
-      remainingMonths = months > 0 ? months : 0;
-    }
+    final progress = loan.getProgressPercentage();
+    final remainingCapital = loan.remainingCapital;
+    final amortizedCapital = loan.amount - remainingCapital;
+    final remainingMonths = loan.remainingMonths;
 
     return FrostedCard(
       borderRadius: 20,
@@ -128,8 +120,8 @@ class LoanProgressSection extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   context,
-                  'Déjà payé',
-                  paidAmount,
+                  'Capital remboursé',
+                  amortizedCapital,
                   Theme.of(context).colorScheme.primary,
                 ),
               ),
@@ -143,8 +135,8 @@ class LoanProgressSection extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   context,
-                  'Reste à payer',
-                  remainingAmount,
+                  'Capital restant',
+                  remainingCapital,
                   Theme.of(context).colorScheme.error,
                 ),
               ),

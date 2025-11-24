@@ -154,6 +154,17 @@ class LoanModel {
     );
   }
 
+  double get totalCost {
+    final realDuration =
+        duration > 0
+            ? duration
+            : (endDate.year - startDate.year) * 12 +
+                endDate.month -
+                startDate.month;
+    final totalPayments = monthlyPayment * realDuration;
+    return totalPayments - amount;
+  }
+
   double get remainingCapital {
     final now = DateTime.now();
 
