@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -9,7 +11,9 @@ class PreferencesService {
   static const String keyIsNotificationsEnabled = 'isNotificationsEnabled';
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyAnnualExpenseCalculationMode = 'annual_expense_calculation_mode';
+  static const String keyAnnualExpenseCalculationMode =
+      'annual_expense_calculation_mode';
+  static const String keyThemeType = 'themeType';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -23,12 +27,15 @@ class PreferencesService {
     await _prefs.setBool(keyIsFirstLaunch, false);
   }
 
-  static int getThemeMode() {
-    return _prefs.getInt(keyThemeMode) ?? 0;
+  static ThemeMode getThemeMode() {
+    return ThemeMode.values.firstWhere(
+      (element) => element.name == _prefs.getString(keyThemeMode),
+      orElse: () => ThemeMode.system,
+    );
   }
 
-  static Future<void> setThemeMode(int mode) async {
-    await _prefs.setInt(keyThemeMode, mode);
+  static Future<void> setThemeMode(ThemeMode mode) async {
+    await _prefs.setString(keyThemeMode, mode.name);
   }
 
   static String getLanguage() {
@@ -69,6 +76,17 @@ class PreferencesService {
 
   static Future<void> setAnnualExpenseCalculationMode(int mode) async {
     await _prefs.setInt(keyAnnualExpenseCalculationMode, mode);
+  }
+
+  static AppThemeType getThemeType() {
+    return AppThemeType.values.firstWhere(
+      (element) => element.name == _prefs.getString(keyThemeType),
+      orElse: () => AppThemeType.purple,
+    );
+  }
+
+  static Future<void> setThemeType(AppThemeType themeType) async {
+    await _prefs.setString(keyThemeType, themeType.name);
   }
 
   static Future<void> clearAll() async {
