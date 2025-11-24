@@ -29,7 +29,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await PreferencesService.init();
 
-    expect(PreferencesService.isFirstLaunch(), true);
+    expect(PreferencesService.isCategoriesCreated(), false);
 
     viewModel = CategoryViewModel(mockRepository);
 
@@ -37,16 +37,16 @@ void main() {
 
     verify(() => mockRepository.add(any())).called(greaterThan(5));
 
-    expect(PreferencesService.isFirstLaunch(), false);
+    expect(PreferencesService.isCategoriesCreated(), true);
   });
 
   test(
     'should NOT initialize default categories on subsequent launches',
     () async {
-      SharedPreferences.setMockInitialValues({'isFirstLaunch': false});
+      SharedPreferences.setMockInitialValues({'isCategoriesCreated': true});
       await PreferencesService.init();
 
-      expect(PreferencesService.isFirstLaunch(), false);
+      expect(PreferencesService.isCategoriesCreated(), true);
 
       viewModel = CategoryViewModel(mockRepository);
       await Future.delayed(const Duration(milliseconds: 500));
