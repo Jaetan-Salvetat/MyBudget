@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/enums/loan_enums.dart';
 
 class LoanDetailsSection extends StatelessWidget {
   final LoanModel loan;
@@ -11,6 +12,19 @@ class LoanDetailsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nextPaymentDate = _getNextPaymentDate(loan);
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    final realDuration =
+        loan.duration > 0
+            ? loan.duration
+            : (loan.endDate.year - loan.startDate.year) * 12 +
+                loan.endDate.month -
+                loan.startDate.month;
+    final years = realDuration ~/ 12;
+    final months = realDuration % 12;
+    final durationString =
+        years > 0
+            ? (months > 0 ? '$years ans $months mois' : '$years ans')
+            : '$months mois';
 
     return FrostedCard(
       borderRadius: 20,
@@ -26,7 +40,6 @@ class LoanDetailsSection extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Dates Section
           _buildSectionTitle(context, 'Calendrier'),
           const SizedBox(height: 16),
           _buildDetailRow(
@@ -61,7 +74,6 @@ class LoanDetailsSection extends StatelessWidget {
             child: FrostedDivider(height: 1),
           ),
 
-          // Info Section
           _buildSectionTitle(context, 'Informations'),
           const SizedBox(height: 16),
           _buildDetailRow(
@@ -69,6 +81,37 @@ class LoanDetailsSection extends StatelessWidget {
             'Prêteur',
             loan.lenderName,
             Icons.business_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Taux d\'intérêt',
+            '${loan.interestRate.toStringAsFixed(2)}%',
+            Icons.percent_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Durée totale',
+            durationString,
+            Icons.timelapse_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Assurance',
+            loan.insuranceType == LoanInsuranceType.none
+                ? 'Aucune'
+                : '${loan.insuranceType.label} (${formatter.format(loan.insuranceValue)})',
+            Icons.security_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            'Coût total du crédit',
+            formatter.format(loan.totalCost),
+            Icons.savings_outlined,
+            valueColor: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: 16),
           _buildDetailRow(

@@ -17,7 +17,7 @@ import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
-import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -140,22 +140,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget? _buildFab(BuildContext context) {
     switch (_selectedIndex) {
-      case 1: // Comptes
+      case 1:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddAccountDialog(context),
           child: const Icon(Icons.add),
         );
-      case 2: // Dépenses
+      case 2:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddExpenseBottomSheet(context),
           child: const Icon(Icons.add),
         );
-      case 3: // Revenus
+      case 3:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddRevenueBottomSheet(context),
           child: const Icon(Icons.add),
         );
-      case 4: // Emprunts
+      case 4:
         return FrostedFloatingActionButton(
           onPressed: () => _showAddLoanBottomSheet(context),
           child: const Icon(Icons.add),
@@ -259,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    LoanBottomSheet.show(
+    LoanCreationBottomSheet.show(
       context: context,
       accounts: accountViewModel.accounts,
       onSubmit: (loan) {

@@ -31,7 +31,7 @@
     },
     {
       "id": "2:637957068368109063",
-      "lastPropertyId": "3:2964126038854478579",
+      "lastPropertyId": "4:6632633250043774965",
       "name": "CategoryModel",
       "properties": [
         {
@@ -51,6 +51,11 @@
           "id": "3:2964126038854478579",
           "name": "icon",
           "type": 9
+        },
+        {
+          "id": "4:6632633250043774965",
+          "name": "color",
+          "type": 6
         }
       ],
       "relations": []
@@ -103,7 +108,7 @@
     },
     {
       "id": "4:8471750721460440152",
-      "lastPropertyId": "10:2010142483118272076",
+      "lastPropertyId": "15:6813580747910956692",
       "name": "LoanModel",
       "properties": [
         {
@@ -155,6 +160,26 @@
         {
           "id": "10:2010142483118272076",
           "name": "notes",
+          "type": 9
+        },
+        {
+          "id": "11:6774604440405766602",
+          "name": "interestRate",
+          "type": 8
+        },
+        {
+          "id": "12:3338998208392848667",
+          "name": "duration",
+          "type": 6
+        },
+        {
+          "id": "14:602772844799010819",
+          "name": "insuranceValue",
+          "type": 8
+        },
+        {
+          "id": "15:6813580747910956692",
+          "name": "insuranceTypeId",
           "type": 9
         }
       ],
@@ -210,7 +235,9 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    3745183620062731729
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

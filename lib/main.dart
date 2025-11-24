@@ -30,13 +30,10 @@ void main() async {
 
   await initializeDateFormatting('fr_FR', null);
 
-  // Wrap app in RestartWidget
   runApp(
     RestartWidget(
       onRestart: () async {
-        // Reset ObjectBox instance on restart
         await ObjectBoxService.resetInstance();
-        // Re-initialize it
         await ObjectBoxService.getInstance();
       },
       child: const MyApp(),
@@ -53,7 +50,6 @@ class MyApp extends StatelessWidget {
       future: ObjectBoxService.getInstance(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a native-like splash or empty container while DB initializes
           return const Directionality(
             textDirection: TextDirection.ltr,
             child: ColoredBox(color: Colors.white),
@@ -82,7 +78,6 @@ class MyApp extends StatelessWidget {
           providers: [
             Provider<ObjectBoxService>.value(value: objectBoxService),
 
-            // Repositories
             Provider<ExpenseRepository>(
               create: (_) => ExpenseRepository(objectBoxService.expenseBox),
             ),

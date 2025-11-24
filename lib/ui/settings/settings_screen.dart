@@ -21,9 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Just ensure version is loaded if possible, or do nothing.
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override

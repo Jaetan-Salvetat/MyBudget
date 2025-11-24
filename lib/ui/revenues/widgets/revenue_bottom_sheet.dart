@@ -228,7 +228,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           ),
           const SizedBox(height: 12),
 
-          // Fréquence (Régulier / Ponctuel)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -287,7 +286,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
           const SizedBox(height: 16),
 
-          // Date Picker
           InkWell(
             onTap: () async {
               DateTime? picked;

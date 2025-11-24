@@ -18,7 +18,7 @@ enum Frequency {
       case 'Annuel':
         return Frequency.annual;
       default:
-        return Frequency.monthly; // Default fallback
+        return Frequency.monthly;
     }
   }
 }

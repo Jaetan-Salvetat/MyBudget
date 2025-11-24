@@ -6,7 +6,6 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
-import 'package:mybudget/ui/loans/widgets/loan_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/widgets/loan_header.dart';
 import 'package:mybudget/ui/loans/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/loans/widgets/loan_details_section.dart';
@@ -66,11 +65,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                     .name;
 
         return FrostedScaffold(
-          appBar: AppBar(
-            title: const Text('Détails de l\'emprunt'),
+          appBar: FrostedAppBar(
+            title: 'Détails de l\'emprunt',
             actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
+              FrostedIconButton(
+                icon: Icons.edit,
                 onPressed:
                     () => _showEditLoanBottomSheet(
                       context,
@@ -79,8 +78,8 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                       loanVM,
                     ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete),
+              FrostedIconButton(
+                icon: Icons.delete,
                 onPressed:
                     () => _showDeleteConfirmation(context, updatedLoan, loanVM),
               ),
@@ -88,7 +87,12 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           ),
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(
+              top: 120,
+              left: 16,
+              right: 16,
+              bottom: 16,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -111,6 +115,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     List<AccountModel> accounts,
     LoanViewModel loanVM,
   ) {
+    FrostedSnackbar.show(
+      context,
+      message: 'L\'édition des prêts est en cours de refonte.',
+    );
+    /*
     LoanBottomSheet.show(
       context: context,
       accounts: accounts,
@@ -123,6 +132,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       },
       onCancel: () {},
     );
+    */
   }
 
   void _showDeleteConfirmation(

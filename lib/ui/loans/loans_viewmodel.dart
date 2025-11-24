@@ -114,4 +114,13 @@ class LoanViewModel extends ChangeNotifier {
     final activeLoans = getActiveLoans();
     return activeLoans.fold(0.0, (sum, loan) => sum + loan.amount);
   }
+
+  double getTotalRemainingCost() {
+    return getActiveLoans().fold(0.0, (sum, loan) {
+      final totalFuturePayments = loan.remainingMonths * loan.monthlyPayment;
+      final remainingPrincipal = loan.remainingCapital;
+      final cost = totalFuturePayments - remainingPrincipal;
+      return sum + (cost > 0 ? cost : 0);
+    });
+  }
 }

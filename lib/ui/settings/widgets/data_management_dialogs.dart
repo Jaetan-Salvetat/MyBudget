@@ -24,7 +24,7 @@ class DataManagementDialogs {
         ),
         FrostedFilledButton(
           onPressed: () {
-            Navigator.of(context).pop(); // Ferme la confirmation
+            Navigator.of(context).pop();
             showImportProgressDialog(context, file, dataVM);
           },
           child: const Text('Importer'),
@@ -38,7 +38,6 @@ class DataManagementDialogs {
     File file,
     DataViewModel dataVM,
   ) async {
-    // 1. Show Progress Dialog
     FrostedDialog.show(
       context: context,
       title: const Text('Importation en cours'),
@@ -66,15 +65,12 @@ class DataManagementDialogs {
       ),
     );
 
-    // 2. Perform Import
     await dataVM.importUserData(context, file);
 
-    // 3. Close Progress Dialog
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
-    // 4. Show Result Dialog
     if (context.mounted) {
       if (dataVM.error.isNotEmpty) {
         FrostedDialog.show(
@@ -137,7 +133,6 @@ class DataManagementDialogs {
     BuildContext context,
     DataViewModel dataVM,
   ) async {
-    // 1. Show Loading Dialog
     FrostedDialog.show(
       context: context,
       title: const Text('Suppression en cours'),
@@ -152,18 +147,14 @@ class DataManagementDialogs {
           FrostedCircularProgressIndicator(),
         ],
       ),
-      // No actions for loading state
     );
 
-    // 2. Perform Delete
     await dataVM.deleteAllUserData(context);
 
-    // 3. Close Loading Dialog
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
-    // 4. Show Result Dialog
     if (context.mounted) {
       if (dataVM.error.isNotEmpty) {
         FrostedDialog.show(
