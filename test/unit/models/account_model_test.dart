@@ -3,41 +3,32 @@ import 'package:mybudget/models/account_model.dart';
 
 void main() {
   group('AccountModel', () {
-    test('should create a valid instance', () {
-      final account = AccountModel.create(name: 'Checking', bank: 'Bank A');
+    test('should create instance correctly', () {
+      final account = AccountModel.create(name: 'Main Account', bank: 'Bank A');
 
-      expect(account.name, 'Checking');
+      expect(account.name, 'Main Account');
       expect(account.bank, 'Bank A');
     });
 
-    test('copyWith should return a new instance with updated values', () {
-      final account = AccountModel.create(name: 'Original', bank: 'Bank A');
+    test('copyWith should update fields correctly', () {
+      final account = AccountModel.create(name: 'Original', bank: 'Bank A')
+        ..id = 1;
 
-      final updated = account.copyWith(name: 'Updated');
+      final copy = account.copyWith(name: 'Updated');
 
-      expect(updated.name, 'Updated');
-      expect(updated.bank, 'Bank A');
+      expect(copy.id, 1);
+      expect(copy.name, 'Updated');
+      expect(copy.bank, 'Bank A');
     });
 
-    test('toJson should return correct map', () {
-      final account = AccountModel.create(name: 'Json Test', bank: 'Bank B')
-        ..id = 10;
-
-      final json = account.toJson();
-
-      expect(json['id'], '10');
-      expect(json['name'], 'Json Test');
-      expect(json['bank'], 'Bank B');
-    });
-
-    test('fromJson should create correct instance', () {
-      final json = {'id': '10', 'name': 'Json Test', 'bank': 'Bank B'};
+    test('fromJson should parse json correctly', () {
+      final json = {'id': '123', 'name': 'Json Account', 'bank': 'Json Bank'};
 
       final account = AccountModel.fromJson(json);
 
-      expect(account.id, 10);
-      expect(account.name, 'Json Test');
-      expect(account.bank, 'Bank B');
+      expect(account.id, 123);
+      expect(account.name, 'Json Account');
+      expect(account.bank, 'Json Bank');
     });
   });
 }

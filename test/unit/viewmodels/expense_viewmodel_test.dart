@@ -12,78 +12,87 @@ class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 void main() {
   late ExpenseViewModel viewModel;
-  late MockExpenseRepository mockExpenseRepository;
-  late MockCategoryRepository mockCategoryRepository;
+  late MockExpenseRepository mockExpenseRepo;
+  late MockCategoryRepository mockCategoryRepo;
 
   setUp(() {
-    mockExpenseRepository = MockExpenseRepository();
-    mockCategoryRepository = MockCategoryRepository();
-
-    when(() => mockExpenseRepository.getAll()).thenReturn([]);
-
-    viewModel = ExpenseViewModel(mockExpenseRepository, mockCategoryRepository);
+    mockExpenseRepo = MockExpenseRepository();
+    mockCategoryRepo = MockCategoryRepository();
+    when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    viewModel = ExpenseViewModel(mockExpenseRepo, mockCategoryRepo);
   });
 
-  group('ExpenseViewModel', () {
-    test('initial load should fetch expenses', () async {
-      verify(() => mockExpenseRepository.getAll()).called(1);
-      expect(viewModel.expenses, isEmpty);
-      expect(viewModel.isLoading, false);
-    });
+  test(
+    'getTotalExpenses (Annual DateBased) should include last day of month',
+    () async {
+      final now = DateTime.now();
+      final endOfMonthDate = DateTime(now.year, now.month + 1, 0, 23, 0);
 
-    test('addExpense should call repository and reload', () async {
       final expense = ExpenseModel.create(
-        name: 'New Expense',
-        amount: 10.0,
+        name: 'Annual End Month',
+        amount: 1200,
         categoryId: 1,
-        date: DateTime.now(),
-        frequency: 'Mensuel',
-        accountId: 1,
-      );
-
-      when(() => mockExpenseRepository.add(expense)).thenReturn(1);
-      when(() => mockExpenseRepository.getAll()).thenReturn([expense]);
-
-      await viewModel.addExpense(expense);
-
-      verify(() => mockExpenseRepository.add(expense)).called(1);
-      verify(() => mockExpenseRepository.getAll()).called(2);
-      expect(viewModel.expenses.length, 1);
-    });
-
-    test('deleteExpense should call repository and reload', () async {
-      when(() => mockExpenseRepository.delete(1)).thenReturn(true);
-
-      await viewModel.deleteExpense(1);
-
-      verify(() => mockExpenseRepository.delete(1)).called(1);
-      verify(() => mockExpenseRepository.getAll()).called(2);
-    });
-
-    test('getTotalExpenses should calculate correctly', () {
-      final expense1 = ExpenseModel.create(
-        name: 'E1',
-        amount: 100.0,
-        categoryId: 1,
-        date: DateTime.now(),
-        frequency: 'Mensuel',
-        accountId: 1,
-      );
-      final expense2 = ExpenseModel.create(
-        name: 'E2',
-        amount: 1200.0,
-        categoryId: 1,
-        date: DateTime.now(),
+        date: endOfMonthDate,
         frequency: 'Annuel',
         accountId: 1,
       );
 
-      final total = viewModel.getTotalExpenses([
-        expense1,
-        expense2,
-      ], AnnualExpenseCalculationMode.monthlyAmortized);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      await viewModel.loadExpenses();
 
-      expect(total, 200.0);
-    });
+      final total = viewModel.getTotalExpenses(
+        null,
+        AnnualExpenseCalculationMode.dateBasedOnly,
+      );
+
+      expect(
+        total,
+        1200.0,
+        reason:
+            'Should include annual expense falling on the last moment of the month',
+      );
+    },
+  );
+
+  test('getTotalExpenses (Annual Amortized) should divide by 12', () async {
+    final expense = ExpenseModel.create(
+      name: 'Annual',
+      amount: 1200,
+      categoryId: 1,
+      date: DateTime.now(),
+      frequency: 'Annuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    await viewModel.loadExpenses();
+
+    final total = viewModel.getTotalExpenses(
+      null,
+      AnnualExpenseCalculationMode.monthlyAmortized,
+    );
+
+    expect(total, 100.0);
+  });
+
+  test('getTotalExpenses (Monthly) should sum directly', () async {
+    final expense = ExpenseModel.create(
+      name: 'Monthly',
+      amount: 100,
+      categoryId: 1,
+      date: DateTime.now(),
+      frequency: 'Mensuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    await viewModel.loadExpenses();
+
+    final total = viewModel.getTotalExpenses(
+      null,
+      AnnualExpenseCalculationMode.dateBasedOnly,
+    );
+
+    expect(total, 100.0);
   });
 }

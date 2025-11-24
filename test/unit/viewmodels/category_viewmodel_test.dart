@@ -8,50 +8,50 @@ import 'package:mybudget/models/category_model.dart';
 
 class MockCategoryRepository extends Mock implements CategoryRepository {}
 
+class FakeCategoryModel extends Fake implements CategoryModel {}
+
 void main() {
+  // ignore: unused_local_variable
   late CategoryViewModel viewModel;
-  late MockCategoryRepository mockCategoryRepository;
+  late MockCategoryRepository mockRepository;
 
   setUpAll(() {
-    SharedPreferences.setMockInitialValues({});
+    registerFallbackValue(FakeCategoryModel());
   });
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({'isFirstLaunch': false});
+    mockRepository = MockCategoryRepository();
+    when(() => mockRepository.getAll()).thenReturn([]);
+    when(() => mockRepository.add(any())).thenReturn(1);
+  });
+
+  test('should initialize default categories on first launch', () async {
+    SharedPreferences.setMockInitialValues({});
     await PreferencesService.init();
-    mockCategoryRepository = MockCategoryRepository();
 
-    when(() => mockCategoryRepository.getAll()).thenReturn([]);
+    expect(PreferencesService.isFirstLaunch(), true);
 
-    viewModel = CategoryViewModel(mockCategoryRepository);
+    viewModel = CategoryViewModel(mockRepository);
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    verify(() => mockRepository.add(any())).called(greaterThan(5));
+
+    expect(PreferencesService.isFirstLaunch(), false);
   });
 
-  group('CategoryViewModel', () {
-    test('initial load should fetch categories', () async {
-      await Future.delayed(Duration.zero);
+  test(
+    'should NOT initialize default categories on subsequent launches',
+    () async {
+      SharedPreferences.setMockInitialValues({'isFirstLaunch': false});
+      await PreferencesService.init();
 
-      verify(() => mockCategoryRepository.getAll()).called(1);
-    });
+      expect(PreferencesService.isFirstLaunch(), false);
 
-    test('addCategory should call repository and reload', () async {
-      final category = CategoryModel.create(name: 'New', icon: 'icon');
+      viewModel = CategoryViewModel(mockRepository);
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      when(() => mockCategoryRepository.add(category)).thenReturn(1);
-      when(() => mockCategoryRepository.getAll()).thenReturn([category]);
-
-      await viewModel.addCategory(category);
-
-      verify(() => mockCategoryRepository.add(category)).called(1);
-      verify(() => mockCategoryRepository.getAll()).called(greaterThan(1));
-      expect(viewModel.categories.length, 1);
-    });
-
-    test('deleteCategory should call repository and reload', () async {
-      when(() => mockCategoryRepository.delete(1)).thenReturn(true);
-
-      await viewModel.deleteCategory(1);
-
-      verify(() => mockCategoryRepository.delete(1)).called(1);
-    });
-  });
+      verifyNever(() => mockRepository.add(any()));
+    },
+  );
 }

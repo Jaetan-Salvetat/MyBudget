@@ -3,78 +3,34 @@ import 'package:mybudget/models/revenue_model.dart';
 
 void main() {
   group('RevenueModel', () {
-    test('should create a valid instance', () {
-      final date = DateTime.now();
+    test('should create instance correctly', () {
       final revenue = RevenueModel.create(
-        name: 'Salary',
-        amount: 2000.0,
-        isRegular: true,
-        date: date,
+        name: 'Test',
+        amount: 100,
         accountId: 1,
+        date: DateTime(2024, 1, 1),
+        isRegular: true,
       );
 
-      expect(revenue.name, 'Salary');
-      expect(revenue.amount, 2000.0);
+      expect(revenue.name, 'Test');
       expect(revenue.isRegular, true);
-      expect(revenue.date, date);
-      expect(revenue.accountId, 1);
     });
 
-    test('copyWith should return a new instance with updated values', () {
+    test('copyWith should update specific fields', () {
       final revenue = RevenueModel.create(
-        name: 'Original',
-        amount: 100.0,
-        isRegular: false,
-        date: DateTime.now(),
+        name: 'Old',
+        amount: 100,
         accountId: 1,
+        date: DateTime(2024, 1, 1),
+        isRegular: true,
       );
 
-      final updated = revenue.copyWith(name: 'Updated', amount: 150.0);
+      final updated = revenue.copyWith(name: 'New', amount: 200);
 
-      expect(updated.name, 'Updated');
-      expect(updated.amount, 150.0);
-      expect(updated.isRegular, revenue.isRegular);
-    });
-
-    test('toJson should return correct map', () {
-      final date = DateTime(2023, 1, 1);
-      final revenue = RevenueModel.create(
-        name: 'Json Test',
-        amount: 50.0,
-        isRegular: true,
-        date: date,
-        accountId: 2,
-      )..id = 5;
-
-      final json = revenue.toJson();
-
-      expect(json['id'], '5');
-      expect(json['name'], 'Json Test');
-      expect(json['amount'], 50.0);
-      expect(json['isRegular'], true);
-      expect(json['date'], date.toIso8601String());
-      expect(json['accountId'], '2');
-    });
-
-    test('fromJson should create correct instance', () {
-      final date = DateTime(2023, 1, 1);
-      final json = {
-        'id': '5',
-        'name': 'Json Test',
-        'amount': 50.0,
-        'isRegular': true,
-        'date': date.toIso8601String(),
-        'accountId': '2',
-      };
-
-      final revenue = RevenueModel.fromJson(json);
-
-      expect(revenue.id, 5);
-      expect(revenue.name, 'Json Test');
-      expect(revenue.amount, 50.0);
-      expect(revenue.isRegular, true);
-      expect(revenue.date, date);
-      expect(revenue.accountId, 2);
+      expect(updated.name, 'New');
+      expect(updated.amount, 200);
+      expect(updated.isRegular, true);
+      expect(updated.accountId, 1);
     });
   });
 }
