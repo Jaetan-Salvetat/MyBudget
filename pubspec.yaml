@@ -30,13 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   frosted_ui:
     git:
       url: https://github.com/Jaetan-Salvetat/frosted_ui
       ref: main
   provider: ^6.1.1
   equatable: ^2.0.5
-  intl: ^0.18.1
+  intl: ^0.20.2
   path_provider: ^2.1.5
   flutter_svg: ^2.0.9
   flutter_dotenv: ^5.1.0
