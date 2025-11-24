@@ -94,7 +94,7 @@ class CategoriesBottomSheet extends StatelessWidget {
                 CategoryModel.create(
                   name: nameController.text,
                   icon: Icons.category.codePoint.toString(),
-                  color: Colors.blue.value,
+                  color: Colors.blue.toARGB32(),
                 ),
               );
               Navigator.pop(context);

@@ -103,10 +103,12 @@ class DataViewModel extends ChangeNotifier {
       final file = File('${tempDir.path}/mybudget_data.json');
       await file.writeAsString(jsonData);
 
-      final result = await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: 'MyBudget - Données exportées',
-        text: 'Sauvegarde de vos données MyBudget',
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          text: 'Sauvegarde de vos données MyBudget',
+          subject: 'MyBudget - Données exportées',
+          files: [XFile(file.path)],
+        ),
       );
 
       if (result.status == ShareResultStatus.success) {

@@ -26,13 +26,13 @@ class _DataSectionState extends State<DataSection> {
           title: 'Exporter mes données',
           subtitle: 'Sauvegardez vos données financières',
           leading: const Icon(Icons.upload_file),
-          onTap: () => _exportUserData(context, dataVM),
+          onTap: () => _exportUserData(dataVM),
         ),
         SettingsTile(
           title: 'Importer mes données',
           subtitle: 'Restaurez vos données depuis une sauvegarde',
           leading: const Icon(Icons.download),
-          onTap: () => _importUserData(context, dataVM),
+          onTap: () => _importUserData(dataVM),
         ),
         SettingsTile(
           title: 'Supprimer toutes mes données',
@@ -48,17 +48,11 @@ class _DataSectionState extends State<DataSection> {
     );
   }
 
-  Future<void> _exportUserData(
-    BuildContext context,
-    DataViewModel dataVM,
-  ) async {
+  Future<void> _exportUserData(DataViewModel dataVM) async {
     await dataVM.exportUserData(context);
   }
 
-  Future<void> _importUserData(
-    BuildContext context,
-    DataViewModel dataVM,
-  ) async {
+  Future<void> _importUserData(DataViewModel dataVM) async {
     try {
       final result = await FilePicker.platform.pickFiles(type: FileType.any);
 

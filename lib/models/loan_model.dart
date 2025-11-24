@@ -149,7 +149,7 @@ class LoanModel {
       notes: notes ?? this.notes,
       interestRate: interestRate ?? this.interestRate,
       duration: duration ?? this.duration,
-      insuranceTypeId: insuranceType?.name ?? this.insuranceTypeId,
+      insuranceTypeId: insuranceType?.name ?? insuranceTypeId,
       insuranceValue: insuranceValue ?? this.insuranceValue,
     );
   }

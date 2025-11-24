@@ -133,7 +133,7 @@ class RevenueCard extends StatelessWidget {
                           color: Theme.of(context).colorScheme.error,
                           size: 20,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           'Supprimer',
                           style: TextStyle(

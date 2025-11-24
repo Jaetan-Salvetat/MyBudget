@@ -45,42 +45,42 @@ class CategoryViewModel extends ChangeNotifier {
       CategoryModel.create(
         name: 'Alimentation',
         icon: 'restaurant',
-        color: Colors.orange.value,
+        color: Colors.orange.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Logement',
         icon: 'home',
-        color: Colors.blue.value,
+        color: Colors.blue.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Transport',
         icon: 'directions_car',
-        color: Colors.green.value,
+        color: Colors.green.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Loisirs',
         icon: 'sports_esports',
-        color: Colors.purple.value,
+        color: Colors.purple.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Santé',
         icon: 'medical_services',
-        color: Colors.red.value,
+        color: Colors.red.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Shopping',
         icon: 'shopping_bag',
-        color: Colors.pink.value,
+        color: Colors.pink.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Salaire',
         icon: 'account_balance_wallet',
-        color: Colors.teal.value,
+        color: Colors.teal.toARGB32(),
       ),
       CategoryModel.create(
         name: 'Divers',
         icon: 'more_horiz',
-        color: Colors.grey.value,
+        color: Colors.grey.toARGB32(),
       ),
     ];
 
