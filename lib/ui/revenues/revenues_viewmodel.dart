@@ -80,16 +80,15 @@ class RevenueViewModel extends ChangeNotifier {
 
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
 
     double total = 0.0;
 
     for (var revenue in _revenues) {
       final isCurrentMonth =
-          revenue.date.isAtSameMomentAs(startOfMonth) ||
-          revenue.date.isAtSameMomentAs(endOfMonth) ||
-          (revenue.date.isAfter(startOfMonth) &&
-              revenue.date.isBefore(endOfMonth));
+          (revenue.date.isAtSameMomentAs(startOfMonth) ||
+              revenue.date.isAfter(startOfMonth)) &&
+          revenue.date.isBefore(startOfNextMonth);
 
       if (isCurrentMonth) {
         total += revenue.amount;
@@ -104,7 +103,7 @@ class RevenueViewModel extends ChangeNotifier {
 
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
 
     double total = 0.0;
 
@@ -112,10 +111,9 @@ class RevenueViewModel extends ChangeNotifier {
       if (!revenue.isRegular) continue;
 
       final isCurrentMonth =
-          revenue.date.isAtSameMomentAs(startOfMonth) ||
-          revenue.date.isAtSameMomentAs(endOfMonth) ||
-          (revenue.date.isAfter(startOfMonth) &&
-              revenue.date.isBefore(endOfMonth));
+          (revenue.date.isAtSameMomentAs(startOfMonth) ||
+              revenue.date.isAfter(startOfMonth)) &&
+          revenue.date.isBefore(startOfNextMonth);
 
       if (isCurrentMonth) {
         total += revenue.amount;
@@ -130,7 +128,7 @@ class RevenueViewModel extends ChangeNotifier {
 
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
 
     double total = 0.0;
 
@@ -138,10 +136,9 @@ class RevenueViewModel extends ChangeNotifier {
       if (revenue.isRegular) continue;
 
       final isCurrentMonth =
-          revenue.date.isAtSameMomentAs(startOfMonth) ||
-          revenue.date.isAtSameMomentAs(endOfMonth) ||
-          (revenue.date.isAfter(startOfMonth) &&
-              revenue.date.isBefore(endOfMonth));
+          (revenue.date.isAtSameMomentAs(startOfMonth) ||
+              revenue.date.isAfter(startOfMonth)) &&
+          revenue.date.isBefore(startOfNextMonth);
 
       if (isCurrentMonth) {
         total += revenue.amount;
