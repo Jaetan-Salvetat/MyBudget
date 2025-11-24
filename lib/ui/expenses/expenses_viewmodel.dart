@@ -151,7 +151,7 @@ class ExpenseViewModel extends ChangeNotifier {
 
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
 
     double total = 0.0;
     final listToUse = expensesList ?? _expenses;
@@ -166,10 +166,9 @@ class ExpenseViewModel extends ChangeNotifier {
             break;
           case AnnualExpenseCalculationMode.dateBasedOnly:
             final isCurrentMonth =
-                expense.date.isAtSameMomentAs(startOfMonth) ||
-                expense.date.isAtSameMomentAs(endOfMonth) ||
-                (expense.date.isAfter(startOfMonth) &&
-                    expense.date.isBefore(endOfMonth));
+                (expense.date.isAtSameMomentAs(startOfMonth) ||
+                    expense.date.isAfter(startOfMonth)) &&
+                expense.date.isBefore(startOfNextMonth);
 
             if (isCurrentMonth) {
               total += expense.amount;

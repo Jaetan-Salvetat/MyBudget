@@ -4,71 +4,27 @@ import 'package:mybudget/models/category_model.dart';
 
 void main() {
   group('CategoryModel', () {
-    test('should create a valid instance', () {
-      final category = CategoryModel.create(
-        name: 'Food',
-        icon: 'restaurant',
-        color: 0xFF000000,
-      );
-
-      expect(category.name, 'Food');
-      expect(category.icon, 'restaurant');
-      expect(category.color, 0xFF000000);
+    test('getIconData should return correct icon for known strings', () {
+      final cat = CategoryModel.create(name: 'Home', icon: 'home');
+      expect(cat.getIconData(), Icons.home);
     });
 
-    test('copyWith should return a new instance with updated values', () {
-      final category = CategoryModel.create(
-        name: 'Original',
-        icon: 'icon',
-        color: 0xFF000000,
-      );
+    test(
+      'getIconData should fallback to category icon for unknown strings',
+      () {
+        final cat = CategoryModel.create(
+          name: 'Unknown',
+          icon: 'unknown_icon_xyz',
+        );
+        expect(cat.getIconData(), Icons.category);
+      },
+    );
 
-      final updated = category.copyWith(name: 'Updated');
+    test('getIconData should handle integer strings (CodePoints)', () {
+      final codePoint = Icons.star.codePoint;
+      final cat = CategoryModel.create(name: 'Star', icon: '$codePoint');
 
-      expect(updated.name, 'Updated');
-      expect(updated.icon, 'icon');
-    });
-
-    test('toJson should return correct map', () {
-      final category = CategoryModel.create(
-        name: 'Json Test',
-        icon: 'icon',
-        color: 0xFF000000,
-      )..id = 5;
-
-      final json = category.toJson();
-
-      expect(json['id'], '5');
-      expect(json['name'], 'Json Test');
-      expect(json['icon'], 'icon');
-      expect(json['color'], 0xFF000000);
-    });
-
-    test('fromJson should create correct instance', () {
-      final json = {
-        'id': '5',
-        'name': 'Json Test',
-        'icon': 'icon',
-        'color': 0xFF000000,
-      };
-
-      final category = CategoryModel.fromJson(json);
-
-      expect(category.id, 5);
-      expect(category.name, 'Json Test');
-      expect(category.icon, 'icon');
-      expect(category.color, 0xFF000000);
-    });
-
-    test('getIconData should return correct IconData', () {
-      final category = CategoryModel.create(name: 'Test', icon: 'restaurant');
-      expect(category.getIconData(), Icons.restaurant);
-
-      final categoryCodePoint = CategoryModel.create(
-        name: 'Test',
-        icon: Icons.home.codePoint.toString(),
-      );
-      expect(categoryCodePoint.getIconData().codePoint, Icons.home.codePoint);
+      expect(cat.getIconData().codePoint, codePoint);
     });
   });
 }

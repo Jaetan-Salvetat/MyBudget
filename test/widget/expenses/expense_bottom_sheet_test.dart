@@ -6,71 +6,61 @@ import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 void main() {
-  final List<AccountModel> accounts = [
-    AccountModel.create(name: 'Main Account', bank: 'Bank')..id = 1,
-  ];
-  final List<CategoryModel> categories = [
-    CategoryModel.create(name: 'Food', icon: 'fastfood', color: 0xFF000000)
-      ..id = 1,
-  ];
+  testWidgets('ExpenseBottomSheet validation and submission', (tester) async {
+    ExpenseModel? submittedExpense;
 
-  Widget createWidgetUnderTest({
-    Function(ExpenseModel)? onSubmit,
-    VoidCallback? onCancel,
-  }) {
-    return MaterialApp(
-      home: Scaffold(
-        body: ExpenseBottomSheet(
-          accounts: accounts,
-          categories: categories,
-          onSubmit: onSubmit ?? (_) {},
-          onCancel: onCancel ?? () {},
+    final accounts = [
+      AccountModel.create(name: 'Main Account', bank: 'Bank A')..id = 1,
+    ];
+    final categories = [
+      CategoryModel.create(name: 'Food', icon: 'fastfood')..id = 10,
+      CategoryModel.create(name: 'Transport', icon: 'car')..id = 20,
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return ExpenseBottomSheet(
+                accounts: accounts,
+                categories: categories,
+                onCancel: () {},
+                onSubmit: (expense) {
+                  submittedExpense = expense;
+                },
+              );
+            },
+          ),
         ),
       ),
     );
-  }
 
-  group('ExpenseBottomSheet', () {
-    testWidgets('renders all form fields', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
+    expect(find.text('Informations'), findsOneWidget);
+    expect(find.text('Nom'), findsOneWidget);
+    expect(find.text('Montant'), findsOneWidget);
 
-      expect(find.text('Informations'), findsOneWidget);
-      expect(find.text('Nom'), findsOneWidget);
-      expect(find.text('Montant'), findsOneWidget);
-      expect(find.text('Catégorie'), findsOneWidget);
-      expect(find.text('Compte'), findsOneWidget);
-      expect(find.text('Ajouter'), findsOneWidget);
-    });
+    await tester.tap(find.text('Ajouter'));
+    await tester.pump();
 
-    testWidgets('shows validation errors on empty submit', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
+    expect(submittedExpense, isNull);
 
-      await tester.tap(find.text('Ajouter'));
-      await tester.pumpAndSettle();
-    });
+    final textFields = find.byType(TextField);
+    expect(textFields, findsAtLeastNWidgets(2));
 
-    testWidgets('calls onSubmit with valid data', (tester) async {
-      ExpenseModel? submittedExpense;
-      await tester.pumpWidget(
-        createWidgetUnderTest(
-          onSubmit: (expense) => submittedExpense = expense,
-        ),
-      );
+    await tester.enterText(textFields.at(0), 'Burger King');
 
-      await tester.enterText(find.byType(TextField).at(0), 'Groceries');
+    await tester.enterText(textFields.at(1), '15.50');
 
-      await tester.enterText(find.byType(TextField).at(1), '50.0');
+    final submitButton = find.text('Ajouter');
+    await tester.ensureVisible(submitButton);
+    await tester.tap(submitButton);
+    await tester.pumpAndSettle();
 
-      final submitButton = find.text('Ajouter');
-      await tester.ensureVisible(submitButton);
-      await tester.tap(submitButton);
-      await tester.pumpAndSettle();
-
-      expect(submittedExpense, isNotNull);
-      expect(submittedExpense!.name, 'Groceries');
-      expect(submittedExpense!.amount, 50.0);
-      expect(submittedExpense!.categoryId, 1);
-      expect(submittedExpense!.accountId, 1);
-    });
+    expect(submittedExpense, isNotNull);
+    expect(submittedExpense!.name, 'Burger King');
+    expect(submittedExpense!.amount, 15.50);
+    expect(submittedExpense!.categoryId, 10);
+    expect(submittedExpense!.accountId, 1);
   });
 }

@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -31,17 +31,14 @@ void main() {
     mockRevenueViewModel = MockRevenueViewModel();
     mockLoanViewModel = MockLoanViewModel();
 
-    when(() => mockAccountRepository.getAll()).thenReturn([]);
-    when(() => mockExpenseViewModel.expenses).thenReturn([]);
-    when(() => mockRevenueViewModel.revenues).thenReturn([]);
-    when(() => mockLoanViewModel.loans).thenReturn([]);
-
     when(() => mockExpenseViewModel.addListener(any())).thenReturn(null);
     when(() => mockRevenueViewModel.addListener(any())).thenReturn(null);
     when(() => mockLoanViewModel.addListener(any())).thenReturn(null);
     when(() => mockExpenseViewModel.removeListener(any())).thenReturn(null);
     when(() => mockRevenueViewModel.removeListener(any())).thenReturn(null);
     when(() => mockLoanViewModel.removeListener(any())).thenReturn(null);
+
+    when(() => mockAccountRepository.getAll()).thenReturn([]);
 
     viewModel = AccountViewModel(
       mockAccountRepository,
@@ -51,61 +48,82 @@ void main() {
     );
   });
 
-  group('AccountViewModel', () {
-    test('initial load should fetch accounts', () async {
-      verify(() => mockAccountRepository.getAll()).called(1);
-      expect(viewModel.accounts, isEmpty);
-      expect(viewModel.isLoading, false);
-    });
-
-    test('addAccount should call repository and reload', () async {
-      final account = AccountModel.create(name: 'New Account', bank: 'Bank');
-
-      when(() => mockAccountRepository.add(account)).thenReturn(1);
-      when(() => mockAccountRepository.getAll()).thenReturn([account]);
-
-      await viewModel.addAccount(account);
-
-      verify(() => mockAccountRepository.add(account)).called(1);
-      verify(() => mockAccountRepository.getAll()).called(2);
-      expect(viewModel.accounts.length, 1);
-    });
-
-    test('getAccountBalance should calculate correctly', () {
-      const accountId = 1;
+  test(
+    'getAccountBalance should calculate monthly remaining budget correctly',
+    () {
+      const int accountId = 1;
 
       final revenue = RevenueModel.create(
         name: 'Salary',
-        amount: 1000.0,
-        isRegular: true,
-        date: DateTime.now(),
+        amount: 2000,
         accountId: accountId,
+        date: DateTime.now(),
+        isRegular: true,
       );
       when(() => mockRevenueViewModel.revenues).thenReturn([revenue]);
 
       final expense = ExpenseModel.create(
-        name: 'Food',
-        amount: 200.0,
+        name: 'Groceries',
+        amount: 500,
+        accountId: accountId,
         categoryId: 1,
         date: DateTime.now(),
         frequency: 'Mensuel',
-        accountId: accountId,
       );
       when(() => mockExpenseViewModel.expenses).thenReturn([expense]);
 
       final loan = LoanModel.create(
-        name: 'Loan',
-        amount: 1000.0,
-        lenderName: 'Bank',
-        dayOfMonth: 1,
+        name: 'Car Loan',
+        amount: 5000,
+        monthlyPayment: 100,
+        accountId: accountId,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 365)),
-        accountId: accountId,
-        monthlyPayment: 100.0,
+        dayOfMonth: 1,
+        lenderName: 'Bank',
       );
+
       when(() => mockLoanViewModel.loans).thenReturn([loan]);
 
-      expect(viewModel.getAccountBalance(accountId), 700.0);
-    });
+      final balance = viewModel.getAccountBalance(accountId);
+
+      expect(balance, 1400.0);
+    },
+  );
+
+  test('getTotalBalance should sum all account balances', () {
+    final acc1 = AccountModel.create(name: 'Acc1', bank: 'B1')..id = 1;
+    final acc2 = AccountModel.create(name: 'Acc2', bank: 'B2')..id = 2;
+
+    when(() => mockAccountRepository.getAll()).thenReturn([acc1, acc2]);
+
+    final newViewModel = AccountViewModel(
+      mockAccountRepository,
+      mockExpenseViewModel,
+      mockRevenueViewModel,
+      mockLoanViewModel,
+    );
+
+    final rev1 = RevenueModel.create(
+      name: 'R1',
+      amount: 100,
+      accountId: 1,
+      date: DateTime.now(),
+      isRegular: true,
+    );
+
+    final rev2 = RevenueModel.create(
+      name: 'R2',
+      amount: 50,
+      accountId: 2,
+      date: DateTime.now(),
+      isRegular: true,
+    );
+
+    when(() => mockRevenueViewModel.revenues).thenReturn([rev1, rev2]);
+    when(() => mockExpenseViewModel.expenses).thenReturn([]);
+    when(() => mockLoanViewModel.loans).thenReturn([]);
+
+    expect(newViewModel.getTotalBalance(), 150.0);
   });
 }

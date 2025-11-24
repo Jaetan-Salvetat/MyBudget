@@ -3,16 +3,13 @@ import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsViewModel extends ChangeNotifier {
-  static const String _themeKey = 'theme_mode';
   static const String _calculationModeKey = 'annual_expense_calculation_mode';
   static const String _privacyKey = 'privacy_enabled';
 
-  ThemeMode _themeMode = ThemeMode.system;
   AnnualExpenseCalculationMode _annualExpenseCalculationMode =
       AnnualExpenseCalculationMode.monthlyAmortized;
   bool _privacyEnabled = false;
 
-  ThemeMode get themeMode => _themeMode;
   AnnualExpenseCalculationMode get annualExpenseCalculationMode =>
       _annualExpenseCalculationMode;
   bool get privacyEnabled => _privacyEnabled;
@@ -24,11 +21,6 @@ class SettingsViewModel extends ChangeNotifier {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final themeIndex = prefs.getInt(_themeKey);
-    if (themeIndex != null) {
-      _themeMode = ThemeMode.values[themeIndex];
-    }
-
     final calculationModeIndex = prefs.getInt(_calculationModeKey);
     if (calculationModeIndex != null) {
       _annualExpenseCalculationMode =
@@ -38,16 +30,6 @@ class SettingsViewModel extends ChangeNotifier {
     _privacyEnabled = prefs.getBool(_privacyKey) ?? false;
 
     notifyListeners();
-  }
-
-  Future<void> updateThemeMode(ThemeMode mode) async {
-    if (_themeMode == mode) return;
-
-    _themeMode = mode;
-    notifyListeners();
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_themeKey, mode.index);
   }
 
   Future<void> updateAnnualExpenseCalculationMode(
@@ -73,14 +55,13 @@ class SettingsViewModel extends ChangeNotifier {
   }
 
   Future<void> resetSettings() async {
-    _themeMode = ThemeMode.system;
     _annualExpenseCalculationMode =
         AnnualExpenseCalculationMode.monthlyAmortized;
     _privacyEnabled = false;
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_themeKey);
+
     await prefs.remove(_calculationModeKey);
     await prefs.remove(_privacyKey);
   }

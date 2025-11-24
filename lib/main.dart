@@ -1,9 +1,10 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
+
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
@@ -12,6 +13,7 @@ import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
 import 'package:mybudget/ui/settings/update_viewmodel.dart';
+import 'package:mybudget/core/theme/theme_viewmodel.dart';
 import 'package:mybudget/ui/dashboard/dashboard_viewmodel.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
@@ -96,6 +98,7 @@ class MyApp extends StatelessWidget {
 
             ChangeNotifierProvider(create: (_) => SettingsViewModel()),
             ChangeNotifierProvider(create: (_) => UpdateViewModel()),
+            ChangeNotifierProvider(create: (_) => ThemeViewModel()),
 
             ChangeNotifierProvider(
               create:
@@ -177,15 +180,23 @@ class MyApp extends StatelessWidget {
                   ),
             ),
           ],
-          child: Consumer<SettingsViewModel>(
-            builder: (context, settingsViewModel, child) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: 'My Budget',
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: settingsViewModel.themeMode,
-                home: const SplashScreen(),
+          child: DynamicColorBuilder(
+            builder: (lightDynamic, darkDynamic) {
+              return Consumer<ThemeViewModel>(
+                builder: (context, themeViewModel, child) {
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    title: 'My Budget',
+                    theme: themeViewModel.getLightTheme(
+                      dynamicColorScheme: lightDynamic,
+                    ),
+                    darkTheme: themeViewModel.getDarkTheme(
+                      dynamicColorScheme: darkDynamic,
+                    ),
+                    themeMode: themeViewModel.themeMode,
+                    home: const SplashScreen(),
+                  );
+                },
               );
             },
           ),
