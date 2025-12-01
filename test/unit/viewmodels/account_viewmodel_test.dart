@@ -9,6 +9,9 @@ import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
+import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/models/transaction_item.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -18,18 +21,22 @@ class MockRevenueViewModel extends Mock implements RevenueViewModel {}
 
 class MockLoanViewModel extends Mock implements LoanViewModel {}
 
+class MockTransferRepository extends Mock implements TransferRepository {}
+
 void main() {
   late AccountViewModel viewModel;
   late MockAccountRepository mockAccountRepository;
   late MockExpenseViewModel mockExpenseViewModel;
   late MockRevenueViewModel mockRevenueViewModel;
   late MockLoanViewModel mockLoanViewModel;
+  late MockTransferRepository mockTransferRepository;
 
   setUp(() {
     mockAccountRepository = MockAccountRepository();
     mockExpenseViewModel = MockExpenseViewModel();
     mockRevenueViewModel = MockRevenueViewModel();
     mockLoanViewModel = MockLoanViewModel();
+    mockTransferRepository = MockTransferRepository();
 
     when(() => mockExpenseViewModel.addListener(any())).thenReturn(null);
     when(() => mockRevenueViewModel.addListener(any())).thenReturn(null);
@@ -39,9 +46,11 @@ void main() {
     when(() => mockLoanViewModel.removeListener(any())).thenReturn(null);
 
     when(() => mockAccountRepository.getAll()).thenReturn([]);
+    when(() => mockTransferRepository.getByAccount(any())).thenReturn([]);
 
     viewModel = AccountViewModel(
       mockAccountRepository,
+      mockTransferRepository,
       mockExpenseViewModel,
       mockRevenueViewModel,
       mockLoanViewModel,
@@ -99,6 +108,7 @@ void main() {
 
     final newViewModel = AccountViewModel(
       mockAccountRepository,
+      mockTransferRepository,
       mockExpenseViewModel,
       mockRevenueViewModel,
       mockLoanViewModel,
@@ -125,5 +135,73 @@ void main() {
     when(() => mockLoanViewModel.loans).thenReturn([]);
 
     expect(newViewModel.getTotalBalance(), 150.0);
+  });
+
+  test('createTransfer should call repository create', () {
+    final transfer = TransferModel.create(
+      name: 'Transfer',
+      amount: 100,
+      sourceAccountId: 1,
+      destinationAccountId: 2,
+      date: DateTime.now(),
+      frequencyString: 'Mensuel',
+    );
+
+    viewModel.createTransfer(transfer);
+
+    verify(() => mockTransferRepository.create(transfer)).called(1);
+  });
+
+  test(
+    'deleteTransaction should call repository delete for transfer',
+    () async {
+      final transferItem = TransactionItem(
+        id: 1,
+        label: 'Transfer',
+        type: TransactionType.transfer,
+        amount: 100,
+        date: DateTime.now(),
+      );
+
+      await viewModel.deleteTransaction(transferItem);
+
+      verify(() => mockTransferRepository.delete(1)).called(1);
+    },
+  );
+
+  test('getAccountBalance should include transfers', () {
+    const int accountId = 1;
+
+    // Incoming transfer
+    final transferIn = TransferModel.create(
+      name: 'In',
+      amount: 500,
+      sourceAccountId: 2,
+      destinationAccountId: accountId,
+      date: DateTime.now(),
+      frequencyString: 'Ponctuel',
+    );
+
+    // Outgoing transfer
+    final transferOut = TransferModel.create(
+      name: 'Out',
+      amount: 200,
+      sourceAccountId: accountId,
+      destinationAccountId: 3,
+      date: DateTime.now(),
+      frequencyString: 'Ponctuel',
+    );
+
+    when(
+      () => mockTransferRepository.getByAccount(accountId),
+    ).thenReturn([transferIn, transferOut]);
+    when(() => mockRevenueViewModel.revenues).thenReturn([]);
+    when(() => mockExpenseViewModel.expenses).thenReturn([]);
+    when(() => mockLoanViewModel.loans).thenReturn([]);
+
+    final balance = viewModel.getAccountBalance(accountId);
+
+    // 500 (in) - 200 (out) = 300
+    expect(balance, 300.0);
   });
 }
