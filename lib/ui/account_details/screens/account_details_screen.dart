@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/ui/account_details/widgets/transactions_list.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -9,7 +10,7 @@ import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
-import 'package:mybudget/ui/account_details/widgets/account_transactions_section.dart';
+import 'package:mybudget/ui/account_details/widgets/create_transfer_bottom_sheet.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   final AccountModel account;
@@ -51,6 +52,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           ),
         ],
       ),
+      floatingActionButton: FrostedFloatingActionButton(
+        onPressed: () {
+          CreateTransferBottomSheet.show(context);
+        },
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       child: Consumer4<
         AccountViewModel,
         ExpenseViewModel,
@@ -87,12 +95,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   formatter: formatter,
                 ),
                 const SizedBox(height: 24),
-                AccountTransactionsSection(
-                  account: account,
-                  expenseVM: expenseVM,
-                  revenueVM: revenueVM,
-                  loanVM: loanVM,
+                TransactionsList(
+                  transactions: accountVM.getTransactionsForAccount(account.id),
                   formatter: formatter,
+                  onDelete: (item) {
+                    context.read<AccountViewModel>().deleteTransaction(item);
+                  },
                 ),
                 const SizedBox(height: 32),
               ],

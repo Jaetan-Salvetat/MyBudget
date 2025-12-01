@@ -225,10 +225,61 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "6:3546268696798631835",
+      "lastPropertyId": "8:3807568796206568918",
+      "name": "TransferModel",
+      "properties": [
+        {
+          "id": "1:1163426495131386328",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:204640893958683067",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "5:4545071699222890215"
+        },
+        {
+          "id": "3:1675975522697315347",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "4:3701725332975464690",
+          "name": "sourceAccountId",
+          "type": 6
+        },
+        {
+          "id": "5:2902599797246831324",
+          "name": "destinationAccountId",
+          "type": 6
+        },
+        {
+          "id": "6:8692703401362105557",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "7:8123907431537066020",
+          "name": "frequencyString",
+          "type": 9
+        },
+        {
+          "id": "8:3807568796206568918",
+          "name": "isAutomatic",
+          "type": 1
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:3358114112895883942",
-  "lastIndexId": "4:3572496844486688498",
+  "lastEntityId": "6:3546268696798631835",
+  "lastIndexId": "5:4545071699222890215",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

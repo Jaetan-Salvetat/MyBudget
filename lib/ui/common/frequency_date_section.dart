@@ -3,12 +3,12 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 
-class ExpenseFrequencyDateSection extends StatefulWidget {
-  final String frequency;
+class FrequencyDateSection extends StatefulWidget {
+  final Frequency frequency;
   final DateTime date;
-  final Function(String, DateTime) onChanged;
+  final Function(Frequency, DateTime) onChanged;
 
-  const ExpenseFrequencyDateSection({
+  const FrequencyDateSection({
     required this.frequency,
     required this.date,
     required this.onChanged,
@@ -16,12 +16,10 @@ class ExpenseFrequencyDateSection extends StatefulWidget {
   });
 
   @override
-  State<ExpenseFrequencyDateSection> createState() =>
-      _ExpenseFrequencyDateSectionState();
+  State<FrequencyDateSection> createState() => _FrequencyDateSectionState();
 }
 
-class _ExpenseFrequencyDateSectionState
-    extends State<ExpenseFrequencyDateSection> {
+class _FrequencyDateSectionState extends State<FrequencyDateSection> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,7 +36,7 @@ class _ExpenseFrequencyDateSectionState
         Row(
           children:
               Frequency.values.map((freq) {
-                final isSelected = widget.frequency == freq.label;
+                final isSelected = widget.frequency == freq;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: FrostedChip(
@@ -46,7 +44,7 @@ class _ExpenseFrequencyDateSectionState
                     selected: isSelected,
                     onPressed: () {
                       if (!isSelected) {
-                        widget.onChanged(freq.label, widget.date);
+                        widget.onChanged(freq, widget.date);
                       }
                     },
                   ),
@@ -94,7 +92,7 @@ class _ExpenseFrequencyDateSectionState
   }
 
   String _formatDate(DateTime date) {
-    if (widget.frequency == Frequency.monthly.label) {
+    if (widget.frequency == Frequency.monthly) {
       return 'Le ${date.day} du mois';
     } else {
       return DateFormat('d MMMM', 'fr_FR').format(date);
@@ -102,7 +100,7 @@ class _ExpenseFrequencyDateSectionState
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    if (widget.frequency == Frequency.monthly.label) {
+    if (widget.frequency == Frequency.monthly) {
       await _selectDayOnly(context);
     } else {
       await _selectDayAndMonth(context);

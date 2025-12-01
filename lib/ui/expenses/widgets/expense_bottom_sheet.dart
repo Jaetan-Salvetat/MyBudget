@@ -3,7 +3,8 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
+import 'package:mybudget/ui/common/frequency_date_section.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 
 class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
@@ -52,7 +53,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   late TextEditingController _amountController;
   int? _selectedCategoryId;
   DateTime _selectedDate = DateTime.now();
-  String _selectedFrequency = 'Mensuel';
+  Frequency _selectedFrequency = Frequency.monthly;
   int? _selectedAccountId;
   String? _categoryError;
   String? _accountError;
@@ -69,7 +70,10 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         widget.expense?.categoryId ??
         (widget.categories.isNotEmpty ? widget.categories.first.id : null);
     _selectedDate = widget.expense?.date ?? DateTime.now();
-    _selectedFrequency = widget.expense?.frequency ?? 'Mensuel';
+    _selectedFrequency =
+        widget.expense != null
+            ? Frequency.fromString(widget.expense!.frequency)
+            : Frequency.monthly;
     _selectedAccountId =
         widget.expense?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
@@ -117,7 +121,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               amount: amount,
               categoryId: _selectedCategoryId!,
               date: _selectedDate,
-              frequency: _selectedFrequency,
+              frequency: _selectedFrequency.label,
               accountId: _selectedAccountId!,
             )
             : ExpenseModel.create(
@@ -125,7 +129,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               amount: amount,
               categoryId: _selectedCategoryId!,
               date: _selectedDate,
-              frequency: _selectedFrequency,
+              frequency: _selectedFrequency.label,
               accountId: _selectedAccountId!,
             );
 
@@ -227,7 +231,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
             const SizedBox(height: 24),
 
-            ExpenseFrequencyDateSection(
+            FrequencyDateSection(
               frequency: _selectedFrequency,
               date: _selectedDate,
               onChanged: (freq, date) {
