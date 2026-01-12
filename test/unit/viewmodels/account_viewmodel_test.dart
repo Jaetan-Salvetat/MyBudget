@@ -9,6 +9,9 @@ import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
+import 'package:mybudget/core/services/loan_calculation_service.dart';
+import 'package:mybudget/core/services/loan_payment_breakdown_service.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -72,10 +75,11 @@ void main() {
       );
       when(() => mockExpenseViewModel.expenses).thenReturn([expense]);
 
-      final loan = LoanModel.create(
+      final loanModel = LoanModel.create(
         name: 'Car Loan',
         amount: 5000,
-        monthlyPayment: 100,
+        duration: 12,
+        interestRate: 5,
         accountId: accountId,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 365)),
@@ -83,11 +87,16 @@ void main() {
         lenderName: 'Bank',
       );
 
+      // Create Loan entity from model
+      const calculationService = LoanCalculationService();
+      const breakdownService = LoanPaymentBreakdownService(calculationService);
+      final loan = Loan(loanModel, calculationService, breakdownService);
+
       when(() => mockLoanViewModel.loans).thenReturn([loan]);
 
       final balance = viewModel.getAccountBalance(accountId);
 
-      expect(balance, 1400.0);
+      expect(balance, closeTo(1071.96, 0.01));
     },
   );
 

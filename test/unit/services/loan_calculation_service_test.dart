@@ -113,7 +113,7 @@ void main() {
       );
 
       // Insurance should be less than CI because remaining capital < initial
-      final insuranceCI = 10000 * 0.36 / 100 / 12;
+      const insuranceCI = 10000 * 0.36 / 100 / 12;
       final insuranceCRD = result - 856.07;
       expect(insuranceCRD, lessThan(insuranceCI));
     });
