@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
+import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/viewmodels/loan_creation_viewmodel.dart';
@@ -132,8 +133,10 @@ class LoanCreationBottomSheet extends StatelessWidget {
       case 1:
         return _buildConditionsSection(context, viewModel);
       case 2:
-        return _buildInsuranceSection(context, viewModel);
+        return _buildRepaymentTypeSection(context, viewModel);
       case 3:
+        return _buildInsuranceSection(context, viewModel);
+      case 4:
         return _buildReviewSection(context, viewModel);
       default:
         return const SizedBox.shrink();
@@ -303,6 +306,283 @@ class LoanCreationBottomSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRepaymentTypeSection(
+    BuildContext context,
+    LoanCreationViewModel viewModel,
+  ) {
+    return FrostedCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Type de Remboursement',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Icon(
+                  Icons.help_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () => _showRepaymentTypeHelp(context),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ToggleButtons(
+            isSelected: [
+              viewModel.repaymentType == LoanRepaymentType.amortizable,
+              viewModel.repaymentType == LoanRepaymentType.inFine,
+            ],
+            onPressed: (index) {
+              viewModel.setRepaymentType(LoanRepaymentType.values[index]);
+            },
+            borderRadius: BorderRadius.circular(8),
+            children: const [
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Amortissable'),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('In Fine'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    viewModel.repaymentType == LoanRepaymentType.amortizable
+                        ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
+                        : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Text(
+                'Période de Différé',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Icon(
+                  Icons.help_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () => _showDeferredPeriodHelp(context),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: viewModel.hasDeferredPeriod,
+            onChanged: (_) => viewModel.toggleDeferredPeriod(),
+            title: const Text('Ce prêt a une période de différé (ex: PTZ)'),
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding: EdgeInsets.zero,
+          ),
+          if (viewModel.hasDeferredPeriod) ...[
+            const SizedBox(height: 12),
+            FrostedTextField(
+              labelText: 'Durée du différé (en mois)',
+              hintText: 'Ex: 24',
+              keyboardType: TextInputType.number,
+              controller: viewModel.deferredMonthsController,
+              prefixIcon: const Icon(Icons.schedule),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showRepaymentTypeHelp(BuildContext context) {
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Types de Remboursement'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Prêt Amortissable',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '• Type le plus courant (99% des prêts immobiliers)\n'
+              '• Vous remboursez capital + intérêts chaque mois\n'
+              '• Mensualité constante pendant toute la durée\n'
+              '• La part de capital augmente progressivement\n'
+              '• La part d\'intérêts diminue progressivement',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Prêt In Fine',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '• Type rare, réservé aux investissements locatifs\n'
+              '• Vous ne payez QUE les intérêts chaque mois\n'
+              '• Le capital est remboursé en une seule fois à la fin\n'
+              '• Mensualités plus faibles mais coût total plus élevé\n'
+              '• Permet de défiscaliser les intérêts',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Pour un prêt immobilier classique, choisissez "Amortissable"',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Compris'),
+        ),
+      ],
+    );
+  }
+
+  void _showDeferredPeriodHelp(BuildContext context) {
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Période de Différé'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Une période de différé vous permet de ne rien payer pendant les premiers mois du prêt.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Exemple : Prêt à Taux Zéro (PTZ)',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '• Vous pouvez avoir 5, 10 ou 15 ans de différé\n'
+              '• Pendant cette période, vous ne payez rien du tout\n'
+              '• Les remboursements commencent après le différé\n'
+              '• La durée totale du prêt inclut le différé',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calculate_outlined,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Exemple : PTZ de 120 mois avec 60 mois de différé = 5 ans sans payer, puis 5 ans de remboursements',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Compris'),
+        ),
+      ],
     );
   }
 

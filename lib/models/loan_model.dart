@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
-import 'package:mybudget/utils/loan_calculator.dart';
+import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:objectbox/objectbox.dart';
 
 enum LoanStatus {
@@ -31,15 +31,22 @@ enum LoanStatus {
   }
 }
 
+/// Modèle de données pour un prêt (Data Transfer Object)
+/// Responsabilité unique : stocker et sérialiser les données
+/// La logique métier est déléguée aux services de calcul
 @Entity()
 class LoanModel {
   @Id()
   int id = 0;
 
+  // Informations de base
   String name;
   double amount;
   String lenderName;
+  int accountId;
+  String? notes;
 
+  // Dates et échéances
   int dayOfMonth;
 
   @Property()
@@ -48,18 +55,44 @@ class LoanModel {
   @Property()
   DateTime endDate;
 
-  double monthlyPayment;
-
-  int accountId;
-  String? notes;
-
+  // Conditions financières
   double interestRate;
   int duration;
 
+  // Type de remboursement (NOUVEAU)
+  String repaymentTypeId;
+
+  // Période de différé en mois (NOUVEAU)
+  int deferredMonths;
+
+  // Assurance
   String insuranceTypeId;
   double insuranceValue;
+  String insuranceCalculationModeId; // NOUVEAU
 
-  double get paidAmount => totalPaidCash;
+  // Getters pour les enums (conversion uniquement, pas de logique)
+
+  LoanRepaymentType get repaymentType {
+    return LoanRepaymentType.values.firstWhere(
+      (e) => e.name == repaymentTypeId,
+      orElse: () => LoanRepaymentType.amortizable,
+    );
+  }
+
+  set repaymentType(LoanRepaymentType type) {
+    repaymentTypeId = type.name;
+  }
+
+  InsuranceCalculationMode get insuranceCalculationMode {
+    return InsuranceCalculationMode.values.firstWhere(
+      (e) => e.name == insuranceCalculationModeId,
+      orElse: () => InsuranceCalculationMode.initialCapital,
+    );
+  }
+
+  set insuranceCalculationMode(InsuranceCalculationMode mode) {
+    insuranceCalculationModeId = mode.name;
+  }
 
   LoanInsuranceType get insuranceType {
     return LoanInsuranceType.values.firstWhere(
@@ -72,199 +105,100 @@ class LoanModel {
     insuranceTypeId = type.name;
   }
 
+  // Constructeur
   LoanModel({
     this.id = 0,
     required this.name,
     required this.amount,
     required this.lenderName,
+    required this.accountId,
     required this.dayOfMonth,
     required this.startDate,
     required this.endDate,
-    required this.accountId,
-    required this.monthlyPayment,
-    this.notes,
-    this.interestRate = 0.0,
-    this.duration = 0,
+    required this.interestRate,
+    required this.duration,
+    this.repaymentTypeId = 'amortizable',
+    this.deferredMonths = 0,
     this.insuranceTypeId = 'none',
     this.insuranceValue = 0.0,
+    this.insuranceCalculationModeId = 'initialCapital',
+    this.notes,
   });
 
+  /// Factory pour créer un prêt avec des paramètres nommés
   static LoanModel create({
     required String name,
     required double amount,
     required String lenderName,
+    required int accountId,
     required int dayOfMonth,
     required DateTime startDate,
     required DateTime endDate,
-    required int accountId,
-    required double monthlyPayment,
-    String? notes,
-    double interestRate = 0.0,
-    int duration = 0,
+    required double interestRate,
+    required int duration,
+    LoanRepaymentType repaymentType = LoanRepaymentType.amortizable,
+    int deferredMonths = 0,
     LoanInsuranceType insuranceType = LoanInsuranceType.none,
     double insuranceValue = 0.0,
+    InsuranceCalculationMode insuranceCalculationMode =
+        InsuranceCalculationMode.initialCapital,
+    String? notes,
   }) {
     return LoanModel(
       name: name,
       amount: amount,
       lenderName: lenderName,
+      accountId: accountId,
       dayOfMonth: dayOfMonth,
       startDate: startDate,
       endDate: endDate,
-      accountId: accountId,
-      monthlyPayment: monthlyPayment,
-      notes: notes,
       interestRate: interestRate,
       duration: duration,
+      repaymentTypeId: repaymentType.name,
+      deferredMonths: deferredMonths,
       insuranceTypeId: insuranceType.name,
       insuranceValue: insuranceValue,
+      insuranceCalculationModeId: insuranceCalculationMode.name,
+      notes: notes,
     );
   }
 
+  /// Copie avec modifications
   LoanModel copyWith({
     String? name,
     double? amount,
     String? lenderName,
+    int? accountId,
     int? dayOfMonth,
     DateTime? startDate,
     DateTime? endDate,
-    int? accountId,
-    double? monthlyPayment,
-    String? notes,
     double? interestRate,
     int? duration,
+    LoanRepaymentType? repaymentType,
+    int? deferredMonths,
     LoanInsuranceType? insuranceType,
     double? insuranceValue,
+    InsuranceCalculationMode? insuranceCalculationMode,
+    String? notes,
   }) {
     return LoanModel(
       id: id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       lenderName: lenderName ?? this.lenderName,
+      accountId: accountId ?? this.accountId,
       dayOfMonth: dayOfMonth ?? this.dayOfMonth,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      accountId: accountId ?? this.accountId,
-      monthlyPayment: monthlyPayment ?? this.monthlyPayment,
-      notes: notes ?? this.notes,
       interestRate: interestRate ?? this.interestRate,
       duration: duration ?? this.duration,
+      repaymentTypeId: repaymentType?.name ?? repaymentTypeId,
+      deferredMonths: deferredMonths ?? this.deferredMonths,
       insuranceTypeId: insuranceType?.name ?? insuranceTypeId,
       insuranceValue: insuranceValue ?? this.insuranceValue,
+      insuranceCalculationModeId:
+          insuranceCalculationMode?.name ?? insuranceCalculationModeId,
+      notes: notes ?? this.notes,
     );
-  }
-
-  double get totalCost {
-    final realDuration =
-        duration > 0
-            ? duration
-            : (endDate.year - startDate.year) * 12 +
-                endDate.month -
-                startDate.month;
-    final totalPayments = monthlyPayment * realDuration;
-    return totalPayments - amount;
-  }
-
-  double get remainingCapital {
-    final now = DateTime.now();
-
-    if (now.isBefore(startDate)) {
-      return amount;
-    }
-
-    if (now.isAfter(endDate)) {
-      return 0.0;
-    }
-
-    final startYearMonth = startDate.year * 12 + startDate.month - 1;
-    final nowYearMonth = now.year * 12 + now.month - 1;
-    final daysPassed = now.day >= dayOfMonth ? 1 : 0;
-
-    final monthsPassed = (nowYearMonth - startYearMonth) + daysPassed;
-
-    if (duration == 0) {
-      final paidNaive = monthsPassed * monthlyPayment;
-      return (amount - paidNaive).clamp(0.0, amount);
-    }
-
-    return LoanCalculator.calculateRemainingPrincipal(
-      amount: amount,
-      annualRate: interestRate,
-      durationInMonths: duration,
-      monthsPassed: monthsPassed,
-    );
-  }
-
-  int get remainingMonths {
-    final now = DateTime.now();
-    if (now.isAfter(endDate)) return 0;
-
-    final realDuration =
-        duration > 0
-            ? duration
-            : (endDate.year - startDate.year) * 12 +
-                endDate.month -
-                startDate.month;
-
-    if (now.isBefore(startDate)) return realDuration;
-
-    final endYearMonth = endDate.year * 12 + endDate.month;
-    final nowYearMonth = now.year * 12 + now.month;
-
-    final diff = endYearMonth - nowYearMonth;
-    return diff.clamp(0, realDuration);
-  }
-
-  double getRemainingAmount() {
-    return remainingCapital;
-  }
-
-  double getProgressPercentage() {
-    if (amount == 0) return 0.0;
-    final remaining = remainingCapital;
-    return (amount - remaining) / amount;
-  }
-
-  bool isCompleted() {
-    return getAutomaticStatus() == LoanStatus.completed;
-  }
-
-  LoanStatus getAutomaticStatus() {
-    final now = DateTime.now();
-
-    if (now.isAfter(endDate)) {
-      return LoanStatus.completed;
-    }
-
-    if (remainingCapital <= 0) {
-      return LoanStatus.completed;
-    }
-
-    if (now.isBefore(startDate)) {
-      return LoanStatus.pending;
-    }
-
-    return LoanStatus.partiallyPaid;
-  }
-
-  double get totalPaidCash => getAutomaticPaidAmount();
-
-  double getAutomaticPaidAmount() {
-    final now = DateTime.now();
-
-    if (now.isBefore(startDate)) {
-      return 0.0;
-    }
-
-    final effectiveEndDate = now.isAfter(endDate) ? endDate : now;
-
-    final startYearMonth = startDate.year * 12 + startDate.month - 1;
-    final endYearMonth =
-        effectiveEndDate.year * 12 + effectiveEndDate.month - 1;
-    final daysPassed = effectiveEndDate.day >= dayOfMonth ? 1 : 0;
-
-    final monthsPassed = (endYearMonth - startYearMonth) + daysPassed;
-
-    return monthsPassed * monthlyPayment;
   }
 }

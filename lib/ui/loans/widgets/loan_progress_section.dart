@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 
 class LoanProgressSection extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
   final NumberFormat formatter;
 
   const LoanProgressSection({
@@ -15,7 +15,7 @@ class LoanProgressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = loan.getProgressPercentage();
+    final progress = loan.progressPercentage;
     final remainingCapital = loan.remainingCapital;
     final amortizedCapital = loan.amount - remainingCapital;
     final remainingMonths = loan.remainingMonths;
@@ -38,7 +38,7 @@ class LoanProgressSection extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (!loan.isCompleted())
+              if (!loan.isCompleted)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -63,7 +63,7 @@ class LoanProgressSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${formatter.format(loan.monthlyPayment)}/mois',
+            '${formatter.format(loan.currentMonthlyPayment)}/mois',
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,

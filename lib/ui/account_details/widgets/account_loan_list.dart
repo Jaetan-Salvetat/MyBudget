@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 
 class AccountLoanList extends StatelessWidget {
-  final List<LoanModel> loans;
+  final List<Loan> loans;
   final NumberFormat formatter;
 
   const AccountLoanList({
@@ -54,7 +54,7 @@ class AccountLoanList extends StatelessWidget {
           ),
           subtitle: const Text('Mensualité'),
           trailing: Text(
-            formatter.format(loan.monthlyPayment),
+            formatter.format(loan.currentMonthlyPayment),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.secondary,

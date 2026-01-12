@@ -69,8 +69,8 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               .fold(0.0, (sum, expense) => sum + expense.amount);
 
           final totalLoanPayments = loanVM.loans
-              .where((l) => l.accountId == account.id && !l.isCompleted())
-              .fold(0.0, (sum, loan) => sum + loan.monthlyPayment);
+              .where((l) => l.accountId == account.id && !l.isCompleted)
+              .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),

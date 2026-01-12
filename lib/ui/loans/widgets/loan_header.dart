@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 
 class LoanHeader extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
   final String accountName;
 
   const LoanHeader({required this.loan, required this.accountName, super.key});

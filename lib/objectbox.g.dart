@@ -143,7 +143,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 8471750721460440152),
     name: 'LoanModel',
-    lastPropertyId: const obx_int.IdUid(15, 6813580747910956692),
+    lastPropertyId: const obx_int.IdUid(18, 5643985183887639942),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -189,12 +189,6 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(8, 2052082936511433960),
-        name: 'monthlyPayment',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(9, 8068317565478007606),
         name: 'accountId',
         type: 6,
@@ -227,6 +221,24 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(15, 6813580747910956692),
         name: 'insuranceTypeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(16, 1000548223484842297),
+        name: 'repaymentTypeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(17, 5314363640482365634),
+        name: 'deferredMonths',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(18, 5643985183887639942),
+        name: 'insuranceCalculationModeId',
         type: 9,
         flags: 0,
       ),
@@ -327,7 +339,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [3745183620062731729],
+    retiredPropertyUids: const [3745183620062731729, 2052082936511433960],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -479,7 +491,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ? null
             : fbb.writeString(object.notes!);
         final insuranceTypeIdOffset = fbb.writeString(object.insuranceTypeId);
-        fbb.startTable(16);
+        final repaymentTypeIdOffset = fbb.writeString(object.repaymentTypeId);
+        final insuranceCalculationModeIdOffset = fbb.writeString(
+          object.insuranceCalculationModeId,
+        );
+        fbb.startTable(19);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -487,13 +503,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(4, object.dayOfMonth);
         fbb.addInt64(5, object.startDate.millisecondsSinceEpoch);
         fbb.addInt64(6, object.endDate.millisecondsSinceEpoch);
-        fbb.addFloat64(7, object.monthlyPayment);
         fbb.addInt64(8, object.accountId);
         fbb.addOffset(9, notesOffset);
         fbb.addFloat64(10, object.interestRate);
         fbb.addInt64(11, object.duration);
         fbb.addFloat64(13, object.insuranceValue);
         fbb.addOffset(14, insuranceTypeIdOffset);
+        fbb.addOffset(15, repaymentTypeIdOffset);
+        fbb.addInt64(16, object.deferredMonths);
+        fbb.addOffset(17, insuranceCalculationModeIdOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -518,6 +536,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final lenderNameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 10, '');
+        final accountIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          20,
+          0,
+        );
         final dayOfMonthParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -530,21 +554,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final endDateParam = DateTime.fromMillisecondsSinceEpoch(
           const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0),
         );
-        final accountIdParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          20,
-          0,
-        );
-        final monthlyPaymentParam = const fb.Float64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          18,
-          0,
-        );
-        final notesParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 22);
         final interestRateParam = const fb.Float64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -557,6 +566,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
           26,
           0,
         );
+        final repaymentTypeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 34, '');
+        final deferredMonthsParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          36,
+          0,
+        );
         final insuranceTypeIdParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 32, '');
@@ -566,21 +584,29 @@ obx_int.ModelDefinition getObjectBoxModel() {
           30,
           0,
         );
+        final insuranceCalculationModeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 38, '');
+        final notesParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 22);
         final object = LoanModel(
           id: idParam,
           name: nameParam,
           amount: amountParam,
           lenderName: lenderNameParam,
+          accountId: accountIdParam,
           dayOfMonth: dayOfMonthParam,
           startDate: startDateParam,
           endDate: endDateParam,
-          accountId: accountIdParam,
-          monthlyPayment: monthlyPaymentParam,
-          notes: notesParam,
           interestRate: interestRateParam,
           duration: durationParam,
+          repaymentTypeId: repaymentTypeIdParam,
+          deferredMonths: deferredMonthsParam,
           insuranceTypeId: insuranceTypeIdParam,
           insuranceValue: insuranceValueParam,
+          insuranceCalculationModeId: insuranceCalculationModeIdParam,
+          notes: notesParam,
         );
 
         return object;
@@ -761,39 +787,49 @@ class LoanModel_ {
     _entities[3].properties[6],
   );
 
-  /// See [LoanModel.monthlyPayment].
-  static final monthlyPayment = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[7],
-  );
-
   /// See [LoanModel.accountId].
   static final accountId = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[8],
+    _entities[3].properties[7],
   );
 
   /// See [LoanModel.notes].
   static final notes = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[9],
+    _entities[3].properties[8],
   );
 
   /// See [LoanModel.interestRate].
   static final interestRate = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[10],
+    _entities[3].properties[9],
   );
 
   /// See [LoanModel.duration].
   static final duration = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[11],
+    _entities[3].properties[10],
   );
 
   /// See [LoanModel.insuranceValue].
   static final insuranceValue = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[12],
+    _entities[3].properties[11],
   );
 
   /// See [LoanModel.insuranceTypeId].
   static final insuranceTypeId = obx.QueryStringProperty<LoanModel>(
+    _entities[3].properties[12],
+  );
+
+  /// See [LoanModel.repaymentTypeId].
+  static final repaymentTypeId = obx.QueryStringProperty<LoanModel>(
     _entities[3].properties[13],
+  );
+
+  /// See [LoanModel.deferredMonths].
+  static final deferredMonths = obx.QueryIntegerProperty<LoanModel>(
+    _entities[3].properties[14],
+  );
+
+  /// See [LoanModel.insuranceCalculationModeId].
+  static final insuranceCalculationModeId = obx.QueryStringProperty<LoanModel>(
+    _entities[3].properties[15],
   );
 }
 

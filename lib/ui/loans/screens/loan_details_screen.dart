@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -11,7 +11,7 @@ import 'package:mybudget/ui/loans/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/loans/widgets/loan_details_section.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
-  final LoanModel loan;
+  final Loan loan;
 
   const LoanDetailsScreen({required this.loan, super.key});
 
@@ -20,7 +20,7 @@ class LoanDetailsScreen extends StatefulWidget {
 }
 
 class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
-  late LoanModel loan;
+  late Loan loan;
 
   final formatter = NumberFormat.currency(
     locale: 'fr_FR',
@@ -111,7 +111,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
 
   void _showEditLoanBottomSheet(
     BuildContext context,
-    LoanModel loan,
+    Loan loan,
     List<AccountModel> accounts,
     LoanViewModel loanVM,
   ) {
@@ -137,7 +137,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
 
   void _showDeleteConfirmation(
     BuildContext context,
-    LoanModel loan,
+    Loan loan,
     LoanViewModel loanVM,
   ) {
     FrostedDialog.show(

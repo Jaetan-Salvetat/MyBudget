@@ -80,10 +80,17 @@ class DataViewModel extends ChangeNotifier {
                   'amount': loan.amount,
                   'account_id': loan.accountId,
                   'lender_name': loan.lenderName,
-                  'monthly_payment': loan.monthlyPayment,
                   'day_of_month': loan.dayOfMonth,
                   'start_date': loan.startDate.toIso8601String(),
                   'end_date': loan.endDate.toIso8601String(),
+                  'interest_rate': loan.interestRate,
+                  'duration': loan.duration,
+                  'repayment_type_id': loan.model.repaymentTypeId,
+                  'deferred_months': loan.deferredMonths,
+                  'insurance_type_id': loan.model.insuranceTypeId,
+                  'insurance_value': loan.insuranceValue,
+                  'insurance_calculation_mode_id': loan.model.insuranceCalculationModeId,
+                  'notes': loan.notes,
                 },
               )
               .toList(),
@@ -308,12 +315,18 @@ class DataViewModel extends ChangeNotifier {
                   DateTime.tryParse(loanData['start_date'] ?? '') ??
                   DateTime.now(),
               lenderName: loanData['lender_name'] as String? ?? 'Non spécifié',
-              monthlyPayment:
-                  (loanData['monthly_payment'] as num?)?.toDouble() ?? 0.0,
               dayOfMonth: loanData['day_of_month'] as int? ?? 1,
               endDate:
                   DateTime.tryParse(loanData['end_date'] ?? '') ??
                   DateTime.now().add(const Duration(days: 365)),
+              interestRate: (loanData['interest_rate'] as num?)?.toDouble() ?? 0.0,
+              duration: loanData['duration'] as int? ?? 0,
+              repaymentTypeId: loanData['repayment_type_id'] as String? ?? 'amortizable',
+              deferredMonths: loanData['deferred_months'] as int? ?? 0,
+              insuranceTypeId: loanData['insurance_type_id'] as String? ?? 'none',
+              insuranceValue: (loanData['insurance_value'] as num?)?.toDouble() ?? 0.0,
+              insuranceCalculationModeId: loanData['insurance_calculation_mode_id'] as String? ?? 'initialCapital',
+              notes: loanData['notes'] as String?,
             );
             _loanRepository.add(loan);
             successCount++;

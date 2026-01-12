@@ -118,7 +118,7 @@ class AccountViewModel extends ChangeNotifier {
 
     final activeLoans =
         _loanViewModel.loans
-            .where((loan) => loan.accountId == accountId && !loan.isCompleted())
+            .where((loan) => loan.accountId == accountId && !loan.isCompleted)
             .toList();
 
     final totalRevenues = accountRevenues.fold<double>(
@@ -133,7 +133,7 @@ class AccountViewModel extends ChangeNotifier {
 
     final totalLoanPayments = activeLoans.fold<double>(
       0.0,
-      (sum, loan) => sum + loan.monthlyPayment,
+      (sum, loan) => sum + loan.currentMonthlyPayment,
     );
 
     return totalRevenues - totalExpenses - totalLoanPayments;

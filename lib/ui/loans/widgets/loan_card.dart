@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 
 class LoanCard extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
   final String accountName;
   final VoidCallback onTap;
 
@@ -20,7 +20,7 @@ class LoanCard extends StatelessWidget {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final theme = Theme.of(context);
 
-    final progress = loan.getProgressPercentage();
+    final progress = loan.progressPercentage;
     final remainingCapital = loan.remainingCapital;
     final remainingMonths = loan.remainingMonths;
 
@@ -100,7 +100,7 @@ class LoanCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${formatter.format(loan.monthlyPayment)}/mois',
+                '${formatter.format(loan.currentMonthlyPayment)}/mois',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -116,7 +116,7 @@ class LoanCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              if (!loan.isCompleted())
+              if (!loan.isCompleted)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,

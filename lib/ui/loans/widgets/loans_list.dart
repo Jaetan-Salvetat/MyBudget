@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -94,7 +94,7 @@ class LoansList extends StatelessWidget {
 
   Widget _buildLoanCard(
     BuildContext context,
-    LoanModel loan,
+    Loan loan,
     AccountViewModel accountVM,
     LoanViewModel loanVM,
   ) {

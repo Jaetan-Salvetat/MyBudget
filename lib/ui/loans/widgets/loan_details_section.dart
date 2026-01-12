@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/domain/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 
 class LoanDetailsSection extends StatelessWidget {
-  final LoanModel loan;
+  final Loan loan;
 
   const LoanDetailsSection({required this.loan, super.key});
 
@@ -230,8 +230,8 @@ class LoanDetailsSection extends StatelessWidget {
     );
   }
 
-  DateTime? _getNextPaymentDate(LoanModel loan) {
-    if (loan.isCompleted()) return null;
+  DateTime? _getNextPaymentDate(Loan loan) {
+    if (loan.isCompleted) return null;
 
     final now = DateTime.now();
     DateTime nextDate;
