@@ -6,6 +6,7 @@ import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/viewmodels/loan_creation_viewmodel.dart';
+import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
 import 'package:provider/provider.dart';
 
 class LoanCreationBottomSheet extends StatelessWidget {
@@ -210,7 +211,7 @@ class LoanCreationBottomSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: FrostedTextField(
-                  labelText: 'Début',
+                  labelText: 'Date de signature',
                   readOnly: true,
                   controller: TextEditingController(
                     text: DateFormat('dd/MM/yyyy').format(viewModel.startDate),
@@ -230,18 +231,21 @@ class LoanCreationBottomSheet extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: FrostedTextField(
-                  labelText: 'Jour',
-                  hintText: '1-31',
-                  keyboardType: TextInputType.number,
-                  prefixIcon: const Icon(Icons.event),
-                  onChanged:
-                      (val) => viewModel.setDayOfMonth(int.tryParse(val) ?? 1),
+                  labelText: 'Jour de prélèvement',
+                  readOnly: true,
                   controller: TextEditingController(
-                      text: viewModel.dayOfMonth.toString(),
-                    )
-                    ..selection = TextSelection.collapsed(
-                      offset: viewModel.dayOfMonth.toString().length,
-                    ),
+                    text: viewModel.dayOfMonth.toString(),
+                  ),
+                  prefixIcon: const Icon(Icons.event),
+                  onTap: () async {
+                    final selectedDate = await FrostedDateSelector.showDayPicker(
+                      context: context,
+                      initialDate: DateTime(DateTime.now().year, DateTime.now().month, viewModel.dayOfMonth),
+                    );
+                    if (selectedDate != null) {
+                      viewModel.setDayOfMonth(selectedDate.day);
+                    }
+                  },
                 ),
               ),
             ],
