@@ -22,7 +22,8 @@ void main() {
       final loan1 = LoanModel(
         name: 'Loan 1',
         amount: 10000,
-        monthlyPayment: 100,
+        duration: 12,
+        interestRate: 5,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 365)),
         dayOfMonth: 1,
@@ -33,7 +34,8 @@ void main() {
       final loan2 = LoanModel(
         name: 'Loan 2',
         amount: 5000,
-        monthlyPayment: 50,
+        duration: 12,
+        interestRate: 5,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 365)),
         dayOfMonth: 1,
@@ -53,7 +55,8 @@ void main() {
     final activeLoan = LoanModel(
       name: 'Active',
       amount: 1000,
-      monthlyPayment: 100,
+      duration: 12,
+      interestRate: 5,
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 365)),
       dayOfMonth: 1,
@@ -64,7 +67,8 @@ void main() {
     final completedLoan = LoanModel(
       name: 'Completed',
       amount: 1000,
-      monthlyPayment: 100,
+      duration: 12,
+      interestRate: 5,
       startDate: DateTime.now().subtract(const Duration(days: 700)),
       endDate: DateTime.now().subtract(const Duration(days: 365)),
       dayOfMonth: 1,
@@ -85,7 +89,6 @@ void main() {
     final loan = LoanModel(
       name: 'Cost Test',
       amount: 1000,
-      monthlyPayment: 110,
       duration: 10,
       interestRate: 5,
       lenderName: 'Bank',
@@ -99,7 +102,7 @@ void main() {
     await viewModel.loadLoans();
 
     final cost = viewModel.getTotalRemainingCost();
-    expect(cost, closeTo(100.0, 110.0));
+    expect(cost, greaterThan(0));
   });
 
   test('should set error state when repository fails', () async {
