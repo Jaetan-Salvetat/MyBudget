@@ -49,7 +49,7 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Solde total',
+                      'Reste à Vivre',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

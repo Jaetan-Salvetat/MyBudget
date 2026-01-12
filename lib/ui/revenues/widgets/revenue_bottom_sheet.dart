@@ -44,7 +44,6 @@ class RevenueBottomSheet extends StatefulWidget {
 class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  bool _isRegular = true;
   DateTime _selectedDate = DateTime.now();
   int? _selectedAccountId;
   String? _accountError;
@@ -59,7 +58,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       text: widget.revenue?.amount.toString() ?? '',
     );
 
-    _isRegular = widget.revenue?.isRegular ?? true;
     _selectedDate = widget.revenue?.date ?? DateTime.now();
     _selectedAccountId =
         widget.revenue?.accountId ??
@@ -95,14 +93,14 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             ? widget.revenue!.copyWith(
               name: _nameController.text.trim(),
               amount: amount,
-              isRegular: _isRegular,
+              isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
             )
             : RevenueModel.create(
               name: _nameController.text.trim(),
               amount: amount,
-              isRegular: _isRegular,
+              isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
             );
@@ -220,7 +218,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           const SizedBox(height: 24),
 
           Text(
-            'Planification',
+            'Date de versement',
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
@@ -228,100 +226,23 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           ),
           const SizedBox(height: 12),
 
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _isRegular ? Icons.repeat : Icons.event,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _isRegular ? 'Revenu régulier' : 'Revenu ponctuel',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        _isRegular
-                            ? 'Salaire, rente, etc.'
-                            : 'Vente, cadeau, etc.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                FrostedSwitch(
-                  value: _isRegular,
-                  onChanged: (value) {
-                    setState(() {
-                      _isRegular = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           InkWell(
             onTap: () async {
-              DateTime? picked;
-              if (_isRegular) {
-                picked = await FrostedDateSelector.showDayPicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                );
-              } else {
-                picked = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  builder: (context, child) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: Theme.of(context).colorScheme.copyWith(
-                          surface: Theme.of(context).colorScheme.surface,
-                        ),
-                      ),
-                      child: child!,
-                    );
-                  },
-                );
-              }
+              final picked = await FrostedDateSelector.showDayPicker(
+                context: context,
+                initialDate: _selectedDate,
+              );
 
               if (picked != null) {
                 setState(() {
-                  _selectedDate = picked!;
+                  _selectedDate = picked;
                 });
               }
             },
             borderRadius: BorderRadius.circular(12),
             child: InputDecorator(
               decoration: InputDecoration(
-                labelText: 'Date',
+                labelText: 'Jour du mois',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -339,11 +260,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                   context,
                 ).colorScheme.surface.withValues(alpha: 0.3),
               ),
-              child: Text(
-                _isRegular
-                    ? "Le ${_selectedDate.day} du mois"
-                    : "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
-              ),
+              child: Text("Le ${_selectedDate.day} du mois"),
             ),
           ),
 

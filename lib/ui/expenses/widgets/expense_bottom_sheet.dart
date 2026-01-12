@@ -156,7 +156,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             FrostedTextField(
               controller: _nameController,
               labelText: 'Nom',
-              hintText: 'Ex: Courses',
+              hintText: 'Ex: Loyer',
               prefixIcon: const Icon(Icons.edit),
             ),
             const SizedBox(height: 16),
