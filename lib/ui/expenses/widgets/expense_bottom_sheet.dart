@@ -56,6 +56,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   int? _selectedAccountId;
   String? _categoryError;
   String? _accountError;
+  String? _amountError;
 
   @override
   void initState() {
@@ -109,6 +110,17 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+
+    if (amount <= 0) {
+      setState(() {
+        _amountError = 'Le montant doit être supérieur à 0';
+      });
+      return;
+    } else {
+      setState(() {
+        _amountError = null;
+      });
+    }
 
     final expense =
         widget.expense != null
@@ -169,6 +181,17 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 decimal: true,
               ),
             ),
+            if (_amountError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                child: Text(
+                  _amountError!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             const SizedBox(height: 16),
 
             Column(

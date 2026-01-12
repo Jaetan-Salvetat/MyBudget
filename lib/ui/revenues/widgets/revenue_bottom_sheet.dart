@@ -88,6 +88,13 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
 
+    if (amount <= 0) {
+      setState(() {
+        _amountError = 'Le montant doit être supérieur à 0';
+      });
+      return;
+    }
+
     final revenue =
         widget.revenue != null
             ? widget.revenue!.copyWith(
