@@ -163,5 +163,116 @@ void main() {
 
       expect(viewModel.availableUpdate, isNull);
     });
+
+    test(
+      'Should find HIGHEST version when multiple beta releases exist',
+      () async {
+        PackageInfo.setMockInitialValues(
+          appName: 'MyBudget',
+          packageName: 'fr.jaetan.mybudget.beta',
+          version: '1.0.0-beta',
+          buildNumber: '1',
+          buildSignature: '',
+        );
+
+        // Simule plusieurs releases beta dans le désordre
+        final olderBeta = ReleaseInfo(
+          version: '1.0.3-beta',
+          title: 'Older Beta',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 5)),
+          assetSize: 0,
+          isPrerelease: true,
+        );
+
+        final middleBeta = ReleaseInfo(
+          version: '1.0.5-beta',
+          title: 'Middle Beta',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 2)),
+          assetSize: 0,
+          isPrerelease: true,
+        );
+
+        final newestBeta = ReleaseInfo(
+          version: '1.0.6-beta',
+          title: 'Newest Beta',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 10)),
+          assetSize: 0,
+          isPrerelease: true,
+        );
+
+        // GitHub API retourne par date de publication (plus récent d'abord)
+        // Mais la version la plus HAUTE n'est pas la plus récemment publiée !
+        when(
+          () => mockGitHubService.getReleases(),
+        ).thenAnswer((_) async => [middleBeta, olderBeta, newestBeta]);
+
+        await viewModel.checkForUpdates(null, silent: true);
+
+        // Doit trouver 1.0.6-beta (la version la plus haute)
+        // PAS 1.0.5-beta (la plus récemment publiée)
+        expect(viewModel.availableUpdate, isNotNull);
+        expect(viewModel.availableUpdate?.version, '1.0.6-beta');
+      },
+    );
+
+    test(
+      'Should find HIGHEST version when multiple prod releases exist',
+      () async {
+        PackageInfo.setMockInitialValues(
+          appName: 'MyBudget',
+          packageName: 'fr.jaetan.mybudget',
+          version: '1.0.0',
+          buildNumber: '1',
+          buildSignature: '',
+        );
+
+        final release103 = ReleaseInfo(
+          version: '1.0.3',
+          title: 'Release 1.0.3',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 5)),
+          assetSize: 0,
+          isPrerelease: false,
+        );
+
+        final release105 = ReleaseInfo(
+          version: '1.0.5',
+          title: 'Release 1.0.5',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 2)),
+          assetSize: 0,
+          isPrerelease: false,
+        );
+
+        final release106 = ReleaseInfo(
+          version: '1.0.6',
+          title: 'Release 1.0.6',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now().subtract(const Duration(days: 10)),
+          assetSize: 0,
+          isPrerelease: false,
+        );
+
+        // Retourne dans le désordre
+        when(
+          () => mockGitHubService.getReleases(),
+        ).thenAnswer((_) async => [release105, release103, release106]);
+
+        await viewModel.checkForUpdates(null, silent: true);
+
+        // Doit trouver 1.0.6 (la version la plus haute)
+        expect(viewModel.availableUpdate, isNotNull);
+        expect(viewModel.availableUpdate?.version, '1.0.6');
+      },
+    );
   });
 }

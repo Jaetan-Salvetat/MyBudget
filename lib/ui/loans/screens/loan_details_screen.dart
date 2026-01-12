@@ -9,6 +9,7 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/loans/widgets/loan_header.dart';
 import 'package:mybudget/ui/loans/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/loans/widgets/loan_details_section.dart';
+import 'package:mybudget/ui/loans/widgets/loan_edit_bottom_sheet.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
   final Loan loan;
@@ -115,24 +116,19 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     List<AccountModel> accounts,
     LoanViewModel loanVM,
   ) {
-    FrostedSnackbar.show(
-      context,
-      message: 'L\'édition des prêts est en cours de refonte.',
-    );
-    /*
-    LoanBottomSheet.show(
+    LoanEditBottomSheet.show(
       context: context,
-      accounts: accounts,
       loan: loan,
-      onSubmit: (updatedLoan) {
-        loanVM.updateLoan(updatedLoan);
-        ScaffoldMessenger.of(
+      accounts: accounts,
+      onSubmit: (updatedLoanModel) {
+        loanVM.updateLoan(updatedLoanModel);
+        FrostedSnackbar.show(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Emprunt mis à jour')));
+          message: 'Emprunt mis à jour avec succès',
+        );
       },
       onCancel: () {},
     );
-    */
   }
 
   void _showDeleteConfirmation(

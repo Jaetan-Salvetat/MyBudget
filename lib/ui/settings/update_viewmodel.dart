@@ -59,24 +59,18 @@ class UpdateViewModel extends ChangeNotifier {
       final releases = await _gitHubService.getReleases();
 
       ReleaseInfo? targetRelease;
+      Version? latestVersion;
 
       for (final release in releases) {
         try {
           final releaseVersion = Version.parse(release.version);
 
-          if (isBeta) {
-            if (release.isPrerelease && release.version.contains('beta')) {
-              if (releaseVersion > currentVersionObj) {
-                targetRelease = release;
-                break;
-              }
-            }
-          } else {
-            if (!release.isPrerelease) {
-              if (releaseVersion > currentVersionObj) {
-                targetRelease = release;
-                break;
-              }
+          final matchesType = isBeta ? release.isPrerelease : !release.isPrerelease;
+
+          if (matchesType && releaseVersion > currentVersionObj) {
+            if (latestVersion == null || releaseVersion > latestVersion) {
+              latestVersion = releaseVersion;
+              targetRelease = release;
             }
           }
         } catch (e) {
