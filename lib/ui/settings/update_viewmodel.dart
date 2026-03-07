@@ -49,9 +49,12 @@ class UpdateViewModel extends ChangeNotifier {
       final packageInfo = await PackageInfo.fromPlatform();
       _currentVersion = packageInfo.version;
       final isBeta = packageInfo.packageName.endsWith('.beta');
+      // Le flavor beta ajoute "-beta" au versionName (versionNameSuffix dans build.gradle).
+      // On le nettoie pour obtenir une version semver pure comparable.
+      final cleanVersion = _currentVersion!.replaceAll('-beta', '');
       Version currentVersionObj;
       try {
-        currentVersionObj = Version.parse(_currentVersion!);
+        currentVersionObj = Version.parse(cleanVersion);
       } catch (e) {
         currentVersionObj = Version(1, 0, 0);
       }

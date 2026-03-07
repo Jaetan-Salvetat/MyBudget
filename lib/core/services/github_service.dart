@@ -42,8 +42,11 @@ class GitHubService {
 
       if (apkAsset == null) return null;
 
+      final rawTag = data['tag_name'].toString();
+      final version = rawTag.replaceAll('v', '').replaceAll('-beta', '');
+
       return ReleaseInfo(
-        version: data['tag_name'].toString().replaceAll('v', ''),
+        version: version,
         title: data['name'] as String,
         notes: data['body'] as String,
         downloadUrl: apkAsset['browser_download_url'] as String,
