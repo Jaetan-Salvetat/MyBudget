@@ -4,7 +4,6 @@ import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -22,39 +21,7 @@ void main() {
     viewModel = ExpenseViewModel(mockExpenseRepo, mockCategoryRepo);
   });
 
-  test(
-    'getTotalExpenses (Annual DateBased) should include last day of month',
-    () async {
-      final now = DateTime.now();
-      final endOfMonthDate = DateTime(now.year, now.month + 1, 0, 23, 0);
-
-      final expense = ExpenseModel.create(
-        name: 'Annual End Month',
-        amount: 1200,
-        categoryId: 1,
-        date: endOfMonthDate,
-        frequency: 'Annuel',
-        accountId: 1,
-      );
-
-      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-      await viewModel.loadExpenses();
-
-      final total = viewModel.getTotalExpenses(
-        null,
-        AnnualExpenseCalculationMode.dateBasedOnly,
-      );
-
-      expect(
-        total,
-        1200.0,
-        reason:
-            'Should include annual expense falling on the last moment of the month',
-      );
-    },
-  );
-
-  test('getTotalExpenses (Annual Amortized) should divide by 12', () async {
+  test('getTotalExpenses (Annual) should divide by 12', () async {
     final expense = ExpenseModel.create(
       name: 'Annual',
       amount: 1200,
@@ -67,10 +34,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
     await viewModel.loadExpenses();
 
-    final total = viewModel.getTotalExpenses(
-      null,
-      AnnualExpenseCalculationMode.monthlyAmortized,
-    );
+    final total = viewModel.getTotalExpenses();
 
     expect(total, 100.0);
   });
@@ -88,11 +52,34 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
     await viewModel.loadExpenses();
 
-    final total = viewModel.getTotalExpenses(
-      null,
-      AnnualExpenseCalculationMode.dateBasedOnly,
-    );
+    final total = viewModel.getTotalExpenses();
 
     expect(total, 100.0);
+  });
+
+  test('getTotalExpenses should sum monthly and amortized annual', () async {
+    final monthly = ExpenseModel.create(
+      name: 'Monthly',
+      amount: 500,
+      categoryId: 1,
+      date: DateTime.now(),
+      frequency: 'Mensuel',
+      accountId: 1,
+    );
+    final annual = ExpenseModel.create(
+      name: 'Annual',
+      amount: 1200,
+      categoryId: 1,
+      date: DateTime.now(),
+      frequency: 'Annuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual]);
+    await viewModel.loadExpenses();
+
+    final total = viewModel.getTotalExpenses();
+
+    expect(total, 600.0); // 500 + 1200/12
   });
 }

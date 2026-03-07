@@ -37,19 +37,13 @@ class DashboardViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  double get netCashFlow => _accountViewModel.getNetCashFlow(
-    _settingsViewModel.annualExpenseCalculationMode,
-  );
+  double get netCashFlow => _accountViewModel.getNetCashFlow();
 
-  double get savingsRate => _accountViewModel.getSavingsRate(
-    _settingsViewModel.annualExpenseCalculationMode,
-  );
+  double get savingsRate => _accountViewModel.getSavingsRate();
 
   double get totalLoanAmount => _loanViewModel.getTotalRemainingAmount();
 
-  double get monthlyExpenses => _expenseViewModel.getMonthlyExpenses(
-    _settingsViewModel.annualExpenseCalculationMode,
-  );
+  double get monthlyExpenses => _expenseViewModel.getMonthlyExpenses();
 
   double get monthlyRevenues => _revenueViewModel.getMonthlyRevenues();
 
