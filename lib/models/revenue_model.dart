@@ -1,5 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 
+const _sentinel = Object();
+
 @Entity()
 class RevenueModel {
   @Id()
@@ -17,6 +19,8 @@ class RevenueModel {
   @Property()
   late DateTime date;
 
+  int? beneficiaryId;
+
   RevenueModel();
 
   RevenueModel.create({
@@ -25,6 +29,7 @@ class RevenueModel {
     required this.isRegular,
     required this.date,
     required this.accountId,
+    this.beneficiaryId,
   });
 
   factory RevenueModel.fromJson(Map<String, dynamic> json) {
@@ -40,7 +45,11 @@ class RevenueModel {
           ..accountId =
               json['accountId'] != null
                   ? int.parse(json['accountId'].toString())
-                  : 0;
+                  : 0
+          ..beneficiaryId =
+              json['beneficiaryId'] != null
+                  ? int.tryParse(json['beneficiaryId'].toString())
+                  : null;
 
     if (json['id'] != null) {
       model.id = int.parse(json['id'].toString());
@@ -55,6 +64,7 @@ class RevenueModel {
     bool? isRegular,
     DateTime? date,
     int? accountId,
+    Object? beneficiaryId = _sentinel,
   }) {
     final model =
         RevenueModel()
@@ -63,7 +73,11 @@ class RevenueModel {
           ..amount = amount ?? this.amount
           ..isRegular = isRegular ?? this.isRegular
           ..date = date ?? this.date
-          ..accountId = accountId ?? this.accountId;
+          ..accountId = accountId ?? this.accountId
+          ..beneficiaryId =
+              beneficiaryId == _sentinel
+                  ? this.beneficiaryId
+                  : beneficiaryId as int?;
     return model;
   }
 
@@ -75,6 +89,7 @@ class RevenueModel {
       'isRegular': isRegular,
       'date': date.toIso8601String(),
       'accountId': accountId.toString(),
+      'beneficiaryId': beneficiaryId?.toString(),
     };
   }
 }

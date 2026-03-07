@@ -6,6 +6,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
+import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_card.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
@@ -40,8 +41,9 @@ class _ExpensesListState extends State<ExpensesList> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<ExpenseViewModel, AccountViewModel, CategoryViewModel>(
-      builder: (context, expenseVM, accountVM, categoryVM, child) {
+    return Consumer4<ExpenseViewModel, AccountViewModel, CategoryViewModel,
+        BeneficiaryViewModel>(
+      builder: (context, expenseVM, accountVM, categoryVM, beneficiaryVM, child) {
         List<ExpenseModel> displayedExpenses = expenseVM.expenses;
 
         if (!_filterData.isEmpty) {
@@ -119,9 +121,15 @@ class _ExpensesListState extends State<ExpensesList> {
                   () => AccountModel.create(name: 'Compte inconnu', bank: ''),
             );
 
+            final beneficiary =
+                expense.beneficiaryId != null
+                    ? beneficiaryVM.getBeneficiaryById(expense.beneficiaryId!)
+                    : null;
+
             return ExpenseCard(
               expense: expense,
               accountName: account.name,
+              beneficiaryName: beneficiary?.name,
               onDelete: () {
                 expenseVM.deleteExpense(expense.id);
               },
@@ -279,7 +287,6 @@ class _ExpensesListState extends State<ExpensesList> {
         );
         final accountVM = Provider.of<AccountViewModel>(context, listen: false);
         final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
-
         ExpenseBottomSheet.show(
           context: context,
           accounts: accountVM.accounts,

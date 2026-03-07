@@ -4,6 +4,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 
 class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
@@ -58,6 +59,10 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   String? _accountError;
   String? _amountError;
 
+  // null = aucun ou switch OFF, >0 = id existant sélectionné
+  int? _selectedBeneficiaryId;
+  bool _beneficiaryEnabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +79,8 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     _selectedAccountId =
         widget.expense?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
+    _selectedBeneficiaryId = widget.expense?.beneficiaryId;
+    _beneficiaryEnabled = widget.expense?.beneficiaryId != null;
   }
 
   @override
@@ -103,7 +110,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     return isValid;
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate() || !_validateDropdowns()) {
       return;
     }
@@ -131,6 +138,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
+              beneficiaryId: _selectedBeneficiaryId,
             )
             : ExpenseModel.create(
               name: _nameController.text.trim(),
@@ -139,6 +147,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
+              beneficiaryId: _selectedBeneficiaryId,
             );
 
     widget.onSubmit(expense);
@@ -149,7 +158,8 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom
+        + MediaQuery.of(context).viewPadding.bottom,
       ),
       child: Form(
         key: _formKey,
@@ -315,6 +325,16 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               ],
             ),
 
+            const SizedBox(height: 24),
+
+            BeneficiarySelector(
+              initialBeneficiaryId: widget.expense?.beneficiaryId,
+              onChanged: (id) => setState(() {
+                _selectedBeneficiaryId = id;
+                _beneficiaryEnabled = id != null;
+              }),
+            ),
+
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -328,7 +348,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 ),
                 const SizedBox(width: 16),
                 FrostedFilledButton(
-                  onPressed: _handleSubmit,
+                  onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                      ? null
+                      : _handleSubmit,
                   child: Text(
                     widget.expense == null ? 'Ajouter' : 'Enregistrer',
                   ),

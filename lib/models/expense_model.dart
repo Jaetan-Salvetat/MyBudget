@@ -1,6 +1,8 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 
+const _sentinel = Object();
+
 @Entity()
 class ExpenseModel {
   @Id()
@@ -20,6 +22,8 @@ class ExpenseModel {
 
   late int accountId;
 
+  int? beneficiaryId;
+
   ExpenseModel();
 
   ExpenseModel.create({
@@ -29,6 +33,7 @@ class ExpenseModel {
     required this.date,
     required this.frequency,
     required this.accountId,
+    this.beneficiaryId,
   });
 
   ExpenseModel copyWith({
@@ -38,6 +43,7 @@ class ExpenseModel {
     DateTime? date,
     String? frequency,
     int? accountId,
+    Object? beneficiaryId = _sentinel,
   }) {
     final model =
         ExpenseModel()
@@ -47,7 +53,11 @@ class ExpenseModel {
           ..categoryId = categoryId ?? this.categoryId
           ..date = date ?? this.date
           ..frequency = frequency ?? this.frequency
-          ..accountId = accountId ?? this.accountId;
+          ..accountId = accountId ?? this.accountId
+          ..beneficiaryId =
+              beneficiaryId == _sentinel
+                  ? this.beneficiaryId
+                  : beneficiaryId as int?;
     return model;
   }
 
@@ -60,6 +70,7 @@ class ExpenseModel {
       'date': date.toIso8601String(),
       'frequency': frequency,
       'accountId': accountId.toString(),
+      'beneficiaryId': beneficiaryId?.toString(),
     };
   }
 
@@ -80,7 +91,11 @@ class ExpenseModel {
           ..accountId =
               json['accountId'] != null
                   ? int.parse(json['accountId'].toString())
-                  : 0;
+                  : 0
+          ..beneficiaryId =
+              json['beneficiaryId'] != null
+                  ? int.tryParse(json['beneficiaryId'].toString())
+                  : null;
 
     if (json['id'] != null) {
       model.id = int.parse(json['id'].toString());

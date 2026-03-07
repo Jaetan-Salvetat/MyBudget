@@ -15,6 +15,7 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'models/account_model.dart';
+import 'models/beneficiary_model.dart';
 import 'models/category_model.dart';
 import 'models/expense_model.dart';
 import 'models/loan_model.dart';
@@ -90,7 +91,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 1032015678209972615),
     name: 'ExpenseModel',
-    lastPropertyId: const obx_int.IdUid(7, 4626612722441888507),
+    lastPropertyId: const obx_int.IdUid(8, 1483699693588998820),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -133,6 +134,12 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(7, 4626612722441888507),
         name: 'accountId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 1483699693588998820),
+        name: 'beneficiaryId',
         type: 6,
         flags: 0,
       ),
@@ -249,7 +256,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(5, 3358114112895883942),
     name: 'RevenueModel',
-    lastPropertyId: const obx_int.IdUid(6, 1213904468792118615),
+    lastPropertyId: const obx_int.IdUid(7, 26869245949429952),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -288,6 +295,35 @@ final _entities = <obx_int.ModelEntity>[
         name: 'date',
         type: 10,
         flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 26869245949429952),
+        name: 'beneficiaryId',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(6, 460490983667112828),
+    name: 'BeneficiaryModel',
+    lastPropertyId: const obx_int.IdUid(2, 7223976306336406369),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 908053836556984088),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 7223976306336406369),
+        name: 'name',
+        type: 9,
+        flags: 2048,
+        indexId: const obx_int.IdUid(5, 4333406268692751455),
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -333,8 +369,8 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(5, 3358114112895883942),
-    lastIndexId: const obx_int.IdUid(4, 3572496844486688498),
+    lastEntityId: const obx_int.IdUid(6, 460490983667112828),
+    lastIndexId: const obx_int.IdUid(5, 4333406268692751455),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -428,7 +464,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (ExpenseModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(8);
+        fbb.startTable(9);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -436,6 +472,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(4, object.date.millisecondsSinceEpoch);
         fbb.addOffset(5, frequencyOffset);
         fbb.addInt64(6, object.accountId);
+        fbb.addInt64(7, object.beneficiaryId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -471,6 +508,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
             rootOffset,
             16,
             0,
+          )
+          ..beneficiaryId = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            18,
           );
 
         return object;
@@ -622,13 +664,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (RevenueModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(7);
+        fbb.startTable(8);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
         fbb.addFloat64(3, object.amount);
         fbb.addBool(4, object.isRegular);
         fbb.addInt64(5, object.date.millisecondsSinceEpoch);
+        fbb.addInt64(6, object.beneficiaryId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -661,7 +704,41 @@ obx_int.ModelDefinition getObjectBoxModel() {
           )
           ..date = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
+          )
+          ..beneficiaryId = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            16,
           );
+
+        return object;
+      },
+    ),
+    BeneficiaryModel: obx_int.EntityDefinition<BeneficiaryModel>(
+      model: _entities[5],
+      toOneRelations: (BeneficiaryModel object) => [],
+      toManyRelations: (BeneficiaryModel object) => {},
+      getId: (BeneficiaryModel object) => object.id,
+      setId: (BeneficiaryModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (BeneficiaryModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+
+        final object = BeneficiaryModel()
+          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+          ..name = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 6, '');
 
         return object;
       },
@@ -747,6 +824,11 @@ class ExpenseModel_ {
   /// See [ExpenseModel.accountId].
   static final accountId = obx.QueryIntegerProperty<ExpenseModel>(
     _entities[2].properties[6],
+  );
+
+  /// See [ExpenseModel.beneficiaryId].
+  static final beneficiaryId = obx.QueryIntegerProperty<ExpenseModel>(
+    _entities[2].properties[7],
   );
 }
 
@@ -863,5 +945,23 @@ class RevenueModel_ {
   /// See [RevenueModel.date].
   static final date = obx.QueryDateProperty<RevenueModel>(
     _entities[4].properties[5],
+  );
+
+  /// See [RevenueModel.beneficiaryId].
+  static final beneficiaryId = obx.QueryIntegerProperty<RevenueModel>(
+    _entities[4].properties[6],
+  );
+}
+
+/// [BeneficiaryModel] entity fields to define ObjectBox queries.
+class BeneficiaryModel_ {
+  /// See [BeneficiaryModel.id].
+  static final id = obx.QueryIntegerProperty<BeneficiaryModel>(
+    _entities[5].properties[0],
+  );
+
+  /// See [BeneficiaryModel.name].
+  static final name = obx.QueryStringProperty<BeneficiaryModel>(
+    _entities[5].properties[1],
   );
 }

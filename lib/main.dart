@@ -10,12 +10,14 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
+import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
 import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
 import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/core/theme/theme_viewmodel.dart';
 import 'package:mybudget/ui/dashboard/dashboard_viewmodel.dart';
+import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
@@ -96,6 +98,11 @@ class MyApp extends StatelessWidget {
             Provider<CategoryRepository>(
               create: (_) => CategoryRepository(objectBoxService.categoryBox),
             ),
+            Provider<BeneficiaryRepository>(
+              create:
+                  (_) =>
+                      BeneficiaryRepository(objectBoxService.beneficiaryBox),
+            ),
 
             ChangeNotifierProvider(create: (_) => SettingsViewModel()),
             ChangeNotifierProvider(create: (_) => UpdateViewModel()),
@@ -105,6 +112,14 @@ class MyApp extends StatelessWidget {
               create:
                   (context) =>
                       CategoryViewModel(context.read<CategoryRepository>()),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => BeneficiaryViewModel(
+                    context.read<BeneficiaryRepository>(),
+                    context.read<ExpenseRepository>(),
+                    context.read<RevenueRepository>(),
+                  ),
             ),
             ChangeNotifierProvider(
               create:
@@ -159,6 +174,7 @@ class MyApp extends StatelessWidget {
               create:
                   (context) => DataViewModel(
                     context.read<AccountRepository>(),
+                    context.read<BeneficiaryRepository>(),
                     context.read<ExpenseRepository>(),
                     context.read<RevenueRepository>(),
                     context.read<LoanRepository>(),

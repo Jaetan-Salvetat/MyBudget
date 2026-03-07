@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
@@ -50,6 +51,10 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   String? _nameError;
   String? _amountError;
 
+  // null = aucun ou switch OFF, >0 = id existant sélectionné
+  int? _selectedBeneficiaryId;
+  bool _beneficiaryEnabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +67,8 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
     _selectedAccountId =
         widget.revenue?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
+    _selectedBeneficiaryId = widget.revenue?.beneficiaryId;
+    _beneficiaryEnabled = widget.revenue?.beneficiaryId != null;
   }
 
   @override
@@ -103,6 +110,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              beneficiaryId: _selectedBeneficiaryId,
             )
             : RevenueModel.create(
               name: _nameController.text.trim(),
@@ -110,6 +118,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              beneficiaryId: _selectedBeneficiaryId,
             );
 
     widget.onSubmit(revenue);
@@ -271,6 +280,16 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             ),
           ),
 
+          const SizedBox(height: 24),
+
+          BeneficiarySelector(
+            initialBeneficiaryId: widget.revenue?.beneficiaryId,
+            onChanged: (id) => setState(() {
+              _selectedBeneficiaryId = id;
+              _beneficiaryEnabled = id != null;
+            }),
+          ),
+
           const SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -284,7 +303,9 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               ),
               const SizedBox(width: 16),
               FrostedFilledButton(
-                onPressed: _handleSubmit,
+                onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                    ? null
+                    : _handleSubmit,
                 child: Text(widget.revenue == null ? 'Ajouter' : 'Enregistrer'),
               ),
             ],

@@ -62,7 +62,7 @@
     },
     {
       "id": "3:1032015678209972615",
-      "lastPropertyId": "7:4626612722441888507",
+      "lastPropertyId": "8:1483699693588998820",
       "name": "ExpenseModel",
       "properties": [
         {
@@ -101,6 +101,11 @@
         {
           "id": "7:4626612722441888507",
           "name": "accountId",
+          "type": 6
+        },
+        {
+          "id": "8:1483699693588998820",
+          "name": "beneficiaryId",
           "type": 6
         }
       ],
@@ -197,7 +202,7 @@
     },
     {
       "id": "5:3358114112895883942",
-      "lastPropertyId": "6:1213904468792118615",
+      "lastPropertyId": "7:26869245949429952",
       "name": "RevenueModel",
       "properties": [
         {
@@ -232,13 +237,39 @@
           "id": "6:1213904468792118615",
           "name": "date",
           "type": 10
+        },
+        {
+          "id": "7:26869245949429952",
+          "name": "beneficiaryId",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "6:460490983667112828",
+      "lastPropertyId": "2:7223976306336406369",
+      "name": "BeneficiaryModel",
+      "properties": [
+        {
+          "id": "1:908053836556984088",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7223976306336406369",
+          "name": "name",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "5:4333406268692751455"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "5:3358114112895883942",
-  "lastIndexId": "4:3572496844486688498",
+  "lastEntityId": "6:460490983667112828",
+  "lastIndexId": "5:4333406268692751455",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
