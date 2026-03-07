@@ -11,8 +11,6 @@ class PreferencesService {
   static const String keyIsNotificationsEnabled = 'isNotificationsEnabled';
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyAnnualExpenseCalculationMode =
-      'annual_expense_calculation_mode';
   static const String keyThemeType = 'themeType';
   static const String keyIsCategoriesCreated = 'isCategoriesCreated';
 
@@ -69,14 +67,6 @@ class PreferencesService {
 
   static Future<void> setSkipAuth(bool skip) async {
     await _prefs.setBool(keySkipAuth, skip);
-  }
-
-  static int getAnnualExpenseCalculationMode() {
-    return _prefs.getInt(keyAnnualExpenseCalculationMode) ?? 0;
-  }
-
-  static Future<void> setAnnualExpenseCalculationMode(int mode) async {
-    await _prefs.setInt(keyAnnualExpenseCalculationMode, mode);
   }
 
   static AppThemeType getThemeType() {

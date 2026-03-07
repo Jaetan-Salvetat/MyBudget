@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
@@ -149,23 +148,20 @@ class AccountViewModel extends ChangeNotifier {
     return total;
   }
 
-  double getNetCashFlow([AnnualExpenseCalculationMode? calculationMode]) {
+  double getNetCashFlow() {
     final monthlyRevenues = _revenueViewModel.getMonthlyRevenues();
-
-    final monthlyExpenses = _expenseViewModel.getMonthlyExpenses(
-      calculationMode ?? AnnualExpenseCalculationMode.monthlyAmortized,
-    );
+    final monthlyExpenses = _expenseViewModel.getMonthlyExpenses();
     final monthlyLoanPayments = _loanViewModel.getTotalMonthlyPayments();
 
     return monthlyRevenues - (monthlyExpenses + monthlyLoanPayments);
   }
 
-  double getSavingsRate([AnnualExpenseCalculationMode? calculationMode]) {
+  double getSavingsRate() {
     final monthlyRevenues = _revenueViewModel.getMonthlyRevenues();
 
     if (monthlyRevenues <= 0) return 0.0;
 
-    final netCashFlow = getNetCashFlow(calculationMode);
+    final netCashFlow = getNetCashFlow();
     return (netCashFlow / monthlyRevenues) * 100;
   }
 

@@ -7,7 +7,6 @@ import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
 import 'package:mybudget/ui/settings/settings_viewmodel.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 
 class MockAccountViewModel extends Mock implements AccountViewModel {}
 
@@ -27,10 +26,6 @@ void main() {
   late MockLoanViewModel mockLoanVM;
   late MockSettingsViewModel mockSettingsVM;
 
-  setUpAll(() {
-    registerFallbackValue(AnnualExpenseCalculationMode.monthlyAmortized);
-  });
-
   setUp(() {
     mockAccountVM = MockAccountViewModel();
     mockExpenseVM = MockExpenseViewModel();
@@ -48,10 +43,6 @@ void main() {
     when(() => mockRevenueVM.removeListener(any())).thenReturn(null);
     when(() => mockLoanVM.removeListener(any())).thenReturn(null);
     when(() => mockSettingsVM.removeListener(any())).thenReturn(null);
-
-    when(
-      () => mockSettingsVM.annualExpenseCalculationMode,
-    ).thenReturn(AnnualExpenseCalculationMode.monthlyAmortized);
 
     viewModel = DashboardViewModel(
       mockAccountVM,
@@ -82,7 +73,7 @@ void main() {
 
       when(() => mockLoanVM.getTotalMonthlyPayments()).thenReturn(200.0);
 
-      when(() => mockExpenseVM.getMonthlyExpenses(any())).thenReturn(800.0);
+      when(() => mockExpenseVM.getMonthlyExpenses()).thenReturn(800.0);
 
       final summaries = viewModel.categorySummaries;
 

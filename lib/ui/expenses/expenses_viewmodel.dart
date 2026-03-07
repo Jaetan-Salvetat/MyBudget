@@ -3,7 +3,6 @@ import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/core/enums/annual_expense_calculation_mode.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 
 class ExpenseViewModel extends ChangeNotifier {
@@ -80,8 +79,8 @@ class ExpenseViewModel extends ChangeNotifier {
     }
   }
 
-  double getMonthlyExpenses(AnnualExpenseCalculationMode calculationMode) {
-    return getTotalExpenses(_expenses, calculationMode);
+  double getMonthlyExpenses() {
+    return getTotalExpenses(_expenses);
   }
 
   List<ExpenseModel> getUpcomingExpenses() {
@@ -142,17 +141,7 @@ class ExpenseViewModel extends ChangeNotifier {
     ).fold(0.0, (sum, expense) => sum + expense.amount);
   }
 
-  double getTotalExpenses([
-    List<ExpenseModel>? expensesList,
-    AnnualExpenseCalculationMode? calculationMode,
-  ]) {
-    final mode =
-        calculationMode ?? AnnualExpenseCalculationMode.monthlyAmortized;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
-
+  double getTotalExpenses([List<ExpenseModel>? expensesList]) {
     double total = 0.0;
     final listToUse = expensesList ?? _expenses;
 
@@ -160,21 +149,8 @@ class ExpenseViewModel extends ChangeNotifier {
       if (expense.frequencyEnum == Frequency.monthly) {
         total += expense.amount;
       } else if (expense.frequencyEnum == Frequency.annual) {
-        switch (mode) {
-          case AnnualExpenseCalculationMode.monthlyAmortized:
-            total += expense.amount / 12;
-            break;
-          case AnnualExpenseCalculationMode.dateBasedOnly:
-            final isCurrentMonth =
-                (expense.date.isAtSameMomentAs(startOfMonth) ||
-                    expense.date.isAfter(startOfMonth)) &&
-                expense.date.isBefore(startOfNextMonth);
-
-            if (isCurrentMonth) {
-              total += expense.amount;
-            }
-            break;
-        }
+        // Les dépenses annuelles sont amorties sur 12 mois
+        total += expense.amount / 12;
       }
     }
 
