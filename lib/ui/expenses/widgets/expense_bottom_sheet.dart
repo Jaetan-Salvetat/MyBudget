@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 
 class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
   final List<CategoryModel> categories;
+  final List<BeneficiaryModel> beneficiaries;
   final ExpenseModel? expense;
   final Function(ExpenseModel) onSubmit;
+  final Function(String) onCreateBeneficiary;
   final VoidCallback onCancel;
 
   const ExpenseBottomSheet({
     required this.accounts,
     required this.categories,
+    required this.beneficiaries,
     required this.onSubmit,
+    required this.onCreateBeneficiary,
     required this.onCancel,
     this.expense,
     super.key,
@@ -25,7 +31,9 @@ class ExpenseBottomSheet extends StatefulWidget {
     required BuildContext context,
     required List<AccountModel> accounts,
     required List<CategoryModel> categories,
+    required List<BeneficiaryModel> beneficiaries,
     required Function(ExpenseModel) onSubmit,
+    required Function(String) onCreateBeneficiary,
     required VoidCallback onCancel,
     ExpenseModel? expense,
   }) {
@@ -35,7 +43,9 @@ class ExpenseBottomSheet extends StatefulWidget {
       child: ExpenseBottomSheet(
         accounts: accounts,
         categories: categories,
+        beneficiaries: beneficiaries,
         onSubmit: onSubmit,
+        onCreateBeneficiary: onCreateBeneficiary,
         onCancel: onCancel,
         expense: expense,
       ),
@@ -58,6 +68,10 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   String? _accountError;
   String? _amountError;
 
+  // -1 = nouveau bénéficiaire à créer, null = aucun, >0 = id existant
+  int? _selectedBeneficiaryId;
+  final _beneficiarySelectorKey = GlobalKey<BeneficiarySelectorState>();
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +88,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     _selectedAccountId =
         widget.expense?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
+    _selectedBeneficiaryId = widget.expense?.beneficiaryId;
   }
 
   @override
@@ -103,7 +118,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     return isValid;
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate() || !_validateDropdowns()) {
       return;
     }
@@ -122,6 +137,20 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       });
     }
 
+    int? resolvedBeneficiaryId = _selectedBeneficiaryId;
+
+    // Si -1, c'est un nouveau bénéficiaire à créer
+    if (_selectedBeneficiaryId == -1) {
+      final pendingName =
+          _beneficiarySelectorKey.currentState?.pendingNewName;
+      if (pendingName != null && pendingName.isNotEmpty) {
+        widget.onCreateBeneficiary(pendingName);
+        // L'id sera résolu par le parent après création — on met null
+        // pour ne pas stocker -1 en base.
+        resolvedBeneficiaryId = null;
+      }
+    }
+
     final expense =
         widget.expense != null
             ? widget.expense!.copyWith(
@@ -131,6 +160,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
+              beneficiaryId: resolvedBeneficiaryId,
             )
             : ExpenseModel.create(
               name: _nameController.text.trim(),
@@ -139,6 +169,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
+              beneficiaryId: resolvedBeneficiaryId,
             );
 
     widget.onSubmit(expense);
@@ -149,7 +180,8 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom
+        + MediaQuery.of(context).viewPadding.bottom,
       ),
       child: Form(
         key: _formKey,
@@ -313,6 +345,15 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                     ),
                   ),
               ],
+            ),
+
+            const SizedBox(height: 24),
+
+            BeneficiarySelector(
+              key: _beneficiarySelectorKey,
+              beneficiaries: widget.beneficiaries,
+              initialBeneficiaryId: widget.expense?.beneficiaryId,
+              onChanged: (id) => setState(() => _selectedBeneficiaryId = id),
             ),
 
             const SizedBox(height: 32),

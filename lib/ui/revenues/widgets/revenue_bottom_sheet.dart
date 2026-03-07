@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
+  final List<BeneficiaryModel> beneficiaries;
   final RevenueModel? revenue;
   final Function(RevenueModel) onSubmit;
+  final Function(String) onCreateBeneficiary;
   final VoidCallback onCancel;
 
   const RevenueBottomSheet({
     required this.accounts,
+    required this.beneficiaries,
     required this.onSubmit,
+    required this.onCreateBeneficiary,
     required this.onCancel,
     this.revenue,
     super.key,
@@ -21,7 +27,9 @@ class RevenueBottomSheet extends StatefulWidget {
   static void show({
     required BuildContext context,
     required List<AccountModel> accounts,
+    required List<BeneficiaryModel> beneficiaries,
     required Function(RevenueModel) onSubmit,
+    required Function(String) onCreateBeneficiary,
     required VoidCallback onCancel,
     RevenueModel? revenue,
   }) {
@@ -30,7 +38,9 @@ class RevenueBottomSheet extends StatefulWidget {
       title: revenue == null ? 'Ajouter un revenu' : 'Modifier le revenu',
       child: RevenueBottomSheet(
         accounts: accounts,
+        beneficiaries: beneficiaries,
         onSubmit: onSubmit,
+        onCreateBeneficiary: onCreateBeneficiary,
         onCancel: onCancel,
         revenue: revenue,
       ),
@@ -50,6 +60,10 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   String? _nameError;
   String? _amountError;
 
+  // -1 = nouveau bénéficiaire à créer, null = aucun, >0 = id existant
+  int? _selectedBeneficiaryId;
+  final _beneficiarySelectorKey = GlobalKey<BeneficiarySelectorState>();
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +76,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
     _selectedAccountId =
         widget.revenue?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
+    _selectedBeneficiaryId = widget.revenue?.beneficiaryId;
   }
 
   @override
@@ -95,6 +110,17 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       return;
     }
 
+    int? resolvedBeneficiaryId = _selectedBeneficiaryId;
+
+    if (_selectedBeneficiaryId == -1) {
+      final pendingName =
+          _beneficiarySelectorKey.currentState?.pendingNewName;
+      if (pendingName != null && pendingName.isNotEmpty) {
+        widget.onCreateBeneficiary(pendingName);
+        resolvedBeneficiaryId = null;
+      }
+    }
+
     final revenue =
         widget.revenue != null
             ? widget.revenue!.copyWith(
@@ -103,6 +129,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              beneficiaryId: resolvedBeneficiaryId,
             )
             : RevenueModel.create(
               name: _nameController.text.trim(),
@@ -110,6 +137,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              beneficiaryId: resolvedBeneficiaryId,
             );
 
     widget.onSubmit(revenue);
@@ -269,6 +297,15 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               ),
               child: Text("Le ${_selectedDate.day} du mois"),
             ),
+          ),
+
+          const SizedBox(height: 24),
+
+          BeneficiarySelector(
+            key: _beneficiarySelectorKey,
+            beneficiaries: widget.beneficiaries,
+            initialBeneficiaryId: widget.revenue?.beneficiaryId,
+            onChanged: (id) => setState(() => _selectedBeneficiaryId = id),
           ),
 
           const SizedBox(height: 32),

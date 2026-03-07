@@ -5,6 +5,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
+import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_card.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
@@ -15,8 +16,8 @@ class RevenuesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<RevenueViewModel, AccountViewModel>(
-      builder: (context, revenueVM, accountVM, child) {
+    return Consumer3<RevenueViewModel, AccountViewModel, BeneficiaryViewModel>(
+      builder: (context, revenueVM, accountVM, beneficiaryVM, child) {
         if (revenueVM.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -99,9 +100,15 @@ class RevenuesList extends StatelessWidget {
                   () => AccountModel.create(name: 'Compte inconnu', bank: ''),
             );
 
+            final beneficiary =
+                revenue.beneficiaryId != null
+                    ? beneficiaryVM.getBeneficiaryById(revenue.beneficiaryId!)
+                    : null;
+
             return RevenueCard(
               revenue: revenue,
               accountName: account.name,
+              beneficiaryName: beneficiary?.name,
               onDelete: () {
                 revenueVM.deleteRevenue(revenue.id);
               },
@@ -109,10 +116,13 @@ class RevenuesList extends StatelessWidget {
                 RevenueBottomSheet.show(
                   context: context,
                   accounts: accountVM.accounts,
+                  beneficiaries: beneficiaryVM.beneficiaries,
                   revenue: revenue,
                   onSubmit: (updatedRevenue) {
                     revenueVM.updateRevenue(updatedRevenue);
                   },
+                  onCreateBeneficiary:
+                      (name) => beneficiaryVM.addBeneficiary(name),
                   onCancel: () {},
                 );
               },
@@ -176,12 +186,19 @@ class RevenuesList extends StatelessWidget {
         final accountVM = Provider.of<AccountViewModel>(context, listen: false);
         final revenueVM = Provider.of<RevenueViewModel>(context, listen: false);
 
+        final beneficiaryVM = Provider.of<BeneficiaryViewModel>(
+          context,
+          listen: false,
+        );
+
         RevenueBottomSheet.show(
           context: context,
           accounts: accountVM.accounts,
+          beneficiaries: beneficiaryVM.beneficiaries,
           onSubmit: (newRevenue) {
             revenueVM.addRevenue(newRevenue);
           },
+          onCreateBeneficiary: (name) => beneficiaryVM.addBeneficiary(name),
           onCancel: () {},
         );
       },

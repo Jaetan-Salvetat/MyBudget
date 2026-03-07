@@ -6,6 +6,7 @@ import 'package:mybudget/models/expense_model.dart';
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String accountName;
+  final String? beneficiaryName;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -14,6 +15,7 @@ class ExpenseCard extends StatelessWidget {
     required this.accountName,
     required this.onDelete,
     required this.onEdit,
+    this.beneficiaryName,
     super.key,
   });
 
@@ -88,6 +90,21 @@ class ExpenseCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
+                    if (beneficiaryName != null) ...[
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.person_outline,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        beneficiaryName!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

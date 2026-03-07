@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
+import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/loan_model.dart';
@@ -20,6 +22,7 @@ import 'package:mybudget/core/services/preferences_service.dart';
 
 class DataViewModel extends ChangeNotifier {
   final AccountRepository _accountRepository;
+  final BeneficiaryRepository _beneficiaryRepository;
   final ExpenseRepository _expenseRepository;
   final RevenueRepository _revenueRepository;
   final LoanRepository _loanRepository;
@@ -47,6 +50,7 @@ class DataViewModel extends ChangeNotifier {
 
   DataViewModel(
     this._accountRepository,
+    this._beneficiaryRepository,
     this._expenseRepository,
     this._revenueRepository,
     this._loanRepository,
@@ -62,6 +66,11 @@ class DataViewModel extends ChangeNotifier {
       'accounts':
           _accountViewModel.accounts
               .map((account) => account.toJson())
+              .toList(),
+      'beneficiaries':
+          _beneficiaryRepository
+              .getAll()
+              .map((b) => b.toJson())
               .toList(),
       'expenses':
           _expenseViewModel.expenses
@@ -157,6 +166,7 @@ class DataViewModel extends ChangeNotifier {
       _importProgress = 0.1;
       notifyListeners();
 
+      _beneficiaryRepository.deleteAll();
       _accountRepository.deleteAll();
       _expenseRepository.deleteAll();
       _revenueRepository.deleteAll();
@@ -164,6 +174,30 @@ class DataViewModel extends ChangeNotifier {
       _categoryRepository.deleteAll();
 
       final Map<int, int> accountIdMap = {};
+      final Map<int, int> beneficiaryIdMap = {};
+
+      if (data['beneficiaries'] != null && data['beneficiaries'] is List) {
+        final beneficiariesList = data['beneficiaries'] as List;
+        debugPrint('Importation de ${beneficiariesList.length} bénéficiaires...');
+
+        _importStatus = 'Importation des bénéficiaires...';
+        notifyListeners();
+
+        for (final beneficiaryData in beneficiariesList) {
+          try {
+            final oldId =
+                int.tryParse(beneficiaryData['id'].toString()) ?? 0;
+            beneficiaryData['id'] = 0;
+            final beneficiary = BeneficiaryModel.fromJson(
+              Map<String, dynamic>.from(beneficiaryData),
+            );
+            final newId = _beneficiaryRepository.add(beneficiary);
+            beneficiaryIdMap[oldId] = newId;
+          } catch (e) {
+            debugPrint('ERREUR importation bénéficiaire: $e');
+          }
+        }
+      }
 
       if (data['accounts'] != null && data['accounts'] is List) {
         final accountsList = data['accounts'] as List;
@@ -228,6 +262,15 @@ class DataViewModel extends ChangeNotifier {
 
             expenseData['id'] = 0;
 
+            // Remapping beneficiaryId
+            final oldBeneficiaryId = expenseData['beneficiaryId'] != null
+                ? int.tryParse(expenseData['beneficiaryId'].toString())
+                : null;
+            if (oldBeneficiaryId != null) {
+              expenseData['beneficiaryId'] =
+                  beneficiaryIdMap[oldBeneficiaryId]?.toString();
+            }
+
             final expense = ExpenseModel.fromJson(expenseData);
             _expenseRepository.add(expense);
             successCount++;
@@ -270,6 +313,15 @@ class DataViewModel extends ChangeNotifier {
             }
 
             revenueData['id'] = 0;
+
+            // Remapping beneficiaryId
+            final oldBeneficiaryId = revenueData['beneficiaryId'] != null
+                ? int.tryParse(revenueData['beneficiaryId'].toString())
+                : null;
+            if (oldBeneficiaryId != null) {
+              revenueData['beneficiaryId'] =
+                  beneficiaryIdMap[oldBeneficiaryId]?.toString();
+            }
 
             final revenue = RevenueModel.fromJson(revenueData);
             _revenueRepository.add(revenue);
@@ -372,6 +424,7 @@ class DataViewModel extends ChangeNotifier {
 
       await Future.delayed(const Duration(seconds: 1));
 
+      _beneficiaryRepository.deleteAll();
       _accountRepository.deleteAll();
       _expenseRepository.deleteAll();
       _revenueRepository.deleteAll();

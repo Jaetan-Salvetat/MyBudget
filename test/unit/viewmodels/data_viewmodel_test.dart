@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:mybudget/ui/settings/data_viewmodel.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
+import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
@@ -17,6 +18,8 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
+
+class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -45,6 +48,7 @@ class FakeExpenseModel extends Fake implements ExpenseModel {}
 void main() {
   late DataViewModel viewModel;
   late MockAccountRepository mockAccountRepo;
+  late MockBeneficiaryRepository mockBeneficiaryRepo;
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
@@ -59,6 +63,7 @@ void main() {
 
   setUp(() {
     mockAccountRepo = MockAccountRepository();
+    mockBeneficiaryRepo = MockBeneficiaryRepository();
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
@@ -76,6 +81,7 @@ void main() {
 
     viewModel = DataViewModel(
       mockAccountRepo,
+      mockBeneficiaryRepo,
       mockExpenseRepo,
       mockRevenueRepo,
       mockLoanRepo,
@@ -111,6 +117,7 @@ void main() {
 
       when(() => mockFile.readAsString()).thenAnswer((_) async => jsonContent);
 
+      when(() => mockBeneficiaryRepo.deleteAll()).thenReturn(null);
       when(() => mockAccountRepo.deleteAll()).thenReturn(null);
       when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
       when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
