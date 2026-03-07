@@ -12,7 +12,6 @@ import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
 import 'package:mybudget/ui/loans/loans_viewmodel.dart';
-import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
 import 'package:mybudget/ui/settings/update_viewmodel.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
@@ -197,10 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       listen: false,
     );
-    final beneficiaryViewModel = Provider.of<BeneficiaryViewModel>(
-      context,
-      listen: false,
-    );
 
     if (accountViewModel.accounts.isEmpty) {
       _showNoAccountDialog(context, 'une dépense');
@@ -211,7 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       accounts: accountViewModel.accounts,
       categories: categoryViewModel.categories,
-      beneficiaries: beneficiaryViewModel.beneficiaries,
       onSubmit: (expense) async {
         try {
           await expenseViewModel.addExpense(expense);
@@ -224,7 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         }
       },
-      onCreateBeneficiary: (name) => beneficiaryViewModel.createBeneficiary(name),
       onCancel: () {},
     );
   }
@@ -238,10 +231,6 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       listen: false,
     );
-    final beneficiaryViewModel = Provider.of<BeneficiaryViewModel>(
-      context,
-      listen: false,
-    );
 
     if (accountViewModel.accounts.isEmpty) {
       _showNoAccountDialog(context, 'un revenu');
@@ -251,11 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
     RevenueBottomSheet.show(
       context: context,
       accounts: accountViewModel.accounts,
-      beneficiaries: beneficiaryViewModel.beneficiaries,
       onSubmit: (revenue) {
         revenueViewModel.addRevenue(revenue);
       },
-      onCreateBeneficiary: (name) => beneficiaryViewModel.createBeneficiary(name),
       onCancel: () {},
     );
   }

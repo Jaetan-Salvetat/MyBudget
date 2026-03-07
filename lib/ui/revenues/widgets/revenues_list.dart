@@ -116,13 +116,10 @@ class RevenuesList extends StatelessWidget {
                 RevenueBottomSheet.show(
                   context: context,
                   accounts: accountVM.accounts,
-                  beneficiaries: beneficiaryVM.beneficiaries,
                   revenue: revenue,
                   onSubmit: (updatedRevenue) {
                     revenueVM.updateRevenue(updatedRevenue);
                   },
-                  onCreateBeneficiary:
-                      (name) => beneficiaryVM.createBeneficiary(name),
                   onCancel: () {},
                 );
               },
@@ -186,19 +183,12 @@ class RevenuesList extends StatelessWidget {
         final accountVM = Provider.of<AccountViewModel>(context, listen: false);
         final revenueVM = Provider.of<RevenueViewModel>(context, listen: false);
 
-        final beneficiaryVM = Provider.of<BeneficiaryViewModel>(
-          context,
-          listen: false,
-        );
-
         RevenueBottomSheet.show(
           context: context,
           accounts: accountVM.accounts,
-          beneficiaries: beneficiaryVM.beneficiaries,
           onSubmit: (newRevenue) {
             revenueVM.addRevenue(newRevenue);
           },
-          onCreateBeneficiary: (name) => beneficiaryVM.createBeneficiary(name),
           onCancel: () {},
         );
       },

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -10,18 +9,14 @@ import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
   final List<CategoryModel> categories;
-  final List<BeneficiaryModel> beneficiaries;
   final ExpenseModel? expense;
   final Function(ExpenseModel) onSubmit;
-  final Future<int?> Function(String name) onCreateBeneficiary;
   final VoidCallback onCancel;
 
   const ExpenseBottomSheet({
     required this.accounts,
     required this.categories,
-    required this.beneficiaries,
     required this.onSubmit,
-    required this.onCreateBeneficiary,
     required this.onCancel,
     this.expense,
     super.key,
@@ -31,9 +26,7 @@ class ExpenseBottomSheet extends StatefulWidget {
     required BuildContext context,
     required List<AccountModel> accounts,
     required List<CategoryModel> categories,
-    required List<BeneficiaryModel> beneficiaries,
     required Function(ExpenseModel) onSubmit,
-    required Future<int?> Function(String name) onCreateBeneficiary,
     required VoidCallback onCancel,
     ExpenseModel? expense,
   }) {
@@ -43,9 +36,7 @@ class ExpenseBottomSheet extends StatefulWidget {
       child: ExpenseBottomSheet(
         accounts: accounts,
         categories: categories,
-        beneficiaries: beneficiaries,
         onSubmit: onSubmit,
-        onCreateBeneficiary: onCreateBeneficiary,
         onCancel: onCancel,
         expense: expense,
       ),
@@ -337,9 +328,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             const SizedBox(height: 24),
 
             BeneficiarySelector(
-              beneficiaries: widget.beneficiaries,
               initialBeneficiaryId: widget.expense?.beneficiaryId,
-              onCreateBeneficiary: widget.onCreateBeneficiary,
               onChanged: (id) => setState(() {
                 _selectedBeneficiaryId = id;
                 _beneficiaryEnabled = id != null;

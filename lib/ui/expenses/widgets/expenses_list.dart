@@ -138,13 +138,10 @@ class _ExpensesListState extends State<ExpensesList> {
                   context: context,
                   accounts: accountVM.accounts,
                   categories: categoryVM.categories,
-                  beneficiaries: beneficiaryVM.beneficiaries,
                   expense: expense,
                   onSubmit: (updatedExpense) {
                     expenseVM.updateExpense(updatedExpense);
                   },
-                  onCreateBeneficiary:
-                      (name) => beneficiaryVM.createBeneficiary(name),
                   onCancel: () {},
                 );
               },
@@ -290,20 +287,13 @@ class _ExpensesListState extends State<ExpensesList> {
         );
         final accountVM = Provider.of<AccountViewModel>(context, listen: false);
         final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
-        final beneficiaryVM = Provider.of<BeneficiaryViewModel>(
-          context,
-          listen: false,
-        );
-
         ExpenseBottomSheet.show(
           context: context,
           accounts: accountVM.accounts,
           categories: categoryVM.categories,
-          beneficiaries: beneficiaryVM.beneficiaries,
           onSubmit: (newExpense) {
             expenseVM.addExpense(newExpense);
           },
-          onCreateBeneficiary: (name) => beneficiaryVM.createBeneficiary(name),
           onCancel: () {},
         );
       },
