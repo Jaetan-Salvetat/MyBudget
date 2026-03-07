@@ -224,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         }
       },
-      onCreateBeneficiary: (name) => beneficiaryViewModel.addBeneficiary(name),
+      onCreateBeneficiary: (name) => beneficiaryViewModel.createBeneficiary(name),
       onCancel: () {},
     );
   }
@@ -255,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onSubmit: (revenue) {
         revenueViewModel.addRevenue(revenue);
       },
-      onCreateBeneficiary: (name) => beneficiaryViewModel.addBeneficiary(name),
+      onCreateBeneficiary: (name) => beneficiaryViewModel.createBeneficiary(name),
       onCancel: () {},
     );
   }

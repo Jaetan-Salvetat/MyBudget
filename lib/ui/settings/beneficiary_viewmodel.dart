@@ -41,6 +41,30 @@ class BeneficiaryViewModel extends ChangeNotifier {
     }
   }
 
+  /// Crée un bénéficiaire et retourne son id, ou null si erreur.
+  /// Utilisé par les formulaires pour créer et lier en une seule action.
+  Future<int?> createBeneficiary(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return null;
+
+    final duplicate = _beneficiaries.any(
+      (b) => b.name.toLowerCase() == trimmed.toLowerCase(),
+    );
+    if (duplicate) return null;
+
+    try {
+      final id = _beneficiaryRepository.add(
+        BeneficiaryModel.create(name: trimmed),
+      );
+      await loadBeneficiaries();
+      return id;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
   /// Retourne null si succès, un message d'erreur sinon.
   Future<String?> addBeneficiary(String name) async {
     final trimmed = name.trim();

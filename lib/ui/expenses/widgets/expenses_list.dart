@@ -144,7 +144,7 @@ class _ExpensesListState extends State<ExpensesList> {
                     expenseVM.updateExpense(updatedExpense);
                   },
                   onCreateBeneficiary:
-                      (name) => beneficiaryVM.addBeneficiary(name),
+                      (name) => beneficiaryVM.createBeneficiary(name),
                   onCancel: () {},
                 );
               },
@@ -303,7 +303,7 @@ class _ExpensesListState extends State<ExpensesList> {
           onSubmit: (newExpense) {
             expenseVM.addExpense(newExpense);
           },
-          onCreateBeneficiary: (name) => beneficiaryVM.addBeneficiary(name),
+          onCreateBeneficiary: (name) => beneficiaryVM.createBeneficiary(name),
           onCancel: () {},
         );
       },

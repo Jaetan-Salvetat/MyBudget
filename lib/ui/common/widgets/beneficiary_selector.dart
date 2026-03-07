@@ -2,28 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 
-/// Widget réutilisable pour sélectionner ou créer un bénéficiaire dans un formulaire.
-/// Affiche un Switch, puis si activé : un dropdown ou un champ de création rapide.
+/// Widget réutilisable pour sélectionner ou créer un bénéficiaire.
+/// - Switch ON/OFF pour activer la sélection
+/// - Mode dropdown : sélection parmi les bénéficiaires existants
+/// - Mode création : champ texte + "Confirmer" qui crée immédiatement en base
+///
+/// [onChanged] est appelé avec l'id sélectionné (ou null si switch OFF).
+/// [onCreateBeneficiary] crée le bénéficiaire en base et retourne son id (ou null si erreur).
 class BeneficiarySelector extends StatefulWidget {
   final List<BeneficiaryModel> beneficiaries;
   final int? initialBeneficiaryId;
   final ValueChanged<int?> onChanged;
+  final Future<int?> Function(String name) onCreateBeneficiary;
 
   const BeneficiarySelector({
     required this.beneficiaries,
     required this.onChanged,
+    required this.onCreateBeneficiary,
     this.initialBeneficiaryId,
     super.key,
   });
 
   @override
-  State<BeneficiarySelector> createState() => BeneficiarySelectorState();
+  State<BeneficiarySelector> createState() => _BeneficiarySelectorState();
 }
 
-class BeneficiarySelectorState extends State<BeneficiarySelector> {
+class _BeneficiarySelectorState extends State<BeneficiarySelector> {
   bool _enabled = false;
   int? _selectedId;
   bool _isCreating = false;
+  bool _isLoading = false;
   final _newNameController = TextEditingController();
   String? _createError;
 
@@ -62,7 +70,7 @@ class BeneficiarySelectorState extends State<BeneficiarySelector> {
     widget.onChanged(value);
   }
 
-  void _confirmCreate() {
+  Future<void> _confirmCreate() async {
     final name = _newNameController.text.trim();
     if (name.isEmpty) {
       setState(() => _createError = 'Le nom ne peut pas être vide');
@@ -75,19 +83,31 @@ class BeneficiarySelectorState extends State<BeneficiarySelector> {
       setState(() => _createError = 'Ce bénéficiaire existe déjà');
       return;
     }
-    // On signale à l'écran parent qu'un nouveau bénéficiaire doit être créé.
-    // On utilise -1 comme sentinelle : le parent lira _pendingName.
-    _pendingName = name;
-    widget.onChanged(-1);
+
     setState(() {
+      _isLoading = true;
       _createError = null;
-      _isCreating = false;
     });
+
+    final newId = await widget.onCreateBeneficiary(name);
+
+    if (!mounted) return;
+
+    if (newId != null) {
+      setState(() {
+        _selectedId = newId;
+        _isCreating = false;
+        _isLoading = false;
+        _newNameController.clear();
+      });
+      widget.onChanged(newId);
+    } else {
+      setState(() {
+        _isLoading = false;
+        _createError = 'Erreur lors de la création du bénéficiaire';
+      });
+    }
   }
-
-  String? _pendingName;
-
-  String? get pendingNewName => _pendingName;
 
   @override
   Widget build(BuildContext context) {
@@ -135,18 +155,26 @@ class BeneficiarySelectorState extends State<BeneficiarySelector> {
               children: [
                 if (widget.beneficiaries.isNotEmpty)
                   FrostedTextButton(
-                    onPressed: () => setState(() {
-                      _isCreating = false;
-                      _newNameController.clear();
-                      _createError = null;
-                    }),
+                    onPressed: _isLoading
+                        ? null
+                        : () => setState(() {
+                              _isCreating = false;
+                              _newNameController.clear();
+                              _createError = null;
+                            }),
                     child: const Text('Annuler'),
                   ),
                 const Spacer(),
-                FrostedFilledButton(
-                  onPressed: _confirmCreate,
-                  child: const Text('Confirmer'),
-                ),
+                _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : FrostedFilledButton(
+                        onPressed: _confirmCreate,
+                        child: const Text('Confirmer'),
+                      ),
               ],
             ),
           ] else ...[

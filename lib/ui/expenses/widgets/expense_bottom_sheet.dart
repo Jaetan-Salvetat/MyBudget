@@ -13,7 +13,7 @@ class ExpenseBottomSheet extends StatefulWidget {
   final List<BeneficiaryModel> beneficiaries;
   final ExpenseModel? expense;
   final Function(ExpenseModel) onSubmit;
-  final Function(String) onCreateBeneficiary;
+  final Future<int?> Function(String name) onCreateBeneficiary;
   final VoidCallback onCancel;
 
   const ExpenseBottomSheet({
@@ -33,7 +33,7 @@ class ExpenseBottomSheet extends StatefulWidget {
     required List<CategoryModel> categories,
     required List<BeneficiaryModel> beneficiaries,
     required Function(ExpenseModel) onSubmit,
-    required Function(String) onCreateBeneficiary,
+    required Future<int?> Function(String name) onCreateBeneficiary,
     required VoidCallback onCancel,
     ExpenseModel? expense,
   }) {
@@ -68,9 +68,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   String? _accountError;
   String? _amountError;
 
-  // -1 = nouveau bénéficiaire à créer, null = aucun, >0 = id existant
+  // null = aucun ou switch OFF, >0 = id existant sélectionné
   int? _selectedBeneficiaryId;
-  final _beneficiarySelectorKey = GlobalKey<BeneficiarySelectorState>();
+  bool _beneficiaryEnabled = false;
 
   @override
   void initState() {
@@ -89,6 +89,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         widget.expense?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedBeneficiaryId = widget.expense?.beneficiaryId;
+    _beneficiaryEnabled = widget.expense?.beneficiaryId != null;
   }
 
   @override
@@ -137,20 +138,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       });
     }
 
-    int? resolvedBeneficiaryId = _selectedBeneficiaryId;
-
-    // Si -1, c'est un nouveau bénéficiaire à créer
-    if (_selectedBeneficiaryId == -1) {
-      final pendingName =
-          _beneficiarySelectorKey.currentState?.pendingNewName;
-      if (pendingName != null && pendingName.isNotEmpty) {
-        widget.onCreateBeneficiary(pendingName);
-        // L'id sera résolu par le parent après création — on met null
-        // pour ne pas stocker -1 en base.
-        resolvedBeneficiaryId = null;
-      }
-    }
-
     final expense =
         widget.expense != null
             ? widget.expense!.copyWith(
@@ -160,7 +147,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
-              beneficiaryId: resolvedBeneficiaryId,
+              beneficiaryId: _selectedBeneficiaryId,
             )
             : ExpenseModel.create(
               name: _nameController.text.trim(),
@@ -169,7 +156,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               date: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
-              beneficiaryId: resolvedBeneficiaryId,
+              beneficiaryId: _selectedBeneficiaryId,
             );
 
     widget.onSubmit(expense);
@@ -350,10 +337,13 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             const SizedBox(height: 24),
 
             BeneficiarySelector(
-              key: _beneficiarySelectorKey,
               beneficiaries: widget.beneficiaries,
               initialBeneficiaryId: widget.expense?.beneficiaryId,
-              onChanged: (id) => setState(() => _selectedBeneficiaryId = id),
+              onCreateBeneficiary: widget.onCreateBeneficiary,
+              onChanged: (id) => setState(() {
+                _selectedBeneficiaryId = id;
+                _beneficiaryEnabled = id != null;
+              }),
             ),
 
             const SizedBox(height: 32),
@@ -369,7 +359,9 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                 ),
                 const SizedBox(width: 16),
                 FrostedFilledButton(
-                  onPressed: _handleSubmit,
+                  onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                      ? null
+                      : _handleSubmit,
                   child: Text(
                     widget.expense == null ? 'Ajouter' : 'Enregistrer',
                   ),

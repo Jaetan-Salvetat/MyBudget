@@ -122,7 +122,7 @@ class RevenuesList extends StatelessWidget {
                     revenueVM.updateRevenue(updatedRevenue);
                   },
                   onCreateBeneficiary:
-                      (name) => beneficiaryVM.addBeneficiary(name),
+                      (name) => beneficiaryVM.createBeneficiary(name),
                   onCancel: () {},
                 );
               },
@@ -198,7 +198,7 @@ class RevenuesList extends StatelessWidget {
           onSubmit: (newRevenue) {
             revenueVM.addRevenue(newRevenue);
           },
-          onCreateBeneficiary: (name) => beneficiaryVM.addBeneficiary(name),
+          onCreateBeneficiary: (name) => beneficiaryVM.createBeneficiary(name),
           onCancel: () {},
         );
       },

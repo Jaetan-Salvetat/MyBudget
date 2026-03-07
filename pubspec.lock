@@ -400,9 +400,11 @@ packages:
   frosted_ui:
     dependency: "direct main"
     description:
-      path: "../frosted_ui"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: e8973d7f5270671296b343b4ed5c895e57283940
+      url: "https://github.com/Jaetan-Salvetat/frosted_ui"
+    source: git
     version: "0.0.4"
   glob:
     dependency: transitive

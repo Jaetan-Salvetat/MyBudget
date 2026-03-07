@@ -11,7 +11,7 @@ class RevenueBottomSheet extends StatefulWidget {
   final List<BeneficiaryModel> beneficiaries;
   final RevenueModel? revenue;
   final Function(RevenueModel) onSubmit;
-  final Function(String) onCreateBeneficiary;
+  final Future<int?> Function(String name) onCreateBeneficiary;
   final VoidCallback onCancel;
 
   const RevenueBottomSheet({
@@ -29,7 +29,7 @@ class RevenueBottomSheet extends StatefulWidget {
     required List<AccountModel> accounts,
     required List<BeneficiaryModel> beneficiaries,
     required Function(RevenueModel) onSubmit,
-    required Function(String) onCreateBeneficiary,
+    required Future<int?> Function(String name) onCreateBeneficiary,
     required VoidCallback onCancel,
     RevenueModel? revenue,
   }) {
@@ -60,9 +60,9 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   String? _nameError;
   String? _amountError;
 
-  // -1 = nouveau bénéficiaire à créer, null = aucun, >0 = id existant
+  // null = aucun ou switch OFF, >0 = id existant sélectionné
   int? _selectedBeneficiaryId;
-  final _beneficiarySelectorKey = GlobalKey<BeneficiarySelectorState>();
+  bool _beneficiaryEnabled = false;
 
   @override
   void initState() {
@@ -77,6 +77,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
         widget.revenue?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedBeneficiaryId = widget.revenue?.beneficiaryId;
+    _beneficiaryEnabled = widget.revenue?.beneficiaryId != null;
   }
 
   @override
@@ -110,17 +111,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       return;
     }
 
-    int? resolvedBeneficiaryId = _selectedBeneficiaryId;
-
-    if (_selectedBeneficiaryId == -1) {
-      final pendingName =
-          _beneficiarySelectorKey.currentState?.pendingNewName;
-      if (pendingName != null && pendingName.isNotEmpty) {
-        widget.onCreateBeneficiary(pendingName);
-        resolvedBeneficiaryId = null;
-      }
-    }
-
     final revenue =
         widget.revenue != null
             ? widget.revenue!.copyWith(
@@ -129,7 +119,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
-              beneficiaryId: resolvedBeneficiaryId,
+              beneficiaryId: _selectedBeneficiaryId,
             )
             : RevenueModel.create(
               name: _nameController.text.trim(),
@@ -137,7 +127,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
-              beneficiaryId: resolvedBeneficiaryId,
+              beneficiaryId: _selectedBeneficiaryId,
             );
 
     widget.onSubmit(revenue);
@@ -302,10 +292,13 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           const SizedBox(height: 24),
 
           BeneficiarySelector(
-            key: _beneficiarySelectorKey,
             beneficiaries: widget.beneficiaries,
             initialBeneficiaryId: widget.revenue?.beneficiaryId,
-            onChanged: (id) => setState(() => _selectedBeneficiaryId = id),
+            onCreateBeneficiary: widget.onCreateBeneficiary,
+            onChanged: (id) => setState(() {
+              _selectedBeneficiaryId = id;
+              _beneficiaryEnabled = id != null;
+            }),
           ),
 
           const SizedBox(height: 32),
@@ -321,7 +314,9 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               ),
               const SizedBox(width: 16),
               FrostedFilledButton(
-                onPressed: _handleSubmit,
+                onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                    ? null
+                    : _handleSubmit,
                 child: Text(widget.revenue == null ? 'Ajouter' : 'Enregistrer'),
               ),
             ],
