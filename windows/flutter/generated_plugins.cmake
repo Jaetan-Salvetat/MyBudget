@@ -3,7 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  dynamic_color
   objectbox_flutter_libs
+  restart_app
   share_plus
   url_launcher_windows
 )

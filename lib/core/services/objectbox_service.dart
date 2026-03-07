@@ -1,9 +1,10 @@
 import 'package:path_provider/path_provider.dart';
-import 'package:mybudget/data/models/category_model.dart';
-import 'package:mybudget/data/models/expense_model.dart';
-import 'package:mybudget/data/models/revenue_model.dart';
-import 'package:mybudget/data/models/account_model.dart';
-import 'package:mybudget/data/models/loan_model.dart';
+import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/loan_model.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:mybudget/objectbox.g.dart';
@@ -11,6 +12,7 @@ import 'package:mybudget/objectbox.g.dart';
 class ObjectBoxService {
   late Store store;
 
+  late Box<BeneficiaryModel> beneficiaryBox;
   late Box<CategoryModel> categoryBox;
   late Box<ExpenseModel> expenseBox;
   late Box<RevenueModel> revenueBox;
@@ -34,6 +36,7 @@ class ObjectBoxService {
     final storeDir = p.join(docsDir.path, "objectbox");
     store = await openStore(directory: storeDir);
 
+    beneficiaryBox = Box<BeneficiaryModel>(store);
     categoryBox = Box<CategoryModel>(store);
     expenseBox = Box<ExpenseModel>(store);
     revenueBox = Box<RevenueModel>(store);
@@ -42,10 +45,20 @@ class ObjectBoxService {
   }
 
   void closeStore() {
-    store.close();
+    if (!store.isClosed()) {
+      store.close();
+    }
+  }
+
+  static Future<void> resetInstance() async {
+    if (_instance != null) {
+      _instance!.closeStore();
+      _instance = null;
+    }
   }
 
   Future<void> clearAllData() async {
+    beneficiaryBox.removeAll();
     categoryBox.removeAll();
     expenseBox.removeAll();
     revenueBox.removeAll();

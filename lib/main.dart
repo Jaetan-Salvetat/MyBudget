@@ -1,19 +1,49 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mybudget/presentation/screens/splash_screen.dart';
-import 'package:mybudget/presentation/screens/home_screen.dart';
-import 'package:mybudget/presentation/screens/loan/loan_details_screen.dart';
-import 'package:mybudget/presentation/screens/account/account_details_screen.dart';
-import 'package:mybudget/presentation/screens/onboarding_screen.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/core/routes/app_routes.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:mybudget/ui/splash/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:mybudget/core/services/objectbox_service.dart';
 
-Future<void> main() async {
+import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
+import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
+import 'package:mybudget/ui/loans/loans_viewmodel.dart';
+import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
+import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
+import 'package:mybudget/ui/settings/settings_viewmodel.dart';
+import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/settings/data_viewmodel.dart';
+import 'package:mybudget/ui/settings/update_viewmodel.dart';
+import 'package:mybudget/core/theme/theme_viewmodel.dart';
+import 'package:mybudget/ui/dashboard/dashboard_viewmodel.dart';
+import 'package:mybudget/core/repositories/beneficiary_repository.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/account_repository.dart';
+import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/repositories/category_repository.dart';
+
+import 'package:mybudget/core/services/preferences_service.dart';
+
+import 'package:mybudget/utils/restart_widget.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await dotenv.load(fileName: '.env');
+  await PreferencesService.init();
 
-  runApp(const MyApp());
+  await initializeDateFormatting('fr_FR', null);
+
+  runApp(
+    RestartWidget(
+      onRestart: () async {
+        await ObjectBoxService.resetInstance();
+        await ObjectBoxService.getInstance();
+      },
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,53 +51,180 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'My Budget',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: const SplashScreen(),
-      getPages: [
-        GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-        GetPage(
-          name: AppRoutes.onboarding,
-          page: () => const OnboardingScreen(),
-        ),
-        GetPage(name: AppRoutes.dashboard, page: () => const HomeScreen()),
-        GetPage(
-          name: AppRoutes.expenses,
-          page: () => const HomeScreen(initialIndex: 2),
-        ),
-        GetPage(
-          name: AppRoutes.revenues,
-          page: () => const HomeScreen(initialIndex: 3),
-        ),
-        GetPage(
-          name: AppRoutes.accounts,
-          page: () => const HomeScreen(initialIndex: 1),
-        ),
-        GetPage(
-          name: AppRoutes.settings,
-          page: () => const HomeScreen(initialIndex: 5),
-        ),
-        GetPage(
-          name: AppRoutes.loans,
-          page: () => const HomeScreen(initialIndex: 4),
-        ),
-        GetPage(
-          name: AppRoutes.loanDetails,
-          page: () => const LoanDetailsScreen(),
-        ),
-        GetPage(
-          name: AppRoutes.accountDetails,
-          page: () => const AccountDetailsScreen(),
-        ),
-        // Écrans d'authentification temporairement désactivés pendant la migration vers Isar
-        // GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
-        // GetPage(name: AppRoutes.register, page: () => const RegisterScreen()),
-        // GetPage(name: AppRoutes.forgotPassword, page: () => const ForgotPasswordScreen()),
-      ],
+    return FutureBuilder<ObjectBoxService>(
+      future: ObjectBoxService.getInstance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Directionality(
+            textDirection: TextDirection.ltr,
+            child: ColoredBox(color: Colors.white),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Container(
+              color: Colors.red,
+              child: Center(
+                child: Text(
+                  'Erreur critique: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final objectBoxService = snapshot.data!;
+
+        return MultiProvider(
+          providers: [
+            Provider<ObjectBoxService>.value(value: objectBoxService),
+
+            Provider<ExpenseRepository>(
+              create: (_) => ExpenseRepository(objectBoxService.expenseBox),
+            ),
+            Provider<RevenueRepository>(
+              create: (_) => RevenueRepository(objectBoxService.revenueBox),
+            ),
+            Provider<AccountRepository>(
+              create: (_) => AccountRepository(objectBoxService.accountBox),
+            ),
+            Provider<LoanRepository>(
+              create: (_) => LoanRepository(objectBoxService.loanBox),
+            ),
+            Provider<CategoryRepository>(
+              create: (_) => CategoryRepository(objectBoxService.categoryBox),
+            ),
+            Provider<BeneficiaryRepository>(
+              create:
+                  (_) =>
+                      BeneficiaryRepository(objectBoxService.beneficiaryBox),
+            ),
+
+            ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+            ChangeNotifierProvider(create: (_) => UpdateViewModel()),
+            ChangeNotifierProvider(create: (_) => ThemeViewModel()),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) =>
+                      CategoryViewModel(context.read<CategoryRepository>()),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => BeneficiaryViewModel(
+                    context.read<BeneficiaryRepository>(),
+                    context.read<ExpenseRepository>(),
+                    context.read<RevenueRepository>(),
+                  ),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => ExpenseViewModel(
+                    context.read<ExpenseRepository>(),
+                    context.read<CategoryRepository>(),
+                  ),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) =>
+                      RevenueViewModel(context.read<RevenueRepository>()),
+            ),
+            ChangeNotifierProvider(
+              create:
+                  (context) => LoanViewModel(context.read<LoanRepository>()),
+            ),
+
+            ChangeNotifierProxyProvider4<
+              AccountRepository,
+              ExpenseViewModel,
+              RevenueViewModel,
+              LoanViewModel,
+              AccountViewModel
+            >(
+              create:
+                  (context) => AccountViewModel(
+                    context.read<AccountRepository>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                  ),
+              update:
+                  (
+                    context,
+                    accountRepo,
+                    expenseVM,
+                    revenueVM,
+                    loanVM,
+                    previous,
+                  ) =>
+                      previous ??
+                      AccountViewModel(
+                        accountRepo,
+                        expenseVM,
+                        revenueVM,
+                        loanVM,
+                      ),
+            ),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) => DataViewModel(
+                    context.read<AccountRepository>(),
+                    context.read<BeneficiaryRepository>(),
+                    context.read<ExpenseRepository>(),
+                    context.read<RevenueRepository>(),
+                    context.read<LoanRepository>(),
+                    context.read<CategoryRepository>(),
+                    context.read<AccountViewModel>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                  ),
+            ),
+
+            ChangeNotifierProvider(
+              create:
+                  (context) => DashboardViewModel(
+                    context.read<AccountViewModel>(),
+                    context.read<ExpenseViewModel>(),
+                    context.read<RevenueViewModel>(),
+                    context.read<LoanViewModel>(),
+                    context.read<SettingsViewModel>(),
+                  ),
+            ),
+          ],
+          child: DynamicColorBuilder(
+            builder: (lightDynamic, darkDynamic) {
+              return Consumer<ThemeViewModel>(
+                builder: (context, themeViewModel, child) {
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    title: 'My Budget',
+                    localizationsDelegates: const [
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    supportedLocales: const [Locale('fr')],
+                    theme: themeViewModel.getLightTheme(
+                      dynamicColorScheme: lightDynamic,
+                    ),
+                    darkTheme: themeViewModel.getDarkTheme(
+                      dynamicColorScheme: darkDynamic,
+                    ),
+                    themeMode: themeViewModel.themeMode,
+                    home: const SplashScreen(),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
