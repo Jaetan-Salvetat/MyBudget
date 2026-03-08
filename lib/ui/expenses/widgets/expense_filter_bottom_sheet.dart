@@ -130,7 +130,8 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -291,6 +292,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           ],
         ),
       ],
+    ),
     );
   }
 }

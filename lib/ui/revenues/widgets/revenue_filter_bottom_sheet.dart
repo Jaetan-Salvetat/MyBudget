@@ -122,7 +122,8 @@ class _RevenueFilterBottomSheetState extends State<RevenueFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -235,6 +236,7 @@ class _RevenueFilterBottomSheetState extends State<RevenueFilterBottomSheet> {
           ],
         ),
       ],
+    ),
     );
   }
 }

@@ -19,9 +19,10 @@ class CategoriesBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
         Consumer<CategoryViewModel>(
           builder: (context, categoryVM, child) {
             if (categoryVM.isLoading) {
@@ -73,6 +74,7 @@ class CategoriesBottomSheet extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 

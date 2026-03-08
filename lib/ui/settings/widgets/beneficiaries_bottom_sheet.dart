@@ -17,9 +17,10 @@ class BeneficiariesBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
         Consumer<BeneficiaryViewModel>(
           builder: (context, beneficiaryVM, child) {
             if (beneficiaryVM.isLoading) {
@@ -73,6 +74,7 @@ class BeneficiariesBottomSheet extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 

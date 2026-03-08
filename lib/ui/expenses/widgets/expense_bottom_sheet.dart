@@ -158,8 +158,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom
-        + MediaQuery.of(context).viewPadding.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Form(
         key: _formKey,
