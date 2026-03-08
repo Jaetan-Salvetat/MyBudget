@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
@@ -126,10 +127,16 @@ class _ExpensesListState extends State<ExpensesList> {
                     ? beneficiaryVM.getBeneficiaryById(expense.beneficiaryId!)
                     : null;
 
+            final category = categoryVM.categories.firstWhere(
+              (c) => c.id == expense.categoryId,
+              orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
+            );
+
             return ExpenseCard(
               expense: expense,
               accountName: account.name,
               beneficiaryName: beneficiary?.name,
+              category: category,
               onDelete: () {
                 expenseVM.deleteExpense(expense.id);
               },

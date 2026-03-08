@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/category_model.dart';
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String accountName;
   final String? beneficiaryName;
+  final CategoryModel? category;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -16,6 +18,7 @@ class ExpenseCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     this.beneficiaryName,
+    this.category,
     super.key,
   });
 
@@ -42,12 +45,16 @@ class ExpenseCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+              color: category != null
+                  ? Color(category!.color).withValues(alpha: 0.15)
+                  : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.arrow_downward,
-              color: Theme.of(context).colorScheme.error,
+              category?.getIconData() ?? Icons.arrow_downward,
+              color: category != null
+                  ? Color(category!.color)
+                  : Theme.of(context).colorScheme.error,
               size: 20,
             ),
           ),
@@ -62,6 +69,16 @@ class ExpenseCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (category != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    category!.name,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Color(category!.color),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Row(
                   children: [
