@@ -1,6 +1,6 @@
 class ExpenseFilterData {
-  DateTime? startDate;
-  DateTime? endDate;
+  int? startDay; // jour du mois, 1-31
+  int? endDay; // jour du mois, 1-31
   double? minAmount;
   double? maxAmount;
   String? searchQuery;
@@ -8,8 +8,8 @@ class ExpenseFilterData {
   List<int> accountIds;
 
   ExpenseFilterData({
-    this.startDate,
-    this.endDate,
+    this.startDay,
+    this.endDay,
     this.minAmount,
     this.maxAmount,
     this.searchQuery,
@@ -18,8 +18,8 @@ class ExpenseFilterData {
   });
 
   bool get isEmpty {
-    return startDate == null &&
-        endDate == null &&
+    return startDay == null &&
+        endDay == null &&
         minAmount == null &&
         maxAmount == null &&
         (searchQuery == null || searchQuery!.isEmpty) &&

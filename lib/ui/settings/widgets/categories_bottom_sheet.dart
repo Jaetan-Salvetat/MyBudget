@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/ui/settings/widgets/category_form_bottom_sheet.dart';
 
 class CategoriesBottomSheet extends StatelessWidget {
   const CategoriesBottomSheet({super.key});
@@ -52,7 +54,7 @@ class CategoriesBottomSheet extends StatelessWidget {
                         ),
                   ),
                   onTap:
-                      () => _showEditCategoryDialog(
+                      () => _showEditCategoryForm(
                         context,
                         categoryVM,
                         category,
@@ -65,7 +67,7 @@ class CategoriesBottomSheet extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: FrostedFilledButton.icon(
-            onPressed: () => _showAddCategoryDialog(context),
+            onPressed: () => _showAddCategoryForm(context),
             icon: const Icon(Icons.add),
             label: const Text('Ajouter une catégorie'),
           ),
@@ -74,64 +76,29 @@ class CategoriesBottomSheet extends StatelessWidget {
     );
   }
 
-  void _showAddCategoryDialog(BuildContext context) {
+  void _showAddCategoryForm(BuildContext context) {
     final categoryVM = Provider.of<CategoryViewModel>(context, listen: false);
-    final nameController = TextEditingController();
-
-    FrostedDialog.show(
+    CategoryFormBottomSheet.show(
       context: context,
-      title: const Text('Nouvelle catégorie'),
-      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
-      actions: [
-        FrostedTonalButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            if (nameController.text.isNotEmpty) {
-              categoryVM.addCategory(
-                CategoryModel.create(
-                  name: nameController.text,
-                  icon: Icons.category.codePoint.toString(),
-                  color: Colors.blue.toARGB32(),
-                ),
-              );
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Ajouter'),
-        ),
-      ],
+      onSubmit: (name, color, icon) {
+        categoryVM.addCategory(
+          CategoryModel.create(name: name, icon: icon, color: color),
+        );
+      },
     );
   }
 
-  void _showEditCategoryDialog(
+  void _showEditCategoryForm(
     BuildContext context,
     CategoryViewModel vm,
     CategoryModel category,
   ) {
-    final nameController = TextEditingController(text: category.name);
-
-    FrostedDialog.show(
+    CategoryFormBottomSheet.show(
       context: context,
-      title: const Text('Modifier la catégorie'),
-      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
-      actions: [
-        FrostedTonalButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            if (nameController.text.isNotEmpty) {
-              vm.updateCategory(category.copyWith(name: nameController.text));
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Enregistrer'),
-        ),
-      ],
+      initial: category,
+      onSubmit: (name, color, icon) {
+        vm.updateCategory(category.copyWith(name: name, color: color, icon: icon));
+      },
     );
   }
 
@@ -140,6 +107,26 @@ class CategoriesBottomSheet extends StatelessWidget {
     CategoryViewModel vm,
     CategoryModel category,
   ) {
+    final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
+    final linkedExpenses = expenseVM.getExpensesForCategory(category.id);
+
+    if (linkedExpenses.isNotEmpty) {
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's sont associées' : ' est associée'} à "${category.name}". Réassignez-les avant de supprimer cette catégorie.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Supprimer la catégorie'),
