@@ -8,6 +8,7 @@ Une réécriture complète de l'application pour offrir une expérience plus flu
 - **Bénéficiaire visible** : quand une dépense est associée à un bénéficiaire, son initiale apparaît directement sur la carte
 - **Formulaire catégorie repensé** : choix de la couleur et de l'icône via une palette visuelle (plus de saisie manuelle)
 - **Tri des dépenses** : la liste est désormais triée du premier au dernier jour du mois
+- **Filtre par période** : filtrez vos dépenses par intervalle de dates (du … au …) depuis le panneau de filtres
 
 ## Bugfix
 

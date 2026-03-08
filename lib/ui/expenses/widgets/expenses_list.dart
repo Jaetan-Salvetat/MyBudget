@@ -58,12 +58,13 @@ class _ExpensesListState extends State<ExpensesList> {
                   return false;
                 }
 
-                if (_filterData.startDate != null &&
-                    expense.date.isBefore(_filterData.startDate!)) {
+                // Filtre par jour du mois (année ignorée)
+                if (_filterData.startDay != null &&
+                    expense.date.day < _filterData.startDay!) {
                   return false;
                 }
-                if (_filterData.endDate != null &&
-                    expense.date.isAfter(_filterData.endDate!)) {
+                if (_filterData.endDay != null &&
+                    expense.date.day > _filterData.endDay!) {
                   return false;
                 }
 

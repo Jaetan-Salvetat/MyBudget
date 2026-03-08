@@ -55,6 +55,8 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
   late TextEditingController _maxAmountController;
   List<int> _selectedCategoryIds = [];
   List<int> _selectedAccountIds = [];
+  double _startDay = 1;
+  double _endDay = 31;
 
   @override
   void initState() {
@@ -67,6 +69,8 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
     );
     _selectedCategoryIds = List.from(widget.initialFilterData.categoryIds);
     _selectedAccountIds = List.from(widget.initialFilterData.accountIds);
+    _startDay = (widget.initialFilterData.startDay ?? 1).toDouble();
+    _endDay = (widget.initialFilterData.endDay ?? 31).toDouble();
   }
 
   @override
@@ -84,9 +88,11 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       _maxAmountController.text.replaceAll(',', '.'),
     );
 
+    final startDay = _startDay.round();
+    final endDay = _endDay.round();
     final filterData = ExpenseFilterData(
-      startDate: widget.initialFilterData.startDate,
-      endDate: widget.initialFilterData.endDate,
+      startDay: (startDay == 1 && endDay == 31) ? null : startDay,
+      endDay: (startDay == 1 && endDay == 31) ? null : endDay,
       minAmount: minAmount,
       maxAmount: maxAmount,
       categoryIds: _selectedCategoryIds,
@@ -128,6 +134,52 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Text(
+          'Période (jour du mois)',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Du ${_startDay.round()}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            Text(
+              'au ${_endDay.round()}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        RangeSlider(
+          values: RangeValues(_startDay, _endDay),
+          min: 1,
+          max: 31,
+          divisions: 30,
+          labels: RangeLabels(
+            _startDay.round().toString(),
+            _endDay.round().toString(),
+          ),
+          onChanged: (values) {
+            setState(() {
+              _startDay = values.start;
+              _endDay = values.end;
+            });
+          },
+        ),
+
+        const SizedBox(height: 16),
+
         Text(
           'Montant',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
