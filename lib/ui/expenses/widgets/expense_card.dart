@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
@@ -42,22 +43,25 @@ class ExpenseCard extends StatelessWidget {
       onClick: onEdit,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: category != null
-                  ? Color(category!.color).withValues(alpha: 0.15)
-                  : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+          if (beneficiaryName != null)
+            BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
+          else
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: category != null
+                    ? Color(category!.color).withValues(alpha: 0.15)
+                    : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category?.getIconData() ?? Icons.arrow_downward,
+                color: category != null
+                    ? Color(category!.color)
+                    : Theme.of(context).colorScheme.error,
+                size: 20,
+              ),
             ),
-            child: Icon(
-              category?.getIconData() ?? Icons.arrow_downward,
-              color: category != null
-                  ? Color(category!.color)
-                  : Theme.of(context).colorScheme.error,
-              size: 20,
-            ),
-          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

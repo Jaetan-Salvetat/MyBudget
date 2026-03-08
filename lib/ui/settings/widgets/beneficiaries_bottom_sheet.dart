@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
 class BeneficiariesBottomSheet extends StatelessWidget {
   const BeneficiariesBottomSheet({super.key});
@@ -47,13 +48,7 @@ class BeneficiariesBottomSheet extends StatelessWidget {
               itemBuilder: (context, index) {
                 final beneficiary = beneficiaryVM.beneficiaries[index];
                 return FrostedListTile(
-                  leading: CircleAvatar(
-                    child: Text(
-                      beneficiary.name.isNotEmpty
-                          ? beneficiary.name[0].toUpperCase()
-                          : '?',
-                    ),
-                  ),
+                  leading: BeneficiaryAvatar(name: beneficiary.name),
                   title: Text(beneficiary.name),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
