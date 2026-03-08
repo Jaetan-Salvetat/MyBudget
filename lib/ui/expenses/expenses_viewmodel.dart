@@ -143,6 +143,12 @@ class ExpenseViewModel extends ChangeNotifier {
         .toList();
   }
 
+  List<ExpenseModel> getExpensesForCategory(int categoryId) {
+    return _expenses
+        .where((expense) => expense.categoryId == categoryId)
+        .toList();
+  }
+
   double getTotalExpensesForAccount(int accountId) {
     return getExpensesForAccount(
       accountId,

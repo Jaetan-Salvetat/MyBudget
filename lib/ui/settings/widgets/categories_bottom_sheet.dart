@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/ui/settings/widgets/category_form_bottom_sheet.dart';
 
@@ -106,6 +107,26 @@ class CategoriesBottomSheet extends StatelessWidget {
     CategoryViewModel vm,
     CategoryModel category,
   ) {
+    final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
+    final linkedExpenses = expenseVM.getExpensesForCategory(category.id);
+
+    if (linkedExpenses.isNotEmpty) {
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's sont associées' : ' est associée'} à "${category.name}". Réassignez-les avant de supprimer cette catégorie.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Supprimer la catégorie'),
