@@ -148,6 +148,25 @@ class BeneficiariesBottomSheet extends StatelessWidget {
     int id,
     String name,
   ) {
+    final usageCount = vm.countUsages(id);
+
+    if (usageCount > 0) {
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '$usageCount transaction${usageCount > 1 ? 's sont associées' : ' est associée'} à "$name". Réassignez-les avant de supprimer ce bénéficiaire.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Supprimer le bénéficiaire'),
@@ -160,10 +179,7 @@ class BeneficiariesBottomSheet extends StatelessWidget {
         FrostedFilledButton(
           onPressed: () async {
             Navigator.pop(context);
-            final error = await vm.deleteBeneficiary(id);
-            if (error != null && context.mounted) {
-              FrostedSnackbar.show(context, message: error);
-            }
+            await vm.deleteBeneficiary(id);
           },
           child: const Text('Supprimer'),
         ),

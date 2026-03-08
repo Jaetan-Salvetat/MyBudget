@@ -107,7 +107,7 @@ class BeneficiaryViewModel extends ChangeNotifier {
 
   /// Tente de supprimer. Retourne un message d'erreur si utilisé, null si succès.
   Future<String?> deleteBeneficiary(int id) async {
-    final usageCount = _countUsages(id);
+    final usageCount = countUsages(id);
     if (usageCount > 0) {
       return 'Ce bénéficiaire est utilisé par $usageCount transaction${usageCount > 1 ? 's' : ''}';
     }
@@ -127,7 +127,7 @@ class BeneficiaryViewModel extends ChangeNotifier {
     }
   }
 
-  int _countUsages(int beneficiaryId) {
+  int countUsages(int beneficiaryId) {
     final expenses =
         _expenseRepository
             .getAll()
