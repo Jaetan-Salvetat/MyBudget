@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
-class FrostedDateSelector {
+class DateSelector {
+  /// Affiche un picker pour choisir uniquement le jour du mois (1-31).
   static Future<DateTime?> showDayPicker({
     required BuildContext context,
     required DateTime initialDate,
   }) async {
+    // Workaround bug Flutter connu : requestFocus(FocusNode()) transfère le
+    // focus vers un nœud vide pour que Flutter n'ait rien à restaurer à la
+    // fermeture du dialog (évite la réouverture du clavier).
+    FocusScope.of(context).requestFocus(FocusNode());
     DateTime? selectedDate;
     await FrostedDialog.show(
       context: context,
@@ -49,10 +54,12 @@ class FrostedDateSelector {
     return selectedDate;
   }
 
-  static Future<DateTime?> showFullDatePicker({
+  /// Affiche un picker pour choisir le mois et le jour (année ignorée).
+  static Future<DateTime?> showMonthDayPicker({
     required BuildContext context,
     required DateTime initialDate,
   }) async {
+    FocusScope.of(context).requestFocus(FocusNode());
     DateTime? selectedDate;
     int tempMonth = initialDate.month;
     int tempDay = initialDate.day;
@@ -99,15 +106,10 @@ class FrostedDateSelector {
                         monthName[0],
                         monthName[0].toUpperCase(),
                       );
-
                       return _DateSelectionItem(
                         label: label,
                         isSelected: isSelected,
-                        onTap: () {
-                          setStateDialog(() {
-                            tempMonth = month;
-                          });
-                        },
+                        onTap: () => setStateDialog(() => tempMonth = month),
                         fontSize: 12,
                       );
                     },
@@ -134,11 +136,7 @@ class FrostedDateSelector {
                       return _DateSelectionItem(
                         label: '$day',
                         isSelected: isSelected,
-                        onTap: () {
-                          setStateDialog(() {
-                            tempDay = day;
-                          });
-                        },
+                        onTap: () => setStateDialog(() => tempDay = day),
                       );
                     },
                   ),
@@ -186,22 +184,18 @@ class _DateSelectionItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            color:
-                isSelected
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSurface,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: fontSize,
           ),

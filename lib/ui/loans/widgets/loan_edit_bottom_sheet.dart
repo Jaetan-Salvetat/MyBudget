@@ -7,7 +7,7 @@ import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/viewmodels/loan_edit_viewmodel.dart';
-import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
+import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:provider/provider.dart';
 
 class LoanEditBottomSheet extends StatelessWidget {
@@ -282,7 +282,7 @@ class LoanEditBottomSheet extends StatelessWidget {
             ),
             prefixIcon: const Icon(Icons.event),
             onTap: () async {
-              final selectedDate = await FrostedDateSelector.showDayPicker(
+              final selectedDate = await DateSelector.showDayPicker(
                 context: context,
                 initialDate: DateTime(
                   DateTime.now().year,
