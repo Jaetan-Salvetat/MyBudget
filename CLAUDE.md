@@ -10,6 +10,7 @@ MyBudget is a local-first personal finance management Flutter application. It us
 
 **Language**: French (fr_FR locale)
 **Flutter SDK**: ^3.7.2
+**Current version**: 0.3.2+19
 
 ## Common Commands
 
@@ -53,12 +54,13 @@ flutter build ios
 The app follows a clear separation of concerns:
 
 1. **Models** (`lib/models/`): ObjectBox entities annotated with `@Entity`
-   - AccountModel, ExpenseModel, RevenueModel, LoanModel, CategoryModel
+   - AccountModel, ExpenseModel, RevenueModel, LoanModel, CategoryModel, BeneficiaryModel
    - Each model has a `copyWith()`, `toJson()`, `fromJson()` method
+   - Non-ObjectBox utility models: PrivacySettingsModel, ReleaseInfoModel, ExpenseFilterData, CategoryDetailModel
 
 2. **Repositories** (`lib/core/repositories/`): Thin wrappers around ObjectBox `Box<T>`
    - Provide CRUD operations: `getAll()`, `get(id)`, `add()`, `update()`, `delete()`, `deleteAll()`
-   - Example: `ExpenseRepository`, `AccountRepository`
+   - 6 repositories: `AccountRepository`, `ExpenseRepository`, `RevenueRepository`, `LoanRepository`, `CategoryRepository`, `BeneficiaryRepository`
 
 3. **Domain Entities** (`lib/core/domain/`): Facade pattern over models
    - `Loan`: wraps `LoanModel` + calculation services, exposes computed properties
@@ -80,12 +82,12 @@ All dependencies are wired in [lib/main.dart](lib/main.dart) using `MultiProvide
 - Services (ObjectBoxService, PreferencesService) are initialized first
 - Repositories are created from ObjectBox boxes
 - ViewModels are provided as `ChangeNotifierProvider` or `ChangeNotifierProxyProvider`
-- Complex dependencies use `ChangeNotifierProxyProvider4` (e.g., AccountViewModel depends on 4 other ViewModels)
+- Complex dependencies use `ChangeNotifierProxyProvider4` (e.g., AccountViewModel depends on multiple other ViewModels)
 
 **Provider order in main.dart:**
 1. ObjectBoxService (value)
-2. Repositories (5 repos)
-3. Simple ViewModels: SettingsViewModel, UpdateViewModel, ThemeViewModel, CategoryViewModel, ExpenseViewModel, RevenueViewModel, LoanViewModel
+2. Repositories (6 repos: Account, Expense, Revenue, Loan, Category, Beneficiary)
+3. Simple ViewModels: SettingsViewModel, UpdateViewModel, ThemeViewModel, CategoryViewModel, BeneficiaryViewModel, ExpenseViewModel, RevenueViewModel, LoanViewModel
 4. Proxy ViewModels: AccountViewModel (depends on 3 ViewModels), DataViewModel, DashboardViewModel
 
 ### Data Flow
@@ -105,7 +107,7 @@ LoanModel (persisted) → LoanService.createLoan() → Loan (domain entity with 
 
 - **Service**: [lib/core/services/objectbox_service.dart](lib/core/services/objectbox_service.dart)
 - Singleton pattern with `getInstance()` and `resetInstance()` for tests
-- Boxes: categoryBox, expenseBox, revenueBox, accountBox, loanBox
+- Boxes: categoryBox, expenseBox, revenueBox, accountBox, loanBox, beneficiaryBox
 - Generated code in [lib/objectbox.g.dart](lib/objectbox.g.dart)
 - Schema in [lib/objectbox-model.json](lib/objectbox-model.json)
 - After modifying `@Entity` models, regenerate with: `flutter pub run build_runner build`
@@ -126,11 +128,28 @@ See [lib/core/enums/frequency.dart](lib/core/enums/frequency.dart):
 - `Frequency.annual`: Recurring every year — label: "Annuel"
 - Methods: `label` getter, `fromString(value)` factory
 
-### Annual Expense Calculation Mode
+### Annual Expense Calculation
 
-Configurable via `SettingsViewModel` and `AnnualExpenseCalculationMode` enum:
-- `monthlyAmortized`: annual expense ÷ 12, spread across all months
-- `dateBasedOnly`: annual expense only shown in the month it occurs
+Annual expenses are always amortized: `amount / 12` spread across all months.
+There is no configuration mode for this — it is fixed behavior in `ExpenseViewModel.getTotalExpenses()`.
+
+### Beneficiary System
+
+Expenses and revenues can be linked to a **beneficiary** (e.g., a person or organization).
+
+- **BeneficiaryModel** (`lib/models/beneficiary_model.dart`): ObjectBox entity with `id`, `name`
+- **BeneficiaryRepository** (`lib/core/repositories/beneficiary_repository.dart`): standard CRUD
+- **BeneficiaryViewModel** (`lib/ui/...`): manages list of beneficiaries
+- **BeneficiarySelector** (`lib/ui/common/widgets/beneficiary_selector.dart`):
+  - Uses `Consumer<BeneficiaryViewModel>` internally — **do NOT pass a static list as parameter**
+  - Creates beneficiaries inline without closing the bottom sheet
+  - Props: `initialBeneficiaryId`, `onChanged`
+
+### Revenue Types
+
+`RevenueModel` has an `isRegular` boolean field:
+- `isRegular = true`: fixed, recurring salary/income — shown in dashboard totals
+- `isRegular = false`: occasional/one-time income — separated in the UI list
 
 ### Enum Storage Pattern
 
@@ -168,7 +187,7 @@ Models use a consistent pattern for storing enums in ObjectBox:
 - Use `FrostedSnackbar` for notifications
 - Use `FrostedLinearProgressIndicator` for progress bars
 
-The package is imported from GitHub:
+The package is imported from GitHub (public repo):
 ```dart
 import 'package:frosted_ui/frosted_ui.dart';
 ```
@@ -252,7 +271,7 @@ Models have built-in validators called in ViewModel add/update methods:
 ### Data Import/Export
 
 - **DataViewModel** ([lib/ui/settings/data_viewmodel.dart](lib/ui/settings/data_viewmodel.dart)):
-  - Exports all data (accounts, expenses, revenues, loans, categories) to JSON
+  - Exports all data (accounts, expenses, revenues, loans, categories, beneficiaries) to JSON
   - Imports data from JSON backup files with ID remapping for orphaned records
   - Uses `share_plus` for sharing backup files
   - Uses `file_picker` for selecting import files
@@ -262,18 +281,29 @@ Models have built-in validators called in ViewModel add/update methods:
 
 - **UpdateViewModel** ([lib/ui/settings/update_viewmodel.dart](lib/ui/settings/update_viewmodel.dart)):
   - Checks for new versions via GitHub releases API
-  - Filters releases by app type (beta vs production)
-  - **GithubService**: fetches and parses latest release info
+  - Filters releases by app type: beta (`isBeta = packageName.endsWith('.beta')`) vs production
+  - Version comparison: strips `-beta` suffix before `Version.parse()` on both current and remote versions
+  - **GithubService**: fetches releases, injects `GITHUB_TOKEN` from `.env` via `flutter_dotenv` for private repo access
   - **DownloadService**: downloads APK with progress callback
   - **InstallService**: triggers APK installation via `app_installer`
   - Version comparison uses `version` package
+
+### Environment Variables (.env)
+
+The app uses `flutter_dotenv` to load a `.env` file at startup (in `main.dart`):
+```
+GITHUB_TOKEN=your_pat_token_here
+```
+- The `.env` file is **gitignored** and must be created manually locally
+- In CI/CD, the `.env` is created from the `GITHUB_TOKEN_READONLY` GitHub secret (not `GITHUB_TOKEN` which is reserved)
+- The token requires **Contents: Read-only** access on the GitHub repo
+- Used by `GithubService` to authenticate API requests (supports private repos)
 
 ### Preferences System
 
 **PreferencesService** wraps SharedPreferences with typed getters/setters:
 - `isFirstLaunch`, `isCategoriesCreated`: onboarding flags
 - `themeMode`, `themeType`: theme persistence
-- `annualExpenseCalculationMode`: expense display mode
 - `skipAuth`, `notifications`, `exportFrequency`: other settings
 
 ### App Restart
@@ -288,7 +318,7 @@ Uses `restart_app` package via `RestartWidget` wrapper in main.dart. Called afte
 - CI runs tests on PRs via GitHub Actions
 
 **Test coverage:**
-- ViewModels: expense, account, loan, category, revenues, settings, data, update, dashboard, loan_creation, loan_edit, theme
+- ViewModels: expense, account, loan, category, revenues, settings, data, update, dashboard, loan_creation, loan_edit, theme, beneficiary
 - Models: account, expense, revenue, category
 - Services: loan_calculation, loan_payment_breakdown, github
 - Utils: extensions (DateExtension)
@@ -359,8 +389,19 @@ All ObjectBox models implement:
 
 The app uses Flutter flavors for different environments:
 - **Production** (`prod`): Default flavor for release builds — `flutter build apk --flavor prod --release`
+  - `applicationId`: `fr.jaetan.mybudget`
 - **Beta** (`beta`): Testing flavor — `flutter build apk --flavor beta --release`
-  - Used in CI/CD for beta releases on GitHub (tagged with `-beta` suffix, marked as prerelease)
+  - `applicationId`: `fr.jaetan.mybudget.beta` (`.beta` suffix used by UpdateViewModel to detect beta builds)
+  - `versionNameSuffix`: `-beta` (stripped before version comparison in UpdateViewModel)
+  - Marked as prerelease on GitHub
+
+## Android Build Configuration
+
+- **Kotlin Gradle Plugin**: `2.1.0` (in `android/settings.gradle.kts`)
+- **AGP**: `8.7.0`
+- **Java**: `VERSION_17` (source + target, in `android/app/build.gradle.kts`)
+- **NDK**: `27.0.12077973`
+- `-Xlint:-options` applied globally in `android/build.gradle.kts` to suppress Java 8 obsolete warnings from third-party plugin sub-projects
 
 ## Branch Strategy
 
@@ -372,5 +413,7 @@ The app uses Flutter flavors for different environments:
 
 - **test.yml**: Runs `flutter test` on every PR
 - **lint.yml**: Runs `flutter analyze` on every PR
-- **release.yml**: On push to `main` — builds prod APK, creates GitHub release with tag
-- **beta-release.yml**: On push to `beta` — builds beta APK, creates prerelease with `-beta` tag
+- **release.yml**: On push to `main` — builds prod APK (`--flavor prod`), creates GitHub release with version tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
+- **beta-release.yml**: On push to `beta` — builds beta APK (`--flavor beta`), creates prerelease with `-beta` tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
+
+> **Note**: Use `GITHUB_TOKEN_READONLY` as the secret name in GitHub repo settings — `GITHUB_TOKEN` is a reserved name in GitHub Actions and would be overwritten.

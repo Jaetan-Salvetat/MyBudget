@@ -28,7 +28,15 @@ class ExpenseViewModel extends ChangeNotifier {
 
       _expenses = _expenseRepository.getAll();
 
-      _expenses.sort((a, b) => b.date.compareTo(a.date));
+      int sortKey(ExpenseModel e) {
+        if (e.frequencyEnum == Frequency.monthly) {
+          return e.date.day;
+        } else {
+          return e.date.month * 100 + e.date.day;
+        }
+      }
+
+      _expenses.sort((a, b) => sortKey(a).compareTo(sortKey(b)));
     } catch (e) {
       _error = e.toString();
     } finally {
