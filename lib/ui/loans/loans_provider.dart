@@ -26,24 +26,36 @@ class LoanNotifier extends _$LoanNotifier {
   }
 
   Future<void> addLoan(LoanModel loan) async {
-    final repo = ref.read(loanRepositoryProvider);
-    repo.add(loan);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(loanRepositoryProvider);
+      repo.add(loan);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateLoan(LoanModel loan) async {
-    final repo = ref.read(loanRepositoryProvider);
-    repo.update(loan);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(loanRepositoryProvider);
+      repo.update(loan);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteLoan(int id) async {
-    final repo = ref.read(loanRepositoryProvider);
-    repo.delete(id);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(loanRepositoryProvider);
+      repo.delete(id);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   List<Loan> _currentLoans() => state.value ?? [];

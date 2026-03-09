@@ -20,24 +20,36 @@ class AccountNotifier extends _$AccountNotifier {
   }
 
   Future<void> addAccount(AccountModel account) async {
-    final repo = ref.read(accountRepositoryProvider);
-    repo.add(account);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(accountRepositoryProvider);
+      repo.add(account);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateAccount(AccountModel account) async {
-    final repo = ref.read(accountRepositoryProvider);
-    repo.update(account);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(accountRepositoryProvider);
+      repo.update(account);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteAccount(int id) async {
-    final repo = ref.read(accountRepositoryProvider);
-    repo.delete(id);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(accountRepositoryProvider);
+      repo.delete(id);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   double getAccountBalance(int accountId) {

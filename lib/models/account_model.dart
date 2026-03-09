@@ -21,7 +21,7 @@ class AccountModel {
           ..bank = json['bank'] ?? '';
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;

@@ -40,11 +40,11 @@ class RevenueModel {
           ..isRegular = json['isRegular'] ?? false
           ..date =
               json['date'] != null
-                  ? DateTime.parse(json['date'])
+                  ? (DateTime.tryParse(json['date'].toString()) ?? DateTime.now())
                   : DateTime.now()
           ..accountId =
               json['accountId'] != null
-                  ? int.parse(json['accountId'].toString())
+                  ? (int.tryParse(json['accountId'].toString()) ?? 0)
                   : 0
           ..beneficiaryId =
               json['beneficiaryId'] != null
@@ -52,7 +52,7 @@ class RevenueModel {
                   : null;
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;

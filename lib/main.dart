@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,23 +12,31 @@ import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:mybudget/utils/restart_widget.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  await PreferencesService.init();
-  await initializeDateFormatting('fr_FR', null);
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+    };
 
-  runApp(
-    ProviderScope(
-      child: RestartWidget(
-        onRestart: () async {
-          await ObjectBoxService.resetInstance();
-          await ObjectBoxService.getInstance();
-        },
-        child: const MyApp(),
+    await PreferencesService.init();
+    await initializeDateFormatting('fr_FR', null);
+
+    runApp(
+      ProviderScope(
+        child: RestartWidget(
+          onRestart: () async {
+            await ObjectBoxService.resetInstance();
+            await ObjectBoxService.getInstance();
+          },
+          child: const MyApp(),
+        ),
       ),
-    ),
-  );
+    );
+  }, (error, stack) {
+    debugPrint('Uncaught error: $error\n$stack');
+  });
 }
 
 class MyApp extends ConsumerWidget {

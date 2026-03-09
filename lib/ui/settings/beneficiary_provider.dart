@@ -57,10 +57,14 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
   }
 
   Future<void> updateBeneficiary(BeneficiaryModel beneficiary) async {
-    final repo = ref.read(beneficiaryRepositoryProvider);
-    repo.update(beneficiary);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(beneficiaryRepositoryProvider);
+      repo.update(beneficiary);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<String?> deleteBeneficiary(int id) async {

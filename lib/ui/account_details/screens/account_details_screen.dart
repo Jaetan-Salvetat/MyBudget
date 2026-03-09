@@ -101,12 +101,18 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     AccountBottomSheet.show(
       context: context,
       account: account,
-      onSubmit: (name, bank) {
-        final updatedAccount = account.copyWith(name: name, bank: bank);
-        ref.read(accountProvider.notifier).updateAccount(updatedAccount);
-        setState(() {
-          account = updatedAccount;
-        });
+      onSubmit: (name, bank) async {
+        try {
+          final updatedAccount = account.copyWith(name: name, bank: bank);
+          await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+          setState(() {
+            account = updatedAccount;
+          });
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de la modification: \$e');
+          }
+        }
       },
       onCancel: () {},
     );
@@ -125,10 +131,19 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
           child: const Text('Annuler'),
         ),
         FrostedTextButton(
-          onPressed: () {
-            ref.read(accountProvider.notifier).deleteAccount(account.id);
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
+          onPressed: () async {
+            try {
+              await ref.read(accountProvider.notifier).deleteAccount(account.id);
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              }
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                FrostedSnackbar.show(context, message: 'Erreur lors de la suppression: \$e');
+              }
+            }
           },
           child: Text(
             'Supprimer',

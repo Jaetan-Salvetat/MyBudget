@@ -165,11 +165,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showAddAccountDialog(BuildContext context) {
     AccountBottomSheet.show(
       context: context,
-      onSubmit: (name, bank) {
+      onSubmit: (name, bank) async {
         if (name.isEmpty || bank.isEmpty) return;
 
-        final account = AccountModel.create(name: name, bank: bank);
-        ref.read(accountProvider.notifier).addAccount(account);
+        try {
+          final account = AccountModel.create(name: name, bank: bank);
+          await ref.read(accountProvider.notifier).addAccount(account);
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+          }
+        }
       },
       onCancel: () {},
     );
@@ -214,8 +220,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     RevenueBottomSheet.show(
       context: context,
       accounts: accounts,
-      onSubmit: (revenue) {
-        ref.read(revenueProvider.notifier).addRevenue(revenue);
+      onSubmit: (revenue) async {
+        try {
+          await ref.read(revenueProvider.notifier).addRevenue(revenue);
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+          }
+        }
       },
       onCancel: () {},
     );
@@ -232,8 +244,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     LoanCreationBottomSheet.show(
       context: context,
       accounts: accounts,
-      onSubmit: (loan) {
-        ref.read(loanProvider.notifier).addLoan(loan);
+      onSubmit: (loan) async {
+        try {
+          await ref.read(loanProvider.notifier).addLoan(loan);
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+          }
+        }
       },
       onCancel: () {},
     );

@@ -42,121 +42,150 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ExpenseModel> expensesRaw = ref.watch(expenseProvider).value ?? [];
-    final accounts = ref.watch(accountProvider).value ?? [];
-    final categories = ref.watch(categoryProvider).value ?? [];
-    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
+    return ref
+        .watch(expenseProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (expensesRaw) {
+            final accounts = ref.watch(accountProvider).value ?? [];
+            final categories = ref.watch(categoryProvider).value ?? [];
+            final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-    List<ExpenseModel> displayedExpenses = expensesRaw;
+            List<ExpenseModel> displayedExpenses = expensesRaw;
 
-    if (!_filterData.isEmpty) {
-      displayedExpenses =
-          displayedExpenses.where((expense) {
-            if (_filterData.searchQuery != null &&
-                _filterData.searchQuery!.isNotEmpty &&
-                !expense.name.toLowerCase().contains(
-                  _filterData.searchQuery!.toLowerCase(),
-                )) {
-              return false;
+            if (!_filterData.isEmpty) {
+              displayedExpenses =
+                  displayedExpenses.where((expense) {
+                    if (_filterData.searchQuery != null &&
+                        _filterData.searchQuery!.isNotEmpty &&
+                        !expense.name.toLowerCase().contains(
+                          _filterData.searchQuery!.toLowerCase(),
+                        )) {
+                      return false;
+                    }
+
+                    if (_filterData.startDay != null &&
+                        expense.date.day < _filterData.startDay!) {
+                      return false;
+                    }
+                    if (_filterData.endDay != null &&
+                        expense.date.day > _filterData.endDay!) {
+                      return false;
+                    }
+
+                    if (_filterData.minAmount != null &&
+                        expense.amount < _filterData.minAmount!) {
+                      return false;
+                    }
+                    if (_filterData.maxAmount != null &&
+                        expense.amount > _filterData.maxAmount!) {
+                      return false;
+                    }
+
+                    if (_filterData.categoryIds.isNotEmpty &&
+                        !_filterData.categoryIds.contains(expense.categoryId)) {
+                      return false;
+                    }
+
+                    if (_filterData.accountIds.isNotEmpty &&
+                        !_filterData.accountIds.contains(expense.accountId)) {
+                      return false;
+                    }
+
+                    return true;
+                  }).toList();
             }
 
-            if (_filterData.startDay != null &&
-                expense.date.day < _filterData.startDay!) {
-              return false;
-            }
-            if (_filterData.endDay != null &&
-                expense.date.day > _filterData.endDay!) {
-              return false;
-            }
+            final isEmpty = displayedExpenses.isEmpty && _filterData.isEmpty;
 
-            if (_filterData.minAmount != null &&
-                expense.amount < _filterData.minAmount!) {
-              return false;
-            }
-            if (_filterData.maxAmount != null &&
-                expense.amount > _filterData.maxAmount!) {
-              return false;
-            }
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(
+                top: 120,
+                bottom: 145,
+                left: 16,
+                right: 16,
+              ),
+              itemCount: displayedExpenses.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _buildHeaderContainer(
+                    context,
+                    displayedExpenses,
+                    isEmpty,
+                  );
+                }
 
-            if (_filterData.categoryIds.isNotEmpty &&
-                !_filterData.categoryIds.contains(expense.categoryId)) {
-              return false;
-            }
+                final expense = displayedExpenses[index - 1];
+                final account = accounts.firstWhere(
+                  (a) => a.id == expense.accountId,
+                  orElse:
+                      () =>
+                          AccountModel.create(name: 'Compte inconnu', bank: ''),
+                );
 
-            if (_filterData.accountIds.isNotEmpty &&
-                !_filterData.accountIds.contains(expense.accountId)) {
-              return false;
-            }
+                final beneficiary =
+                    expense.beneficiaryId != null
+                        ? beneficiaries
+                            .where((b) => b.id == expense.beneficiaryId)
+                            .firstOrNull
+                        : null;
 
-            return true;
-          }).toList();
-    }
+                final category = categories.firstWhere(
+                  (c) => c.id == expense.categoryId,
+                  orElse:
+                      () =>
+                          CategoryModel.create(name: 'Autre', icon: 'category'),
+                );
 
-    if (ref.watch(expenseProvider).isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final isEmpty = displayedExpenses.isEmpty && _filterData.isEmpty;
-
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(
-        top: 120,
-        bottom: 145,
-        left: 16,
-        right: 16,
-      ),
-      itemCount: displayedExpenses.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildHeaderContainer(
-            context,
-            displayedExpenses,
-            isEmpty,
-          );
-        }
-
-        final expense = displayedExpenses[index - 1];
-        final account = accounts.firstWhere(
-          (a) => a.id == expense.accountId,
-          orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
-        );
-
-        final beneficiary =
-            expense.beneficiaryId != null
-                ? beneficiaries
-                    .where((b) => b.id == expense.beneficiaryId)
-                    .firstOrNull
-                : null;
-
-        final category = categories.firstWhere(
-          (c) => c.id == expense.categoryId,
-          orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
-        );
-
-        return ExpenseCard(
-          expense: expense,
-          accountName: account.name,
-          beneficiaryName: beneficiary?.name,
-          category: category,
-          onDelete: () {
-            ref.read(expenseProvider.notifier).deleteExpense(expense.id);
-          },
-          onEdit: () {
-            ExpenseBottomSheet.show(
-              context: context,
-              accounts: accounts,
-              categories: categories,
-              expense: expense,
-              onSubmit: (updatedExpense) {
-                ref.read(expenseProvider.notifier).updateExpense(updatedExpense);
+                return ExpenseCard(
+                  expense: expense,
+                  accountName: account.name,
+                  beneficiaryName: beneficiary?.name,
+                  category: category,
+                  onDelete: () async {
+                    try {
+                      await ref
+                          .read(expenseProvider.notifier)
+                          .deleteExpense(expense.id);
+                    } catch (e) {
+                      if (context.mounted) {
+                        FrostedSnackbar.show(
+                          context,
+                          message: 'Erreur lors de la suppression: \$e',
+                        );
+                      }
+                    }
+                  },
+                  onEdit: () {
+                    ExpenseBottomSheet.show(
+                      context: context,
+                      accounts: accounts,
+                      categories: categories,
+                      expense: expense,
+                      onSubmit: (updatedExpense) async {
+                        try {
+                          await ref
+                              .read(expenseProvider.notifier)
+                              .updateExpense(updatedExpense);
+                        } catch (e) {
+                          if (context.mounted) {
+                            FrostedSnackbar.show(
+                              context,
+                              message: 'Erreur lors de la modification: \$e',
+                            );
+                          }
+                        }
+                      },
+                      onCancel: () {},
+                    );
+                  },
+                );
               },
-              onCancel: () {},
             );
           },
         );
-      },
-    );
   }
 
   Widget _buildHeaderContainer(
@@ -297,8 +326,17 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           context: context,
           accounts: accounts,
           categories: categories,
-          onSubmit: (newExpense) {
-            ref.read(expenseProvider.notifier).addExpense(newExpense);
+          onSubmit: (newExpense) async {
+            try {
+              await ref.read(expenseProvider.notifier).addExpense(newExpense);
+            } catch (e) {
+              if (context.mounted) {
+                FrostedSnackbar.show(
+                  context,
+                  message: 'Erreur lors de l\'ajout: \$e',
+                );
+              }
+            }
           },
           onCancel: () {},
         );

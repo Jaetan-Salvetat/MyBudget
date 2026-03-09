@@ -5,6 +5,10 @@
 - **NEVER** use `--delete-conflicting-outputs` with `flutter pub run build_runner build`
 - **NEVER** add comments to code (no `//`, no `///`, no `/* */`)
 - **Keep CLAUDE.md as concise as possible** — no verbose explanations, only essential information
+- **Error handling** — always apply these 3 rules:
+  - Notifier mutations (`add`, `update`, `delete`): wrap in `try`/`catch` + `rethrow`
+  - UI call sites: wrap notifier calls in `try`/`catch` + `FrostedSnackbar.show(context, message: 'Erreur lors de <op>: $e')`
+  - Screens watching async providers: use `AsyncValue.when(data:, loading:, error:)` instead of `.value ?? []`
 
 ## Project Overview
 

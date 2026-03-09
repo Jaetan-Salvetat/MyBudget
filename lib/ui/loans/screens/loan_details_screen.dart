@@ -108,12 +108,17 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
       context: context,
       loan: loan,
       accounts: accounts,
-      onSubmit: (updatedLoanModel) {
-        ref.read(loanProvider.notifier).updateLoan(updatedLoanModel);
-        FrostedSnackbar.show(
-          context,
-          message: 'Emprunt mis à jour avec succès',
-        );
+      onSubmit: (updatedLoanModel) async {
+        try {
+          await ref.read(loanProvider.notifier).updateLoan(updatedLoanModel);
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Emprunt mis à jour avec succès');
+          }
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de la modification: \$e');
+          }
+        }
       },
       onCancel: () {},
     );
@@ -133,9 +138,16 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         ),
         FrostedTextButton(
           foregroundColor: Theme.of(context).colorScheme.error,
-          onPressed: () {
-            ref.read(loanProvider.notifier).deleteLoan(loan.id);
-            Navigator.pop(context);
+          onPressed: () async {
+            try {
+              await ref.read(loanProvider.notifier).deleteLoan(loan.id);
+              if (context.mounted) Navigator.pop(context);
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.pop(context);
+                FrostedSnackbar.show(context, message: 'Erreur lors de la suppression: \$e');
+              }
+            }
           },
           child: const Text('Supprimer'),
         ),

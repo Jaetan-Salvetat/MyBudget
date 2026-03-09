@@ -19,61 +19,81 @@ class CategoriesBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoryState = ref.watch(categoryProvider);
-    final isLoading = categoryState.isLoading;
-    final categories = categoryState.value ?? [];
-
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isLoading)
-            const Center(child: CircularProgressIndicator())
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: categories.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                return FrostedListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Color(category.color).withAlpha(0x20),
-                    child: Icon(
-                      category.getIconData(),
-                      color: Color(category.color),
+    return ref
+        .watch(categoryProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (categories) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: categories.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return FrostedListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Color(
+                            category.color,
+                          ).withAlpha(0x20),
+                          child: Icon(
+                            category.getIconData(),
+                            color: Color(category.color),
+                          ),
+                        ),
+                        title: Text(category.name),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed:
+                              () => _showDeleteConfirmation(
+                                context,
+                                ref,
+                                category,
+                              ),
+                        ),
+                        onTap:
+                            () => _showEditCategoryForm(context, ref, category),
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: FrostedFilledButton.icon(
+                      onPressed: () => _showAddCategoryForm(context, ref),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter une catégorie'),
                     ),
                   ),
-                  title: Text(category.name),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _showDeleteConfirmation(context, ref, category),
-                  ),
-                  onTap: () => _showEditCategoryForm(context, ref, category),
-                );
-              },
-            ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FrostedFilledButton.icon(
-              onPressed: () => _showAddCategoryForm(context, ref),
-              icon: const Icon(Icons.add),
-              label: const Text('Ajouter une catégorie'),
-            ),
-          ),
-        ],
-      ),
-    );
+                ],
+              ),
+            );
+          },
+        );
   }
 
   void _showAddCategoryForm(BuildContext context, WidgetRef ref) {
     CategoryFormBottomSheet.show(
       context: context,
-      onSubmit: (name, color, icon) {
-        ref.read(categoryProvider.notifier).addCategory(
-          CategoryModel.create(name: name, icon: icon, color: color),
-        );
+      onSubmit: (name, color, icon) async {
+        try {
+          await ref
+              .read(categoryProvider.notifier)
+              .addCategory(
+                CategoryModel.create(name: name, icon: icon, color: color),
+              );
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de l\'ajout: \$e',
+            );
+          }
+        }
       },
     );
   }
@@ -86,10 +106,21 @@ class CategoriesBottomSheet extends ConsumerWidget {
     CategoryFormBottomSheet.show(
       context: context,
       initial: category,
-      onSubmit: (name, color, icon) {
-        ref.read(categoryProvider.notifier).updateCategory(
-          category.copyWith(name: name, color: color, icon: icon),
-        );
+      onSubmit: (name, color, icon) async {
+        try {
+          await ref
+              .read(categoryProvider.notifier)
+              .updateCategory(
+                category.copyWith(name: name, color: color, icon: icon),
+              );
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la modification: \$e',
+            );
+          }
+        }
       },
     );
   }
@@ -99,8 +130,9 @@ class CategoriesBottomSheet extends ConsumerWidget {
     WidgetRef ref,
     CategoryModel category,
   ) {
-    final linkedExpenses =
-        ref.read(expenseProvider.notifier).getExpensesForCategory(category.id);
+    final linkedExpenses = ref
+        .read(expenseProvider.notifier)
+        .getExpensesForCategory(category.id);
 
     if (linkedExpenses.isNotEmpty) {
       FrostedDialog.show(
@@ -131,9 +163,21 @@ class CategoriesBottomSheet extends ConsumerWidget {
           child: const Text('Annuler'),
         ),
         FrostedFilledButton(
-          onPressed: () {
-            ref.read(categoryProvider.notifier).deleteCategory(category.id);
-            Navigator.pop(context);
+          onPressed: () async {
+            try {
+              await ref
+                  .read(categoryProvider.notifier)
+                  .deleteCategory(category.id);
+              if (context.mounted) Navigator.pop(context);
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.pop(context);
+                FrostedSnackbar.show(
+                  context,
+                  message: 'Erreur lors de la suppression: \$e',
+                );
+              }
+            }
           },
           child: const Text('Supprimer'),
         ),

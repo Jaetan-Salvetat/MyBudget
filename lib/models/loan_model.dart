@@ -177,12 +177,13 @@ class LoanModel {
     }
 
     return LoanModel(
-      id: json['id'] != null ? int.parse(json['id'].toString()) : 0,
+      id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
       name: (resolve('name', 'name') as String?) ?? '',
       amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
-      accountId: int.parse(
-        (resolve('accountId', 'account_id') ?? '0').toString(),
-      ),
+      accountId: int.tryParse(
+            (resolve('accountId', 'account_id') ?? '0').toString(),
+          ) ??
+          0,
       lenderName:
           (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
       dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,

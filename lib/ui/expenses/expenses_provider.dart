@@ -26,24 +26,36 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   }
 
   Future<void> addExpense(ExpenseModel expense) async {
-    final repo = ref.read(expenseRepositoryProvider);
-    repo.add(expense);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(expenseRepositoryProvider);
+      repo.add(expense);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateExpense(ExpenseModel expense) async {
-    final repo = ref.read(expenseRepositoryProvider);
-    repo.update(expense);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(expenseRepositoryProvider);
+      repo.update(expense);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteExpense(int id) async {
-    final repo = ref.read(expenseRepositoryProvider);
-    repo.delete(id);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(expenseRepositoryProvider);
+      repo.delete(id);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   List<ExpenseModel> _currentExpenses() => state.value ?? [];

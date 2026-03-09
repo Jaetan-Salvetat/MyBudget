@@ -72,24 +72,36 @@ class CategoryNotifier extends _$CategoryNotifier {
   }
 
   Future<void> addCategory(CategoryModel category) async {
-    final repo = ref.read(categoryRepositoryProvider);
-    repo.add(category);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(categoryRepositoryProvider);
+      repo.add(category);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateCategory(CategoryModel category) async {
-    final repo = ref.read(categoryRepositoryProvider);
-    repo.update(category);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(categoryRepositoryProvider);
+      repo.update(category);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteCategory(int id) async {
-    final repo = ref.read(categoryRepositoryProvider);
-    repo.delete(id);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(categoryRepositoryProvider);
+      repo.delete(id);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   CategoryModel? getCategoryById(int id) {

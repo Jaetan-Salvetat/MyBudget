@@ -28,7 +28,7 @@ class BeneficiaryModel {
     final model = BeneficiaryModel()..name = json['name'] ?? '';
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;

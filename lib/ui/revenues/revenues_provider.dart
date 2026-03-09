@@ -15,24 +15,36 @@ class RevenueNotifier extends _$RevenueNotifier {
   }
 
   Future<void> addRevenue(RevenueModel revenue) async {
-    final repo = ref.read(revenueRepositoryProvider);
-    repo.add(revenue);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(revenueRepositoryProvider);
+      repo.add(revenue);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateRevenue(RevenueModel revenue) async {
-    final repo = ref.read(revenueRepositoryProvider);
-    repo.update(revenue);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(revenueRepositoryProvider);
+      repo.update(revenue);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteRevenue(int id) async {
-    final repo = ref.read(revenueRepositoryProvider);
-    repo.delete(id);
-    ref.invalidateSelf();
-    await future;
+    try {
+      final repo = ref.read(revenueRepositoryProvider);
+      repo.delete(id);
+      ref.invalidateSelf();
+      await future;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   List<RevenueModel> _currentRevenues() => state.value ?? [];

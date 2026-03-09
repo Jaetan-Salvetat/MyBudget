@@ -130,6 +130,7 @@ class LoanCalculationService {
     double amount,
     double interestRate,
   ) {
+    if (amount <= 0 || interestRate <= 0) return 0.0;
     return (amount * interestRate / 100) / 12;
   }
 
@@ -142,7 +143,12 @@ class LoanCalculationService {
     if (interestRate == 0) return amount / durationInMonths;
 
     final monthlyRate = interestRate / 100 / 12;
-    return amount * (monthlyRate / (1 - pow(1 + monthlyRate, -durationInMonths)));
+    final denominator = 1 - pow(1 + monthlyRate, -durationInMonths);
+    if (denominator == 0 || denominator.isNaN || denominator.isInfinite) {
+      return amount / durationInMonths;
+    }
+    final result = amount * (monthlyRate / denominator);
+    return result.isNaN || result.isInfinite ? 0.0 : result;
   }
 
   double _calculateAmortizableRemainingCapital({
@@ -163,7 +169,11 @@ class LoanCalculationService {
         pow(1 + monthlyRate, monthsPassed);
     final denominator = pow(1 + monthlyRate, durationInMonths) - 1;
 
-    return amount * (numerator / denominator);
+    if (denominator == 0 || denominator.isNaN || denominator.isInfinite) {
+      return amount - (amount / durationInMonths * monthsPassed);
+    }
+    final result = amount * (numerator / denominator);
+    return (result.isNaN || result.isInfinite) ? 0.0 : result;
   }
 
   double _calculateInsurancePayment({

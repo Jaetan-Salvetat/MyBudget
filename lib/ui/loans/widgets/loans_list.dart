@@ -15,60 +15,62 @@ class LoansList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loanNotifier = ref.watch(loanProvider.notifier);
-    final loans = ref.watch(loanProvider).value ?? [];
-    final accounts = ref.watch(accountProvider).value ?? [];
-    final isLoading = ref.watch(loanProvider).isLoading;
+    return ref
+        .watch(loanProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (loans) {
+            final loanNotifier = ref.read(loanProvider.notifier);
+            final accounts = ref.watch(accountProvider).value ?? [];
 
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+            final activeLoans = loanNotifier.getActiveLoans();
+            final completedLoans = loanNotifier.getCompletedLoans();
+            final isEmpty = loans.isEmpty;
 
-    final activeLoans = loanNotifier.getActiveLoans();
-    final completedLoans = loanNotifier.getCompletedLoans();
-    final isEmpty = loans.isEmpty;
-
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(
-        top: 16,
-        bottom: 100,
-        left: 16,
-        right: 16,
-      ),
-      children: [
-        _buildSummaryCard(context, ref),
-        const SizedBox(height: 24),
-        if (isEmpty) _buildEmptyState(context, ref),
-        if (activeLoans.isNotEmpty) ...[
-          Text(
-            'Emprunts actifs (${activeLoans.length})',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...activeLoans.map(
-            (loan) => _buildLoanCard(context, loan, accounts, ref),
-          ),
-        ],
-        if (completedLoans.isNotEmpty) ...[
-          const SizedBox(height: 32),
-          Text(
-            'Emprunts remboursés (${completedLoans.length})',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...completedLoans.map(
-            (loan) => _buildLoanCard(context, loan, accounts, ref),
-          ),
-        ],
-      ],
-    );
+            return ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(
+                top: 16,
+                bottom: 100,
+                left: 16,
+                right: 16,
+              ),
+              children: [
+                _buildSummaryCard(context, ref),
+                const SizedBox(height: 24),
+                if (isEmpty) _buildEmptyState(context, ref),
+                if (activeLoans.isNotEmpty) ...[
+                  Text(
+                    'Emprunts actifs (${activeLoans.length})',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...activeLoans.map(
+                    (loan) => _buildLoanCard(context, loan, accounts, ref),
+                  ),
+                ],
+                if (completedLoans.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  Text(
+                    'Emprunts remboursés (${completedLoans.length})',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...completedLoans.map(
+                    (loan) => _buildLoanCard(context, loan, accounts, ref),
+                  ),
+                ],
+              ],
+            );
+          },
+        );
   }
 
   Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {
