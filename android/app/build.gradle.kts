@@ -59,7 +59,6 @@ android {
         create("beta") {
             dimension = "env"
             applicationIdSuffix = ".beta"
-            versionNameSuffix = "-beta"
             resValue("string", "app_name", "MyBudget Beta")
         }
     }
