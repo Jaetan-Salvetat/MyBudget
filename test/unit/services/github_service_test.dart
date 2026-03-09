@@ -102,5 +102,47 @@ void main() {
       final releases = await service.getReleases();
       expect(releases, isEmpty);
     });
+
+    test('getReleases should strip -beta.N suffix from tag version', () async {
+      const betaDotNJson = '''
+      [
+        {
+          "tag_name": "v1.2.0-beta.3",
+          "name": "Beta 1.2.0-beta.3",
+          "body": "Beta Notes",
+          "published_at": "2023-02-01T00:00:00Z",
+          "prerelease": true,
+          "assets": [
+            {
+              "name": "app-beta.apk",
+              "browser_download_url": "http://beta.apk",
+              "size": 2048
+            }
+          ]
+        }
+      ]
+      ''';
+
+      when(
+        () => mockHttpClient.get(any(), headers: any(named: 'headers')),
+      ).thenAnswer((_) async => http.Response(betaDotNJson, 200));
+
+      final releases = await service.getReleases();
+
+      expect(releases.length, 1);
+      expect(releases[0].version, '1.2.0');
+      expect(releases[0].isPrerelease, true);
+    });
+
+    test('getReleases should strip plain -beta suffix from tag version', () async {
+      when(
+        () => mockHttpClient.get(any(), headers: any(named: 'headers')),
+      ).thenAnswer((_) async => http.Response(successJson, 200));
+
+      final releases = await service.getReleases();
+
+      expect(releases[1].version, '1.2.0');
+      expect(releases[1].isPrerelease, true);
+    });
   });
 }
