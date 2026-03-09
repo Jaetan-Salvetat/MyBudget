@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
-import 'package:mybudget/ui/settings/category_viewmodel.dart';
-import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/ui/settings/widgets/category_form_bottom_sheet.dart';
 
-class CategoriesBottomSheet extends StatelessWidget {
+class CategoriesBottomSheet extends ConsumerWidget {
   const CategoriesBottomSheet({super.key});
 
   static void show({required BuildContext context}) {
@@ -18,24 +18,25 @@ class CategoriesBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categoryState = ref.watch(categoryProvider);
+    final isLoading = categoryState.isLoading;
+    final categories = categoryState.value ?? [];
+
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-        Consumer<CategoryViewModel>(
-          builder: (context, categoryVM, child) {
-            if (categoryVM.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return ListView.separated(
+          if (isLoading)
+            const Center(child: CircularProgressIndicator())
+          else
+            ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: categoryVM.categories.length,
+              itemCount: categories.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                final category = categoryVM.categories[index];
+                final category = categories[index];
                 return FrostedListTile(
                   leading: CircleAvatar(
                     backgroundColor: Color(category.color).withAlpha(0x20),
@@ -47,43 +48,30 @@ class CategoriesBottomSheet extends StatelessWidget {
                   title: Text(category.name),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed:
-                        () => _showDeleteConfirmation(
-                          context,
-                          categoryVM,
-                          category,
-                        ),
+                    onPressed: () => _showDeleteConfirmation(context, ref, category),
                   ),
-                  onTap:
-                      () => _showEditCategoryForm(
-                        context,
-                        categoryVM,
-                        category,
-                      ),
+                  onTap: () => _showEditCategoryForm(context, ref, category),
                 );
               },
-            );
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FrostedFilledButton.icon(
-            onPressed: () => _showAddCategoryForm(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter une catégorie'),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FrostedFilledButton.icon(
+              onPressed: () => _showAddCategoryForm(context, ref),
+              icon: const Icon(Icons.add),
+              label: const Text('Ajouter une catégorie'),
+            ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 
-  void _showAddCategoryForm(BuildContext context) {
-    final categoryVM = Provider.of<CategoryViewModel>(context, listen: false);
+  void _showAddCategoryForm(BuildContext context, WidgetRef ref) {
     CategoryFormBottomSheet.show(
       context: context,
       onSubmit: (name, color, icon) {
-        categoryVM.addCategory(
+        ref.read(categoryProvider.notifier).addCategory(
           CategoryModel.create(name: name, icon: icon, color: color),
         );
       },
@@ -92,25 +80,27 @@ class CategoriesBottomSheet extends StatelessWidget {
 
   void _showEditCategoryForm(
     BuildContext context,
-    CategoryViewModel vm,
+    WidgetRef ref,
     CategoryModel category,
   ) {
     CategoryFormBottomSheet.show(
       context: context,
       initial: category,
       onSubmit: (name, color, icon) {
-        vm.updateCategory(category.copyWith(name: name, color: color, icon: icon));
+        ref.read(categoryProvider.notifier).updateCategory(
+          category.copyWith(name: name, color: color, icon: icon),
+        );
       },
     );
   }
 
   void _showDeleteConfirmation(
     BuildContext context,
-    CategoryViewModel vm,
+    WidgetRef ref,
     CategoryModel category,
   ) {
-    final expenseVM = Provider.of<ExpenseViewModel>(context, listen: false);
-    final linkedExpenses = expenseVM.getExpensesForCategory(category.id);
+    final linkedExpenses =
+        ref.read(expenseProvider.notifier).getExpensesForCategory(category.id);
 
     if (linkedExpenses.isNotEmpty) {
       FrostedDialog.show(
@@ -142,7 +132,7 @@ class CategoriesBottomSheet extends StatelessWidget {
         ),
         FrostedFilledButton(
           onPressed: () {
-            vm.deleteCategory(category.id);
+            ref.read(categoryProvider.notifier).deleteCategory(category.id);
             Navigator.pop(context);
           },
           child: const Text('Supprimer'),

@@ -1,4 +1,4 @@
-import 'package:mybudget/core/domain/loan_payment_breakdown.dart';
+import 'package:mybudget/core/entities/loan_payment_breakdown.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/core/services/loan_calculation_service.dart';

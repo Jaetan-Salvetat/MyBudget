@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/utils/app_utils.dart';
-import 'package:provider/provider.dart';
-import 'package:mybudget/ui/settings/data_viewmodel.dart';
+import 'package:mybudget/ui/settings/data_provider.dart';
 
 class DataManagementDialogs {
   static void showImportConfirmationDialog(
     BuildContext context,
+    WidgetRef ref,
     File file,
-    DataViewModel dataVM,
   ) {
     FrostedDialog.show(
       context: context,
@@ -25,7 +25,7 @@ class DataManagementDialogs {
         FrostedFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
-            showImportProgressDialog(context, file, dataVM);
+            showImportProgressDialog(context, ref, file);
           },
           child: const Text('Importer'),
         ),
@@ -35,14 +35,15 @@ class DataManagementDialogs {
 
   static Future<void> showImportProgressDialog(
     BuildContext context,
+    WidgetRef ref,
     File file,
-    DataViewModel dataVM,
   ) async {
     FrostedDialog.show(
       context: context,
       title: const Text('Importation en cours'),
-      content: Consumer<DataViewModel>(
-        builder: (context, vm, child) {
+      content: Consumer(
+        builder: (context, watchRef, child) {
+          final state = watchRef.watch(dataProvider);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -52,10 +53,10 @@ class DataManagementDialogs {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              FrostedLinearProgressIndicator(value: vm.importProgress),
+              FrostedLinearProgressIndicator(value: state.importProgress),
               const SizedBox(height: 10),
               Text(
-                vm.importStatus,
+                state.importStatus,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
@@ -65,18 +66,19 @@ class DataManagementDialogs {
       ),
     );
 
-    await dataVM.importUserData(context, file);
+    await ref.read(dataProvider.notifier).importUserData(context, file);
 
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
     if (context.mounted) {
-      if (dataVM.error.isNotEmpty) {
+      final error = ref.read(dataProvider).error;
+      if (error.isNotEmpty) {
         FrostedDialog.show(
           context: context,
           title: const Text('Erreur d\'importation'),
-          content: Text(dataVM.error),
+          content: Text(error),
           actions: [
             FrostedTonalButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -105,7 +107,7 @@ class DataManagementDialogs {
 
   static Future<void> showDeleteDataConfirmationDialog(
     BuildContext context,
-    DataViewModel dataVM,
+    WidgetRef ref,
   ) async {
     FrostedDialog.show(
       context: context,
@@ -121,7 +123,7 @@ class DataManagementDialogs {
         FrostedFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
-            showDeleteProgressDialog(context, dataVM);
+            showDeleteProgressDialog(context, ref);
           },
           child: const Text('Supprimer'),
         ),
@@ -131,7 +133,7 @@ class DataManagementDialogs {
 
   static Future<void> showDeleteProgressDialog(
     BuildContext context,
-    DataViewModel dataVM,
+    WidgetRef ref,
   ) async {
     FrostedDialog.show(
       context: context,
@@ -149,18 +151,19 @@ class DataManagementDialogs {
       ),
     );
 
-    await dataVM.deleteAllUserData(context);
+    await ref.read(dataProvider.notifier).deleteAllUserData(context);
 
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
     if (context.mounted) {
-      if (dataVM.error.isNotEmpty) {
+      final error = ref.read(dataProvider).error;
+      if (error.isNotEmpty) {
         FrostedDialog.show(
           context: context,
           title: const Text('Erreur de suppression'),
-          content: Text(dataVM.error),
+          content: Text(error),
           actions: [
             FrostedTonalButton(
               onPressed: () => Navigator.of(context).pop(),

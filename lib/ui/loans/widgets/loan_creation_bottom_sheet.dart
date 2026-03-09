@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/ui/loans/viewmodels/loan_creation_viewmodel.dart';
+import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
-import 'package:provider/provider.dart';
 
-class LoanCreationBottomSheet extends StatelessWidget {
+class LoanCreationBottomSheet extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final Function(LoanModel) onSubmit;
   final VoidCallback onCancel;
@@ -30,8 +30,9 @@ class LoanCreationBottomSheet extends StatelessWidget {
     FrostedBottomSheet.show(
       context: context,
       title: 'Nouvel Emprunt Bancaire',
-      child: ChangeNotifierProvider(
-        create: (_) => LoanCreationViewModel(),
+      child: ProviderScope(
+        // Instance isolée : le state ne pollue pas le scope global
+        overrides: const [loanCreationProvider],
         child: LoanCreationBottomSheet(
           accounts: accounts,
           onSubmit: onSubmit,
@@ -42,65 +43,138 @@ class LoanCreationBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<LoanCreationViewModel>(
-      builder: (context, viewModel, _) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: _buildStepperIndicator(context, viewModel),
-            ),
+  ConsumerState<LoanCreationBottomSheet> createState() =>
+      _LoanCreationBottomSheetState();
+}
 
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0.1, 0),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: KeyedSubtree(
-                      key: ValueKey(viewModel.currentStep),
-                      child: _buildCurrentStep(context, viewModel),
-                    ),
-                  ),
+class _LoanCreationBottomSheetState
+    extends ConsumerState<LoanCreationBottomSheet> {
+  // TextEditingControllers : lifecycle UI → restent dans le widget
+  late final TextEditingController _nameController;
+  late final TextEditingController _lenderController;
+  late final TextEditingController _amountController;
+  late final TextEditingController _durationController;
+  late final TextEditingController _rateController;
+  late final TextEditingController _insuranceValueController;
+  late final TextEditingController _deferredMonthsController;
 
-                  const SizedBox(height: 24),
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _lenderController = TextEditingController();
+    _amountController = TextEditingController();
+    _durationController = TextEditingController();
+    _rateController = TextEditingController();
+    _insuranceValueController = TextEditingController();
+    _deferredMonthsController = TextEditingController();
 
-                  _buildBottomArea(context, viewModel),
-
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+    // Synchronisation controllers → notifier
+    _nameController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setName(_nameController.text),
+    );
+    _lenderController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setLenderName(_lenderController.text),
+    );
+    _amountController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setAmount(_amountController.text),
+    );
+    _durationController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setDurationValue(_durationController.text),
+    );
+    _rateController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setInterestRate(_rateController.text),
+    );
+    _insuranceValueController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setInsuranceValue(_insuranceValueController.text),
+    );
+    _deferredMonthsController.addListener(
+      () => ref
+          .read(loanCreationProvider.notifier)
+          .setDeferredMonths(_deferredMonthsController.text),
     );
   }
 
-  Widget _buildStepperIndicator(
-    BuildContext context,
-    LoanCreationViewModel viewModel,
-  ) {
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _lenderController.dispose();
+    _amountController.dispose();
+    _durationController.dispose();
+    _rateController.dispose();
+    _insuranceValueController.dispose();
+    _deferredMonthsController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(loanCreationProvider);
+    final notifier = ref.read(loanCreationProvider.notifier);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: _buildStepperIndicator(context, state),
+        ),
+
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(state.currentStep),
+                  child: _buildCurrentStep(context, state, notifier),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildBottomArea(context, state, notifier),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepperIndicator(BuildContext context, LoanCreationState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(viewModel.totalSteps, (index) {
-        final isActive = index <= viewModel.currentStep;
+      children: List.generate(state.totalSteps, (index) {
+        final isActive = index <= state.currentStep;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           width: isActive ? 40 : 12,
@@ -120,48 +194,46 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildCurrentStep(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
-    switch (viewModel.currentStep) {
+    switch (state.currentStep) {
       case 0:
         return Column(
           children: [
-            _buildIdentitySection(context, viewModel),
+            _buildIdentitySection(context),
             const SizedBox(height: 16),
-            _buildCapitalSection(context, viewModel),
+            _buildCapitalSection(context, state, notifier),
           ],
         );
       case 1:
-        return _buildConditionsSection(context, viewModel);
+        return _buildConditionsSection(context, state, notifier);
       case 2:
-        return _buildRepaymentTypeSection(context, viewModel);
+        return _buildRepaymentTypeSection(context, state, notifier);
       case 3:
-        return _buildInsuranceSection(context, viewModel);
+        return _buildInsuranceSection(context, state, notifier);
       case 4:
-        return _buildReviewSection(context, viewModel);
+        return _buildReviewSection(context, state);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildIdentitySection(
-    BuildContext context,
-    LoanCreationViewModel viewModel,
-  ) {
+  Widget _buildIdentitySection(BuildContext context) {
     return Column(
       children: [
         FrostedTextField(
           labelText: 'Nom du prêt',
           hintText: 'Ex: Prêt Immo Résidence',
           prefixIcon: const Icon(Icons.description),
-          controller: viewModel.nameController,
+          controller: _nameController,
         ),
         const SizedBox(height: 12),
         FrostedTextField(
           labelText: 'Prêteur (Banque)',
           hintText: 'Ex: Banque Populaire',
           prefixIcon: const Icon(Icons.account_balance),
-          controller: viewModel.lenderController,
+          controller: _lenderController,
         ),
       ],
     );
@@ -169,7 +241,8 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildCapitalSection(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
     return FrostedCard(
       padding: const EdgeInsets.all(16),
@@ -189,21 +262,19 @@ class LoanCreationBottomSheet extends StatelessWidget {
             hintText: '200000',
             prefixIcon: const Icon(Icons.euro),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: viewModel.amountController,
+            controller: _amountController,
           ),
           const SizedBox(height: 12),
           FrostedDropdown<int>(
             value:
-                viewModel.selectedAccountId != -1
-                    ? viewModel.selectedAccountId
-                    : null,
+                state.selectedAccountId != -1 ? state.selectedAccountId : null,
             hint: 'Compte de prélèvement',
             items:
-                accounts.map((acc) {
+                widget.accounts.map((acc) {
                   return DropdownMenuItem(value: acc.id, child: Text(acc.name));
                 }).toList(),
             onChanged: (val) {
-              if (val != null) viewModel.setAccountId(val);
+              if (val != null) notifier.setAccountId(val);
             },
           ),
           const SizedBox(height: 12),
@@ -214,17 +285,17 @@ class LoanCreationBottomSheet extends StatelessWidget {
                   labelText: 'Date de signature',
                   readOnly: true,
                   controller: TextEditingController(
-                    text: DateFormat('dd/MM/yyyy').format(viewModel.startDate),
+                    text: DateFormat('dd/MM/yyyy').format(state.startDate),
                   ),
                   prefixIcon: const Icon(Icons.calendar_today),
                   onTap: () async {
                     final date = await showDatePicker(
                       context: context,
-                      initialDate: viewModel.startDate,
+                      initialDate: state.startDate,
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2050),
                     );
-                    if (date != null) viewModel.setStartDate(date);
+                    if (date != null) notifier.setStartDate(date);
                   },
                 ),
               ),
@@ -234,16 +305,20 @@ class LoanCreationBottomSheet extends StatelessWidget {
                   labelText: 'Jour de prélèvement',
                   readOnly: true,
                   controller: TextEditingController(
-                    text: viewModel.dayOfMonth.toString(),
+                    text: state.dayOfMonth.toString(),
                   ),
                   prefixIcon: const Icon(Icons.event),
                   onTap: () async {
                     final selectedDate = await DateSelector.showDayPicker(
                       context: context,
-                      initialDate: DateTime(DateTime.now().year, DateTime.now().month, viewModel.dayOfMonth),
+                      initialDate: DateTime(
+                        DateTime.now().year,
+                        DateTime.now().month,
+                        state.dayOfMonth,
+                      ),
                     );
                     if (selectedDate != null) {
-                      viewModel.setDayOfMonth(selectedDate.day);
+                      notifier.setDayOfMonth(selectedDate.day);
                     }
                   },
                 ),
@@ -257,7 +332,8 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildConditionsSection(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
     return FrostedCard(
       padding: const EdgeInsets.all(16),
@@ -280,17 +356,17 @@ class LoanCreationBottomSheet extends StatelessWidget {
                   labelText: 'Durée',
                   hintText: '20',
                   keyboardType: TextInputType.number,
-                  controller: viewModel.durationController,
+                  controller: _durationController,
                 ),
               ),
               const SizedBox(width: 8),
               ToggleButtons(
                 isSelected: [
-                  viewModel.durationUnit == DurationUnit.years,
-                  viewModel.durationUnit == DurationUnit.months,
+                  state.durationUnit == DurationUnit.years,
+                  state.durationUnit == DurationUnit.months,
                 ],
                 onPressed: (index) {
-                  viewModel.setDurationUnit(
+                  notifier.setDurationUnit(
                     index == 0 ? DurationUnit.years : DurationUnit.months,
                   );
                 },
@@ -306,7 +382,7 @@ class LoanCreationBottomSheet extends StatelessWidget {
             hintText: '3.5',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             prefixIcon: const Icon(Icons.percent),
-            controller: viewModel.rateController,
+            controller: _rateController,
           ),
         ],
       ),
@@ -315,7 +391,8 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildRepaymentTypeSection(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
     return FrostedCard(
       padding: const EdgeInsets.all(16),
@@ -347,11 +424,11 @@ class LoanCreationBottomSheet extends StatelessWidget {
           const SizedBox(height: 16),
           ToggleButtons(
             isSelected: [
-              viewModel.repaymentType == LoanRepaymentType.amortizable,
-              viewModel.repaymentType == LoanRepaymentType.inFine,
+              state.repaymentType == LoanRepaymentType.amortizable,
+              state.repaymentType == LoanRepaymentType.inFine,
             ],
             onPressed: (index) {
-              viewModel.setRepaymentType(LoanRepaymentType.values[index]);
+              notifier.setRepaymentType(LoanRepaymentType.values[index]);
             },
             borderRadius: BorderRadius.circular(8),
             children: const [
@@ -382,7 +459,7 @@ class LoanCreationBottomSheet extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    viewModel.repaymentType == LoanRepaymentType.amortizable
+                    state.repaymentType == LoanRepaymentType.amortizable
                         ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
                         : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
                     style: TextStyle(
@@ -419,19 +496,19 @@ class LoanCreationBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           CheckboxListTile(
-            value: viewModel.hasDeferredPeriod,
-            onChanged: (_) => viewModel.toggleDeferredPeriod(),
+            value: state.hasDeferredPeriod,
+            onChanged: (_) => notifier.toggleDeferredPeriod(),
             title: const Text('Ce prêt a une période de différé (ex: PTZ)'),
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
           ),
-          if (viewModel.hasDeferredPeriod) ...[
+          if (state.hasDeferredPeriod) ...[
             const SizedBox(height: 12),
             FrostedTextField(
               labelText: 'Durée du différé (en mois)',
               hintText: 'Ex: 24',
               keyboardType: TextInputType.number,
-              controller: viewModel.deferredMonthsController,
+              controller: _deferredMonthsController,
               prefixIcon: const Icon(Icons.schedule),
             ),
           ],
@@ -592,7 +669,8 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildInsuranceSection(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
     return FrostedCard(
       padding: const EdgeInsets.all(16),
@@ -611,12 +689,12 @@ class LoanCreationBottomSheet extends StatelessWidget {
             builder: (context, constraints) {
               return ToggleButtons(
                 isSelected: [
-                  viewModel.insuranceType == LoanInsuranceType.fixed,
-                  viewModel.insuranceType == LoanInsuranceType.percentage,
-                  viewModel.insuranceType == LoanInsuranceType.none,
+                  state.insuranceType == LoanInsuranceType.fixed,
+                  state.insuranceType == LoanInsuranceType.percentage,
+                  state.insuranceType == LoanInsuranceType.none,
                 ],
                 onPressed: (index) {
-                  viewModel.setInsuranceType(LoanInsuranceType.values[index]);
+                  notifier.setInsuranceType(LoanInsuranceType.values[index]);
                 },
                 borderRadius: BorderRadius.circular(8),
                 constraints: BoxConstraints.expand(
@@ -631,28 +709,28 @@ class LoanCreationBottomSheet extends StatelessWidget {
               );
             },
           ),
-          if (viewModel.insuranceType != LoanInsuranceType.none) ...[
+          if (state.insuranceType != LoanInsuranceType.none) ...[
             const SizedBox(height: 12),
             FrostedTextField(
               labelText:
-                  viewModel.insuranceType == LoanInsuranceType.fixed
+                  state.insuranceType == LoanInsuranceType.fixed
                       ? 'Montant mensuel'
                       : 'Taux annuel',
               hintText:
-                  viewModel.insuranceType == LoanInsuranceType.fixed
+                  state.insuranceType == LoanInsuranceType.fixed
                       ? '35.00'
                       : '0.36',
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              controller: viewModel.insuranceValueController,
+              controller: _insuranceValueController,
             ),
-            if (viewModel.insuranceType == LoanInsuranceType.percentage &&
-                viewModel.amount > 0)
+            if (state.insuranceType == LoanInsuranceType.percentage &&
+                state.amount > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, left: 4),
                 child: Text(
-                  'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(viewModel.monthlyInsurancePayment)} / mois',
+                  'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.secondary,
@@ -666,14 +744,11 @@ class LoanCreationBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewSection(
-    BuildContext context,
-    LoanCreationViewModel viewModel,
-  ) {
+  Widget _buildReviewSection(BuildContext context, LoanCreationState state) {
     final accountName =
-        accounts
+        widget.accounts
             .firstWhere(
-              (a) => a.id == viewModel.selectedAccountId,
+              (a) => a.id == state.selectedAccountId,
               orElse: () => AccountModel.create(name: 'Inconnu', bank: ''),
             )
             .name;
@@ -693,9 +768,9 @@ class LoanCreationBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildSummaryRow(context, 'Nom', viewModel.name),
+              _buildSummaryRow(context, 'Nom', state.name),
               const Divider(height: 24),
-              _buildSummaryRow(context, 'Banque', viewModel.lenderName),
+              _buildSummaryRow(context, 'Banque', state.lenderName),
               const Divider(height: 24),
               _buildSummaryRow(
                 context,
@@ -703,7 +778,7 @@ class LoanCreationBottomSheet extends StatelessWidget {
                 NumberFormat.currency(
                   symbol: '€',
                   locale: 'fr_FR',
-                ).format(viewModel.amount),
+                ).format(state.amount),
               ),
               const Divider(height: 24),
               _buildSummaryRow(context, 'Compte', accountName),
@@ -711,17 +786,17 @@ class LoanCreationBottomSheet extends StatelessWidget {
               _buildSummaryRow(
                 context,
                 'Durée',
-                '${viewModel.durationValue} ${viewModel.durationUnit == DurationUnit.years ? "Ans" : "Mois"}',
+                '${state.durationValue} ${state.durationUnit == DurationUnit.years ? "Ans" : "Mois"}',
               ),
               const Divider(height: 24),
-              _buildSummaryRow(context, 'Taux', '${viewModel.interestRate} %'),
+              _buildSummaryRow(context, 'Taux', '${state.interestRate} %'),
               const Divider(height: 24),
               _buildSummaryRow(
                 context,
                 'Assurance',
-                viewModel.insuranceType == LoanInsuranceType.none
+                state.insuranceType == LoanInsuranceType.none
                     ? 'Aucune'
-                    : '${viewModel.insuranceValue} ${viewModel.insuranceType == LoanInsuranceType.fixed ? "€" : "%"}',
+                    : '${state.insuranceValue} ${state.insuranceType == LoanInsuranceType.fixed ? "€" : "%"}',
               ),
             ],
           ),
@@ -753,29 +828,30 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
   Widget _buildBottomArea(
     BuildContext context,
-    LoanCreationViewModel viewModel,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
   ) {
-    final isLastStep = viewModel.currentStep == viewModel.totalSteps - 1;
+    final isLastStep = state.currentStep == state.totalSteps - 1;
 
     final bool showMagicCard =
-        viewModel.currentStep == 0
-            ? viewModel.totalMonthlyPayment > 0
-            : viewModel.amount > 0;
+        state.currentStep == 0
+            ? state.totalMonthlyPayment > 0
+            : state.amount > 0;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (showMagicCard) ...[
-          _buildMagicCard(context, viewModel),
+          _buildMagicCard(context, state),
           const SizedBox(height: 16),
         ],
 
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            if (viewModel.currentStep > 0)
+            if (state.currentStep > 0)
               FrostedTextButton(
-                onPressed: viewModel.previousStep,
+                onPressed: notifier.previousStep,
                 child: const Text('Précédent'),
               )
             else
@@ -783,15 +859,15 @@ class LoanCreationBottomSheet extends StatelessWidget {
 
             if (!isLastStep)
               FrostedFilledButton(
-                onPressed: viewModel.canGoNext ? viewModel.nextStep : null,
+                onPressed: state.canGoNext ? notifier.nextStep : null,
                 child: const Text('Suivant'),
               )
             else
               FrostedFilledButton(
                 onPressed:
-                    viewModel.isValid
+                    state.isValid
                         ? () {
-                          onSubmit(viewModel.createLoanModel());
+                          widget.onSubmit(notifier.createLoanModel());
                           Navigator.pop(context);
                         }
                         : null,
@@ -803,10 +879,7 @@ class LoanCreationBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildMagicCard(
-    BuildContext context,
-    LoanCreationViewModel viewModel,
-  ) {
+  Widget _buildMagicCard(BuildContext context, LoanCreationState state) {
     return FrostedCard(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -822,15 +895,15 @@ class LoanCreationBottomSheet extends StatelessWidget {
             NumberFormat.currency(
               symbol: '€',
               locale: 'fr_FR',
-            ).format(viewModel.totalMonthlyPayment),
+            ).format(state.totalMonthlyPayment),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          if (viewModel.insuranceType != LoanInsuranceType.none)
+          if (state.insuranceType != LoanInsuranceType.none)
             Text(
-              'dont assurance: ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(viewModel.monthlyInsurancePayment)}',
+              'dont assurance: ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

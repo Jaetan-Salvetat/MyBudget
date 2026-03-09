@@ -1,4 +1,4 @@
-import 'package:mybudget/core/domain/loan.dart';
+import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/services/loan_calculation_service.dart';
 import 'package:mybudget/core/services/loan_payment_breakdown_service.dart';
 import 'package:mybudget/models/loan_model.dart';

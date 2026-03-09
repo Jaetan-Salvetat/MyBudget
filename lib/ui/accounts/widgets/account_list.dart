@@ -1,61 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 
-class AccountList extends StatelessWidget {
+class AccountList extends ConsumerWidget {
   const AccountList({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<AccountViewModel>(
-      builder: (context, accountViewModel, child) {
-        if (accountViewModel.isLoading) {
-          return const Center(child: FrostedCircularProgressIndicator());
-        }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accountState = ref.watch(accountProvider);
+    final isLoading = accountState.isLoading;
+    final accounts = accountState.value ?? [];
 
-        if (accountViewModel.accounts.isEmpty) {
-          return Center(
-            child: EmptyState(
-              message: 'Aucun compte',
-              subMessage: 'Ajoutez un compte pour commencer',
-              icon: Icons.account_balance_wallet_outlined,
-              buttonText: 'Ajouter un compte',
-              onPressed: () => _showAddAccountDialog(context),
-            ),
-          );
-        }
+    if (isLoading) {
+      return const Center(child: FrostedCircularProgressIndicator());
+    }
 
-        return ListView.builder(
-          padding: const EdgeInsets.only(
-            top: 120,
-            bottom: 145,
-            left: 16,
-            right: 16,
-          ),
-          itemCount: accountViewModel.accounts.length,
-          itemBuilder: (context, index) {
-            final account = accountViewModel.accounts[index];
-            final balance = accountViewModel.getAccountBalance(account.id);
+    if (accounts.isEmpty) {
+      return Center(
+        child: EmptyState(
+          message: 'Aucun compte',
+          subMessage: 'Ajoutez un compte pour commencer',
+          icon: Icons.account_balance_wallet_outlined,
+          buttonText: 'Ajouter un compte',
+          onPressed: () => _showAddAccountDialog(context, ref),
+        ),
+      );
+    }
 
-            return AccountCard(
-              account: account,
-              balance: balance,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => AccountDetailsScreen(account: account),
-                    settings: RouteSettings(arguments: account),
-                  ),
-                );
-              },
+    return ListView.builder(
+      padding: const EdgeInsets.only(
+        top: 120,
+        bottom: 145,
+        left: 16,
+        right: 16,
+      ),
+      itemCount: accounts.length,
+      itemBuilder: (context, index) {
+        final account = accounts[index];
+        final balance = ref.read(accountProvider.notifier).getAccountBalance(account.id);
+
+        return AccountCard(
+          account: account,
+          balance: balance,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AccountDetailsScreen(account: account),
+                settings: RouteSettings(arguments: account),
+              ),
             );
           },
         );
@@ -63,19 +62,14 @@ class AccountList extends StatelessWidget {
     );
   }
 
-  void _showAddAccountDialog(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(
-      context,
-      listen: false,
-    );
-
+  void _showAddAccountDialog(BuildContext context, WidgetRef ref) {
     AccountBottomSheet.show(
       context: context,
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
         final account = AccountModel.create(name: name, bank: bank);
-        accountViewModel.addAccount(account);
+        ref.read(accountProvider.notifier).addAccount(account);
       },
       onCancel: () {},
     );

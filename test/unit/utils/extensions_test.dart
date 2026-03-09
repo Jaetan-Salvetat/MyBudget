@@ -12,5 +12,20 @@ void main() {
       final date = DateTime(2023, 11, 15);
       expect(date.toFormattedString(), '15/11/2023');
     });
+
+    test('toFormattedString pads single-digit day and month correctly', () {
+      final date = DateTime(2025, 3, 1); // jour=1, mois=3
+      expect(date.toFormattedString(), '01/03/2025');
+    });
+
+    test('toFormattedString handles February 29 in a leap year', () {
+      final date = DateTime(2024, 2, 29); // 2024 est bissextile
+      expect(date.toFormattedString(), '29/02/2024');
+    });
+
+    test('toFormattedString handles December 31', () {
+      final date = DateTime(2023, 12, 31);
+      expect(date.toFormattedString(), '31/12/2023');
+    });
   });
 }

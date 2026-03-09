@@ -1,52 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
-import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
 
-class UpcomingPaymentsCard extends StatelessWidget {
+class UpcomingPaymentsCard extends ConsumerWidget {
   final NumberFormat formatter;
 
   const UpcomingPaymentsCard({required this.formatter, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<ExpenseViewModel>(
-      builder: (context, expenseViewModel, child) {
-        final upcomingExpenses = expenseViewModel.getUpcomingExpenses();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expenseNotifier = ref.watch(expenseProvider.notifier);
+    final upcomingExpenses = expenseNotifier.getUpcomingExpenses();
 
-        if (upcomingExpenses.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Center(child: Text('Aucun paiement prévu')),
+    if (upcomingExpenses.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Center(child: Text('Aucun paiement prévu')),
+      );
+    }
+
+    return SizedBox(
+      height: 140,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: upcomingExpenses.length,
+        itemBuilder: (context, index) {
+          final expense = upcomingExpenses[index];
+          return HorizontalPaymentCard(
+            expense: expense,
+            formatter: formatter,
+            index: index,
           );
-        }
-
-        return SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: upcomingExpenses.length,
-            itemBuilder: (context, index) {
-              final expense = upcomingExpenses[index];
-              return HorizontalPaymentCard(
-                expense: expense,
-                formatter: formatter,
-                index: index,
-              );
-            },
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 }
 
-class HorizontalPaymentCard extends StatelessWidget {
+class HorizontalPaymentCard extends ConsumerWidget {
   final ExpenseModel expense;
   final NumberFormat formatter;
   final int index;
@@ -59,18 +56,15 @@ class HorizontalPaymentCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final categoryViewModel = Provider.of<CategoryViewModel>(
-      context,
-      listen: false,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categories = ref.read(categoryProvider).value ?? [];
     final categoryName =
-        categoryViewModel.categories.isEmpty
+        categories.isEmpty
             ? '...'
-            : categoryViewModel.categories
+            : categories
                 .firstWhere(
                   (cat) => cat.id == expense.categoryId,
-                  orElse: () => categoryViewModel.categories.first,
+                  orElse: () => categories.first,
                 )
                 .name;
 
@@ -94,8 +88,8 @@ class HorizontalPaymentCard extends StatelessWidget {
       borderRadius: 16,
       padding: const EdgeInsets.all(12),
       child: SizedBox(
-        width: 136, // 160 - 24 (padding)
-        height: 116, // 140 - 24 (padding)
+        width: 136,
+        height: 116,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

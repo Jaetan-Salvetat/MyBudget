@@ -6,29 +6,29 @@ import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
-import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
-import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
-import 'package:mybudget/ui/loans/loans_viewmodel.dart';
-import 'package:mybudget/ui/settings/category_viewmodel.dart';
-import 'package:mybudget/ui/settings/update_viewmodel.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
 
   const HomeScreen({this.initialIndex = 0, super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   late int _selectedIndex;
   late String _currentTitle;
 
@@ -39,10 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _currentTitle = _getTitleForIndex(_selectedIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UpdateViewModel>(
-        context,
-        listen: false,
-      ).checkForUpdates(context, silent: true);
+      ref.read(updateProvider.notifier).checkForUpdates(context, silent: true);
     });
   }
 
@@ -166,49 +163,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAddAccountDialog(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(
-      context,
-      listen: false,
-    );
-
     AccountBottomSheet.show(
       context: context,
       onSubmit: (name, bank) {
         if (name.isEmpty || bank.isEmpty) return;
 
         final account = AccountModel.create(name: name, bank: bank);
-        accountViewModel.addAccount(account);
+        ref.read(accountProvider.notifier).addAccount(account);
       },
       onCancel: () {},
     );
   }
 
   void _showAddExpenseBottomSheet(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(
-      context,
-      listen: false,
-    );
-    final expenseViewModel = Provider.of<ExpenseViewModel>(
-      context,
-      listen: false,
-    );
-    final categoryViewModel = Provider.of<CategoryViewModel>(
-      context,
-      listen: false,
-    );
+    final accounts = ref.read(accountProvider).value ?? [];
 
-    if (accountViewModel.accounts.isEmpty) {
+    if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'une dépense');
       return;
     }
 
     ExpenseBottomSheet.show(
       context: context,
-      accounts: accountViewModel.accounts,
-      categories: categoryViewModel.categories,
+      accounts: accounts,
+      categories: ref.read(categoryProvider).value ?? [],
       onSubmit: (expense) async {
         try {
-          await expenseViewModel.addExpense(expense);
+          await ref.read(expenseProvider.notifier).addExpense(expense);
         } catch (e) {
           if (context.mounted) {
             FrostedSnackbar.show(
@@ -223,47 +204,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAddRevenueBottomSheet(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(
-      context,
-      listen: false,
-    );
-    final revenueViewModel = Provider.of<RevenueViewModel>(
-      context,
-      listen: false,
-    );
+    final accounts = ref.read(accountProvider).value ?? [];
 
-    if (accountViewModel.accounts.isEmpty) {
+    if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un revenu');
       return;
     }
 
     RevenueBottomSheet.show(
       context: context,
-      accounts: accountViewModel.accounts,
+      accounts: accounts,
       onSubmit: (revenue) {
-        revenueViewModel.addRevenue(revenue);
+        ref.read(revenueProvider.notifier).addRevenue(revenue);
       },
       onCancel: () {},
     );
   }
 
   void _showAddLoanBottomSheet(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(
-      context,
-      listen: false,
-    );
-    final loanViewModel = Provider.of<LoanViewModel>(context, listen: false);
+    final accounts = ref.read(accountProvider).value ?? [];
 
-    if (accountViewModel.accounts.isEmpty) {
+    if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un emprunt');
       return;
     }
 
     LoanCreationBottomSheet.show(
       context: context,
-      accounts: accountViewModel.accounts,
+      accounts: accounts,
       onSubmit: (loan) {
-        loanViewModel.addLoan(loan);
+        ref.read(loanProvider.notifier).addLoan(loan);
       },
       onCancel: () {},
     );
