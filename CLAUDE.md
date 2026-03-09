@@ -1,16 +1,20 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Coding Rules
+
+- **NEVER** use `--delete-conflicting-outputs` with `flutter pub run build_runner build`
+- **NEVER** add comments to code (no `//`, no `///`, no `/* */`)
+- **Keep CLAUDE.md as concise as possible** — no verbose explanations, only essential information
 
 ## Project Overview
 
 MyBudget is a local-first personal finance management Flutter application. It uses ObjectBox for local data storage and follows an MVVM architecture with **Riverpod 3** for state management. The app features a "Glassmorphism" (Frosted UI) design system.
 
-**Important concept**: MyBudget is a **static budget** app. It only tracks fixed, predictable income and expenses (rent, subscriptions, salary, loans, etc.). Variable/punctual spending (groceries, restaurants, impulse purchases) is intentionally out of scope. The goal is to give a clear picture of recurring financial commitments, not to track every transaction.
+**Static budget app**: only tracks fixed, predictable income/expenses (rent, subscriptions, salary, loans). Variable spending is out of scope.
 
 **Language**: French (fr_FR locale)
 **Flutter SDK**: ^3.7.2
-**Current version**: 0.3.4+21
+**Current version**: 0.4.0+22
 
 ## Common Commands
 
@@ -32,7 +36,7 @@ flutter test test/unit/providers/expense_provider_test.dart
 flutter analyze
 
 # Generate Riverpod + ObjectBox code (after model or provider changes)
-flutter pub run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner build
 ```
 
 ### Building
@@ -65,7 +69,6 @@ The app follows a clear separation of concerns:
 3. **Entities** (`lib/core/entities/`): Facade pattern over models with computed logic
    - `Loan`: wraps `LoanModel` + calculation services, exposes computed properties
    - `LoanPaymentBreakdown`: immutable value object for payment decomposition
-   - **Note**: to be renamed `lib/core/entities/` (tracked in backlog)
 
 4. **Providers** (`lib/ui/*/`): Riverpod `AsyncNotifier` or `Notifier` classes
    - Named `*Notifier` (e.g. `ExpenseNotifier`, `LoanNotifier`)
@@ -88,7 +91,7 @@ All dependencies are wired via Riverpod providers in `lib/core/providers/provide
 
 **Riverpod generation**: After adding/modifying a `@riverpod` annotated class or function, run:
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner build
 ```
 
 ### Data Flow
@@ -272,13 +275,24 @@ Models have built-in validators called in Notifier add/update methods:
 
 ### Data Import/Export
 
+Architecture in 3 layers:
+
+- **Pure services** (`lib/core/services/data/`):
+  - `DataImportService`: validates JSON (`validate()`) THEN executes import (`execute()`) with ID remapping. Receives 6 repositories via constructor. No Riverpod, no BuildContext.
+  - `DataExportService`: builds JSON export map (`buildExportData()`) from all repositories. Uses `toJson()` on all models (including loans in camelCase).
+  - `ImportReport` / `ImportEntityReport`: value objects with per-entity counters (total, imported, skipped, errors).
+  - `ImportValidationResult`: parsed entities with old IDs preserved for remapping.
+
 - **DataNotifier** ([lib/ui/settings/data_provider.dart](lib/ui/settings/data_provider.dart)):
-  - Exports all data (accounts, expenses, revenues, loans, categories, beneficiaries) to JSON
-  - Imports data from JSON backup files with ID remapping for orphaned records
-  - Uses `share_plus` for sharing backup files
-  - Uses `file_picker` for selecting import files
-  - State fields: `isExporting`, `isImporting`, `isDeleting`, `importProgress`, `importStatus`, `error`
-  - **⚠️ Known issue**: Import is not transactional — if it fails mid-way, DB can be left in partial state. Refactor planned.
+  - Thin orchestrator: delegates to services, manages state transitions.
+  - `exportUserData()` → returns temp file path (no BuildContext).
+  - `importUserData(String jsonContent)` → validate-then-execute, sets `importReport` in state.
+  - `deleteAllUserData()` → deletes all repos + clears preferences (no BuildContext).
+  - State fields: `isExporting`, `isImporting`, `isDeleting`, `importProgress`, `importStatus`, `error`, `importReport`.
+
+- **UI** (`data_section.dart`, `data_management_dialogs.dart`):
+  - File I/O (`file_picker`, `share_plus`) handled at UI layer.
+  - `showImportReportDialog()` displays per-entity import results with icons and counters.
 
 ### Auto-Update System
 
@@ -321,7 +335,7 @@ Uses `restart_app` package via `RestartWidget` wrapper in main.dart. Called afte
 ### Adding a New Feature with ObjectBox
 
 1. Create model in `lib/models/` with `@Entity()` annotation + `toJson()`/`fromJson()`
-2. Run `flutter pub run build_runner build --delete-conflicting-outputs`
+2. Run `flutter pub run build_runner build`
 3. Add box to `ObjectBoxService` (in `_init()` method)
 4. Create repository in `lib/core/repositories/`
 5. Create `*_provider.dart` in `lib/ui/<feature>/` with `@Riverpod(keepAlive: true)` annotation
@@ -415,10 +429,10 @@ test/
 - `SharedPreferences.setMockInitialValues({})` + `await PreferencesService.init()` in `setUp` when testing providers that depend on preferences
 - Use `addTearDown(container.dispose)` to clean up containers
 
-**Test coverage (158 tests passing):**
+**Test coverage (189 tests passing):**
 - Providers: expense, account, loan, loan_creation, loan_edit, category, revenues, data, update, dashboard, theme, beneficiary
-- Models: account, expense, revenue, category
-- Services: loan_calculation, loan_payment_breakdown, github, preferences
+- Models: account, expense, revenue, category, loan
+- Services: loan_calculation, loan_payment_breakdown, github, preferences, data_import, data_export
 - Utils: extensions (DateExtension)
 - Widgets: loan_summary_card, appearance_section, category_summary_card
 
@@ -429,7 +443,6 @@ Known issues and planned refactors (do not implement without explicit instructio
 | Priority | Item | Description |
 |---|---|---|
 | Low | UI data layer | Create display data classes (`ExpenseDisplayData`, etc.) to decouple UI from ObjectBox models |
-| Low | Import transactional | Refactor `DataNotifier.importUserData()` into a dedicated `ImportService` with validate-first, then delete+insert |
 | Low | Error handling | Add `try-catch` + error state in all Notifiers, display errors in UI |
 
 ## Build Flavors

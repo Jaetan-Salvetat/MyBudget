@@ -10,12 +10,12 @@ part of 'beneficiary_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(BeneficiaryNotifier)
-const beneficiaryProvider = BeneficiaryNotifierProvider._();
+final beneficiaryProvider = BeneficiaryNotifierProvider._();
 
 final class BeneficiaryNotifierProvider
     extends
         $AsyncNotifierProvider<BeneficiaryNotifier, List<BeneficiaryModel>> {
-  const BeneficiaryNotifierProvider._()
+  BeneficiaryNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -43,7 +43,6 @@ abstract class _$BeneficiaryNotifier
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<AsyncValue<List<BeneficiaryModel>>, List<BeneficiaryModel>>;
@@ -58,6 +57,6 @@ abstract class _$BeneficiaryNotifier
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

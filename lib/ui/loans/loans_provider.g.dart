@@ -10,11 +10,11 @@ part of 'loans_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(LoanNotifier)
-const loanProvider = LoanNotifierProvider._();
+final loanProvider = LoanNotifierProvider._();
 
 final class LoanNotifierProvider
     extends $AsyncNotifierProvider<LoanNotifier, List<Loan>> {
-  const LoanNotifierProvider._()
+  LoanNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -40,7 +40,6 @@ abstract class _$LoanNotifier extends $AsyncNotifier<List<Loan>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<AsyncValue<List<Loan>>, List<Loan>>;
     final element =
         ref.element
@@ -50,6 +49,6 @@ abstract class _$LoanNotifier extends $AsyncNotifier<List<Loan>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

@@ -10,11 +10,11 @@ part of 'revenues_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(RevenueNotifier)
-const revenueProvider = RevenueNotifierProvider._();
+final revenueProvider = RevenueNotifierProvider._();
 
 final class RevenueNotifierProvider
     extends $AsyncNotifierProvider<RevenueNotifier, List<RevenueModel>> {
-  const RevenueNotifierProvider._()
+  RevenueNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -40,7 +40,6 @@ abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<AsyncValue<List<RevenueModel>>, List<RevenueModel>>;
     final element =
@@ -51,6 +50,6 @@ abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

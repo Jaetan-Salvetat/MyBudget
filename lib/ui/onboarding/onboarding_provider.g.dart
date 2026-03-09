@@ -10,11 +10,11 @@ part of 'onboarding_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(OnboardingNotifier)
-const onboardingProvider = OnboardingNotifierProvider._();
+final onboardingProvider = OnboardingNotifierProvider._();
 
 final class OnboardingNotifierProvider
     extends $NotifierProvider<OnboardingNotifier, int> {
-  const OnboardingNotifierProvider._()
+  OnboardingNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,6 @@ abstract class _$OnboardingNotifier extends $Notifier<int> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -59,6 +58,6 @@ abstract class _$OnboardingNotifier extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

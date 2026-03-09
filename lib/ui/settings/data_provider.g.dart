@@ -10,11 +10,11 @@ part of 'data_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(DataNotifier)
-const dataProvider = DataNotifierProvider._();
+final dataProvider = DataNotifierProvider._();
 
 final class DataNotifierProvider
     extends $NotifierProvider<DataNotifier, DataState> {
-  const DataNotifierProvider._()
+  DataNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -41,14 +41,13 @@ final class DataNotifierProvider
   }
 }
 
-String _$dataNotifierHash() => r'f071ac25cc5e00b1a98711bd5d7fc2ea63abc63a';
+String _$dataNotifierHash() => r'03b5a68b9314d0c6418b21a15624a22165d5c6c8';
 
 abstract class _$DataNotifier extends $Notifier<DataState> {
   DataState build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<DataState, DataState>;
     final element =
         ref.element
@@ -58,6 +57,6 @@ abstract class _$DataNotifier extends $Notifier<DataState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

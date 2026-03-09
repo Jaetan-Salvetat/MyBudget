@@ -10,7 +10,7 @@ part of 'providers.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(objectBoxService)
-const objectBoxServiceProvider = ObjectBoxServiceProvider._();
+final objectBoxServiceProvider = ObjectBoxServiceProvider._();
 
 final class ObjectBoxServiceProvider
     extends
@@ -20,7 +20,7 @@ final class ObjectBoxServiceProvider
           FutureOr<ObjectBoxService>
         >
     with $FutureModifier<ObjectBoxService>, $FutureProvider<ObjectBoxService> {
-  const ObjectBoxServiceProvider._()
+  ObjectBoxServiceProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,7 @@ final class ObjectBoxServiceProvider
 String _$objectBoxServiceHash() => r'02c6f5f49e110b24ad5cbc0ccc9331e0dad3f814';
 
 @ProviderFor(accountRepository)
-const accountRepositoryProvider = AccountRepositoryProvider._();
+final accountRepositoryProvider = AccountRepositoryProvider._();
 
 final class AccountRepositoryProvider
     extends
@@ -59,7 +59,7 @@ final class AccountRepositoryProvider
           AccountRepository
         >
     with $Provider<AccountRepository> {
-  const AccountRepositoryProvider._()
+  AccountRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -96,7 +96,7 @@ final class AccountRepositoryProvider
 String _$accountRepositoryHash() => r'63b065ec16a192a4ae078c58e726ed28f174b2de';
 
 @ProviderFor(beneficiaryRepository)
-const beneficiaryRepositoryProvider = BeneficiaryRepositoryProvider._();
+final beneficiaryRepositoryProvider = BeneficiaryRepositoryProvider._();
 
 final class BeneficiaryRepositoryProvider
     extends
@@ -106,7 +106,7 @@ final class BeneficiaryRepositoryProvider
           BeneficiaryRepository
         >
     with $Provider<BeneficiaryRepository> {
-  const BeneficiaryRepositoryProvider._()
+  BeneficiaryRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -144,7 +144,7 @@ String _$beneficiaryRepositoryHash() =>
     r'c7f601c1abdf47a60f7bdf62c2e89ea966b28fe0';
 
 @ProviderFor(categoryRepository)
-const categoryRepositoryProvider = CategoryRepositoryProvider._();
+final categoryRepositoryProvider = CategoryRepositoryProvider._();
 
 final class CategoryRepositoryProvider
     extends
@@ -154,7 +154,7 @@ final class CategoryRepositoryProvider
           CategoryRepository
         >
     with $Provider<CategoryRepository> {
-  const CategoryRepositoryProvider._()
+  CategoryRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -192,7 +192,7 @@ String _$categoryRepositoryHash() =>
     r'520072a0b7216b5e18728f428809e101a499d4d2';
 
 @ProviderFor(expenseRepository)
-const expenseRepositoryProvider = ExpenseRepositoryProvider._();
+final expenseRepositoryProvider = ExpenseRepositoryProvider._();
 
 final class ExpenseRepositoryProvider
     extends
@@ -202,7 +202,7 @@ final class ExpenseRepositoryProvider
           ExpenseRepository
         >
     with $Provider<ExpenseRepository> {
-  const ExpenseRepositoryProvider._()
+  ExpenseRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -239,12 +239,12 @@ final class ExpenseRepositoryProvider
 String _$expenseRepositoryHash() => r'9cf59d1df834988cced608c6293d6d64c8c0fafb';
 
 @ProviderFor(loanRepository)
-const loanRepositoryProvider = LoanRepositoryProvider._();
+final loanRepositoryProvider = LoanRepositoryProvider._();
 
 final class LoanRepositoryProvider
     extends $FunctionalProvider<LoanRepository, LoanRepository, LoanRepository>
     with $Provider<LoanRepository> {
-  const LoanRepositoryProvider._()
+  LoanRepositoryProvider._()
     : super(
         from: null,
         argument: null,
@@ -280,7 +280,7 @@ final class LoanRepositoryProvider
 String _$loanRepositoryHash() => r'8e3e72a88bc102b9368b7fa1ed1db9b60d8f6131';
 
 @ProviderFor(revenueRepository)
-const revenueRepositoryProvider = RevenueRepositoryProvider._();
+final revenueRepositoryProvider = RevenueRepositoryProvider._();
 
 final class RevenueRepositoryProvider
     extends
@@ -290,7 +290,7 @@ final class RevenueRepositoryProvider
           RevenueRepository
         >
     with $Provider<RevenueRepository> {
-  const RevenueRepositoryProvider._()
+  RevenueRepositoryProvider._()
     : super(
         from: null,
         argument: null,

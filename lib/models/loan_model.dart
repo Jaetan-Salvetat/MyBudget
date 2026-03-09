@@ -163,6 +163,72 @@ class LoanModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id.toString(),
+      'name': name,
+      'amount': amount,
+      'accountId': accountId.toString(),
+      'lenderName': lenderName,
+      'dayOfMonth': dayOfMonth,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'interestRate': interestRate,
+      'duration': duration,
+      'repaymentTypeId': repaymentTypeId,
+      'deferredMonths': deferredMonths,
+      'insuranceTypeId': insuranceTypeId,
+      'insuranceValue': insuranceValue,
+      'insuranceCalculationModeId': insuranceCalculationModeId,
+      'notes': notes,
+    };
+  }
+
+  factory LoanModel.fromJson(Map<String, dynamic> json) {
+    // Supporte camelCase (nouveau) ET snake_case (legacy backups)
+    dynamic resolve(String camelKey, String snakeKey) {
+      return json[camelKey] ?? json[snakeKey];
+    }
+
+    return LoanModel(
+      id: json['id'] != null ? int.parse(json['id'].toString()) : 0,
+      name: (resolve('name', 'name') as String?) ?? '',
+      amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
+      accountId: int.parse(
+        (resolve('accountId', 'account_id') ?? '0').toString(),
+      ),
+      lenderName:
+          (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
+      dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,
+      startDate: DateTime.tryParse(
+            (resolve('startDate', 'start_date') ?? '').toString(),
+          ) ??
+          DateTime.now(),
+      endDate: DateTime.tryParse(
+            (resolve('endDate', 'end_date') ?? '').toString(),
+          ) ??
+          DateTime.now().add(const Duration(days: 365)),
+      interestRate:
+          (resolve('interestRate', 'interest_rate') as num?)?.toDouble() ?? 0.0,
+      duration: (resolve('duration', 'duration') as int?) ?? 0,
+      repaymentTypeId: (resolve('repaymentTypeId', 'repayment_type_id')
+              as String?) ??
+          'amortizable',
+      deferredMonths:
+          (resolve('deferredMonths', 'deferred_months') as int?) ?? 0,
+      insuranceTypeId:
+          (resolve('insuranceTypeId', 'insurance_type_id') as String?) ??
+              'none',
+      insuranceValue:
+          (resolve('insuranceValue', 'insurance_value') as num?)?.toDouble() ??
+              0.0,
+      insuranceCalculationModeId: (resolve('insuranceCalculationModeId',
+              'insurance_calculation_mode_id') as String?) ??
+          'initialCapital',
+      notes: json['notes'] as String?,
+    );
+  }
+
   /// Copie avec modifications
   LoanModel copyWith({
     String? name,

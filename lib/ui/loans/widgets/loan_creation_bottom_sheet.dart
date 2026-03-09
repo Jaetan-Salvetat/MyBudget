@@ -32,7 +32,7 @@ class LoanCreationBottomSheet extends ConsumerStatefulWidget {
       title: 'Nouvel Emprunt Bancaire',
       child: ProviderScope(
         // Instance isolée : le state ne pollue pas le scope global
-        overrides: const [loanCreationProvider],
+        overrides: [loanCreationProvider],
         child: LoanCreationBottomSheet(
           accounts: accounts,
           onSubmit: onSubmit,

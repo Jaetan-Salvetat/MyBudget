@@ -10,11 +10,11 @@ part of 'category_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(CategoryNotifier)
-const categoryProvider = CategoryNotifierProvider._();
+final categoryProvider = CategoryNotifierProvider._();
 
 final class CategoryNotifierProvider
     extends $AsyncNotifierProvider<CategoryNotifier, List<CategoryModel>> {
-  const CategoryNotifierProvider._()
+  CategoryNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -40,7 +40,6 @@ abstract class _$CategoryNotifier extends $AsyncNotifier<List<CategoryModel>> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<AsyncValue<List<CategoryModel>>, List<CategoryModel>>;
     final element =
@@ -51,6 +50,6 @@ abstract class _$CategoryNotifier extends $AsyncNotifier<List<CategoryModel>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

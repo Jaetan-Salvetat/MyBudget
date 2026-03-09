@@ -10,11 +10,11 @@ part of 'loan_creation_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(LoanCreationNotifier)
-const loanCreationProvider = LoanCreationNotifierProvider._();
+final loanCreationProvider = LoanCreationNotifierProvider._();
 
 final class LoanCreationNotifierProvider
     extends $NotifierProvider<LoanCreationNotifier, LoanCreationState> {
-  const LoanCreationNotifierProvider._()
+  LoanCreationNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,6 @@ abstract class _$LoanCreationNotifier extends $Notifier<LoanCreationState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<LoanCreationState, LoanCreationState>;
     final element =
         ref.element
@@ -59,6 +58,6 @@ abstract class _$LoanCreationNotifier extends $Notifier<LoanCreationState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

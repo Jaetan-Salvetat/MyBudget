@@ -12,7 +12,7 @@ part of 'loan_edit_provider.dart';
 /// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
 
 @ProviderFor(loanToEdit)
-const loanToEditProvider = LoanToEditProvider._();
+final loanToEditProvider = LoanToEditProvider._();
 
 /// Provider de paramètre : expose le prêt à éditer.
 /// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
@@ -21,7 +21,7 @@ final class LoanToEditProvider extends $FunctionalProvider<Loan, Loan, Loan>
     with $Provider<Loan> {
   /// Provider de paramètre : expose le prêt à éditer.
   /// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
-  const LoanToEditProvider._()
+  LoanToEditProvider._()
     : super(
         from: null,
         argument: null,
@@ -57,11 +57,11 @@ final class LoanToEditProvider extends $FunctionalProvider<Loan, Loan, Loan>
 String _$loanToEditHash() => r'9fc60950f99cb9d90418fb5292f6b9537bb0ac87';
 
 @ProviderFor(LoanEditNotifier)
-const loanEditProvider = LoanEditNotifierProvider._();
+final loanEditProvider = LoanEditNotifierProvider._();
 
 final class LoanEditNotifierProvider
     extends $NotifierProvider<LoanEditNotifier, LoanEditState> {
-  const LoanEditNotifierProvider._()
+  LoanEditNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -95,7 +95,6 @@ abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<LoanEditState, LoanEditState>;
     final element =
         ref.element
@@ -105,6 +104,6 @@ abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
