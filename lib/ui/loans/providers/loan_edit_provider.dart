@@ -61,8 +61,6 @@ class LoanEditState {
     );
   }
 
-  // ── Read-only fields from initial loan ──────────────────────────────────
-
   double get capital => initialLoan.amount;
   DateTime get signatureDate => initialLoan.startDate;
   DateTime get endDate => initialLoan.endDate;
@@ -70,8 +68,6 @@ class LoanEditState {
   double get interestRate => initialLoan.interestRate;
   LoanRepaymentType get repaymentType => initialLoan.repaymentType;
   int get deferredMonths => initialLoan.deferredMonths;
-
-  // ── Computed ─────────────────────────────────────────────────────────────
 
   double get monthlyInsurancePayment {
     if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {
@@ -83,8 +79,6 @@ class LoanEditState {
     return (capital * (insuranceValue / 100)) / 12;
   }
 
-  // ── Validation ────────────────────────────────────────────────────────────
-
   bool get isValid {
     return name.trim().isNotEmpty &&
         lenderName.trim().isNotEmpty &&
@@ -92,8 +86,6 @@ class LoanEditState {
   }
 }
 
-/// Provider de paramètre : expose le prêt à éditer.
-/// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
 @Riverpod(keepAlive: false)
 Loan loanToEdit(Ref ref) => throw UnimplementedError(
   'loanToEditProvider must be overridden via ProviderScope',
@@ -106,8 +98,6 @@ class LoanEditNotifier extends _$LoanEditNotifier {
     final loan = ref.watch(loanToEditProvider);
     return LoanEditState.fromLoan(loan);
   }
-
-  // ── Setters ──────────────────────────────────────────────────────────────
 
   void setName(String value) => state = state.copyWith(name: value);
   void setLenderName(String value) => state = state.copyWith(lenderName: value);
@@ -126,8 +116,6 @@ class LoanEditNotifier extends _$LoanEditNotifier {
   void setInsuranceCalculationMode(InsuranceCalculationMode mode) {
     state = state.copyWith(insuranceCalcMode: mode);
   }
-
-  // ── Build updated model ──────────────────────────────────────────────────
 
   LoanModel createUpdatedLoanModel() {
     return state.initialLoan.model.copyWith(

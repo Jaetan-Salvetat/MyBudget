@@ -51,7 +51,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   String? _nameError;
   String? _amountError;
 
-  // null = aucun ou switch OFF, >0 = id existant sélectionné
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
 

@@ -60,7 +60,6 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
               return false;
             }
 
-            // Filtre par jour du mois (année ignorée)
             if (_filterData.startDay != null &&
                 expense.date.day < _filterData.startDay!) {
               return false;

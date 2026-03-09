@@ -1,4 +1,3 @@
-/// Rapport d'import pour un type d'entité.
 class ImportEntityReport {
   final String entityName;
   final int total;
@@ -17,7 +16,6 @@ class ImportEntityReport {
   bool get hasIssues => skipped > 0 || errors.isNotEmpty;
 }
 
-/// Rapport complet d'une opération d'import.
 class ImportReport {
   final ImportEntityReport beneficiaries;
   final ImportEntityReport accounts;

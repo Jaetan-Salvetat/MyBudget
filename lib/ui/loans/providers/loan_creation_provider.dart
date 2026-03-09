@@ -83,8 +83,6 @@ class LoanCreationState {
     );
   }
 
-  // ── Computed properties ──────────────────────────────────────────────────
-
   int get totalSteps => 5;
 
   int get durationInMonths {
@@ -133,8 +131,6 @@ class LoanCreationState {
 
   double get totalMonthlyPayment => monthlyPrincipalPayment + monthlyInsurancePayment;
 
-  // ── Validation ───────────────────────────────────────────────────────────
-
   bool get isStep1Valid {
     return name.isNotEmpty && lenderName.isNotEmpty && amount > 0 && selectedAccountId != -1;
   }
@@ -161,8 +157,6 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
     return LoanCreationState(startDate: DateTime.now());
   }
 
-  // ── Navigation ───────────────────────────────────────────────────────────
-
   void nextStep() {
     if (state.currentStep < state.totalSteps - 1) {
       state = state.copyWith(currentStep: state.currentStep + 1);
@@ -180,8 +174,6 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
       state = state.copyWith(currentStep: step);
     }
   }
-
-  // ── Setters ──────────────────────────────────────────────────────────────
 
   void setName(String value) => state = state.copyWith(name: value);
   void setLenderName(String value) => state = state.copyWith(lenderName: value);
@@ -234,8 +226,6 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
   void setInsuranceCalculationMode(InsuranceCalculationMode mode) {
     state = state.copyWith(insuranceCalcMode: mode);
   }
-
-  // ── Build the final model ─────────────────────────────────────────────────
 
   LoanModel createLoanModel() {
     return LoanModel.create(

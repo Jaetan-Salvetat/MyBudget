@@ -74,8 +74,6 @@ void main() {
     );
   });
 
-  // ─── validate() ───
-
   group('validate()', () {
     test('parses valid JSON with all entity types', () {
       final data = _buildFullJsonData();
@@ -206,11 +204,11 @@ void main() {
       final data = {
         'beneficiaries': [
           {'id': '1', 'name': 'OK'},
-          'not a map', // malformé
+          'not a map',
         ],
         'accounts': [
           {'id': '1', 'name': 'OK', 'bank': 'BNP'},
-          42, // malformé
+          42,
         ],
       };
 
@@ -240,8 +238,6 @@ void main() {
       expect(result.hasCategories, isFalse);
     });
   });
-
-  // ─── execute() ───
 
   group('execute()', () {
     void stubDeleteAll() {
@@ -369,7 +365,6 @@ void main() {
 
     test('skips expenses with orphan accountId', () {
       stubDeleteAll();
-      // Pas de compte dans le JSON → accountIdMap vide
 
       final data = {
         'expenses': [
@@ -543,18 +538,14 @@ void main() {
         },
       );
 
-      // Initial 0.0 + per-item progress + final 1.0
       expect(progressValues.first, 0.0);
       expect(progressValues.last, 1.0);
-      // Every intermediate progress should be between 0 and 1
       for (final p in progressValues) {
         expect(p, inInclusiveRange(0.0, 1.0));
       }
     });
   });
 }
-
-// ─── Helpers ───
 
 Map<String, dynamic> _buildFullJsonData() {
   return {

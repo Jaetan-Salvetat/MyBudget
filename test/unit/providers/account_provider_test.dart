@@ -160,7 +160,7 @@ void main() {
     await container.read(accountProvider.future);
 
     final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
-    expect(balance, -700.0); // 100 - 800
+    expect(balance, -700.0);
   });
 
   test('getTotalBalance returns 0.0 with no accounts', () async {

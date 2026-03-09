@@ -29,7 +29,6 @@ void main() {
     expect(find.text('Apparence'), findsOneWidget);
     expect(find.text('Thème'), findsOneWidget);
     expect(find.text('Couleur principale'), findsOneWidget);
-    // Default theme mode is system → displays 'Automatique'
     expect(find.text('Automatique'), findsOneWidget);
   });
 
@@ -41,11 +40,9 @@ void main() {
       matching: find.byType(GestureDetector),
     );
 
-    // Index 3 corresponds to AppThemeType.blue (4th value: dynamicColor, purple, green, blue)
     await tester.tap(gestureDetectors.at(3));
     await tester.pump();
 
-    // Verify the state was updated via the ProviderScope container
     final element = tester.element(find.byType(AppearanceSection));
     final container = ProviderScope.containerOf(element);
     expect(container.read(themeProvider).themeType, AppThemeType.blue);
@@ -61,7 +58,6 @@ void main() {
       matching: find.byType(GestureDetector),
     );
 
-    // Index 0 corresponds to AppThemeType.dynamicColor (first value)
     await tester.tap(gestureDetectors.at(0));
     await tester.pump();
 

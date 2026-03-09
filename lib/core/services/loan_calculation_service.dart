@@ -2,14 +2,9 @@ import 'dart:math';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 
-/// Service responsable de tous les calculs financiers liés aux prêts
-/// Suit le principe de Single Responsibility
-/// Toutes les méthodes sont pures (pas d'effet de bord) pour faciliter les tests
 class LoanCalculationService {
   const LoanCalculationService();
 
-  /// Calcule la mensualité actuelle d'un prêt
-  /// Prend en compte le type de prêt, le différé, et la date actuelle
   double calculateCurrentMonthlyPayment({
     required LoanRepaymentType repaymentType,
     required double amount,
@@ -24,12 +19,10 @@ class LoanCalculationService {
   }) {
     final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
 
-    // Période de différé : pas de paiement
     if (monthsSinceStart < deferredMonths) {
       return 0.0;
     }
 
-    // Calcul du capital restant pour l'assurance CRD
     final remainingCapital = calculateRemainingCapital(
       repaymentType: repaymentType,
       amount: amount,
@@ -40,7 +33,6 @@ class LoanCalculationService {
       deferredMonths: deferredMonths,
     );
 
-    // Calcul du paiement de prêt (capital + intérêts) selon le type
     final loanPayment = repaymentType == LoanRepaymentType.inFine
         ? _calculateInFineMonthlyPayment(amount, interestRate)
         : _calculateAmortizableMonthlyPayment(
@@ -60,7 +52,6 @@ class LoanCalculationService {
     return loanPayment + insurancePayment;
   }
 
-  /// Calcule le capital restant dû
   double calculateRemainingCapital({
     required LoanRepaymentType repaymentType,
     required double amount,
@@ -70,24 +61,20 @@ class LoanCalculationService {
     required DateTime currentDate,
     required int deferredMonths,
   }) {
-    // Avant le début : capital = montant total
     if (currentDate.isBefore(startDate)) {
       return amount;
     }
 
     final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
 
-    // Pendant le différé : capital = montant total
     if (monthsSinceStart < deferredMonths) {
       return amount;
     }
 
-    // In fine : capital reste constant jusqu'à la fin
     if (repaymentType == LoanRepaymentType.inFine) {
       return amount;
     }
 
-    // Amortissable : calcul avec formule d'amortissement
     final effectiveDuration = durationInMonths - deferredMonths;
     final effectiveMonthsPassed = monthsSinceStart - deferredMonths;
 
@@ -99,7 +86,6 @@ class LoanCalculationService {
     );
   }
 
-  /// Calcule le nombre de mois restants jusqu'à la fin du prêt
   int calculateRemainingMonths({
     required DateTime currentDate,
     required DateTime endDate,
@@ -116,7 +102,6 @@ class LoanCalculationService {
     return diff.clamp(0, durationInMonths);
   }
 
-  /// Calcule le montant total payé depuis le début
   double calculateTotalPaidAmount({
     required DateTime startDate,
     required DateTime currentDate,
@@ -141,10 +126,6 @@ class LoanCalculationService {
     return effectiveMonthsPaid * monthlyPayment;
   }
 
-  // ============= Méthodes privées =============
-
-  /// Calcule le paiement mensuel pour un prêt in fine
-  /// Pour l'in fine, on ne paie QUE les intérêts chaque mois, le capital est payé à la fin
   double _calculateInFineMonthlyPayment(
     double amount,
     double interestRate,
@@ -152,8 +133,6 @@ class LoanCalculationService {
     return (amount * interestRate / 100) / 12;
   }
 
-  /// Calcule le paiement mensuel pour un prêt amortissable (capital + intérêts)
-  /// Utilise la formule d'annuité constante
   double _calculateAmortizableMonthlyPayment(
     double amount,
     double interestRate,
@@ -166,8 +145,6 @@ class LoanCalculationService {
     return amount * (monthlyRate / (1 - pow(1 + monthlyRate, -durationInMonths)));
   }
 
-  /// Calcule le capital restant dû pour un prêt amortissable
-  /// Utilise la formule de capital restant avec intérêts composés
   double _calculateAmortizableRemainingCapital({
     required double amount,
     required double interestRate,
@@ -189,7 +166,6 @@ class LoanCalculationService {
     return amount * (numerator / denominator);
   }
 
-  /// Calcule le paiement mensuel d'assurance
   double _calculateInsurancePayment({
     required double amount,
     required LoanInsuranceType insuranceType,
@@ -205,7 +181,6 @@ class LoanCalculationService {
       return insuranceValue;
     }
 
-    // Pourcentage : selon le mode de calcul (CI ou CRD)
     final baseCapital = calculationMode == InsuranceCalculationMode.initialCapital
         ? amount
         : remainingCapital;
@@ -213,7 +188,6 @@ class LoanCalculationService {
     return (baseCapital * (insuranceValue / 100)) / 12;
   }
 
-  /// Calcule le nombre de mois écoulés depuis le début du prêt
   int _calculateMonthsSinceStart(DateTime startDate, DateTime currentDate) {
     return (currentDate.year - startDate.year) * 12 +
         currentDate.month -

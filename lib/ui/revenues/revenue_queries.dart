@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'revenue_queries.g.dart';
 
-/// Total des revenus du mois courant (réguliers + ponctuels).
 @Riverpod(keepAlive: true)
 double monthlyRevenues(Ref ref) {
   final revenues = ref.watch(revenueProvider).value ?? [];
@@ -24,7 +23,6 @@ double monthlyRevenues(Ref ref) {
   return total;
 }
 
-/// Total des revenus réguliers (isRegular = true) du mois courant.
 @Riverpod(keepAlive: true)
 double monthlyFixedRevenues(Ref ref) {
   final revenues = ref.watch(revenueProvider).value ?? [];
@@ -46,7 +44,6 @@ double monthlyFixedRevenues(Ref ref) {
   return total;
 }
 
-/// Total des revenus ponctuels (isRegular = false) du mois courant.
 @Riverpod(keepAlive: true)
 double monthlyPunctualRevenues(Ref ref) {
   final revenues = ref.watch(revenueProvider).value ?? [];

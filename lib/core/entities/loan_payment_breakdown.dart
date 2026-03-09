@@ -1,5 +1,3 @@
-/// Représente la décomposition détaillée d'un paiement mensuel de prêt
-/// Value Object immutable suivant les principes DDD
 class LoanPaymentBreakdown {
   final double capitalPayment;
   final double interestPayment;
@@ -13,7 +11,6 @@ class LoanPaymentBreakdown {
     required this.totalPayment,
   });
 
-  /// Breakdown vide (pour période de différé par exemple)
   const LoanPaymentBreakdown.zero()
       : capitalPayment = 0.0,
         interestPayment = 0.0,

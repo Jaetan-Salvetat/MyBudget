@@ -7,7 +7,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_queries.g.dart';
 
-/// Total mensuel des dépenses (annuelles ramenées sur 12 mois).
 @Riverpod(keepAlive: true)
 double monthlyExpenses(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
@@ -22,7 +21,6 @@ double monthlyExpenses(Ref ref) {
   return total;
 }
 
-/// Total annuel des dépenses (mensuelles × 12 + annuelles).
 @Riverpod(keepAlive: true)
 double annualExpenses(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
@@ -37,7 +35,6 @@ double annualExpenses(Ref ref) {
   return total;
 }
 
-/// Dépenses dont l'échéance tombe à partir d'aujourd'hui dans le mois courant.
 @Riverpod(keepAlive: true)
 List<ExpenseModel> upcomingExpenses(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
@@ -56,7 +53,6 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
   return upcoming;
 }
 
-/// Dépenses agrégées par catégorie (Map<CategoryModel, montant>).
 @Riverpod(keepAlive: true)
 Map<CategoryModel, double> expensesByCategory(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];

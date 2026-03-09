@@ -9,18 +9,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
 
-// ---------------------------------------------------------------------------
-// ObjectBoxService
-// ---------------------------------------------------------------------------
-
 @Riverpod(keepAlive: true)
 Future<ObjectBoxService> objectBoxService(Ref ref) {
   return ObjectBoxService.getInstance();
 }
-
-// ---------------------------------------------------------------------------
-// Repositories
-// ---------------------------------------------------------------------------
 
 @Riverpod(keepAlive: true)
 AccountRepository accountRepository(Ref ref) {

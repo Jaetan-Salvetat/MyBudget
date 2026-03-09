@@ -71,7 +71,6 @@ void main() {
         color: 0xFF0000,
       )..id = 2;
 
-      // Set up expenses linked to categories
       final foodExpense = ExpenseModel.create(
         name: 'Food expense',
         amount: 600,
@@ -107,17 +106,16 @@ void main() {
       expect(summaries.length, 2);
 
       final foodSummary = summaries.firstWhere((s) => s.categoryName == 'Food');
-      expect(foodSummary.percentage, closeTo(0.75, 0.01)); // 600 / 800
+      expect(foodSummary.percentage, closeTo(0.75, 0.01));
 
       final transportSummary = summaries.firstWhere(
         (s) => s.categoryName == 'Transport',
       );
-      expect(transportSummary.percentage, closeTo(0.25, 0.01)); // 200 / 800
+      expect(transportSummary.percentage, closeTo(0.25, 0.01));
     },
   );
 
   test('categorySummaries is empty when totalExpenses is 0 (no division by zero)', () async {
-    // Aucune dépense → pas de crash, liste vide
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -137,7 +135,6 @@ void main() {
     final catFood = CategoryModel.create(name: 'Food', icon: 'fastfood', color: 0xFF0000)..id = 1;
     final catTransport = CategoryModel.create(name: 'Transport', icon: 'car', color: 0xFF0000)..id = 2;
 
-    // Food = 200, Transport = 600 → Transport doit être premier
     final foodExpense = ExpenseModel.create(
       name: 'Food',
       amount: 200,
@@ -169,7 +166,7 @@ void main() {
 
     final summaries = container.read(dashboardProvider).categorySummaries;
     expect(summaries.length, 2);
-    expect(summaries.first.categoryName, 'Transport'); // plus grand montant en premier
+    expect(summaries.first.categoryName, 'Transport');
     expect(summaries.last.categoryName, 'Food');
   });
 
@@ -205,7 +202,6 @@ void main() {
     await container.read(loanProvider.future);
 
     final state = container.read(dashboardProvider);
-    // netCashFlow = 3000 - 1000 - 0 = 2000
     expect(state.netCashFlow, closeTo(2000.0, 0.01));
   });
 

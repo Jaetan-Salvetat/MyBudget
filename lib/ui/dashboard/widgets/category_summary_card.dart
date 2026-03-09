@@ -58,7 +58,6 @@ class CategoryProgressItem extends StatelessWidget {
       borderRadius: 12,
       padding: const EdgeInsets.all(12),
       onClick: () {
-        // TODO: Navigate to category details
       },
       accentColor: category.color,
       child: Column(

@@ -33,7 +33,6 @@ class LoanEditBottomSheet extends ConsumerStatefulWidget {
       context: context,
       title: 'Modifier l\'emprunt',
       child: ProviderScope(
-        // Instance isolée initialisée avec le prêt à éditer
         overrides: [
           loanToEditProvider.overrideWithValue(loan),
         ],
@@ -104,31 +103,24 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
         children: [
           const SizedBox(height: 16),
 
-          // Section 1: Identité (modifiable)
           _buildEditableIdentitySection(context),
           const SizedBox(height: 16),
 
-          // Section 2: Conditions financières (lecture seule)
           _buildReadOnlyFinancialSection(context, state),
           const SizedBox(height: 16),
 
-          // Section 3: Compte et prélèvement (modifiable)
           _buildEditableAccountSection(context, state, notifier),
           const SizedBox(height: 16),
 
-          // Section 4: Assurance (modifiable)
           _buildEditableInsuranceSection(context, state, notifier),
           const SizedBox(height: 24),
 
-          // Boutons d'action
           _buildActionButtons(context, state, notifier),
           const SizedBox(height: 20),
         ],
       ),
     );
   }
-
-  // ========== Section 1: Identité (modifiable) ==========
 
   Widget _buildEditableIdentitySection(BuildContext context) {
     return Column(
@@ -149,8 +141,6 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
       ],
     );
   }
-
-  // ========== Section 2: Conditions financières (lecture seule) ==========
 
   Widget _buildReadOnlyFinancialSection(
     BuildContext context,
@@ -275,8 +265,6 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
     );
   }
 
-  // ========== Section 3: Compte et prélèvement (modifiable) ==========
-
   Widget _buildEditableAccountSection(
     BuildContext context,
     LoanEditState state,
@@ -335,8 +323,6 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
       ),
     );
   }
-
-  // ========== Section 4: Assurance (modifiable) ==========
 
   Widget _buildEditableInsuranceSection(
     BuildContext context,
@@ -453,8 +439,6 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
       ),
     );
   }
-
-  // ========== Boutons d'action ==========
 
   Widget _buildActionButtons(
     BuildContext context,

@@ -11,7 +11,6 @@ import 'package:version/version.dart';
 
 part 'update_provider.g.dart';
 
-// Providers de services overridables pour les tests
 final gitHubServiceProvider = Provider<GitHubService>(
   (ref) => GitHubService(),
 );
@@ -212,8 +211,6 @@ class UpdateNotifier extends _$UpdateNotifier {
       title: const Text('Téléchargement...'),
       content: Builder(
         builder: (context) {
-          // Utiliser un Consumer Riverpod ici serait complexe dans ce contexte
-          // On garde une approche simple avec un StatefulBuilder
           return StatefulBuilder(
             builder: (context, setState) {
               return Column(

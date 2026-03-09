@@ -14,12 +14,12 @@ void main() {
     });
 
     test('toFormattedString pads single-digit day and month correctly', () {
-      final date = DateTime(2025, 3, 1); // jour=1, mois=3
+      final date = DateTime(2025, 3, 1);
       expect(date.toFormattedString(), '01/03/2025');
     });
 
     test('toFormattedString handles February 29 in a leap year', () {
-      final date = DateTime(2024, 2, 29); // 2024 est bissextile
+      final date = DateTime(2024, 2, 29);
       expect(date.toFormattedString(), '29/02/2024');
     });
 

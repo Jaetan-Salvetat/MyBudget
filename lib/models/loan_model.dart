@@ -31,22 +31,17 @@ enum LoanStatus {
   }
 }
 
-/// Modèle de données pour un prêt (Data Transfer Object)
-/// Responsabilité unique : stocker et sérialiser les données
-/// La logique métier est déléguée aux services de calcul
 @Entity()
 class LoanModel {
   @Id()
   int id = 0;
 
-  // Informations de base
   String name;
   double amount;
   String lenderName;
   int accountId;
   String? notes;
 
-  // Dates et échéances
   int dayOfMonth;
 
   @Property()
@@ -55,22 +50,16 @@ class LoanModel {
   @Property()
   DateTime endDate;
 
-  // Conditions financières
   double interestRate;
   int duration;
 
-  // Type de remboursement (NOUVEAU)
   String repaymentTypeId;
 
-  // Période de différé en mois (NOUVEAU)
   int deferredMonths;
 
-  // Assurance
   String insuranceTypeId;
   double insuranceValue;
-  String insuranceCalculationModeId; // NOUVEAU
-
-  // Getters pour les enums (conversion uniquement, pas de logique)
+  String insuranceCalculationModeId;
 
   LoanRepaymentType get repaymentType {
     return LoanRepaymentType.values.firstWhere(
@@ -105,7 +94,6 @@ class LoanModel {
     insuranceTypeId = type.name;
   }
 
-  // Constructeur
   LoanModel({
     this.id = 0,
     required this.name,
@@ -125,7 +113,6 @@ class LoanModel {
     this.notes,
   });
 
-  /// Factory pour créer un prêt avec des paramètres nommés
   static LoanModel create({
     required String name,
     required double amount,
@@ -185,7 +172,6 @@ class LoanModel {
   }
 
   factory LoanModel.fromJson(Map<String, dynamic> json) {
-    // Supporte camelCase (nouveau) ET snake_case (legacy backups)
     dynamic resolve(String camelKey, String snakeKey) {
       return json[camelKey] ?? json[snakeKey];
     }
@@ -229,7 +215,6 @@ class LoanModel {
     );
   }
 
-  /// Copie avec modifications
   LoanModel copyWith({
     String? name,
     double? amount,

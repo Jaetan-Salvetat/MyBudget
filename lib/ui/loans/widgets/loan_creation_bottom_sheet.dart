@@ -31,7 +31,6 @@ class LoanCreationBottomSheet extends ConsumerStatefulWidget {
       context: context,
       title: 'Nouvel Emprunt Bancaire',
       child: ProviderScope(
-        // Instance isolée : le state ne pollue pas le scope global
         overrides: [loanCreationProvider],
         child: LoanCreationBottomSheet(
           accounts: accounts,
@@ -49,7 +48,6 @@ class LoanCreationBottomSheet extends ConsumerStatefulWidget {
 
 class _LoanCreationBottomSheetState
     extends ConsumerState<LoanCreationBottomSheet> {
-  // TextEditingControllers : lifecycle UI → restent dans le widget
   late final TextEditingController _nameController;
   late final TextEditingController _lenderController;
   late final TextEditingController _amountController;
@@ -69,7 +67,6 @@ class _LoanCreationBottomSheetState
     _insuranceValueController = TextEditingController();
     _deferredMonthsController = TextEditingController();
 
-    // Synchronisation controllers → notifier
     _nameController.addListener(
       () => ref
           .read(loanCreationProvider.notifier)

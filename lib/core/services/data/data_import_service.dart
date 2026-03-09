@@ -12,8 +12,6 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
-// ─── Wrappers pour stocker les anciens IDs étrangers ───
-
 class ParsedBeneficiary {
   final int oldId;
   final BeneficiaryModel model;
@@ -62,8 +60,6 @@ class ParsedLoan {
   const ParsedLoan({required this.model, this.oldAccountId});
 }
 
-// ─── Résultat de validation ───
-
 class ImportValidationResult {
   final bool isValid;
   final List<ParsedBeneficiary> beneficiaries;
@@ -96,8 +92,6 @@ class ImportValidationResult {
       loans.length;
 }
 
-// ─── Service d'import (pur, sans Riverpod ni BuildContext) ───
-
 class DataImportService {
   final AccountRepository accountRepo;
   final BeneficiaryRepository beneficiaryRepo;
@@ -115,7 +109,6 @@ class DataImportService {
     required this.loanRepo,
   });
 
-  /// Phase 1 : Parse et valide le JSON sans toucher la BDD.
   ImportValidationResult validate(Map<String, dynamic> data) {
     final errors = <String>[];
     final beneficiaries = <ParsedBeneficiary>[];
@@ -125,7 +118,6 @@ class DataImportService {
     final revenues = <ParsedRevenue>[];
     final loans = <ParsedLoan>[];
 
-    // Bénéficiaires
     if (data['beneficiaries'] is List) {
       for (final item in data['beneficiaries'] as List) {
         try {
@@ -142,7 +134,6 @@ class DataImportService {
       }
     }
 
-    // Comptes
     if (data['accounts'] is List) {
       for (final item in data['accounts'] as List) {
         try {
@@ -159,7 +150,6 @@ class DataImportService {
       }
     }
 
-    // Catégories
     if (data['categories'] is List) {
       for (final item in data['categories'] as List) {
         try {
@@ -176,7 +166,6 @@ class DataImportService {
       }
     }
 
-    // Dépenses
     if (data['expenses'] is List) {
       for (final item in data['expenses'] as List) {
         try {
@@ -200,7 +189,6 @@ class DataImportService {
       }
     }
 
-    // Revenus
     if (data['revenues'] is List) {
       for (final item in data['revenues'] as List) {
         try {
@@ -221,12 +209,10 @@ class DataImportService {
       }
     }
 
-    // Emprunts (supporte camelCase et snake_case via LoanModel.fromJson)
     if (data['loans'] is List) {
       for (final item in data['loans'] as List) {
         try {
           final json = Map<String, dynamic>.from(item as Map);
-          // Supporte les deux formats : accountId (nouveau) et account_id (legacy)
           final oldAccountId = int.tryParse(
             (json['accountId'] ?? json['account_id'] ?? '').toString(),
           );
@@ -242,7 +228,7 @@ class DataImportService {
     }
 
     return ImportValidationResult(
-      isValid: true, // Le JSON est parseable même si certains items ont échoué
+      isValid: true,
       beneficiaries: beneficiaries,
       accounts: accounts,
       categories: categories,
@@ -253,8 +239,6 @@ class DataImportService {
     );
   }
 
-  /// Phase 2 : Supprime les données existantes et insère les nouvelles
-  /// avec remapping des IDs. Appelé UNIQUEMENT après validate().
   ImportReport execute(
     ImportValidationResult validated, {
     void Function(double progress, String status)? onProgress,
@@ -268,7 +252,6 @@ class DataImportService {
       }
     }
 
-    // Suppression des données existantes
     onProgress?.call(0.0, 'Suppression des données existantes...');
     beneficiaryRepo.deleteAll();
     accountRepo.deleteAll();
@@ -281,7 +264,6 @@ class DataImportService {
     final Map<int, int> accountIdMap = {};
     final Map<int, int> categoryIdMap = {};
 
-    // ── Bénéficiaires ──
     reportProgress('Importation des bénéficiaires...');
     final beneficiaryReport = _importBeneficiaries(
       validated.beneficiaries,
@@ -292,7 +274,6 @@ class DataImportService {
       },
     );
 
-    // ── Comptes ──
     reportProgress('Importation des comptes...');
     final accountReport = _importAccounts(
       validated.accounts,
@@ -303,7 +284,6 @@ class DataImportService {
       },
     );
 
-    // ── Catégories ──
     reportProgress('Importation des catégories...');
     final categoryReport = _importCategories(
       validated.categories,
@@ -314,7 +294,6 @@ class DataImportService {
       },
     );
 
-    // ── Dépenses ──
     reportProgress('Importation des dépenses...');
     final expenseReport = _importExpenses(
       validated.expenses,
@@ -327,7 +306,6 @@ class DataImportService {
       },
     );
 
-    // ── Revenus ──
     reportProgress('Importation des revenus...');
     final revenueReport = _importRevenues(
       validated.revenues,
@@ -339,7 +317,6 @@ class DataImportService {
       },
     );
 
-    // ── Emprunts ──
     reportProgress('Importation des emprunts...');
     final loanReport = _importLoans(
       validated.loans,
@@ -361,8 +338,6 @@ class DataImportService {
       loans: loanReport,
     );
   }
-
-  // ─── Méthodes d'import par entité ───
 
   ImportEntityReport _importBeneficiaries(
     List<ParsedBeneficiary> items,
@@ -452,7 +427,6 @@ class DataImportService {
 
     for (final item in items) {
       try {
-        // Vérifier que le compte et la catégorie existent dans le mapping
         if (item.oldAccountId != null &&
             !accountIdMap.containsKey(item.oldAccountId)) {
           skipped++;
@@ -466,7 +440,6 @@ class DataImportService {
           continue;
         }
 
-        // Remapper les IDs
         final model = item.model;
         if (item.oldAccountId != null) {
           model.accountId = accountIdMap[item.oldAccountId]!;

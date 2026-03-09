@@ -5,9 +5,6 @@ import 'package:mybudget/core/services/loan_calculation_service.dart';
 import 'package:mybudget/core/services/loan_payment_breakdown_service.dart';
 import 'package:mybudget/models/loan_model.dart';
 
-/// Entité métier représentant un prêt avec toute sa logique
-/// Utilise le pattern Facade pour déléguer les calculs aux services
-/// Responsabilité : exposer une API cohérente pour manipuler un prêt
 class Loan {
   final LoanModel _model;
   final LoanCalculationService _calculationService;
@@ -18,8 +15,6 @@ class Loan {
     this._calculationService,
     this._breakdownService,
   );
-
-  // ============= Propriétés de base (délégation au model) =============
 
   int get id => _model.id;
   String get name => _model.name;
@@ -38,12 +33,8 @@ class Loan {
   LoanInsuranceType get insuranceType => _model.insuranceType;
   InsuranceCalculationMode get insuranceCalculationMode => _model.insuranceCalculationMode;
 
-  // Accès au model pour la persistance
   LoanModel get model => _model;
 
-  // ============= Logique métier calculée via les services =============
-
-  /// Mensualité actuelle (recalculée dynamiquement)
   double get currentMonthlyPayment {
     return _calculationService.calculateCurrentMonthlyPayment(
       repaymentType: _model.repaymentType,
@@ -59,7 +50,6 @@ class Loan {
     );
   }
 
-  /// Capital restant dû
   double get remainingCapital {
     return _calculationService.calculateRemainingCapital(
       repaymentType: _model.repaymentType,
@@ -72,7 +62,6 @@ class Loan {
     );
   }
 
-  /// Nombre de mois restants
   int get remainingMonths {
     return _calculationService.calculateRemainingMonths(
       currentDate: DateTime.now(),
@@ -82,7 +71,6 @@ class Loan {
     );
   }
 
-  /// Montant total payé depuis le début
   double get totalPaidAmount {
     return _calculationService.calculateTotalPaidAmount(
       startDate: _model.startDate,
@@ -94,7 +82,6 @@ class Loan {
     );
   }
 
-  /// Décomposition du paiement mensuel actuel
   LoanPaymentBreakdown get currentPaymentBreakdown {
     return _breakdownService.calculateCurrentBreakdown(
       repaymentType: _model.repaymentType,
@@ -110,7 +97,6 @@ class Loan {
     );
   }
 
-  /// Décomposition des totaux cumulés
   LoanPaymentBreakdown get cumulativePaymentBreakdown {
     return _breakdownService.calculateCumulativeBreakdown(
       repaymentType: _model.repaymentType,
@@ -128,20 +114,17 @@ class Loan {
     );
   }
 
-  /// Pourcentage de progression (0.0 à 1.0)
   double get progressPercentage {
     if (_model.amount == 0) return 0.0;
     final paid = _model.amount - remainingCapital;
     return (paid / _model.amount).clamp(0.0, 1.0);
   }
 
-  /// Coût total du crédit (intérêts + assurance)
   double get totalCost {
     final totalPayments = currentMonthlyPayment * _model.duration;
     return (totalPayments - _model.amount).clamp(0.0, double.infinity);
   }
 
-  /// Coût restant du crédit
   double get remainingCost {
     final totalFuturePayments = remainingMonths * currentMonthlyPayment;
     final remainingPrincipal = remainingCapital;
@@ -149,25 +132,19 @@ class Loan {
     return cost > 0 ? cost : 0.0;
   }
 
-  // ============= États et statuts =============
-
-  /// Prêt terminé ?
   bool get isCompleted {
     final now = DateTime.now();
     return now.isAfter(_model.endDate) || remainingCapital <= 0;
   }
 
-  /// Prêt pas encore commencé ?
   bool get isPending {
     return DateTime.now().isBefore(_model.startDate);
   }
 
-  /// Prêt en cours ?
   bool get isActive {
     return !isCompleted && !isPending;
   }
 
-  /// En période de différé ?
   bool get isInDeferredPeriod {
     if (_model.deferredMonths == 0) return false;
 
@@ -181,17 +158,12 @@ class Loan {
     return monthsSinceStart < _model.deferredMonths;
   }
 
-  /// Statut du prêt
   LoanStatus getStatus() {
     if (isCompleted) return LoanStatus.completed;
     if (isPending) return LoanStatus.pending;
     return LoanStatus.partiallyPaid;
   }
 
-  // ============= Helpers =============
-
-  /// Crée une instance Loan à partir d'un LoanModel
-  /// Factory pattern pour l'injection des dépendances
   static Loan fromModel(
     LoanModel model,
     LoanCalculationService calculationService,

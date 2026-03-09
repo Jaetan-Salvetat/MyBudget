@@ -177,7 +177,6 @@ void main() {
   });
 
   test('getTotalMonthlyPayments returns 0 during deferred period', () async {
-    // Prêt avec période de grâce de 24 mois, commencé il y a 6 mois
     final deferredLoan = LoanModel(
       name: 'PTZ',
       amount: 50000,
@@ -188,7 +187,7 @@ void main() {
       dayOfMonth: 1,
       lenderName: 'État',
       accountId: 1,
-      deferredMonths: 24, // 24 mois de grâce → encore en période de grâce
+      deferredMonths: 24,
     );
 
     when(() => mockRepository.getAll()).thenReturn([deferredLoan]);
@@ -199,7 +198,7 @@ void main() {
     await container.read(loanProvider.future);
 
     final monthly = container.read(loanProvider.notifier).getTotalMonthlyPayments();
-    expect(monthly, 0.0); // en période de grâce, paiement mensuel = 0
+    expect(monthly, 0.0);
   });
 
   test('should set error state when repository fails', () async {
@@ -208,7 +207,6 @@ void main() {
     final container = makeContainer();
     addTearDown(container.dispose);
 
-    // Écouter le provider jusqu'à ce qu'il soit en état d'erreur
     final completer = Completer<void>();
     container.listen<AsyncValue<List<Loan>>>(
       loanProvider,

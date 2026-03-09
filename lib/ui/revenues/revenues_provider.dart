@@ -35,8 +35,6 @@ class RevenueNotifier extends _$RevenueNotifier {
     await future;
   }
 
-  // ============= Calculs et filtres =============
-
   List<RevenueModel> _currentRevenues() => state.value ?? [];
 
   double getMonthlyRevenues() {

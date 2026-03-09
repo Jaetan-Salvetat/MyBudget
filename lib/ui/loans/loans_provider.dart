@@ -46,8 +46,6 @@ class LoanNotifier extends _$LoanNotifier {
     await future;
   }
 
-  // ============= Filtres et agrégations =============
-
   List<Loan> _currentLoans() => state.value ?? [];
 
   List<Loan> getActiveLoans() =>

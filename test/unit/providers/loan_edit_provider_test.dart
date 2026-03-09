@@ -137,10 +137,10 @@ void main() {
       notifier.setDayOfMonth(25);
       expect(container.read(loanEditProvider).dayOfMonth, 25);
 
-      notifier.setDayOfMonth(0); // Should clamp to 1
+      notifier.setDayOfMonth(0);
       expect(container.read(loanEditProvider).dayOfMonth, 1);
 
-      notifier.setDayOfMonth(35); // Should clamp to 31
+      notifier.setDayOfMonth(35);
       expect(container.read(loanEditProvider).dayOfMonth, 31);
     });
 
@@ -205,9 +205,8 @@ void main() {
 
       final notifier = container.read(loanEditProvider.notifier);
       notifier.setInsuranceType(LoanInsuranceType.percentage);
-      notifier.setInsuranceValue('0.36'); // 0.36% par an
+      notifier.setInsuranceValue('0.36');
 
-      // Calcul: 10000 * 0.36% / 12 = 10000 * 0.0036 / 12 = 3.0
       expect(
         container.read(loanEditProvider).monthlyInsurancePayment,
         closeTo(3.0, 0.01),
@@ -311,7 +310,6 @@ void main() {
         InsuranceCalculationMode.remainingCapital,
       );
 
-      // Champs en lecture seule non modifiés
       expect(updatedModel.amount, testLoanModel.amount);
       expect(updatedModel.startDate, testLoanModel.startDate);
       expect(updatedModel.endDate, testLoanModel.endDate);

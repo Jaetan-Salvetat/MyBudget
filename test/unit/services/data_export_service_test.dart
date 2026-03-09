@@ -152,7 +152,6 @@ void main() {
     final result = service.buildExportData();
     final loanJson = (result['loans'] as List).first as Map<String, dynamic>;
 
-    // Vérifie camelCase (nouveau format), pas snake_case (ancien)
     expect(loanJson.containsKey('accountId'), isTrue);
     expect(loanJson.containsKey('lenderName'), isTrue);
     expect(loanJson.containsKey('startDate'), isTrue);

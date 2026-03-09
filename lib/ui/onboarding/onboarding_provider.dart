@@ -6,7 +6,7 @@ part 'onboarding_provider.g.dart';
 @Riverpod(keepAlive: false)
 class OnboardingNotifier extends _$OnboardingNotifier {
   @override
-  int build() => 0; // currentPage
+  int build() => 0;
 
   void onPageChanged(int index) => state = index;
 

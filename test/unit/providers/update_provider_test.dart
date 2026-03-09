@@ -197,7 +197,6 @@ void main() {
           buildSignature: '',
         );
 
-        // Simule plusieurs releases beta dans le désordre
         final olderBeta = ReleaseInfo(
           version: '1.0.3-beta',
           title: 'Older Beta',
@@ -228,8 +227,6 @@ void main() {
           isPrerelease: true,
         );
 
-        // GitHub API retourne par date de publication (plus récent d'abord)
-        // Mais la version la plus HAUTE n'est pas la plus récemment publiée !
         when(
           () => mockGitHubService.getReleases(),
         ).thenAnswer((_) async => [middleBeta, olderBeta, newestBeta]);
@@ -239,8 +236,6 @@ void main() {
 
         await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
 
-        // Doit trouver 1.0.6-beta (la version la plus haute)
-        // PAS 1.0.5-beta (la plus récemment publiée)
         final state = container.read(updateProvider);
         expect(state.availableUpdate, isNotNull);
         expect(state.availableUpdate?.version, '1.0.6-beta');
@@ -288,7 +283,6 @@ void main() {
           isPrerelease: false,
         );
 
-        // Retourne dans le désordre
         when(
           () => mockGitHubService.getReleases(),
         ).thenAnswer((_) async => [release105, release103, release106]);
@@ -298,7 +292,6 @@ void main() {
 
         await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
 
-        // Doit trouver 1.0.6 (la version la plus haute)
         final state = container.read(updateProvider);
         expect(state.availableUpdate, isNotNull);
         expect(state.availableUpdate?.version, '1.0.6');

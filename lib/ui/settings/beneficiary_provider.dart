@@ -14,7 +14,6 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     return beneficiaries;
   }
 
-  /// Crée un bénéficiaire et retourne son id, ou null si erreur/doublon.
   Future<int?> createBeneficiary(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;
@@ -36,7 +35,6 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     }
   }
 
-  /// Retourne null si succès, un message d'erreur sinon.
   Future<String?> addBeneficiary(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return 'Le nom ne peut pas être vide';
@@ -65,7 +63,6 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     await future;
   }
 
-  /// Tente de supprimer. Retourne un message d'erreur si utilisé, null si succès.
   Future<String?> deleteBeneficiary(int id) async {
     final usageCount = countUsages(id);
     if (usageCount > 0) {

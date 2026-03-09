@@ -11,8 +11,6 @@ part 'accounts_provider.g.dart';
 class AccountNotifier extends _$AccountNotifier {
   @override
   Future<List<AccountModel>> build() async {
-    // Riverpod rebuild automatiquement quand ces providers changent
-    // (remplace addListener/removeListener de l'ancien AccountViewModel)
     ref.watch(expenseProvider);
     ref.watch(revenueProvider);
     ref.watch(loanProvider);
@@ -41,8 +39,6 @@ class AccountNotifier extends _$AccountNotifier {
     ref.invalidateSelf();
     await future;
   }
-
-  // ============= Calculs (utilisent les données des autres providers) =============
 
   double getAccountBalance(int accountId) {
     final expenses = ref.read(expenseProvider).value ?? [];

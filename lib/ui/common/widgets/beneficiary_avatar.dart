@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Avatar circulaire affichant l'initiale d'un bénéficiaire.
-/// Utilisé dans la liste des bénéficiaires (Settings) et dans les cartes de dépenses/revenus.
 class BeneficiaryAvatar extends StatelessWidget {
   final String name;
   final double radius;

@@ -46,8 +46,6 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     await future;
   }
 
-  // ============= Calculs et filtres =============
-
   List<ExpenseModel> _currentExpenses() => state.value ?? [];
 
   double getMonthlyExpenses() => getTotalExpenses(_currentExpenses());

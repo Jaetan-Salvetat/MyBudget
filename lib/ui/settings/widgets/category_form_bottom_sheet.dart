@@ -35,20 +35,20 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
   late String _selectedIcon;
 
   static const List<int> _colors = [
-    0xFFEF5350, // rouge
-    0xFFEC407A, // rose
-    0xFFAB47BC, // violet
-    0xFF7E57C2, // violet foncé
-    0xFF42A5F5, // bleu
-    0xFF26C6DA, // cyan
-    0xFF26A69A, // teal
-    0xFF66BB6A, // vert
-    0xFFD4E157, // vert clair
-    0xFFFFCA28, // jaune
-    0xFFFFA726, // orange
-    0xFF8D6E63, // marron
-    0xFF78909C, // bleu-gris
-    0xFF9E9E9E, // gris
+    0xFFEF5350,
+    0xFFEC407A,
+    0xFFAB47BC,
+    0xFF7E57C2,
+    0xFF42A5F5,
+    0xFF26C6DA,
+    0xFF26A69A,
+    0xFF66BB6A,
+    0xFFD4E157,
+    0xFFFFCA28,
+    0xFFFFA726,
+    0xFF8D6E63,
+    0xFF78909C,
+    0xFF9E9E9E,
   ];
 
   static final List<IconData> _icons = [
@@ -78,7 +78,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initial?.name ?? '');
-    _selectedColor = widget.initial?.color ?? _colors[4]; // bleu par défaut
+    _selectedColor = widget.initial?.color ?? _colors[4];
     _selectedIcon = widget.initial?.icon ?? _icons.last.codePoint.toString();
   }
 
@@ -101,7 +101,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
       children: [
-        // Aperçu
         Center(
           child: Container(
             width: 64,
@@ -119,7 +118,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         ),
         const SizedBox(height: 20),
 
-        // Nom
         FrostedTextField(
           controller: _nameController,
           labelText: 'Nom de la catégorie',
@@ -127,7 +125,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         ),
         const SizedBox(height: 24),
 
-        // Sélecteur de couleur
         Text(
           'Couleur',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -174,7 +171,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         ),
         const SizedBox(height: 24),
 
-        // Sélecteur d'icône
         Text(
           'Icône',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -219,7 +215,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         ),
         const SizedBox(height: 28),
 
-        // Bouton valider
         SizedBox(
           width: double.infinity,
           child: FrostedFilledButton(

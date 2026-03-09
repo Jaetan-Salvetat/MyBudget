@@ -1,6 +1,6 @@
 class ExpenseFilterData {
-  int? startDay; // jour du mois, 1-31
-  int? endDay; // jour du mois, 1-31
+  int? startDay;
+  int? endDay;
   double? minAmount;
   double? maxAmount;
   String? searchQuery;

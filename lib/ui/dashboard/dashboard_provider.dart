@@ -38,7 +38,6 @@ class DashboardNotifier extends _$DashboardNotifier {
     final totalMonthlyLoanPayments = ref.watch(totalMonthlyLoanPaymentsProvider);
     final totalExpenses = monthlyExpenses + totalMonthlyLoanPayments;
 
-    // Calcul des résumés par catégorie
     final categoryExpensesMap = ref.watch(expensesByCategoryProvider);
     final List<CategoryExpenseSummary> summaries = [];
 

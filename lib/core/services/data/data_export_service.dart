@@ -22,7 +22,6 @@ class DataExportService {
     required this.loanRepo,
   });
 
-  /// Construit la map JSON d'export. Pas d'I/O fichier.
   Map<String, dynamic> buildExportData() {
     final now = DateTime.now();
     final dateStr =

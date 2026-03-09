@@ -77,7 +77,6 @@ class DataNotifier extends _$DataNotifier {
     );
   }
 
-  /// Exporte les données et retourne le chemin du fichier temporaire.
   Future<String> exportUserData() async {
     try {
       state = state.copyWith(isExporting: true, error: '');
@@ -100,7 +99,6 @@ class DataNotifier extends _$DataNotifier {
     }
   }
 
-  /// Importe les données depuis un contenu JSON brut.
   Future<void> importUserData(String jsonContent) async {
     try {
       state = state.copyWith(
@@ -113,7 +111,6 @@ class DataNotifier extends _$DataNotifier {
       final data = jsonDecode(jsonContent) as Map<String, dynamic>;
       final importService = _createImportService();
 
-      // Phase 1 : validation (pas de modification en BDD)
       final validated = importService.validate(data);
 
       if (validated.errors.isNotEmpty) {
@@ -122,7 +119,6 @@ class DataNotifier extends _$DataNotifier {
         );
       }
 
-      // Phase 2 : exécution (deleteAll + insert avec remapping)
       state = state.copyWith(
         importStatus: 'Importation en cours...',
         importProgress: 0.05,
@@ -138,7 +134,6 @@ class DataNotifier extends _$DataNotifier {
         },
       );
 
-      // Marquer les catégories comme créées si des catégories ont été importées
       if (validated.hasCategories) {
         await PreferencesService.setCategoriesCreated();
       }
@@ -155,7 +150,6 @@ class DataNotifier extends _$DataNotifier {
     }
   }
 
-  /// Supprime toutes les données utilisateur.
   Future<void> deleteAllUserData() async {
     try {
       state = state.copyWith(isDeleting: true, error: '');

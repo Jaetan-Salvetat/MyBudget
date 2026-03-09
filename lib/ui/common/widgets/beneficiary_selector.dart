@@ -4,12 +4,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
-/// Widget réutilisable pour sélectionner ou créer un bénéficiaire.
-/// - Switch ON/OFF pour activer la sélection
-/// - Mode dropdown : sélection parmi les bénéficiaires existants (réactif via Consumer)
-/// - Mode création : champ texte + "Confirmer" qui crée immédiatement en base
-///
-/// [onChanged] est appelé avec l'id sélectionné (ou null si switch OFF).
 class BeneficiarySelector extends ConsumerStatefulWidget {
   final int? initialBeneficiaryId;
   final ValueChanged<int?> onChanged;

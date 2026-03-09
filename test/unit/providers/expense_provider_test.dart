@@ -102,7 +102,7 @@ void main() {
 
     final total = container.read(expenseProvider.notifier).getTotalExpenses();
 
-    expect(total, 600.0); // 500 + 1200/12
+    expect(total, 600.0);
   });
 
   test('getTotalExpenses with empty list returns 0.0', () async {
@@ -140,14 +140,14 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Orphan expense',
       amount: 100,
-      categoryId: 999, // n'existe pas dans le repo
+      categoryId: 999,
       date: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockCategoryRepo.get(999)).thenReturn(null); // catégorie inconnue
+    when(() => mockCategoryRepo.get(999)).thenReturn(null);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -156,15 +156,12 @@ void main() {
 
     final result = container.read(expenseProvider.notifier).getExpensesByCategory();
 
-    // Pas de crash, la catégorie inconnue est ignorée
     expect(result, isEmpty);
   });
 
   test('getUpcomingExpenses includes monthly expense due later this month', () async {
     final now = DateTime.now();
-    // Crée une dépense dont le jour est dans 3 jours (donc "à venir")
     final futureDay = now.day + 3;
-    // Si on dépasse la fin du mois, skip ce test (cas limite de calendrier)
     if (futureDay > 28) return;
 
     final upcoming = ExpenseModel.create(
@@ -179,7 +176,7 @@ void main() {
       name: 'Past',
       amount: 100,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 1), // 1er du mois (peut être passé)
+      date: DateTime(now.year, now.month, 1),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -199,7 +196,7 @@ void main() {
   test('getUpcomingExpenses includes annual expense due this month', () async {
     final now = DateTime.now();
     final futureDay = now.day + 2;
-    if (futureDay > 28) return; // cas limite de calendrier
+    if (futureDay > 28) return;
 
     final annualThisMonth = ExpenseModel.create(
       name: 'Annual This Month',
@@ -213,7 +210,7 @@ void main() {
       name: 'Annual Other Month',
       amount: 300,
       categoryId: 1,
-      date: DateTime(now.year, (now.month % 12) + 1, 15), // autre mois
+      date: DateTime(now.year, (now.month % 12) + 1, 15),
       frequency: 'Annuel',
       accountId: 1,
     );
