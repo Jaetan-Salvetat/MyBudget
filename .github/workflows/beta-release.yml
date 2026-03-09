@@ -1,9 +1,7 @@
 name: Create Beta Release
 
 on:
-  push:
-    branches:
-      - beta
+  workflow_dispatch:
 
 jobs:
   create_beta_release:
