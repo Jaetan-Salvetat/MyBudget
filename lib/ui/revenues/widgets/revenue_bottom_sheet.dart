@@ -3,7 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
-import 'package:mybudget/ui/common/widgets/frosted_date_selector.dart';
+import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
@@ -51,7 +51,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   String? _nameError;
   String? _amountError;
 
-  // null = aucun ou switch OFF, >0 = id existant sélectionné
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
 
@@ -244,7 +243,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
           InkWell(
             onTap: () async {
-              final picked = await FrostedDateSelector.showDayPicker(
+              final picked = await DateSelector.showDayPicker(
                 context: context,
                 initialDate: _selectedDate,
               );

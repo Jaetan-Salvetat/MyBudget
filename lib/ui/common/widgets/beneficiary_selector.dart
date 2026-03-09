@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
-import 'package:provider/provider.dart';
+import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
-/// Widget réutilisable pour sélectionner ou créer un bénéficiaire.
-/// - Switch ON/OFF pour activer la sélection
-/// - Mode dropdown : sélection parmi les bénéficiaires existants (réactif via Consumer)
-/// - Mode création : champ texte + "Confirmer" qui crée immédiatement en base
-///
-/// [onChanged] est appelé avec l'id sélectionné (ou null si switch OFF).
-class BeneficiarySelector extends StatefulWidget {
+class BeneficiarySelector extends ConsumerStatefulWidget {
   final int? initialBeneficiaryId;
   final ValueChanged<int?> onChanged;
 
@@ -21,10 +15,10 @@ class BeneficiarySelector extends StatefulWidget {
   });
 
   @override
-  State<BeneficiarySelector> createState() => _BeneficiarySelectorState();
+  ConsumerState<BeneficiarySelector> createState() => _BeneficiarySelectorState();
 }
 
-class _BeneficiarySelectorState extends State<BeneficiarySelector> {
+class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
   bool _enabled = false;
   int? _selectedId;
   bool _isCreating = false;
@@ -67,13 +61,15 @@ class _BeneficiarySelectorState extends State<BeneficiarySelector> {
     widget.onChanged(value);
   }
 
-  Future<void> _confirmCreate(BeneficiaryViewModel beneficiaryVM) async {
+  Future<void> _confirmCreate() async {
+    final beneficiaryNotifier = ref.read(beneficiaryProvider.notifier);
+    final beneficiaries = ref.read(beneficiaryProvider).value ?? [];
     final name = _newNameController.text.trim();
     if (name.isEmpty) {
       setState(() => _createError = 'Le nom ne peut pas être vide');
       return;
     }
-    final duplicate = beneficiaryVM.beneficiaries.any(
+    final duplicate = beneficiaries.any(
       (b) => b.name.toLowerCase() == name.toLowerCase(),
     );
     if (duplicate) {
@@ -86,7 +82,7 @@ class _BeneficiarySelectorState extends State<BeneficiarySelector> {
       _createError = null;
     });
 
-    final newId = await beneficiaryVM.createBeneficiary(name);
+    final newId = await beneficiaryNotifier.createBeneficiary(name);
 
     if (!mounted) return;
 
@@ -108,109 +104,105 @@ class _BeneficiarySelectorState extends State<BeneficiarySelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BeneficiaryViewModel>(
-      builder: (context, beneficiaryVM, _) {
-        final beneficiaries = beneficiaryVM.beneficiaries;
+    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Bénéficiaire',
+            Text(
+              'Bénéficiaire',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Switch(
+              value: _enabled,
+              onChanged: (v) => _onToggle(v, beneficiaries),
+            ),
+          ],
+        ),
+        if (_enabled) ...[
+          const SizedBox(height: 12),
+          if (_isCreating) ...[
+            FrostedTextField(
+              controller: _newNameController,
+              labelText: 'Nom du bénéficiaire',
+              hintText: 'Ex: Paul',
+              prefixIcon: const Icon(Icons.person_outline),
+            ),
+            if (_createError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                child: Text(
+                  _createError!,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
                   ),
                 ),
-                Switch(
-                  value: _enabled,
-                  onChanged: (v) => _onToggle(v, beneficiaries),
+              ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (beneficiaries.isNotEmpty)
+                  FrostedTextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () => setState(() {
+                              _isCreating = false;
+                              _newNameController.clear();
+                              _createError = null;
+                            }),
+                    child: const Text('Annuler'),
+                  ),
+                const Spacer(),
+                _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : FrostedFilledButton(
+                        onPressed: _confirmCreate,
+                        child: const Text('Confirmer'),
+                      ),
+              ],
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: FrostedDropdown<int>(
+                    value: _selectedId,
+                    items: beneficiaries
+                        .map(
+                          (b) => DropdownMenuItem<int>(
+                            value: b.id,
+                            child: Text(b.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: _onDropdownChanged,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FrostedIconButton(
+                  icon: Icons.add,
+                  onPressed: () => setState(() {
+                    _isCreating = true;
+                    _newNameController.clear();
+                    _createError = null;
+                  }),
                 ),
               ],
             ),
-            if (_enabled) ...[
-              const SizedBox(height: 12),
-              if (_isCreating) ...[
-                FrostedTextField(
-                  controller: _newNameController,
-                  labelText: 'Nom du bénéficiaire',
-                  hintText: 'Ex: Paul',
-                  prefixIcon: const Icon(Icons.person_outline),
-                ),
-                if (_createError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      _createError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (beneficiaries.isNotEmpty)
-                      FrostedTextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () => setState(() {
-                                  _isCreating = false;
-                                  _newNameController.clear();
-                                  _createError = null;
-                                }),
-                        child: const Text('Annuler'),
-                      ),
-                    const Spacer(),
-                    _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : FrostedFilledButton(
-                            onPressed: () => _confirmCreate(beneficiaryVM),
-                            child: const Text('Confirmer'),
-                          ),
-                  ],
-                ),
-              ] else ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: FrostedDropdown<int>(
-                        value: _selectedId,
-                        items: beneficiaries
-                            .map(
-                              (b) => DropdownMenuItem<int>(
-                                value: b.id,
-                                child: Text(b.name),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: _onDropdownChanged,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    FrostedIconButton(
-                      icon: Icons.add,
-                      onPressed: () => setState(() {
-                        _isCreating = true;
-                        _newNameController.clear();
-                        _createError = null;
-                      }),
-                    ),
-                  ],
-                ),
-              ],
-            ],
           ],
-        );
-      },
+        ],
+      ],
     );
   }
 }

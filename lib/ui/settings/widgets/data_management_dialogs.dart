@@ -1,15 +1,15 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/services/data/import_report.dart';
 import 'package:mybudget/utils/app_utils.dart';
-import 'package:provider/provider.dart';
-import 'package:mybudget/ui/settings/data_viewmodel.dart';
+import 'package:mybudget/ui/settings/data_provider.dart';
 
 class DataManagementDialogs {
   static void showImportConfirmationDialog(
     BuildContext context,
-    File file,
-    DataViewModel dataVM,
+    WidgetRef ref,
+    String jsonContent,
   ) {
     FrostedDialog.show(
       context: context,
@@ -25,7 +25,7 @@ class DataManagementDialogs {
         FrostedFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
-            showImportProgressDialog(context, file, dataVM);
+            showImportProgressDialog(context, ref, jsonContent);
           },
           child: const Text('Importer'),
         ),
@@ -35,14 +35,15 @@ class DataManagementDialogs {
 
   static Future<void> showImportProgressDialog(
     BuildContext context,
-    File file,
-    DataViewModel dataVM,
+    WidgetRef ref,
+    String jsonContent,
   ) async {
     FrostedDialog.show(
       context: context,
       title: const Text('Importation en cours'),
-      content: Consumer<DataViewModel>(
-        builder: (context, vm, child) {
+      content: Consumer(
+        builder: (context, watchRef, child) {
+          final state = watchRef.watch(dataProvider);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -52,10 +53,10 @@ class DataManagementDialogs {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              FrostedLinearProgressIndicator(value: vm.importProgress),
+              FrostedLinearProgressIndicator(value: state.importProgress),
               const SizedBox(height: 10),
               Text(
-                vm.importStatus,
+                state.importStatus,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
@@ -65,18 +66,19 @@ class DataManagementDialogs {
       ),
     );
 
-    await dataVM.importUserData(context, file);
+    await ref.read(dataProvider.notifier).importUserData(jsonContent);
 
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
     if (context.mounted) {
-      if (dataVM.error.isNotEmpty) {
+      final dataState = ref.read(dataProvider);
+      if (dataState.error.isNotEmpty) {
         FrostedDialog.show(
           context: context,
           title: const Text('Erreur d\'importation'),
-          content: Text(dataVM.error),
+          content: Text(dataState.error),
           actions: [
             FrostedTonalButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -84,28 +86,75 @@ class DataManagementDialogs {
             ),
           ],
         );
+      } else if (dataState.importReport != null) {
+        showImportReportDialog(context, dataState.importReport!);
       } else {
-        FrostedDialog.show(
-          context: context,
-          title: const Text('Importation réussie'),
-          content: const Text(
-            'Les données ont été importées avec succès.\n\n'
-            'L\'application va redémarrer pour prendre en compte les changements.',
-          ),
-          actions: [
-            FrostedFilledButton(
-              onPressed: () => AppUtils.restartApp(context),
-              child: const Text('Redémarrer'),
-            ),
-          ],
+        _showRestartDialog(
+          context,
+          title: 'Importation réussie',
+          message:
+              'Les données ont été importées avec succès.\n\n'
+              'L\'application va redémarrer pour prendre en compte les changements.',
         );
       }
     }
   }
 
+  static void showImportReportDialog(
+    BuildContext context,
+    ImportReport report,
+  ) {
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Rapport d\'importation'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...report.all.map(
+            (entity) => _ImportReportRow(entity: entity),
+          ),
+          if (report.hasWarnings) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Certains éléments ont été ignorés ou ont échoué.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+          Text(
+            'L\'application va redémarrer pour prendre en compte les changements.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+      actions: [
+        FrostedFilledButton(
+          onPressed: () => AppUtils.restartApp(context),
+          child: const Text('Redémarrer'),
+        ),
+      ],
+    );
+  }
+
   static Future<void> showDeleteDataConfirmationDialog(
     BuildContext context,
-    DataViewModel dataVM,
+    WidgetRef ref,
   ) async {
     FrostedDialog.show(
       context: context,
@@ -121,7 +170,7 @@ class DataManagementDialogs {
         FrostedFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
-            showDeleteProgressDialog(context, dataVM);
+            showDeleteProgressDialog(context, ref);
           },
           child: const Text('Supprimer'),
         ),
@@ -131,7 +180,7 @@ class DataManagementDialogs {
 
   static Future<void> showDeleteProgressDialog(
     BuildContext context,
-    DataViewModel dataVM,
+    WidgetRef ref,
   ) async {
     FrostedDialog.show(
       context: context,
@@ -149,18 +198,19 @@ class DataManagementDialogs {
       ),
     );
 
-    await dataVM.deleteAllUserData(context);
+    await ref.read(dataProvider.notifier).deleteAllUserData();
 
     if (context.mounted) {
       Navigator.of(context).pop();
     }
 
     if (context.mounted) {
-      if (dataVM.error.isNotEmpty) {
+      final error = ref.read(dataProvider).error;
+      if (error.isNotEmpty) {
         FrostedDialog.show(
           context: context,
           title: const Text('Erreur de suppression'),
-          content: Text(dataVM.error),
+          content: Text(error),
           actions: [
             FrostedTonalButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -169,21 +219,92 @@ class DataManagementDialogs {
           ],
         );
       } else {
-        FrostedDialog.show(
-          context: context,
-          title: const Text('Suppression réussie'),
-          content: const Text(
-            'Toutes les données ont été supprimées avec succès.\n\n'
-            'L\'application va redémarrer pour prendre en compte les changements.',
-          ),
-          actions: [
-            FrostedFilledButton(
-              onPressed: () => AppUtils.restartApp(context),
-              child: const Text('Redémarrer'),
-            ),
-          ],
+        _showRestartDialog(
+          context,
+          title: 'Suppression réussie',
+          message:
+              'Toutes les données ont été supprimées avec succès.\n\n'
+              'L\'application va redémarrer pour prendre en compte les changements.',
         );
       }
     }
+  }
+
+  static void _showRestartDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) {
+    FrostedDialog.show(
+      context: context,
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        FrostedFilledButton(
+          onPressed: () => AppUtils.restartApp(context),
+          child: const Text('Redémarrer'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImportReportRow extends StatelessWidget {
+  final ImportEntityReport entity;
+
+  const _ImportReportRow({required this.entity});
+
+  @override
+  Widget build(BuildContext context) {
+    if (entity.total == 0) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            entity.hasIssues ? Icons.warning_amber_rounded : Icons.check_circle,
+            color: entity.hasIssues
+                ? theme.colorScheme.error
+                : theme.colorScheme.primary,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              entity.entityName,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+          Text(
+            '${entity.imported}',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (entity.skipped > 0) ...[
+            const SizedBox(width: 8),
+            Text(
+              '(${entity.skipped} ignorés)',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
+          if (entity.errors.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Text(
+              '(${entity.errors.length} erreurs)',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

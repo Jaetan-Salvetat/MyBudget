@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String accountName;
   final String? beneficiaryName;
+  final CategoryModel? category;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -16,6 +19,7 @@ class ExpenseCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     this.beneficiaryName,
+    this.category,
     super.key,
   });
 
@@ -39,18 +43,25 @@ class ExpenseCard extends StatelessWidget {
       onClick: onEdit,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+          if (beneficiaryName != null)
+            BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
+          else
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: category != null
+                    ? Color(category!.color).withValues(alpha: 0.15)
+                    : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category?.getIconData() ?? Icons.arrow_downward,
+                color: category != null
+                    ? Color(category!.color)
+                    : Theme.of(context).colorScheme.error,
+                size: 20,
+              ),
             ),
-            child: Icon(
-              Icons.arrow_downward,
-              color: Theme.of(context).colorScheme.error,
-              size: 20,
-            ),
-          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -62,6 +73,16 @@ class ExpenseCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (category != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    category!.name,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Color(category!.color),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Row(
                   children: [

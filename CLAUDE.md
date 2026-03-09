@@ -1,15 +1,24 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Coding Rules
+
+- **NEVER** use `--delete-conflicting-outputs` with `flutter pub run build_runner build`
+- **NEVER** add comments to code (no `//`, no `///`, no `/* */`)
+- **Keep CLAUDE.md as concise as possible** — no verbose explanations, only essential information
+- **Error handling** — always apply these 3 rules:
+  - Notifier mutations (`add`, `update`, `delete`): wrap in `try`/`catch` + `rethrow`
+  - UI call sites: wrap notifier calls in `try`/`catch` + `FrostedSnackbar.show(context, message: 'Erreur lors de <op>: $e')`
+  - Screens watching async providers: use `AsyncValue.when(data:, loading:, error:)` instead of `.value ?? []`
 
 ## Project Overview
 
-MyBudget is a local-first personal finance management Flutter application. It uses ObjectBox for local data storage and follows an MVVM architecture with the Provider pattern for state management. The app features a "Glassmorphism" (Frosted UI) design system.
+MyBudget is a local-first personal finance management Flutter application. It uses ObjectBox for local data storage and follows an MVVM architecture with **Riverpod 3** for state management. The app features a "Glassmorphism" (Frosted UI) design system.
 
-**Important concept**: MyBudget is a **static budget** app. It only tracks fixed, predictable income and expenses (rent, subscriptions, salary, loans, etc.). Variable/punctual spending (groceries, restaurants, impulse purchases) is intentionally out of scope. The goal is to give a clear picture of recurring financial commitments, not to track every transaction.
+**Static budget app**: only tracks fixed, predictable income/expenses (rent, subscriptions, salary, loans). Variable spending is out of scope.
 
 **Language**: French (fr_FR locale)
 **Flutter SDK**: ^3.7.2
+**Current version**: 0.4.0+22
 
 ## Common Commands
 
@@ -25,12 +34,12 @@ flutter run
 flutter test
 
 # Run a specific test file
-flutter test test/unit/viewmodels/expense_viewmodel_test.dart
+flutter test test/unit/providers/expense_provider_test.dart
 
 # Lint/analyze code
 flutter analyze
 
-# Generate ObjectBox code (after model changes)
+# Generate Riverpod + ObjectBox code (after model or provider changes)
 flutter pub run build_runner build
 ```
 
@@ -48,55 +57,56 @@ flutter build ios
 
 ## Architecture
 
-### MVVM + Repository Pattern
+### MVVM + Repository + Riverpod
 
 The app follows a clear separation of concerns:
 
 1. **Models** (`lib/models/`): ObjectBox entities annotated with `@Entity`
-   - AccountModel, ExpenseModel, RevenueModel, LoanModel, CategoryModel
+   - AccountModel, ExpenseModel, RevenueModel, LoanModel, CategoryModel, BeneficiaryModel
    - Each model has a `copyWith()`, `toJson()`, `fromJson()` method
+   - Non-ObjectBox utility models: ReleaseInfoModel, ExpenseFilterData, RevenueFilterData, CategoryDetailModel
 
 2. **Repositories** (`lib/core/repositories/`): Thin wrappers around ObjectBox `Box<T>`
    - Provide CRUD operations: `getAll()`, `get(id)`, `add()`, `update()`, `delete()`, `deleteAll()`
-   - Example: `ExpenseRepository`, `AccountRepository`
+   - 6 repositories: `AccountRepository`, `ExpenseRepository`, `RevenueRepository`, `LoanRepository`, `CategoryRepository`, `BeneficiaryRepository`
 
-3. **Domain Entities** (`lib/core/domain/`): Facade pattern over models
+3. **Entities** (`lib/core/entities/`): Facade pattern over models with computed logic
    - `Loan`: wraps `LoanModel` + calculation services, exposes computed properties
    - `LoanPaymentBreakdown`: immutable value object for payment decomposition
 
-4. **ViewModels** (`lib/ui/*/`): Extend `ChangeNotifier`
-   - Consume repositories via dependency injection
-   - Expose data and state to UI
-   - Call `notifyListeners()` to trigger UI updates
-   - Located alongside their respective screens
+4. **Providers** (`lib/ui/*/`): Riverpod `AsyncNotifier` or `Notifier` classes
+   - Named `*Notifier` (e.g. `ExpenseNotifier`, `LoanNotifier`)
+   - Files named `*_provider.dart` (e.g. `expenses_provider.dart`)
+   - Consume repositories via `ref.watch(repositoryProvider)`
+   - Expose CRUD methods + query/aggregation methods
+   - Use `ref.invalidateSelf()` + `await future` after mutations
+   - All annotated with `@Riverpod(keepAlive: true)` and code-generated
 
 5. **UI** (`lib/ui/`): Organized by feature
-   - Each feature has screens, ViewModels, and widgets
-   - Uses `Consumer` or `context.watch/read` to access ViewModels
+   - Each feature folder contains: `*_screen.dart`, `*_provider.dart`, `widgets/`
+   - Uses `ref.watch()` for reactive reads, `ref.read()` for one-shot calls
 
 ### Dependency Injection
 
-All dependencies are wired in [lib/main.dart](lib/main.dart) using `MultiProvider`:
-- Services (ObjectBoxService, PreferencesService) are initialized first
-- Repositories are created from ObjectBox boxes
-- ViewModels are provided as `ChangeNotifierProvider` or `ChangeNotifierProxyProvider`
-- Complex dependencies use `ChangeNotifierProxyProvider4` (e.g., AccountViewModel depends on 4 other ViewModels)
+All dependencies are wired via Riverpod providers in `lib/core/providers/providers.dart`:
+- `ObjectBoxService` initialized at app startup
+- Repository providers created from ObjectBox boxes
+- Notifier providers annotated with `@Riverpod(keepAlive: true)`
 
-**Provider order in main.dart:**
-1. ObjectBoxService (value)
-2. Repositories (5 repos)
-3. Simple ViewModels: SettingsViewModel, UpdateViewModel, ThemeViewModel, CategoryViewModel, ExpenseViewModel, RevenueViewModel, LoanViewModel
-4. Proxy ViewModels: AccountViewModel (depends on 3 ViewModels), DataViewModel, DashboardViewModel
+**Riverpod generation**: After adding/modifying a `@riverpod` annotated class or function, run:
+```bash
+flutter pub run build_runner build
+```
 
 ### Data Flow
 
 ```
 ObjectBoxService (initializes Store)
   → Repositories (wrap Box<T>)
-  → ViewModels (business logic + state)
-  → UI (renders data)
+  → Notifiers (business logic + state, via ref.watch)
+  → UI (ref.watch / ref.read)
 
-LoanModel (persisted) → LoanService.createLoan() → Loan (domain entity with computed logic)
+LoanModel (persisted) → LoanService.createLoans() → Loan (entity with computed logic)
 ```
 
 ## Key Technical Details
@@ -105,7 +115,7 @@ LoanModel (persisted) → LoanService.createLoan() → Loan (domain entity with 
 
 - **Service**: [lib/core/services/objectbox_service.dart](lib/core/services/objectbox_service.dart)
 - Singleton pattern with `getInstance()` and `resetInstance()` for tests
-- Boxes: categoryBox, expenseBox, revenueBox, accountBox, loanBox
+- Boxes: categoryBox, expenseBox, revenueBox, accountBox, loanBox, beneficiaryBox
 - Generated code in [lib/objectbox.g.dart](lib/objectbox.g.dart)
 - Schema in [lib/objectbox-model.json](lib/objectbox-model.json)
 - After modifying `@Entity` models, regenerate with: `flutter pub run build_runner build`
@@ -125,17 +135,35 @@ See [lib/core/enums/frequency.dart](lib/core/enums/frequency.dart):
 - `Frequency.monthly`: Recurring every month — label: "Mensuel"
 - `Frequency.annual`: Recurring every year — label: "Annuel"
 - Methods: `label` getter, `fromString(value)` factory
+- **⚠️ Known issue**: `fromString()` compares on the French label string, not on `enum.name`. Do not rename labels without updating stored data.
 
-### Annual Expense Calculation Mode
+### Annual Expense Calculation
 
-Configurable via `SettingsViewModel` and `AnnualExpenseCalculationMode` enum:
-- `monthlyAmortized`: annual expense ÷ 12, spread across all months
-- `dateBasedOnly`: annual expense only shown in the month it occurs
+Annual expenses are always amortized: `amount / 12` spread across all months.
+There is no configuration mode for this — it is fixed behavior in `ExpenseNotifier.getTotalExpenses()`.
+
+### Beneficiary System
+
+Expenses and revenues can be linked to a **beneficiary** (e.g., a person or organization).
+
+- **BeneficiaryModel** (`lib/models/beneficiary_model.dart`): ObjectBox entity with `id`, `name`
+- **BeneficiaryRepository** (`lib/core/repositories/beneficiary_repository.dart`): standard CRUD
+- **BeneficiaryNotifier** (`lib/ui/settings/beneficiary_provider.dart`): manages list of beneficiaries
+- **BeneficiarySelector** (`lib/ui/common/widgets/beneficiary_selector.dart`):
+  - Uses `ref.watch(beneficiaryProvider)` internally — **do NOT pass a static list as parameter**
+  - Creates beneficiaries inline without closing the bottom sheet
+  - Props: `initialBeneficiaryId`, `onChanged`
+
+### Revenue Types
+
+`RevenueModel` has an `isRegular` boolean field:
+- `isRegular = true`: fixed, recurring salary/income — shown in dashboard totals
+- `isRegular = false`: occasional/one-time income — separated in the UI list
 
 ### Enum Storage Pattern
 
 Models use a consistent pattern for storing enums in ObjectBox:
-- Enums are stored as **string IDs** (e.g., `repaymentTypeId`, `insuranceTypeId`)
+- Enums are stored as **string IDs** using `enum.name` (e.g., `repaymentTypeId`, `insuranceTypeId`)
 - Dart getters/setters provide enum conversion for cleaner code
 - Example in [lib/models/loan_model.dart](lib/models/loan_model.dart):
   ```dart
@@ -168,7 +196,7 @@ Models use a consistent pattern for storing enums in ObjectBox:
 - Use `FrostedSnackbar` for notifications
 - Use `FrostedLinearProgressIndicator` for progress bars
 
-The package is imported from GitHub:
+The package is a private lib imported from GitHub:
 ```dart
 import 'package:frosted_ui/frosted_ui.dart';
 ```
@@ -198,11 +226,11 @@ Settings accessible via dedicated screen (push route from HomeScreen).
 
 ### Theme System
 
-- **ThemeViewModel**: manages `AppThemeType` + `ThemeMode`
+- **ThemeNotifier** (`lib/core/theme/theme_provider.dart`): manages `AppThemeType` + `ThemeMode`
 - **AppThemeType** enum: `dynamicColor`, `purple`, `green`, `blue`, `cyan`, `red`, `orange`
   - Each has a `seedColor` and `label`
 - **Dynamic Color**: Material You support via `dynamic_color` package, falls back to seed color
-- **DynamicColorBuilder**: wraps MaterialApp in main.dart with `Consumer<ThemeViewModel>`
+- **DynamicColorBuilder**: wraps MaterialApp in main.dart
 - Persisted via `PreferencesService` (keys: `themeMode`, `themeType`)
 
 ### Loan Calculation System
@@ -220,7 +248,7 @@ The loan feature has a sophisticated architecture with specialized services:
   - Generates detailed payment schedules
   - Breaks down each payment into capital, interest, and insurance
 
-- **Loan** domain entity ([lib/core/domain/loan.dart](lib/core/domain/loan.dart)):
+- **Loan** entity ([lib/core/entities/loan.dart](lib/core/entities/loan.dart)):
   - Facade over LoanModel + calculation services
   - Exposes computed: `currentMonthlyPayment`, `remainingCapital`, `remainingMonths`, `totalPaidAmount`, `progressPercentage`, `totalCost`, `remainingCost`
   - Status: `isCompleted`, `isPending`, `isActive`, `isInDeferredPeriod`, `getStatus()`
@@ -244,104 +272,132 @@ The loan feature has a sophisticated architecture with specialized services:
 
 ### Form Validation
 
-Models have built-in validators called in ViewModel add/update methods:
+Models have built-in validators called in Notifier add/update methods:
 - **ExpenseModel**: validates name, amount, categoryId
 - **RevenueModel**: validates name, amount, accountId, date
 - Validators throw exceptions that propagate to UI for display
 
 ### Data Import/Export
 
-- **DataViewModel** ([lib/ui/settings/data_viewmodel.dart](lib/ui/settings/data_viewmodel.dart)):
-  - Exports all data (accounts, expenses, revenues, loans, categories) to JSON
-  - Imports data from JSON backup files with ID remapping for orphaned records
-  - Uses `share_plus` for sharing backup files
-  - Uses `file_picker` for selecting import files
-  - State: `_isExporting`, `_isImporting`, `_isDeleting`, `_importProgress`, `_importStatus`
+Architecture in 3 layers:
+
+- **Pure services** (`lib/core/services/data/`):
+  - `DataImportService`: validates JSON (`validate()`) THEN executes import (`execute()`) with ID remapping. Receives 6 repositories via constructor. No Riverpod, no BuildContext.
+  - `DataExportService`: builds JSON export map (`buildExportData()`) from all repositories. Uses `toJson()` on all models (including loans in camelCase).
+  - `ImportReport` / `ImportEntityReport`: value objects with per-entity counters (total, imported, skipped, errors).
+  - `ImportValidationResult`: parsed entities with old IDs preserved for remapping.
+
+- **DataNotifier** ([lib/ui/settings/data_provider.dart](lib/ui/settings/data_provider.dart)):
+  - Thin orchestrator: delegates to services, manages state transitions.
+  - `exportUserData()` → returns temp file path (no BuildContext).
+  - `importUserData(String jsonContent)` → validate-then-execute, sets `importReport` in state.
+  - `deleteAllUserData()` → deletes all repos + clears preferences (no BuildContext).
+  - State fields: `isExporting`, `isImporting`, `isDeleting`, `importProgress`, `importStatus`, `error`, `importReport`.
+
+- **UI** (`data_section.dart`, `data_management_dialogs.dart`):
+  - File I/O (`file_picker`, `share_plus`) handled at UI layer.
+  - `showImportReportDialog()` displays per-entity import results with icons and counters.
 
 ### Auto-Update System
 
-- **UpdateViewModel** ([lib/ui/settings/update_viewmodel.dart](lib/ui/settings/update_viewmodel.dart)):
+- **UpdateNotifier** ([lib/ui/settings/update_provider.dart](lib/ui/settings/update_provider.dart)):
   - Checks for new versions via GitHub releases API
-  - Filters releases by app type (beta vs production)
-  - **GithubService**: fetches and parses latest release info
+  - Filters releases by app type: beta (`isBeta = packageName.endsWith('.beta')`) vs production
+  - Version comparison: strips `-beta` suffix before `Version.parse()` on both current and remote versions
+  - **GithubService**: fetches releases, injects `GITHUB_TOKEN` from `.env` via `flutter_dotenv`
   - **DownloadService**: downloads APK with progress callback
   - **InstallService**: triggers APK installation via `app_installer`
   - Version comparison uses `version` package
 
+### Environment Variables (.env)
+
+The app uses `flutter_dotenv` to load a `.env` file at startup (in `main.dart`):
+```
+GITHUB_TOKEN=your_pat_token_here
+```
+- The `.env` file is **gitignored** and must be created manually locally
+- In CI/CD, the `.env` is created from the `GITHUB_TOKEN_READONLY` GitHub secret (not `GITHUB_TOKEN` which is reserved)
+- The token requires **Contents: Read-only** access on the GitHub repo
+- Used by `GithubService` to authenticate API requests
+
 ### Preferences System
 
-**PreferencesService** wraps SharedPreferences with typed getters/setters:
-- `isFirstLaunch`, `isCategoriesCreated`: onboarding flags
-- `themeMode`, `themeType`: theme persistence
-- `annualExpenseCalculationMode`: expense display mode
-- `skipAuth`, `notifications`, `exportFrequency`: other settings
+**PreferencesService** (`lib/core/services/preferences_service.dart`) wraps SharedPreferences with typed static getters/setters. Must be initialized at startup with `await PreferencesService.init()` before use.
+
+Available keys:
+- `isFirstLaunch()`, `setNotFirstLaunch()`: onboarding flag
+- `isCategoriesCreated()`, `setCategoriesCreated()`: onboarding flag
+- `getThemeMode()`, `setThemeMode()`: ThemeMode persistence
+- `getThemeType()`, `setThemeType()`: AppThemeType persistence
 
 ### App Restart
 
 Uses `restart_app` package via `RestartWidget` wrapper in main.dart. Called after data reset to cleanly re-initialize ObjectBox.
-
-### Testing
-
-- Tests located in `test/unit/` (viewmodels, models, services, utils)
-- Uses `mocktail` for mocking repositories and services
-- Widget tests in `test/widget/`
-- CI runs tests on PRs via GitHub Actions
-
-**Test coverage:**
-- ViewModels: expense, account, loan, category, revenues, settings, data, update, dashboard, loan_creation, loan_edit, theme
-- Models: account, expense, revenue, category
-- Services: loan_calculation, loan_payment_breakdown, github
-- Utils: extensions (DateExtension)
-- Widgets: loan_summary_card, appearance_section, category_summary_card
 
 ## Important Patterns
 
 ### Adding a New Feature with ObjectBox
 
 1. Create model in `lib/models/` with `@Entity()` annotation + `toJson()`/`fromJson()`
-2. Run `flutter pub run build_runner build` to generate ObjectBox code
+2. Run `flutter pub run build_runner build`
 3. Add box to `ObjectBoxService` (in `_init()` method)
 4. Create repository in `lib/core/repositories/`
-5. Create ViewModel extending `ChangeNotifier`
-6. Register repository and ViewModel in `main.dart` providers
-7. Create UI in `lib/ui/`
+5. Create `*_provider.dart` in `lib/ui/<feature>/` with `@Riverpod(keepAlive: true)` annotation
+6. Run build_runner again to generate the `.g.dart` file
+7. Register repository provider in `lib/core/providers/providers.dart`
+8. Create UI in `lib/ui/<feature>/`
 
-### ViewModel Pattern
+### Notifier Pattern (Riverpod)
 
-ViewModels should:
-- Accept repositories via constructor
-- Initialize data in constructor or `loadData()` method
-- Expose state as getters (`expenses`, `isLoading`, `error`)
-- Use `try-catch-finally` with `notifyListeners()`
-- Call `notifyListeners()` after state changes
-- Handle error as `String? _error` set in catch, cleared before operations
+Notifiers should:
+- Extend `_$NotifierName` (generated)
+- Load data in `build()` via `ref.watch(repositoryProvider)`
+- Expose CRUD methods that call `ref.invalidateSelf()` + `await future` after mutations
+- Expose query/aggregation methods that compute from `state.value ?? []`
+- Be annotated with `@Riverpod(keepAlive: true)`
 
-### Listener Cleanup Pattern
-
-When a ViewModel listens to another ViewModel:
+Example:
 ```dart
-_otherViewModel.addListener(_notifyListeners);
+@Riverpod(keepAlive: true)
+class ExpenseNotifier extends _$ExpenseNotifier {
+  @override
+  Future<List<ExpenseModel>> build() async {
+    final repo = ref.watch(expenseRepositoryProvider);
+    return repo.getAll();
+  }
 
-@override
-void dispose() {
-  _otherViewModel.removeListener(_notifyListeners);
-  super.dispose();
+  Future<void> addExpense(ExpenseModel expense) async {
+    ref.read(expenseRepositoryProvider).add(expense);
+    ref.invalidateSelf();
+    await future;
+  }
+
+  List<ExpenseModel> get _expenses => state.value ?? [];
+
+  double getMonthlyExpenses() { /* compute from _expenses */ }
 }
 ```
-Used in: AccountViewModel, DashboardViewModel.
 
-### Working with Provider
+### Derived Providers (for shared computed values)
 
-- Use `context.read<T>()` for one-time reads (e.g., calling methods)
-- Use `context.watch<T>()` or `Consumer<T>` to rebuild on changes
-- Avoid calling `notifyListeners()` inside build methods
+When a computed value is used by multiple features (e.g., dashboard + account details),
+prefer a **derived provider** over a method on the notifier:
 
-### Handling Complex Dependencies
+```dart
+@riverpod
+double monthlyExpenses(Ref ref) {
+  final expenses = ref.watch(expenseProvider).value ?? [];
+  return ExpenseQueryService.getMonthlyExpenses(expenses);
+}
+```
 
-When a ViewModel depends on other ViewModels (not just repositories):
-- Use `ChangeNotifierProxyProvider` or `ChangeNotifierProxyProvider4`
-- Example: AccountViewModel depends on ExpenseViewModel, RevenueViewModel, LoanViewModel
-- See [lib/main.dart](lib/main.dart) for the pattern
+This is the idiomatic Riverpod approach: each computed value is an autonomous, reactive, testable provider.
+
+### Working with Riverpod in UI
+
+- Use `ref.watch(provider)` to rebuild on state changes
+- Use `ref.read(provider.notifier).method()` for one-shot calls (e.g., button taps)
+- Use `AsyncValue.when(data:, loading:, error:)` to handle async provider states
 
 ### JSON Serialization
 
@@ -349,18 +405,67 @@ All ObjectBox models implement:
 - `toJson()`: Converts model to `Map<String, dynamic>`
 - `fromJson()`: Factory constructor to create model from JSON
 - IDs stored as strings in JSON
-- Used for data export/import in DataViewModel
+- Used for data export/import in DataNotifier
 
 ### Category Icon Resolution
 
 `CategoryModel.getIconData()` maps icon name strings to `IconData`. Always use this method when displaying category icons in the UI.
 
+## Testing
+
+### Test structure
+
+```
+test/
+├── unit/
+│   ├── providers/
+│   ├── models/
+│   ├── services/
+│   └── utils/
+└── widget/
+```
+
+### Test conventions
+
+- Uses `mocktail` for mocking repositories
+- Provider tests use `ProviderContainer` with `overrides`
+- Always `await container.read(xxxProvider.future)` before reading state for AsyncNotifiers
+- `SharedPreferences.setMockInitialValues({})` + `await PreferencesService.init()` in `setUp` when testing providers that depend on preferences
+- Use `addTearDown(container.dispose)` to clean up containers
+
+**Test coverage (189 tests passing):**
+- Providers: expense, account, loan, loan_creation, loan_edit, category, revenues, data, update, dashboard, theme, beneficiary
+- Models: account, expense, revenue, category, loan
+- Services: loan_calculation, loan_payment_breakdown, github, preferences, data_import, data_export
+- Utils: extensions (DateExtension)
+- Widgets: loan_summary_card, appearance_section, category_summary_card
+
+## Architecture Backlog
+
+Known issues and planned refactors (do not implement without explicit instruction):
+
+| Priority | Item | Description |
+|---|---|---|
+| Low | UI data layer | Create display data classes (`ExpenseDisplayData`, etc.) to decouple UI from ObjectBox models |
+| Low | Error handling | Add `try-catch` + error state in all Notifiers, display errors in UI |
+
 ## Build Flavors
 
 The app uses Flutter flavors for different environments:
 - **Production** (`prod`): Default flavor for release builds — `flutter build apk --flavor prod --release`
+  - `applicationId`: `fr.jaetan.mybudget`
 - **Beta** (`beta`): Testing flavor — `flutter build apk --flavor beta --release`
-  - Used in CI/CD for beta releases on GitHub (tagged with `-beta` suffix, marked as prerelease)
+  - `applicationId`: `fr.jaetan.mybudget.beta` (`.beta` suffix used by UpdateNotifier to detect beta builds)
+  - `versionNameSuffix`: `-beta` (stripped before version comparison in UpdateNotifier)
+  - Marked as prerelease on GitHub
+
+## Android Build Configuration
+
+- **Kotlin Gradle Plugin**: `2.1.0` (in `android/settings.gradle.kts`)
+- **AGP**: `8.7.0`
+- **Java**: `VERSION_17` (source + target, in `android/app/build.gradle.kts`)
+- **NDK**: `27.0.12077973`
+- `-Xlint:-options` applied globally in `android/build.gradle.kts` to suppress Java 8 obsolete warnings from third-party plugin sub-projects
 
 ## Branch Strategy
 
@@ -372,5 +477,7 @@ The app uses Flutter flavors for different environments:
 
 - **test.yml**: Runs `flutter test` on every PR
 - **lint.yml**: Runs `flutter analyze` on every PR
-- **release.yml**: On push to `main` — builds prod APK, creates GitHub release with tag
-- **beta-release.yml**: On push to `beta` — builds beta APK, creates prerelease with `-beta` tag
+- **release.yml**: On push to `main` — builds prod APK (`--flavor prod`), creates GitHub release with version tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
+- **beta-release.yml**: On push to `beta` — builds beta APK (`--flavor beta`), creates prerelease with `-beta` tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
+
+> **Note**: Use `GITHUB_TOKEN_READONLY` as the secret name in GitHub repo settings — `GITHUB_TOKEN` is a reserved name in GitHub Actions and would be overwritten.

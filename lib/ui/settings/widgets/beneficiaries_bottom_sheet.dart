@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
-import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
+import 'package:mybudget/ui/settings/beneficiary_provider.dart';
+import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
-class BeneficiariesBottomSheet extends StatelessWidget {
+class BeneficiariesBottomSheet extends ConsumerWidget {
   const BeneficiariesBottomSheet({super.key});
 
   static void show({required BuildContext context}) {
@@ -15,77 +16,70 @@ class BeneficiariesBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Consumer<BeneficiaryViewModel>(
-          builder: (context, beneficiaryVM, child) {
-            if (beneficiaryVM.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (beneficiaryVM.beneficiaries.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Center(
-                  child: Text(
-                    'Aucun bénéficiaire',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(beneficiaryProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (beneficiaries) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (beneficiaries.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: Center(
+                        child: Text(
+                          'Aucun bénéficiaire',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: beneficiaries.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final beneficiary = beneficiaries[index];
+                        return FrostedListTile(
+                          leading: BeneficiaryAvatar(name: beneficiary.name),
+                          title: Text(beneficiary.name),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed:
+                                () => _showDeleteConfirmation(
+                                  context,
+                                  ref,
+                                  beneficiary.id,
+                                  beneficiary.name,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: FrostedFilledButton.icon(
+                      onPressed: () => _showAddBeneficiaryDialog(context, ref),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter un bénéficiaire'),
                     ),
                   ),
-                ),
-              );
-            }
-
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: beneficiaryVM.beneficiaries.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final beneficiary = beneficiaryVM.beneficiaries[index];
-                return FrostedListTile(
-                  leading: CircleAvatar(
-                    child: Text(
-                      beneficiary.name.isNotEmpty
-                          ? beneficiary.name[0].toUpperCase()
-                          : '?',
-                    ),
-                  ),
-                  title: Text(beneficiary.name),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _showDeleteConfirmation(
-                      context,
-                      beneficiaryVM,
-                      beneficiary.id,
-                      beneficiary.name,
-                    ),
-                  ),
-                );
-              },
+                ],
+              ),
             );
           },
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FrostedFilledButton.icon(
-            onPressed: () => _showAddBeneficiaryDialog(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter un bénéficiaire'),
-          ),
-        ),
-      ],
-    );
+        );
   }
 
-  void _showAddBeneficiaryDialog(BuildContext context) {
-    final beneficiaryVM = Provider.of<BeneficiaryViewModel>(
-      context,
-      listen: false,
-    );
+  void _showAddBeneficiaryDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
     final errorNotifier = ValueNotifier<String>('');
 
@@ -126,12 +120,12 @@ class BeneficiariesBottomSheet extends StatelessWidget {
         ),
         FrostedFilledButton(
           onPressed: () async {
-            final error = await beneficiaryVM.addBeneficiary(nameController.text);
+            final error = await ref
+                .read(beneficiaryProvider.notifier)
+                .addBeneficiary(nameController.text);
             if (error == null) {
               if (context.mounted) Navigator.pop(context);
             }
-            // L'erreur est affichée dans le ViewModel mais le dialog est stateful,
-            // on le gère localement ici via snackbar pour simplifier.
             if (error != null && context.mounted) {
               FrostedSnackbar.show(context, message: error);
             }
@@ -144,10 +138,29 @@ class BeneficiariesBottomSheet extends StatelessWidget {
 
   void _showDeleteConfirmation(
     BuildContext context,
-    BeneficiaryViewModel vm,
+    WidgetRef ref,
     int id,
     String name,
   ) {
+    final usageCount = ref.read(beneficiaryProvider.notifier).countUsages(id);
+
+    if (usageCount > 0) {
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '$usageCount transaction${usageCount > 1 ? 's sont associées' : ' est associée'} à "$name". Réassignez-les avant de supprimer ce bénéficiaire.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Supprimer le bénéficiaire'),
@@ -160,7 +173,9 @@ class BeneficiariesBottomSheet extends StatelessWidget {
         FrostedFilledButton(
           onPressed: () async {
             Navigator.pop(context);
-            final error = await vm.deleteBeneficiary(id);
+            final error = await ref
+                .read(beneficiaryProvider.notifier)
+                .deleteBeneficiary(id);
             if (error != null && context.mounted) {
               FrostedSnackbar.show(context, message: error);
             }

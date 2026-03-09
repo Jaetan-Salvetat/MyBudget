@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mybudget/core/domain/loan.dart';
+import 'package:mybudget/core/entities/loan.dart';
 
 class LoanHeader extends StatelessWidget {
   final Loan loan;

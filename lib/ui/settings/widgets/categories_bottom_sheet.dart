@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
-import 'package:mybudget/ui/settings/category_viewmodel.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/ui/settings/widgets/category_form_bottom_sheet.dart';
 
-class CategoriesBottomSheet extends StatelessWidget {
+class CategoriesBottomSheet extends ConsumerWidget {
   const CategoriesBottomSheet({super.key});
 
   static void show({required BuildContext context}) {
@@ -16,130 +18,139 @@ class CategoriesBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Consumer<CategoryViewModel>(
-          builder: (context, categoryVM, child) {
-            if (categoryVM.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: categoryVM.categories.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final category = categoryVM.categories[index];
-                return FrostedListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Color(category.color).withAlpha(0x20),
-                    child: Icon(
-                      category.getIconData(),
-                      color: Color(category.color),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(categoryProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (categories) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: categories.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return FrostedListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Color(
+                            category.color,
+                          ).withAlpha(0x20),
+                          child: Icon(
+                            category.getIconData(),
+                            color: Color(category.color),
+                          ),
+                        ),
+                        title: Text(category.name),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed:
+                              () => _showDeleteConfirmation(
+                                context,
+                                ref,
+                                category,
+                              ),
+                        ),
+                        onTap:
+                            () => _showEditCategoryForm(context, ref, category),
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: FrostedFilledButton.icon(
+                      onPressed: () => _showAddCategoryForm(context, ref),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter une catégorie'),
                     ),
                   ),
-                  title: Text(category.name),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed:
-                        () => _showDeleteConfirmation(
-                          context,
-                          categoryVM,
-                          category,
-                        ),
-                  ),
-                  onTap:
-                      () => _showEditCategoryDialog(
-                        context,
-                        categoryVM,
-                        category,
-                      ),
-                );
-              },
+                ],
+              ),
             );
           },
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FrostedFilledButton.icon(
-            onPressed: () => _showAddCategoryDialog(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter une catégorie'),
-          ),
-        ),
-      ],
-    );
+        );
   }
 
-  void _showAddCategoryDialog(BuildContext context) {
-    final categoryVM = Provider.of<CategoryViewModel>(context, listen: false);
-    final nameController = TextEditingController();
-
-    FrostedDialog.show(
+  void _showAddCategoryForm(BuildContext context, WidgetRef ref) {
+    CategoryFormBottomSheet.show(
       context: context,
-      title: const Text('Nouvelle catégorie'),
-      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
-      actions: [
-        FrostedTonalButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            if (nameController.text.isNotEmpty) {
-              categoryVM.addCategory(
-                CategoryModel.create(
-                  name: nameController.text,
-                  icon: Icons.category.codePoint.toString(),
-                  color: Colors.blue.toARGB32(),
-                ),
+      onSubmit: (name, color, icon) async {
+        try {
+          await ref
+              .read(categoryProvider.notifier)
+              .addCategory(
+                CategoryModel.create(name: name, icon: icon, color: color),
               );
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Ajouter'),
-        ),
-      ],
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de l\'ajout: \$e',
+            );
+          }
+        }
+      },
     );
   }
 
-  void _showEditCategoryDialog(
+  void _showEditCategoryForm(
     BuildContext context,
-    CategoryViewModel vm,
+    WidgetRef ref,
     CategoryModel category,
   ) {
-    final nameController = TextEditingController(text: category.name);
-
-    FrostedDialog.show(
+    CategoryFormBottomSheet.show(
       context: context,
-      title: const Text('Modifier la catégorie'),
-      content: FrostedTextField(controller: nameController, labelText: 'Nom'),
-      actions: [
-        FrostedTonalButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            if (nameController.text.isNotEmpty) {
-              vm.updateCategory(category.copyWith(name: nameController.text));
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Enregistrer'),
-        ),
-      ],
+      initial: category,
+      onSubmit: (name, color, icon) async {
+        try {
+          await ref
+              .read(categoryProvider.notifier)
+              .updateCategory(
+                category.copyWith(name: name, color: color, icon: icon),
+              );
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la modification: \$e',
+            );
+          }
+        }
+      },
     );
   }
 
   void _showDeleteConfirmation(
     BuildContext context,
-    CategoryViewModel vm,
+    WidgetRef ref,
     CategoryModel category,
   ) {
+    final linkedExpenses = ref
+        .read(expenseProvider.notifier)
+        .getExpensesForCategory(category.id);
+
+    if (linkedExpenses.isNotEmpty) {
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's sont associées' : ' est associée'} à "${category.name}". Réassignez-les avant de supprimer cette catégorie.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Supprimer la catégorie'),
@@ -152,9 +163,21 @@ class CategoriesBottomSheet extends StatelessWidget {
           child: const Text('Annuler'),
         ),
         FrostedFilledButton(
-          onPressed: () {
-            vm.deleteCategory(category.id);
-            Navigator.pop(context);
+          onPressed: () async {
+            try {
+              await ref
+                  .read(categoryProvider.notifier)
+                  .deleteCategory(category.id);
+              if (context.mounted) Navigator.pop(context);
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.pop(context);
+                FrostedSnackbar.show(
+                  context,
+                  message: 'Erreur lors de la suppression: \$e',
+                );
+              }
+            }
           },
           child: const Text('Supprimer'),
         ),
