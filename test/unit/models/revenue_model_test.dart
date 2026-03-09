@@ -9,11 +9,10 @@ void main() {
         amount: 100,
         accountId: 1,
         date: DateTime(2024, 1, 1),
-        isRegular: true,
       );
 
       expect(revenue.name, 'Test');
-      expect(revenue.isRegular, true);
+      expect(revenue.amount, 100);
     });
 
     test('copyWith should update specific fields', () {
@@ -22,14 +21,12 @@ void main() {
         amount: 100,
         accountId: 1,
         date: DateTime(2024, 1, 1),
-        isRegular: true,
       );
 
       final updated = revenue.copyWith(name: 'New', amount: 200);
 
       expect(updated.name, 'New');
       expect(updated.amount, 200);
-      expect(updated.isRegular, true);
       expect(updated.accountId, 1);
     });
   });

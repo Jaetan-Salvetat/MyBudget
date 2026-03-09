@@ -36,28 +36,24 @@ void main() {
         amount: 100,
         accountId: 1,
         date: startOfMonth,
-        isRegular: true,
       );
       final revEnd = RevenueModel.create(
         name: 'End',
         amount: 100,
         accountId: 1,
         date: endOfMonthDate,
-        isRegular: true,
       );
       final revMiddle = RevenueModel.create(
         name: 'Mid',
         amount: 100,
         accountId: 1,
         date: startOfMonth.add(const Duration(days: 15)),
-        isRegular: true,
       );
       final revPrevious = RevenueModel.create(
         name: 'Prev',
         amount: 100,
         accountId: 1,
         date: startOfMonth.subtract(const Duration(days: 1)),
-        isRegular: true,
       );
 
       when(
@@ -79,33 +75,6 @@ void main() {
     },
   );
 
-  test('getMonthlyFixedRevenues vs Punctual', () async {
-    final fixed = RevenueModel.create(
-      name: 'Fixed',
-      amount: 1000,
-      accountId: 1,
-      date: DateTime.now(),
-      isRegular: true,
-    );
-    final punctual = RevenueModel.create(
-      name: 'Punctual',
-      amount: 500,
-      accountId: 1,
-      date: DateTime.now(),
-      isRegular: false,
-    );
-
-    when(() => mockRepository.getAll()).thenReturn([fixed, punctual]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(revenueProvider.future);
-
-    expect(container.read(revenueProvider.notifier).getMonthlyFixedRevenues(), 1000.0);
-    expect(container.read(revenueProvider.notifier).getMonthlyPunctualRevenues(), 500.0);
-  });
-
   test('getMonthlyRevenues with empty list returns 0.0', () async {
     when(() => mockRepository.getAll()).thenReturn([]);
 
@@ -117,37 +86,6 @@ void main() {
     expect(container.read(revenueProvider.notifier).getMonthlyRevenues(), 0.0);
   });
 
-  test('getMonthlyFixedRevenues + getMonthlyPunctualRevenues equals getMonthlyRevenues', () async {
-    final now = DateTime.now();
-    final fixed = RevenueModel.create(
-      name: 'Salary',
-      amount: 2000,
-      accountId: 1,
-      date: now,
-      isRegular: true,
-    );
-    final bonus = RevenueModel.create(
-      name: 'Bonus',
-      amount: 300,
-      accountId: 1,
-      date: now,
-      isRegular: false,
-    );
-
-    when(() => mockRepository.getAll()).thenReturn([fixed, bonus]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(revenueProvider.future);
-
-    final notifier = container.read(revenueProvider.notifier);
-    expect(
-      notifier.getMonthlyFixedRevenues() + notifier.getMonthlyPunctualRevenues(),
-      notifier.getMonthlyRevenues(),
-    );
-  });
-
   test('getMonthlyRevenues excludes revenue from previous month', () async {
     final now = DateTime.now();
     final previousMonth = DateTime(now.year, now.month - 1, 15);
@@ -157,7 +95,6 @@ void main() {
       amount: 2000,
       accountId: 1,
       date: previousMonth,
-      isRegular: true,
     );
 
     when(() => mockRepository.getAll()).thenReturn([oldRevenue]);
@@ -176,14 +113,12 @@ void main() {
       amount: 1000,
       accountId: 1,
       date: DateTime.now(),
-      isRegular: true,
     );
     final rev2 = RevenueModel.create(
       name: 'Acc2 revenue',
       amount: 500,
       accountId: 2,
       date: DateTime.now(),
-      isRegular: true,
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2]);

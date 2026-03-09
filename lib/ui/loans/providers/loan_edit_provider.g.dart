@@ -8,19 +8,12 @@ part of 'loan_edit_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider de paramètre : expose le prêt à éditer.
-/// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
 
 @ProviderFor(loanToEdit)
 final loanToEditProvider = LoanToEditProvider._();
 
-/// Provider de paramètre : expose le prêt à éditer.
-/// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
-
 final class LoanToEditProvider extends $FunctionalProvider<Loan, Loan, Loan>
     with $Provider<Loan> {
-  /// Provider de paramètre : expose le prêt à éditer.
-  /// Surchargé via ProviderScope override dans LoanEditBottomSheet.show().
   LoanToEditProvider._()
     : super(
         from: null,

@@ -162,7 +162,7 @@ void main() {
             'amount': 3000.0,
             'accountId': 20,
             'beneficiaryId': '10',
-            'isRegular': true,
+
             'date': '2025-01-01T00:00:00.000',
           },
         ],
@@ -430,7 +430,7 @@ void main() {
             'name': 'Salaire',
             'amount': 3000.0,
             'accountId': 100,
-            'isRegular': true,
+
             'date': '2025-01-01T00:00:00.000',
           },
         ],
@@ -577,7 +577,6 @@ Map<String, dynamic> _buildFullJsonData() {
         'amount': 3000.0,
         'accountId': 100,
         'beneficiaryId': '10',
-        'isRegular': true,
         'date': '2025-01-01T00:00:00.000',
       },
     ],

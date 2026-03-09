@@ -8,17 +8,13 @@ part of 'expense_queries.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Total mensuel des dépenses (annuelles ramenées sur 12 mois).
 
 @ProviderFor(monthlyExpenses)
 final monthlyExpensesProvider = MonthlyExpensesProvider._();
 
-/// Total mensuel des dépenses (annuelles ramenées sur 12 mois).
-
 final class MonthlyExpensesProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Total mensuel des dépenses (annuelles ramenées sur 12 mois).
   MonthlyExpensesProvider._()
     : super(
         from: null,
@@ -54,17 +50,12 @@ final class MonthlyExpensesProvider
 
 String _$monthlyExpensesHash() => r'11cf1f52b76287cb591f7c0ef2c8c6706d8d9076';
 
-/// Total annuel des dépenses (mensuelles × 12 + annuelles).
-
 @ProviderFor(annualExpenses)
 final annualExpensesProvider = AnnualExpensesProvider._();
-
-/// Total annuel des dépenses (mensuelles × 12 + annuelles).
 
 final class AnnualExpensesProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Total annuel des dépenses (mensuelles × 12 + annuelles).
   AnnualExpensesProvider._()
     : super(
         from: null,
@@ -100,12 +91,8 @@ final class AnnualExpensesProvider
 
 String _$annualExpensesHash() => r'8f755460f386349785c5806946527aa7fa5a1839';
 
-/// Dépenses dont l'échéance tombe à partir d'aujourd'hui dans le mois courant.
-
 @ProviderFor(upcomingExpenses)
 final upcomingExpensesProvider = UpcomingExpensesProvider._();
-
-/// Dépenses dont l'échéance tombe à partir d'aujourd'hui dans le mois courant.
 
 final class UpcomingExpensesProvider
     extends
@@ -115,7 +102,6 @@ final class UpcomingExpensesProvider
           List<ExpenseModel>
         >
     with $Provider<List<ExpenseModel>> {
-  /// Dépenses dont l'échéance tombe à partir d'aujourd'hui dans le mois courant.
   UpcomingExpensesProvider._()
     : super(
         from: null,
@@ -152,12 +138,8 @@ final class UpcomingExpensesProvider
 
 String _$upcomingExpensesHash() => r'160b947f4d25885fe9e01fa681e26f3e4cf968c2';
 
-/// Dépenses agrégées par catégorie (Map<CategoryModel, montant>).
-
 @ProviderFor(expensesByCategory)
 final expensesByCategoryProvider = ExpensesByCategoryProvider._();
-
-/// Dépenses agrégées par catégorie (Map<CategoryModel, montant>).
 
 final class ExpensesByCategoryProvider
     extends
@@ -167,7 +149,6 @@ final class ExpensesByCategoryProvider
           Map<CategoryModel, double>
         >
     with $Provider<Map<CategoryModel, double>> {
-  /// Dépenses agrégées par catégorie (Map<CategoryModel, montant>).
   ExpensesByCategoryProvider._()
     : super(
         from: null,

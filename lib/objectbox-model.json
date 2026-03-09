@@ -229,11 +229,6 @@
           "type": 8
         },
         {
-          "id": "5:5939978804947497821",
-          "name": "isRegular",
-          "type": 1
-        },
-        {
           "id": "6:1213904468792118615",
           "name": "date",
           "type": 10
@@ -278,7 +273,8 @@
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     3745183620062731729,
-    2052082936511433960
+    2052082936511433960,
+    5939978804947497821
   ],
   "retiredRelationUids": [],
   "version": 1

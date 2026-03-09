@@ -154,12 +154,6 @@ Expenses and revenues can be linked to a **beneficiary** (e.g., a person or orga
   - Creates beneficiaries inline without closing the bottom sheet
   - Props: `initialBeneficiaryId`, `onChanged`
 
-### Revenue Types
-
-`RevenueModel` has an `isRegular` boolean field:
-- `isRegular = true`: fixed, recurring salary/income — shown in dashboard totals
-- `isRegular = false`: occasional/one-time income — separated in the UI list
-
 ### Enum Storage Pattern
 
 Models use a consistent pattern for storing enums in ObjectBox:
@@ -423,7 +417,26 @@ test/
 │   ├── services/
 │   └── utils/
 └── widget/
+
+integration_test/
+├── app_test.dart              # Entry point
+├── helpers/
+│   ├── test_app.dart          # App init (bypass splash/onboarding)
+│   └── test_helpers.dart      # Shared actions (navigation, CRUD, etc.)
+└── tests/                     # 32 scenarios by feature
 ```
+
+### Integration tests
+
+```bash
+# Run on connected emulator/device
+flutter test integration_test/app_test.dart --flavor debugFlavor
+```
+
+- CI: runs on push to `beta` via `.github/workflows/integration-test.yml` (Android emulator on ubuntu-latest)
+- Tests describe **expected behavior** — failing tests = code to fix
+- Each test calls `clearAllData()` for isolation
+- Bypasses SplashScreen, goes directly to HomeScreen
 
 ### Test conventions
 

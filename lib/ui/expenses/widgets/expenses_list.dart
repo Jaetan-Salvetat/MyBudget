@@ -93,6 +93,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                       return false;
                     }
 
+                    if (_filterData.frequencies.isNotEmpty &&
+                        !_filterData.frequencies.contains(expense.frequency)) {
+                      return false;
+                    }
+
                     return true;
                   }).toList();
             }
