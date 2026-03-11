@@ -5,3 +5,6 @@
 ## ✨ Améliorations
 - Couleurs et contrastes améliorés sur les cartes et le tableau de bord
 - Avatars des bénéficiaires avec initiales et couleur unique
+
+## 🐛 Corrections
+- Détection des mises à jour entre versions bêta (ex: beta.2 → beta.3)
