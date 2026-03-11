@@ -69,7 +69,7 @@ void main() {
         amount: 2000,
         accountId: accountId,
         date: DateTime.now(),
-        isRegular: true,
+
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
 
@@ -136,7 +136,7 @@ void main() {
       amount: 100,
       accountId: accountId,
       date: DateTime.now(),
-      isRegular: true,
+
     );
     final expense = ExpenseModel.create(
       name: 'Big expense',
@@ -191,7 +191,7 @@ void main() {
       amount: 100,
       accountId: 1,
       date: DateTime.now(),
-      isRegular: true,
+
     );
 
     final rev2 = RevenueModel.create(
@@ -199,7 +199,7 @@ void main() {
       amount: 50,
       accountId: 2,
       date: DateTime.now(),
-      isRegular: true,
+
     );
 
     when(() => mockRevenueRepo.getAll()).thenReturn([rev1, rev2]);

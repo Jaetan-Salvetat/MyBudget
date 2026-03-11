@@ -176,7 +176,7 @@ void main() {
         amount: 500,
         accountId: 1,
         date: DateTime.now(),
-        isRegular: true,
+
       );
       revenue.beneficiaryId = 42;
 

@@ -106,7 +106,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             ? widget.revenue!.copyWith(
               name: _nameController.text.trim(),
               amount: amount,
-              isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
               beneficiaryId: _selectedBeneficiaryId,
@@ -114,7 +113,6 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             : RevenueModel.create(
               name: _nameController.text.trim(),
               amount: amount,
-              isRegular: true,
               date: _selectedDate,
               accountId: _selectedAccountId!,
               beneficiaryId: _selectedBeneficiaryId,

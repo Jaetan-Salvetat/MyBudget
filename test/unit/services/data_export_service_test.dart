@@ -99,7 +99,7 @@ void main() {
       name: 'Salaire',
       amount: 3000.0,
       accountId: 1,
-      isRegular: true,
+
       date: DateTime(2025, 1, 1),
     );
     revenue.id = 5;

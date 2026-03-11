@@ -285,12 +285,6 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 5939978804947497821),
-        name: 'isRegular',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 1213904468792118615),
         name: 'date',
         type: 10,
@@ -380,7 +374,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [3745183620062731729, 2052082936511433960],
+    retiredPropertyUids: const [
+      3745183620062731729,
+      2052082936511433960,
+      5939978804947497821,
+    ],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -674,7 +672,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
         fbb.addFloat64(3, object.amount);
-        fbb.addBool(4, object.isRegular);
         fbb.addInt64(5, object.date.millisecondsSinceEpoch);
         fbb.addInt64(6, object.beneficiaryId);
         fbb.finish(fbb.endTable());
@@ -700,12 +697,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
             rootOffset,
             10,
             0,
-          )
-          ..isRegular = const fb.BoolReader().vTableGet(
-            buffer,
-            rootOffset,
-            12,
-            false,
           )
           ..date = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
@@ -942,19 +933,14 @@ class RevenueModel_ {
     _entities[4].properties[3],
   );
 
-  /// See [RevenueModel.isRegular].
-  static final isRegular = obx.QueryBooleanProperty<RevenueModel>(
-    _entities[4].properties[4],
-  );
-
   /// See [RevenueModel.date].
   static final date = obx.QueryDateProperty<RevenueModel>(
-    _entities[4].properties[5],
+    _entities[4].properties[4],
   );
 
   /// See [RevenueModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[6],
+    _entities[4].properties[5],
   );
 }
 

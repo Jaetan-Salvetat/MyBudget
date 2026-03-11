@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "fr.jaetan.mybudget"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
     
     signingConfigs {
         create("release") {
@@ -59,7 +59,6 @@ android {
         create("beta") {
             dimension = "env"
             applicationIdSuffix = ".beta"
-            versionNameSuffix = "-beta"
             resValue("string", "app_name", "MyBudget Beta")
         }
     }

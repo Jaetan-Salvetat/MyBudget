@@ -243,6 +243,42 @@ void main() {
     );
 
     test(
+      'Should detect update when current is BETA with -beta.N format',
+      () async {
+        PackageInfo.setMockInitialValues(
+          appName: 'MyBudget',
+          packageName: 'fr.jaetan.mybudget.beta',
+          version: '1.0.0-beta.2',
+          buildNumber: '1',
+          buildSignature: '',
+        );
+
+        final newerBeta = ReleaseInfo(
+          version: '1.0.1',
+          title: 'New Beta',
+          notes: '',
+          downloadUrl: '',
+          publishedAt: DateTime.now(),
+          assetSize: 0,
+          isPrerelease: true,
+        );
+
+        when(
+          () => mockGitHubService.getReleases(),
+        ).thenAnswer((_) async => [newerBeta]);
+
+        final container = makeContainer();
+        addTearDown(container.dispose);
+
+        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+
+        final state = container.read(updateProvider);
+        expect(state.availableUpdate, isNotNull);
+        expect(state.currentVersion, '1.0.0-beta.2');
+      },
+    );
+
+    test(
       'Should find HIGHEST version when multiple prod releases exist',
       () async {
         PackageInfo.setMockInitialValues(

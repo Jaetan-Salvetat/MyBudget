@@ -154,12 +154,6 @@ Expenses and revenues can be linked to a **beneficiary** (e.g., a person or orga
   - Creates beneficiaries inline without closing the bottom sheet
   - Props: `initialBeneficiaryId`, `onChanged`
 
-### Revenue Types
-
-`RevenueModel` has an `isRegular` boolean field:
-- `isRegular = true`: fixed, recurring salary/income — shown in dashboard totals
-- `isRegular = false`: occasional/one-time income — separated in the UI list
-
 ### Enum Storage Pattern
 
 Models use a consistent pattern for storing enums in ObjectBox:
@@ -423,7 +417,26 @@ test/
 │   ├── services/
 │   └── utils/
 └── widget/
+
+integration_test/
+├── app_test.dart              # Entry point
+├── helpers/
+│   ├── test_app.dart          # App init (bypass splash/onboarding)
+│   └── test_helpers.dart      # Shared actions (navigation, CRUD, etc.)
+└── tests/                     # 32 scenarios by feature
 ```
+
+### Integration tests
+
+```bash
+# Run on connected emulator/device
+flutter test integration_test/app_test.dart --flavor debugFlavor
+```
+
+- CI: runs on push to `beta` via `.github/workflows/integration-test.yml` (Android emulator on ubuntu-latest)
+- Tests describe **expected behavior** — failing tests = code to fix
+- Each test calls `clearAllData()` for isolation
+- Bypasses SplashScreen, goes directly to HomeScreen
 
 ### Test conventions
 
@@ -449,6 +462,14 @@ Known issues and planned refactors (do not implement without explicit instructio
 | Low | UI data layer | Create display data classes (`ExpenseDisplayData`, etc.) to decouple UI from ObjectBox models |
 | Low | Error handling | Add `try-catch` + error state in all Notifiers, display errors in UI |
 
+## Versioning
+
+- **pubspec.yaml**: `x.y.z+BUILD` — no beta suffix (e.g. `0.4.0+22`)
+- **`+BUILD`** = Android versionCode, incrémenté manuellement dans pubspec
+- **Beta CI**: auto-computes `x.y.z-beta.N` via git tags (`git tag -l "vX.Y.Z-beta.*"`), injects via `--build-name`
+- **Prod CI**: uses version as-is from pubspec
+- **Version stripping** (UpdateNotifier + GitHubService): `RegExp(r'-beta(\.\d+)?')` handles both `-beta` and `-beta.N`
+
 ## Build Flavors
 
 The app uses Flutter flavors for different environments:
@@ -456,7 +477,6 @@ The app uses Flutter flavors for different environments:
   - `applicationId`: `fr.jaetan.mybudget`
 - **Beta** (`beta`): Testing flavor — `flutter build apk --flavor beta --release`
   - `applicationId`: `fr.jaetan.mybudget.beta` (`.beta` suffix used by UpdateNotifier to detect beta builds)
-  - `versionNameSuffix`: `-beta` (stripped before version comparison in UpdateNotifier)
   - Marked as prerelease on GitHub
 
 ## Android Build Configuration
@@ -478,6 +498,6 @@ The app uses Flutter flavors for different environments:
 - **test.yml**: Runs `flutter test` on every PR
 - **lint.yml**: Runs `flutter analyze` on every PR
 - **release.yml**: On push to `main` — builds prod APK (`--flavor prod`), creates GitHub release with version tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
-- **beta-release.yml**: On push to `beta` — builds beta APK (`--flavor beta`), creates prerelease with `-beta` tag, creates `.env` from `GITHUB_TOKEN_READONLY` secret
+- **beta-release.yml**: Manual trigger (`workflow_dispatch`) — builds beta APK (`--flavor beta`), auto-increments `x.y.z-beta.N` via git tags, creates prerelease
 
 > **Note**: Use `GITHUB_TOKEN_READONLY` as the secret name in GitHub repo settings — `GITHUB_TOKEN` is a reserved name in GitHub Actions and would be overwritten.

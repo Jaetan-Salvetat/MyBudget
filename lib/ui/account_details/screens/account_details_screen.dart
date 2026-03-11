@@ -119,6 +119,40 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
+    final linkedExpenses = ref.read(expenseProvider.notifier).getExpensesForAccount(account.id);
+    final linkedRevenues = ref.read(revenueProvider.notifier).getRevenuesForAccount(account.id);
+    final linkedLoans = ref.read(loanProvider.notifier).getActiveLoansForAccount(account.id);
+
+    final totalLinked = linkedExpenses.length + linkedRevenues.length + linkedLoans.length;
+
+    if (totalLinked > 0) {
+      final parts = <String>[];
+      if (linkedExpenses.isNotEmpty) {
+        parts.add('${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's' : ''}');
+      }
+      if (linkedRevenues.isNotEmpty) {
+        parts.add('${linkedRevenues.length} revenu${linkedRevenues.length > 1 ? 's' : ''}');
+      }
+      if (linkedLoans.isNotEmpty) {
+        parts.add('${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}');
+      }
+
+      FrostedDialog.show(
+        context: context,
+        title: const Text('Suppression impossible'),
+        content: Text(
+          '${parts.join(', ')} ${totalLinked > 1 ? 'sont associés' : 'est associé(e)'} à "${account.name}". Réassignez-les avant de supprimer ce compte.',
+        ),
+        actions: [
+          FrostedFilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      );
+      return;
+    }
+
     FrostedDialog.show(
       context: context,
       title: const Text('Confirmer la suppression'),

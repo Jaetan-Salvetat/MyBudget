@@ -81,32 +81,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                   }).toList();
             }
 
-            final now = DateTime.now();
-            final startOfMonth = DateTime(now.year, now.month, 1);
-
-            final activeRevenues =
-                filteredRevenues.where((r) {
-                  if (r.isRegular) return true;
-                  final rDate = DateTime(r.date.year, r.date.month, r.date.day);
-                  return !rDate.isBefore(startOfMonth);
-                }).toList();
-
-            final pastRevenues =
-                filteredRevenues.where((r) {
-                  if (r.isRegular) return false;
-                  final rDate = DateTime(r.date.year, r.date.month, r.date.day);
-                  return rDate.isBefore(startOfMonth);
-                }).toList();
-
             final isEmpty = filteredRevenues.isEmpty && _filterData.isEmpty;
-
-            final items = [];
-            items.add('HEADER');
-            items.addAll(activeRevenues);
-            if (pastRevenues.isNotEmpty) {
-              items.add('DIVIDER');
-              items.addAll(pastRevenues);
-            }
 
             return ListView.builder(
               physics: const BouncingScrollPhysics(),
@@ -116,41 +91,16 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 left: 16,
                 right: 16,
               ),
-              itemCount: items.length,
+              itemCount: filteredRevenues.length + 1,
               itemBuilder: (context, index) {
-                final item = items[index];
-                if (item == 'HEADER') {
+                if (index == 0) {
                   return _buildHeaderContainer(
                     context,
                     filteredRevenues,
                     isEmpty,
                   );
                 }
-                if (item == 'DIVIDER') {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Row(
-                      children: [
-                        const Expanded(child: FrostedDivider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'Revenus passés',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        const Expanded(child: FrostedDivider()),
-                      ],
-                    ),
-                  );
-                }
-                final revenue = item as RevenueModel;
+                final revenue = filteredRevenues[index - 1];
                 final account = accounts.firstWhere(
                   (a) => a.id == revenue.accountId,
                   orElse:
@@ -217,10 +167,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   ) {
     final monthlyRevenues =
         ref.read(revenueProvider.notifier).getMonthlyRevenues();
-    final fixedRevenues =
-        ref.read(revenueProvider.notifier).getMonthlyFixedRevenues();
-    final punctualRevenues =
-        ref.read(revenueProvider.notifier).getMonthlyPunctualRevenues();
     return Column(
       children: [
         Container(
@@ -228,8 +174,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           child: RevenuesSummaryCard(
             transactionCount: displayedRevenues.length,
             monthlyRevenues: monthlyRevenues,
-            fixedRevenues: fixedRevenues,
-            punctualRevenues: punctualRevenues,
           ),
         ),
         _buildSectionHeader(context),

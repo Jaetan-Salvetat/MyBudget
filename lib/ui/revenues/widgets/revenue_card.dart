@@ -22,10 +22,7 @@ class RevenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final dateStr =
-        revenue.isRegular
-            ? 'Le ${revenue.date.day} du mois'
-            : DateFormat('dd/MM/yyyy').format(revenue.date);
+    final dateStr = 'Le ${revenue.date.day} du mois';
 
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),

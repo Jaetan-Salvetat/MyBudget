@@ -35,7 +35,7 @@ final class BeneficiaryNotifierProvider
 }
 
 String _$beneficiaryNotifierHash() =>
-    r'8545dab77955374fdcd69931466d16e12a435388';
+    r'877809b963fe86d92ec364b305b9bebbaa65dfe2';
 
 abstract class _$BeneficiaryNotifier
     extends $AsyncNotifier<List<BeneficiaryModel>> {

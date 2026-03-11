@@ -8,17 +8,13 @@ part of 'loan_queries.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Liste des prêts actifs (non remboursés).
 
 @ProviderFor(activeLoans)
 final activeLoansProvider = ActiveLoansProvider._();
 
-/// Liste des prêts actifs (non remboursés).
-
 final class ActiveLoansProvider
     extends $FunctionalProvider<List<Loan>, List<Loan>, List<Loan>>
     with $Provider<List<Loan>> {
-  /// Liste des prêts actifs (non remboursés).
   ActiveLoansProvider._()
     : super(
         from: null,
@@ -54,17 +50,12 @@ final class ActiveLoansProvider
 
 String _$activeLoansHash() => r'6c1e1907f344d4396ddac874b6406f8169abf732';
 
-/// Somme mensuelle des mensualités des prêts actifs.
-
 @ProviderFor(totalMonthlyLoanPayments)
 final totalMonthlyLoanPaymentsProvider = TotalMonthlyLoanPaymentsProvider._();
-
-/// Somme mensuelle des mensualités des prêts actifs.
 
 final class TotalMonthlyLoanPaymentsProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Somme mensuelle des mensualités des prêts actifs.
   TotalMonthlyLoanPaymentsProvider._()
     : super(
         from: null,
@@ -101,17 +92,12 @@ final class TotalMonthlyLoanPaymentsProvider
 String _$totalMonthlyLoanPaymentsHash() =>
     r'0ea04cbf7b3a38239c5074db901da2918a614053';
 
-/// Somme du capital restant dû sur les prêts actifs.
-
 @ProviderFor(totalRemainingLoanAmount)
 final totalRemainingLoanAmountProvider = TotalRemainingLoanAmountProvider._();
-
-/// Somme du capital restant dû sur les prêts actifs.
 
 final class TotalRemainingLoanAmountProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Somme du capital restant dû sur les prêts actifs.
   TotalRemainingLoanAmountProvider._()
     : super(
         from: null,
@@ -148,17 +134,12 @@ final class TotalRemainingLoanAmountProvider
 String _$totalRemainingLoanAmountHash() =>
     r'7ed19a1f408a92f3ef3475ab7d0172840e7dad9f';
 
-/// Coût restant total (intérêts + assurance) sur les prêts actifs.
-
 @ProviderFor(totalRemainingLoanCost)
 final totalRemainingLoanCostProvider = TotalRemainingLoanCostProvider._();
-
-/// Coût restant total (intérêts + assurance) sur les prêts actifs.
 
 final class TotalRemainingLoanCostProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Coût restant total (intérêts + assurance) sur les prêts actifs.
   TotalRemainingLoanCostProvider._()
     : super(
         from: null,
@@ -195,18 +176,13 @@ final class TotalRemainingLoanCostProvider
 String _$totalRemainingLoanCostHash() =>
     r'f69134727a72a98a519b7f2c49e18b4c46a46f11';
 
-/// Pourcentage de remboursement global sur les prêts actifs (0.0 – 1.0).
-
 @ProviderFor(overallLoanProgressPercentage)
 final overallLoanProgressPercentageProvider =
     OverallLoanProgressPercentageProvider._();
 
-/// Pourcentage de remboursement global sur les prêts actifs (0.0 – 1.0).
-
 final class OverallLoanProgressPercentageProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// Pourcentage de remboursement global sur les prêts actifs (0.0 – 1.0).
   OverallLoanProgressPercentageProvider._()
     : super(
         from: null,

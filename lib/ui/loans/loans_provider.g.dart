@@ -33,7 +33,7 @@ final class LoanNotifierProvider
   LoanNotifier create() => LoanNotifier();
 }
 
-String _$loanNotifierHash() => r'73b0caeea50849867c8dfc34bd6bc50d9ecac5c7';
+String _$loanNotifierHash() => r'e6d46c1849ae7df9e81635cc0d5fac1f18cd1538';
 
 abstract class _$LoanNotifier extends $AsyncNotifier<List<Loan>> {
   FutureOr<List<Loan>> build();
