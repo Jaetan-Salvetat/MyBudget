@@ -13,8 +13,7 @@ part of 'beneficiary_provider.dart';
 final beneficiaryProvider = BeneficiaryNotifierProvider._();
 
 final class BeneficiaryNotifierProvider
-    extends
-        $AsyncNotifierProvider<BeneficiaryNotifier, List<BeneficiaryModel>> {
+    extends $AsyncNotifierProvider<BeneficiaryNotifier, List<Beneficiary>> {
   BeneficiaryNotifierProvider._()
     : super(
         from: null,
@@ -35,25 +34,20 @@ final class BeneficiaryNotifierProvider
 }
 
 String _$beneficiaryNotifierHash() =>
-    r'877809b963fe86d92ec364b305b9bebbaa65dfe2';
+    r'17cc45f31054a45c3719c3554aad5ab597495353';
 
-abstract class _$BeneficiaryNotifier
-    extends $AsyncNotifier<List<BeneficiaryModel>> {
-  FutureOr<List<BeneficiaryModel>> build();
+abstract class _$BeneficiaryNotifier extends $AsyncNotifier<List<Beneficiary>> {
+  FutureOr<List<Beneficiary>> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final ref =
-        this.ref
-            as $Ref<AsyncValue<List<BeneficiaryModel>>, List<BeneficiaryModel>>;
+        this.ref as $Ref<AsyncValue<List<Beneficiary>>, List<Beneficiary>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<List<BeneficiaryModel>>,
-                List<BeneficiaryModel>
-              >,
-              AsyncValue<List<BeneficiaryModel>>,
+              AnyNotifier<AsyncValue<List<Beneficiary>>, List<Beneficiary>>,
+              AsyncValue<List<Beneficiary>>,
               Object?,
               Object?
             >;

@@ -243,7 +243,7 @@
     },
     {
       "id": "6:460490983667112828",
-      "lastPropertyId": "2:7223976306336406369",
+      "lastPropertyId": "3:4835571805174399151",
       "name": "BeneficiaryModel",
       "properties": [
         {
@@ -258,6 +258,11 @@
           "indexId": "5:4333406268692751455",
           "type": 9,
           "flags": 2048
+        },
+        {
+          "id": "3:4835571805174399151",
+          "name": "color",
+          "type": 6
         }
       ],
       "relations": []

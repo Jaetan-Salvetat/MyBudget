@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
 class BeneficiarySelector extends ConsumerStatefulWidget {
@@ -41,7 +41,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
     super.dispose();
   }
 
-  void _onToggle(bool value, List<BeneficiaryModel> beneficiaries) {
+  void _onToggle(bool value, List<Beneficiary> beneficiaries) {
     setState(() {
       _enabled = value;
       if (!value) {

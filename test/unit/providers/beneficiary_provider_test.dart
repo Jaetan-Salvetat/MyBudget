@@ -18,8 +18,8 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-BeneficiaryModel _makeBeneficiary({int id = 1, String name = 'Paul'}) {
-  final b = BeneficiaryModel.create(name: name);
+BeneficiaryModel _makeBeneficiary({int id = 1, String name = 'Paul', int color = 0xFF42A5F5}) {
+  final b = BeneficiaryModel.create(name: name, color: color);
   b.id = id;
   return b;
 }
@@ -39,6 +39,7 @@ void main() {
     mockRevenueRepo = MockRevenueRepository();
 
     when(() => mockBeneficiaryRepo.getAll()).thenReturn([]);
+    when(() => mockBeneficiaryRepo.update(any())).thenReturn(1);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
   });

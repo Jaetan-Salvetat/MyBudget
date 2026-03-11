@@ -27,15 +27,28 @@ class LoanCard extends StatelessWidget {
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
       borderRadius: 12,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
       onClick: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              color: theme.colorScheme.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -137,6 +150,10 @@ class LoanCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    ),
+  ],
+),
       ),
     );
   }

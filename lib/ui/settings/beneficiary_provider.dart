@@ -1,3 +1,4 @@
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,11 +8,19 @@ part 'beneficiary_provider.g.dart';
 @Riverpod(keepAlive: true)
 class BeneficiaryNotifier extends _$BeneficiaryNotifier {
   @override
-  Future<List<BeneficiaryModel>> build() async {
+  Future<List<Beneficiary>> build() async {
     final repo = ref.watch(beneficiaryRepositoryProvider);
-    final beneficiaries = repo.getAll();
-    beneficiaries.sort((a, b) => a.name.compareTo(b.name));
-    return beneficiaries;
+    final models = repo.getAll();
+
+    for (final model in models) {
+      if (model.color == 0) {
+        model.color = Beneficiary.generateColor();
+        repo.update(model);
+      }
+    }
+
+    models.sort((a, b) => a.name.compareTo(b.name));
+    return models.map(Beneficiary.fromModel).toList();
   }
 
   Future<int?> createBeneficiary(String name) async {
@@ -26,7 +35,12 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
 
     final repo = ref.read(beneficiaryRepositoryProvider);
     try {
-      final id = repo.add(BeneficiaryModel.create(name: trimmed));
+      final id = repo.add(
+        BeneficiaryModel.create(
+          name: trimmed,
+          color: Beneficiary.generateColor(),
+        ),
+      );
       ref.invalidateSelf();
       await future;
       return id;
@@ -47,7 +61,12 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
 
     final repo = ref.read(beneficiaryRepositoryProvider);
     try {
-      repo.add(BeneficiaryModel.create(name: trimmed));
+      repo.add(
+        BeneficiaryModel.create(
+          name: trimmed,
+          color: Beneficiary.generateColor(),
+        ),
+      );
       ref.invalidateSelf();
       await future;
       return null;
@@ -98,10 +117,12 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     return expenses + revenues;
   }
 
-  BeneficiaryModel? getBeneficiaryById(int id) {
+  Beneficiary? getBeneficiaryById(int id) {
     final repo = ref.read(beneficiaryRepositoryProvider);
     try {
-      return repo.get(id);
+      final model = repo.get(id);
+      if (model == null) return null;
+      return Beneficiary.fromModel(model);
     } catch (e) {
       return null;
     }
