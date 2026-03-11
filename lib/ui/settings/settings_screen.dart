@@ -6,6 +6,7 @@ import 'package:mybudget/ui/settings/widgets/sections/beneficiaries_section.dart
 import 'package:mybudget/ui/settings/widgets/sections/categories_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
 import 'package:flutter/foundation.dart';
@@ -45,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           BeneficiariesSection(),
           DataSection(),
           HelpSection(),
+          SupportSection(),
           AboutSection(),
           if (kDebugMode) DebugSection(),
         ],

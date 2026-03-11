@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
+
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String accountName;
-  final String? beneficiaryName;
+  final Beneficiary? beneficiary;
   final CategoryModel? category;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
@@ -18,7 +19,7 @@ class ExpenseCard extends StatelessWidget {
     required this.accountName,
     required this.onDelete,
     required this.onEdit,
-    this.beneficiaryName,
+    this.beneficiary,
     this.category,
     super.key,
   });
@@ -39,18 +40,29 @@ class ExpenseCard extends StatelessWidget {
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
       borderRadius: 12,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
       onClick: onEdit,
-      child: Row(
-        children: [
-          if (beneficiaryName != null)
-            BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
-          else
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: category != null
+                    ? Color(category!.color)
+                    : Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: category != null
-                    ? Color(category!.color).withValues(alpha: 0.15)
+                    ? Color(category!.color).withValues(alpha: 0.25)
                     : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
@@ -92,10 +104,13 @@ class ExpenseCard extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      accountName,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    Flexible(
+                      child: Text(
+                        accountName,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -105,13 +120,16 @@ class ExpenseCard extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      dateStr,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    Flexible(
+                      child: Text(
+                        dateStr,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (beneficiaryName != null) ...[
+                    if (beneficiary != null) ...[
                       const SizedBox(width: 12),
                       Icon(
                         Icons.person_outline,
@@ -119,10 +137,13 @@ class ExpenseCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        beneficiaryName!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      Flexible(
+                        child: Text(
+                          beneficiary!.name,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -164,7 +185,11 @@ class ExpenseCard extends StatelessWidget {
             icon: Icons.more_vert,
             onPressed: () => _showOptionsBottomSheet(context),
           ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

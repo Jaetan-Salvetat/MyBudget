@@ -55,6 +55,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
   late TextEditingController _maxAmountController;
   List<int> _selectedCategoryIds = [];
   List<int> _selectedAccountIds = [];
+  List<String> _selectedFrequencies = [];
   double _startDay = 1;
   double _endDay = 31;
 
@@ -69,6 +70,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
     );
     _selectedCategoryIds = List.from(widget.initialFilterData.categoryIds);
     _selectedAccountIds = List.from(widget.initialFilterData.accountIds);
+    _selectedFrequencies = List.from(widget.initialFilterData.frequencies);
     _startDay = (widget.initialFilterData.startDay ?? 1).toDouble();
     _endDay = (widget.initialFilterData.endDay ?? 31).toDouble();
   }
@@ -97,6 +99,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       maxAmount: maxAmount,
       categoryIds: _selectedCategoryIds,
       accountIds: _selectedAccountIds,
+      frequencies: _selectedFrequencies,
     );
 
     widget.onApply(filterData);
@@ -124,6 +127,16 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
         _selectedAccountIds.remove(id);
       } else {
         _selectedAccountIds.add(id);
+      }
+    });
+  }
+
+  void _toggleFrequency(String label) {
+    setState(() {
+      if (_selectedFrequencies.contains(label)) {
+        _selectedFrequencies.remove(label);
+      } else {
+        _selectedFrequencies.add(label);
       }
     });
   }
@@ -213,6 +226,33 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                   decimal: true,
                 ),
               ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        Text(
+          'Fréquence',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _FilterChip(
+              label: 'Mensuel',
+              isSelected: _selectedFrequencies.contains('Mensuel'),
+              onTap: () => _toggleFrequency('Mensuel'),
+            ),
+            _FilterChip(
+              label: 'Annuel',
+              isSelected: _selectedFrequencies.contains('Annuel'),
+              onTap: () => _toggleFrequency('Annuel'),
             ),
           ],
         ),

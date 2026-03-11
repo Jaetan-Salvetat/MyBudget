@@ -3,14 +3,10 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
 class DateSelector {
-  /// Affiche un picker pour choisir uniquement le jour du mois (1-31).
   static Future<DateTime?> showDayPicker({
     required BuildContext context,
     required DateTime initialDate,
   }) async {
-    // Workaround bug Flutter connu : requestFocus(FocusNode()) transfère le
-    // focus vers un nœud vide pour que Flutter n'ait rien à restaurer à la
-    // fermeture du dialog (évite la réouverture du clavier).
     FocusScope.of(context).requestFocus(FocusNode());
     DateTime? selectedDate;
     await FrostedDialog.show(
@@ -54,7 +50,6 @@ class DateSelector {
     return selectedDate;
   }
 
-  /// Affiche un picker pour choisir le mois et le jour (année ignorée).
   static Future<DateTime?> showMonthDayPicker({
     required BuildContext context,
     required DateTime initialDate,

@@ -1,16 +1,13 @@
-import 'package:mybudget/core/domain/loan_payment_breakdown.dart';
+import 'package:mybudget/core/entities/loan_payment_breakdown.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/core/services/loan_calculation_service.dart';
 
-/// Service pour calculer la répartition détaillée des paiements d'un prêt
-/// Sépare clairement la logique de breakdown de la logique de calcul pure
 class LoanPaymentBreakdownService {
   final LoanCalculationService _calculationService;
 
   const LoanPaymentBreakdownService(this._calculationService);
 
-  /// Calcule la décomposition du paiement mensuel actuel
   LoanPaymentBreakdown calculateCurrentBreakdown({
     required LoanRepaymentType repaymentType,
     required double amount,
@@ -25,7 +22,6 @@ class LoanPaymentBreakdownService {
   }) {
     final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
 
-    // Pendant le différé : pas de paiement
     if (monthsSinceStart < deferredMonths) {
       return const LoanPaymentBreakdown.zero();
     }
@@ -68,7 +64,6 @@ class LoanPaymentBreakdownService {
       insuranceCalcMode: insuranceCalcMode,
     );
 
-    // Pour in fine : pas de capital dans la mensualité
     final capitalPayment = repaymentType == LoanRepaymentType.inFine
         ? 0.0
         : totalPayment - interestPayment - insurancePayment;
@@ -81,7 +76,6 @@ class LoanPaymentBreakdownService {
     );
   }
 
-  /// Calcule les totaux cumulés payés depuis le début du prêt
   LoanPaymentBreakdown calculateCumulativeBreakdown({
     required LoanRepaymentType repaymentType,
     required double amount,
@@ -134,7 +128,6 @@ class LoanPaymentBreakdownService {
 
     final capitalPaid = amount - remainingCapital;
 
-    // Calcul de l'assurance totale payée
     final insurancePaid = _calculateCumulativeInsurance(
       startDate: startDate,
       currentDate: currentDate,
@@ -158,17 +151,12 @@ class LoanPaymentBreakdownService {
     );
   }
 
-  // ============= Méthodes privées =============
-
-  /// Calcule le paiement d'intérêts du mois actuel
   double _calculateCurrentInterestPayment({
     required LoanRepaymentType repaymentType,
     required double amount,
     required double remainingCapital,
     required double interestRate,
   }) {
-    // In fine : intérêts calculés sur le capital total
-    // Amortissable : intérêts calculés sur le capital restant
     final baseCapital = repaymentType == LoanRepaymentType.inFine
         ? amount
         : remainingCapital;
@@ -176,7 +164,6 @@ class LoanPaymentBreakdownService {
     return (baseCapital * interestRate / 100) / 12;
   }
 
-  /// Calcule le paiement d'assurance du mois actuel
   double _calculateCurrentInsurancePayment({
     required double amount,
     required LoanInsuranceType insuranceType,
@@ -192,7 +179,6 @@ class LoanPaymentBreakdownService {
       return insuranceValue;
     }
 
-    // Pourcentage : selon le mode de calcul
     final baseCapital = calculationMode == InsuranceCalculationMode.initialCapital
         ? amount
         : remainingCapital;
@@ -200,8 +186,6 @@ class LoanPaymentBreakdownService {
     return (baseCapital * (insuranceValue / 100)) / 12;
   }
 
-  /// Calcule l'assurance totale payée depuis le début
-  /// Pour l'assurance sur CRD, il faut intégrer mois par mois
   double _calculateCumulativeInsurance({
     required DateTime startDate,
     required DateTime currentDate,
@@ -223,19 +207,15 @@ class LoanPaymentBreakdownService {
 
     if (effectiveMonthsPaid <= 0) return 0.0;
 
-    // Assurance fixe : simple multiplication
     if (insuranceType == LoanInsuranceType.fixed) {
       return insuranceValue * effectiveMonthsPaid;
     }
 
-    // Assurance sur capital initial : mensualité constante
     if (calculationMode == InsuranceCalculationMode.initialCapital) {
       final monthlyInsurance = (amount * (insuranceValue / 100)) / 12;
       return monthlyInsurance * effectiveMonthsPaid;
     }
 
-    // Assurance sur capital restant dû : faut intégrer mois par mois
-    // Simplifié : on fait une approximation avec la moyenne
     final initialMonthly = (amount * (insuranceValue / 100)) / 12;
 
     final currentRemaining = _calculationService.calculateRemainingCapital(
@@ -250,7 +230,6 @@ class LoanPaymentBreakdownService {
 
     final currentMonthly = (currentRemaining * (insuranceValue / 100)) / 12;
 
-    // Moyenne arithmétique (approximation acceptable)
     final averageMonthly = (initialMonthly + currentMonthly) / 2;
     return averageMonthly * effectiveMonthsPaid;
   }

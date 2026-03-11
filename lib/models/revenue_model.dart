@@ -14,8 +14,6 @@ class RevenueModel {
 
   late double amount;
 
-  late bool isRegular;
-
   @Property()
   late DateTime date;
 
@@ -26,7 +24,6 @@ class RevenueModel {
   RevenueModel.create({
     required this.name,
     required this.amount,
-    required this.isRegular,
     required this.date,
     required this.accountId,
     this.beneficiaryId,
@@ -37,14 +34,13 @@ class RevenueModel {
         RevenueModel()
           ..name = json['name'] ?? ''
           ..amount = (json['amount'] ?? 0.0).toDouble()
-          ..isRegular = json['isRegular'] ?? false
           ..date =
               json['date'] != null
-                  ? DateTime.parse(json['date'])
+                  ? (DateTime.tryParse(json['date'].toString()) ?? DateTime.now())
                   : DateTime.now()
           ..accountId =
               json['accountId'] != null
-                  ? int.parse(json['accountId'].toString())
+                  ? (int.tryParse(json['accountId'].toString()) ?? 0)
                   : 0
           ..beneficiaryId =
               json['beneficiaryId'] != null
@@ -52,7 +48,7 @@ class RevenueModel {
                   : null;
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;
@@ -61,7 +57,6 @@ class RevenueModel {
   RevenueModel copyWith({
     String? name,
     double? amount,
-    bool? isRegular,
     DateTime? date,
     int? accountId,
     Object? beneficiaryId = _sentinel,
@@ -71,7 +66,6 @@ class RevenueModel {
           ..id = id
           ..name = name ?? this.name
           ..amount = amount ?? this.amount
-          ..isRegular = isRegular ?? this.isRegular
           ..date = date ?? this.date
           ..accountId = accountId ?? this.accountId
           ..beneficiaryId =
@@ -86,7 +80,6 @@ class RevenueModel {
       'id': id.toString(),
       'name': name,
       'amount': amount,
-      'isRegular': isRegular,
       'date': date.toIso8601String(),
       'accountId': accountId.toString(),
       'beneficiaryId': beneficiaryId?.toString(),

@@ -33,8 +33,8 @@ void main() {
         ]
       },
       {
-        "tag_name": "v1.2.0-beta",
-        "name": "Beta 1.2.0",
+        "tag_name": "v1.2.0-beta.1",
+        "name": "Beta 1.2.0-beta.1",
         "body": "Beta Notes",
         "published_at": "2023-02-01T00:00:00Z",
         "prerelease": true,
@@ -101,6 +101,37 @@ void main() {
 
       final releases = await service.getReleases();
       expect(releases, isEmpty);
+    });
+
+    test('getReleases should preserve -beta.N suffix in tag version', () async {
+      const betaDotNJson = '''
+      [
+        {
+          "tag_name": "v1.2.0-beta.3",
+          "name": "Beta 1.2.0-beta.3",
+          "body": "Beta Notes",
+          "published_at": "2023-02-01T00:00:00Z",
+          "prerelease": true,
+          "assets": [
+            {
+              "name": "app-beta.apk",
+              "browser_download_url": "http://beta.apk",
+              "size": 2048
+            }
+          ]
+        }
+      ]
+      ''';
+
+      when(
+        () => mockHttpClient.get(any(), headers: any(named: 'headers')),
+      ).thenAnswer((_) async => http.Response(betaDotNJson, 200));
+
+      final releases = await service.getReleases();
+
+      expect(releases.length, 1);
+      expect(releases[0].version, '1.2.0-beta.3');
+      expect(releases[0].isPrerelease, true);
     });
   });
 }

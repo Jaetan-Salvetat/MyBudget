@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
-import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
-import 'package:mybudget/ui/accounts/accounts_viewmodel.dart';
-import 'package:mybudget/ui/settings/beneficiary_viewmodel.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_card.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 
-class RevenuesList extends StatefulWidget {
+class RevenuesList extends ConsumerStatefulWidget {
   const RevenuesList({super.key});
-
   @override
-  State<RevenuesList> createState() => _RevenuesListState();
+  ConsumerState<RevenuesList> createState() => _RevenuesListState();
 }
 
-class _RevenuesListState extends State<RevenuesList> {
+class _RevenuesListState extends ConsumerState<RevenuesList> {
   RevenueFilterData _filterData = RevenueFilterData();
   bool _isSearchVisible = false;
   late TextEditingController _searchController;
@@ -39,157 +38,135 @@ class _RevenuesListState extends State<RevenuesList> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<RevenueViewModel, AccountViewModel, BeneficiaryViewModel>(
-      builder: (context, revenueVM, accountVM, beneficiaryVM, child) {
-        if (revenueVM.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return ref
+        .watch(revenueProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Erreur: $error')),
+          data: (revenues) {
+            final accounts = ref.watch(accountProvider).value ?? [];
+            final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-        List<RevenueModel> revenues = revenueVM.revenues;
+            List<RevenueModel> filteredRevenues = revenues;
 
-        // Appliquer les filtres
-        if (!_filterData.isEmpty) {
-          revenues = revenues.where((revenue) {
-            if (_filterData.searchQuery != null &&
-                _filterData.searchQuery!.isNotEmpty &&
-                !revenue.name.toLowerCase().contains(
-                  _filterData.searchQuery!.toLowerCase(),
-                )) {
-              return false;
+            if (!_filterData.isEmpty) {
+              filteredRevenues =
+                  revenues.where((revenue) {
+                    if (_filterData.searchQuery != null &&
+                        _filterData.searchQuery!.isNotEmpty &&
+                        !revenue.name.toLowerCase().contains(
+                          _filterData.searchQuery!.toLowerCase(),
+                        )) {
+                      return false;
+                    }
+                    if (_filterData.minAmount != null &&
+                        revenue.amount < _filterData.minAmount!) {
+                      return false;
+                    }
+                    if (_filterData.maxAmount != null &&
+                        revenue.amount > _filterData.maxAmount!) {
+                      return false;
+                    }
+                    if (_filterData.accountIds.isNotEmpty &&
+                        !_filterData.accountIds.contains(revenue.accountId)) {
+                      return false;
+                    }
+                    if (_filterData.beneficiaryIds.isNotEmpty &&
+                        !_filterData.beneficiaryIds.contains(
+                          revenue.beneficiaryId,
+                        )) {
+                      return false;
+                    }
+                    return true;
+                  }).toList();
             }
 
-            if (_filterData.minAmount != null &&
-                revenue.amount < _filterData.minAmount!) {
-              return false;
-            }
-            if (_filterData.maxAmount != null &&
-                revenue.amount > _filterData.maxAmount!) {
-              return false;
-            }
+            final isEmpty = filteredRevenues.isEmpty && _filterData.isEmpty;
 
-            if (_filterData.accountIds.isNotEmpty &&
-                !_filterData.accountIds.contains(revenue.accountId)) {
-              return false;
-            }
-
-            if (_filterData.beneficiaryIds.isNotEmpty &&
-                !_filterData.beneficiaryIds.contains(revenue.beneficiaryId)) {
-              return false;
-            }
-
-            return true;
-          }).toList();
-        }
-
-        final now = DateTime.now();
-        final startOfMonth = DateTime(now.year, now.month, 1);
-
-        final activeRevenues = revenues.where((r) {
-          if (r.isRegular) return true;
-          final rDate = DateTime(r.date.year, r.date.month, r.date.day);
-          return !rDate.isBefore(startOfMonth);
-        }).toList();
-
-        final pastRevenues = revenues.where((r) {
-          if (r.isRegular) return false;
-          final rDate = DateTime(r.date.year, r.date.month, r.date.day);
-          return rDate.isBefore(startOfMonth);
-        }).toList();
-
-        final isEmpty = revenues.isEmpty && _filterData.isEmpty;
-
-        final items = [];
-        items.add('HEADER');
-        items.addAll(activeRevenues);
-        if (pastRevenues.isNotEmpty) {
-          items.add('DIVIDER');
-          items.addAll(pastRevenues);
-        }
-
-        return ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(
-            top: 120,
-            bottom: 145,
-            left: 16,
-            right: 16,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
-
-            if (item == 'HEADER') {
-              return _buildHeaderContainer(context, revenueVM, revenues, isEmpty);
-            }
-
-            if (item == 'DIVIDER') {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
-                  children: [
-                    const Expanded(child: FrostedDivider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'Revenus passés',
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: FrostedDivider()),
-                  ],
-                ),
-              );
-            }
-
-            final revenue = item as RevenueModel;
-            final account = accountVM.accounts.firstWhere(
-              (a) => a.id == revenue.accountId,
-              orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
-            );
-            final beneficiary = revenue.beneficiaryId != null
-                ? beneficiaryVM.getBeneficiaryById(revenue.beneficiaryId!)
-                : null;
-
-            return RevenueCard(
-              revenue: revenue,
-              accountName: account.name,
-              beneficiaryName: beneficiary?.name,
-              onDelete: () => revenueVM.deleteRevenue(revenue.id),
-              onEdit: () {
-                RevenueBottomSheet.show(
-                  context: context,
-                  accounts: accountVM.accounts,
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(
+                top: 120,
+                bottom: 145,
+                left: 16,
+                right: 16,
+              ),
+              itemCount: filteredRevenues.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _buildHeaderContainer(
+                    context,
+                    filteredRevenues,
+                    isEmpty,
+                  );
+                }
+                final revenue = filteredRevenues[index - 1];
+                final account = accounts.firstWhere(
+                  (a) => a.id == revenue.accountId,
+                  orElse:
+                      () =>
+                          AccountModel.create(name: 'Compte inconnu', bank: ''),
+                );
+                final beneficiary =
+                    revenue.beneficiaryId != null
+                        ? beneficiaries
+                            .where((b) => b.id == revenue.beneficiaryId)
+                            .firstOrNull
+                        : null;
+                return RevenueCard(
                   revenue: revenue,
-                  onSubmit: (updatedRevenue) {
-                    revenueVM.updateRevenue(updatedRevenue);
+                  accountName: account.name,
+                  beneficiary: beneficiary,
+                  onDelete: () async {
+                    try {
+                      await ref
+                          .read(revenueProvider.notifier)
+                          .deleteRevenue(revenue.id);
+                    } catch (e) {
+                      if (context.mounted) {
+                        FrostedSnackbar.show(
+                          context,
+                          message: 'Erreur lors de la suppression: \$e',
+                        );
+                      }
+                    }
                   },
-                  onCancel: () {},
+                  onEdit: () {
+                    RevenueBottomSheet.show(
+                      context: context,
+                      accounts: accounts,
+                      revenue: revenue,
+                      onSubmit: (updatedRevenue) async {
+                        try {
+                          await ref
+                              .read(revenueProvider.notifier)
+                              .updateRevenue(updatedRevenue);
+                        } catch (e) {
+                          if (context.mounted) {
+                            FrostedSnackbar.show(
+                              context,
+                              message: 'Erreur lors de la modification: \$e',
+                            );
+                          }
+                        }
+                      },
+                      onCancel: () {},
+                    );
+                  },
                 );
               },
             );
           },
         );
-      },
-    );
   }
 
   Widget _buildHeaderContainer(
     BuildContext context,
-    RevenueViewModel revenueVM,
     List<RevenueModel> displayedRevenues,
     bool isEmpty,
   ) {
-    final monthlyRevenues = revenueVM.getMonthlyRevenues();
-    final fixedRevenues = revenueVM.getMonthlyFixedRevenues();
-    final punctualRevenues = revenueVM.getMonthlyPunctualRevenues();
-
+    final monthlyRevenues =
+        ref.read(revenueProvider.notifier).getMonthlyRevenues();
     return Column(
       children: [
         Container(
@@ -197,8 +174,6 @@ class _RevenuesListState extends State<RevenuesList> {
           child: RevenuesSummaryCard(
             transactionCount: displayedRevenues.length,
             monthlyRevenues: monthlyRevenues,
-            fixedRevenues: fixedRevenues,
-            punctualRevenues: punctualRevenues,
           ),
         ),
         _buildSectionHeader(context),
@@ -227,77 +202,79 @@ class _RevenuesListState extends State<RevenuesList> {
             child: SlideTransition(position: offsetAnimation, child: child),
           );
         },
-        child: _isSearchVisible
-            ? SizedBox(
-                key: const ValueKey('search'),
-                height: 60,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FrostedTextField(
-                        controller: _searchController,
-                        hintText: 'Rechercher un revenu...',
-                        prefixIcon: const Icon(Icons.search),
-                        onChanged: (value) {
-                          setState(() {
-                            _filterData.searchQuery = value;
-                          });
-                        },
-                        autofocus: true,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        setState(() {
-                          _isSearchVisible = false;
-                          _searchController.clear();
-                          _filterData.searchQuery = '';
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              )
-            : SizedBox(
-                key: const ValueKey('title'),
-                height: 60,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Mes revenus',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.search,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          onPressed: () {
+        child:
+            _isSearchVisible
+                ? SizedBox(
+                  key: const ValueKey('search'),
+                  height: 60,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FrostedTextField(
+                          controller: _searchController,
+                          hintText: 'Rechercher un revenu...',
+                          prefixIcon: const Icon(Icons.search),
+                          onChanged: (value) {
                             setState(() {
-                              _isSearchVisible = true;
+                              _filterData.searchQuery = value;
                             });
                           },
+                          autofocus: true,
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.filter_list,
-                            color: _filterData.isEmpty
-                                ? Theme.of(context).iconTheme.color
-                                : Theme.of(context).colorScheme.primary,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          setState(() {
+                            _isSearchVisible = false;
+                            _searchController.clear();
+                            _filterData.searchQuery = '';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                )
+                : SizedBox(
+                  key: const ValueKey('title'),
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Mes revenus',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.search,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isSearchVisible = true;
+                              });
+                            },
                           ),
-                          onPressed: () => _showFilterBottomSheet(context),
-                        ),
-                      ],
-                    ),
-                  ],
+                          IconButton(
+                            icon: Icon(
+                              Icons.filter_list,
+                              color:
+                                  _filterData.isEmpty
+                                      ? Theme.of(context).iconTheme.color
+                                      : Theme.of(context).colorScheme.primary,
+                            ),
+                            onPressed: () => _showFilterBottomSheet(context),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
       ),
     );
   }
@@ -309,13 +286,21 @@ class _RevenuesListState extends State<RevenuesList> {
       icon: Icons.trending_up,
       buttonText: 'Ajouter un revenu',
       onPressed: () {
-        final accountVM = Provider.of<AccountViewModel>(context, listen: false);
-        final revenueVM = Provider.of<RevenueViewModel>(context, listen: false);
+        final accounts = ref.read(accountProvider).value ?? [];
         RevenueBottomSheet.show(
           context: context,
-          accounts: accountVM.accounts,
-          onSubmit: (newRevenue) {
-            revenueVM.addRevenue(newRevenue);
+          accounts: accounts,
+          onSubmit: (newRevenue) async {
+            try {
+              await ref.read(revenueProvider.notifier).addRevenue(newRevenue);
+            } catch (e) {
+              if (context.mounted) {
+                FrostedSnackbar.show(
+                  context,
+                  message: 'Erreur lors de l\'ajout: \$e',
+                );
+              }
+            }
           },
           onCancel: () {},
         );
@@ -324,14 +309,13 @@ class _RevenuesListState extends State<RevenuesList> {
   }
 
   void _showFilterBottomSheet(BuildContext context) {
-    final accountVM = Provider.of<AccountViewModel>(context, listen: false);
-    final beneficiaryVM = Provider.of<BeneficiaryViewModel>(context, listen: false);
-
+    final accounts = ref.read(accountProvider).value ?? [];
+    final beneficiaries = ref.read(beneficiaryProvider).value ?? [];
     RevenueFilterBottomSheet.show(
       context: context,
       initialFilterData: _filterData,
-      accounts: accountVM.accounts,
-      beneficiaries: beneficiaryVM.beneficiaries,
+      accounts: accounts,
+      beneficiaries: beneficiaries,
       onApply: (updatedFilterData) {
         setState(() {
           _filterData = updatedFilterData;

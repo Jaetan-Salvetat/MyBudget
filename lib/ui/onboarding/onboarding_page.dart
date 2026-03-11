@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:provider/provider.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
-import 'package:mybudget/ui/onboarding/onboarding_viewmodel.dart';
+import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
 import 'package:mybudget/ui/onboarding/widgets/onboarding_slide.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -11,26 +11,50 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => OnboardingViewModel(),
-      child: const _OnboardingContent(),
-    );
+    return const _OnboardingContent();
   }
 }
 
-class _OnboardingContent extends StatelessWidget {
+class _OnboardingContent extends ConsumerStatefulWidget {
   const _OnboardingContent();
 
   @override
+  ConsumerState<_OnboardingContent> createState() => _OnboardingContentState();
+}
+
+class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _nextPage() {
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<OnboardingViewModel>();
+    final currentPage = ref.watch(onboardingProvider);
 
     return FrostedScaffold(
       child: Stack(
         children: [
           PageView(
-            controller: viewModel.pageController,
-            onPageChanged: viewModel.onPageChanged,
+            controller: _pageController,
+            onPageChanged:
+                ref.read(onboardingProvider.notifier).onPageChanged,
             children: const [
               OnboardingSlide(
                 title: "Votre argent, sans le flou.",
@@ -62,7 +86,7 @@ class _OnboardingContent extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(3, (index) {
-                    final isActive = viewModel.currentPage == index;
+                    final isActive = currentPage == index;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -87,10 +111,12 @@ class _OnboardingContent extends StatelessWidget {
                   width: double.infinity,
                   height: 56,
                   child:
-                      viewModel.currentPage == 2
+                      currentPage == 2
                           ? FrostedFilledButton(
                             onPressed: () async {
-                              await viewModel.completeOnboarding();
+                              await ref
+                                  .read(onboardingProvider.notifier)
+                                  .completeOnboarding();
                               if (context.mounted) {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
@@ -108,7 +134,7 @@ class _OnboardingContent extends StatelessWidget {
                             ),
                           )
                           : FrostedTonalButton(
-                            onPressed: viewModel.nextPage,
+                            onPressed: _nextPage,
                             child: const Text("Suivant"),
                           ),
                 ),

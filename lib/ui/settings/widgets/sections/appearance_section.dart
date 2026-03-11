@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/core/theme/theme_viewmodel.dart';
+import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/ui/settings/widgets/theme_bottom_sheet.dart';
 
-class AppearanceSection extends StatelessWidget {
+class AppearanceSection extends ConsumerWidget {
   const AppearanceSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final themeVM = Provider.of<ThemeViewModel>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
 
     return SettingsSection(
       title: 'Apparence',
       children: [
         SettingsTile(
           title: 'Thème',
-          subtitle: _getThemeNameFromMode(themeVM.themeMode),
+          subtitle: _getThemeNameFromMode(themeState.themeMode),
           leading: const Icon(Icons.brightness_6),
           onTap: () {
-            _showThemeSelectionDialog(context, themeVM.themeMode);
+            _showThemeSelectionDialog(context, ref, themeState.themeMode);
           },
         ),
         const SizedBox(height: 24),
@@ -46,11 +46,11 @@ class AppearanceSection extends StatelessWidget {
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final type = AppThemeType.values[index];
-              final isSelected = themeVM.themeType == type;
+              final isSelected = themeState.themeType == type;
               return _ColorSelectorItem(
                 type: type,
                 isSelected: isSelected,
-                onTap: () => themeVM.setThemeType(type),
+                onTap: () => ref.read(themeProvider.notifier).setThemeType(type),
               );
             },
           ),
@@ -73,14 +73,14 @@ class AppearanceSection extends StatelessWidget {
 
   Future<void> _showThemeSelectionDialog(
     BuildContext context,
+    WidgetRef ref,
     ThemeMode currentMode,
   ) async {
     return ThemeBottomSheet.show(
       context: context,
       currentMode: currentMode,
       onThemeSelected: (ThemeMode mode) {
-        final themeVM = Provider.of<ThemeViewModel>(context, listen: false);
-        themeVM.setThemeMode(mode);
+        ref.read(themeProvider.notifier).setThemeMode(mode);
       },
     );
   }

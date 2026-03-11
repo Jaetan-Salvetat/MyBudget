@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mybudget/core/domain/loan.dart';
+import 'package:mybudget/core/entities/loan.dart';
 
 class LoanHeader extends StatelessWidget {
   final Loan loan;
@@ -18,7 +18,7 @@ class LoanHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
+              ).colorScheme.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -51,7 +51,7 @@ class LoanHeader extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Theme.of(
                           context,
-                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        ).colorScheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

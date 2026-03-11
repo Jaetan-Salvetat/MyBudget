@@ -29,7 +29,7 @@ class CategoryModel {
           ..color = json['color'] ?? 0xFF2196F3;
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;

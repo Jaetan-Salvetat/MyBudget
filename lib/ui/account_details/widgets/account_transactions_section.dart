@@ -1,45 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/expenses/expenses_viewmodel.dart';
-import 'package:mybudget/ui/revenues/revenues_viewmodel.dart';
-import 'package:mybudget/ui/loans/loans_viewmodel.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/account_details/widgets/account_expense_list.dart';
 import 'package:mybudget/ui/account_details/widgets/account_revenue_list.dart';
 import 'package:mybudget/ui/account_details/widgets/account_loan_list.dart';
 
-class AccountTransactionsSection extends StatefulWidget {
+class AccountTransactionsSection extends ConsumerStatefulWidget {
   final AccountModel account;
-  final ExpenseViewModel expenseVM;
-  final RevenueViewModel revenueVM;
-  final LoanViewModel loanVM;
   final NumberFormat formatter;
 
   const AccountTransactionsSection({
     required this.account,
-    required this.expenseVM,
-    required this.revenueVM,
-    required this.loanVM,
     required this.formatter,
     super.key,
   });
 
   @override
-  State<AccountTransactionsSection> createState() =>
+  ConsumerState<AccountTransactionsSection> createState() =>
       _AccountTransactionsSectionState();
 }
 
 class _AccountTransactionsSectionState
-    extends State<AccountTransactionsSection> {
+    extends ConsumerState<AccountTransactionsSection> {
   int _selectedIndex = 0;
   final List<String> _tabLabels = ['Dépenses', 'Revenus', 'Mensualités'];
 
   @override
   Widget build(BuildContext context) {
-    final expenses = widget.expenseVM.getExpensesForAccount(widget.account.id);
-    final revenues = widget.revenueVM.getRevenuesForAccount(widget.account.id);
-    final loans = widget.loanVM.getActiveLoansForAccount(widget.account.id);
+    final expenses = ref.watch(expenseProvider.notifier).getExpensesForAccount(widget.account.id);
+    final revenues = ref.watch(revenueProvider.notifier).getRevenuesForAccount(widget.account.id);
+    final loans = ref.watch(loanProvider.notifier).getActiveLoansForAccount(widget.account.id);
 
     return FrostedCard(
       borderRadius: 24,

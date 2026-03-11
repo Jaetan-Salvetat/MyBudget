@@ -43,7 +43,7 @@ class GitHubService {
       if (apkAsset == null) return null;
 
       final rawTag = data['tag_name'].toString();
-      final version = rawTag.replaceAll('v', '').replaceAll('-beta', '');
+      final version = rawTag.replaceAll('v', '');
 
       return ReleaseInfo(
         version: version,

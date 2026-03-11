@@ -59,7 +59,6 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      // In fine: only interests = 10000 * 6% / 12 = 50
       expect(result, closeTo(50.0, 0.1));
     });
 
@@ -90,11 +89,10 @@ void main() {
         currentDate: DateTime(2024, 2, 1),
         deferredMonths: 0,
         insuranceType: LoanInsuranceType.percentage,
-        insuranceValue: 0.36, // 0.36% annually
+        insuranceValue: 0.36,
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      // Insurance: 10000 * 0.36% / 12 = 3
       expect(result, closeTo(856.07 + 3, 0.1));
     });
 
@@ -105,14 +103,13 @@ void main() {
         interestRate: 5,
         durationInMonths: 12,
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 7, 1), // 6 months passed
+        currentDate: DateTime(2024, 7, 1),
         deferredMonths: 0,
         insuranceType: LoanInsuranceType.percentage,
         insuranceValue: 0.36,
         insuranceCalcMode: InsuranceCalculationMode.remainingCapital,
       );
 
-      // Insurance should be less than CI because remaining capital < initial
       const insuranceCI = 10000 * 0.36 / 100 / 12;
       final insuranceCRD = result - 856.07;
       expect(insuranceCRD, lessThan(insuranceCI));
@@ -159,7 +156,6 @@ void main() {
         deferredMonths: 0,
       );
 
-      // In fine: capital stays constant until end
       expect(result, 10000.0);
     });
 
@@ -174,7 +170,6 @@ void main() {
         deferredMonths: 0,
       );
 
-      // After 1 month, capital should have decreased
       expect(result, lessThan(10000));
       expect(result, closeTo(9185.60, 1.0));
     });
@@ -186,11 +181,10 @@ void main() {
         interestRate: 0,
         durationInMonths: 12,
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 7, 1), // 6 months
+        currentDate: DateTime(2024, 7, 1),
         deferredMonths: 0,
       );
 
-      // Linear decrease: 1200 - (1200/12 * 6) = 600
       expect(result, 600.0);
     });
 
@@ -201,8 +195,8 @@ void main() {
         interestRate: 5,
         durationInMonths: 12,
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 4, 1), // 3 months after start
-        deferredMonths: 3, // 3 months deferred, so no payment yet
+        currentDate: DateTime(2024, 4, 1),
+        deferredMonths: 3,
       );
 
       expect(result, 10000.0);
@@ -261,56 +255,52 @@ void main() {
     test('should not count deferred months in total paid', () {
       final result = service.calculateTotalPaidAmount(
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 4, 1), // 3 months after start
+        currentDate: DateTime(2024, 4, 1),
         endDate: DateTime(2025, 1, 1),
         dayOfMonth: 1,
         deferredMonths: 3,
         monthlyPayment: 100,
       );
 
-      // 4 months passed (Jan, Feb, Mar, Apr), 3 deferred, so 1 payment
       expect(result, 100.0);
     });
 
     test('should calculate total paid correctly', () {
       final result = service.calculateTotalPaidAmount(
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 7, 1), // 6 months after start
+        currentDate: DateTime(2024, 7, 1),
         endDate: DateTime(2025, 1, 1),
         dayOfMonth: 1,
         deferredMonths: 0,
         monthlyPayment: 100,
       );
 
-      // Jan, Feb, Mar, Apr, May, Jun, Jul = 7 payments
       expect(result, 700.0);
     });
 
     test('should handle day of month correctly', () {
       final result = service.calculateTotalPaidAmount(
         startDate: DateTime(2024, 1, 15),
-        currentDate: DateTime(2024, 3, 10), // Before day 15
+        currentDate: DateTime(2024, 3, 10),
         endDate: DateTime(2025, 1, 15),
         dayOfMonth: 15,
         deferredMonths: 0,
         monthlyPayment: 100,
       );
 
-      // Jan 15, Feb 15 = 2 payments made, March 15 not yet
       expect(result, 200.0);
     });
 
     test('should cap at end date if current date is after', () {
       final result = service.calculateTotalPaidAmount(
         startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2025, 6, 1), // After end date
+        currentDate: DateTime(2025, 6, 1),
         endDate: DateTime(2025, 1, 1),
         dayOfMonth: 1,
         deferredMonths: 0,
         monthlyPayment: 100,
       );
 
-      // 13 months (Jan 2024 to Jan 2025 inclusive)
       expect(result, 1300.0);
     });
   });

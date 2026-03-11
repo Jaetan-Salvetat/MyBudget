@@ -8,27 +8,33 @@ class BeneficiaryModel {
   @Index()
   late String name;
 
+  int color = 0;
+
   BeneficiaryModel();
 
-  BeneficiaryModel.create({required this.name});
+  BeneficiaryModel.create({required this.name, this.color = 0});
 
-  BeneficiaryModel copyWith({String? name}) {
+  BeneficiaryModel copyWith({String? name, int? color}) {
     final model =
         BeneficiaryModel()
           ..id = id
-          ..name = name ?? this.name;
+          ..name = name ?? this.name
+          ..color = color ?? this.color;
     return model;
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id.toString(), 'name': name};
+    return {'id': id.toString(), 'name': name, 'color': color};
   }
 
   factory BeneficiaryModel.fromJson(Map<String, dynamic> json) {
-    final model = BeneficiaryModel()..name = json['name'] ?? '';
+    final model =
+        BeneficiaryModel()
+          ..name = json['name'] ?? ''
+          ..color = json['color'] as int? ?? 0;
 
     if (json['id'] != null) {
-      model.id = int.parse(json['id'].toString());
+      model.id = int.tryParse(json['id'].toString()) ?? 0;
     }
 
     return model;

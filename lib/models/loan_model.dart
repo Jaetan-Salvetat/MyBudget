@@ -31,22 +31,17 @@ enum LoanStatus {
   }
 }
 
-/// Modèle de données pour un prêt (Data Transfer Object)
-/// Responsabilité unique : stocker et sérialiser les données
-/// La logique métier est déléguée aux services de calcul
 @Entity()
 class LoanModel {
   @Id()
   int id = 0;
 
-  // Informations de base
   String name;
   double amount;
   String lenderName;
   int accountId;
   String? notes;
 
-  // Dates et échéances
   int dayOfMonth;
 
   @Property()
@@ -55,22 +50,16 @@ class LoanModel {
   @Property()
   DateTime endDate;
 
-  // Conditions financières
   double interestRate;
   int duration;
 
-  // Type de remboursement (NOUVEAU)
   String repaymentTypeId;
 
-  // Période de différé en mois (NOUVEAU)
   int deferredMonths;
 
-  // Assurance
   String insuranceTypeId;
   double insuranceValue;
-  String insuranceCalculationModeId; // NOUVEAU
-
-  // Getters pour les enums (conversion uniquement, pas de logique)
+  String insuranceCalculationModeId;
 
   LoanRepaymentType get repaymentType {
     return LoanRepaymentType.values.firstWhere(
@@ -105,7 +94,6 @@ class LoanModel {
     insuranceTypeId = type.name;
   }
 
-  // Constructeur
   LoanModel({
     this.id = 0,
     required this.name,
@@ -125,7 +113,6 @@ class LoanModel {
     this.notes,
   });
 
-  /// Factory pour créer un prêt avec des paramètres nommés
   static LoanModel create({
     required String name,
     required double amount,
@@ -163,7 +150,72 @@ class LoanModel {
     );
   }
 
-  /// Copie avec modifications
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id.toString(),
+      'name': name,
+      'amount': amount,
+      'accountId': accountId.toString(),
+      'lenderName': lenderName,
+      'dayOfMonth': dayOfMonth,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'interestRate': interestRate,
+      'duration': duration,
+      'repaymentTypeId': repaymentTypeId,
+      'deferredMonths': deferredMonths,
+      'insuranceTypeId': insuranceTypeId,
+      'insuranceValue': insuranceValue,
+      'insuranceCalculationModeId': insuranceCalculationModeId,
+      'notes': notes,
+    };
+  }
+
+  factory LoanModel.fromJson(Map<String, dynamic> json) {
+    dynamic resolve(String camelKey, String snakeKey) {
+      return json[camelKey] ?? json[snakeKey];
+    }
+
+    return LoanModel(
+      id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
+      name: (resolve('name', 'name') as String?) ?? '',
+      amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
+      accountId: int.tryParse(
+            (resolve('accountId', 'account_id') ?? '0').toString(),
+          ) ??
+          0,
+      lenderName:
+          (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
+      dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,
+      startDate: DateTime.tryParse(
+            (resolve('startDate', 'start_date') ?? '').toString(),
+          ) ??
+          DateTime.now(),
+      endDate: DateTime.tryParse(
+            (resolve('endDate', 'end_date') ?? '').toString(),
+          ) ??
+          DateTime.now().add(const Duration(days: 365)),
+      interestRate:
+          (resolve('interestRate', 'interest_rate') as num?)?.toDouble() ?? 0.0,
+      duration: (resolve('duration', 'duration') as int?) ?? 0,
+      repaymentTypeId: (resolve('repaymentTypeId', 'repayment_type_id')
+              as String?) ??
+          'amortizable',
+      deferredMonths:
+          (resolve('deferredMonths', 'deferred_months') as int?) ?? 0,
+      insuranceTypeId:
+          (resolve('insuranceTypeId', 'insurance_type_id') as String?) ??
+              'none',
+      insuranceValue:
+          (resolve('insuranceValue', 'insurance_value') as num?)?.toDouble() ??
+              0.0,
+      insuranceCalculationModeId: (resolve('insuranceCalculationModeId',
+              'insurance_calculation_mode_id') as String?) ??
+          'initialCapital',
+      notes: json['notes'] as String?,
+    );
+  }
+
   LoanModel copyWith({
     String? name,
     double? amount,

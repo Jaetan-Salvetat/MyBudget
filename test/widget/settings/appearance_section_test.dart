@@ -1,39 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/core/theme/theme_viewmodel.dart';
+import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
-import 'package:provider/provider.dart';
-
-class MockThemeViewModel extends Mock implements ThemeViewModel {}
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 
 void main() {
-  late MockThemeViewModel mockThemeViewModel;
-
-  setUp(() {
-    mockThemeViewModel = MockThemeViewModel();
-
-    when(() => mockThemeViewModel.themeMode).thenReturn(ThemeMode.system);
-    when(() => mockThemeViewModel.themeType).thenReturn(AppThemeType.purple);
-    when(
-      () => mockThemeViewModel.getLightTheme(
-        dynamicColorScheme: any(named: 'dynamicColorScheme'),
-      ),
-    ).thenReturn(ThemeData.light());
-    when(
-      () => mockThemeViewModel.getDarkTheme(
-        dynamicColorScheme: any(named: 'dynamicColorScheme'),
-      ),
-    ).thenReturn(ThemeData.dark());
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await PreferencesService.init();
   });
 
   Widget createWidgetUnderTest() {
-    return MaterialApp(
-      home: Scaffold(
-        body: ChangeNotifierProvider<ThemeViewModel>.value(
-          value: mockThemeViewModel,
-          child: const AppearanceSection(),
+    return const ProviderScope(
+      child: MaterialApp(
+        home: Scaffold(
+          body: AppearanceSection(),
         ),
       ),
     );
@@ -48,7 +32,7 @@ void main() {
     expect(find.text('Automatique'), findsOneWidget);
   });
 
-  testWidgets('Tapping on a color option calls setThemeType', (tester) async {
+  testWidgets('Tapping on a color option updates themeType', (tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
     final gestureDetectors = find.descendant(
@@ -59,7 +43,9 @@ void main() {
     await tester.tap(gestureDetectors.at(3));
     await tester.pump();
 
-    verify(() => mockThemeViewModel.setThemeType(AppThemeType.blue)).called(1);
+    final element = tester.element(find.byType(AppearanceSection));
+    final container = ProviderScope.containerOf(element);
+    expect(container.read(themeProvider).themeType, AppThemeType.blue);
   });
 
   testWidgets('Dynamic color option is present and interactable', (
@@ -75,8 +61,8 @@ void main() {
     await tester.tap(gestureDetectors.at(0));
     await tester.pump();
 
-    verify(
-      () => mockThemeViewModel.setThemeType(AppThemeType.dynamicColor),
-    ).called(1);
+    final element = tester.element(find.byType(AppearanceSection));
+    final container = ProviderScope.containerOf(element);
+    expect(container.read(themeProvider).themeType, AppThemeType.dynamicColor);
   });
 }

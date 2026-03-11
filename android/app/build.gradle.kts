@@ -18,14 +18,16 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "fr.jaetan.mybudget"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
     
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = rootProject.file("app/keystore/mybudget_key.jks")
-            storePassword = keystoreProperties["storePassword"] as String
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file("app/keystore/mybudget_key.jks")
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -59,7 +61,6 @@ android {
         create("beta") {
             dimension = "env"
             applicationIdSuffix = ".beta"
-            versionNameSuffix = "-beta"
             resValue("string", "app_name", "MyBudget Beta")
         }
     }
@@ -70,7 +71,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }

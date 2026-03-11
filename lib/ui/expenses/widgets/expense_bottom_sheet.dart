@@ -59,7 +59,6 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   String? _accountError;
   String? _amountError;
 
-  // null = aucun ou switch OFF, >0 = id existant sélectionné
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
 

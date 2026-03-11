@@ -285,12 +285,6 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 5939978804947497821),
-        name: 'isRegular',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 1213904468792118615),
         name: 'date',
         type: 10,
@@ -309,7 +303,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(6, 460490983667112828),
     name: 'BeneficiaryModel',
-    lastPropertyId: const obx_int.IdUid(2, 7223976306336406369),
+    lastPropertyId: const obx_int.IdUid(3, 4835571805174399151),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -324,6 +318,12 @@ final _entities = <obx_int.ModelEntity>[
         type: 9,
         flags: 2048,
         indexId: const obx_int.IdUid(5, 4333406268692751455),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 4835571805174399151),
+        name: 'color',
+        type: 6,
+        flags: 0,
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -368,6 +368,11 @@ Future<obx.Store> openStore({
 /// [obx.Store.new].
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
+    // If this version is not found, it means that this file was generated
+    // with an older version of the ObjectBox Dart generator.
+    // Please regenerate this file with the current generator version.
+    // Typically, this is done with `dart run build_runner build`.
+    generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
     lastEntityId: const obx_int.IdUid(6, 460490983667112828),
     lastIndexId: const obx_int.IdUid(5, 4333406268692751455),
@@ -375,7 +380,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [3745183620062731729, 2052082936511433960],
+    retiredPropertyUids: const [
+      3745183620062731729,
+      2052082936511433960,
+      5939978804947497821,
+    ],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -669,7 +678,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
         fbb.addFloat64(3, object.amount);
-        fbb.addBool(4, object.isRegular);
         fbb.addInt64(5, object.date.millisecondsSinceEpoch);
         fbb.addInt64(6, object.beneficiaryId);
         fbb.finish(fbb.endTable());
@@ -696,12 +704,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
             10,
             0,
           )
-          ..isRegular = const fb.BoolReader().vTableGet(
-            buffer,
-            rootOffset,
-            12,
-            false,
-          )
           ..date = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
           )
@@ -724,9 +726,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (BeneficiaryModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(3);
+        fbb.startTable(4);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
+        fbb.addInt64(2, object.color);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -738,7 +741,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..name = const fb.StringReader(
             asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '');
+          ).vTableGet(buffer, rootOffset, 6, '')
+          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
 
         return object;
       },
@@ -937,19 +941,14 @@ class RevenueModel_ {
     _entities[4].properties[3],
   );
 
-  /// See [RevenueModel.isRegular].
-  static final isRegular = obx.QueryBooleanProperty<RevenueModel>(
-    _entities[4].properties[4],
-  );
-
   /// See [RevenueModel.date].
   static final date = obx.QueryDateProperty<RevenueModel>(
-    _entities[4].properties[5],
+    _entities[4].properties[4],
   );
 
   /// See [RevenueModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[6],
+    _entities[4].properties[5],
   );
 }
 
@@ -963,5 +962,10 @@ class BeneficiaryModel_ {
   /// See [BeneficiaryModel.name].
   static final name = obx.QueryStringProperty<BeneficiaryModel>(
     _entities[5].properties[1],
+  );
+
+  /// See [BeneficiaryModel.color].
+  static final color = obx.QueryIntegerProperty<BeneficiaryModel>(
+    _entities[5].properties[2],
   );
 }

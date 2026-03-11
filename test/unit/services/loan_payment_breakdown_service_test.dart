@@ -242,7 +242,7 @@ void main() {
 
       expect(breakdown.capitalPayment, greaterThan(0));
       expect(breakdown.interestPayment, greaterThan(0));
-      expect(breakdown.totalPayment, closeTo(856.07 * 7, 1.0)); // 7 months: Jan to Jul
+      expect(breakdown.totalPayment, closeTo(856.07 * 7, 1.0));
       expect(
         breakdown.capitalPayment + breakdown.interestPayment,
         closeTo(breakdown.totalPayment, 0.1),
@@ -265,7 +265,6 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      // 4 months passed (Jan-Apr), 3 deferred, so 1 payment made
       expect(breakdown.totalPayment, greaterThan(0));
     });
 
@@ -285,7 +284,7 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      expect(breakdown.insurancePayment, 60.0); // 20 * 3 months
+      expect(breakdown.insurancePayment, 60.0);
     });
 
     test('should accumulate percentage insurance (CI) correctly', () {
@@ -304,7 +303,7 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      expect(breakdown.insurancePayment, closeTo(9.0, 0.01)); // 3 * 3 months
+      expect(breakdown.insurancePayment, closeTo(9.0, 0.01));
     });
   });
 
