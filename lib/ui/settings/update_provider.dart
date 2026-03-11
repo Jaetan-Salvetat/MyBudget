@@ -78,11 +78,9 @@ class UpdateNotifier extends _$UpdateNotifier {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
       final isBeta = packageInfo.packageName.endsWith('.beta');
-      final cleanVersion = currentVersion.replaceAll(RegExp(r'-beta(\.\d+)?'), '');
-
       Version currentVersionObj;
       try {
-        currentVersionObj = Version.parse(cleanVersion);
+        currentVersionObj = Version.parse(currentVersion);
       } catch (e) {
         currentVersionObj = Version(1, 0, 0);
       }
