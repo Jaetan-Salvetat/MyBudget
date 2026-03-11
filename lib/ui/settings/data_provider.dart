@@ -99,6 +99,12 @@ class DataNotifier extends _$DataNotifier {
     }
   }
 
+  ImportValidationResult validateImportData(String jsonContent) {
+    final data = jsonDecode(jsonContent) as Map<String, dynamic>;
+    final importService = _createImportService();
+    return importService.validate(data);
+  }
+
   Future<void> importUserData(String jsonContent) async {
     try {
       state = state.copyWith(
