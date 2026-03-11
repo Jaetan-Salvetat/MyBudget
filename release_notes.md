@@ -3,3 +3,4 @@
 
 ## ✨ Améliorations
 - Couleurs et contrastes améliorés sur les cartes et le tableau de bord
+- Avatars des bénéficiaires avec initiales et couleur unique

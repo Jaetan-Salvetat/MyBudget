@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/category_model.dart';
-import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
+
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String accountName;
-  final String? beneficiaryName;
+  final Beneficiary? beneficiary;
   final CategoryModel? category;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
@@ -18,7 +19,7 @@ class ExpenseCard extends StatelessWidget {
     required this.accountName,
     required this.onDelete,
     required this.onEdit,
-    this.beneficiaryName,
+    this.beneficiary,
     this.category,
     super.key,
   });
@@ -57,9 +58,6 @@ class ExpenseCard extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-          if (beneficiaryName != null)
-            BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
-          else
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -125,7 +123,7 @@ class ExpenseCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (beneficiaryName != null) ...[
+                    if (beneficiary != null) ...[
                       const SizedBox(width: 12),
                       Icon(
                         Icons.person_outline,
@@ -134,7 +132,7 @@ class ExpenseCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        beneficiaryName!,
+                        beneficiary!.name,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

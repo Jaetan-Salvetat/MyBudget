@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 
 class RevenueFilterBottomSheet extends StatefulWidget {
   final RevenueFilterData initialFilterData;
   final List<AccountModel> accounts;
-  final List<BeneficiaryModel> beneficiaries;
+  final List<Beneficiary> beneficiaries;
   final Function(RevenueFilterData) onApply;
   final VoidCallback onClear;
   final VoidCallback onCancel;
@@ -26,7 +26,7 @@ class RevenueFilterBottomSheet extends StatefulWidget {
     required BuildContext context,
     required RevenueFilterData initialFilterData,
     required List<AccountModel> accounts,
-    required List<BeneficiaryModel> beneficiaries,
+    required List<Beneficiary> beneficiaries,
     required Function(RevenueFilterData) onApply,
     required VoidCallback onClear,
     required VoidCallback onCancel,

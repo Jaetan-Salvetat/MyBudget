@@ -303,7 +303,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(6, 460490983667112828),
     name: 'BeneficiaryModel',
-    lastPropertyId: const obx_int.IdUid(2, 7223976306336406369),
+    lastPropertyId: const obx_int.IdUid(3, 4835571805174399151),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -318,6 +318,12 @@ final _entities = <obx_int.ModelEntity>[
         type: 9,
         flags: 2048,
         indexId: const obx_int.IdUid(5, 4333406268692751455),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 4835571805174399151),
+        name: 'color',
+        type: 6,
+        flags: 0,
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -720,9 +726,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (BeneficiaryModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(3);
+        fbb.startTable(4);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
+        fbb.addInt64(2, object.color);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -734,7 +741,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..name = const fb.StringReader(
             asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '');
+          ).vTableGet(buffer, rootOffset, 6, '')
+          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
 
         return object;
       },
@@ -954,5 +962,10 @@ class BeneficiaryModel_ {
   /// See [BeneficiaryModel.name].
   static final name = obx.QueryStringProperty<BeneficiaryModel>(
     _entities[5].properties[1],
+  );
+
+  /// See [BeneficiaryModel.color].
+  static final color = obx.QueryIntegerProperty<BeneficiaryModel>(
+    _entities[5].properties[2],
   );
 }

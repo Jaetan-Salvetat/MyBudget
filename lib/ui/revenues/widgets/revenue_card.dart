@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
 class RevenueCard extends StatelessWidget {
   final RevenueModel revenue;
   final String accountName;
-  final String? beneficiaryName;
+  final Beneficiary? beneficiary;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -16,7 +17,7 @@ class RevenueCard extends StatelessWidget {
     required this.accountName,
     required this.onDelete,
     required this.onEdit,
-    this.beneficiaryName,
+    this.beneficiary,
     super.key,
   });
 
@@ -36,13 +37,20 @@ class RevenueCard extends StatelessWidget {
             Container(
               width: 3,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: beneficiary != null && beneficiary!.color != 0
+                    ? Color(beneficiary!.color)
+                    : Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             ),
             const SizedBox(width: 8),
-            if (beneficiaryName != null)
-              BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
+            if (beneficiary != null)
+              BeneficiaryAvatar(
+                name: beneficiary!.name,
+                initials: beneficiary!.initials,
+                avatarColor: beneficiary!.color,
+                radius: 20,
+              )
             else
               Container(
                 padding: const EdgeInsets.all(10),
@@ -113,7 +121,7 @@ class RevenueCard extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      if (beneficiaryName != null) ...[
+                      if (beneficiary != null) ...[
                         const SizedBox(width: 12),
                         Icon(
                           Icons.person_outline,
@@ -123,7 +131,7 @@ class RevenueCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            beneficiaryName!,
+                            beneficiary!.name,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),

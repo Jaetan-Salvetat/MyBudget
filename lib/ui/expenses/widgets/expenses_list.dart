@@ -147,7 +147,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 return ExpenseCard(
                   expense: expense,
                   accountName: account.name,
-                  beneficiaryName: beneficiary?.name,
+                  beneficiary: beneficiary,
                   category: category,
                   onDelete: () async {
                     try {

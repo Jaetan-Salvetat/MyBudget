@@ -116,7 +116,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 return RevenueCard(
                   revenue: revenue,
                   accountName: account.name,
-                  beneficiaryName: beneficiary?.name,
+                  beneficiary: beneficiary,
                   onDelete: () async {
                     try {
                       await ref

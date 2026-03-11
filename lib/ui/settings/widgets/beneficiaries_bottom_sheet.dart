@@ -49,7 +49,11 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
                       itemBuilder: (context, index) {
                         final beneficiary = beneficiaries[index];
                         return FrostedListTile(
-                          leading: BeneficiaryAvatar(name: beneficiary.name),
+                          leading: BeneficiaryAvatar(
+                            name: beneficiary.name,
+                            initials: beneficiary.initials,
+                            avatarColor: beneficiary.color,
+                          ),
                           title: Text(beneficiary.name),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete),
