@@ -67,7 +67,7 @@ class BalanceCard extends StatelessWidget {
                         color: (savingsRate > 20
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.error)
-                            .withValues(alpha: 0.1),
+                            .withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -148,7 +148,7 @@ class BalanceCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.secondary.withValues(alpha: 0.08),
+                ).colorScheme.secondary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -256,7 +256,7 @@ class BalanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

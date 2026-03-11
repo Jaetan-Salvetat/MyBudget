@@ -39,10 +39,24 @@ class ExpenseCard extends StatelessWidget {
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
       borderRadius: 12,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
       onClick: onEdit,
-      child: Row(
-        children: [
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: category != null
+                    ? Color(category!.color)
+                    : Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                children: [
           if (beneficiaryName != null)
             BeneficiaryAvatar(name: beneficiaryName!, radius: 20)
           else
@@ -50,7 +64,7 @@ class ExpenseCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: category != null
-                    ? Color(category!.color).withValues(alpha: 0.15)
+                    ? Color(category!.color).withValues(alpha: 0.25)
                     : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
@@ -164,7 +178,11 @@ class ExpenseCard extends StatelessWidget {
             icon: Icons.more_vert,
             onPressed: () => _showOptionsBottomSheet(context),
           ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
