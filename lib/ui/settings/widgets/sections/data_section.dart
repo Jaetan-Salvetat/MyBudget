@@ -6,6 +6,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
+import 'package:mybudget/ui/settings/screens/import_preview_screen.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -86,8 +87,26 @@ class DataSection extends ConsumerWidget {
       final jsonContent = await file.readAsString();
 
       if (context.mounted) {
-        DataManagementDialogs.showImportConfirmationDialog(
-            context, ref, jsonContent);
+        try {
+          final validationResult =
+              ref.read(dataProvider.notifier).validateImportData(jsonContent);
+
+          if (context.mounted) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ImportPreviewScreen(
+                  validationResult: validationResult,
+                  jsonContent: jsonContent,
+                ),
+              ),
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context,
+                message: 'Erreur lors de la lecture du fichier: $e');
+          }
+        }
       }
     } catch (e) {
       if (context.mounted) {

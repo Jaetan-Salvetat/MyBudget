@@ -6,11 +6,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
-import 'package:mybudget/utils/restart_widget.dart';
 
 void main() {
   runZonedGuarded(() async {
@@ -24,14 +22,8 @@ void main() {
     await initializeDateFormatting('fr_FR', null);
 
     runApp(
-      ProviderScope(
-        child: RestartWidget(
-          onRestart: () async {
-            await ObjectBoxService.resetInstance();
-            await ObjectBoxService.getInstance();
-          },
-          child: const MyApp(),
-        ),
+      const ProviderScope(
+        child: MyApp(),
       ),
     );
   }, (error, stack) {
