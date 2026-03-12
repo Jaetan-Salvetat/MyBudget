@@ -11,6 +11,7 @@ import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -32,6 +33,8 @@ class MockLoanRepository extends Mock implements LoanRepository {}
 
 class MockCategoryRepository extends Mock implements CategoryRepository {}
 
+class MockTransferRepository extends Mock implements TransferRepository {}
+
 class FakeAccountModel extends Fake implements AccountModel {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
@@ -51,6 +54,7 @@ void main() {
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
   late MockCategoryRepository mockCategoryRepo;
+  late MockTransferRepository mockTransferRepo;
 
   setUpAll(() {
     registerFallbackValue(FakeAccountModel());
@@ -71,6 +75,7 @@ void main() {
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
     mockCategoryRepo = MockCategoryRepository();
+    mockTransferRepo = MockTransferRepository();
   });
 
   ProviderContainer makeContainer() {
@@ -82,6 +87,7 @@ void main() {
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
         categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
+        transferRepositoryProvider.overrideWithValue(mockTransferRepo),
       ],
     );
   }
@@ -93,6 +99,7 @@ void main() {
     when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
     when(() => mockLoanRepo.deleteAll()).thenReturn(null);
     when(() => mockCategoryRepo.deleteAll()).thenReturn(null);
+    when(() => mockTransferRepo.deleteAll()).thenReturn(null);
   }
 
   test(

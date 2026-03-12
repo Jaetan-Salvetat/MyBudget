@@ -6,8 +6,10 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/data_import_service.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -38,6 +40,10 @@ class FakeRevenueModel extends Fake implements RevenueModel {}
 
 class FakeLoanModel extends Fake implements LoanModel {}
 
+class MockTransferRepository extends Mock implements TransferRepository {}
+
+class FakeTransferModel extends Fake implements TransferModel {}
+
 void main() {
   late MockAccountRepository mockAccountRepo;
   late MockBeneficiaryRepository mockBeneficiaryRepo;
@@ -45,6 +51,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockTransferRepository mockTransferRepo;
   late DataImportService service;
 
   setUpAll(() {
@@ -54,6 +61,7 @@ void main() {
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeRevenueModel());
     registerFallbackValue(FakeLoanModel());
+    registerFallbackValue(FakeTransferModel());
   });
 
   setUp(() {
@@ -63,6 +71,7 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockTransferRepo = MockTransferRepository();
 
     service = DataImportService(
       accountRepo: mockAccountRepo,
@@ -71,6 +80,7 @@ void main() {
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
+      transferRepo: mockTransferRepo,
     );
   });
 
@@ -247,6 +257,7 @@ void main() {
       when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
       when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
       when(() => mockLoanRepo.deleteAll()).thenReturn(null);
+      when(() => mockTransferRepo.deleteAll()).thenReturn(null);
     }
 
     test('deletes all existing data before inserting', () {

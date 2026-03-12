@@ -4,6 +4,7 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 
 class DataExportService {
   final AccountRepository accountRepo;
@@ -12,6 +13,7 @@ class DataExportService {
   final ExpenseRepository expenseRepo;
   final RevenueRepository revenueRepo;
   final LoanRepository loanRepo;
+  final TransferRepository transferRepo;
 
   const DataExportService({
     required this.accountRepo,
@@ -20,6 +22,7 @@ class DataExportService {
     required this.expenseRepo,
     required this.revenueRepo,
     required this.loanRepo,
+    required this.transferRepo,
   });
 
   Map<String, dynamic> buildExportData() {
@@ -37,6 +40,7 @@ class DataExportService {
       'expenses': expenseRepo.getAll().map((e) => e.toJson()).toList(),
       'revenues': revenueRepo.getAll().map((r) => r.toJson()).toList(),
       'loans': loanRepo.getAll().map((l) => l.toJson()).toList(),
+      'transfers': transferRepo.getAll().map((t) => t.toJson()).toList(),
     };
   }
 }

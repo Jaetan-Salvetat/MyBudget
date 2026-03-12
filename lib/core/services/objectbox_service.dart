@@ -5,6 +5,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:mybudget/objectbox.g.dart';
@@ -18,6 +19,7 @@ class ObjectBoxService {
   late Box<RevenueModel> revenueBox;
   late Box<AccountModel> accountBox;
   late Box<LoanModel> loanBox;
+  late Box<TransferModel> transferBox;
 
   static ObjectBoxService? _instance;
 
@@ -42,6 +44,7 @@ class ObjectBoxService {
     revenueBox = Box<RevenueModel>(store);
     accountBox = Box<AccountModel>(store);
     loanBox = Box<LoanModel>(store);
+    transferBox = Box<TransferModel>(store);
   }
 
   void closeStore() {
@@ -64,5 +67,6 @@ class ObjectBoxService {
     revenueBox.removeAll();
     accountBox.removeAll();
     loanBox.removeAll();
+    transferBox.removeAll();
   }
 }

@@ -266,10 +266,56 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "7:5565231467975372089",
+      "lastPropertyId": "7:1264700332632094752",
+      "name": "TransferModel",
+      "properties": [
+        {
+          "id": "1:6521738019922843589",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4962336831081318855",
+          "name": "name",
+          "indexId": "6:7186843688021626475",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:332212276956066665",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "4:8859810807091112752",
+          "name": "fromAccountId",
+          "type": 6
+        },
+        {
+          "id": "5:7671426221682866192",
+          "name": "toAccountId",
+          "type": 6
+        },
+        {
+          "id": "6:1221948770519669890",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "7:1264700332632094752",
+          "name": "frequency",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "6:460490983667112828",
-  "lastIndexId": "5:4333406268692751455",
+  "lastEntityId": "7:5565231467975372089",
+  "lastIndexId": "6:7186843688021626475",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

@@ -7,7 +7,9 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/account_transactions_section.dart';
 
@@ -57,6 +59,9 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
         .where((l) => l.accountId == account.id && !l.isCompleted)
         .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
 
+    final transferNotifier = ref.watch(transferProvider.notifier);
+    final totalTransfers = transferNotifier.getMonthlyTransferBalance(account.id);
+
     return FrostedScaffold(
       appBar: FrostedAppBar(
         title: 'Détails du compte',
@@ -71,6 +76,10 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
           ),
         ],
       ),
+      floatingActionButton: FrostedFloatingActionButton(
+        onPressed: () => _showAddTransferBottomSheet(context),
+        child: const Icon(Icons.swap_horiz),
+      ),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16),
@@ -83,6 +92,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
               balance: balance,
               totalRevenues: totalRevenues,
               totalExpenses: totalExpenses + totalLoanPayments,
+              totalTransfers: totalTransfers,
               formatter: formatter,
             ),
             const SizedBox(height: 24),
@@ -118,12 +128,31 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     );
   }
 
+  void _showAddTransferBottomSheet(BuildContext context) {
+    final accounts = ref.read(accountProvider).value ?? [];
+    TransferBottomSheet.show(
+      context: context,
+      accounts: accounts,
+      onSubmit: (transfer) async {
+        try {
+          await ref.read(transferProvider.notifier).addTransfer(transfer);
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout du virement: $e');
+          }
+        }
+      },
+      onCancel: () {},
+    );
+  }
+
   void _showDeleteConfirmation(BuildContext context) {
     final linkedExpenses = ref.read(expenseProvider.notifier).getExpensesForAccount(account.id);
     final linkedRevenues = ref.read(revenueProvider.notifier).getRevenuesForAccount(account.id);
     final linkedLoans = ref.read(loanProvider.notifier).getActiveLoansForAccount(account.id);
+    final linkedTransfers = ref.read(transferProvider.notifier).getTransfersForAccount(account.id);
 
-    final totalLinked = linkedExpenses.length + linkedRevenues.length + linkedLoans.length;
+    final totalLinked = linkedExpenses.length + linkedRevenues.length + linkedLoans.length + linkedTransfers.length;
 
     if (totalLinked > 0) {
       final parts = <String>[];
@@ -135,6 +164,9 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       }
       if (linkedLoans.isNotEmpty) {
         parts.add('${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}');
+      }
+      if (linkedTransfers.isNotEmpty) {
+        parts.add('${linkedTransfers.length} virement${linkedTransfers.length > 1 ? 's' : ''}');
       }
 
       FrostedDialog.show(
