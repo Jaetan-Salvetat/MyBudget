@@ -14,6 +14,7 @@ import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
+import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
@@ -39,7 +40,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _currentTitle = _getTitleForIndex(_selectedIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(updateProvider.notifier).checkForUpdates(context, silent: true);
+      ref.read(updateProvider.notifier).checkForUpdates(silent: true);
+      ref.listenManual(updateProvider, (previous, next) {
+        if (previous?.availableUpdate == null &&
+            next.availableUpdate != null &&
+            context.mounted) {
+          FrostedSnackbar.show(
+            context,
+            message: 'Mise à jour v${next.availableUpdate!.version} disponible',
+            action: SnackBarAction(
+              label: 'Voir',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UpdateScreen()),
+              ),
+            ),
+          );
+        }
+      });
     });
   }
 
