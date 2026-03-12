@@ -42,13 +42,13 @@ class TransferBottomSheet extends StatefulWidget {
 }
 
 class _TransferBottomSheetState extends State<TransferBottomSheet> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   int? _selectedFromAccountId;
   int? _selectedToAccountId;
   DateTime _selectedDate = DateTime.now();
   String _selectedFrequency = 'Mensuel';
+  String? _nameError;
   String? _fromAccountError;
   String? _toAccountError;
   String? _amountError;
@@ -81,9 +81,25 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
           .where((a) => a.id != _selectedFromAccountId)
           .toList();
 
-  bool _validateDropdowns() {
+  bool _validateFields() {
     bool isValid = true;
     setState(() {
+      if (_nameController.text.trim().isEmpty) {
+        _nameError = 'Veuillez saisir un nom';
+        isValid = false;
+      } else {
+        _nameError = null;
+      }
+
+      final amount =
+          double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+      if (amount <= 0) {
+        _amountError = 'Le montant doit être supérieur à 0';
+        isValid = false;
+      } else {
+        _amountError = null;
+      }
+
       if (_selectedFromAccountId == null) {
         _fromAccountError = 'Veuillez sélectionner un compte source';
         isValid = false;
@@ -109,23 +125,12 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate() || !_validateDropdowns()) {
+    if (!_validateFields()) {
       return;
     }
 
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
-
-    if (amount <= 0) {
-      setState(() {
-        _amountError = 'Le montant doit être supérieur à 0';
-      });
-      return;
-    } else {
-      setState(() {
-        _amountError = null;
-      });
-    }
 
     final transfer =
         widget.transfer != null
@@ -156,9 +161,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -176,6 +179,17 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               hintText: 'Ex: Épargne mensuelle',
               prefixIcon: const Icon(Icons.edit),
             ),
+            if (_nameError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                child: Text(
+                  _nameError!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             const SizedBox(height: 16),
             FrostedTextField(
               controller: _amountController,
@@ -334,7 +348,6 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               ],
             ),
           ],
-        ),
       ),
     );
   }
