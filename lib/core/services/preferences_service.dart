@@ -13,6 +13,9 @@ class PreferencesService {
   static const String keySkipAuth = 'skipAuth';
   static const String keyThemeType = 'themeType';
   static const String keyIsCategoriesCreated = 'isCategoriesCreated';
+  static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
+  static const String keyIsBackgroundCheckEnabled = 'isBackgroundCheckEnabled';
+  static const String keyBackgroundCheckInterval = 'backgroundCheckInterval';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -86,6 +89,30 @@ class PreferencesService {
 
   static Future<void> setCategoriesCreated() async {
     await _prefs.setBool(keyIsCategoriesCreated, true);
+  }
+
+  static bool hasSeenUpdateOnboarding() {
+    return _prefs.getBool(keyHasSeenUpdateOnboarding) ?? false;
+  }
+
+  static Future<void> setHasSeenUpdateOnboarding() async {
+    await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
+  }
+
+  static bool isBackgroundCheckEnabled() {
+    return _prefs.getBool(keyIsBackgroundCheckEnabled) ?? true;
+  }
+
+  static Future<void> setBackgroundCheckEnabled(bool enabled) async {
+    await _prefs.setBool(keyIsBackgroundCheckEnabled, enabled);
+  }
+
+  static int getBackgroundCheckInterval() {
+    return _prefs.getInt(keyBackgroundCheckInterval) ?? 24;
+  }
+
+  static Future<void> setBackgroundCheckInterval(int hours) async {
+    await _prefs.setInt(keyBackgroundCheckInterval, hours);
   }
 
   static Future<void> clearAll() async {
