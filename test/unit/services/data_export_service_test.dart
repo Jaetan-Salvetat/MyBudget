@@ -14,6 +14,7 @@ import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -166,5 +167,29 @@ void main() {
     expect(loanJson.containsKey('account_id'), isFalse);
     expect(loanJson.containsKey('lender_name'), isFalse);
     expect(loanJson.containsKey('start_date'), isFalse);
+  });
+
+  test('buildExportData includes transfers in export', () {
+    stubEmptyRepos();
+    final transfer = TransferModel.create(
+      name: 'Epargne',
+      amount: 500,
+      fromAccountId: 1,
+      toAccountId: 2,
+      date: DateTime(2025, 3, 15),
+      frequency: 'Mensuel',
+    );
+    transfer.id = 10;
+    when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+
+    final result = service.buildExportData();
+
+    expect(result['transfers'], isA<List>());
+    final transfers = result['transfers'] as List;
+    expect(transfers, hasLength(1));
+    expect(transfers.first['name'], 'Epargne');
+    expect(transfers.first['amount'], 500.0);
+    expect(transfers.first['fromAccountId'], '1');
+    expect(transfers.first['toAccountId'], '2');
   });
 }

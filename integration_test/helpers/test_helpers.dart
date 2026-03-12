@@ -195,3 +195,22 @@ Future<void> createAmortizableLoan(
 
   await tapButton(tester, 'Terminer');
 }
+
+Future<void> createTransferFromAccountDetails(
+  WidgetTester tester, {
+  required String name,
+  required String amount,
+  required String destinationAccount,
+}) async {
+  await tapFab(tester);
+  await enterTextField(tester, 'Nom', name);
+  await enterTextField(tester, 'Montant', amount);
+  await scrollDown(tester);
+  final dropdowns = find.byType(FrostedDropdown<int>);
+  await tester.tap(dropdowns.last);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(destinationAccount).last);
+  await tester.pumpAndSettle();
+  await scrollDown(tester);
+  await tapButton(tester, 'Ajouter');
+}

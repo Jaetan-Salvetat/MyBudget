@@ -8,6 +8,7 @@ import 'tests/expenses_test.dart' as expenses;
 import 'tests/revenues_test.dart' as revenues;
 import 'tests/loans_test.dart' as loans;
 import 'tests/settings_test.dart' as settings;
+import 'tests/transfers_test.dart' as transfers;
 import 'tests/e2e_test.dart' as e2e;
 
 void main() {
@@ -20,6 +21,7 @@ void main() {
   expenses.main();
   revenues.main();
   loans.main();
+  transfers.main();
   settings.main();
   e2e.main();
 }
