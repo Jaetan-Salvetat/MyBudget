@@ -8,6 +8,7 @@ class AccountHeroCard extends StatelessWidget {
   final double balance;
   final double totalRevenues;
   final double totalExpenses;
+  final double totalTransfers;
   final NumberFormat formatter;
 
   const AccountHeroCard({
@@ -15,6 +16,7 @@ class AccountHeroCard extends StatelessWidget {
     required this.balance,
     required this.totalRevenues,
     required this.totalExpenses,
+    required this.totalTransfers,
     required this.formatter,
     super.key,
   });
@@ -96,7 +98,7 @@ class AccountHeroCard extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   context,
-                  'Dépenses',
+                  'Charges',
                   totalExpenses,
                   Icons.arrow_downward,
                   Theme.of(context).colorScheme.error,
@@ -114,6 +116,22 @@ class AccountHeroCard extends StatelessWidget {
                   totalRevenues,
                   Icons.arrow_upward,
                   Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  context,
+                  'Virements',
+                  totalTransfers,
+                  Icons.swap_horiz,
+                  totalTransfers >= 0
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.error,
                 ),
               ),
             ],

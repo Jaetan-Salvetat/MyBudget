@@ -4,6 +4,7 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -48,4 +49,10 @@ LoanRepository loanRepository(Ref ref) {
 RevenueRepository revenueRepository(Ref ref) {
   final obs = ref.watch(objectBoxServiceProvider).requireValue;
   return RevenueRepository(obs.revenueBox);
+}
+
+@Riverpod(keepAlive: true)
+TransferRepository transferRepository(Ref ref) {
+  final obs = ref.watch(objectBoxServiceProvider).requireValue;
+  return TransferRepository(obs.transferBox);
 }

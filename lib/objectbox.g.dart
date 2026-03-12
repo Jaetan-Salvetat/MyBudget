@@ -20,6 +20,7 @@ import 'models/category_model.dart';
 import 'models/expense_model.dart';
 import 'models/loan_model.dart';
 import 'models/revenue_model.dart';
+import 'models/transfer_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -329,6 +330,59 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(7, 5565231467975372089),
+    name: 'TransferModel',
+    lastPropertyId: const obx_int.IdUid(7, 1264700332632094752),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6521738019922843589),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 4962336831081318855),
+        name: 'name',
+        type: 9,
+        flags: 2048,
+        indexId: const obx_int.IdUid(6, 7186843688021626475),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 332212276956066665),
+        name: 'amount',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 8859810807091112752),
+        name: 'fromAccountId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 7671426221682866192),
+        name: 'toAccountId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 1221948770519669890),
+        name: 'date',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 1264700332632094752),
+        name: 'frequency',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -374,8 +428,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(6, 460490983667112828),
-    lastIndexId: const obx_int.IdUid(5, 4333406268692751455),
+    lastEntityId: const obx_int.IdUid(7, 5565231467975372089),
+    lastIndexId: const obx_int.IdUid(6, 7186843688021626475),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -747,6 +801,65 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    TransferModel: obx_int.EntityDefinition<TransferModel>(
+      model: _entities[6],
+      toOneRelations: (TransferModel object) => [],
+      toManyRelations: (TransferModel object) => {},
+      getId: (TransferModel object) => object.id,
+      setId: (TransferModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (TransferModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        final frequencyOffset = fbb.writeString(object.frequency);
+        fbb.startTable(8);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addFloat64(2, object.amount);
+        fbb.addInt64(3, object.fromAccountId);
+        fbb.addInt64(4, object.toAccountId);
+        fbb.addInt64(5, object.date.millisecondsSinceEpoch);
+        fbb.addOffset(6, frequencyOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+
+        final object = TransferModel()
+          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+          ..name = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 6, '')
+          ..amount = const fb.Float64Reader().vTableGet(
+            buffer,
+            rootOffset,
+            8,
+            0,
+          )
+          ..fromAccountId = const fb.Int64Reader().vTableGet(
+            buffer,
+            rootOffset,
+            10,
+            0,
+          )
+          ..toAccountId = const fb.Int64Reader().vTableGet(
+            buffer,
+            rootOffset,
+            12,
+            0,
+          )
+          ..date = DateTime.fromMillisecondsSinceEpoch(
+            const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
+          )
+          ..frequency = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 16, '');
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -967,5 +1080,43 @@ class BeneficiaryModel_ {
   /// See [BeneficiaryModel.color].
   static final color = obx.QueryIntegerProperty<BeneficiaryModel>(
     _entities[5].properties[2],
+  );
+}
+
+/// [TransferModel] entity fields to define ObjectBox queries.
+class TransferModel_ {
+  /// See [TransferModel.id].
+  static final id = obx.QueryIntegerProperty<TransferModel>(
+    _entities[6].properties[0],
+  );
+
+  /// See [TransferModel.name].
+  static final name = obx.QueryStringProperty<TransferModel>(
+    _entities[6].properties[1],
+  );
+
+  /// See [TransferModel.amount].
+  static final amount = obx.QueryDoubleProperty<TransferModel>(
+    _entities[6].properties[2],
+  );
+
+  /// See [TransferModel.fromAccountId].
+  static final fromAccountId = obx.QueryIntegerProperty<TransferModel>(
+    _entities[6].properties[3],
+  );
+
+  /// See [TransferModel.toAccountId].
+  static final toAccountId = obx.QueryIntegerProperty<TransferModel>(
+    _entities[6].properties[4],
+  );
+
+  /// See [TransferModel.date].
+  static final date = obx.QueryDateProperty<TransferModel>(
+    _entities[6].properties[5],
+  );
+
+  /// See [TransferModel.frequency].
+  static final frequency = obx.QueryStringProperty<TransferModel>(
+    _entities[6].properties[6],
   );
 }

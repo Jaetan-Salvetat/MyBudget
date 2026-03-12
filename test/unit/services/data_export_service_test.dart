@@ -6,6 +6,7 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/data_export_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
@@ -13,6 +14,7 @@ import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -26,6 +28,8 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
+class MockTransferRepository extends Mock implements TransferRepository {}
+
 void main() {
   late DataExportService service;
   late MockAccountRepository mockAccountRepo;
@@ -34,6 +38,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockTransferRepository mockTransferRepo;
 
   setUp(() {
     mockAccountRepo = MockAccountRepository();
@@ -42,6 +47,7 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockTransferRepo = MockTransferRepository();
 
     service = DataExportService(
       accountRepo: mockAccountRepo,
@@ -50,6 +56,7 @@ void main() {
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
+      transferRepo: mockTransferRepo,
     );
   });
 
@@ -60,6 +67,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockTransferRepo.getAll()).thenReturn([]);
   }
 
   test('buildExportData returns correct structure with metadata', () {
@@ -122,6 +130,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockLoanRepo.getAll()).thenReturn([loan]);
+    when(() => mockTransferRepo.getAll()).thenReturn([]);
 
     final result = service.buildExportData();
 
@@ -158,5 +167,29 @@ void main() {
     expect(loanJson.containsKey('account_id'), isFalse);
     expect(loanJson.containsKey('lender_name'), isFalse);
     expect(loanJson.containsKey('start_date'), isFalse);
+  });
+
+  test('buildExportData includes transfers in export', () {
+    stubEmptyRepos();
+    final transfer = TransferModel.create(
+      name: 'Epargne',
+      amount: 500,
+      fromAccountId: 1,
+      toAccountId: 2,
+      date: DateTime(2025, 3, 15),
+      frequency: 'Mensuel',
+    );
+    transfer.id = 10;
+    when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+
+    final result = service.buildExportData();
+
+    expect(result['transfers'], isA<List>());
+    final transfers = result['transfers'] as List;
+    expect(transfers, hasLength(1));
+    expect(transfers.first['name'], 'Epargne');
+    expect(transfers.first['amount'], 500.0);
+    expect(transfers.first['fromAccountId'], '1');
+    expect(transfers.first['toAccountId'], '2');
   });
 }

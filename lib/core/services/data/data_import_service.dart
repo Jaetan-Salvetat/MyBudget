@@ -4,6 +4,7 @@ import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/import_report.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
@@ -11,6 +12,7 @@ import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 
 class ParsedBeneficiary {
   final int oldId;
@@ -60,6 +62,17 @@ class ParsedLoan {
   const ParsedLoan({required this.model, this.oldAccountId});
 }
 
+class ParsedTransfer {
+  final int? oldFromAccountId;
+  final int? oldToAccountId;
+  final TransferModel model;
+  const ParsedTransfer({
+    required this.model,
+    this.oldFromAccountId,
+    this.oldToAccountId,
+  });
+}
+
 class ImportValidationResult {
   final bool isValid;
   final List<ParsedBeneficiary> beneficiaries;
@@ -68,6 +81,7 @@ class ImportValidationResult {
   final List<ParsedExpense> expenses;
   final List<ParsedRevenue> revenues;
   final List<ParsedLoan> loans;
+  final List<ParsedTransfer> transfers;
   final List<String> errors;
 
   const ImportValidationResult({
@@ -78,6 +92,7 @@ class ImportValidationResult {
     this.expenses = const [],
     this.revenues = const [],
     this.loans = const [],
+    this.transfers = const [],
     this.errors = const [],
   });
 
@@ -89,7 +104,8 @@ class ImportValidationResult {
       categories.length +
       expenses.length +
       revenues.length +
-      loans.length;
+      loans.length +
+      transfers.length;
 }
 
 class DataImportService {
@@ -99,6 +115,7 @@ class DataImportService {
   final ExpenseRepository expenseRepo;
   final RevenueRepository revenueRepo;
   final LoanRepository loanRepo;
+  final TransferRepository transferRepo;
 
   const DataImportService({
     required this.accountRepo,
@@ -107,6 +124,7 @@ class DataImportService {
     required this.expenseRepo,
     required this.revenueRepo,
     required this.loanRepo,
+    required this.transferRepo,
   });
 
   ImportValidationResult validate(Map<String, dynamic> data) {
@@ -117,6 +135,7 @@ class DataImportService {
     final expenses = <ParsedExpense>[];
     final revenues = <ParsedRevenue>[];
     final loans = <ParsedLoan>[];
+    final transfers = <ParsedTransfer>[];
 
     if (data['beneficiaries'] is List) {
       for (final item in data['beneficiaries'] as List) {
@@ -227,6 +246,26 @@ class DataImportService {
       }
     }
 
+    if (data['transfers'] is List) {
+      for (final item in data['transfers'] as List) {
+        try {
+          final json = Map<String, dynamic>.from(item as Map);
+          final oldFromAccountId =
+              int.tryParse(json['fromAccountId']?.toString() ?? '');
+          final oldToAccountId =
+              int.tryParse(json['toAccountId']?.toString() ?? '');
+          json['id'] = '0';
+          transfers.add(ParsedTransfer(
+            model: TransferModel.fromJson(json),
+            oldFromAccountId: oldFromAccountId,
+            oldToAccountId: oldToAccountId,
+          ));
+        } catch (e) {
+          errors.add('Virement invalide : $e');
+        }
+      }
+    }
+
     return ImportValidationResult(
       isValid: true,
       beneficiaries: beneficiaries,
@@ -235,6 +274,7 @@ class DataImportService {
       expenses: expenses,
       revenues: revenues,
       loans: loans,
+      transfers: transfers,
       errors: errors,
     );
   }
@@ -258,6 +298,7 @@ class DataImportService {
     expenseRepo.deleteAll();
     revenueRepo.deleteAll();
     loanRepo.deleteAll();
+    transferRepo.deleteAll();
     categoryRepo.deleteAll();
 
     final Map<int, int> beneficiaryIdMap = {};
@@ -327,6 +368,16 @@ class DataImportService {
       },
     );
 
+    reportProgress('Importation des virements...');
+    final transferReport = _importTransfers(
+      validated.transfers,
+      accountIdMap,
+      () {
+        processedItems++;
+        reportProgress('Importation des virements...');
+      },
+    );
+
     onProgress?.call(1.0, 'Importation terminée');
 
     return ImportReport(
@@ -336,6 +387,7 @@ class DataImportService {
       expenses: expenseReport,
       revenues: revenueReport,
       loans: loanReport,
+      transfers: transferReport,
     );
   }
 
@@ -545,6 +597,55 @@ class DataImportService {
 
     return ImportEntityReport(
       entityName: 'Emprunts',
+      total: items.length,
+      imported: imported,
+      skipped: skipped,
+      errors: errors,
+    );
+  }
+
+  ImportEntityReport _importTransfers(
+    List<ParsedTransfer> items,
+    Map<int, int> accountIdMap,
+    void Function() onItemProcessed,
+  ) {
+    int imported = 0;
+    int skipped = 0;
+    final errors = <String>[];
+
+    for (final item in items) {
+      try {
+        if (item.oldFromAccountId != null &&
+            !accountIdMap.containsKey(item.oldFromAccountId)) {
+          skipped++;
+          onItemProcessed();
+          continue;
+        }
+        if (item.oldToAccountId != null &&
+            !accountIdMap.containsKey(item.oldToAccountId)) {
+          skipped++;
+          onItemProcessed();
+          continue;
+        }
+
+        final model = item.model;
+        if (item.oldFromAccountId != null) {
+          model.fromAccountId = accountIdMap[item.oldFromAccountId]!;
+        }
+        if (item.oldToAccountId != null) {
+          model.toAccountId = accountIdMap[item.oldToAccountId]!;
+        }
+
+        transferRepo.add(model);
+        imported++;
+      } catch (e) {
+        errors.add('${item.model.name} : $e');
+      }
+      onItemProcessed();
+    }
+
+    return ImportEntityReport(
+      entityName: 'Virements',
       total: items.length,
       imported: imported,
       skipped: skipped,

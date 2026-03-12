@@ -63,6 +63,7 @@ class DataNotifier extends _$DataNotifier {
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      transferRepo: ref.read(transferRepositoryProvider),
     );
   }
 
@@ -74,6 +75,7 @@ class DataNotifier extends _$DataNotifier {
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      transferRepo: ref.read(transferRepositoryProvider),
     );
   }
 
@@ -167,6 +169,7 @@ class DataNotifier extends _$DataNotifier {
       ref.read(expenseRepositoryProvider).deleteAll();
       ref.read(revenueRepositoryProvider).deleteAll();
       ref.read(loanRepositoryProvider).deleteAll();
+      ref.read(transferRepositoryProvider).deleteAll();
       ref.read(categoryRepositoryProvider).deleteAll();
 
       await PreferencesService.clearAll();
