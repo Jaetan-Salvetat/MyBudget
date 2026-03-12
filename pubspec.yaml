@@ -54,6 +54,7 @@ dependencies:
       url: https://github.com/Jaetan-Salvetat/app_updater
       ref: main
   workmanager: ^0.5.2
+  permission_handler: ^11.3.1
   dynamic_color: ^1.8.1
   url_launcher: ^6.3.1
   webview_flutter: ^4.10.0

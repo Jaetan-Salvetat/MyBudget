@@ -56,28 +56,26 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     final isFirstLaunch = PreferencesService.isFirstLaunch();
+    final hasSeenUpdateOnboarding = PreferencesService.hasSeenUpdateOnboarding();
 
+    final Widget destination;
     if (isFirstLaunch) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => const OnboardingPage(),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 800),
-        ),
-      );
+      destination = const OnboardingPage();
+    } else if (!hasSeenUpdateOnboarding) {
+      destination = const OnboardingPage(initialPage: 3);
     } else {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => const HomeScreen(),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 800),
-        ),
-      );
+      destination = const HomeScreen();
     }
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, _, _) => destination,
+        transitionsBuilder: (_, animation, _, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 800),
+      ),
+    );
   }
 
   @override

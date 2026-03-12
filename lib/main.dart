@@ -27,14 +27,19 @@ void main() {
     final packageInfo = await PackageInfo.fromPlatform();
     final isBeta = packageInfo.packageName.endsWith('.beta');
 
+    final backgroundInterval = PreferencesService.getBackgroundCheckInterval();
+
     final appUpdater = await AppUpdater.initialize(UpdateConfig(
       githubOwner: 'Jaetan-Salvetat',
       githubRepo: 'MyBudget',
       channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
+      backgroundCheckInterval: Duration(hours: backgroundInterval),
     ));
 
     await Workmanager().initialize(UpdateWorker.callbackDispatcher);
-    await appUpdater.startBackgroundWorker();
+    if (PreferencesService.isBackgroundCheckEnabled()) {
+      await appUpdater.startBackgroundWorker();
+    }
 
     runApp(
       ProviderScope(
