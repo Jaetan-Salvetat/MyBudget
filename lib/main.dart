@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_updater/app_updater.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,6 +10,8 @@ import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:workmanager/workmanager.dart';
 
 void main() {
   runZonedGuarded(() async {
@@ -21,9 +24,24 @@ void main() {
     await PreferencesService.init();
     await initializeDateFormatting('fr_FR', null);
 
+    final packageInfo = await PackageInfo.fromPlatform();
+    final isBeta = packageInfo.packageName.endsWith('.beta');
+
+    final appUpdater = await AppUpdater.initialize(UpdateConfig(
+      githubOwner: 'Jaetan-Salvetat',
+      githubRepo: 'MyBudget',
+      channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
+    ));
+
+    await Workmanager().initialize(UpdateWorker.callbackDispatcher);
+    await appUpdater.startBackgroundWorker();
+
     runApp(
-      const ProviderScope(
-        child: MyApp(),
+      ProviderScope(
+        overrides: [
+          appUpdaterProvider.overrideWithValue(appUpdater),
+        ],
+        child: const MyApp(),
       ),
     );
   }, (error, stack) {
