@@ -9,6 +9,9 @@ import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/account_details/widgets/account_expense_list.dart';
 import 'package:mybudget/ui/account_details/widgets/account_revenue_list.dart';
 import 'package:mybudget/ui/account_details/widgets/account_loan_list.dart';
+import 'package:mybudget/ui/account_details/widgets/account_transfer_list.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
 
 class AccountTransactionsSection extends ConsumerStatefulWidget {
   final AccountModel account;
@@ -28,13 +31,15 @@ class AccountTransactionsSection extends ConsumerStatefulWidget {
 class _AccountTransactionsSectionState
     extends ConsumerState<AccountTransactionsSection> {
   int _selectedIndex = 0;
-  final List<String> _tabLabels = ['Dépenses', 'Revenus', 'Mensualités'];
+  final List<String> _tabLabels = ['Dépenses', 'Revenus', 'Mensualités', 'Virements'];
 
   @override
   Widget build(BuildContext context) {
     final expenses = ref.watch(expenseProvider.notifier).getExpensesForAccount(widget.account.id);
     final revenues = ref.watch(revenueProvider.notifier).getRevenuesForAccount(widget.account.id);
     final loans = ref.watch(loanProvider.notifier).getActiveLoansForAccount(widget.account.id);
+    final transfers = ref.watch(transferProvider.notifier).getTransfersForAccount(widget.account.id);
+    final accounts = ref.watch(accountProvider).value ?? [];
 
     return FrostedCard(
       borderRadius: 24,
@@ -42,7 +47,7 @@ class _AccountTransactionsSectionState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (expenses.isEmpty && revenues.isEmpty && loans.isEmpty)
+          if (expenses.isEmpty && revenues.isEmpty && loans.isEmpty && transfers.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -96,6 +101,13 @@ class _AccountTransactionsSectionState
                       case 2:
                         return AccountLoanList(
                           loans: loans,
+                          formatter: widget.formatter,
+                        );
+                      case 3:
+                        return AccountTransferList(
+                          transfers: transfers,
+                          currentAccountId: widget.account.id,
+                          accounts: accounts,
                           formatter: widget.formatter,
                         );
                       default:

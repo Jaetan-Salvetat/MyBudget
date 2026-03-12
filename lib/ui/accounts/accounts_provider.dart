@@ -3,6 +3,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'accounts_provider.g.dart';
@@ -14,6 +15,7 @@ class AccountNotifier extends _$AccountNotifier {
     ref.watch(expenseProvider);
     ref.watch(revenueProvider);
     ref.watch(loanProvider);
+    ref.watch(transferProvider);
 
     final repo = ref.watch(accountRepositoryProvider);
     return repo.getAll();
@@ -69,7 +71,10 @@ class AccountNotifier extends _$AccountNotifier {
         .where((l) => l.accountId == accountId && !l.isCompleted)
         .fold<double>(0.0, (sum, l) => sum + l.currentMonthlyPayment);
 
-    return totalRevenues - totalExpenses - totalLoanPayments;
+    final transferNotifier = ref.read(transferProvider.notifier);
+    final transferBalance = transferNotifier.getMonthlyTransferBalance(accountId);
+
+    return totalRevenues - totalExpenses - totalLoanPayments + transferBalance;
   }
 
   double getTotalBalance() {
@@ -100,6 +105,8 @@ class AccountNotifier extends _$AccountNotifier {
     final expenses = ref.read(expenseProvider).value ?? [];
     final revenues = ref.read(revenueProvider).value ?? [];
     final loanNotifier = ref.read(loanProvider.notifier);
-    return expenses.length + revenues.length + loanNotifier.getActiveLoans().length;
+    final transfers = ref.read(transferProvider).value ?? [];
+    final activeLoansCount = loanNotifier.getActiveLoans().length;
+    return expenses.length + revenues.length + activeLoansCount + transfers.length;
   }
 }

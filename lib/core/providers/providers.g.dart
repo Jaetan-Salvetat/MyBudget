@@ -325,3 +325,51 @@ final class RevenueRepositoryProvider
 }
 
 String _$revenueRepositoryHash() => r'ade2b8fcb7478cd0e8a080c90b5414d6adebd54d';
+
+@ProviderFor(transferRepository)
+final transferRepositoryProvider = TransferRepositoryProvider._();
+
+final class TransferRepositoryProvider
+    extends
+        $FunctionalProvider<
+          TransferRepository,
+          TransferRepository,
+          TransferRepository
+        >
+    with $Provider<TransferRepository> {
+  TransferRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transferRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transferRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransferRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransferRepository create(Ref ref) {
+    return transferRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransferRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransferRepository>(value),
+    );
+  }
+}
+
+String _$transferRepositoryHash() =>
+    r'bdeb25b9db4fd183ab1ce6eae8518fcb7c2de94b';

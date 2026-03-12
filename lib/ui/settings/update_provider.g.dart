@@ -41,7 +41,7 @@ final class UpdateNotifierProvider
   }
 }
 
-String _$updateNotifierHash() => r'fb38f9be36681bda453c15fa3875dc67ccea0ca0';
+String _$updateNotifierHash() => r'c21a1a6f952dbc8cf2f92e12aebed0cd5a611db8';
 
 abstract class _$UpdateNotifier extends $Notifier<UpdateState> {
   UpdateState build();
