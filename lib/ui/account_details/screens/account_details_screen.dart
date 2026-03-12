@@ -84,6 +84,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
         onPressed: () => _showAddTransferBottomSheet(context),
         child: const Icon(Icons.swap_horiz),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16),

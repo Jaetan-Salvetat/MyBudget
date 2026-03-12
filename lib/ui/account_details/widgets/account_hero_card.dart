@@ -98,7 +98,7 @@ class AccountHeroCard extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   context,
-                  'Dépenses',
+                  'Charges',
                   totalExpenses,
                   Icons.arrow_downward,
                   Theme.of(context).colorScheme.error,
