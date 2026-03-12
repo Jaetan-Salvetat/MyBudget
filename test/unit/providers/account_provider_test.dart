@@ -17,6 +17,7 @@ import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -228,5 +229,77 @@ void main() {
     await container.read(accountProvider.future);
 
     expect(container.read(accountProvider.notifier).getTotalBalance(), 150.0);
+  });
+
+  test('getAccountBalance includes outgoing transfer in balance', () async {
+    const int accountId = 1;
+
+    final revenue = RevenueModel.create(
+      name: 'Salary',
+      amount: 2000,
+      accountId: accountId,
+      date: DateTime.now(),
+    );
+    when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockLoanRepo.getAll()).thenReturn([]);
+
+    final transfer = TransferModel.create(
+      name: 'Epargne',
+      amount: 500,
+      fromAccountId: accountId,
+      toAccountId: 2,
+      date: DateTime.now(),
+      frequency: 'Mensuel',
+    );
+    when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+    await container.read(transferProvider.future);
+    await container.read(accountProvider.future);
+
+    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    expect(balance, 1500.0);
+  });
+
+  test('getAccountBalance includes incoming transfer in balance', () async {
+    const int accountId = 1;
+
+    final revenue = RevenueModel.create(
+      name: 'Salary',
+      amount: 2000,
+      accountId: accountId,
+      date: DateTime.now(),
+    );
+    when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockLoanRepo.getAll()).thenReturn([]);
+
+    final transfer = TransferModel.create(
+      name: 'Remboursement',
+      amount: 300,
+      fromAccountId: 2,
+      toAccountId: accountId,
+      date: DateTime.now(),
+      frequency: 'Mensuel',
+    );
+    when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+    await container.read(transferProvider.future);
+    await container.read(accountProvider.future);
+
+    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    expect(balance, 2300.0);
   });
 }

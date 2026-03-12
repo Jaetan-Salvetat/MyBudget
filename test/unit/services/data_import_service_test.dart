@@ -97,8 +97,9 @@ void main() {
       expect(result.expenses, hasLength(1));
       expect(result.revenues, hasLength(1));
       expect(result.loans, hasLength(1));
+      expect(result.transfers, hasLength(1));
       expect(result.errors, isEmpty);
-      expect(result.totalItems, 6);
+      expect(result.totalItems, 7);
     });
 
     test('returns empty lists for missing keys', () {
@@ -183,6 +184,29 @@ void main() {
       final revenue = result.revenues.first;
       expect(revenue.oldAccountId, 20);
       expect(revenue.oldBeneficiaryId, 10);
+    });
+
+    test('preserves old account IDs in transfers', () {
+      final data = {
+        'transfers': [
+          {
+            'id': '1',
+            'name': 'Epargne',
+            'amount': 500.0,
+            'fromAccountId': 20,
+            'toAccountId': 30,
+            'date': '2025-03-15T00:00:00.000',
+            'frequency': 'Mensuel',
+          },
+        ],
+      };
+
+      final result = service.validate(data);
+
+      expect(result.transfers, hasLength(1));
+      expect(result.transfers.first.oldFromAccountId, 20);
+      expect(result.transfers.first.oldToAccountId, 30);
+      expect(result.transfers.first.model.id, 0);
     });
 
     test('preserves old accountId in loans (camelCase)', () {
@@ -478,6 +502,66 @@ void main() {
       expect(loan.accountId, 200);
     });
 
+    test('remaps both account IDs in transfers', () {
+      stubDeleteAll();
+      when(() => mockAccountRepo.add(any())).thenAnswer((invocation) {
+        final model = invocation.positionalArguments[0] as AccountModel;
+        return model.name == 'Compte A' ? 200 : 300;
+      });
+      when(() => mockTransferRepo.add(any())).thenReturn(1);
+
+      final data = {
+        'accounts': [
+          {'id': '10', 'name': 'Compte A', 'bank': 'BNP'},
+          {'id': '20', 'name': 'Compte B', 'bank': 'SG'},
+        ],
+        'transfers': [
+          {
+            'id': '1',
+            'name': 'Epargne',
+            'amount': 500.0,
+            'fromAccountId': 10,
+            'toAccountId': 20,
+            'date': '2025-03-15T00:00:00.000',
+            'frequency': 'Mensuel',
+          },
+        ],
+      };
+
+      final validated = service.validate(data);
+      service.execute(validated);
+
+      final captured = verify(() => mockTransferRepo.add(captureAny())).captured;
+      final transfer = captured.first as TransferModel;
+      expect(transfer.fromAccountId, 200);
+      expect(transfer.toAccountId, 300);
+    });
+
+    test('skips transfers with orphan account IDs', () {
+      stubDeleteAll();
+
+      final data = {
+        'transfers': [
+          {
+            'id': '1',
+            'name': 'Orphan',
+            'amount': 100.0,
+            'fromAccountId': 999,
+            'toAccountId': 888,
+            'date': '2025-03-15T00:00:00.000',
+            'frequency': 'Mensuel',
+          },
+        ],
+      };
+
+      final validated = service.validate(data);
+      final report = service.execute(validated);
+
+      verifyNever(() => mockTransferRepo.add(any()));
+      expect(report.transfers.skipped, 1);
+      expect(report.transfers.imported, 0);
+    });
+
     test('skips loans with orphan accountId', () {
       stubDeleteAll();
 
@@ -502,6 +586,7 @@ void main() {
       when(() => mockExpenseRepo.add(any())).thenReturn(1);
       when(() => mockRevenueRepo.add(any())).thenReturn(1);
       when(() => mockLoanRepo.add(any())).thenReturn(1);
+      when(() => mockTransferRepo.add(any())).thenReturn(1);
 
       final data = _buildFullJsonData();
       final validated = service.validate(data);
@@ -519,7 +604,9 @@ void main() {
       expect(report.revenues.imported, 1);
       expect(report.loans.total, 1);
       expect(report.loans.imported, 1);
-      expect(report.totalImported, 6);
+      expect(report.transfers.total, 1);
+      expect(report.transfers.imported, 1);
+      expect(report.totalImported, 7);
       expect(report.hasWarnings, isFalse);
     });
 
@@ -593,6 +680,17 @@ Map<String, dynamic> _buildFullJsonData() {
     ],
     'loans': [
       _buildLoanJson(accountId: '100'),
+    ],
+    'transfers': [
+      {
+        'id': '1',
+        'name': 'Epargne',
+        'amount': 500.0,
+        'fromAccountId': 100,
+        'toAccountId': 100,
+        'date': '2025-03-15T00:00:00.000',
+        'frequency': 'Mensuel',
+      },
     ],
   };
 }
