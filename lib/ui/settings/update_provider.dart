@@ -105,6 +105,10 @@ class UpdateNotifier extends _$UpdateNotifier {
     }
   }
 
+  void setFakeUpdate(ReleaseInfo release) {
+    state = state.copyWith(availableUpdate: release);
+  }
+
   String _fileNameFromUrl(String url) {
     final uri = Uri.tryParse(url);
     if (uri == null || uri.pathSegments.isEmpty) return 'update.apk';

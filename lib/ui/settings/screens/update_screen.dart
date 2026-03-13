@@ -3,6 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 
 class UpdateScreen extends ConsumerStatefulWidget {
@@ -31,8 +32,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
     return FrostedScaffold(
       appBar: const FrostedAppBar(title: 'Mise à jour'),
+      bottomNavigationBar: state.availableUpdate != null
+          ? _buildBottomBar(state, theme)
+          : null,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 120, 16, 16),
+        padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
         child: _buildContent(context, state, theme),
       ),
     );
@@ -54,16 +58,27 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     return _buildUpToDate(state, theme);
   }
 
+  Widget _buildLogo() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Image.asset('assets/logo.png', width: 80, height: 80),
+    );
+  }
+
   Widget _buildChecking(ThemeData theme) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(),
+          _buildLogo(),
           const SizedBox(height: 24),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
           Text(
             'Recherche de mises à jour...',
-            style: theme.textTheme.bodyLarge,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -75,15 +90,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 64,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 16),
+          _buildLogo(),
+          const SizedBox(height: 24),
           Text(
-            'Votre application est à jour',
-            style: theme.textTheme.titleMedium?.copyWith(
+            'Vous êtes à jour',
+            style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -109,145 +120,99 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final asset = release.defaultApkAsset;
     final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
 
+    final metaInfo = StringBuffer('Publiée le ${dateFormat.format(release.publishedAt)}');
+    if (asset != null) {
+      metaInfo.write(' · ${_formatFileSize(asset.size)}');
+    }
+
     return ListView(
       physics: const BouncingScrollPhysics(),
       children: [
-        FrostedCard(
-          borderRadius: 16,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.system_update,
-                      color: theme.colorScheme.primary,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Version ${release.version} disponible',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Publiée le ${dateFormat.format(release.publishedAt)}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                if (asset != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    _formatFileSize(asset.size),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
+        Center(child: _buildLogo()),
+        const SizedBox(height: 24),
+        Center(
+          child: Text(
+            'Version ${release.version} disponible',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        if (release.notes.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          FrostedCard(
-            borderRadius: 16,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Notes de version',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  MarkdownBody(
-                    data: release.notes,
-                    styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-                      p: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 16),
-        if (state.error != null) ...[
-          FrostedCard(
-            borderRadius: 16,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(Icons.error_outline, color: theme.colorScheme.error),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      state.error!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (state.isDownloading) ...[
-          FrostedCard(
-            borderRadius: 16,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  FrostedLinearProgressIndicator(
-                    value: state.downloadProgress,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Téléchargement... ${(state.downloadProgress * 100).toStringAsFixed(0)}%',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ] else ...[
-          FrostedFilledButton(
-            onPressed: () => ref.read(updateProvider.notifier).downloadUpdate(),
-            child: const Text('Télécharger et installer'),
-          ),
-        ],
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Center(
           child: Text(
-            'Version actuelle : ${state.currentVersion ?? ''}',
+            metaInfo.toString(),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
+        if (release.notes.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          const FrostedDivider(),
+          const SizedBox(height: 16),
+          MarkdownBody(
+            data: release.notes,
+            styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
+              p: theme.textTheme.bodyMedium,
+            ),
+          ),
+        ],
+        const SizedBox(height: 24),
       ],
+    );
+  }
+
+  Widget _buildBottomBar(UpdateState state, ThemeData theme) {
+    return FrostedContainer(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (state.error != null) ...[
+            Row(
+              children: [
+                Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    state.error!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (state.isDownloading) ...[
+            FrostedLinearProgressIndicator(
+              value: state.downloadProgress,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Téléchargement... ${(state.downloadProgress * 100).toStringAsFixed(0)}%',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ] else ...[
+            SizedBox(
+              width: double.infinity,
+              child: FrostedFilledButton(
+                onPressed: () => ref.read(updateProvider.notifier).downloadUpdate(),
+                child: const Text('Télécharger et installer'),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Text(
+            'Version actuelle : ${state.currentVersion ?? ''}',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -256,15 +221,20 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: theme.colorScheme.error,
+          _buildLogo(),
+          const SizedBox(height: 24),
+          Text(
+            'Impossible de vérifier',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Text(
             state.error!,
-            style: theme.textTheme.bodyLarge,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
