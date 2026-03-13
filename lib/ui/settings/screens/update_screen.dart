@@ -3,6 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 
 class UpdateScreen extends ConsumerStatefulWidget {
@@ -31,6 +32,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
     return FrostedScaffold(
       appBar: const FrostedAppBar(title: 'Mise à jour'),
+      bottomNavigationBar: state.availableUpdate != null
+          ? _buildBottomBar(state, theme)
+          : null,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
         child: _buildContent(context, state, theme),
@@ -55,7 +59,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   }
 
   Widget _buildLogo() {
-    return Image.asset('assets/logo.png', width: 80, height: 80);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Image.asset('assets/logo.png', width: 80, height: 80),
+    );
   }
 
   Widget _buildChecking(ThemeData theme) {
@@ -144,13 +151,6 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           const SizedBox(height: 24),
           const FrostedDivider(),
           const SizedBox(height: 16),
-          Text(
-            'Nouveautés',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
           MarkdownBody(
             data: release.notes,
             styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
@@ -159,53 +159,60 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           ),
         ],
         const SizedBox(height: 24),
-        if (state.error != null) ...[
-          Row(
-            children: [
-              Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  state.error!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
+      ],
+    );
+  }
+
+  Widget _buildBottomBar(UpdateState state, ThemeData theme) {
+    return FrostedContainer(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (state.error != null) ...[
+            Row(
+              children: [
+                Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    state.error!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (state.isDownloading) ...[
-          FrostedLinearProgressIndicator(
-            value: state.downloadProgress,
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Text(
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (state.isDownloading) ...[
+            FrostedLinearProgressIndicator(
+              value: state.downloadProgress,
+            ),
+            const SizedBox(height: 8),
+            Text(
               'Téléchargement... ${(state.downloadProgress * 100).toStringAsFixed(0)}%',
               style: theme.textTheme.bodyMedium,
             ),
-          ),
-        ] else ...[
-          SizedBox(
-            width: double.infinity,
-            child: FrostedFilledButton(
-              onPressed: () => ref.read(updateProvider.notifier).downloadUpdate(),
-              child: const Text('Télécharger et installer'),
+          ] else ...[
+            SizedBox(
+              width: double.infinity,
+              child: FrostedFilledButton(
+                onPressed: () => ref.read(updateProvider.notifier).downloadUpdate(),
+                child: const Text('Télécharger et installer'),
+              ),
             ),
-          ),
-        ],
-        const SizedBox(height: 12),
-        Center(
-          child: Text(
+          ],
+          const SizedBox(height: 8),
+          Text(
             'Version actuelle : ${state.currentVersion ?? ''}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
