@@ -17,20 +17,23 @@ import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
-  const ExpensesList({super.key});
+  final ExpenseFilterData? initialFilter;
+
+  const ExpensesList({super.key, this.initialFilter});
 
   @override
   ConsumerState<ExpensesList> createState() => _ExpensesListState();
 }
 
 class _ExpensesListState extends ConsumerState<ExpensesList> {
-  ExpenseFilterData _filterData = ExpenseFilterData();
+  late ExpenseFilterData _filterData;
   bool _isSearchVisible = false;
   late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _filterData = widget.initialFilter ?? ExpenseFilterData();
     _searchController = TextEditingController();
   }
 
