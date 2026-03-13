@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/services/data/import_entity_report.dart';
 import 'package:mybudget/core/services/data/import_report.dart';
 import 'package:mybudget/utils/app_utils.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';

@@ -1,51 +1,8 @@
 import 'dart:convert';
 
 import 'package:home_widget/home_widget.dart';
-
-class AccountBalanceData {
-  final int id;
-  final String name;
-  final String bank;
-  final double balance;
-
-  const AccountBalanceData({
-    required this.id,
-    required this.name,
-    required this.bank,
-    required this.balance,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'bank': bank,
-    'balance': balance.toStringAsFixed(2),
-  };
-}
-
-class UpcomingItemData {
-  final String name;
-  final double amount;
-  final int day;
-  final String type;
-  final String? categoryIcon;
-
-  const UpcomingItemData({
-    required this.name,
-    required this.amount,
-    required this.day,
-    required this.type,
-    this.categoryIcon,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'amount': amount.toStringAsFixed(2),
-    'day': day,
-    'type': type,
-    if (categoryIcon != null) 'icon': categoryIcon,
-  };
-}
+import 'package:mybudget/core/services/account_balance_data.dart';
+import 'package:mybudget/core/services/upcoming_item_data.dart';
 
 class HomeWidgetSyncService {
   static const _monthlySummaryName = 'fr.jaetan.mybudget.widget.MonthlySummaryWidgetProvider';
