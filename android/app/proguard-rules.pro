@@ -1,0 +1,5 @@
+-keep class io.objectbox.** { *; }
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-dontwarn io.objectbox.**
+-dontwarn com.google.android.play.core.**
