@@ -1,7 +1,7 @@
+import 'package:app_updater/app_updater.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
@@ -34,21 +34,31 @@ class DebugSection extends ConsumerWidget {
         if (kDebugMode)
           SettingsTile(
             title: 'Tester la page Update',
-            subtitle: 'Fetch la dernière release et ouvre la page',
+            subtitle: 'Simule une mise à jour disponible',
             leading: const Icon(Icons.bug_report),
-            onTap: () async {
-              await ref.read(updateProvider.notifier).checkForUpdates();
-              if (context.mounted) {
-                final state = ref.read(updateProvider);
-                if (state.error != null) {
-                  FrostedSnackbar.show(context, message: state.error!);
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const UpdateScreen()),
-                  );
-                }
-              }
+            onTap: () {
+              ref.read(updateProvider.notifier).setFakeUpdate(
+                ReleaseInfo(
+                  version: '99.0.0',
+                  tagName: 'v99.0.0',
+                  title: 'Version test',
+                  notes: '## 🚀 Nouveautés\n- Soyez informé dès qu\'une nouvelle version est disponible et mettez à jour directement depuis l\'application\n- Touchez une catégorie du dashboard pour voir ses dépenses en détail',
+                  publishedAt: DateTime.now(),
+                  isPrerelease: false,
+                  assets: [
+                    ReleaseAsset(
+                      name: 'app-prod-release.apk',
+                      downloadUrl: 'https://example.com/fake.apk',
+                      size: 45 * 1024 * 1024,
+                      contentType: 'application/vnd.android.package-archive',
+                    ),
+                  ],
+                ),
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UpdateScreen()),
+              );
             },
           ),
       ],
