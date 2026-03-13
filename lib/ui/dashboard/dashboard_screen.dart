@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
 import 'package:mybudget/ui/dashboard/widgets/balance_card.dart';
 import 'package:mybudget/ui/dashboard/widgets/upcoming_payments_card.dart';
+import 'package:mybudget/models/expense_filter_data.dart';
+import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/dashboard/widgets/category_summary_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -85,6 +87,15 @@ class DashboardScreen extends ConsumerWidget {
             child: CategorySummaryCard(
               categories: categorySummaries,
               formatter: formatter,
+              onCategoryTap: (categoryId) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ExpensesScreen(
+                    standalone: true,
+                    initialFilter: ExpenseFilterData(categoryIds: [categoryId]),
+                  ),
+                ),
+              ),
             ),
           ),
 
