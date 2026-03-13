@@ -20,6 +20,8 @@ class _UpdateConfigurationSectionState
   late int _interval;
 
   static const Map<int, String> _intervalOptions = {
+    1: '1 heure',
+    6: '6 heures',
     12: '12 heures',
     24: '24 heures',
     48: '48 heures',
