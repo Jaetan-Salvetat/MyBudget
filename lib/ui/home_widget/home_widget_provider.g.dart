@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'update_provider.dart';
+part of 'home_widget_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,51 +9,52 @@ part of 'update_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(UpdateNotifier)
-final updateProvider = UpdateNotifierProvider._();
+@ProviderFor(HomeWidgetNotifier)
+final homeWidgetProvider = HomeWidgetNotifierProvider._();
 
-final class UpdateNotifierProvider
-    extends $NotifierProvider<UpdateNotifier, UpdateState> {
-  UpdateNotifierProvider._()
+final class HomeWidgetNotifierProvider
+    extends $NotifierProvider<HomeWidgetNotifier, DateTime> {
+  HomeWidgetNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'updateProvider',
+        name: r'homeWidgetProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$updateNotifierHash();
+  String debugGetCreateSourceHash() => _$homeWidgetNotifierHash();
 
   @$internal
   @override
-  UpdateNotifier create() => UpdateNotifier();
+  HomeWidgetNotifier create() => HomeWidgetNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(UpdateState value) {
+  Override overrideWithValue(DateTime value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<UpdateState>(value),
+      providerOverride: $SyncValueProvider<DateTime>(value),
     );
   }
 }
 
-String _$updateNotifierHash() => r'fe407edf074943412619bab08d8e025b2755fc91';
+String _$homeWidgetNotifierHash() =>
+    r'b6bef698c4f3eb48540749b4d9256e517a08c9bb';
 
-abstract class _$UpdateNotifier extends $Notifier<UpdateState> {
-  UpdateState build();
+abstract class _$HomeWidgetNotifier extends $Notifier<DateTime> {
+  DateTime build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<UpdateState, UpdateState>;
+    final ref = this.ref as $Ref<DateTime, DateTime>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<UpdateState, UpdateState>,
-              UpdateState,
+              AnyNotifier<DateTime, DateTime>,
+              DateTime,
               Object?,
               Object?
             >;
