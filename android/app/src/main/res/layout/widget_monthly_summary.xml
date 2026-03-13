@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="12dp"
+    android:background="@drawable/widget_bg">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_title_monthly_summary"
+        android:textSize="10sp"
+        android:textColor="@color/widget_on_surface_variant"
+        android:textAllCaps="true"
+        android:letterSpacing="0.1" />
+
+    <TextView
+        android:id="@+id/tv_net_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+0,00 €"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="2dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/tv_revenues_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="↑"
+            android:textSize="12sp"
+            android:textColor="@color/widget_positive"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_revenues_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0,00 €"
+            android:textSize="12sp"
+            android:textColor="@color/widget_positive"
+            android:textStyle="bold"
+            android:layout_marginStart="2dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  ·  "
+            android:textSize="12sp"
+            android:textColor="@color/widget_on_surface_variant" />
+
+        <TextView
+            android:id="@+id/tv_expenses_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="↓"
+            android:textSize="12sp"
+            android:textColor="@color/widget_negative"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_expenses_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0,00 €"
+            android:textSize="12sp"
+            android:textColor="@color/widget_negative"
+            android:textStyle="bold"
+            android:layout_marginStart="2dp" />
+    </LinearLayout>
+</LinearLayout>

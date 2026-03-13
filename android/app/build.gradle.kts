@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         applicationId = "fr.jaetan.mybudget"
-        minSdk = flutter.minSdkVersion
+        minSdk = 31
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

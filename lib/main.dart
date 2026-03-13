@@ -11,6 +11,7 @@ import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
+import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:workmanager/workmanager.dart';
@@ -117,6 +118,7 @@ class _AppContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
+    ref.watch(homeWidgetProvider);
 
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {

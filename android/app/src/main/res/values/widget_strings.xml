@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_monthly_summary_desc">Résumé de vos revenus, dépenses et solde mensuel</string>
+    <string name="widget_account_balance_desc">Solde de chacun de vos comptes</string>
+    <string name="widget_upcoming_payments_desc">Prochaines échéances du mois</string>
+    <string name="widget_title_monthly_summary">Résumé mensuel</string>
+    <string name="widget_title_account_balance">Mes comptes</string>
+    <string name="widget_title_upcoming">Échéances à venir</string>
+    <string name="widget_label_revenues">Revenus</string>
+    <string name="widget_label_expenses">Dépenses + Prêts</string>
+    <string name="widget_label_net_balance">Solde net</string>
+    <string name="widget_no_data">Aucune donnée</string>
+    <string name="widget_no_accounts">Aucun compte</string>
+    <string name="widget_no_upcoming">Rien à venir</string>
+</resources>

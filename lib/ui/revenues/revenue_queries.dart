@@ -1,3 +1,4 @@
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,4 +22,13 @@ double monthlyRevenues(Ref ref) {
     if (isCurrentMonth) total += revenue.amount;
   }
   return total;
+}
+
+@Riverpod(keepAlive: true)
+List<RevenueModel> upcomingRevenues(Ref ref) {
+  final revenues = ref.watch(revenueProvider).value ?? [];
+  final now = DateTime.now();
+  final upcoming = revenues.where((revenue) => revenue.date.day >= now.day).toList();
+  upcoming.sort((a, b) => a.date.day.compareTo(b.date.day));
+  return upcoming;
 }
