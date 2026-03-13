@@ -48,11 +48,9 @@ class UpcomingItemData {
 }
 
 class HomeWidgetSyncService {
-  static const _qualifiedNames = [
-    'fr.jaetan.mybudget.widget.MonthlySummaryWidgetProvider',
-    'fr.jaetan.mybudget.widget.AccountBalanceWidgetProvider',
-    'fr.jaetan.mybudget.widget.UpcomingPaymentsWidgetProvider',
-  ];
+  static const _monthlySummaryName = 'fr.jaetan.mybudget.widget.MonthlySummaryWidgetProvider';
+  static const _accountBalanceName = 'fr.jaetan.mybudget.widget.AccountBalanceWidgetProvider';
+  static const _upcomingPaymentsName = 'fr.jaetan.mybudget.widget.UpcomingPaymentsWidgetProvider';
 
   static Future<void> syncMonthlySummary({
     required double netBalance,
@@ -66,23 +64,18 @@ class HomeWidgetSyncService {
       HomeWidget.saveWidgetData('widget_monthly_expenses', monthlyExpenses.toStringAsFixed(2)),
       HomeWidget.saveWidgetData('widget_monthly_loan_payments', totalMonthlyLoanPayments.toStringAsFixed(2)),
     ]);
+    await HomeWidget.updateWidget(qualifiedAndroidName: _monthlySummaryName);
   }
 
   static Future<void> syncAccountBalances(List<AccountBalanceData> accounts) async {
     final json = jsonEncode(accounts.take(6).map((a) => a.toJson()).toList());
     await HomeWidget.saveWidgetData('widget_accounts_json', json);
+    await HomeWidget.updateWidget(qualifiedAndroidName: _accountBalanceName);
   }
 
   static Future<void> syncUpcomingPayments(List<UpcomingItemData> items) async {
     final json = jsonEncode(items.take(8).map((i) => i.toJson()).toList());
     await HomeWidget.saveWidgetData('widget_upcoming_json', json);
-  }
-
-  static Future<void> updateAllWidgets() async {
-    await Future.wait(
-      _qualifiedNames.map(
-        (name) => HomeWidget.updateWidget(qualifiedAndroidName: name),
-      ),
-    );
+    await HomeWidget.updateWidget(qualifiedAndroidName: _upcomingPaymentsName);
   }
 }

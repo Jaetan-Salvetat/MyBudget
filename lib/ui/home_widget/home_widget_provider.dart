@@ -22,7 +22,6 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
         _syncAccountBalances(),
         _syncUpcomingPayments(),
       ]);
-      await HomeWidgetSyncService.updateAllWidgets();
     } catch (_) {}
   }
 
