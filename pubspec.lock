@@ -62,7 +62,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "3323147d3f479d2fd41c983143ef8101461266f5"
+      resolved-ref: "54247f83e76f6bef1125aaae575b10ebaff2eb93"
       url: "https://github.com/Jaetan-Salvetat/app_updater"
     source: git
     version: "0.0.2"
@@ -365,7 +365,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_local_notifications:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_local_notifications
       sha256: ef41ae901e7529e52934feba19ed82827b11baa67336829564aeab3129460610

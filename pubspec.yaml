@@ -53,6 +53,7 @@ dependencies:
     git:
       url: https://github.com/Jaetan-Salvetat/app_updater
       ref: main
+  flutter_local_notifications: ^18.0.1
   workmanager: ^0.9.0
   permission_handler: ^11.3.1
   dynamic_color: ^1.8.1

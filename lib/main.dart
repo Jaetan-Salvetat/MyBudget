@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:app_updater/app_updater.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
+import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:workmanager/workmanager.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runZonedGuarded(() async {
@@ -34,7 +38,22 @@ void main() {
       githubRepo: 'MyBudget',
       channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
       backgroundCheckInterval: Duration(hours: backgroundInterval),
+      notificationConfig: const NotificationConfig(
+        smallIcon: '@drawable/ic_notification',
+      ),
     ));
+
+    final notificationsPlugin = FlutterLocalNotificationsPlugin();
+    await notificationsPlugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@drawable/ic_notification'),
+      ),
+      onDidReceiveNotificationResponse: (response) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => const UpdateScreen()),
+        );
+      },
+    );
 
     await Workmanager().initialize(UpdateWorker.callbackDispatcher);
     if (PreferencesService.isBackgroundCheckEnabled()) {
@@ -95,6 +114,7 @@ class _AppContent extends ConsumerWidget {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'My Budget',
           localizationsDelegates: const [
