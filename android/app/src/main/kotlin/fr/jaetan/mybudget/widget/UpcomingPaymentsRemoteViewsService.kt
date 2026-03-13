@@ -2,7 +2,6 @@ package fr.jaetan.mybudget.widget
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import fr.jaetan.mybudget.R
@@ -56,33 +55,24 @@ class UpcomingPaymentsRemoteViewsFactory(
 
     override fun getViewAt(position: Int): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_upcoming_row)
-        try {
-            val item = items[position]
+        val item = items[position]
 
-            val palette = WidgetThemeHelper.getPalette(context)
+        views.setTextViewText(R.id.tv_day, item.day.toString())
+        views.setTextViewText(R.id.tv_name, item.name)
 
-            views.setTextViewText(R.id.tv_day, item.day.toString())
-            views.setTextColor(R.id.tv_day, palette.onSurface)
-
-            views.setTextViewText(R.id.tv_name, item.name)
-            views.setTextColor(R.id.tv_name, palette.onSurface)
-
-            val (iconRes, typeLabel, amountColor) = when (item.type) {
-                "revenue" -> Triple(R.drawable.ic_widget_revenue, "Revenu", palette.positiveColor)
-                "loan" -> Triple(R.drawable.ic_widget_loan, "Prêt", palette.primary)
-                else -> Triple(R.drawable.ic_widget_expense, "Dépense", palette.negativeColor)
-            }
-
-            views.setImageViewResource(R.id.iv_type_icon, iconRes)
-            views.setTextViewText(R.id.tv_type, typeLabel)
-            views.setTextColor(R.id.tv_type, palette.onSurfaceVariant)
-
-            val prefix = if (item.type == "revenue") "+" else "−"
-            views.setTextViewText(R.id.tv_amount, "$prefix${fmt.format(item.amount)}")
-            views.setTextColor(R.id.tv_amount, amountColor)
-        } catch (e: Exception) {
-            Log.e("UpcomingWidget", "Error in getViewAt($position)", e)
+        val (iconRes, typeLabel, amountColor) = when (item.type) {
+            "revenue" -> Triple(R.drawable.ic_widget_revenue, "Revenu", context.getColor(R.color.widget_positive))
+            "loan" -> Triple(R.drawable.ic_widget_loan, "Prêt", context.getColor(R.color.widget_primary))
+            else -> Triple(R.drawable.ic_widget_expense, "Dépense", context.getColor(R.color.widget_negative))
         }
+
+        views.setImageViewResource(R.id.iv_type_icon, iconRes)
+        views.setTextViewText(R.id.tv_type, typeLabel)
+
+        val prefix = if (item.type == "revenue") "+" else "−"
+        views.setTextViewText(R.id.tv_amount, "$prefix${fmt.format(item.amount)}")
+        views.setTextColor(R.id.tv_amount, amountColor)
+
         return views
     }
 

@@ -19,22 +19,15 @@ class AccountBalanceWidgetProvider : HomeWidgetProvider() {
         appWidgetIds: IntArray,
         widgetData: SharedPreferences
     ) {
-        val isDark = WidgetThemeHelper.isDarkMode(context)
-        val palette = WidgetThemeHelper.getPalette(context)
-
         val accountsJson = widgetData.getString("widget_accounts_json", "[]") ?: "[]"
         val accounts = try { JSONArray(accountsJson) } catch (_: Exception) { JSONArray() }
 
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.widget_account_balance)
 
-            WidgetThemeHelper.applyBackground(views, R.id.widget_root, isDark)
-            views.setTextColor(R.id.tv_title, palette.onSurfaceVariant)
-
             if (accounts.length() == 0) {
                 views.setViewVisibility(R.id.tv_empty, View.VISIBLE)
                 views.setViewVisibility(R.id.lv_accounts, View.GONE)
-                views.setTextColor(R.id.tv_empty, palette.onSurfaceVariant)
             } else {
                 views.setViewVisibility(R.id.tv_empty, View.GONE)
                 views.setViewVisibility(R.id.lv_accounts, View.VISIBLE)

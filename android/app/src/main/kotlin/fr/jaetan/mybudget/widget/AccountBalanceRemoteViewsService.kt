@@ -51,16 +51,13 @@ class AccountBalanceRemoteViewsFactory(
         val views = RemoteViews(context.packageName, R.layout.widget_account_row)
         val account = accounts[position]
 
-        val palette = WidgetThemeHelper.getPalette(context)
-
         views.setTextViewText(R.id.tv_account_name, account.name)
-        views.setTextColor(R.id.tv_account_name, palette.onSurface)
         views.setTextViewText(R.id.tv_account_bank, account.bank)
-        views.setTextColor(R.id.tv_account_bank, palette.onSurfaceVariant)
         views.setTextViewText(R.id.tv_account_balance, fmt.format(account.balance))
         views.setTextColor(
             R.id.tv_account_balance,
-            if (account.balance >= 0) palette.positiveColor else palette.negativeColor
+            if (account.balance >= 0) context.getColor(R.color.widget_positive)
+            else context.getColor(R.color.widget_negative)
         )
 
         return views

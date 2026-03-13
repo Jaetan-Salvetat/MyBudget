@@ -19,23 +19,16 @@ class UpcomingPaymentsWidgetProvider : HomeWidgetProvider() {
         appWidgetIds: IntArray,
         widgetData: SharedPreferences
     ) {
-        val isDark = WidgetThemeHelper.isDarkMode(context)
-        val palette = WidgetThemeHelper.getPalette(context)
-
         val upcomingJson = widgetData.getString("widget_upcoming_json", "[]") ?: "[]"
         val items = try { JSONArray(upcomingJson) } catch (_: Exception) { JSONArray() }
 
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.widget_upcoming_payments)
 
-            WidgetThemeHelper.applyBackground(views, R.id.widget_root, isDark)
-            views.setTextColor(R.id.tv_title, palette.onSurfaceVariant)
-
             if (items.length() == 0) {
                 views.setViewVisibility(R.id.tv_empty, View.VISIBLE)
                 views.setViewVisibility(R.id.lv_upcoming, View.GONE)
                 views.setViewVisibility(R.id.tv_count, View.GONE)
-                views.setTextColor(R.id.tv_empty, palette.onSurfaceVariant)
             } else {
                 views.setViewVisibility(R.id.tv_empty, View.GONE)
                 views.setViewVisibility(R.id.lv_upcoming, View.VISIBLE)

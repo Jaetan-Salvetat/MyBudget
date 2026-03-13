@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
 import fr.jaetan.mybudget.MainActivity
@@ -20,42 +19,32 @@ class MonthlySummaryWidgetProvider : HomeWidgetProvider() {
         appWidgetIds: IntArray,
         widgetData: SharedPreferences
     ) {
-        try {
-            val palette = WidgetThemeHelper.getPalette(context)
-            val isDark = WidgetThemeHelper.isDarkMode(context)
-            val fmt = NumberFormat.getCurrencyInstance(Locale.FRANCE)
+        val fmt = NumberFormat.getCurrencyInstance(Locale.FRANCE)
 
-            val revenues = widgetData.getString("widget_monthly_revenues", "0")?.toDoubleOrNull() ?: 0.0
-            val expenses = widgetData.getString("widget_monthly_expenses", "0")?.toDoubleOrNull() ?: 0.0
-            val loanPayments = widgetData.getString("widget_monthly_loan_payments", "0")?.toDoubleOrNull() ?: 0.0
-            val netBalance = widgetData.getString("widget_net_balance", "0")?.toDoubleOrNull() ?: 0.0
+        val revenues = widgetData.getString("widget_monthly_revenues", "0")?.toDoubleOrNull() ?: 0.0
+        val expenses = widgetData.getString("widget_monthly_expenses", "0")?.toDoubleOrNull() ?: 0.0
+        val loanPayments = widgetData.getString("widget_monthly_loan_payments", "0")?.toDoubleOrNull() ?: 0.0
+        val netBalance = widgetData.getString("widget_net_balance", "0")?.toDoubleOrNull() ?: 0.0
 
-            appWidgetIds.forEach { widgetId ->
-                val views = RemoteViews(context.packageName, R.layout.widget_monthly_summary)
+        val positiveColor = context.getColor(R.color.widget_positive)
+        val negativeColor = context.getColor(R.color.widget_negative)
 
-                WidgetThemeHelper.applyBackground(views, R.id.widget_root, isDark)
+        appWidgetIds.forEach { widgetId ->
+            val views = RemoteViews(context.packageName, R.layout.widget_monthly_summary)
 
-                views.setTextColor(R.id.tv_title, palette.onSurfaceVariant)
-                views.setTextViewText(R.id.tv_net_balance, fmt.format(netBalance))
-                views.setTextColor(R.id.tv_net_balance, if (netBalance >= 0) palette.positiveColor else palette.negativeColor)
-                views.setTextViewText(R.id.tv_revenues_amount, fmt.format(revenues))
-                views.setTextColor(R.id.tv_revenues_amount, palette.positiveColor)
-                views.setTextColor(R.id.tv_revenues_label, palette.onSurfaceVariant)
-                views.setTextViewText(R.id.tv_expenses_amount, fmt.format(expenses + loanPayments))
-                views.setTextColor(R.id.tv_expenses_amount, palette.negativeColor)
-                views.setTextColor(R.id.tv_expenses_label, palette.onSurfaceVariant)
+            views.setTextViewText(R.id.tv_net_balance, fmt.format(netBalance))
+            views.setTextColor(R.id.tv_net_balance, if (netBalance >= 0) positiveColor else negativeColor)
+            views.setTextViewText(R.id.tv_revenues_amount, fmt.format(revenues))
+            views.setTextViewText(R.id.tv_expenses_amount, fmt.format(expenses + loanPayments))
 
-                val intent = Intent(context, MainActivity::class.java)
-                val pendingIntent = PendingIntent.getActivity(
-                    context, 0, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+            val intent = Intent(context, MainActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
-                appWidgetManager.updateAppWidget(widgetId, views)
-            }
-        } catch (e: Exception) {
-            Log.e("MonthlySummaryWidget", "Error updating widget", e)
+            appWidgetManager.updateAppWidget(widgetId, views)
         }
     }
 }
