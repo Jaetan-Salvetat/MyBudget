@@ -55,6 +55,11 @@ void main() {
       },
     );
 
+    final launchDetails =
+        await notificationsPlugin.getNotificationAppLaunchDetails();
+    final launchedFromNotification =
+        launchDetails?.didNotificationLaunchApp ?? false;
+
     await Workmanager().initialize(UpdateWorker.callbackDispatcher);
     if (PreferencesService.isBackgroundCheckEnabled()) {
       await appUpdater.startBackgroundWorker();
@@ -64,6 +69,8 @@ void main() {
       ProviderScope(
         overrides: [
           appUpdaterProvider.overrideWithValue(appUpdater),
+          launchedFromNotificationProvider
+              .overrideWithValue(launchedFromNotification),
         ],
         child: const MyApp(),
       ),
