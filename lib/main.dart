@@ -39,6 +39,7 @@ void main() {
       githubRepo: 'MyBudget',
       channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
       backgroundCheckInterval: Duration(hours: backgroundInterval),
+      versionComparator: _isNewerVersion,
       notificationConfig: const NotificationConfig(
         smallIcon: '@drawable/ic_notification',
       ),
@@ -79,6 +80,51 @@ void main() {
   }, (error, stack) {
     debugPrint('Uncaught error: $error\n$stack');
   });
+}
+
+bool _isNewerVersion(String current, String candidate) {
+  final currentParts = _parseVersion(current);
+  final candidateParts = _parseVersion(candidate);
+
+  for (var i = 0; i < 3; i++) {
+    if (candidateParts.$1[i] > currentParts.$1[i]) return true;
+    if (candidateParts.$1[i] < currentParts.$1[i]) return false;
+  }
+
+  final currentPre = currentParts.$2;
+  final candidatePre = candidateParts.$2;
+
+  if (currentPre == null && candidatePre == null) return false;
+  if (currentPre != null && candidatePre == null) return true;
+  if (currentPre == null && candidatePre != null) return false;
+
+  return _comparePre(candidatePre!) > _comparePre(currentPre!);
+}
+
+(List<int>, String?) _parseVersion(String version) {
+  var cleaned = version;
+  if (cleaned.startsWith('v') || cleaned.startsWith('V')) {
+    cleaned = cleaned.substring(1);
+  }
+
+  String? prerelease;
+  final dashIndex = cleaned.indexOf('-');
+  if (dashIndex != -1) {
+    prerelease = cleaned.substring(dashIndex + 1);
+    cleaned = cleaned.substring(0, dashIndex);
+  }
+
+  final parts = cleaned.split('.').map(int.parse).toList();
+  while (parts.length < 3) {
+    parts.add(0);
+  }
+
+  return (parts, prerelease);
+}
+
+int _comparePre(String pre) {
+  final match = RegExp(r'(\d+)$').firstMatch(pre);
+  return match != null ? int.parse(match.group(1)!) : 0;
 }
 
 class MyApp extends ConsumerWidget {
