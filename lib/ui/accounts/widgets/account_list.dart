@@ -46,7 +46,7 @@ class AccountList extends ConsumerWidget {
                     .read(accountProvider.notifier)
                     .getAccountBalance(account.id);
 
-                return AccountCard(
+                return _AccountCard(
                   account: account,
                   balance: balance,
                   onTap: () {
@@ -89,16 +89,15 @@ class AccountList extends ConsumerWidget {
   }
 }
 
-class AccountCard extends StatelessWidget {
+class _AccountCard extends StatelessWidget {
   final AccountModel account;
   final double balance;
   final VoidCallback onTap;
 
-  const AccountCard({
+  const _AccountCard({
     required this.account,
     required this.balance,
     required this.onTap,
-    super.key,
   });
 
   @override

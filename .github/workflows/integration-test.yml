@@ -2,7 +2,7 @@ name: Integration Tests
 
 on:
   push:
-    branches: [beta]
+    branches: [fezrgtyu]
 
 jobs:
   integration-test:

@@ -32,7 +32,7 @@ class CategorySummaryCard extends StatelessWidget {
             )
           else
             ...categories.map(
-              (category) => CategoryProgressItem(
+              (category) => _CategoryProgressItem(
                 category: category,
                 formatter: formatter,
                 onTap: onCategoryTap != null
@@ -46,16 +46,15 @@ class CategorySummaryCard extends StatelessWidget {
   }
 }
 
-class CategoryProgressItem extends StatelessWidget {
+class _CategoryProgressItem extends StatelessWidget {
   final CategoryExpenseSummary category;
   final NumberFormat formatter;
   final VoidCallback? onTap;
 
-  const CategoryProgressItem({
+  const _CategoryProgressItem({
     required this.category,
     required this.formatter,
     this.onTap,
-    super.key,
   });
 
   @override

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/core/services/data/data_import_service.dart';
+import 'package:mybudget/core/services/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
 
