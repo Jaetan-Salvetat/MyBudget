@@ -6,10 +6,12 @@ import 'package:mybudget/ui/dashboard/models/category_expense_summary.dart';
 class CategorySummaryCard extends StatelessWidget {
   final List<CategoryExpenseSummary> categories;
   final NumberFormat formatter;
+  final void Function(int categoryId)? onCategoryTap;
 
   const CategorySummaryCard({
     required this.categories,
     required this.formatter,
+    this.onCategoryTap,
     super.key,
   });
 
@@ -30,9 +32,12 @@ class CategorySummaryCard extends StatelessWidget {
             )
           else
             ...categories.map(
-              (category) => CategoryProgressItem(
+              (category) => _CategoryProgressItem(
                 category: category,
                 formatter: formatter,
+                onTap: onCategoryTap != null
+                    ? () => onCategoryTap!(category.categoryId)
+                    : null,
               ),
             ),
         ],
@@ -41,14 +46,15 @@ class CategorySummaryCard extends StatelessWidget {
   }
 }
 
-class CategoryProgressItem extends StatelessWidget {
+class _CategoryProgressItem extends StatelessWidget {
   final CategoryExpenseSummary category;
   final NumberFormat formatter;
+  final VoidCallback? onTap;
 
-  const CategoryProgressItem({
+  const _CategoryProgressItem({
     required this.category,
     required this.formatter,
-    super.key,
+    this.onTap,
   });
 
   @override
@@ -57,8 +63,7 @@ class CategoryProgressItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       borderRadius: 12,
       padding: const EdgeInsets.all(12),
-      onClick: () {
-      },
+      onClick: onTap,
       accentColor: category.color,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

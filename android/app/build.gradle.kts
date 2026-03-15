@@ -32,6 +32,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -42,7 +43,7 @@ android {
 
     defaultConfig {
         applicationId = "fr.jaetan.mybudget"
-        minSdk = flutter.minSdkVersion
+        minSdk = 31
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -50,7 +51,7 @@ android {
 
     flavorDimensions += "env"
     productFlavors {
-        create("debugFlavor") {
+        create("dev") {
             dimension = "env"
             resValue("string", "app_name", "MyBudget Debug")
         }
@@ -76,6 +77,10 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {

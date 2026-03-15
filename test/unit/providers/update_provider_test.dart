@@ -1,407 +1,192 @@
+import 'package:app_updater/app_updater.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/core/services/download_service.dart';
-import 'package:mybudget/core/services/github_service.dart';
-import 'package:mybudget/core/services/install_service.dart';
-import 'package:mybudget/models/release_info_model.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class MockGitHubService extends Mock implements GitHubService {}
-
-class MockDownloadService extends Mock implements DownloadService {}
-
-class MockInstallService extends Mock implements InstallService {}
+class MockAppUpdater extends Mock implements AppUpdater {}
 
 void main() {
-  late MockGitHubService mockGitHubService;
-  late MockDownloadService mockDownloadService;
-  late MockInstallService mockInstallService;
+  late MockAppUpdater mockUpdater;
+
+  setUpAll(() {
+    registerFallbackValue(ReleaseInfo(
+      version: '0.0.0',
+      tagName: 'v0.0.0',
+      title: '',
+      notes: '',
+      publishedAt: DateTime(2020),
+      isPrerelease: false,
+      assets: const [],
+    ));
+  });
 
   setUp(() {
-    mockGitHubService = MockGitHubService();
-    mockDownloadService = MockDownloadService();
-    mockInstallService = MockInstallService();
-
-    SharedPreferences.setMockInitialValues({});
-    PackageInfo.setMockInitialValues(
-      appName: 'MyBudget',
-      packageName: 'fr.jaetan.mybudget',
-      version: '1.0.0',
-      buildNumber: '1',
-      buildSignature: '',
-    );
+    mockUpdater = MockAppUpdater();
+    when(() => mockUpdater.currentVersion).thenReturn('1.0.0');
   });
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
       overrides: [
-        gitHubServiceProvider.overrideWithValue(mockGitHubService),
-        downloadServiceProvider.overrideWithValue(mockDownloadService),
-        installServiceProvider.overrideWithValue(mockInstallService),
+        appUpdaterProvider.overrideWithValue(mockUpdater),
       ],
     );
   }
 
-  group('UpdateViewModel - Check for Updates', () {
-    final prodRelease = ReleaseInfo(
-      version: '1.1.0',
-      title: 'Production Update',
-      notes: 'Fixes',
-      downloadUrl: 'http://url.apk',
-      publishedAt: DateTime.now(),
-      assetSize: 1000,
-      isPrerelease: false,
-    );
+  final testRelease = ReleaseInfo(
+    version: '1.1.0',
+    tagName: 'v1.1.0',
+    title: 'Release 1.1.0',
+    notes: 'Bug fixes',
+    publishedAt: DateTime(2026, 3, 1),
+    isPrerelease: false,
+    assets: [
+      const ReleaseAsset(
+        name: 'app-release.apk',
+        downloadUrl: 'https://example.com/app-release.apk',
+        size: 50000000,
+        contentType: 'application/vnd.android.package-archive',
+      ),
+    ],
+  );
 
-    final betaRelease = ReleaseInfo(
-      version: '1.1.0-beta.1',
-      title: 'Beta Update',
-      notes: 'Beta features',
-      downloadUrl: 'http://beta.apk',
-      publishedAt: DateTime.now(),
-      assetSize: 1000,
-      isPrerelease: true,
-    );
-
-    test(
-      'Should detect update when current is PROD and newer PROD release exists',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget',
-          version: '1.0.0',
-          buildNumber: '1',
-          buildSignature: '',
-        );
-
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [prodRelease]);
-
-        final container = makeContainer();
-        addTearDown(container.dispose);
-
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
-
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.availableUpdate?.version, '1.1.0');
-        expect(state.error, isNull);
-      },
-    );
-
-    test('Should IGNORE beta release when current is PROD', () async {
-      PackageInfo.setMockInitialValues(
-        appName: 'MyBudget',
-        packageName: 'fr.jaetan.mybudget',
-        version: '1.0.0',
-        buildNumber: '1',
-        buildSignature: '',
-      );
-
-      when(
-        () => mockGitHubService.getReleases(),
-      ).thenAnswer((_) async => [betaRelease]);
+  group('UpdateNotifier - checkForUpdates', () {
+    test('Should detect update when newer release exists', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenAnswer((_) async => testRelease);
 
       final container = makeContainer();
       addTearDown(container.dispose);
 
-      await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
-      expect(container.read(updateProvider).availableUpdate, isNull);
+      await container.read(updateProvider.notifier).checkForUpdates();
+
+      final state = container.read(updateProvider);
+      expect(state.availableUpdate, isNotNull);
+      expect(state.availableUpdate?.version, '1.1.0');
+      expect(state.isChecking, false);
+      expect(state.error, isNull);
     });
 
-    test(
-      'Should detect update when current is BETA and newer BETA release exists',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta',
-          version: '1.0.0-beta.1',
-          buildNumber: '1',
-          buildSignature: '',
-        );
-
-        final newerBeta = ReleaseInfo(
-          version: '1.0.1-beta.1',
-          title: 'New Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now(),
-          assetSize: 0,
-          isPrerelease: true,
-        );
-
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [newerBeta]);
-
-        final container = makeContainer();
-        addTearDown(container.dispose);
-
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
-
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.availableUpdate?.version, '1.0.1-beta.1');
-      },
-    );
-
-    test('Should handle API errors gracefully', () async {
-      when(
-        () => mockGitHubService.getReleases(),
-      ).thenThrow(Exception('Network Error'));
+    test('Should set null when no update available', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenAnswer((_) async => null);
 
       final container = makeContainer();
       addTearDown(container.dispose);
 
-      await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+      await container.read(updateProvider.notifier).checkForUpdates();
 
       final state = container.read(updateProvider);
       expect(state.availableUpdate, isNull);
-      expect(state.error, contains('Network Error'));
       expect(state.isChecking, false);
+      expect(state.error, isNull);
     });
 
-    test('Should not propose older version', () async {
-      PackageInfo.setMockInitialValues(
-        appName: 'MyBudget',
-        packageName: 'fr.jaetan.mybudget',
-        version: '2.0.0',
-        buildNumber: '1',
-        buildSignature: '',
-      );
-
-      when(
-        () => mockGitHubService.getReleases(),
-      ).thenAnswer((_) async => [prodRelease]);
+    test('Should handle network error', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenThrow(const NetworkException());
 
       final container = makeContainer();
       addTearDown(container.dispose);
 
-      await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+      await container.read(updateProvider.notifier).checkForUpdates();
 
-      expect(container.read(updateProvider).availableUpdate, isNull);
+      final state = container.read(updateProvider);
+      expect(state.availableUpdate, isNull);
+      expect(state.error, contains('réseau'));
+      expect(state.isChecking, false);
     });
 
-    test(
-      'Should find HIGHEST version when multiple beta releases exist',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta',
-          version: '1.0.0-beta.1',
-          buildNumber: '1',
-          buildSignature: '',
-        );
+    test('Should handle GitHub API error', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenThrow(const GitHubApiException(statusCode: 403));
 
-        final olderBeta = ReleaseInfo(
-          version: '1.0.3-beta.1',
-          title: 'Older Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 5)),
-          assetSize: 0,
-          isPrerelease: true,
-        );
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-        final middleBeta = ReleaseInfo(
-          version: '1.0.5-beta.1',
-          title: 'Middle Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 2)),
-          assetSize: 0,
-          isPrerelease: true,
-        );
+      await container.read(updateProvider.notifier).checkForUpdates();
 
-        final newestBeta = ReleaseInfo(
-          version: '1.0.6-beta.1',
-          title: 'Newest Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 10)),
-          assetSize: 0,
-          isPrerelease: true,
-        );
+      final state = container.read(updateProvider);
+      expect(state.error, contains('403'));
+      expect(state.isChecking, false);
+    });
 
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [middleBeta, olderBeta, newestBeta]);
+    test('Should handle generic error', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenThrow(Exception('Unknown'));
 
-        final container = makeContainer();
-        addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+      await container.read(updateProvider.notifier).checkForUpdates();
 
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.availableUpdate?.version, '1.0.6-beta.1');
-      },
-    );
+      final state = container.read(updateProvider);
+      expect(state.error, isNotNull);
+      expect(state.isChecking, false);
+    });
 
-    test(
-      'Should detect update when current is BETA with -beta.N format',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta',
-          version: '1.0.0-beta.2',
-          buildNumber: '1',
-          buildSignature: '',
-        );
+    test('Should not check if already checking', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenAnswer((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        return testRelease;
+      });
 
-        final newerBeta = ReleaseInfo(
-          version: '1.0.1-beta.3',
-          title: 'New Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now(),
-          assetSize: 0,
-          isPrerelease: true,
-        );
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [newerBeta]);
+      final notifier = container.read(updateProvider.notifier);
+      final future1 = notifier.checkForUpdates();
+      final future2 = notifier.checkForUpdates();
 
-        final container = makeContainer();
-        addTearDown(container.dispose);
+      await Future.wait([future1, future2]);
 
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+      verify(() => mockUpdater.checkForUpdates()).called(1);
+    });
 
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.currentVersion, '1.0.0-beta.2');
-      },
-    );
+    test('Should set currentVersion from AppUpdater', () {
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    test(
-      'Should find HIGHEST version when multiple prod releases exist',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget',
-          version: '1.0.0',
-          buildNumber: '1',
-          buildSignature: '',
-        );
+      final state = container.read(updateProvider);
+      expect(state.currentVersion, '1.0.0');
+    });
+  });
 
-        final release103 = ReleaseInfo(
-          version: '1.0.3',
-          title: 'Release 1.0.3',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 5)),
-          assetSize: 0,
-          isPrerelease: false,
-        );
+  group('UpdateNotifier - downloadUpdate', () {
+    test('Should not download if no update available', () async {
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-        final release105 = ReleaseInfo(
-          version: '1.0.5',
-          title: 'Release 1.0.5',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 2)),
-          assetSize: 0,
-          isPrerelease: false,
-        );
+      await container.read(updateProvider.notifier).downloadUpdate();
 
-        final release106 = ReleaseInfo(
-          version: '1.0.6',
-          title: 'Release 1.0.6',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now().subtract(const Duration(days: 10)),
-          assetSize: 0,
-          isPrerelease: false,
-        );
+      final state = container.read(updateProvider);
+      expect(state.isDownloading, false);
+      verifyNever(() => mockUpdater.downloadUpdate(any()));
+    });
 
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [release105, release103, release106]);
+    test('Should handle download error', () async {
+      when(() => mockUpdater.checkForUpdates())
+          .thenAnswer((_) async => testRelease);
+      when(() => mockUpdater.downloadUpdate(any()))
+          .thenAnswer((_) => Stream.error(
+        const DownloadException(
+          url: 'https://example.com/app.apk',
+          attempts: 3,
+        ),
+      ));
 
-        final container = makeContainer();
-        addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
+      await container.read(updateProvider.notifier).checkForUpdates();
+      await container.read(updateProvider.notifier).downloadUpdate();
 
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.availableUpdate?.version, '1.0.6');
-      },
-    );
-
-    test(
-      'Should detect update between same base version betas',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta',
-          version: '0.4.0-beta.2',
-          buildNumber: '1',
-          buildSignature: '',
-        );
-
-        final newerBeta = ReleaseInfo(
-          version: '0.4.0-beta.3',
-          title: 'New Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now(),
-          assetSize: 0,
-          isPrerelease: true,
-        );
-
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [newerBeta]);
-
-        final container = makeContainer();
-        addTearDown(container.dispose);
-
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
-
-        final state = container.read(updateProvider);
-        expect(state.availableUpdate, isNotNull);
-        expect(state.availableUpdate?.version, '0.4.0-beta.3');
-      },
-    );
-
-    test(
-      'Should NOT detect update when current beta is newer',
-      () async {
-        PackageInfo.setMockInitialValues(
-          appName: 'MyBudget',
-          packageName: 'fr.jaetan.mybudget.beta',
-          version: '0.4.0-beta.3',
-          buildNumber: '1',
-          buildSignature: '',
-        );
-
-        final olderBeta = ReleaseInfo(
-          version: '0.4.0-beta.2',
-          title: 'Old Beta',
-          notes: '',
-          downloadUrl: '',
-          publishedAt: DateTime.now(),
-          assetSize: 0,
-          isPrerelease: true,
-        );
-
-        when(
-          () => mockGitHubService.getReleases(),
-        ).thenAnswer((_) async => [olderBeta]);
-
-        final container = makeContainer();
-        addTearDown(container.dispose);
-
-        await container.read(updateProvider.notifier).checkForUpdates(null, silent: true);
-
-        expect(container.read(updateProvider).availableUpdate, isNull);
-      },
-    );
+      final state = container.read(updateProvider);
+      expect(state.isDownloading, false);
+      expect(state.error, contains('téléchargement'));
+    });
   });
 }

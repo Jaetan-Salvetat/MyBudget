@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/main.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
+import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
@@ -56,27 +60,36 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     final isFirstLaunch = PreferencesService.isFirstLaunch();
+    final hasSeenUpdateOnboarding = PreferencesService.hasSeenUpdateOnboarding();
 
+    final launchedFromNotification =
+        ref.read(launchedFromNotificationProvider);
+
+    final Widget destination;
     if (isFirstLaunch) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => const OnboardingPage(),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 800),
-        ),
-      );
+      destination = const OnboardingPage();
+    } else if (!hasSeenUpdateOnboarding) {
+      destination = const OnboardingPage(initialPage: 3);
     } else {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => const HomeScreen(),
-          transitionsBuilder: (_, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 800),
-        ),
-      );
+      destination = const HomeScreen();
+    }
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, _, _) => destination,
+        transitionsBuilder: (_, animation, _, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 800),
+      ),
+    );
+
+    if (launchedFromNotification && destination is HomeScreen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => const UpdateScreen()),
+        );
+      });
     }
   }
 

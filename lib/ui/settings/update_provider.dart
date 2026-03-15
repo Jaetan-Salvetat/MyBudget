@@ -1,25 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/download_service.dart';
-import 'package:mybudget/core/services/github_service.dart';
-import 'package:mybudget/core/services/install_service.dart';
-import 'package:mybudget/models/release_info_model.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:async';
+
+import 'package:app_updater/app_updater.dart';
+import 'package:mybudget/core/providers/providers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:version/version.dart';
 
 part 'update_provider.g.dart';
-
-final gitHubServiceProvider = Provider<GitHubService>(
-  (ref) => GitHubService(),
-);
-final downloadServiceProvider = Provider<DownloadService>(
-  (ref) => DownloadService(),
-);
-final installServiceProvider = Provider<InstallService>(
-  (ref) => InstallService(),
-);
 
 class UpdateState {
   final bool isChecking;
@@ -28,6 +14,7 @@ class UpdateState {
   final ReleaseInfo? availableUpdate;
   final String? error;
   final String? currentVersion;
+  final String? downloadedFilePath;
 
   const UpdateState({
     this.isChecking = false,
@@ -36,6 +23,7 @@ class UpdateState {
     this.availableUpdate,
     this.error,
     this.currentVersion,
+    this.downloadedFilePath,
   });
 
   UpdateState copyWith({
@@ -45,6 +33,7 @@ class UpdateState {
     ReleaseInfo? availableUpdate,
     String? error,
     String? currentVersion,
+    String? downloadedFilePath,
   }) {
     return UpdateState(
       isChecking: isChecking ?? this.isChecking,
@@ -53,6 +42,7 @@ class UpdateState {
       availableUpdate: availableUpdate ?? this.availableUpdate,
       error: error ?? this.error,
       currentVersion: currentVersion ?? this.currentVersion,
+      downloadedFilePath: downloadedFilePath ?? this.downloadedFilePath,
     );
   }
 }
@@ -60,169 +50,79 @@ class UpdateState {
 @Riverpod(keepAlive: true)
 class UpdateNotifier extends _$UpdateNotifier {
   @override
-  UpdateState build() => const UpdateState();
+  UpdateState build() {
+    final updater = ref.watch(appUpdaterProvider);
+    return UpdateState(currentVersion: updater.currentVersion);
+  }
 
-  GitHubService get _gitHubService => ref.read(gitHubServiceProvider);
-  DownloadService get _downloadService => ref.read(downloadServiceProvider);
-  InstallService get _installService => ref.read(installServiceProvider);
+  AppUpdater get _updater => ref.read(appUpdaterProvider);
 
-  Future<void> checkForUpdates(
-    BuildContext? context, {
-    bool silent = false,
-  }) async {
+  Future<void> checkForUpdates({bool silent = false}) async {
     if (state.isChecking) return;
 
     state = state.copyWith(isChecking: true, error: null);
 
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
-      final isBeta = packageInfo.packageName.endsWith('.beta');
-      Version currentVersionObj;
-      try {
-        currentVersionObj = Version.parse(currentVersion);
-      } catch (e) {
-        currentVersionObj = Version(1, 0, 0);
-      }
-
-      final releases = await _gitHubService.getReleases();
-
-      ReleaseInfo? targetRelease;
-      Version? latestVersion;
-
-      for (final release in releases) {
-        try {
-          final releaseVersion = Version.parse(release.version);
-          final matchesType = isBeta ? release.isPrerelease : !release.isPrerelease;
-
-          if (matchesType && releaseVersion > currentVersionObj) {
-            if (latestVersion == null || releaseVersion > latestVersion) {
-              latestVersion = releaseVersion;
-              targetRelease = release;
-            }
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-
-      state = state.copyWith(
-        currentVersion: currentVersion,
-        availableUpdate: targetRelease,
-      );
-
-      if (targetRelease != null) {
-        if (context != null && context.mounted) {
-          _showUpdateDialog(context);
-        }
-      } else if (!silent && context != null && context.mounted) {
-        FrostedSnackbar.show(context, message: 'Votre application est à jour');
-      }
+      final release = await _updater.checkForUpdates();
+      state = state.copyWith(availableUpdate: release);
+    } on UpdateException catch (e) {
+      state = state.copyWith(error: _formatError(e));
     } catch (e) {
       state = state.copyWith(error: e.toString());
-      if (!silent && context != null && context.mounted) {
-        FrostedSnackbar.show(context, message: 'Erreur: ${e.toString()}');
-      }
     } finally {
       state = state.copyWith(isChecking: false);
     }
   }
 
-  Future<void> downloadAndInstallUpdate(BuildContext context) async {
-    if (state.availableUpdate == null) return;
+  Future<void> downloadUpdate() async {
+    final release = state.availableUpdate;
+    if (release == null || state.isDownloading) return;
 
-    state = state.copyWith(isDownloading: true, downloadProgress: 0.0);
+    state = state.copyWith(isDownloading: true, downloadProgress: 0.0, error: null);
 
-    if (context.mounted) {
-      _showDownloadDialog(context);
-    }
-
-    final fileName = 'mybudget-${state.availableUpdate!.version}.apk';
-
-    final filePath = await _downloadService.downloadApk(
-      state.availableUpdate!.downloadUrl,
-      fileName,
-      (progress) {
+    try {
+      final stream = _updater.downloadUpdate(release);
+      await for (final progress in stream) {
         state = state.copyWith(downloadProgress: progress);
-      },
-    );
+      }
 
-    if (filePath != null) {
-      if (context.mounted) {
-        Navigator.of(context).pop();
+      final asset = release.defaultApkAsset;
+      if (asset != null) {
+        final dir = await getExternalStorageDirectory();
+        if (dir != null) {
+          final fileName = _fileNameFromUrl(asset.downloadUrl);
+          final filePath = '${dir.path}/updates/$fileName';
+          state = state.copyWith(downloadedFilePath: filePath);
+          await _updater.installUpdate(filePath);
+        }
       }
-      await _installService.installApk(filePath);
-    } else {
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        FrostedSnackbar.show(context, message: 'Erreur lors du téléchargement');
-      }
+    } on UpdateException catch (e) {
+      state = state.copyWith(error: _formatError(e));
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    } finally {
+      state = state.copyWith(isDownloading: false);
     }
-
-    state = state.copyWith(isDownloading: false);
   }
 
-  void _showUpdateDialog(BuildContext context) {
-    FrostedDialog.show(
-      context: context,
-      title: const Text('Mise à jour disponible'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Une nouvelle version (${state.availableUpdate!.version}) est disponible.',
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Notes de version :',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: SingleChildScrollView(
-              child: Text(state.availableUpdate!.notes),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        FrostedTonalButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Plus tard'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            Navigator.pop(context);
-            downloadAndInstallUpdate(context);
-          },
-          child: const Text('Télécharger'),
-        ),
-      ],
-    );
+  void setFakeUpdate(ReleaseInfo release) {
+    state = state.copyWith(availableUpdate: release);
   }
 
-  void _showDownloadDialog(BuildContext context) {
-    FrostedDialog.show(
-      context: context,
-      title: const Text('Téléchargement...'),
-      content: Builder(
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FrostedLinearProgressIndicator(value: state.downloadProgress),
-                  const SizedBox(height: 10),
-                  Text('${(state.downloadProgress * 100).toStringAsFixed(0)}%'),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
+  String _fileNameFromUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.pathSegments.isEmpty) return 'update.apk';
+    final last = uri.pathSegments.last;
+    return last.endsWith('.apk') ? last : 'update.apk';
+  }
+
+  String _formatError(UpdateException e) {
+    return switch (e) {
+      NetworkException() => 'Erreur réseau. Vérifiez votre connexion.',
+      GitHubApiException() => 'Erreur serveur (${e.statusCode}).',
+      DownloadException() => 'Échec du téléchargement après ${e.attempts} tentatives.',
+      InstallException() => 'Erreur lors de l\'installation.',
+      VersionParseException() => 'Version invalide détectée.',
+    };
   }
 }

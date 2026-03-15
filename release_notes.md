@@ -1,5 +1,4 @@
 ## 🚀 Nouveautés
-- Virements inter-comptes : créer des virements récurrents (mensuel/annuel) entre vos comptes, avec impact automatique sur les soldes
-
-## ✨ Améliorations
-- Page détails compte repensée : décomposition du solde et gestion des virements (modifier, supprimer)
+- Soyez informé dès qu'une nouvelle version est disponible et mettez à jour directement depuis l'application
+- Touchez une catégorie du dashboard pour voir ses dépenses en détail
+- Widgets Android pour l'écran d'accueil : résumé mensuel, solde par compte et prochaines échéances

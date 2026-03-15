@@ -1,3 +1,5 @@
+import 'package:app_updater/app_updater.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
@@ -9,6 +11,14 @@ import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
+
+final appUpdaterProvider = Provider<AppUpdater>(
+  (ref) => throw UnimplementedError('AppUpdater must be overridden at startup'),
+);
+
+final launchedFromNotificationProvider = Provider<bool>(
+  (ref) => false,
+);
 
 @Riverpod(keepAlive: true)
 Future<ObjectBoxService> objectBoxService(Ref ref) {

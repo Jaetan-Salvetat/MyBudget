@@ -32,7 +32,7 @@ class UpcomingPaymentsCard extends ConsumerWidget {
         itemCount: upcomingExpenses.length,
         itemBuilder: (context, index) {
           final expense = upcomingExpenses[index];
-          return HorizontalPaymentCard(
+          return _HorizontalPaymentCard(
             expense: expense,
             formatter: formatter,
             index: index,
@@ -43,16 +43,15 @@ class UpcomingPaymentsCard extends ConsumerWidget {
   }
 }
 
-class HorizontalPaymentCard extends ConsumerWidget {
+class _HorizontalPaymentCard extends ConsumerWidget {
   final ExpenseModel expense;
   final NumberFormat formatter;
   final int index;
 
-  const HorizontalPaymentCard({
+  const _HorizontalPaymentCard({
     required this.expense,
     required this.formatter,
     required this.index,
-    super.key,
   });
 
   @override
