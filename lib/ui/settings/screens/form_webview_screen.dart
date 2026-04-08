@@ -62,7 +62,7 @@ class _FormWebviewScreenState extends State<FormWebviewScreen> {
     try {
       final allowMultiple =
           params.mode == android_webview.FileSelectorMode.openMultiple;
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         allowMultiple: allowMultiple,
       );
       if (result == null) return [];
