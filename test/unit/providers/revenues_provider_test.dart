@@ -24,80 +24,41 @@ void main() {
     );
   }
 
-  test(
-    'getMonthlyRevenues should verify bounds correctly (Start and End of Month)',
-    () async {
-      final now = DateTime.now();
-      final startOfMonth = DateTime(now.year, now.month, 1);
-      final endOfMonthDate = DateTime(now.year, now.month + 1, 0, 23, 0);
+  test('getMonthlyRevenues sums all revenues regardless of date', () async {
+    final rev1 = RevenueModel.create(
+      name: 'Salary',
+      amount: 2000,
+      accountId: 1,
+      date: DateTime(2025, 1, 15),
+    );
+    final rev2 = RevenueModel.create(
+      name: 'Freelance',
+      amount: 500,
+      accountId: 1,
+      date: DateTime(2026, 6, 1),
+    );
+    final rev3 = RevenueModel.create(
+      name: 'Bonus',
+      amount: 300,
+      accountId: 1,
+      date: DateTime(2024, 12, 31),
+    );
 
-      final revStart = RevenueModel.create(
-        name: 'Start',
-        amount: 100,
-        accountId: 1,
-        date: startOfMonth,
-      );
-      final revEnd = RevenueModel.create(
-        name: 'End',
-        amount: 100,
-        accountId: 1,
-        date: endOfMonthDate,
-      );
-      final revMiddle = RevenueModel.create(
-        name: 'Mid',
-        amount: 100,
-        accountId: 1,
-        date: startOfMonth.add(const Duration(days: 15)),
-      );
-      final revPrevious = RevenueModel.create(
-        name: 'Prev',
-        amount: 100,
-        accountId: 1,
-        date: startOfMonth.subtract(const Duration(days: 1)),
-      );
-
-      when(
-        () => mockRepository.getAll(),
-      ).thenReturn([revStart, revEnd, revMiddle, revPrevious]);
-
-      final container = makeContainer();
-      addTearDown(container.dispose);
-
-      await container.read(revenueProvider.future);
-
-      final total = container.read(revenueProvider.notifier).getMonthlyRevenues();
-
-      expect(
-        total,
-        300.0,
-        reason: 'Should include revenues up to the last moment of the month',
-      );
-    },
-  );
-
-  test('getMonthlyRevenues with empty list returns 0.0', () async {
-    when(() => mockRepository.getAll()).thenReturn([]);
+    when(() => mockRepository.getAll()).thenReturn([rev1, rev2, rev3]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
 
     await container.read(revenueProvider.future);
 
-    expect(container.read(revenueProvider.notifier).getMonthlyRevenues(), 0.0);
+    expect(
+      container.read(revenueProvider.notifier).getMonthlyRevenues(),
+      2800.0,
+    );
   });
 
-  test('getMonthlyRevenues excludes revenue from previous month', () async {
-    final now = DateTime.now();
-    final previousMonth = DateTime(now.year, now.month - 1, 15);
-
-    final oldRevenue = RevenueModel.create(
-      name: 'Old salary',
-      amount: 2000,
-      accountId: 1,
-      date: previousMonth,
-    );
-
-    when(() => mockRepository.getAll()).thenReturn([oldRevenue]);
+  test('getMonthlyRevenues with empty list returns 0.0', () async {
+    when(() => mockRepository.getAll()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
