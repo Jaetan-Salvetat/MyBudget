@@ -49,30 +49,11 @@ class RevenueNotifier extends _$RevenueNotifier {
 
   List<RevenueModel> _currentRevenues() => state.value ?? [];
 
-  double getMonthlyRevenues() {
-    final revenues = _currentRevenues();
-    if (revenues.isEmpty) return 0.0;
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
-
-    double total = 0.0;
-    for (final revenue in revenues) {
-      final isCurrentMonth =
-          (revenue.date.isAtSameMomentAs(startOfMonth) ||
-              revenue.date.isAfter(startOfMonth)) &&
-          revenue.date.isBefore(startOfNextMonth);
-      if (isCurrentMonth) total += revenue.amount;
-    }
-    return total;
-  }
+  double getMonthlyRevenues() =>
+      _currentRevenues().fold(0.0, (sum, r) => sum + r.amount);
 
   List<RevenueModel> getRecentRevenues(int count) =>
       _currentRevenues().take(count).toList();
-
-  double getTotalRevenues() =>
-      _currentRevenues().fold(0.0, (sum, r) => sum + r.amount);
 
   List<RevenueModel> getRevenuesForAccount(int accountId) =>
       _currentRevenues()

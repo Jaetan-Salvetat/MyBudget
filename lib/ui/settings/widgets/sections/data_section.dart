@@ -62,7 +62,7 @@ class DataSection extends ConsumerWidget {
 
   Future<void> _importUserData(BuildContext context, WidgetRef ref) async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.any);
+      final result = await FilePicker.pickFiles(type: FileType.any);
 
       if (result == null || result.files.isEmpty) {
         return;

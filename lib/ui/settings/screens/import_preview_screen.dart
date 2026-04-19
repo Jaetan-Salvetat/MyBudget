@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart';
+import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/services/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
