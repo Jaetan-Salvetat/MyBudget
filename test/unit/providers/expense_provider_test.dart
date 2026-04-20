@@ -388,4 +388,110 @@ void main() {
     expect(result.any((e) => e.name == 'Annual This Month'), isTrue);
     expect(result.any((e) => e.name == 'Annual Other Month'), isFalse);
   });
+
+  test('getTotalExpenses counts annual expense from different year if month matches', () async {
+    final now = DateTime.now();
+    final expense = ExpenseModel.create(
+      name: 'Annual Old Year',
+      amount: 600,
+      categoryId: 1,
+      date: DateTime(2020, now.month, 10),
+      frequency: 'Annuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+
+    expect(total, 600.0);
+  });
+
+  test('getTotalExpenses ignores oneTime from different year same month', () async {
+    final now = DateTime.now();
+    final expense = ExpenseModel.create(
+      name: 'OneTime Last Year',
+      amount: 500,
+      categoryId: 1,
+      date: DateTime(now.year - 1, now.month, 10),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+
+    expect(total, 0.0);
+  });
+
+  test('getAnnualExpenses calculates monthly*12 + annual + oneTime of year', () async {
+    final now = DateTime.now();
+    final monthly = ExpenseModel.create(
+      name: 'Monthly',
+      amount: 100,
+      categoryId: 1,
+      date: DateTime(now.year, now.month, 5),
+      frequency: 'Mensuel',
+      accountId: 1,
+    );
+    final annual = ExpenseModel.create(
+      name: 'Annual',
+      amount: 600,
+      categoryId: 1,
+      date: DateTime(now.year, 3, 10),
+      frequency: 'Annuel',
+      accountId: 1,
+    );
+    final oneTimeThisYear = ExpenseModel.create(
+      name: 'OneTime This Year',
+      amount: 200,
+      categoryId: 1,
+      date: DateTime(now.year, 6, 15),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    );
+    final oneTimeOtherYear = ExpenseModel.create(
+      name: 'OneTime Other Year',
+      amount: 300,
+      categoryId: 1,
+      date: DateTime(now.year - 1, 6, 15),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([
+      monthly, annual, oneTimeThisYear, oneTimeOtherYear,
+    ]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final total = container.read(expenseProvider.notifier).getAnnualExpenses();
+
+    expect(total, 2000.0);
+  });
+
+  test('getAnnualExpenses with empty list returns 0.0', () async {
+    when(() => mockExpenseRepo.getAll()).thenReturn([]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    expect(container.read(expenseProvider.notifier).getAnnualExpenses(), 0.0);
+  });
 }

@@ -52,6 +52,12 @@ void main() {
       expect(transfer.monthlyAmount, 100);
     });
 
+    test('monthlyAmount returns 0 for oneTime frequency', () {
+      final transfer = Transfer.fromModel(makeModel(amount: 500, frequency: 'Ponctuel'));
+
+      expect(transfer.monthlyAmount, 0);
+    });
+
     test('isOutgoingFrom returns true when account is source', () {
       final transfer = Transfer.fromModel(makeModel(fromAccountId: 3, toAccountId: 5));
 
