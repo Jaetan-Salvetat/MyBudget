@@ -11,6 +11,7 @@ import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
 
 class AccountList extends ConsumerWidget {
   const AccountList({super.key});
@@ -69,11 +70,15 @@ class AccountList extends ConsumerWidget {
                     .read(revenueProvider.notifier)
                     .getTotalRevenuesForAccount(account.id);
 
+                final transferNotifier = ref.read(transferProvider.notifier);
+                final outgoingTransfers = transferNotifier.getOutgoingTotalForAccount(account.id);
+                final incomingTransfers = transferNotifier.getIncomingTotalForAccount(account.id);
+
                 return _AccountCard(
                   account: account,
                   balance: balance,
-                  currentMonthExpenses: currentMonthExpenses,
-                  monthlyRevenues: monthlyRevenues,
+                  currentMonthExpenses: currentMonthExpenses + outgoingTransfers,
+                  monthlyRevenues: monthlyRevenues + incomingTransfers,
                   onTap: () {
                     Navigator.push(
                       context,
