@@ -39,6 +39,7 @@ class AccountBottomSheet extends StatefulWidget {
 class _AccountBottomSheetState extends State<AccountBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _bankController;
+  late FocusNode _bankFocusNode;
   bool _isFormValid = false;
 
   @override
@@ -46,6 +47,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
     super.initState();
     _nameController = TextEditingController(text: widget.account?.name ?? '');
     _bankController = TextEditingController(text: widget.account?.bank ?? '');
+    _bankFocusNode = FocusNode();
 
     _validateForm();
 
@@ -55,6 +57,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
 
   @override
   void dispose() {
+    _bankFocusNode.dispose();
     _nameController.dispose();
     _bankController.dispose();
     super.dispose();
@@ -108,7 +111,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             _validateForm();
           },
           textEditingController: _bankController,
-          focusNode: FocusNode(),
+          focusNode: _bankFocusNode,
           labelText: 'Nom de la banque',
           hintText: 'Ex: Crédit Agricole',
           prefixIcon: const Icon(Icons.account_balance_outlined),
