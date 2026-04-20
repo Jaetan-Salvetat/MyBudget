@@ -170,6 +170,115 @@ void main() {
     expect(summaries.last.categoryName, 'Food');
   });
 
+  test('dashboard splits expenses into recurring and oneTime', () async {
+    final now = DateTime.now();
+
+    final monthly = ExpenseModel.create(
+      name: 'Rent',
+      amount: 800,
+      categoryId: 1,
+      accountId: 1,
+      date: DateTime(now.year, now.month, 5),
+      frequency: 'Mensuel',
+    );
+    final annual = ExpenseModel.create(
+      name: 'Insurance',
+      amount: 1200,
+      categoryId: 1,
+      accountId: 1,
+      date: DateTime(now.year, now.month, 10),
+      frequency: 'Annuel',
+    );
+    final oneTime = ExpenseModel.create(
+      name: 'Repair',
+      amount: 300,
+      categoryId: 1,
+      accountId: 1,
+      date: DateTime(now.year, now.month, 15),
+      frequency: 'Ponctuel',
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual, oneTime]);
+    when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryRepo.get(1)).thenReturn(null);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+
+    final state = container.read(dashboardProvider);
+
+    expect(state.recurringExpenses, 2000.0);
+    expect(state.oneTimeExpenses, 300.0);
+  });
+
+  test('dashboard splits revenues into recurring and oneTime', () async {
+    final now = DateTime.now();
+
+    final monthly = RevenueModel.create(
+      name: 'Salary',
+      amount: 3000,
+      accountId: 1,
+      date: DateTime(now.year, now.month, 1),
+      frequency: 'Mensuel',
+    );
+    final oneTime = RevenueModel.create(
+      name: 'Gift',
+      amount: 500,
+      accountId: 1,
+      date: DateTime(now.year, now.month, 10),
+      frequency: 'Ponctuel',
+    );
+
+    when(() => mockRevenueRepo.getAll()).thenReturn([monthly, oneTime]);
+    when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockLoanRepo.getAll()).thenReturn([]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+
+    final state = container.read(dashboardProvider);
+
+    expect(state.recurringRevenues, 3000.0);
+    expect(state.oneTimeRevenues, 500.0);
+  });
+
+  test('dashboard oneTimeExpenses is 0 when no oneTime expenses in current month', () async {
+    final now = DateTime.now();
+    final otherMonth = (now.month % 12) + 1;
+
+    final oneTime = ExpenseModel.create(
+      name: 'Repair',
+      amount: 300,
+      categoryId: 1,
+      accountId: 1,
+      date: DateTime(now.year, otherMonth, 15),
+      frequency: 'Ponctuel',
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
+    when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryRepo.get(1)).thenReturn(null);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+
+    final state = container.read(dashboardProvider);
+
+    expect(state.oneTimeExpenses, 0.0);
+  });
+
   test('netCashFlow equals revenues minus expenses minus loan payments', () async {
     final now = DateTime.now();
 
