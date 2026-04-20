@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -54,16 +55,17 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 
     double totalRevenues = 0.0;
     for (final revenue in revenues.where((r) => r.accountId == account.id)) {
+      if (!isActiveForMonth(revenue.startDate, revenue.endDate, selectedMonth)) continue;
       switch (revenue.frequencyEnum) {
         case Frequency.monthly:
           totalRevenues += revenue.amount;
         case Frequency.annual:
-          if (revenue.date.month == selectedMonth.month) {
+          if (revenue.startDate.month == selectedMonth.month) {
             totalRevenues += revenue.amount;
           }
         case Frequency.oneTime:
-          if (revenue.date.year == selectedMonth.year &&
-              revenue.date.month == selectedMonth.month) {
+          if (revenue.startDate.year == selectedMonth.year &&
+              revenue.startDate.month == selectedMonth.month) {
             totalRevenues += revenue.amount;
           }
       }
@@ -71,16 +73,17 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 
     double totalExpenses = 0.0;
     for (final expense in expenses.where((e) => e.accountId == account.id)) {
+      if (!isActiveForMonth(expense.startDate, expense.endDate, selectedMonth)) continue;
       switch (expense.frequencyEnum) {
         case Frequency.monthly:
           totalExpenses += expense.amount;
         case Frequency.annual:
-          if (expense.date.month == selectedMonth.month) {
+          if (expense.startDate.month == selectedMonth.month) {
             totalExpenses += expense.amount;
           }
         case Frequency.oneTime:
-          if (expense.date.year == selectedMonth.year &&
-              expense.date.month == selectedMonth.month) {
+          if (expense.startDate.year == selectedMonth.year &&
+              expense.startDate.month == selectedMonth.month) {
             totalExpenses += expense.amount;
           }
       }
@@ -92,7 +95,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 
     final transferNotifier = ref.watch(transferProvider.notifier);
     final totalTransfers = transferNotifier.getMonthlyTransferBalance(account.id);
-    final transfers = transferNotifier.getTransfersForAccount(account.id);
+    final transfers = transferNotifier.getActiveTransfersForAccount(account.id);
     final accounts = ref.watch(accountProvider).value ?? [];
 
     return FrostedScaffold(
@@ -238,6 +241,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     TransferBottomSheet.show(
       context: context,
       accounts: accounts,
+      closedTransfers: ref.read(transferProvider.notifier).getClosedTransfers(),
       onSubmit: (transfer) async {
         try {
           await ref.read(transferProvider.notifier).addTransfer(transfer);

@@ -31,7 +31,7 @@ class DataExportService {
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     return {
-      'version': 1,
+      'version': 2,
       'exportDate': now.toIso8601String(),
       'filename': 'mybudget_backup_$dateStr.json',
       'accounts': accountRepo.getAll().map((a) => a.toJson()).toList(),

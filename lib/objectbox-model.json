@@ -62,7 +62,7 @@
     },
     {
       "id": "3:1032015678209972615",
-      "lastPropertyId": "8:1483699693588998820",
+      "lastPropertyId": "10:8679329461354819461",
       "name": "ExpenseModel",
       "properties": [
         {
@@ -90,7 +90,7 @@
         },
         {
           "id": "5:7133072174613285923",
-          "name": "date",
+          "name": "startDate",
           "type": 10
         },
         {
@@ -106,6 +106,16 @@
         {
           "id": "8:1483699693588998820",
           "name": "beneficiaryId",
+          "type": 6
+        },
+        {
+          "id": "9:991309912139452805",
+          "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "10:8679329461354819461",
+          "name": "parentId",
           "type": 6
         }
       ],
@@ -202,7 +212,7 @@
     },
     {
       "id": "5:3358114112895883942",
-      "lastPropertyId": "8:4136998757007608198",
+      "lastPropertyId": "10:1302652480411191202",
       "name": "RevenueModel",
       "properties": [
         {
@@ -230,7 +240,7 @@
         },
         {
           "id": "6:1213904468792118615",
-          "name": "date",
+          "name": "startDate",
           "type": 10
         },
         {
@@ -242,6 +252,16 @@
           "id": "8:4136998757007608198",
           "name": "frequency",
           "type": 9
+        },
+        {
+          "id": "9:5983993472411267525",
+          "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "10:1302652480411191202",
+          "name": "parentId",
+          "type": 6
         }
       ],
       "relations": []
@@ -274,7 +294,7 @@
     },
     {
       "id": "7:5565231467975372089",
-      "lastPropertyId": "7:1264700332632094752",
+      "lastPropertyId": "9:6105961692625589395",
       "name": "TransferModel",
       "properties": [
         {
@@ -307,13 +327,23 @@
         },
         {
           "id": "6:1221948770519669890",
-          "name": "date",
+          "name": "startDate",
           "type": 10
         },
         {
           "id": "7:1264700332632094752",
           "name": "frequency",
           "type": 9
+        },
+        {
+          "id": "8:1834230757139125615",
+          "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "9:6105961692625589395",
+          "name": "parentId",
+          "type": 6
         }
       ],
       "relations": []

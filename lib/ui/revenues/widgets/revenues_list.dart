@@ -52,7 +52,11 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            List<RevenueModel> filteredRevenues = revenues;
+            final activeRevenues = revenues
+                .where((r) => r.endDate == null)
+                .toList();
+
+            List<RevenueModel> filteredRevenues = activeRevenues;
 
             if (!_filterData.isEmpty) {
               filteredRevenues =
@@ -94,7 +98,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 .where((r) {
                   if (r.frequencyEnum == Frequency.oneTime) return false;
                   if (r.frequencyEnum == Frequency.annual) {
-                    return r.date.month == selectedMonth.month;
+                    return r.startDate.month == selectedMonth.month;
                   }
                   return true;
                 })
@@ -102,8 +106,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
             final oneTimeRevenues = filteredRevenues
                 .where((r) =>
                     r.frequencyEnum == Frequency.oneTime &&
-                    r.date.year == selectedMonth.year &&
-                    r.date.month == selectedMonth.month)
+                    r.startDate.year == selectedMonth.year &&
+                    r.startDate.month == selectedMonth.month)
                 .toList();
 
             final isEmpty = recurringRevenues.isEmpty &&
@@ -359,6 +363,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         RevenueBottomSheet.show(
           context: context,
           accounts: accounts,
+          closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
           onSubmit: (newRevenue) async {
             try {
               await ref.read(revenueProvider.notifier).addRevenue(newRevenue);

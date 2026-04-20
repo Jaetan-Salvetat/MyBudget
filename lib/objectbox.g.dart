@@ -92,7 +92,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 1032015678209972615),
     name: 'ExpenseModel',
-    lastPropertyId: const obx_int.IdUid(8, 1483699693588998820),
+    lastPropertyId: const obx_int.IdUid(10, 8679329461354819461),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -122,7 +122,7 @@ final _entities = <obx_int.ModelEntity>[
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(5, 7133072174613285923),
-        name: 'date',
+        name: 'startDate',
         type: 10,
         flags: 0,
       ),
@@ -141,6 +141,18 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(8, 1483699693588998820),
         name: 'beneficiaryId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 991309912139452805),
+        name: 'endDate',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 8679329461354819461),
+        name: 'parentId',
         type: 6,
         flags: 0,
       ),
@@ -257,7 +269,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(5, 3358114112895883942),
     name: 'RevenueModel',
-    lastPropertyId: const obx_int.IdUid(8, 4136998757007608198),
+    lastPropertyId: const obx_int.IdUid(10, 1302652480411191202),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -287,7 +299,7 @@ final _entities = <obx_int.ModelEntity>[
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 1213904468792118615),
-        name: 'date',
+        name: 'startDate',
         type: 10,
         flags: 0,
       ),
@@ -301,6 +313,18 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(8, 4136998757007608198),
         name: 'frequency',
         type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 5983993472411267525),
+        name: 'endDate',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 1302652480411191202),
+        name: 'parentId',
+        type: 6,
         flags: 0,
       ),
     ],
@@ -339,7 +363,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(7, 5565231467975372089),
     name: 'TransferModel',
-    lastPropertyId: const obx_int.IdUid(7, 1264700332632094752),
+    lastPropertyId: const obx_int.IdUid(9, 6105961692625589395),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -375,7 +399,7 @@ final _entities = <obx_int.ModelEntity>[
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 1221948770519669890),
-        name: 'date',
+        name: 'startDate',
         type: 10,
         flags: 0,
       ),
@@ -383,6 +407,18 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(7, 1264700332632094752),
         name: 'frequency',
         type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 1834230757139125615),
+        name: 'endDate',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 6105961692625589395),
+        name: 'parentId',
+        type: 6,
         flags: 0,
       ),
     ],
@@ -533,22 +569,28 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (ExpenseModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(9);
+        fbb.startTable(11);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
         fbb.addInt64(3, object.categoryId);
-        fbb.addInt64(4, object.date.millisecondsSinceEpoch);
+        fbb.addInt64(4, object.startDate.millisecondsSinceEpoch);
         fbb.addOffset(5, frequencyOffset);
         fbb.addInt64(6, object.accountId);
         fbb.addInt64(7, object.beneficiaryId);
+        fbb.addInt64(8, object.endDate?.millisecondsSinceEpoch);
+        fbb.addInt64(9, object.parentId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
-
+        final endDateValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          20,
+        );
         final object = ExpenseModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..name = const fb.StringReader(
@@ -566,7 +608,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
             10,
             0,
           )
-          ..date = DateTime.fromMillisecondsSinceEpoch(
+          ..startDate = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0),
           )
           ..frequency = const fb.StringReader(
@@ -582,6 +624,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             18,
+          )
+          ..endDate = endDateValue == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(endDateValue)
+          ..parentId = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            22,
           );
 
         return object;
@@ -734,21 +784,27 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (RevenueModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(9);
+        fbb.startTable(11);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
         fbb.addFloat64(3, object.amount);
-        fbb.addInt64(5, object.date.millisecondsSinceEpoch);
+        fbb.addInt64(5, object.startDate.millisecondsSinceEpoch);
         fbb.addInt64(6, object.beneficiaryId);
         fbb.addOffset(7, frequencyOffset);
+        fbb.addInt64(8, object.endDate?.millisecondsSinceEpoch);
+        fbb.addInt64(9, object.parentId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
-
+        final endDateValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          20,
+        );
         final object = RevenueModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..name = const fb.StringReader(
@@ -766,7 +822,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
             10,
             0,
           )
-          ..date = DateTime.fromMillisecondsSinceEpoch(
+          ..startDate = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
           )
           ..beneficiaryId = const fb.Int64Reader().vTableGetNullable(
@@ -776,7 +832,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
           )
           ..frequency = const fb.StringReader(
             asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 18, '');
+          ).vTableGet(buffer, rootOffset, 18, '')
+          ..endDate = endDateValue == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(endDateValue)
+          ..parentId = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            22,
+          );
 
         return object;
       },
@@ -823,21 +887,27 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (TransferModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(8);
+        fbb.startTable(10);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
         fbb.addInt64(3, object.fromAccountId);
         fbb.addInt64(4, object.toAccountId);
-        fbb.addInt64(5, object.date.millisecondsSinceEpoch);
+        fbb.addInt64(5, object.startDate.millisecondsSinceEpoch);
         fbb.addOffset(6, frequencyOffset);
+        fbb.addInt64(7, object.endDate?.millisecondsSinceEpoch);
+        fbb.addInt64(8, object.parentId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
-
+        final endDateValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          18,
+        );
         final object = TransferModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..name = const fb.StringReader(
@@ -861,12 +931,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
             12,
             0,
           )
-          ..date = DateTime.fromMillisecondsSinceEpoch(
+          ..startDate = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
           )
           ..frequency = const fb.StringReader(
             asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 16, '');
+          ).vTableGet(buffer, rootOffset, 16, '')
+          ..endDate = endDateValue == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(endDateValue)
+          ..parentId = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            20,
+          );
 
         return object;
       },
@@ -939,8 +1017,8 @@ class ExpenseModel_ {
     _entities[2].properties[3],
   );
 
-  /// See [ExpenseModel.date].
-  static final date = obx.QueryDateProperty<ExpenseModel>(
+  /// See [ExpenseModel.startDate].
+  static final startDate = obx.QueryDateProperty<ExpenseModel>(
     _entities[2].properties[4],
   );
 
@@ -957,6 +1035,16 @@ class ExpenseModel_ {
   /// See [ExpenseModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<ExpenseModel>(
     _entities[2].properties[7],
+  );
+
+  /// See [ExpenseModel.endDate].
+  static final endDate = obx.QueryDateProperty<ExpenseModel>(
+    _entities[2].properties[8],
+  );
+
+  /// See [ExpenseModel.parentId].
+  static final parentId = obx.QueryIntegerProperty<ExpenseModel>(
+    _entities[2].properties[9],
   );
 }
 
@@ -1065,8 +1153,8 @@ class RevenueModel_ {
     _entities[4].properties[3],
   );
 
-  /// See [RevenueModel.date].
-  static final date = obx.QueryDateProperty<RevenueModel>(
+  /// See [RevenueModel.startDate].
+  static final startDate = obx.QueryDateProperty<RevenueModel>(
     _entities[4].properties[4],
   );
 
@@ -1078,6 +1166,16 @@ class RevenueModel_ {
   /// See [RevenueModel.frequency].
   static final frequency = obx.QueryStringProperty<RevenueModel>(
     _entities[4].properties[6],
+  );
+
+  /// See [RevenueModel.endDate].
+  static final endDate = obx.QueryDateProperty<RevenueModel>(
+    _entities[4].properties[7],
+  );
+
+  /// See [RevenueModel.parentId].
+  static final parentId = obx.QueryIntegerProperty<RevenueModel>(
+    _entities[4].properties[8],
   );
 }
 
@@ -1126,13 +1224,23 @@ class TransferModel_ {
     _entities[6].properties[4],
   );
 
-  /// See [TransferModel.date].
-  static final date = obx.QueryDateProperty<TransferModel>(
+  /// See [TransferModel.startDate].
+  static final startDate = obx.QueryDateProperty<TransferModel>(
     _entities[6].properties[5],
   );
 
   /// See [TransferModel.frequency].
   static final frequency = obx.QueryStringProperty<TransferModel>(
     _entities[6].properties[6],
+  );
+
+  /// See [TransferModel.endDate].
+  static final endDate = obx.QueryDateProperty<TransferModel>(
+    _entities[6].properties[7],
+  );
+
+  /// See [TransferModel.parentId].
+  static final parentId = obx.QueryIntegerProperty<TransferModel>(
+    _entities[6].properties[8],
   );
 }

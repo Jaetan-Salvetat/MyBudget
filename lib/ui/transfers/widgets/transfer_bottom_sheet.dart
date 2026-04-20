@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -7,6 +8,7 @@ import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 class TransferBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
   final TransferModel? transfer;
+  final List<TransferModel> closedTransfers;
   final Function(TransferModel) onSubmit;
   final VoidCallback onCancel;
 
@@ -15,6 +17,7 @@ class TransferBottomSheet extends StatefulWidget {
     required this.onSubmit,
     required this.onCancel,
     this.transfer,
+    this.closedTransfers = const [],
     super.key,
   });
 
@@ -24,6 +27,7 @@ class TransferBottomSheet extends StatefulWidget {
     required Function(TransferModel) onSubmit,
     required VoidCallback onCancel,
     TransferModel? transfer,
+    List<TransferModel> closedTransfers = const [],
   }) {
     FrostedBottomSheet.show(
       context: context,
@@ -33,6 +37,7 @@ class TransferBottomSheet extends StatefulWidget {
         onSubmit: onSubmit,
         onCancel: onCancel,
         transfer: transfer,
+        closedTransfers: closedTransfers,
       ),
     );
   }
@@ -52,6 +57,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   String? _fromAccountError;
   String? _toAccountError;
   String? _amountError;
+  int? _parentId;
 
   @override
   void initState() {
@@ -65,7 +71,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
         widget.transfer?.fromAccountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedToAccountId = widget.transfer?.toAccountId;
-    _selectedDate = widget.transfer?.date ?? DateTime.now();
+    _selectedDate = widget.transfer?.startDate ?? DateTime.now();
     _selectedFrequency = widget.transfer?.frequency ?? 'Mensuel';
   }
 
@@ -124,6 +130,52 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
     return isValid;
   }
 
+  void _fillFromClosedTransfer(TransferModel closed) {
+    setState(() {
+      _nameController.text = closed.name;
+      _amountController.text = closed.amount.toString();
+      _selectedFromAccountId = closed.fromAccountId;
+      _selectedToAccountId = closed.toAccountId;
+      _selectedFrequency = closed.frequency;
+      _parentId = closed.parentId ?? closed.id;
+      _selectedDate = DateTime.now();
+    });
+  }
+
+  void _showClosedTransferPicker(BuildContext context) {
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Reprendre un virement'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 300,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.closedTransfers.length,
+          itemBuilder: (context, index) {
+            final transfer = widget.closedTransfers[index];
+            return ListTile(
+              title: Text(transfer.name),
+              subtitle: Text(formatter.format(transfer.amount)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                _fillFromClosedTransfer(transfer);
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+      ],
+    );
+  }
+
   Future<void> _handleSubmit() async {
     if (!_validateFields()) {
       return;
@@ -139,7 +191,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               amount: amount,
               fromAccountId: _selectedFromAccountId!,
               toAccountId: _selectedToAccountId!,
-              date: _selectedDate,
+              startDate: _selectedDate,
               frequency: _selectedFrequency,
             )
             : TransferModel.create(
@@ -147,8 +199,9 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               amount: amount,
               fromAccountId: _selectedFromAccountId!,
               toAccountId: _selectedToAccountId!,
-              date: _selectedDate,
+              startDate: _selectedDate,
               frequency: _selectedFrequency,
+              parentId: _parentId,
             );
 
     widget.onSubmit(transfer);
@@ -165,6 +218,21 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (widget.transfer == null && widget.closedTransfers.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: FrostedTextButton(
+                  onPressed: () => _showClosedTransferPicker(context),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, size: 18, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text('Reprendre un ancien virement'),
+                    ],
+                  ),
+                ),
+              ),
             Text(
               'Informations',
               style: TextStyle(

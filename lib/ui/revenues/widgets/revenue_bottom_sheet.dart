@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -9,6 +10,7 @@ import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 class RevenueBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
   final RevenueModel? revenue;
+  final List<RevenueModel> closedRevenues;
   final Function(RevenueModel) onSubmit;
   final VoidCallback onCancel;
 
@@ -17,6 +19,7 @@ class RevenueBottomSheet extends StatefulWidget {
     required this.onSubmit,
     required this.onCancel,
     this.revenue,
+    this.closedRevenues = const [],
     super.key,
   });
 
@@ -26,6 +29,7 @@ class RevenueBottomSheet extends StatefulWidget {
     required Function(RevenueModel) onSubmit,
     required VoidCallback onCancel,
     RevenueModel? revenue,
+    List<RevenueModel> closedRevenues = const [],
   }) {
     FrostedBottomSheet.show(
       context: context,
@@ -35,6 +39,7 @@ class RevenueBottomSheet extends StatefulWidget {
         onSubmit: onSubmit,
         onCancel: onCancel,
         revenue: revenue,
+        closedRevenues: closedRevenues,
       ),
     );
   }
@@ -55,6 +60,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
+  int? _parentId;
 
   @override
   void initState() {
@@ -64,7 +70,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       text: widget.revenue?.amount.toString() ?? '',
     );
 
-    _selectedDate = widget.revenue?.date ?? DateTime.now();
+    _selectedDate = widget.revenue?.startDate ?? DateTime.now();
     _selectedFrequency = widget.revenue?.frequency ?? Frequency.monthly.label;
     _selectedAccountId =
         widget.revenue?.accountId ??
@@ -78,6 +84,53 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  void _fillFromClosedRevenue(RevenueModel closed) {
+    setState(() {
+      _nameController.text = closed.name;
+      _amountController.text = closed.amount.toString();
+      _selectedFrequency = closed.frequency;
+      _selectedAccountId = closed.accountId;
+      _selectedBeneficiaryId = closed.beneficiaryId;
+      _beneficiaryEnabled = closed.beneficiaryId != null;
+      _parentId = closed.parentId ?? closed.id;
+      _selectedDate = DateTime.now();
+    });
+  }
+
+  void _showClosedRevenuePicker(BuildContext context) {
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Reprendre un revenu'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 300,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.closedRevenues.length,
+          itemBuilder: (context, index) {
+            final revenue = widget.closedRevenues[index];
+            return ListTile(
+              title: Text(revenue.name),
+              subtitle: Text(formatter.format(revenue.amount)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                _fillFromClosedRevenue(revenue);
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+      ],
+    );
   }
 
   void _handleSubmit() {
@@ -109,7 +162,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             ? widget.revenue!.copyWith(
               name: _nameController.text.trim(),
               amount: amount,
-              date: _selectedDate,
+              startDate: _selectedDate,
               accountId: _selectedAccountId!,
               frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
@@ -117,10 +170,11 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             : RevenueModel.create(
               name: _nameController.text.trim(),
               amount: amount,
-              date: _selectedDate,
+              startDate: _selectedDate,
               accountId: _selectedAccountId!,
               frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
+              parentId: _parentId,
             );
 
     widget.onSubmit(revenue);
@@ -134,6 +188,21 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.revenue == null && widget.closedRevenues.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FrostedTextButton(
+                onPressed: () => _showClosedRevenuePicker(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.history, size: 18, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text('Reprendre un ancien revenu'),
+                  ],
+                ),
+              ),
+            ),
           Text(
             'Informations',
             style: TextStyle(

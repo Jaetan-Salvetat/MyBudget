@@ -15,8 +15,13 @@ class ExpenseModel {
 
   late int categoryId;
 
+  @Property(uid: 7133072174613285923)
+  late DateTime startDate;
+
   @Property()
-  late DateTime date;
+  DateTime? endDate;
+
+  int? parentId;
 
   late String frequency;
 
@@ -30,9 +35,11 @@ class ExpenseModel {
     required this.name,
     required this.amount,
     required this.categoryId,
-    required this.date,
+    required this.startDate,
     required this.frequency,
     required this.accountId,
+    this.endDate,
+    this.parentId,
     this.beneficiaryId,
   });
 
@@ -40,9 +47,11 @@ class ExpenseModel {
     String? name,
     double? amount,
     int? categoryId,
-    DateTime? date,
+    DateTime? startDate,
     String? frequency,
     int? accountId,
+    Object? endDate = _sentinel,
+    Object? parentId = _sentinel,
     Object? beneficiaryId = _sentinel,
   }) {
     final model =
@@ -51,9 +60,17 @@ class ExpenseModel {
           ..name = name ?? this.name
           ..amount = amount ?? this.amount
           ..categoryId = categoryId ?? this.categoryId
-          ..date = date ?? this.date
+          ..startDate = startDate ?? this.startDate
           ..frequency = frequency ?? this.frequency
           ..accountId = accountId ?? this.accountId
+          ..endDate =
+              endDate == _sentinel
+                  ? this.endDate
+                  : endDate as DateTime?
+          ..parentId =
+              parentId == _sentinel
+                  ? this.parentId
+                  : parentId as int?
           ..beneficiaryId =
               beneficiaryId == _sentinel
                   ? this.beneficiaryId
@@ -67,7 +84,9 @@ class ExpenseModel {
       'name': name,
       'amount': amount,
       'categoryId': categoryId.toString(),
-      'date': date.toIso8601String(),
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'parentId': parentId?.toString(),
       'frequency': frequency,
       'accountId': accountId.toString(),
       'beneficiaryId': beneficiaryId?.toString(),
@@ -75,14 +94,23 @@ class ExpenseModel {
   }
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
+    final dateStr = json['startDate'] ?? json['date'];
     final model =
         ExpenseModel()
           ..name = json['name'] ?? ''
           ..amount = (json['amount'] ?? 0.0).toDouble()
-          ..date =
-              json['date'] != null
-                  ? (DateTime.tryParse(json['date'].toString()) ?? DateTime.now())
+          ..startDate =
+              dateStr != null
+                  ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
                   : DateTime.now()
+          ..endDate =
+              json['endDate'] != null
+                  ? DateTime.tryParse(json['endDate'].toString())
+                  : null
+          ..parentId =
+              json['parentId'] != null
+                  ? int.tryParse(json['parentId'].toString())
+                  : null
           ..frequency = json['frequency'] ?? ''
           ..categoryId =
               json['categoryId'] != null

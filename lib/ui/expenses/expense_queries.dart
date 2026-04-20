@@ -4,19 +4,27 @@ import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_queries.g.dart';
 
+@Riverpod(keepAlive: true)
+List<ExpenseModel> activeExpenses(Ref ref) {
+  final expenses = ref.watch(expenseProvider).value ?? [];
+  return expenses.where((e) => e.endDate == null).toList();
+}
+
 double _expenseAmountForMonth(ExpenseModel expense, DateTime month) {
+  if (!isActiveForMonth(expense.startDate, expense.endDate, month)) return 0.0;
   switch (expense.frequencyEnum) {
     case Frequency.monthly:
       return expense.amount;
     case Frequency.annual:
-      return expense.date.month == month.month ? expense.amount : 0.0;
+      return expense.startDate.month == month.month ? expense.amount : 0.0;
     case Frequency.oneTime:
-      return expense.date.year == month.year &&
-              expense.date.month == month.month
+      return expense.startDate.year == month.year &&
+              expense.startDate.month == month.month
           ? expense.amount
           : 0.0;
   }
@@ -57,7 +65,7 @@ double annualExpenses(Ref ref) {
       case Frequency.annual:
         total += expense.amount;
       case Frequency.oneTime:
-        if (expense.date.year == selectedMonth.year) {
+        if (expense.startDate.year == selectedMonth.year) {
           total += expense.amount;
         }
     }
@@ -67,25 +75,25 @@ double annualExpenses(Ref ref) {
 
 @Riverpod(keepAlive: true)
 List<ExpenseModel> upcomingExpenses(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
+  final expenses = ref.watch(activeExpensesProvider);
   final now = DateTime.now();
   final upcoming = expenses.where((expense) {
     switch (expense.frequencyEnum) {
       case Frequency.monthly:
-        return expense.date.day >= now.day;
+        return expense.startDate.day >= now.day;
       case Frequency.annual:
-        return expense.date.month == now.month && expense.date.day >= now.day;
+        return expense.startDate.month == now.month && expense.startDate.day >= now.day;
       case Frequency.oneTime:
         final expenseDate = DateTime(
-          expense.date.year,
-          expense.date.month,
-          expense.date.day,
+          expense.startDate.year,
+          expense.startDate.month,
+          expense.startDate.day,
         );
         final today = DateTime(now.year, now.month, now.day);
         return !expenseDate.isBefore(today);
     }
   }).toList();
-  upcoming.sort((a, b) => a.date.day.compareTo(b.date.day));
+  upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
   return upcoming;
 }
 

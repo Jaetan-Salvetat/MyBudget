@@ -60,11 +60,11 @@ class AccountNotifier extends _$AccountNotifier {
     final loans = ref.read(loanProvider).value ?? [];
 
     final totalRevenues = revenues
-        .where((r) => r.accountId == accountId)
+        .where((r) => r.accountId == accountId && r.endDate == null)
         .fold<double>(0.0, (sum, r) => sum + r.amount);
 
     final totalExpenses = expenses
-        .where((e) => e.accountId == accountId)
+        .where((e) => e.accountId == accountId && e.endDate == null)
         .fold<double>(0.0, (sum, e) => sum + e.amount);
 
     final totalLoanPayments = loans

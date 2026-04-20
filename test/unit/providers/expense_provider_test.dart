@@ -11,9 +11,15 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class MockCategoryRepository extends Mock implements CategoryRepository {}
 
+class FakeExpenseModel extends Fake implements ExpenseModel {}
+
 void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockCategoryRepository mockCategoryRepo;
+
+  setUpAll(() {
+    registerFallbackValue(FakeExpenseModel());
+  });
 
   setUp(() {
     mockExpenseRepo = MockExpenseRepository();
@@ -36,7 +42,7 @@ void main() {
       name: 'Annual',
       amount: 1200,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -58,7 +64,7 @@ void main() {
       name: 'Monthly',
       amount: 100,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -80,7 +86,7 @@ void main() {
       name: 'Monthly',
       amount: 500,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -88,7 +94,7 @@ void main() {
       name: 'Annual',
       amount: 1200,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -121,7 +127,7 @@ void main() {
       name: 'Zero',
       amount: 0,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -141,7 +147,7 @@ void main() {
       name: 'Orphan expense',
       amount: 100,
       categoryId: 999,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -168,7 +174,7 @@ void main() {
       name: 'Upcoming',
       amount: 200,
       categoryId: 1,
-      date: DateTime(now.year, now.month, futureDay),
+      startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -176,7 +182,7 @@ void main() {
       name: 'Past',
       amount: 100,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 1),
+      startDate: DateTime(now.year, now.month, 1),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -200,7 +206,7 @@ void main() {
       name: 'Annual Other',
       amount: 1200,
       categoryId: 1,
-      date: DateTime(now.year, otherMonth, 15),
+      startDate: DateTime(now.year, otherMonth, 15),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -223,7 +229,7 @@ void main() {
       name: 'One-time',
       amount: 500,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 10),
+      startDate: DateTime(now.year, now.month, 10),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -247,7 +253,7 @@ void main() {
       name: 'One-time Other',
       amount: 500,
       categoryId: 1,
-      date: DateTime(now.year, otherMonth, 10),
+      startDate: DateTime(now.year, otherMonth, 10),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -270,7 +276,7 @@ void main() {
       name: 'Monthly',
       amount: 500,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 5),
+      startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -278,7 +284,7 @@ void main() {
       name: 'Annual',
       amount: 1200,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 10),
+      startDate: DateTime(now.year, now.month, 10),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -286,7 +292,7 @@ void main() {
       name: 'One-time',
       amount: 300,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 15),
+      startDate: DateTime(now.year, now.month, 15),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -312,7 +318,7 @@ void main() {
       name: 'One-time Upcoming',
       amount: 400,
       categoryId: 1,
-      date: DateTime(now.year, now.month, futureDay),
+      startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -338,7 +344,7 @@ void main() {
       name: 'Annual This Month',
       amount: 300,
       categoryId: 1,
-      date: DateTime(now.year, now.month, futureDay),
+      startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -346,7 +352,7 @@ void main() {
       name: 'Annual Other Month',
       amount: 300,
       categoryId: 1,
-      date: DateTime(now.year, (now.month % 12) + 1, 15),
+      startDate: DateTime(now.year, (now.month % 12) + 1, 15),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -370,7 +376,7 @@ void main() {
       name: 'Annual Old Year',
       amount: 600,
       categoryId: 1,
-      date: DateTime(2020, now.month, 10),
+      startDate: DateTime(2020, now.month, 10),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -393,7 +399,7 @@ void main() {
       name: 'OneTime Last Year',
       amount: 500,
       categoryId: 1,
-      date: DateTime(now.year - 1, now.month, 10),
+      startDate: DateTime(now.year - 1, now.month, 10),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -416,7 +422,7 @@ void main() {
       name: 'Monthly',
       amount: 100,
       categoryId: 1,
-      date: DateTime(now.year, now.month, 5),
+      startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
       accountId: 1,
     );
@@ -424,7 +430,7 @@ void main() {
       name: 'Annual',
       amount: 600,
       categoryId: 1,
-      date: DateTime(now.year, 3, 10),
+      startDate: DateTime(now.year, 3, 10),
       frequency: 'Annuel',
       accountId: 1,
     );
@@ -432,7 +438,7 @@ void main() {
       name: 'OneTime This Year',
       amount: 200,
       categoryId: 1,
-      date: DateTime(now.year, 6, 15),
+      startDate: DateTime(now.year, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -440,7 +446,7 @@ void main() {
       name: 'OneTime Other Year',
       amount: 300,
       categoryId: 1,
-      date: DateTime(now.year - 1, 6, 15),
+      startDate: DateTime(now.year - 1, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
     );
@@ -468,5 +474,162 @@ void main() {
     await container.read(expenseProvider.future);
 
     expect(container.read(expenseProvider.notifier).getAnnualExpenses(), 0.0);
+  });
+
+  test('deleteExpense soft deletes recurring expense', () async {
+    final expense = ExpenseModel.create(
+      name: 'Loyer',
+      amount: 800,
+      categoryId: 1,
+      startDate: DateTime(2024, 6, 15),
+      frequency: 'Mensuel',
+      accountId: 1,
+    )..id = 1;
+
+    when(() => mockExpenseRepo.get(1)).thenReturn(expense);
+    when(() => mockExpenseRepo.update(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(expenseProvider.notifier).deleteExpense(1);
+
+    verify(() => mockExpenseRepo.update(any())).called(1);
+    verifyNever(() => mockExpenseRepo.delete(any()));
+  });
+
+  test('deleteExpense hard deletes oneTime expense', () async {
+    final expense = ExpenseModel.create(
+      name: 'Achat unique',
+      amount: 200,
+      categoryId: 1,
+      startDate: DateTime(2024, 6, 15),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    )..id = 2;
+
+    when(() => mockExpenseRepo.get(2)).thenReturn(expense);
+    when(() => mockExpenseRepo.delete(2)).thenReturn(true);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+    await container.read(expenseProvider.notifier).deleteExpense(2);
+
+    verify(() => mockExpenseRepo.delete(2)).called(1);
+    verifyNever(() => mockExpenseRepo.update(any()));
+  });
+
+  test('updateExpense with name-only change propagates to chain', () async {
+    final existing = ExpenseModel.create(
+      name: 'Ancien nom',
+      amount: 100,
+      categoryId: 1,
+      startDate: DateTime(2024, 6, 15),
+      frequency: 'Mensuel',
+      accountId: 1,
+    )..id = 1;
+
+    final chainEntry = ExpenseModel.create(
+      name: 'Ancien nom',
+      amount: 100,
+      categoryId: 1,
+      startDate: DateTime(2024, 8, 15),
+      frequency: 'Mensuel',
+      accountId: 1,
+      parentId: 1,
+    )..id = 2;
+
+    when(() => mockExpenseRepo.get(1)).thenReturn(existing);
+    when(() => mockExpenseRepo.getChain(1)).thenReturn([existing, chainEntry]);
+    when(() => mockExpenseRepo.update(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final updated = existing.copyWith(name: 'Nouveau nom');
+    await container.read(expenseProvider.notifier).updateExpense(updated);
+
+    verify(() => mockExpenseRepo.getChain(1)).called(1);
+    verify(() => mockExpenseRepo.update(any())).called(2);
+  });
+
+  test('updateExpense with structural change on recurring closes old and creates new', () async {
+    final existing = ExpenseModel.create(
+      name: 'Loyer',
+      amount: 500,
+      categoryId: 1,
+      startDate: DateTime(2024, 6, 15),
+      frequency: 'Mensuel',
+      accountId: 1,
+    )..id = 1;
+
+    when(() => mockExpenseRepo.get(1)).thenReturn(existing);
+    when(() => mockExpenseRepo.update(any())).thenReturn(1);
+    when(() => mockExpenseRepo.add(any())).thenReturn(2);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final updated = existing.copyWith(amount: 600);
+    await container.read(expenseProvider.notifier).updateExpense(updated);
+
+    verify(() => mockExpenseRepo.update(any())).called(1);
+    verify(() => mockExpenseRepo.add(any())).called(1);
+  });
+
+  test('updateExpense with structural change on oneTime does simple update', () async {
+    final existing = ExpenseModel.create(
+      name: 'Achat',
+      amount: 300,
+      categoryId: 1,
+      startDate: DateTime(2024, 6, 15),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    )..id = 1;
+
+    when(() => mockExpenseRepo.get(1)).thenReturn(existing);
+    when(() => mockExpenseRepo.update(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final updated = existing.copyWith(amount: 400);
+    await container.read(expenseProvider.notifier).updateExpense(updated);
+
+    verify(() => mockExpenseRepo.update(any())).called(1);
+    verifyNever(() => mockExpenseRepo.add(any()));
+  });
+
+  test('getClosedExpenses returns closed entries', () async {
+    final closed = ExpenseModel.create(
+      name: 'Ancien',
+      amount: 100,
+      categoryId: 1,
+      startDate: DateTime(2024, 1, 15),
+      frequency: 'Mensuel',
+      accountId: 1,
+      endDate: DateTime(2024, 6, 15),
+    )..id = 1;
+
+    when(() => mockExpenseRepo.getClosed()).thenReturn([closed]);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(expenseProvider.future);
+
+    final result = container.read(expenseProvider.notifier).getClosedExpenses();
+
+    expect(result.length, 1);
+    expect(result.first.endDate, isNotNull);
   });
 }

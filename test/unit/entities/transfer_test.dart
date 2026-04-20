@@ -16,7 +16,7 @@ void main() {
         amount: amount,
         fromAccountId: fromAccountId,
         toAccountId: toAccountId,
-        date: DateTime(2024, 6, 15),
+        startDate: DateTime(2024, 6, 15),
         frequency: frequency,
       );
     }
@@ -30,7 +30,7 @@ void main() {
       expect(transfer.amount, 300);
       expect(transfer.fromAccountId, 1);
       expect(transfer.toAccountId, 2);
-      expect(transfer.date, DateTime(2024, 6, 15));
+      expect(transfer.startDate, DateTime(2024, 6, 15));
     });
 
     test('model getter returns underlying model', () {

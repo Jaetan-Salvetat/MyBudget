@@ -65,7 +65,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
       items.add(UpcomingItemData(
         name: expense.name,
         amount: expense.amount,
-        day: expense.date.day,
+        day: expense.startDate.day,
         type: 'expense',
       ));
     }
@@ -75,7 +75,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
       items.add(UpcomingItemData(
         name: revenue.name,
         amount: revenue.amount,
-        day: revenue.date.day,
+        day: revenue.startDate.day,
         type: 'revenue',
       ));
     }

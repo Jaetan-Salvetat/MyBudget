@@ -8,6 +8,7 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dashboard_provider.g.dart';
@@ -55,16 +56,19 @@ class DashboardNotifier extends _$DashboardNotifier {
     double oneTimeExp = 0.0;
     final expenses = ref.watch(expenseProvider).value ?? [];
     for (final expense in expenses) {
+      if (!isActiveForMonth(expense.startDate, expense.endDate, selectedMonth)) {
+        continue;
+      }
       switch (expense.frequencyEnum) {
         case Frequency.monthly:
           recurringExp += expense.amount;
         case Frequency.annual:
-          if (expense.date.month == selectedMonth.month) {
+          if (expense.startDate.month == selectedMonth.month) {
             recurringExp += expense.amount;
           }
         case Frequency.oneTime:
-          if (expense.date.year == selectedMonth.year &&
-              expense.date.month == selectedMonth.month) {
+          if (expense.startDate.year == selectedMonth.year &&
+              expense.startDate.month == selectedMonth.month) {
             oneTimeExp += expense.amount;
           }
       }
@@ -74,16 +78,19 @@ class DashboardNotifier extends _$DashboardNotifier {
     double oneTimeRev = 0.0;
     final revenues = ref.watch(revenueProvider).value ?? [];
     for (final revenue in revenues) {
+      if (!isActiveForMonth(revenue.startDate, revenue.endDate, selectedMonth)) {
+        continue;
+      }
       switch (revenue.frequencyEnum) {
         case Frequency.monthly:
           recurringRev += revenue.amount;
         case Frequency.annual:
-          if (revenue.date.month == selectedMonth.month) {
+          if (revenue.startDate.month == selectedMonth.month) {
             recurringRev += revenue.amount;
           }
         case Frequency.oneTime:
-          if (revenue.date.year == selectedMonth.year &&
-              revenue.date.month == selectedMonth.month) {
+          if (revenue.startDate.year == selectedMonth.year &&
+              revenue.startDate.month == selectedMonth.month) {
             oneTimeRev += revenue.amount;
           }
       }

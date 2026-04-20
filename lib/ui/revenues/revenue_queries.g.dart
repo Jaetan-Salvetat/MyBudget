@@ -9,6 +9,53 @@ part of 'revenue_queries.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(activeRevenues)
+final activeRevenuesProvider = ActiveRevenuesProvider._();
+
+final class ActiveRevenuesProvider
+    extends
+        $FunctionalProvider<
+          List<RevenueModel>,
+          List<RevenueModel>,
+          List<RevenueModel>
+        >
+    with $Provider<List<RevenueModel>> {
+  ActiveRevenuesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeRevenuesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeRevenuesHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<RevenueModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<RevenueModel> create(Ref ref) {
+    return activeRevenues(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<RevenueModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<RevenueModel>>(value),
+    );
+  }
+}
+
+String _$activeRevenuesHash() => r'5360dd45f9e7cef6c89b9da0a1e4f4966d5cad3b';
+
 @ProviderFor(monthlyRevenues)
 final monthlyRevenuesProvider = MonthlyRevenuesProvider._();
 
@@ -137,4 +184,4 @@ final class UpcomingRevenuesProvider
   }
 }
 
-String _$upcomingRevenuesHash() => r'c9a3014cea6f14205e7dd6688fe71387b85ac2d7';
+String _$upcomingRevenuesHash() => r'c3677c5e943e6b1d04781a051646d84d8b995a06';

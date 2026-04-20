@@ -97,18 +97,24 @@ class DataImportService {
       for (final item in data['expenses'] as List) {
         try {
           final json = Map<String, dynamic>.from(item as Map);
+          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
           final oldAccountId =
               int.tryParse(json['accountId']?.toString() ?? '');
           final oldCategoryId =
               int.tryParse(json['categoryId']?.toString() ?? '');
           final oldBeneficiaryId =
               int.tryParse(json['beneficiaryId']?.toString() ?? '');
+          final oldParentId =
+              int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
+          json['parentId'] = null;
           expenses.add(ParsedExpense(
+            oldId: oldId,
             model: ExpenseModel.fromJson(json),
             oldAccountId: oldAccountId,
             oldCategoryId: oldCategoryId,
             oldBeneficiaryId: oldBeneficiaryId,
+            oldParentId: oldParentId,
           ));
         } catch (e) {
           errors.add('Dépense invalide : $e');
@@ -120,15 +126,21 @@ class DataImportService {
       for (final item in data['revenues'] as List) {
         try {
           final json = Map<String, dynamic>.from(item as Map);
+          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
           final oldAccountId =
               int.tryParse(json['accountId']?.toString() ?? '');
           final oldBeneficiaryId =
               int.tryParse(json['beneficiaryId']?.toString() ?? '');
+          final oldParentId =
+              int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
+          json['parentId'] = null;
           revenues.add(ParsedRevenue(
+            oldId: oldId,
             model: RevenueModel.fromJson(json),
             oldAccountId: oldAccountId,
             oldBeneficiaryId: oldBeneficiaryId,
+            oldParentId: oldParentId,
           ));
         } catch (e) {
           errors.add('Revenu invalide : $e');
@@ -158,15 +170,21 @@ class DataImportService {
       for (final item in data['transfers'] as List) {
         try {
           final json = Map<String, dynamic>.from(item as Map);
+          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
           final oldFromAccountId =
               int.tryParse(json['fromAccountId']?.toString() ?? '');
           final oldToAccountId =
               int.tryParse(json['toAccountId']?.toString() ?? '');
+          final oldParentId =
+              int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
+          json['parentId'] = null;
           transfers.add(ParsedTransfer(
+            oldId: oldId,
             model: TransferModel.fromJson(json),
             oldFromAccountId: oldFromAccountId,
             oldToAccountId: oldToAccountId,
+            oldParentId: oldParentId,
           ));
         } catch (e) {
           errors.add('Virement invalide : $e');
@@ -384,6 +402,8 @@ class DataImportService {
     int imported = 0;
     int skipped = 0;
     final errors = <String>[];
+    final Map<int, int> expenseIdMap = {};
+    final List<({int newId, int oldParentId})> pendingParentIds = [];
 
     for (final item in items) {
       try {
@@ -411,12 +431,26 @@ class DataImportService {
           model.beneficiaryId = beneficiaryIdMap[item.oldBeneficiaryId];
         }
 
-        expenseRepo.add(model);
+        final newId = expenseRepo.add(model);
+        expenseIdMap[item.oldId] = newId;
+        if (item.oldParentId != null) {
+          pendingParentIds.add((newId: newId, oldParentId: item.oldParentId!));
+        }
         imported++;
       } catch (e) {
         errors.add('${item.model.name} : $e');
       }
       onItemProcessed();
+    }
+
+    for (final pending in pendingParentIds) {
+      final newParentId = expenseIdMap[pending.oldParentId];
+      if (newParentId != null) {
+        final model = expenseRepo.get(pending.newId);
+        if (model != null) {
+          expenseRepo.update(model.copyWith(parentId: newParentId));
+        }
+      }
     }
 
     return ImportEntityReport(
@@ -437,6 +471,8 @@ class DataImportService {
     int imported = 0;
     int skipped = 0;
     final errors = <String>[];
+    final Map<int, int> revenueIdMap = {};
+    final List<({int newId, int oldParentId})> pendingParentIds = [];
 
     for (final item in items) {
       try {
@@ -455,12 +491,26 @@ class DataImportService {
           model.beneficiaryId = beneficiaryIdMap[item.oldBeneficiaryId];
         }
 
-        revenueRepo.add(model);
+        final newId = revenueRepo.add(model);
+        revenueIdMap[item.oldId] = newId;
+        if (item.oldParentId != null) {
+          pendingParentIds.add((newId: newId, oldParentId: item.oldParentId!));
+        }
         imported++;
       } catch (e) {
         errors.add('${item.model.name} : $e');
       }
       onItemProcessed();
+    }
+
+    for (final pending in pendingParentIds) {
+      final newParentId = revenueIdMap[pending.oldParentId];
+      if (newParentId != null) {
+        final model = revenueRepo.get(pending.newId);
+        if (model != null) {
+          revenueRepo.update(model.copyWith(parentId: newParentId));
+        }
+      }
     }
 
     return ImportEntityReport(
@@ -520,6 +570,8 @@ class DataImportService {
     int imported = 0;
     int skipped = 0;
     final errors = <String>[];
+    final Map<int, int> transferIdMap = {};
+    final List<({int newId, int oldParentId})> pendingParentIds = [];
 
     for (final item in items) {
       try {
@@ -544,12 +596,26 @@ class DataImportService {
           model.toAccountId = accountIdMap[item.oldToAccountId]!;
         }
 
-        transferRepo.add(model);
+        final newId = transferRepo.add(model);
+        transferIdMap[item.oldId] = newId;
+        if (item.oldParentId != null) {
+          pendingParentIds.add((newId: newId, oldParentId: item.oldParentId!));
+        }
         imported++;
       } catch (e) {
         errors.add('${item.model.name} : $e');
       }
       onItemProcessed();
+    }
+
+    for (final pending in pendingParentIds) {
+      final newParentId = transferIdMap[pending.oldParentId];
+      if (newParentId != null) {
+        final model = transferRepo.get(pending.newId);
+        if (model != null) {
+          transferRepo.update(model.copyWith(parentId: newParentId));
+        }
+      }
     }
 
     return ImportEntityReport(

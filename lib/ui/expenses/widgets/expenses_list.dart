@@ -60,7 +60,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             final categories = ref.watch(categoryProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            List<ExpenseModel> displayedExpenses = expensesRaw;
+            final activeExpenses = expensesRaw
+                .where((e) => e.endDate == null)
+                .toList();
+
+            List<ExpenseModel> displayedExpenses = activeExpenses;
 
             if (!_filterData.isEmpty) {
               displayedExpenses =
@@ -74,11 +78,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     }
 
                     if (_filterData.startDay != null &&
-                        expense.date.day < _filterData.startDay!) {
+                        expense.startDate.day < _filterData.startDay!) {
                       return false;
                     }
                     if (_filterData.endDay != null &&
-                        expense.date.day > _filterData.endDay!) {
+                        expense.startDate.day > _filterData.endDay!) {
                       return false;
                     }
 
@@ -114,7 +118,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 .where((e) {
                   if (e.frequencyEnum == Frequency.oneTime) return false;
                   if (e.frequencyEnum == Frequency.annual) {
-                    return e.date.month == selectedMonth.month;
+                    return e.startDate.month == selectedMonth.month;
                   }
                   return true;
                 })
@@ -122,8 +126,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             final oneTimeExpenses = displayedExpenses
                 .where((e) =>
                     e.frequencyEnum == Frequency.oneTime &&
-                    e.date.year == selectedMonth.year &&
-                    e.date.month == selectedMonth.month)
+                    e.startDate.year == selectedMonth.year &&
+                    e.startDate.month == selectedMonth.month)
                 .toList();
 
             final isEmpty = recurringExpenses.isEmpty &&
@@ -395,6 +399,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           context: context,
           accounts: accounts,
           categories: categories,
+          closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
           onSubmit: (newExpense) async {
             try {
               await ref.read(expenseProvider.notifier).addExpense(newExpense);

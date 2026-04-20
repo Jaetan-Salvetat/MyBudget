@@ -76,7 +76,7 @@ void main() {
         name: 'Salary',
         amount: 2000,
         accountId: accountId,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
@@ -86,7 +86,7 @@ void main() {
         amount: 500,
         accountId: accountId,
         categoryId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
@@ -145,7 +145,7 @@ void main() {
       name: 'Small income',
       amount: 100,
       accountId: accountId,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     final expense = ExpenseModel.create(
@@ -153,7 +153,7 @@ void main() {
       amount: 800,
       accountId: accountId,
       categoryId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
 
@@ -181,7 +181,7 @@ void main() {
       name: 'Salary',
       amount: 2000,
       accountId: accountId,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
@@ -193,7 +193,7 @@ void main() {
       amount: 500,
       fromAccountId: accountId,
       toAccountId: 2,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
@@ -218,7 +218,7 @@ void main() {
       name: 'Salary',
       amount: 2000,
       accountId: accountId,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
@@ -230,7 +230,7 @@ void main() {
       amount: 300,
       fromAccountId: 2,
       toAccountId: accountId,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);

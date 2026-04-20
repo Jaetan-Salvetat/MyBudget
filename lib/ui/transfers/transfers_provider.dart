@@ -1,6 +1,8 @@
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'transfers_provider.g.dart';
@@ -16,6 +18,9 @@ class TransferNotifier extends _$TransferNotifier {
 
   List<Transfer> _currentTransfers() => state.value ?? [];
 
+  List<Transfer> _activeTransfers() =>
+      _currentTransfers().where((t) => t.endDate == null).toList();
+
   Future<void> addTransfer(TransferModel model) async {
     try {
       final repo = ref.read(transferRepositoryProvider);
@@ -27,10 +32,52 @@ class TransferNotifier extends _$TransferNotifier {
     }
   }
 
-  Future<void> updateTransfer(TransferModel model) async {
+  Future<void> updateTransfer(TransferModel updated) async {
     try {
       final repo = ref.read(transferRepositoryProvider);
-      repo.update(model);
+      final old = repo.get(updated.id);
+      if (old == null) return;
+
+      final bool isNameOnly = updated.amount == old.amount &&
+          updated.frequency == old.frequency &&
+          updated.fromAccountId == old.fromAccountId &&
+          updated.toAccountId == old.toAccountId &&
+          updated.name != old.name;
+
+      if (isNameOnly) {
+        final int rootId = old.parentId ?? old.id;
+        final chain = repo.getChain(rootId);
+        for (final entry in chain) {
+          repo.update(entry.copyWith(name: updated.name));
+        }
+        ref.invalidateSelf();
+        await future;
+        return;
+      }
+
+      final bool isStructural = updated.amount != old.amount ||
+          updated.frequency != old.frequency ||
+          updated.fromAccountId != old.fromAccountId ||
+          updated.toAccountId != old.toAccountId;
+
+      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
+        final now = DateTime.now();
+        final endDate = computeEndDate(now, old.startDate.day);
+        final newStartDate = computeNewStartDate(now, old.startDate.day);
+        repo.update(old.copyWith(endDate: endDate));
+        final newTransfer = TransferModel.create(
+          name: updated.name,
+          amount: updated.amount,
+          fromAccountId: updated.fromAccountId,
+          toAccountId: updated.toAccountId,
+          startDate: newStartDate,
+          frequency: updated.frequency,
+          parentId: old.parentId ?? old.id,
+        );
+        repo.add(newTransfer);
+      } else {
+        repo.update(updated);
+      }
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -41,7 +88,16 @@ class TransferNotifier extends _$TransferNotifier {
   Future<void> deleteTransfer(int id) async {
     try {
       final repo = ref.read(transferRepositoryProvider);
-      repo.delete(id);
+      final transfer = repo.get(id);
+      if (transfer == null) return;
+
+      if (transfer.frequencyEnum == Frequency.oneTime) {
+        repo.delete(id);
+      } else {
+        final now = DateTime.now();
+        final endDate = computeEndDate(now, transfer.startDate.day);
+        repo.update(transfer.copyWith(endDate: endDate));
+      }
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -49,18 +105,28 @@ class TransferNotifier extends _$TransferNotifier {
     }
   }
 
+  List<TransferModel> getClosedTransfers() {
+    final repo = ref.read(transferRepositoryProvider);
+    return repo.getClosed();
+  }
+
   List<Transfer> getTransfersForAccount(int accountId) =>
       _currentTransfers()
           .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
           .toList();
 
+  List<Transfer> getActiveTransfersForAccount(int accountId) =>
+      _activeTransfers()
+          .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
+          .toList();
+
   double getOutgoingTotalForAccount(int accountId) =>
-      _currentTransfers()
+      _activeTransfers()
           .where((t) => t.isOutgoingFrom(accountId))
           .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
   double getIncomingTotalForAccount(int accountId) =>
-      _currentTransfers()
+      _activeTransfers()
           .where((t) => t.isIncomingTo(accountId))
           .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
