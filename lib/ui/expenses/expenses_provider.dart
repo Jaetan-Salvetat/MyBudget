@@ -75,13 +75,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.annual:
           return expense.date.month == now.month && expense.date.day >= now.day;
         case Frequency.oneTime:
-          final expenseDate = DateTime(
-            expense.date.year,
-            expense.date.month,
-            expense.date.day,
-          );
-          final today = DateTime(now.year, now.month, now.day);
-          return !expenseDate.isBefore(today);
+          return false;
       }
     }).toList();
 

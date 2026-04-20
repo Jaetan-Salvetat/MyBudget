@@ -303,12 +303,12 @@ void main() {
     expect(total, 2000.0);
   });
 
-  test('getUpcomingExpenses includes oneTime expense due in the future', () async {
+  test('getUpcomingExpenses excludes oneTime expenses', () async {
     final now = DateTime.now();
     final futureDay = now.day + 3;
     if (futureDay > 28) return;
 
-    final upcoming = ExpenseModel.create(
+    final oneTime = ExpenseModel.create(
       name: 'One-time Upcoming',
       amount: 400,
       categoryId: 1,
@@ -317,7 +317,7 @@ void main() {
       accountId: 1,
     );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([upcoming]);
+    when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -326,32 +326,7 @@ void main() {
 
     final result = container.read(expenseProvider.notifier).getUpcomingExpenses();
 
-    expect(result.any((e) => e.name == 'One-time Upcoming'), isTrue);
-  });
-
-  test('getUpcomingExpenses excludes oneTime expense in the past', () async {
-    final now = DateTime.now();
-    final pastDate = now.subtract(const Duration(days: 5));
-
-    final past = ExpenseModel.create(
-      name: 'One-time Past',
-      amount: 400,
-      categoryId: 1,
-      date: pastDate,
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
-
-    when(() => mockExpenseRepo.getAll()).thenReturn([past]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-
-    final result = container.read(expenseProvider.notifier).getUpcomingExpenses();
-
-    expect(result.any((e) => e.name == 'One-time Past'), isFalse);
+    expect(result, isEmpty);
   });
 
   test('getUpcomingExpenses includes annual expense due this month', () async {
