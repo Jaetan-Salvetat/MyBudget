@@ -15,7 +15,7 @@ class MonthSelector extends ConsumerWidget {
     final capitalizedLabel = label.replaceFirst(label[0], label[0].toUpperCase());
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -239,7 +239,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15, bottom: 5),
+          margin: const EdgeInsets.only(bottom: 5),
           child: RevenuesSummaryCard(
             transactionCount: displayedRevenues.length,
             monthlyRevenues: monthlyRevenues,

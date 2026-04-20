@@ -43,7 +43,7 @@ class BalanceCard extends StatelessWidget {
     final Color revenuesColor = Theme.of(context).colorScheme.primary;
 
     return FrostedCard(
-      margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 5),
       borderRadius: 20,
       padding: EdgeInsets.zero,
       child: Column(
