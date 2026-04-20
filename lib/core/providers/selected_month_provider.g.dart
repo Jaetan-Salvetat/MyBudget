@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dashboard_provider.dart';
+part of 'selected_month_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,51 +9,51 @@ part of 'dashboard_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(DashboardNotifier)
-final dashboardProvider = DashboardNotifierProvider._();
+@ProviderFor(SelectedMonth)
+final selectedMonthProvider = SelectedMonthProvider._();
 
-final class DashboardNotifierProvider
-    extends $NotifierProvider<DashboardNotifier, DashboardState> {
-  DashboardNotifierProvider._()
+final class SelectedMonthProvider
+    extends $NotifierProvider<SelectedMonth, DateTime> {
+  SelectedMonthProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'dashboardProvider',
+        name: r'selectedMonthProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$dashboardNotifierHash();
+  String debugGetCreateSourceHash() => _$selectedMonthHash();
 
   @$internal
   @override
-  DashboardNotifier create() => DashboardNotifier();
+  SelectedMonth create() => SelectedMonth();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(DashboardState value) {
+  Override overrideWithValue(DateTime value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<DashboardState>(value),
+      providerOverride: $SyncValueProvider<DateTime>(value),
     );
   }
 }
 
-String _$dashboardNotifierHash() => r'b890420c0f09f17a2f3dc4100079a800d46b9690';
+String _$selectedMonthHash() => r'20f4b6d5dedfc8ff76f930b24c44371a2f806bc7';
 
-abstract class _$DashboardNotifier extends $Notifier<DashboardState> {
-  DashboardState build();
+abstract class _$SelectedMonth extends $Notifier<DateTime> {
+  DateTime build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<DashboardState, DashboardState>;
+    final ref = this.ref as $Ref<DateTime, DateTime>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<DashboardState, DashboardState>,
-              DashboardState,
+              AnyNotifier<DateTime, DateTime>,
+              DateTime,
               Object?,
               Object?
             >;

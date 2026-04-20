@@ -31,7 +31,7 @@ void main() {
     );
   }
 
-  test('getTotalExpenses (Annual) should divide by 12', () async {
+  test('getTotalExpenses (Annual) should show full amount in matching month', () async {
     final expense = ExpenseModel.create(
       name: 'Annual',
       amount: 1200,
@@ -50,7 +50,7 @@ void main() {
 
     final total = container.read(expenseProvider.notifier).getTotalExpenses();
 
-    expect(total, 100.0);
+    expect(total, 1200.0);
   });
 
   test('getTotalExpenses (Monthly) should sum directly', () async {
@@ -75,7 +75,7 @@ void main() {
     expect(total, 100.0);
   });
 
-  test('getTotalExpenses should sum monthly and amortized annual', () async {
+  test('getTotalExpenses should sum monthly and annual in matching month', () async {
     final monthly = ExpenseModel.create(
       name: 'Monthly',
       amount: 500,
@@ -102,7 +102,7 @@ void main() {
 
     final total = container.read(expenseProvider.notifier).getTotalExpenses();
 
-    expect(total, 600.0);
+    expect(total, 1700.0);
   });
 
   test('getTotalExpenses with empty list returns 0.0', () async {

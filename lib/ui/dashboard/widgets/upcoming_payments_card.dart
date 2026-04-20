@@ -73,6 +73,14 @@ class _HorizontalPaymentCard extends ConsumerWidget {
     if (expense.frequency == 'Mensuel') {
       final isToday = expense.date.day == now.day;
       dateDisplay = isToday ? 'Aujourd\'hui' : 'Le ${expense.date.day}';
+    } else if (expense.frequency == 'Ponctuel') {
+      final isToday = expense.date.day == now.day &&
+          expense.date.month == now.month &&
+          expense.date.year == now.year;
+      dateDisplay =
+          isToday
+              ? 'Aujourd\'hui'
+              : DateFormat('d MMM yyyy', 'fr_FR').format(expense.date);
     } else {
       final isToday =
           expense.date.day == now.day && expense.date.month == now.month;

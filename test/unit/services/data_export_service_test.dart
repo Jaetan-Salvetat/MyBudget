@@ -107,8 +107,8 @@ void main() {
       name: 'Salaire',
       amount: 3000.0,
       accountId: 1,
-
       date: DateTime(2025, 1, 1),
+      frequency: 'Mensuel',
     );
     revenue.id = 5;
     final loan = LoanModel(

@@ -1,4 +1,6 @@
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -10,7 +12,19 @@ class RevenueNotifier extends _$RevenueNotifier {
   Future<List<RevenueModel>> build() async {
     final repo = ref.watch(revenueRepositoryProvider);
     final revenues = repo.getAll();
-    revenues.sort((a, b) => b.date.compareTo(a.date));
+
+    int sortKey(RevenueModel r) {
+      switch (r.frequencyEnum) {
+        case Frequency.monthly:
+          return r.date.day;
+        case Frequency.annual:
+          return r.date.month * 100 + r.date.day;
+        case Frequency.oneTime:
+          return r.date.year * 10000 + r.date.month * 100 + r.date.day;
+      }
+    }
+
+    revenues.sort((a, b) => sortKey(a).compareTo(sortKey(b)));
     return revenues;
   }
 
@@ -49,8 +63,26 @@ class RevenueNotifier extends _$RevenueNotifier {
 
   List<RevenueModel> _currentRevenues() => state.value ?? [];
 
-  double getMonthlyRevenues() =>
-      _currentRevenues().fold(0.0, (sum, r) => sum + r.amount);
+  double getMonthlyRevenues() {
+    final selectedMonth = ref.read(selectedMonthProvider);
+    double total = 0.0;
+    for (final revenue in _currentRevenues()) {
+      switch (revenue.frequencyEnum) {
+        case Frequency.monthly:
+          total += revenue.amount;
+        case Frequency.annual:
+          if (revenue.date.month == selectedMonth.month) {
+            total += revenue.amount;
+          }
+        case Frequency.oneTime:
+          if (revenue.date.year == selectedMonth.year &&
+              revenue.date.month == selectedMonth.month) {
+            total += revenue.amount;
+          }
+      }
+    }
+    return total;
+  }
 
   List<RevenueModel> getRecentRevenues(int count) =>
       _currentRevenues().take(count).toList();

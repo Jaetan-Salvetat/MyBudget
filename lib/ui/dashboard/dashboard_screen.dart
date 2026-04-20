@@ -8,6 +8,7 @@ import 'package:mybudget/ui/dashboard/widgets/upcoming_payments_card.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/dashboard/widgets/category_summary_card.dart';
+import 'package:mybudget/ui/common/widgets/month_selector.dart';
 
 class DashboardScreen extends ConsumerWidget {
   final bool isNested;
@@ -50,6 +51,8 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 100),
+          const MonthSelector(),
+          const SizedBox(height: 8),
 
           BalanceCard(
             balance: netCashFlow,
@@ -60,6 +63,10 @@ class DashboardScreen extends ConsumerWidget {
             revenues: monthlyRevenues,
             loanTotal: totalLoanAmount,
             loanMonthlyPayments: totalMonthlyLoanPayments,
+            recurringExpenses: dashboardState.recurringExpenses,
+            oneTimeExpenses: dashboardState.oneTimeExpenses,
+            recurringRevenues: dashboardState.recurringRevenues,
+            oneTimeRevenues: dashboardState.oneTimeRevenues,
           ),
 
           const Padding(

@@ -1,3 +1,4 @@
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:objectbox/objectbox.dart';
 
 const _sentinel = Object();
@@ -17,17 +18,28 @@ class RevenueModel {
   @Property()
   late DateTime date;
 
+  late String frequency;
+
   int? beneficiaryId;
 
-  RevenueModel();
+  RevenueModel() {
+    frequency = Frequency.monthly.label;
+  }
 
   RevenueModel.create({
     required this.name,
     required this.amount,
     required this.date,
     required this.accountId,
+    required this.frequency,
     this.beneficiaryId,
   });
+
+  Frequency get frequencyEnum => Frequency.fromString(frequency);
+
+  set frequencyEnum(Frequency value) {
+    frequency = value.label;
+  }
 
   factory RevenueModel.fromJson(Map<String, dynamic> json) {
     final model =
@@ -42,6 +54,7 @@ class RevenueModel {
               json['accountId'] != null
                   ? (int.tryParse(json['accountId'].toString()) ?? 0)
                   : 0
+          ..frequency = json['frequency'] ?? Frequency.monthly.label
           ..beneficiaryId =
               json['beneficiaryId'] != null
                   ? int.tryParse(json['beneficiaryId'].toString())
@@ -59,6 +72,7 @@ class RevenueModel {
     double? amount,
     DateTime? date,
     int? accountId,
+    String? frequency,
     Object? beneficiaryId = _sentinel,
   }) {
     final model =
@@ -68,6 +82,7 @@ class RevenueModel {
           ..amount = amount ?? this.amount
           ..date = date ?? this.date
           ..accountId = accountId ?? this.accountId
+          ..frequency = frequency ?? this.frequency
           ..beneficiaryId =
               beneficiaryId == _sentinel
                   ? this.beneficiaryId
@@ -82,6 +97,7 @@ class RevenueModel {
       'amount': amount,
       'date': date.toIso8601String(),
       'accountId': accountId.toString(),
+      'frequency': frequency,
       'beneficiaryId': beneficiaryId?.toString(),
     };
   }

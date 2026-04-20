@@ -1,6 +1,7 @@
 enum Frequency {
   monthly,
-  annual;
+  annual,
+  oneTime;
 
   String get label {
     switch (this) {
@@ -8,6 +9,8 @@ enum Frequency {
         return 'Mensuel';
       case Frequency.annual:
         return 'Annuel';
+      case Frequency.oneTime:
+        return 'Ponctuel';
     }
   }
 
@@ -17,6 +20,8 @@ enum Frequency {
         return Frequency.monthly;
       case 'Annuel':
         return Frequency.annual;
+      case 'Ponctuel':
+        return Frequency.oneTime;
       default:
         return Frequency.monthly;
     }

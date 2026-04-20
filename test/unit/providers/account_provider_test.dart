@@ -78,7 +78,7 @@ void main() {
         amount: 2000,
         accountId: accountId,
         date: DateTime.now(),
-
+        frequency: 'Mensuel',
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
 
@@ -147,7 +147,7 @@ void main() {
       amount: 100,
       accountId: accountId,
       date: DateTime.now(),
-
+      frequency: 'Mensuel',
     );
     final expense = ExpenseModel.create(
       name: 'Big expense',
@@ -204,7 +204,7 @@ void main() {
       amount: 100,
       accountId: 1,
       date: DateTime.now(),
-
+      frequency: 'Mensuel',
     );
 
     final rev2 = RevenueModel.create(
@@ -212,7 +212,7 @@ void main() {
       amount: 50,
       accountId: 2,
       date: DateTime.now(),
-
+      frequency: 'Mensuel',
     );
 
     when(() => mockRevenueRepo.getAll()).thenReturn([rev1, rev2]);
@@ -239,6 +239,7 @@ void main() {
       amount: 2000,
       accountId: accountId,
       date: DateTime.now(),
+      frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
@@ -275,6 +276,7 @@ void main() {
       amount: 2000,
       accountId: accountId,
       date: DateTime.now(),
+      frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
@@ -24,7 +25,15 @@ class RevenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final dateStr = 'Le ${revenue.date.day} du mois';
+    final String dateStr;
+    switch (revenue.frequencyEnum) {
+      case Frequency.monthly:
+        dateStr = 'Le ${revenue.date.day} du mois';
+      case Frequency.annual:
+        dateStr = DateFormat("'Le' d MMMM", 'fr_FR').format(revenue.date);
+      case Frequency.oneTime:
+        dateStr = DateFormat('dd/MM/yyyy', 'fr_FR').format(revenue.date);
+    }
 
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -125,6 +134,24 @@ class RevenueCard extends StatelessWidget {
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          revenue.frequency,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                       if (beneficiary != null) ...[

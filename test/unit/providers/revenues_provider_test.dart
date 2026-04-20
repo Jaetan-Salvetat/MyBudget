@@ -30,18 +30,21 @@ void main() {
       amount: 2000,
       accountId: 1,
       date: DateTime(2025, 1, 15),
+      frequency: 'Mensuel',
     );
     final rev2 = RevenueModel.create(
       name: 'Freelance',
       amount: 500,
       accountId: 1,
       date: DateTime(2026, 6, 1),
+      frequency: 'Mensuel',
     );
     final rev3 = RevenueModel.create(
       name: 'Bonus',
       amount: 300,
       accountId: 1,
       date: DateTime(2024, 12, 31),
+      frequency: 'Mensuel',
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2, rev3]);
@@ -74,12 +77,14 @@ void main() {
       amount: 1000,
       accountId: 1,
       date: DateTime.now(),
+      frequency: 'Mensuel',
     );
     final rev2 = RevenueModel.create(
       name: 'Acc2 revenue',
       amount: 500,
       accountId: 2,
       date: DateTime.now(),
+      frequency: 'Mensuel',
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2]);

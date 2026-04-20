@@ -42,7 +42,7 @@ final class HomeWidgetNotifierProvider
 }
 
 String _$homeWidgetNotifierHash() =>
-    r'b6bef698c4f3eb48540749b4d9256e517a08c9bb';
+    r'a82c54ee6c996fb30a187fb24266f18a96fcdc3b';
 
 abstract class _$HomeWidgetNotifier extends $Notifier<DateTime> {
   DateTime build();

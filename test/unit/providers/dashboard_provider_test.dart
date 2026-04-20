@@ -178,7 +178,7 @@ void main() {
       amount: 3000,
       accountId: 1,
       date: now,
-
+      frequency: 'Mensuel',
     );
     final expense = ExpenseModel.create(
       name: 'Rent',

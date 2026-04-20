@@ -8,6 +8,7 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 
@@ -43,9 +44,12 @@ class AccountList extends ConsumerWidget {
                 left: 16,
                 right: 16,
               ),
-              itemCount: accounts.length,
+              itemCount: accounts.length + 1,
               itemBuilder: (context, index) {
-                final account = accounts[index];
+                if (index == 0) {
+                  return const MonthSelector();
+                }
+                final account = accounts[index - 1];
                 final balance = ref
                     .read(accountProvider.notifier)
                     .getAccountBalance(account.id);

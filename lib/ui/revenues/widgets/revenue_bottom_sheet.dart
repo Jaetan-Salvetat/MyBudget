@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
-import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class RevenueBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
@@ -46,6 +47,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   DateTime _selectedDate = DateTime.now();
+  late String _selectedFrequency;
   int? _selectedAccountId;
   String? _accountError;
   String? _nameError;
@@ -63,6 +65,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
     );
 
     _selectedDate = widget.revenue?.date ?? DateTime.now();
+    _selectedFrequency = widget.revenue?.frequency ?? Frequency.monthly.label;
     _selectedAccountId =
         widget.revenue?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
@@ -108,6 +111,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               amount: amount,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
             )
             : RevenueModel.create(
@@ -115,6 +119,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               amount: amount,
               date: _selectedDate,
               accountId: _selectedAccountId!,
+              frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
             );
 
@@ -230,51 +235,15 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
           const SizedBox(height: 24),
 
-          Text(
-            'Date de versement',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          InkWell(
-            onTap: () async {
-              final picked = await DateSelector.showDayPicker(
-                context: context,
-                initialDate: _selectedDate,
-              );
-
-              if (picked != null) {
-                setState(() {
-                  _selectedDate = picked;
-                });
-              }
+          ExpenseFrequencyDateSection(
+            frequency: _selectedFrequency,
+            date: _selectedDate,
+            onChanged: (frequency, date) {
+              setState(() {
+                _selectedFrequency = frequency;
+                _selectedDate = date;
+              });
             },
-            borderRadius: BorderRadius.circular(12),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Jour du mois',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                ),
-                prefixIcon: const Icon(Icons.calendar_today),
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: 0.3),
-              ),
-              child: Text("Le ${_selectedDate.day} du mois"),
-            ),
           ),
 
           const SizedBox(height: 24),

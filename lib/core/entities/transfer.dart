@@ -17,10 +17,14 @@ class Transfer {
   TransferModel get model => _model;
 
   double get monthlyAmount {
-    if (frequency == Frequency.annual) {
-      return amount / 12;
+    switch (frequency) {
+      case Frequency.annual:
+        return amount / 12;
+      case Frequency.oneTime:
+        return 0.0;
+      case Frequency.monthly:
+        return amount;
     }
-    return amount;
   }
 
   bool isOutgoingFrom(int accountId) => fromAccountId == accountId;

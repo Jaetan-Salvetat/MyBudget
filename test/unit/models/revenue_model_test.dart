@@ -9,6 +9,7 @@ void main() {
         amount: 100,
         accountId: 1,
         date: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
       );
 
       expect(revenue.name, 'Test');
@@ -21,6 +22,7 @@ void main() {
         amount: 100,
         accountId: 1,
         date: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
       );
 
       final updated = revenue.copyWith(name: 'New', amount: 200);

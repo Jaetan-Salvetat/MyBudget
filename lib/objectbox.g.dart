@@ -257,7 +257,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(5, 3358114112895883942),
     name: 'RevenueModel',
-    lastPropertyId: const obx_int.IdUid(7, 26869245949429952),
+    lastPropertyId: const obx_int.IdUid(8, 4136998757007608198),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -295,6 +295,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(7, 26869245949429952),
         name: 'beneficiaryId',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 4136998757007608198),
+        name: 'frequency',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -727,13 +733,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (RevenueModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(8);
+        final frequencyOffset = fbb.writeString(object.frequency);
+        fbb.startTable(9);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
         fbb.addFloat64(3, object.amount);
         fbb.addInt64(5, object.date.millisecondsSinceEpoch);
         fbb.addInt64(6, object.beneficiaryId);
+        fbb.addOffset(7, frequencyOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -765,7 +773,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             16,
-          );
+          )
+          ..frequency = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 18, '');
 
         return object;
       },
@@ -1062,6 +1073,11 @@ class RevenueModel_ {
   /// See [RevenueModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<RevenueModel>(
     _entities[4].properties[5],
+  );
+
+  /// See [RevenueModel.frequency].
+  static final frequency = obx.QueryStringProperty<RevenueModel>(
+    _entities[4].properties[6],
   );
 }
 

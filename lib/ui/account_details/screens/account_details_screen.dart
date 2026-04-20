@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/entities/transfer.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -45,17 +47,44 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     final balance =
         ref.watch(accountProvider.notifier).getAccountBalance(account.id);
 
+    final selectedMonth = ref.watch(selectedMonthProvider);
     final expenses = ref.watch(expenseProvider).value ?? [];
     final revenues = ref.watch(revenueProvider).value ?? [];
     final loans = ref.watch(loanProvider).value ?? [];
 
-    final totalRevenues = revenues
-        .where((r) => r.accountId == account.id)
-        .fold(0.0, (sum, revenue) => sum + revenue.amount);
+    double totalRevenues = 0.0;
+    for (final revenue in revenues.where((r) => r.accountId == account.id)) {
+      switch (revenue.frequencyEnum) {
+        case Frequency.monthly:
+          totalRevenues += revenue.amount;
+        case Frequency.annual:
+          if (revenue.date.month == selectedMonth.month) {
+            totalRevenues += revenue.amount;
+          }
+        case Frequency.oneTime:
+          if (revenue.date.year == selectedMonth.year &&
+              revenue.date.month == selectedMonth.month) {
+            totalRevenues += revenue.amount;
+          }
+      }
+    }
 
-    final totalExpenses = expenses
-        .where((e) => e.accountId == account.id)
-        .fold(0.0, (sum, expense) => sum + expense.amount);
+    double totalExpenses = 0.0;
+    for (final expense in expenses.where((e) => e.accountId == account.id)) {
+      switch (expense.frequencyEnum) {
+        case Frequency.monthly:
+          totalExpenses += expense.amount;
+        case Frequency.annual:
+          if (expense.date.month == selectedMonth.month) {
+            totalExpenses += expense.amount;
+          }
+        case Frequency.oneTime:
+          if (expense.date.year == selectedMonth.year &&
+              expense.date.month == selectedMonth.month) {
+            totalExpenses += expense.amount;
+          }
+      }
+    }
 
     final totalLoanPayments = loans
         .where((l) => l.accountId == account.id && !l.isCompleted)
