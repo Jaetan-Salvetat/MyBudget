@@ -77,36 +77,4 @@ class AccountNotifier extends _$AccountNotifier {
     return totalRevenues - totalExpenses - totalLoanPayments + transferBalance;
   }
 
-  double getTotalBalance() {
-    final accounts = state.value ?? [];
-    return accounts.fold(0.0, (sum, account) => sum + getAccountBalance(account.id));
-  }
-
-  double getNetCashFlow() {
-    final expenseNotifier = ref.read(expenseProvider.notifier);
-    final revenueNotifier = ref.read(revenueProvider.notifier);
-    final loanNotifier = ref.read(loanProvider.notifier);
-
-    final monthlyRevenues = revenueNotifier.getMonthlyRevenues();
-    final monthlyExpenses = expenseNotifier.getMonthlyExpenses();
-    final monthlyLoanPayments = loanNotifier.getTotalMonthlyPayments();
-
-    return monthlyRevenues - (monthlyExpenses + monthlyLoanPayments);
-  }
-
-  double getSavingsRate() {
-    final revenueNotifier = ref.read(revenueProvider.notifier);
-    final monthlyRevenues = revenueNotifier.getMonthlyRevenues();
-    if (monthlyRevenues <= 0) return 0.0;
-    return (getNetCashFlow() / monthlyRevenues) * 100;
-  }
-
-  int getTotalTransactionsCount() {
-    final expenses = ref.read(expenseProvider).value ?? [];
-    final revenues = ref.read(revenueProvider).value ?? [];
-    final loanNotifier = ref.read(loanProvider.notifier);
-    final transfers = ref.read(transferProvider).value ?? [];
-    final activeLoansCount = loanNotifier.getActiveLoans().length;
-    return expenses.length + revenues.length + activeLoansCount + transfers.length;
-  }
 }

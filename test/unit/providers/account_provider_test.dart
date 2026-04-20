@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -173,62 +172,6 @@ void main() {
 
     final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
     expect(balance, -700.0);
-  });
-
-  test('getTotalBalance returns 0.0 with no accounts', () async {
-    when(() => mockAccountRepo.getAll()).thenReturn([]);
-    when(() => mockRevenueRepo.getAll()).thenReturn([]);
-    when(() => mockExpenseRepo.getAll()).thenReturn([]);
-    when(() => mockLoanRepo.getAll()).thenReturn([]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-    await container.read(revenueProvider.future);
-    await container.read(loanProvider.future);
-    await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
-
-    expect(container.read(accountProvider.notifier).getTotalBalance(), 0.0);
-  });
-
-  test('getTotalBalance should sum all account balances', () async {
-    final acc1 = AccountModel.create(name: 'Acc1', bank: 'B1')..id = 1;
-    final acc2 = AccountModel.create(name: 'Acc2', bank: 'B2')..id = 2;
-
-    when(() => mockAccountRepo.getAll()).thenReturn([acc1, acc2]);
-
-    final rev1 = RevenueModel.create(
-      name: 'R1',
-      amount: 100,
-      accountId: 1,
-      date: DateTime.now(),
-      frequency: 'Mensuel',
-    );
-
-    final rev2 = RevenueModel.create(
-      name: 'R2',
-      amount: 50,
-      accountId: 2,
-      date: DateTime.now(),
-      frequency: 'Mensuel',
-    );
-
-    when(() => mockRevenueRepo.getAll()).thenReturn([rev1, rev2]);
-    when(() => mockExpenseRepo.getAll()).thenReturn([]);
-    when(() => mockLoanRepo.getAll()).thenReturn([]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-    await container.read(revenueProvider.future);
-    await container.read(loanProvider.future);
-    await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
-
-    expect(container.read(accountProvider.notifier).getTotalBalance(), 150.0);
   });
 
   test('getAccountBalance includes outgoing transfer in balance', () async {
