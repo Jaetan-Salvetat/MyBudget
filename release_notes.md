@@ -1,2 +1,2 @@
-## 🐛 Corrections
-- Le total des revenus mensuels affichait toujours 0 €
+## ✨ Améliorations
+- Les cartes comptes affichent désormais les charges et revenus du mois en cours
