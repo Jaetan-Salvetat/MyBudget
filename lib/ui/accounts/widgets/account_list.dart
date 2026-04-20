@@ -8,8 +8,10 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
 
 class AccountList extends ConsumerWidget {
   const AccountList({super.key});
@@ -43,9 +45,12 @@ class AccountList extends ConsumerWidget {
                 left: 16,
                 right: 16,
               ),
-              itemCount: accounts.length,
+              itemCount: accounts.length + 1,
               itemBuilder: (context, index) {
-                final account = accounts[index];
+                if (index == 0) {
+                  return const MonthSelector();
+                }
+                final account = accounts[index - 1];
                 final balance = ref
                     .read(accountProvider.notifier)
                     .getAccountBalance(account.id);
@@ -65,11 +70,15 @@ class AccountList extends ConsumerWidget {
                     .read(revenueProvider.notifier)
                     .getTotalRevenuesForAccount(account.id);
 
+                final transferNotifier = ref.read(transferProvider.notifier);
+                final outgoingTransfers = transferNotifier.getOutgoingTotalForAccount(account.id);
+                final incomingTransfers = transferNotifier.getIncomingTotalForAccount(account.id);
+
                 return _AccountCard(
                   account: account,
                   balance: balance,
-                  currentMonthExpenses: currentMonthExpenses,
-                  monthlyRevenues: monthlyRevenues,
+                  currentMonthExpenses: currentMonthExpenses + outgoingTransfers,
+                  monthlyRevenues: monthlyRevenues + incomingTransfers,
                   onTap: () {
                     Navigator.push(
                       context,

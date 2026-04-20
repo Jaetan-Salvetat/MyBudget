@@ -254,6 +254,11 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
               isSelected: _selectedFrequencies.contains('Annuel'),
               onTap: () => _toggleFrequency('Annuel'),
             ),
+            _FilterChip(
+              label: 'Ponctuel',
+              isSelected: _selectedFrequencies.contains('Ponctuel'),
+              onTap: () => _toggleFrequency('Ponctuel'),
+            ),
           ],
         ),
 

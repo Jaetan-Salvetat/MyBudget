@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
@@ -12,6 +15,7 @@ import 'package:mybudget/ui/revenues/widgets/revenue_card.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/common/widgets/month_selector.dart';
 
 class RevenuesList extends ConsumerStatefulWidget {
   const RevenuesList({super.key});
@@ -44,6 +48,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
+            final selectedMonth = ref.watch(selectedMonthProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
@@ -77,11 +82,56 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                         )) {
                       return false;
                     }
+                    if (_filterData.frequencies.isNotEmpty &&
+                        !_filterData.frequencies.contains(revenue.frequency)) {
+                      return false;
+                    }
                     return true;
                   }).toList();
             }
 
-            final isEmpty = filteredRevenues.isEmpty && _filterData.isEmpty;
+            final recurringRevenues = filteredRevenues
+                .where((r) {
+                  if (r.frequencyEnum == Frequency.oneTime) return false;
+                  if (r.frequencyEnum == Frequency.annual) {
+                    return r.date.month == selectedMonth.month;
+                  }
+                  return true;
+                })
+                .toList();
+            final oneTimeRevenues = filteredRevenues
+                .where((r) =>
+                    r.frequencyEnum == Frequency.oneTime &&
+                    r.date.year == selectedMonth.year &&
+                    r.date.month == selectedMonth.month)
+                .toList();
+
+            final isEmpty = recurringRevenues.isEmpty &&
+                oneTimeRevenues.isEmpty &&
+                _filterData.isEmpty;
+
+            final items = <_RevenueListItem>[];
+            items.add(_RevenueListItem.monthSelector());
+            items.add(_RevenueListItem.header(
+              [...recurringRevenues, ...oneTimeRevenues],
+              isEmpty,
+            ));
+
+            if (recurringRevenues.isNotEmpty) {
+              items.add(_RevenueListItem.sectionTitle('Récurrents'));
+              for (final revenue in recurringRevenues) {
+                items.add(_RevenueListItem.revenue(revenue));
+              }
+            }
+
+            if (oneTimeRevenues.isNotEmpty) {
+              final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
+              final capitalized = monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase());
+              items.add(_RevenueListItem.sectionTitle('Ponctuels — $capitalized'));
+              for (final revenue in oneTimeRevenues) {
+                items.add(_RevenueListItem.revenue(revenue));
+              }
+            }
 
             return ListView.builder(
               physics: const BouncingScrollPhysics(),
@@ -91,16 +141,35 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 left: 16,
                 right: 16,
               ),
-              itemCount: filteredRevenues.length + 1,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                if (index == 0) {
+                final item = items[index];
+
+                if (item.type == _RevenueItemType.monthSelector) {
+                  return const MonthSelector();
+                }
+
+                if (item.type == _RevenueItemType.header) {
                   return _buildHeaderContainer(
                     context,
-                    filteredRevenues,
+                    [...recurringRevenues, ...oneTimeRevenues],
                     isEmpty,
                   );
                 }
-                final revenue = filteredRevenues[index - 1];
+
+                if (item.type == _RevenueItemType.sectionTitle) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: Text(
+                      item.title!,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }
+
+                final revenue = item.revenue!;
                 final account = accounts.firstWhere(
                   (a) => a.id == revenue.accountId,
                   orElse:
@@ -170,7 +239,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15, bottom: 5),
+          margin: const EdgeInsets.only(bottom: 5),
           child: RevenuesSummaryCard(
             transactionCount: displayedRevenues.length,
             monthlyRevenues: monthlyRevenues,
@@ -329,4 +398,34 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       onCancel: () {},
     );
   }
+}
+
+enum _RevenueItemType { monthSelector, header, sectionTitle, revenue }
+
+class _RevenueListItem {
+  final _RevenueItemType type;
+  final List<RevenueModel>? revenues;
+  final bool? isEmpty;
+  final String? title;
+  final RevenueModel? revenue;
+
+  _RevenueListItem._({
+    required this.type,
+    this.revenues,
+    this.isEmpty,
+    this.title,
+    this.revenue,
+  });
+
+  factory _RevenueListItem.header(List<RevenueModel> revenues, bool isEmpty) =>
+      _RevenueListItem._(type: _RevenueItemType.header, revenues: revenues, isEmpty: isEmpty);
+
+  factory _RevenueListItem.sectionTitle(String title) =>
+      _RevenueListItem._(type: _RevenueItemType.sectionTitle, title: title);
+
+  factory _RevenueListItem.revenue(RevenueModel revenue) =>
+      _RevenueListItem._(type: _RevenueItemType.revenue, revenue: revenue);
+
+  factory _RevenueListItem.monthSelector() =>
+      _RevenueListItem._(type: _RevenueItemType.monthSelector);
 }

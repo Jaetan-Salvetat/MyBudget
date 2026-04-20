@@ -202,7 +202,7 @@
     },
     {
       "id": "5:3358114112895883942",
-      "lastPropertyId": "7:26869245949429952",
+      "lastPropertyId": "8:4136998757007608198",
       "name": "RevenueModel",
       "properties": [
         {
@@ -237,6 +237,11 @@
           "id": "7:26869245949429952",
           "name": "beneficiaryId",
           "type": 6
+        },
+        {
+          "id": "8:4136998757007608198",
+          "name": "frequency",
+          "type": 9
         }
       ],
       "relations": []
