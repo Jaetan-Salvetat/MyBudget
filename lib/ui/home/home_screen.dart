@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
+import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -127,7 +130,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       floatingActionButton: _buildFab(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: _selectedIndex == 2
+          ? ExpandableFab.location
+          : FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: FrostedBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -161,9 +166,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: const Icon(Icons.add),
         );
       case 2:
-        return FrostedFloatingActionButton(
-          onPressed: () => _showAddExpenseBottomSheet(context),
-          child: const Icon(Icons.add),
+        return ExpandableFab(
+          type: ExpandableFabType.up,
+          distance: 70,
+          openButtonBuilder: RotateFloatingActionButtonBuilder(
+            child: const Icon(Icons.add),
+            fabSize: ExpandableFabSize.regular,
+            heroTag: 'expense_fab',
+          ),
+          closeButtonBuilder: RotateFloatingActionButtonBuilder(
+            child: const Icon(Icons.close),
+            fabSize: ExpandableFabSize.regular,
+            heroTag: 'expense_fab_close',
+          ),
+          overlayStyle: ExpandableFabOverlayStyle(
+            color: Colors.black.withValues(alpha: 0.3),
+          ),
+          children: [
+            FloatingActionButton.small(
+              heroTag: 'scan_fab',
+              onPressed: () => _showImageSourceChoice(context),
+              child: const Icon(Icons.document_scanner),
+            ),
+            FloatingActionButton.small(
+              heroTag: 'manual_fab',
+              onPressed: () => _showAddExpenseBottomSheet(context),
+              child: const Icon(Icons.edit),
+            ),
+          ],
         );
       case 3:
         return FrostedFloatingActionButton(
@@ -275,6 +305,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       onCancel: () {},
     );
+  }
+
+  void _showImageSourceChoice(BuildContext context) {
+    final accounts = ref.read(accountProvider).value ?? [];
+
+    if (accounts.isEmpty) {
+      _showNoAccountDialog(context, 'une dépense');
+      return;
+    }
+
+    FrostedBottomSheet.show(
+      context: context,
+      title: 'Scanner un ticket',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Prendre une photo'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImageAndScan(context, ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Choisir depuis la galerie'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImageAndScan(context, ImageSource.gallery);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImageAndScan(
+    BuildContext context,
+    ImageSource source,
+  ) async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      maxWidth: 1920,
+      imageQuality: 85,
+    );
+
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ScanScreen(imageBytes: bytes),
+        ),
+      );
+    }
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {

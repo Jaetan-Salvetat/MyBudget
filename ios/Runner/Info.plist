@@ -41,6 +41,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>L'accès à la caméra est nécessaire pour scanner vos tickets de caisse.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>L'accès à la galerie est nécessaire pour sélectionner une photo de ticket de caisse.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

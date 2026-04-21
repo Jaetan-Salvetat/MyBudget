@@ -1,0 +1,115 @@
+import 'dart:typed_data';
+
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/services/receipt_scan_service.dart';
+import 'package:mybudget/core/services/receipt_storage_service.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'scan_provider.g.dart';
+
+@riverpod
+class ScanNotifier extends _$ScanNotifier {
+  final ReceiptScanService _scanService = ReceiptScanService();
+  final ReceiptStorageService _storageService = ReceiptStorageService();
+
+  @override
+  AsyncValue<ReceiptScanResultModel?> build() {
+    return const AsyncData(null);
+  }
+
+  Future<void> scanReceipt(Uint8List imageBytes) async {
+    state = const AsyncLoading();
+    try {
+      final categories = ref.read(categoryProvider).value ?? [];
+      final result = await _scanService.extractItems(imageBytes, categories);
+      state = AsyncData(result);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  void updateItemCategory(int index, int categoryId, String categoryName) {
+    final result = state.value;
+    if (result == null) return;
+    result.items[index].categoryId = categoryId;
+    result.items[index].categoryName = categoryName;
+    state = AsyncData(result);
+  }
+
+  void updateItemAmount(int index, double amount) {
+    final result = state.value;
+    if (result == null) return;
+    result.items[index].amount = amount;
+    state = AsyncData(result);
+  }
+
+  void removeItem(int index) {
+    final result = state.value;
+    if (result == null) return;
+    result.items.removeAt(index);
+    state = AsyncData(result);
+  }
+
+  void updateDate(DateTime date) {
+    final result = state.value;
+    if (result == null) return;
+    result.date = date;
+    state = AsyncData(result);
+  }
+
+  Future<int> validateAndCreate(int accountId, Uint8List imageBytes) async {
+    final result = state.value;
+    if (result == null) return 0;
+
+    final receiptPath = await _storageService.saveReceipt(imageBytes);
+    final date = result.date ?? DateTime.now();
+
+    final Map<int, List<double>> grouped = {};
+    final Map<int, String> categoryLabels = {};
+
+    for (final item in result.items) {
+      if (item.categoryId == null) continue;
+      grouped.putIfAbsent(item.categoryId!, () => []).add(item.amount);
+      categoryLabels.putIfAbsent(item.categoryId!, () => item.categoryName ?? '');
+    }
+
+    int count = 0;
+    final expenseNotifier = ref.read(expenseProvider.notifier);
+    final storeName = result.storeName;
+
+    for (final entry in grouped.entries) {
+      final totalAmount = entry.value.fold(0.0, (sum, a) => sum + a);
+      final label = categoryLabels[entry.key] ?? '';
+      final name = storeName != null
+          ? '$storeName — $label'
+          : 'Ticket du ${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} — $label';
+
+      final expense = ExpenseModel.create(
+        name: name,
+        amount: totalAmount,
+        categoryId: entry.key,
+        startDate: date,
+        frequency: Frequency.oneTime.label,
+        accountId: accountId,
+        receiptPath: receiptPath,
+      );
+
+      try {
+        await expenseNotifier.addExpense(expense);
+        count++;
+      } catch (e) {
+        rethrow;
+      }
+    }
+
+    return count;
+  }
+
+  void reset() {
+    state = const AsyncData(null);
+  }
+}

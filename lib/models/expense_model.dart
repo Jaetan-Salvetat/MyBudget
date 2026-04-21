@@ -29,6 +29,8 @@ class ExpenseModel {
 
   int? beneficiaryId;
 
+  String? receiptPath;
+
   ExpenseModel();
 
   ExpenseModel.create({
@@ -41,6 +43,7 @@ class ExpenseModel {
     this.endDate,
     this.parentId,
     this.beneficiaryId,
+    this.receiptPath,
   });
 
   ExpenseModel copyWith({
@@ -53,6 +56,7 @@ class ExpenseModel {
     Object? endDate = _sentinel,
     Object? parentId = _sentinel,
     Object? beneficiaryId = _sentinel,
+    Object? receiptPath = _sentinel,
   }) {
     final model =
         ExpenseModel()
@@ -74,7 +78,11 @@ class ExpenseModel {
           ..beneficiaryId =
               beneficiaryId == _sentinel
                   ? this.beneficiaryId
-                  : beneficiaryId as int?;
+                  : beneficiaryId as int?
+          ..receiptPath =
+              receiptPath == _sentinel
+                  ? this.receiptPath
+                  : receiptPath as String?;
     return model;
   }
 
@@ -90,6 +98,7 @@ class ExpenseModel {
       'frequency': frequency,
       'accountId': accountId.toString(),
       'beneficiaryId': beneficiaryId?.toString(),
+      'receiptPath': receiptPath,
     };
   }
 
@@ -123,7 +132,8 @@ class ExpenseModel {
           ..beneficiaryId =
               json['beneficiaryId'] != null
                   ? int.tryParse(json['beneficiaryId'].toString())
-                  : null;
+                  : null
+          ..receiptPath = json['receiptPath'] as String?;
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;
