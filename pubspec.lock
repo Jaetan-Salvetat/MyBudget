@@ -504,10 +504,10 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "4e4e278bb624d8c4293bc361922cbca1d85d1acd"
+      resolved-ref: "941c1563d5bbdaa6c2166c9c6551e0f4a981c31b"
       url: "https://github.com/Jaetan-Salvetat/frosted_ui"
     source: git
-    version: "0.0.6"
+    version: "0.0.7"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter

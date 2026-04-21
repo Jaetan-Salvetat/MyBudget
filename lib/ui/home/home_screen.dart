@@ -114,6 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
+      animateFloatingActionButtonTransitions: false,
       appBar: FrostedAppBar(
         title: _currentTitle,
         actions: [
@@ -158,6 +159,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  static const _fabSize = 56.0;
+
   Widget? _buildFab(BuildContext context) {
     switch (_selectedIndex) {
       case 1:
@@ -169,15 +172,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return ExpandableFab(
           type: ExpandableFabType.up,
           distance: 70,
-          openButtonBuilder: RotateFloatingActionButtonBuilder(
-            child: const Icon(Icons.add),
-            fabSize: ExpandableFabSize.regular,
-            heroTag: 'expense_fab',
+          openButtonBuilder: FloatingActionButtonBuilder(
+            size: _fabSize,
+            builder: (context, onPressed, progress) {
+              return FloatingActionButton(
+                heroTag: 'expense_fab',
+                onPressed: onPressed,
+                elevation: FrostedElevation.high,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    FrostedButtonStyle.buttonRadius,
+                  ),
+                ),
+                child: AnimatedBuilder(
+                  animation: progress,
+                  builder: (context, _) {
+                    return Transform.rotate(
+                      angle: progress.value * 0.75,
+                      child: const Icon(Icons.add),
+                    );
+                  },
+                ),
+              );
+            },
           ),
-          closeButtonBuilder: RotateFloatingActionButtonBuilder(
-            child: const Icon(Icons.close),
-            fabSize: ExpandableFabSize.regular,
-            heroTag: 'expense_fab_close',
+          closeButtonBuilder: FloatingActionButtonBuilder(
+            size: _fabSize,
+            builder: (context, onPressed, progress) {
+              return FloatingActionButton(
+                heroTag: 'expense_fab_close',
+                onPressed: onPressed,
+                elevation: FrostedElevation.high,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    FrostedButtonStyle.buttonRadius,
+                  ),
+                ),
+                child: const Icon(Icons.close),
+              );
+            },
           ),
           overlayStyle: ExpandableFabOverlayStyle(
             color: Colors.black.withValues(alpha: 0.3),
@@ -186,11 +219,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             FloatingActionButton.small(
               heroTag: 'scan_fab',
               onPressed: () => _showImageSourceChoice(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  FrostedButtonStyle.buttonRadius,
+                ),
+              ),
               child: const Icon(Icons.document_scanner),
             ),
             FloatingActionButton.small(
               heroTag: 'manual_fab',
               onPressed: () => _showAddExpenseBottomSheet(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  FrostedButtonStyle.buttonRadius,
+                ),
+              ),
               child: const Icon(Icons.edit),
             ),
           ],
