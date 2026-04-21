@@ -8,7 +8,7 @@ import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
 class ReceiptScanService {
-  static const _modelName = 'gemini-2.0-flash-lite';
+  static const _modelName = 'gemini-3-flash-preview';
 
   late final GenerativeModel _model;
 
