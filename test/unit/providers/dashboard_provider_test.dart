@@ -76,7 +76,7 @@ void main() {
         amount: 600,
         categoryId: catFood.id,
         accountId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       final transportExpense = ExpenseModel.create(
@@ -84,7 +84,7 @@ void main() {
         amount: 200,
         categoryId: catTransport.id,
         accountId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
 
@@ -140,7 +140,7 @@ void main() {
       amount: 200,
       categoryId: catFood.id,
       accountId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
     final transportExpense = ExpenseModel.create(
@@ -148,7 +148,7 @@ void main() {
       amount: 600,
       categoryId: catTransport.id,
       accountId: 1,
-      date: DateTime.now(),
+      startDate: DateTime.now(),
       frequency: 'Mensuel',
     );
 
@@ -178,7 +178,7 @@ void main() {
       amount: 800,
       categoryId: 1,
       accountId: 1,
-      date: DateTime(now.year, now.month, 5),
+      startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
     );
     final annual = ExpenseModel.create(
@@ -186,7 +186,7 @@ void main() {
       amount: 1200,
       categoryId: 1,
       accountId: 1,
-      date: DateTime(now.year, now.month, 10),
+      startDate: DateTime(now.year, now.month, 10),
       frequency: 'Annuel',
     );
     final oneTime = ExpenseModel.create(
@@ -194,7 +194,7 @@ void main() {
       amount: 300,
       categoryId: 1,
       accountId: 1,
-      date: DateTime(now.year, now.month, 15),
+      startDate: DateTime(now.year, now.month, 15),
       frequency: 'Ponctuel',
     );
 
@@ -222,14 +222,14 @@ void main() {
       name: 'Salary',
       amount: 3000,
       accountId: 1,
-      date: DateTime(now.year, now.month, 1),
+      startDate: DateTime(now.year, now.month, 1),
       frequency: 'Mensuel',
     );
     final oneTime = RevenueModel.create(
       name: 'Gift',
       amount: 500,
       accountId: 1,
-      date: DateTime(now.year, now.month, 10),
+      startDate: DateTime(now.year, now.month, 10),
       frequency: 'Ponctuel',
     );
 
@@ -259,7 +259,7 @@ void main() {
       amount: 300,
       categoryId: 1,
       accountId: 1,
-      date: DateTime(now.year, otherMonth, 15),
+      startDate: DateTime(now.year, otherMonth, 15),
       frequency: 'Ponctuel',
     );
 
@@ -286,7 +286,7 @@ void main() {
       name: 'Salary',
       amount: 3000,
       accountId: 1,
-      date: now,
+      startDate: now,
       frequency: 'Mensuel',
     );
     final expense = ExpenseModel.create(
@@ -294,7 +294,7 @@ void main() {
       amount: 1000,
       categoryId: 1,
       accountId: 1,
-      date: now,
+      startDate: now,
       frequency: 'Mensuel',
     );
 

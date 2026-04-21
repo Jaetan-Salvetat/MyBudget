@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -10,6 +11,7 @@ class ExpenseBottomSheet extends StatefulWidget {
   final List<AccountModel> accounts;
   final List<CategoryModel> categories;
   final ExpenseModel? expense;
+  final List<ExpenseModel> closedExpenses;
   final Function(ExpenseModel) onSubmit;
   final VoidCallback onCancel;
 
@@ -19,6 +21,7 @@ class ExpenseBottomSheet extends StatefulWidget {
     required this.onSubmit,
     required this.onCancel,
     this.expense,
+    this.closedExpenses = const [],
     super.key,
   });
 
@@ -29,6 +32,7 @@ class ExpenseBottomSheet extends StatefulWidget {
     required Function(ExpenseModel) onSubmit,
     required VoidCallback onCancel,
     ExpenseModel? expense,
+    List<ExpenseModel> closedExpenses = const [],
   }) {
     FrostedBottomSheet.show(
       context: context,
@@ -39,6 +43,7 @@ class ExpenseBottomSheet extends StatefulWidget {
         onSubmit: onSubmit,
         onCancel: onCancel,
         expense: expense,
+        closedExpenses: closedExpenses,
       ),
     );
   }
@@ -61,6 +66,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
 
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
+  int? _parentId;
 
   @override
   void initState() {
@@ -73,7 +79,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     _selectedCategoryId =
         widget.expense?.categoryId ??
         (widget.categories.isNotEmpty ? widget.categories.first.id : null);
-    _selectedDate = widget.expense?.date ?? DateTime.now();
+    _selectedDate = widget.expense?.startDate ?? DateTime.now();
     _selectedFrequency = widget.expense?.frequency ?? 'Mensuel';
     _selectedAccountId =
         widget.expense?.accountId ??
@@ -134,7 +140,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               name: _nameController.text.trim(),
               amount: amount,
               categoryId: _selectedCategoryId!,
-              date: _selectedDate,
+              startDate: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
               beneficiaryId: _selectedBeneficiaryId,
@@ -143,14 +149,63 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               name: _nameController.text.trim(),
               amount: amount,
               categoryId: _selectedCategoryId!,
-              date: _selectedDate,
+              startDate: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
               beneficiaryId: _selectedBeneficiaryId,
+              parentId: _parentId,
             );
 
     widget.onSubmit(expense);
     Navigator.pop(context);
+  }
+
+  void _fillFromClosedExpense(ExpenseModel closed) {
+    setState(() {
+      _nameController.text = closed.name;
+      _amountController.text = closed.amount.toString();
+      _selectedCategoryId = closed.categoryId;
+      _selectedFrequency = closed.frequency;
+      _selectedAccountId = closed.accountId;
+      _selectedBeneficiaryId = closed.beneficiaryId;
+      _beneficiaryEnabled = closed.beneficiaryId != null;
+      _parentId = closed.parentId ?? closed.id;
+      _selectedDate = DateTime.now();
+    });
+  }
+
+  void _showClosedExpensePicker(BuildContext context) {
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
+    FrostedDialog.show(
+      context: context,
+      title: const Text('Reprendre une dépense'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 300,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.closedExpenses.length,
+          itemBuilder: (context, index) {
+            final expense = widget.closedExpenses[index];
+            return ListTile(
+              title: Text(expense.name),
+              subtitle: Text(formatter.format(expense.amount)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                _fillFromClosedExpense(expense);
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+      ],
+    );
   }
 
   @override
@@ -165,6 +220,21 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (widget.expense == null && widget.closedExpenses.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: FrostedTextButton(
+                  onPressed: () => _showClosedExpensePicker(context),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, size: 18, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text('Reprendre une ancienne dépense'),
+                    ],
+                  ),
+                ),
+              ),
             Text(
               'Informations',
               style: TextStyle(

@@ -28,11 +28,11 @@ class RevenueCard extends StatelessWidget {
     final String dateStr;
     switch (revenue.frequencyEnum) {
       case Frequency.monthly:
-        dateStr = 'Le ${revenue.date.day} du mois';
+        dateStr = 'Le ${revenue.startDate.day} du mois';
       case Frequency.annual:
-        dateStr = DateFormat("'Le' d MMMM", 'fr_FR').format(revenue.date);
+        dateStr = DateFormat("'Le' d MMMM", 'fr_FR').format(revenue.startDate);
       case Frequency.oneTime:
-        dateStr = DateFormat('dd/MM/yyyy', 'fr_FR').format(revenue.date);
+        dateStr = DateFormat('dd/MM/yyyy', 'fr_FR').format(revenue.startDate);
     }
 
     return FrostedCard(

@@ -2,19 +2,27 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'revenue_queries.g.dart';
 
+@Riverpod(keepAlive: true)
+List<RevenueModel> activeRevenues(Ref ref) {
+  final revenues = ref.watch(revenueProvider).value ?? [];
+  return revenues.where((r) => r.endDate == null).toList();
+}
+
 double _revenueAmountForMonth(RevenueModel revenue, DateTime month) {
+  if (!isActiveForMonth(revenue.startDate, revenue.endDate, month)) return 0.0;
   switch (revenue.frequencyEnum) {
     case Frequency.monthly:
       return revenue.amount;
     case Frequency.annual:
-      return revenue.date.month == month.month ? revenue.amount : 0.0;
+      return revenue.startDate.month == month.month ? revenue.amount : 0.0;
     case Frequency.oneTime:
-      return revenue.date.year == month.year &&
-              revenue.date.month == month.month
+      return revenue.startDate.year == month.year &&
+              revenue.startDate.month == month.month
           ? revenue.amount
           : 0.0;
   }
@@ -45,24 +53,24 @@ double currentMonthRevenues(Ref ref) {
 
 @Riverpod(keepAlive: true)
 List<RevenueModel> upcomingRevenues(Ref ref) {
-  final revenues = ref.watch(revenueProvider).value ?? [];
+  final revenues = ref.watch(activeRevenuesProvider);
   final now = DateTime.now();
   final upcoming = revenues.where((revenue) {
     switch (revenue.frequencyEnum) {
       case Frequency.monthly:
-        return revenue.date.day >= now.day;
+        return revenue.startDate.day >= now.day;
       case Frequency.annual:
-        return revenue.date.month == now.month && revenue.date.day >= now.day;
+        return revenue.startDate.month == now.month && revenue.startDate.day >= now.day;
       case Frequency.oneTime:
         final revenueDate = DateTime(
-          revenue.date.year,
-          revenue.date.month,
-          revenue.date.day,
+          revenue.startDate.year,
+          revenue.startDate.month,
+          revenue.startDate.day,
         );
         final today = DateTime(now.year, now.month, now.day);
         return !revenueDate.isBefore(today);
     }
   }).toList();
-  upcoming.sort((a, b) => a.date.day.compareTo(b.date.day));
+  upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
   return upcoming;
 }

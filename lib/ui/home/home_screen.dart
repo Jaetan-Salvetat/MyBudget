@@ -211,6 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context: context,
       accounts: accounts,
       categories: ref.read(categoryProvider).value ?? [],
+      closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
       onSubmit: (expense) async {
         try {
           await ref.read(expenseProvider.notifier).addExpense(expense);
@@ -238,6 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     RevenueBottomSheet.show(
       context: context,
       accounts: accounts,
+      closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
       onSubmit: (revenue) async {
         try {
           await ref.read(revenueProvider.notifier).addRevenue(revenue);

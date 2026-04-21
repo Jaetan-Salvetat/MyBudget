@@ -1,4 +1,6 @@
 ## 🚀 Nouveautés
+- Historique : supprimer une dépense ou un revenu récurrent conserve les données des mois passés
+- Reprendre une ancienne entrée lors de la création d'une dépense, revenu ou virement
 - Paiements ponctuels : ajout de la fréquence "Ponctuel" pour les dépenses et les revenus
 - Navigation mensuelle : sélecteur de mois global pour consulter les données mois par mois
 - Les revenus supportent désormais les 3 fréquences (mensuel, annuel, ponctuel)

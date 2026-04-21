@@ -10,7 +10,7 @@ void main() {
         amount: 500,
         fromAccountId: 1,
         toAccountId: 2,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
 
@@ -26,7 +26,7 @@ void main() {
         amount: 300,
         fromAccountId: 1,
         toAccountId: 2,
-        date: DateTime(2024, 6, 15),
+        startDate: DateTime(2024, 6, 15),
         frequency: 'Mensuel',
       )..id = 7;
 
@@ -46,7 +46,7 @@ void main() {
         amount: 300,
         fromAccountId: 1,
         toAccountId: 2,
-        date: DateTime(2024, 6, 15),
+        startDate: DateTime(2024, 6, 15),
         frequency: 'Mensuel',
       );
 
@@ -71,7 +71,7 @@ void main() {
         amount: 450,
         fromAccountId: 1,
         toAccountId: 2,
-        date: date,
+        startDate: date,
         frequency: 'Mensuel',
       )..id = 10;
 
@@ -82,7 +82,7 @@ void main() {
       expect(json['amount'], 450);
       expect(json['fromAccountId'], '1');
       expect(json['toAccountId'], '2');
-      expect(json['date'], date.toIso8601String());
+      expect(json['startDate'], date.toIso8601String());
       expect(json['frequency'], 'Mensuel');
     });
 
@@ -93,7 +93,7 @@ void main() {
         'amount': 200.0,
         'fromAccountId': '1',
         'toAccountId': '3',
-        'date': '2024-06-01T00:00:00.000',
+        'startDate': '2024-06-01T00:00:00.000',
         'frequency': 'Mensuel',
       };
 
@@ -104,7 +104,7 @@ void main() {
       expect(transfer.amount, 200.0);
       expect(transfer.fromAccountId, 1);
       expect(transfer.toAccountId, 3);
-      expect(transfer.date, DateTime(2024, 6, 1));
+      expect(transfer.startDate, DateTime(2024, 6, 1));
       expect(transfer.frequency, 'Mensuel');
     });
 
@@ -128,7 +128,7 @@ void main() {
         amount: 750,
         fromAccountId: 2,
         toAccountId: 5,
-        date: date,
+        startDate: date,
         frequency: 'Annuel',
       )..id = 42;
 
@@ -140,6 +140,118 @@ void main() {
       expect(restored.fromAccountId, original.fromAccountId);
       expect(restored.toAccountId, original.toAccountId);
       expect(restored.frequency, original.frequency);
+    });
+
+    test('copyWith with endDate and parentId using sentinel pattern', () {
+      final original = TransferModel.create(
+        name: 'Test',
+        amount: 300,
+        fromAccountId: 1,
+        toAccountId: 2,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
+      )..id = 1;
+
+      final withValues = original.copyWith(
+        endDate: DateTime(2024, 6, 15),
+        parentId: 5,
+      );
+      expect(withValues.endDate, DateTime(2024, 6, 15));
+      expect(withValues.parentId, 5);
+
+      final withNull = withValues.copyWith(endDate: null, parentId: null);
+      expect(withNull.endDate, isNull);
+      expect(withNull.parentId, isNull);
+
+      final preserved = withValues.copyWith(name: 'Changed');
+      expect(preserved.endDate, DateTime(2024, 6, 15));
+      expect(preserved.parentId, 5);
+    });
+
+    test('toJson includes endDate and parentId', () {
+      final transfer = TransferModel.create(
+        name: 'Test',
+        amount: 300,
+        fromAccountId: 1,
+        toAccountId: 2,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
+        endDate: DateTime(2024, 6, 15),
+        parentId: 3,
+      )..id = 1;
+
+      final json = transfer.toJson();
+
+      expect(json['endDate'], DateTime(2024, 6, 15).toIso8601String());
+      expect(json['parentId'], '3');
+    });
+
+    test('toJson with null endDate and parentId', () {
+      final transfer = TransferModel.create(
+        name: 'Test',
+        amount: 300,
+        fromAccountId: 1,
+        toAccountId: 2,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
+      );
+
+      final json = transfer.toJson();
+
+      expect(json['endDate'], isNull);
+      expect(json['parentId'], isNull);
+    });
+
+    test('fromJson parses endDate and parentId', () {
+      final json = {
+        'id': '1',
+        'name': 'Test',
+        'amount': 300.0,
+        'fromAccountId': '1',
+        'toAccountId': '2',
+        'startDate': '2024-01-01T00:00:00.000',
+        'endDate': '2024-06-15T00:00:00.000',
+        'parentId': '3',
+        'frequency': 'Mensuel',
+      };
+
+      final transfer = TransferModel.fromJson(json);
+
+      expect(transfer.endDate, DateTime(2024, 6, 15));
+      expect(transfer.parentId, 3);
+    });
+
+    test('fromJson with null endDate and parentId', () {
+      final json = {
+        'id': '1',
+        'name': 'Test',
+        'amount': 300.0,
+        'fromAccountId': '1',
+        'toAccountId': '2',
+        'startDate': '2024-01-01T00:00:00.000',
+        'frequency': 'Mensuel',
+      };
+
+      final transfer = TransferModel.fromJson(json);
+
+      expect(transfer.endDate, isNull);
+      expect(transfer.parentId, isNull);
+    });
+
+    test('fromJson falls back on date key when startDate is missing', () {
+      final json = {
+        'id': '1',
+        'name': 'Legacy',
+        'amount': 300.0,
+        'fromAccountId': '1',
+        'toAccountId': '2',
+        'date': '2024-03-20T00:00:00.000',
+        'frequency': 'Mensuel',
+      };
+
+      final transfer = TransferModel.fromJson(json);
+
+      expect(transfer.startDate, DateTime(2024, 3, 20));
     });
   });
 }

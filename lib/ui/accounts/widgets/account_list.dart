@@ -57,18 +57,22 @@ class AccountList extends ConsumerWidget {
 
                 final accountExpenses = ref
                     .read(expenseProvider.notifier)
-                    .getExpensesForAccount(account.id);
+                    .getExpensesForAccount(account.id)
+                    .where((e) => e.endDate == null)
+                    .toList();
 
                 final currentMonthExpenses = accountExpenses
                     .where((e) =>
                         e.frequencyEnum == Frequency.monthly ||
                         (e.frequencyEnum == Frequency.annual &&
-                            e.date.month == now.month))
+                            e.startDate.month == now.month))
                     .fold(0.0, (double sum, e) => sum + e.amount);
 
                 final monthlyRevenues = ref
                     .read(revenueProvider.notifier)
-                    .getTotalRevenuesForAccount(account.id);
+                    .getRevenuesForAccount(account.id)
+                    .where((r) => r.endDate == null)
+                    .fold(0.0, (double sum, r) => sum + r.amount);
 
                 final transferNotifier = ref.read(transferProvider.notifier);
                 final outgoingTransfers = transferNotifier.getOutgoingTotalForAccount(account.id);

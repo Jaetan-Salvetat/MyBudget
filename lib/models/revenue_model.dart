@@ -15,8 +15,13 @@ class RevenueModel {
 
   late double amount;
 
+  @Property(uid: 1213904468792118615)
+  late DateTime startDate;
+
   @Property()
-  late DateTime date;
+  DateTime? endDate;
+
+  int? parentId;
 
   late String frequency;
 
@@ -29,9 +34,11 @@ class RevenueModel {
   RevenueModel.create({
     required this.name,
     required this.amount,
-    required this.date,
+    required this.startDate,
     required this.accountId,
     required this.frequency,
+    this.endDate,
+    this.parentId,
     this.beneficiaryId,
   });
 
@@ -42,14 +49,23 @@ class RevenueModel {
   }
 
   factory RevenueModel.fromJson(Map<String, dynamic> json) {
+    final dateStr = json['startDate'] ?? json['date'];
     final model =
         RevenueModel()
           ..name = json['name'] ?? ''
           ..amount = (json['amount'] ?? 0.0).toDouble()
-          ..date =
-              json['date'] != null
-                  ? (DateTime.tryParse(json['date'].toString()) ?? DateTime.now())
+          ..startDate =
+              dateStr != null
+                  ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
                   : DateTime.now()
+          ..endDate =
+              json['endDate'] != null
+                  ? DateTime.tryParse(json['endDate'].toString())
+                  : null
+          ..parentId =
+              json['parentId'] != null
+                  ? int.tryParse(json['parentId'].toString())
+                  : null
           ..accountId =
               json['accountId'] != null
                   ? (int.tryParse(json['accountId'].toString()) ?? 0)
@@ -70,9 +86,11 @@ class RevenueModel {
   RevenueModel copyWith({
     String? name,
     double? amount,
-    DateTime? date,
+    DateTime? startDate,
     int? accountId,
     String? frequency,
+    Object? endDate = _sentinel,
+    Object? parentId = _sentinel,
     Object? beneficiaryId = _sentinel,
   }) {
     final model =
@@ -80,9 +98,17 @@ class RevenueModel {
           ..id = id
           ..name = name ?? this.name
           ..amount = amount ?? this.amount
-          ..date = date ?? this.date
+          ..startDate = startDate ?? this.startDate
           ..accountId = accountId ?? this.accountId
           ..frequency = frequency ?? this.frequency
+          ..endDate =
+              endDate == _sentinel
+                  ? this.endDate
+                  : endDate as DateTime?
+          ..parentId =
+              parentId == _sentinel
+                  ? this.parentId
+                  : parentId as int?
           ..beneficiaryId =
               beneficiaryId == _sentinel
                   ? this.beneficiaryId
@@ -95,7 +121,9 @@ class RevenueModel {
       'id': id.toString(),
       'name': name,
       'amount': amount,
-      'date': date.toIso8601String(),
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'parentId': parentId?.toString(),
       'accountId': accountId.toString(),
       'frequency': frequency,
       'beneficiaryId': beneficiaryId?.toString(),

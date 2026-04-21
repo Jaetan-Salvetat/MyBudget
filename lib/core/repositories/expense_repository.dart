@@ -1,5 +1,5 @@
 import 'package:mybudget/models/expense_model.dart';
-import 'package:objectbox/objectbox.dart';
+import 'package:mybudget/objectbox.g.dart';
 
 class ExpenseRepository {
   final Box<ExpenseModel> _box;
@@ -8,6 +8,34 @@ class ExpenseRepository {
 
   List<ExpenseModel> getAll() {
     return _box.getAll();
+  }
+
+  ExpenseModel? get(int id) {
+    return _box.get(id);
+  }
+
+  List<ExpenseModel> getActive() {
+    final query = _box.query(ExpenseModel_.endDate.isNull()).build();
+    final results = query.find();
+    query.close();
+    return results;
+  }
+
+  List<ExpenseModel> getClosed() {
+    final query = _box.query(ExpenseModel_.endDate.notNull()).build();
+    final results = query.find();
+    query.close();
+    return results;
+  }
+
+  List<ExpenseModel> getChain(int rootId) {
+    final query = _box
+        .query(ExpenseModel_.parentId.equals(rootId) |
+            ExpenseModel_.id.equals(rootId))
+        .build();
+    final results = query.find();
+    query.close();
+    return results;
   }
 
   int add(ExpenseModel expense) {

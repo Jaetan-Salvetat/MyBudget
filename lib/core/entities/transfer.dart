@@ -11,7 +11,9 @@ class Transfer {
   double get amount => _model.amount;
   int get fromAccountId => _model.fromAccountId;
   int get toAccountId => _model.toAccountId;
-  DateTime get date => _model.date;
+  DateTime get startDate => _model.startDate;
+  DateTime? get endDate => _model.endDate;
+  int? get parentId => _model.parentId;
   Frequency get frequency => _model.frequencyEnum;
 
   TransferModel get model => _model;

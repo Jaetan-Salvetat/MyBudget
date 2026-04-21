@@ -30,11 +30,11 @@ class ExpenseCard extends StatelessWidget {
 
     String dateStr;
     if (expense.frequency == 'Mensuel') {
-      dateStr = 'le ${expense.date.day}';
+      dateStr = 'le ${expense.startDate.day}';
     } else if (expense.frequency == 'Annuel') {
-      dateStr = 'le ${DateFormat('d MMMM', 'fr_FR').format(expense.date)}';
+      dateStr = 'le ${DateFormat('d MMMM', 'fr_FR').format(expense.startDate)}';
     } else {
-      dateStr = DateFormat('dd/MM/yyyy').format(expense.date);
+      dateStr = DateFormat('dd/MM/yyyy').format(expense.startDate);
     }
 
     return FrostedCard(

@@ -9,6 +9,53 @@ part of 'expense_queries.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(activeExpenses)
+final activeExpensesProvider = ActiveExpensesProvider._();
+
+final class ActiveExpensesProvider
+    extends
+        $FunctionalProvider<
+          List<ExpenseModel>,
+          List<ExpenseModel>,
+          List<ExpenseModel>
+        >
+    with $Provider<List<ExpenseModel>> {
+  ActiveExpensesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeExpensesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeExpensesHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<ExpenseModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<ExpenseModel> create(Ref ref) {
+    return activeExpenses(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ExpenseModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ExpenseModel>>(value),
+    );
+  }
+}
+
+String _$activeExpensesHash() => r'f0feff22243757a89e914340cfb66401023e9086';
+
 @ProviderFor(monthlyExpenses)
 final monthlyExpensesProvider = MonthlyExpensesProvider._();
 
@@ -131,7 +178,7 @@ final class AnnualExpensesProvider
   }
 }
 
-String _$annualExpensesHash() => r'6b94e8bad74f330e11a4dce629a4636a70db888b';
+String _$annualExpensesHash() => r'f5e7daf4d2018b6d156744687353fb1abc9a9643';
 
 @ProviderFor(upcomingExpenses)
 final upcomingExpensesProvider = UpcomingExpensesProvider._();
@@ -178,7 +225,7 @@ final class UpcomingExpensesProvider
   }
 }
 
-String _$upcomingExpensesHash() => r'48af97b60ecd8e453e519fb3a01522424acb8b10';
+String _$upcomingExpensesHash() => r'8908328bd73786860ade4a4427ef726b3d45604b';
 
 @ProviderFor(expensesByCategory)
 final expensesByCategoryProvider = ExpensesByCategoryProvider._();

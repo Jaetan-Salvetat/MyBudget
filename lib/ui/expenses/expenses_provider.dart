@@ -3,6 +3,7 @@ import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expenses_provider.g.dart';
@@ -17,11 +18,11 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     int sortKey(ExpenseModel e) {
       switch (e.frequencyEnum) {
         case Frequency.monthly:
-          return e.date.day;
+          return e.startDate.day;
         case Frequency.annual:
-          return e.date.month * 100 + e.date.day;
+          return e.startDate.month * 100 + e.startDate.day;
         case Frequency.oneTime:
-          return e.date.year * 10000 + e.date.month * 100 + e.date.day;
+          return e.startDate.year * 10000 + e.startDate.month * 100 + e.startDate.day;
       }
     }
 
@@ -40,10 +41,55 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     }
   }
 
-  Future<void> updateExpense(ExpenseModel expense) async {
+  Future<void> updateExpense(ExpenseModel updated) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
-      repo.update(expense);
+      final old = repo.get(updated.id);
+      if (old == null) return;
+
+      final bool isNameOnly = updated.amount == old.amount &&
+          updated.frequency == old.frequency &&
+          updated.categoryId == old.categoryId &&
+          updated.accountId == old.accountId &&
+          updated.beneficiaryId == old.beneficiaryId &&
+          updated.name != old.name;
+
+      if (isNameOnly) {
+        final int rootId = old.parentId ?? old.id;
+        final chain = repo.getChain(rootId);
+        for (final entry in chain) {
+          repo.update(entry.copyWith(name: updated.name));
+        }
+        ref.invalidateSelf();
+        await future;
+        return;
+      }
+
+      final bool isStructural = updated.amount != old.amount ||
+          updated.frequency != old.frequency ||
+          updated.categoryId != old.categoryId ||
+          updated.accountId != old.accountId ||
+          updated.beneficiaryId != old.beneficiaryId;
+
+      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
+        final now = DateTime.now();
+        final endDate = computeEndDate(now, old.startDate.day);
+        final newStartDate = computeNewStartDate(now, old.startDate.day);
+        repo.update(old.copyWith(endDate: endDate));
+        final newExpense = ExpenseModel.create(
+          name: updated.name,
+          amount: updated.amount,
+          categoryId: updated.categoryId,
+          startDate: newStartDate,
+          frequency: updated.frequency,
+          accountId: updated.accountId,
+          beneficiaryId: updated.beneficiaryId,
+          parentId: old.parentId ?? old.id,
+        );
+        repo.add(newExpense);
+      } else {
+        repo.update(updated);
+      }
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -54,12 +100,26 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   Future<void> deleteExpense(int id) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
-      repo.delete(id);
+      final expense = repo.get(id);
+      if (expense == null) return;
+
+      if (expense.frequencyEnum == Frequency.oneTime) {
+        repo.delete(id);
+      } else {
+        final now = DateTime.now();
+        final endDate = computeEndDate(now, expense.startDate.day);
+        repo.update(expense.copyWith(endDate: endDate));
+      }
       ref.invalidateSelf();
       await future;
     } catch (e) {
       rethrow;
     }
+  }
+
+  List<ExpenseModel> getClosedExpenses() {
+    final repo = ref.read(expenseRepositoryProvider);
+    return repo.getClosed();
   }
 
   List<ExpenseModel> _currentExpenses() => state.value ?? [];
@@ -71,15 +131,15 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     final upcoming = _currentExpenses().where((expense) {
       switch (expense.frequencyEnum) {
         case Frequency.monthly:
-          return expense.date.day >= now.day;
+          return expense.startDate.day >= now.day;
         case Frequency.annual:
-          return expense.date.month == now.month && expense.date.day >= now.day;
+          return expense.startDate.month == now.month && expense.startDate.day >= now.day;
         case Frequency.oneTime:
           return false;
       }
     }).toList();
 
-    upcoming.sort((a, b) => a.date.day.compareTo(b.date.day));
+    upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
     return upcoming;
   }
 
@@ -132,12 +192,12 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.monthly:
           total += expense.amount;
         case Frequency.annual:
-          if (expense.date.month == selectedMonth.month) {
+          if (expense.startDate.month == selectedMonth.month) {
             total += expense.amount;
           }
         case Frequency.oneTime:
-          if (expense.date.year == selectedMonth.year &&
-              expense.date.month == selectedMonth.month) {
+          if (expense.startDate.year == selectedMonth.year &&
+              expense.startDate.month == selectedMonth.month) {
             total += expense.amount;
           }
       }
@@ -157,7 +217,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.annual:
           total += expense.amount;
         case Frequency.oneTime:
-          if (expense.date.year == selectedMonth.year) {
+          if (expense.startDate.year == selectedMonth.year) {
             total += expense.amount;
           }
       }

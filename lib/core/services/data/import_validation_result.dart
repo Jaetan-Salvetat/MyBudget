@@ -25,26 +25,34 @@ class ParsedCategory {
 }
 
 class ParsedExpense {
+  final int oldId;
   final int? oldAccountId;
   final int? oldCategoryId;
   final int? oldBeneficiaryId;
+  final int? oldParentId;
   final ExpenseModel model;
   const ParsedExpense({
+    required this.oldId,
     required this.model,
     this.oldAccountId,
     this.oldCategoryId,
     this.oldBeneficiaryId,
+    this.oldParentId,
   });
 }
 
 class ParsedRevenue {
+  final int oldId;
   final int? oldAccountId;
   final int? oldBeneficiaryId;
+  final int? oldParentId;
   final RevenueModel model;
   const ParsedRevenue({
+    required this.oldId,
     required this.model,
     this.oldAccountId,
     this.oldBeneficiaryId,
+    this.oldParentId,
   });
 }
 
@@ -55,13 +63,17 @@ class ParsedLoan {
 }
 
 class ParsedTransfer {
+  final int oldId;
   final int? oldFromAccountId;
   final int? oldToAccountId;
+  final int? oldParentId;
   final TransferModel model;
   const ParsedTransfer({
+    required this.oldId,
     required this.model,
     this.oldFromAccountId,
     this.oldToAccountId,
+    this.oldParentId,
   });
 }
 
