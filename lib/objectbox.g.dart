@@ -92,7 +92,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 1032015678209972615),
     name: 'ExpenseModel',
-    lastPropertyId: const obx_int.IdUid(10, 8679329461354819461),
+    lastPropertyId: const obx_int.IdUid(11, 2441240728905768112),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -154,6 +154,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(10, 8679329461354819461),
         name: 'parentId',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 2441240728905768112),
+        name: 'receiptPath',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -569,7 +575,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (ExpenseModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(11);
+        final receiptPathOffset = object.receiptPath == null
+            ? null
+            : fbb.writeString(object.receiptPath!);
+        fbb.startTable(12);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -580,6 +589,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(7, object.beneficiaryId);
         fbb.addInt64(8, object.endDate?.millisecondsSinceEpoch);
         fbb.addInt64(9, object.parentId);
+        fbb.addOffset(10, receiptPathOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -632,7 +642,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             22,
-          );
+          )
+          ..receiptPath = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 24);
 
         return object;
       },
@@ -1045,6 +1058,11 @@ class ExpenseModel_ {
   /// See [ExpenseModel.parentId].
   static final parentId = obx.QueryIntegerProperty<ExpenseModel>(
     _entities[2].properties[9],
+  );
+
+  /// See [ExpenseModel.receiptPath].
+  static final receiptPath = obx.QueryStringProperty<ExpenseModel>(
+    _entities[2].properties[10],
   );
 }
 

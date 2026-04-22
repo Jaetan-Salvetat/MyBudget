@@ -63,6 +63,8 @@ dependencies:
   flutter_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.2
   home_widget: ^0.7.0
+  google_generative_ai: ^0.4.7
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -117,7 +119,7 @@ flutter:
   assets:
     - assets/
     - assets/images/onboarding/
-    # - .env
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

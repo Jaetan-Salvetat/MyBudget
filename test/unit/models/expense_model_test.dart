@@ -134,6 +134,88 @@ void main() {
       expect(expense.parentId, isNull);
     });
 
+    test('copyWith with receiptPath using sentinel pattern', () {
+      final original = ExpenseModel.create(
+        name: 'Test',
+        amount: 100,
+        categoryId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
+
+      final withReceipt = original.copyWith(
+        receiptPath: '/path/to/receipt.jpg',
+      );
+      expect(withReceipt.receiptPath, '/path/to/receipt.jpg');
+
+      final withNull = withReceipt.copyWith(receiptPath: null);
+      expect(withNull.receiptPath, isNull);
+
+      final preserved = withReceipt.copyWith(name: 'Changed');
+      expect(preserved.receiptPath, '/path/to/receipt.jpg');
+    });
+
+    test('toJson includes receiptPath', () {
+      final expense = ExpenseModel.create(
+        name: 'Ticket Carrefour',
+        amount: 50,
+        categoryId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Ponctuel',
+        accountId: 1,
+        receiptPath: '/receipts/123.jpg',
+      );
+
+      final json = expense.toJson();
+      expect(json['receiptPath'], '/receipts/123.jpg');
+    });
+
+    test('toJson with null receiptPath', () {
+      final expense = ExpenseModel.create(
+        name: 'Test',
+        amount: 100,
+        categoryId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
+
+      final json = expense.toJson();
+      expect(json['receiptPath'], isNull);
+    });
+
+    test('fromJson parses receiptPath', () {
+      final json = {
+        'id': '1',
+        'name': 'Ticket',
+        'amount': 50.0,
+        'categoryId': '1',
+        'startDate': '2024-01-01T00:00:00.000',
+        'frequency': 'Ponctuel',
+        'accountId': '1',
+        'receiptPath': '/receipts/123.jpg',
+      };
+
+      final expense = ExpenseModel.fromJson(json);
+      expect(expense.receiptPath, '/receipts/123.jpg');
+    });
+
+    test('fromJson with null receiptPath', () {
+      final json = {
+        'id': '1',
+        'name': 'Test',
+        'amount': 100.0,
+        'categoryId': '1',
+        'startDate': '2024-01-01T00:00:00.000',
+        'frequency': 'Mensuel',
+        'accountId': '1',
+      };
+
+      final expense = ExpenseModel.fromJson(json);
+      expect(expense.receiptPath, isNull);
+    });
+
     test('fromJson falls back on date key when startDate is missing', () {
       final json = {
         'id': '1',

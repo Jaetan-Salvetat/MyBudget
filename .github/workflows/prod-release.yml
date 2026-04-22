@@ -53,6 +53,9 @@ jobs:
 
 
 
+      - name: Create .env
+        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+
       - name: Flutter pub get
         run: flutter pub get
 
