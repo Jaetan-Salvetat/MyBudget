@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
+import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -16,7 +18,6 @@ part 'scan_provider.g.dart';
 
 @riverpod
 class ScanNotifier extends _$ScanNotifier {
-  final ReceiptScanService _scanService = ReceiptScanService();
   final ReceiptStorageService _storageService = ReceiptStorageService();
 
   @override
@@ -34,8 +35,14 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
+      final userKey = await SecureStorageService.getGeminiApiKey();
+      final apiKey = userKey ?? dotenv.env['GEMINI_API_KEY'] ?? '';
+      if (apiKey.isEmpty) {
+        throw const ScanGenericException(message: 'Aucune clé API Gemini configurée');
+      }
+      final scanService = ReceiptScanService(apiKey);
       final categories = ref.read(categoryProvider).value ?? [];
-      final result = await _scanService.extractItems(imageBytes, categories);
+      final result = await scanService.extractItems(imageBytes, categories);
       await PreferencesService.setLastScanTimestamp(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
       );
