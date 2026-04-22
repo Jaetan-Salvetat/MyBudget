@@ -10,6 +10,7 @@ import 'package:mybudget/ui/settings/widgets/sections/support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/update_configuration_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/gemini_section.dart';
 import 'package:flutter/foundation.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -46,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           CategoriesSection(),
           BeneficiariesSection(),
           DataSection(),
+          GeminiSection(),
           UpdateConfigurationSection(),
           HelpSection(),
           SupportSection(),
