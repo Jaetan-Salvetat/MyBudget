@@ -56,10 +56,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.listenManual(scanProvider, (_, next) {
-        if (next is! AsyncError) return;
-        final error = next.error;
-        if (error is ScanException && error.retryAfterSeconds > 0) {
-          _startCountdown(error.retryAfterSeconds);
+        if (next is AsyncError) {
+          final error = next.error;
+          if (error is ScanException && error.retryAfterSeconds > 0) {
+            _startCountdown(error.retryAfterSeconds);
+          }
+        } else if (next is AsyncData && next.value != null) {
+          _initSelectedAccount();
         }
       });
       ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
@@ -199,10 +202,15 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         title = scanError.message;
         subtitle = 'Réessayez dans quelques instants';
         hasCooldown = true;
+      case ScanServiceUnavailableException():
+        icon = Icons.cloud_off_outlined;
+        title = scanError.message;
+        subtitle = 'Réessayez dans quelques instants';
+        hasCooldown = true;
       case ScanGenericException():
         icon = Icons.error_outline;
         title = scanError.message;
-        subtitle = scanError.details;
+        subtitle = '';
         hasCooldown = false;
       default:
         icon = Icons.error_outline;
@@ -260,6 +268,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         ),
       ),
     );
+  }
+
+  void _initSelectedAccount() {
+    if (_selectedAccountId != null) return;
+    final accounts = ref.read(accountProvider).value ?? [];
+    if (accounts.length == 1) {
+      setState(() => _selectedAccountId = accounts.first.id);
+    }
   }
 
   void _startCountdown(int seconds) {
@@ -334,9 +350,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
     final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
 
-    if (_selectedAccountId == null && accounts.isNotEmpty) {
-      _selectedAccountId = accounts.first.id;
-    }
 
     final grouped = _groupItemsByCategory(result.items, categories);
     final uncategorized =

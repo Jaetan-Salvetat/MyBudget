@@ -43,17 +43,19 @@ class ScanNotifier extends _$ScanNotifier {
     } on ScanException catch (e, st) {
       state = AsyncError(e, st);
     } on ServerException catch (e, st) {
-      final message = e.message.toUpperCase();
-      if (message.contains('429') || message.contains('RESOURCE_EXHAUSTED')) {
+      final scanError = ScanException.fromServerMessage(e.message);
+      if (scanError is ScanRateLimitException ||
+          scanError is ScanServiceUnavailableException) {
         await PreferencesService.setLastScanTimestamp(
           DateTime.now().millisecondsSinceEpoch ~/ 1000,
         );
-        state = AsyncError(const ScanRateLimitException(), st);
-      } else {
-        state = AsyncError(ScanGenericException(details: e.message), st);
       }
+      state = AsyncError(scanError, st);
     } catch (e, st) {
-      state = AsyncError(ScanGenericException(details: e.toString()), st);
+      state = AsyncError(
+        const ScanGenericException(message: 'Impossible d\'analyser le ticket'),
+        st,
+      );
     }
   }
 
