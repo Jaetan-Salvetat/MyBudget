@@ -1,4 +1,5 @@
 ## 🚀 Nouveautés
+- Clé API Gemini personnelle : utilisez votre propre clé pour éviter les limites de quota partagées (Paramètres → Scan de tickets)
 - Scan de tickets de caisse : photographiez un ticket et l'IA catégorise automatiquement vos achats en dépenses ponctuelles
 - Historique : supprimer une dépense ou un revenu récurrent conserve les données des mois passés
 - Reprendre une ancienne entrée lors de la création d'une dépense, revenu ou virement

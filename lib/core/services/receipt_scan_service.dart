@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
@@ -10,23 +9,17 @@ import 'package:mybudget/models/scanned_item_model.dart';
 class ReceiptScanService {
   static const _modelName = 'gemini-3-flash-preview';
 
-  late final GenerativeModel _model;
+  final GenerativeModel _model;
 
-  ReceiptScanService() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY manquante dans le fichier .env');
-    }
-
-    _model = GenerativeModel(
-      model: _modelName,
-      apiKey: apiKey,
-      generationConfig: GenerationConfig(
-        responseMimeType: 'application/json',
-        responseSchema: _buildResponseSchema(),
-      ),
-    );
-  }
+  ReceiptScanService(String apiKey)
+      : _model = GenerativeModel(
+          model: _modelName,
+          apiKey: apiKey,
+          generationConfig: GenerationConfig(
+            responseMimeType: 'application/json',
+            responseSchema: _buildResponseSchema(),
+          ),
+        );
 
   Future<ReceiptScanResultModel> extractItems(
     Uint8List imageBytes,
@@ -72,7 +65,7 @@ Règles :
 - Chaque article = une entrée distincte''';
   }
 
-  Schema _buildResponseSchema() {
+  static Schema _buildResponseSchema() {
     return Schema.object(
       properties: {
         'store_name': Schema.string(nullable: true),
