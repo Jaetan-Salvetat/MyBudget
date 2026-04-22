@@ -16,6 +16,7 @@ class PreferencesService {
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
   static const String keyIsBackgroundCheckEnabled = 'isBackgroundCheckEnabled';
   static const String keyBackgroundCheckInterval = 'backgroundCheckInterval';
+  static const String keyLastScanTimestamp = 'lastScanTimestamp';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -113,6 +114,14 @@ class PreferencesService {
 
   static Future<void> setBackgroundCheckInterval(int hours) async {
     await _prefs.setInt(keyBackgroundCheckInterval, hours);
+  }
+
+  static int getLastScanTimestamp() {
+    return _prefs.getInt(keyLastScanTimestamp) ?? 0;
+  }
+
+  static Future<void> setLastScanTimestamp(int timestamp) async {
+    await _prefs.setInt(keyLastScanTimestamp, timestamp);
   }
 
   static Future<void> clearAll() async {

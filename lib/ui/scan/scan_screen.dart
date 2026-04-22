@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
@@ -30,6 +31,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   late final AnimationController _pulseController;
   int _statusMessageIndex = 0;
   Timer? _statusTimer;
+  Timer? _countdownTimer;
+  int _countdownSeconds = 0;
 
   static const _statusMessages = [
     'Analyse du ticket en cours...',
@@ -52,6 +55,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     )..repeat(reverse: true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listenManual(scanProvider, (_, next) {
+        if (next is AsyncError) {
+          final error = next.error;
+          if (error is ScanException && error.retryAfterSeconds > 0) {
+            _startCountdown(error.retryAfterSeconds);
+          }
+        } else if (next is AsyncData && next.value != null) {
+          _initSelectedAccount();
+        }
+      });
       ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
       _startStatusRotation();
     });
@@ -70,6 +83,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     _scanLineController.dispose();
     _pulseController.dispose();
     _statusTimer?.cancel();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -170,6 +184,42 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
   Widget _buildErrorView(BuildContext context, AsyncError error) {
     final theme = Theme.of(context);
+    final scanError = error.error;
+
+    final IconData icon;
+    final String title;
+    final String subtitle;
+    final bool hasCooldown;
+
+    switch (scanError) {
+      case ScanCooldownException():
+        icon = Icons.timer_outlined;
+        title = scanError.message;
+        subtitle = 'Vous pourrez réessayer dans un instant';
+        hasCooldown = true;
+      case ScanRateLimitException():
+        icon = Icons.cloud_off_outlined;
+        title = scanError.message;
+        subtitle = 'Réessayez dans quelques instants';
+        hasCooldown = true;
+      case ScanServiceUnavailableException():
+        icon = Icons.cloud_off_outlined;
+        title = scanError.message;
+        subtitle = 'Réessayez dans quelques instants';
+        hasCooldown = true;
+      case ScanGenericException():
+        icon = Icons.error_outline;
+        title = scanError.message;
+        subtitle = '';
+        hasCooldown = false;
+      default:
+        icon = Icons.error_outline;
+        title = 'Une erreur est survenue';
+        subtitle = '$scanError';
+        hasCooldown = false;
+    }
+
+    final canRetry = !hasCooldown || _countdownSeconds <= 0;
 
     return Center(
       key: const ValueKey('error'),
@@ -179,38 +229,81 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.error_outline,
+              icon,
               size: 64,
-              color: theme.colorScheme.error,
+              color: hasCooldown
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.error,
             ),
             const SizedBox(height: 16),
             Text(
-              'Impossible d\'analyser le ticket',
+              title,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              '${error.error}',
+              subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               textAlign: TextAlign.center,
             ),
+            if (hasCooldown && _countdownSeconds > 0) ...[
+              const SizedBox(height: 16),
+              Text(
+                _formatCountdown(_countdownSeconds),
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             FrostedFilledButton(
-              onPressed: () {
-                setState(() => _statusMessageIndex = 0);
-                _statusTimer?.cancel();
-                _startStatusRotation();
-                ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
-              },
+              onPressed: canRetry ? _retry : null,
               child: const Text('Réessayer'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _initSelectedAccount() {
+    if (_selectedAccountId != null) return;
+    final accounts = ref.read(accountProvider).value ?? [];
+    if (accounts.length == 1) {
+      setState(() => _selectedAccountId = accounts.first.id);
+    }
+  }
+
+  void _startCountdown(int seconds) {
+    if (_countdownTimer?.isActive ?? false) return;
+    _countdownSeconds = seconds;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _countdownSeconds--;
+        if (_countdownSeconds <= 0) {
+          _countdownTimer?.cancel();
+        }
+      });
+    });
+  }
+
+  void _retry() {
+    _countdownTimer?.cancel();
+    _countdownSeconds = 0;
+    setState(() => _statusMessageIndex = 0);
+    _statusTimer?.cancel();
+    _startStatusRotation();
+    ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
+  }
+
+  String _formatCountdown(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '$m:${s.toString().padLeft(2, '0')}';
   }
 
   Widget _buildEmptyView(BuildContext context) {
@@ -257,9 +350,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
     final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
 
-    if (_selectedAccountId == null && accounts.isNotEmpty) {
-      _selectedAccountId = accounts.first.id;
-    }
 
     final grouped = _groupItemsByCategory(result.items, categories);
     final uncategorized =
