@@ -33,9 +33,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   frosted_ui:
-    git:
-      url: https://github.com/Jaetan-Salvetat/frosted_ui
-      ref: main
+    path: "../frosted_ui"
   intl: ^0.20.2
   path: ^1.8.3
   path_provider: ^2.1.5
@@ -65,7 +63,6 @@ dependencies:
   home_widget: ^0.7.0
   google_generative_ai: ^0.4.7
   image_picker: ^1.1.2
-  flutter_expandable_fab: ^2.5.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
@@ -131,9 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       floatingActionButton: _buildFab(context),
-      floatingActionButtonLocation: _selectedIndex == 2
-          ? ExpandableFab.location
-          : FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: FrostedBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -159,8 +156,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  static const _fabSize = 56.0;
-
   Widget? _buildFab(BuildContext context) {
     switch (_selectedIndex) {
       case 1:
@@ -169,72 +164,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: const Icon(Icons.add),
         );
       case 2:
-        return ExpandableFab(
-          type: ExpandableFabType.up,
-          distance: 70,
-          openButtonBuilder: FloatingActionButtonBuilder(
-            size: _fabSize,
-            builder: (context, onPressed, progress) {
-              return FloatingActionButton(
-                heroTag: 'expense_fab',
-                onPressed: onPressed,
-                elevation: FrostedElevation.high,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    FrostedButtonStyle.buttonRadius,
-                  ),
-                ),
-                child: AnimatedBuilder(
-                  animation: progress,
-                  builder: (context, _) {
-                    return Transform.rotate(
-                      angle: progress.value * 0.75,
-                      child: const Icon(Icons.add),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          closeButtonBuilder: FloatingActionButtonBuilder(
-            size: _fabSize,
-            builder: (context, onPressed, progress) {
-              return FloatingActionButton(
-                heroTag: 'expense_fab_close',
-                onPressed: onPressed,
-                elevation: FrostedElevation.high,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    FrostedButtonStyle.buttonRadius,
-                  ),
-                ),
-                child: const Icon(Icons.close),
-              );
-            },
-          ),
-          overlayStyle: ExpandableFabOverlayStyle(
-            color: Colors.black.withValues(alpha: 0.3),
-          ),
+        return FrostedExpandableFab(
           children: [
-            FloatingActionButton.small(
-              heroTag: 'scan_fab',
+            FrostedExpandableFabChild(
+              icon: const Icon(Icons.document_scanner),
+              label: 'Scanner',
               onPressed: () => _showImageSourceChoice(context),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  FrostedButtonStyle.buttonRadius,
-                ),
-              ),
-              child: const Icon(Icons.document_scanner),
             ),
-            FloatingActionButton.small(
-              heroTag: 'manual_fab',
+            FrostedExpandableFabChild(
+              icon: const Icon(Icons.edit),
+              label: 'Manuel',
               onPressed: () => _showAddExpenseBottomSheet(context),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  FrostedButtonStyle.buttonRadius,
-                ),
-              ),
-              child: const Icon(Icons.edit),
             ),
           ],
         );

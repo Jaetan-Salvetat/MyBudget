@@ -77,17 +77,18 @@ void main() {
       expect(item.categoryId, null);
     });
 
-    test('amount is mutable', () {
+    test('copyWith updates amount', () {
       final item = ScannedItemModel(name: 'Test', amount: 10.0);
-      item.amount = 15.0;
-      expect(item.amount, 15.0);
+      final updated = item.copyWith(amount: 15.0);
+      expect(updated.amount, 15.0);
+      expect(updated.name, 'Test');
     });
 
-    test('categoryId is mutable', () {
+    test('copyWith updates categoryId', () {
       final item = ScannedItemModel(name: 'Test', amount: 10.0);
       expect(item.categoryId, null);
-      item.categoryId = 3;
-      expect(item.categoryId, 3);
+      final updated = item.copyWith(categoryId: 3);
+      expect(updated.categoryId, 3);
     });
   });
 
@@ -116,23 +117,25 @@ void main() {
       expect(result.date, null);
     });
 
-    test('date is mutable', () {
+    test('copyWith updates date', () {
       final result = ReceiptScanResultModel(items: []);
       expect(result.date, null);
-      result.date = DateTime(2026, 1, 1);
-      expect(result.date, DateTime(2026, 1, 1));
+      final updated = result.copyWith(date: DateTime(2026, 1, 1));
+      expect(updated.date, DateTime(2026, 1, 1));
     });
 
-    test('items list is mutable', () {
+    test('copyWith updates items', () {
       final result = ReceiptScanResultModel(items: [
-        ScannedItemModel(name: 'A', amount: 1.0),
-        ScannedItemModel(name: 'B', amount: 2.0),
+        const ScannedItemModel(name: 'A', amount: 1.0),
+        const ScannedItemModel(name: 'B', amount: 2.0),
       ]);
 
       expect(result.items.length, 2);
-      result.items.removeAt(0);
-      expect(result.items.length, 1);
-      expect(result.items.first.name, 'B');
+      final updated = result.copyWith(
+        items: [...result.items]..removeAt(0),
+      );
+      expect(updated.items.length, 1);
+      expect(updated.items.first.name, 'B');
     });
   });
 }

@@ -546,6 +546,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.edit_outlined,
+              size: 14,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+            ),
           ],
         ),
       ),

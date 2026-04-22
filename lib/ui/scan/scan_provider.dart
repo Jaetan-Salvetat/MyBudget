@@ -35,30 +35,33 @@ class ScanNotifier extends _$ScanNotifier {
   void updateItemCategory(int index, int categoryId, String categoryName) {
     final result = state.value;
     if (result == null) return;
-    result.items[index].categoryId = categoryId;
-    result.items[index].categoryName = categoryName;
-    state = AsyncData(result);
+    final updatedItems = [...result.items];
+    updatedItems[index] = updatedItems[index].copyWith(
+      categoryId: categoryId,
+      categoryName: categoryName,
+    );
+    state = AsyncData(result.copyWith(items: updatedItems));
   }
 
   void updateItemAmount(int index, double amount) {
     final result = state.value;
     if (result == null) return;
-    result.items[index].amount = amount;
-    state = AsyncData(result);
+    final updatedItems = [...result.items];
+    updatedItems[index] = updatedItems[index].copyWith(amount: amount);
+    state = AsyncData(result.copyWith(items: updatedItems));
   }
 
   void removeItem(int index) {
     final result = state.value;
     if (result == null) return;
-    result.items.removeAt(index);
-    state = AsyncData(result);
+    final updatedItems = [...result.items]..removeAt(index);
+    state = AsyncData(result.copyWith(items: updatedItems));
   }
 
   void updateDate(DateTime date) {
     final result = state.value;
     if (result == null) return;
-    result.date = date;
-    state = AsyncData(result);
+    state = AsyncData(result.copyWith(date: date));
   }
 
   Future<int> validateAndCreate(int accountId, Uint8List imageBytes) async {
