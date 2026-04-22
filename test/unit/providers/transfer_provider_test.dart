@@ -44,7 +44,7 @@ void main() {
       amount: amount,
       fromAccountId: fromAccountId,
       toAccountId: toAccountId,
-      date: DateTime(2024, 6, 15),
+      startDate: DateTime(2024, 6, 15),
       frequency: frequency,
     )..id = id;
   }
@@ -89,10 +89,13 @@ void main() {
       verify(() => mockRepo.add(model)).called(1);
     });
 
-    test('updateTransfer should call repo.update and refresh state', () async {
+    test('updateTransfer with name-only change updates entire chain', () async {
+      final existing = makeTransfer(id: 1);
+      when(() => mockRepo.get(1)).thenReturn(existing);
+      when(() => mockRepo.getChain(1)).thenReturn([existing]);
       when(() => mockRepo.update(any())).thenReturn(1);
       final container = makeContainer(
-        transfers: [makeTransfer(id: 1)],
+        transfers: [existing],
       );
       addTearDown(container.dispose);
 
@@ -101,13 +104,52 @@ void main() {
       final updated = makeTransfer(id: 1, name: 'Modifié');
       await container.read(transferProvider.notifier).updateTransfer(updated);
 
-      verify(() => mockRepo.update(updated)).called(1);
+      verify(() => mockRepo.getChain(1)).called(1);
+      verify(() => mockRepo.update(any())).called(1);
     });
 
-    test('deleteTransfer should call repo.delete and refresh state', () async {
+    test('updateTransfer with structural change closes old and creates new', () async {
+      final existing = makeTransfer(id: 1, amount: 500);
+      when(() => mockRepo.get(1)).thenReturn(existing);
+      when(() => mockRepo.update(any())).thenReturn(1);
+      when(() => mockRepo.add(any())).thenReturn(2);
+      final container = makeContainer(
+        transfers: [existing],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(transferProvider.future);
+
+      final updated = makeTransfer(id: 1, amount: 600);
+      await container.read(transferProvider.notifier).updateTransfer(updated);
+
+      verify(() => mockRepo.update(any())).called(1);
+      verify(() => mockRepo.add(any())).called(1);
+    });
+
+    test('deleteTransfer soft deletes recurring transfer', () async {
+      final existing = makeTransfer(id: 1, frequency: 'Mensuel');
+      when(() => mockRepo.get(1)).thenReturn(existing);
+      when(() => mockRepo.update(any())).thenReturn(1);
+      final container = makeContainer(
+        transfers: [existing],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(transferProvider.future);
+
+      await container.read(transferProvider.notifier).deleteTransfer(1);
+
+      verify(() => mockRepo.update(any())).called(1);
+      verifyNever(() => mockRepo.delete(any()));
+    });
+
+    test('deleteTransfer hard deletes oneTime transfer', () async {
+      final existing = makeTransfer(id: 1, frequency: 'Ponctuel');
+      when(() => mockRepo.get(1)).thenReturn(existing);
       when(() => mockRepo.delete(any())).thenReturn(true);
       final container = makeContainer(
-        transfers: [makeTransfer(id: 1)],
+        transfers: [existing],
       );
       addTearDown(container.dispose);
 
@@ -116,6 +158,7 @@ void main() {
       await container.read(transferProvider.notifier).deleteTransfer(1);
 
       verify(() => mockRepo.delete(1)).called(1);
+      verifyNever(() => mockRepo.update(any()));
     });
   });
 
@@ -218,6 +261,30 @@ void main() {
       final result = container.read(transferProvider.notifier).getTransfersForAccount(99);
 
       expect(result, isEmpty);
+    });
+
+    test('getClosedTransfers returns closed entries', () async {
+      final closed = TransferModel.create(
+        name: 'Ancien virement',
+        amount: 300,
+        fromAccountId: 1,
+        toAccountId: 2,
+        startDate: DateTime(2024, 1, 15),
+        frequency: 'Mensuel',
+        endDate: DateTime(2024, 6, 15),
+      )..id = 1;
+
+      when(() => mockRepo.getClosed()).thenReturn([closed]);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+
+      await container.read(transferProvider.future);
+
+      final result = container.read(transferProvider.notifier).getClosedTransfers();
+
+      expect(result.length, 1);
+      expect(result.first.endDate, isNotNull);
     });
   });
 }

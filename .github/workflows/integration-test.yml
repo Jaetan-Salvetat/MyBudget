@@ -63,6 +63,9 @@ jobs:
           disable-animations: true
           script: echo "AVD snapshot generated"
 
+      - name: Create .env
+        run: echo "GEMINI_API_KEY=" > .env
+
       - name: Install dependencies
         run: flutter pub get
 

@@ -71,15 +71,15 @@ class _HorizontalPaymentCard extends ConsumerWidget {
     final now = DateTime.now();
 
     if (expense.frequency == 'Mensuel') {
-      final isToday = expense.date.day == now.day;
-      dateDisplay = isToday ? 'Aujourd\'hui' : 'Le ${expense.date.day}';
+      final isToday = expense.startDate.day == now.day;
+      dateDisplay = isToday ? 'Aujourd\'hui' : 'Le ${expense.startDate.day}';
     } else {
       final isToday =
-          expense.date.day == now.day && expense.date.month == now.month;
+          expense.startDate.day == now.day && expense.startDate.month == now.month;
       dateDisplay =
           isToday
               ? 'Aujourd\'hui'
-              : DateFormat('d MMMM', 'fr_FR').format(expense.date);
+              : DateFormat('d MMMM', 'fr_FR').format(expense.startDate);
     }
 
     return FrostedCard(

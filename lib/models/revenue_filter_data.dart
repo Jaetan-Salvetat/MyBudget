@@ -4,6 +4,7 @@ class RevenueFilterData {
   String? searchQuery;
   List<int> accountIds;
   List<int> beneficiaryIds;
+  List<String> frequencies;
 
   RevenueFilterData({
     this.minAmount,
@@ -11,6 +12,7 @@ class RevenueFilterData {
     this.searchQuery,
     this.accountIds = const [],
     this.beneficiaryIds = const [],
+    this.frequencies = const [],
   });
 
   bool get isEmpty {
@@ -18,6 +20,7 @@ class RevenueFilterData {
         maxAmount == null &&
         (searchQuery == null || searchQuery!.isEmpty) &&
         accountIds.isEmpty &&
-        beneficiaryIds.isEmpty;
+        beneficiaryIds.isEmpty &&
+        frequencies.isEmpty;
   }
 }

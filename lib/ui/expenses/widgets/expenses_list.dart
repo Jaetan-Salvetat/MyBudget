@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -15,6 +18,7 @@ import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
 
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/common/widgets/month_selector.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   final ExpenseFilterData? initialFilter;
@@ -51,11 +55,16 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (expensesRaw) {
+            final selectedMonth = ref.watch(selectedMonthProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final categories = ref.watch(categoryProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            List<ExpenseModel> displayedExpenses = expensesRaw;
+            final activeExpenses = expensesRaw
+                .where((e) => e.endDate == null)
+                .toList();
+
+            List<ExpenseModel> displayedExpenses = activeExpenses;
 
             if (!_filterData.isEmpty) {
               displayedExpenses =
@@ -69,11 +78,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     }
 
                     if (_filterData.startDay != null &&
-                        expense.date.day < _filterData.startDay!) {
+                        expense.startDate.day < _filterData.startDay!) {
                       return false;
                     }
                     if (_filterData.endDay != null &&
-                        expense.date.day > _filterData.endDay!) {
+                        expense.startDate.day > _filterData.endDay!) {
                       return false;
                     }
 
@@ -105,7 +114,45 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   }).toList();
             }
 
-            final isEmpty = displayedExpenses.isEmpty && _filterData.isEmpty;
+            final recurringExpenses = displayedExpenses
+                .where((e) {
+                  if (e.frequencyEnum == Frequency.oneTime) return false;
+                  if (e.frequencyEnum == Frequency.annual) {
+                    return e.startDate.month == selectedMonth.month;
+                  }
+                  return true;
+                })
+                .toList();
+            final oneTimeExpenses = displayedExpenses
+                .where((e) =>
+                    e.frequencyEnum == Frequency.oneTime &&
+                    e.startDate.year == selectedMonth.year &&
+                    e.startDate.month == selectedMonth.month)
+                .toList();
+
+            final isEmpty = recurringExpenses.isEmpty &&
+                oneTimeExpenses.isEmpty &&
+                _filterData.isEmpty;
+
+            final items = <_ListItem>[];
+            items.add(_ListItem.monthSelector());
+            items.add(_ListItem.header(displayedExpenses, isEmpty));
+
+            if (recurringExpenses.isNotEmpty) {
+              items.add(_ListItem.sectionTitle('Récurrents'));
+              for (final expense in recurringExpenses) {
+                items.add(_ListItem.expense(expense));
+              }
+            }
+
+            if (oneTimeExpenses.isNotEmpty) {
+              final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
+              final capitalized = monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase());
+              items.add(_ListItem.sectionTitle('Ponctuels — $capitalized'));
+              for (final expense in oneTimeExpenses) {
+                items.add(_ListItem.expense(expense));
+              }
+            }
 
             return ListView.builder(
               physics: const BouncingScrollPhysics(),
@@ -115,17 +162,35 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 left: 16,
                 right: 16,
               ),
-              itemCount: displayedExpenses.length + 1,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                if (index == 0) {
+                final item = items[index];
+
+                if (item.type == _ListItemType.monthSelector) {
+                  return const MonthSelector();
+                }
+
+                if (item.type == _ListItemType.header) {
                   return _buildHeaderContainer(
                     context,
-                    displayedExpenses,
+                    [...recurringExpenses, ...oneTimeExpenses],
                     isEmpty,
                   );
                 }
 
-                final expense = displayedExpenses[index - 1];
+                if (item.type == _ListItemType.sectionTitle) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: Text(
+                      item.title!,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }
+
+                final expense = item.expense!;
                 final account = accounts.firstWhere(
                   (a) => a.id == expense.accountId,
                   orElse:
@@ -334,6 +399,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           context: context,
           accounts: accounts,
           categories: categories,
+          closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
           onSubmit: (newExpense) async {
             try {
               await ref.read(expenseProvider.notifier).addExpense(newExpense);
@@ -374,4 +440,34 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       onCancel: () {},
     );
   }
+}
+
+enum _ListItemType { monthSelector, header, sectionTitle, expense }
+
+class _ListItem {
+  final _ListItemType type;
+  final List<ExpenseModel>? expenses;
+  final bool? isEmpty;
+  final String? title;
+  final ExpenseModel? expense;
+
+  _ListItem._({
+    required this.type,
+    this.expenses,
+    this.isEmpty,
+    this.title,
+    this.expense,
+  });
+
+  factory _ListItem.header(List<ExpenseModel> expenses, bool isEmpty) =>
+      _ListItem._(type: _ListItemType.header, expenses: expenses, isEmpty: isEmpty);
+
+  factory _ListItem.sectionTitle(String title) =>
+      _ListItem._(type: _ListItemType.sectionTitle, title: title);
+
+  factory _ListItem.expense(ExpenseModel expense) =>
+      _ListItem._(type: _ListItemType.expense, expense: expense);
+
+  factory _ListItem.monthSelector() =>
+      _ListItem._(type: _ListItemType.monthSelector);
 }

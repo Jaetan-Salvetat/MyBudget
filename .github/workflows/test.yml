@@ -15,6 +15,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Create .env
+        run: echo "GEMINI_API_KEY=" > .env
+
       - name: Install dependencies
         run: flutter pub get
 

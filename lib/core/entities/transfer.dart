@@ -11,16 +11,22 @@ class Transfer {
   double get amount => _model.amount;
   int get fromAccountId => _model.fromAccountId;
   int get toAccountId => _model.toAccountId;
-  DateTime get date => _model.date;
+  DateTime get startDate => _model.startDate;
+  DateTime? get endDate => _model.endDate;
+  int? get parentId => _model.parentId;
   Frequency get frequency => _model.frequencyEnum;
 
   TransferModel get model => _model;
 
   double get monthlyAmount {
-    if (frequency == Frequency.annual) {
-      return amount / 12;
+    switch (frequency) {
+      case Frequency.annual:
+        return amount / 12;
+      case Frequency.oneTime:
+        return 0.0;
+      case Frequency.monthly:
+        return amount;
     }
-    return amount;
   }
 
   bool isOutgoingFrom(int accountId) => fromAccountId == accountId;

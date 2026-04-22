@@ -153,7 +153,7 @@ void main() {
         amount: 15,
         accountId: 1,
         categoryId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       expense.beneficiaryId = 42;
@@ -176,8 +176,8 @@ void main() {
         name: 'Loyer Paul',
         amount: 500,
         accountId: 1,
-        date: DateTime.now(),
-
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
       );
       revenue.beneficiaryId = 42;
 
@@ -200,7 +200,7 @@ void main() {
         amount: 15,
         accountId: 1,
         categoryId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       expense1.beneficiaryId = 42;
@@ -210,7 +210,7 @@ void main() {
         amount: 10,
         accountId: 1,
         categoryId: 1,
-        date: DateTime.now(),
+        startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       expense2.beneficiaryId = 42;

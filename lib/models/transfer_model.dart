@@ -1,6 +1,8 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 
+const _sentinel = Object();
+
 @Entity()
 class TransferModel {
   @Id()
@@ -15,8 +17,13 @@ class TransferModel {
 
   late int toAccountId;
 
+  @Property(uid: 1221948770519669890)
+  late DateTime startDate;
+
   @Property()
-  late DateTime date;
+  DateTime? endDate;
+
+  int? parentId;
 
   late String frequency;
 
@@ -27,8 +34,10 @@ class TransferModel {
     required this.amount,
     required this.fromAccountId,
     required this.toAccountId,
-    required this.date,
+    required this.startDate,
     required this.frequency,
+    this.endDate,
+    this.parentId,
   });
 
   TransferModel copyWith({
@@ -36,8 +45,10 @@ class TransferModel {
     double? amount,
     int? fromAccountId,
     int? toAccountId,
-    DateTime? date,
+    DateTime? startDate,
     String? frequency,
+    Object? endDate = _sentinel,
+    Object? parentId = _sentinel,
   }) {
     final model =
         TransferModel()
@@ -46,8 +57,16 @@ class TransferModel {
           ..amount = amount ?? this.amount
           ..fromAccountId = fromAccountId ?? this.fromAccountId
           ..toAccountId = toAccountId ?? this.toAccountId
-          ..date = date ?? this.date
-          ..frequency = frequency ?? this.frequency;
+          ..startDate = startDate ?? this.startDate
+          ..frequency = frequency ?? this.frequency
+          ..endDate =
+              endDate == _sentinel
+                  ? this.endDate
+                  : endDate as DateTime?
+          ..parentId =
+              parentId == _sentinel
+                  ? this.parentId
+                  : parentId as int?;
     return model;
   }
 
@@ -58,20 +77,31 @@ class TransferModel {
       'amount': amount,
       'fromAccountId': fromAccountId.toString(),
       'toAccountId': toAccountId.toString(),
-      'date': date.toIso8601String(),
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'parentId': parentId?.toString(),
       'frequency': frequency,
     };
   }
 
   factory TransferModel.fromJson(Map<String, dynamic> json) {
+    final dateStr = json['startDate'] ?? json['date'];
     final model =
         TransferModel()
           ..name = json['name'] ?? ''
           ..amount = (json['amount'] ?? 0.0).toDouble()
-          ..date =
-              json['date'] != null
-                  ? (DateTime.tryParse(json['date'].toString()) ?? DateTime.now())
+          ..startDate =
+              dateStr != null
+                  ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
                   : DateTime.now()
+          ..endDate =
+              json['endDate'] != null
+                  ? DateTime.tryParse(json['endDate'].toString())
+                  : null
+          ..parentId =
+              json['parentId'] != null
+                  ? int.tryParse(json['parentId'].toString())
+                  : null
           ..frequency = json['frequency'] ?? ''
           ..fromAccountId =
               json['fromAccountId'] != null

@@ -9,6 +9,53 @@ part of 'expense_queries.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(activeExpenses)
+final activeExpensesProvider = ActiveExpensesProvider._();
+
+final class ActiveExpensesProvider
+    extends
+        $FunctionalProvider<
+          List<ExpenseModel>,
+          List<ExpenseModel>,
+          List<ExpenseModel>
+        >
+    with $Provider<List<ExpenseModel>> {
+  ActiveExpensesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeExpensesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeExpensesHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<ExpenseModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<ExpenseModel> create(Ref ref) {
+    return activeExpenses(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ExpenseModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ExpenseModel>>(value),
+    );
+  }
+}
+
+String _$activeExpensesHash() => r'f0feff22243757a89e914340cfb66401023e9086';
+
 @ProviderFor(monthlyExpenses)
 final monthlyExpensesProvider = MonthlyExpensesProvider._();
 
@@ -48,7 +95,49 @@ final class MonthlyExpensesProvider
   }
 }
 
-String _$monthlyExpensesHash() => r'11cf1f52b76287cb591f7c0ef2c8c6706d8d9076';
+String _$monthlyExpensesHash() => r'bb853c5ff4061944bab9a0ecab331425ba5a6e1a';
+
+@ProviderFor(currentMonthExpenses)
+final currentMonthExpensesProvider = CurrentMonthExpensesProvider._();
+
+final class CurrentMonthExpensesProvider
+    extends $FunctionalProvider<double, double, double>
+    with $Provider<double> {
+  CurrentMonthExpensesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentMonthExpensesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentMonthExpensesHash();
+
+  @$internal
+  @override
+  $ProviderElement<double> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  double create(Ref ref) {
+    return currentMonthExpenses(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(double value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<double>(value),
+    );
+  }
+}
+
+String _$currentMonthExpensesHash() =>
+    r'ec4fef5f1b1ed1032f55b92d2938eb61d90f5d44';
 
 @ProviderFor(annualExpenses)
 final annualExpensesProvider = AnnualExpensesProvider._();
@@ -89,7 +178,7 @@ final class AnnualExpensesProvider
   }
 }
 
-String _$annualExpensesHash() => r'8f755460f386349785c5806946527aa7fa5a1839';
+String _$annualExpensesHash() => r'f5e7daf4d2018b6d156744687353fb1abc9a9643';
 
 @ProviderFor(upcomingExpenses)
 final upcomingExpensesProvider = UpcomingExpensesProvider._();
@@ -136,7 +225,7 @@ final class UpcomingExpensesProvider
   }
 }
 
-String _$upcomingExpensesHash() => r'160b947f4d25885fe9e01fa681e26f3e4cf968c2';
+String _$upcomingExpensesHash() => r'8908328bd73786860ade4a4427ef726b3d45604b';
 
 @ProviderFor(expensesByCategory)
 final expensesByCategoryProvider = ExpensesByCategoryProvider._();
@@ -184,4 +273,4 @@ final class ExpensesByCategoryProvider
 }
 
 String _$expensesByCategoryHash() =>
-    r'6ed0ec7a6cee69a900861f5d7247c44ffc5f0fb3';
+    r'2e7cd2ea7e75fbd950db929edc57de78513dd1be';

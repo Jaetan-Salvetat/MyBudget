@@ -97,28 +97,33 @@ class _ExpenseFrequencyDateSectionState
   String _formatDate(DateTime date) {
     if (widget.frequency == Frequency.monthly.label) {
       return 'Le ${date.day} du mois';
+    } else if (widget.frequency == Frequency.oneTime.label) {
+      return DateFormat('d MMMM yyyy', 'fr_FR').format(date);
     } else {
       return DateFormat('d MMMM', 'fr_FR').format(date);
     }
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked;
     if (widget.frequency == Frequency.monthly.label) {
-      final picked = await DateSelector.showDayPicker(
+      picked = await DateSelector.showDayPicker(
         context: context,
         initialDate: widget.date,
       );
-      if (picked != null) {
-        widget.onChanged(widget.frequency, picked);
-      }
+    } else if (widget.frequency == Frequency.oneTime.label) {
+      picked = await DateSelector.showFullDatePicker(
+        context: context,
+        initialDate: widget.date,
+      );
     } else {
-      final picked = await DateSelector.showMonthDayPicker(
+      picked = await DateSelector.showMonthDayPicker(
         context: context,
         initialDate: widget.date,
       );
-      if (picked != null) {
-        widget.onChanged(widget.frequency, picked);
-      }
+    }
+    if (picked != null) {
+      widget.onChanged(widget.frequency, picked);
     }
   }
 }

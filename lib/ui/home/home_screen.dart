@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
+import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -111,6 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
+      animateFloatingActionButtonTransitions: false,
       appBar: FrostedAppBar(
         title: _currentTitle,
         actions: [
@@ -161,9 +164,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: const Icon(Icons.add),
         );
       case 2:
-        return FrostedFloatingActionButton(
-          onPressed: () => _showAddExpenseBottomSheet(context),
-          child: const Icon(Icons.add),
+        return FrostedExpandableFab(
+          children: [
+            FrostedExpandableFabChild(
+              icon: const Icon(Icons.document_scanner),
+              label: 'Scanner',
+              onPressed: () => _showImageSourceChoice(context),
+            ),
+            FrostedExpandableFabChild(
+              icon: const Icon(Icons.edit),
+              label: 'Manuel',
+              onPressed: () => _showAddExpenseBottomSheet(context),
+            ),
+          ],
         );
       case 3:
         return FrostedFloatingActionButton(
@@ -211,6 +224,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context: context,
       accounts: accounts,
       categories: ref.read(categoryProvider).value ?? [],
+      closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
       onSubmit: (expense) async {
         try {
           await ref.read(expenseProvider.notifier).addExpense(expense);
@@ -238,6 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     RevenueBottomSheet.show(
       context: context,
       accounts: accounts,
+      closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
       onSubmit: (revenue) async {
         try {
           await ref.read(revenueProvider.notifier).addRevenue(revenue);
@@ -273,6 +288,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       onCancel: () {},
     );
+  }
+
+  void _showImageSourceChoice(BuildContext context) {
+    final accounts = ref.read(accountProvider).value ?? [];
+
+    if (accounts.isEmpty) {
+      _showNoAccountDialog(context, 'une dépense');
+      return;
+    }
+
+    FrostedBottomSheet.show(
+      context: context,
+      title: 'Scanner un ticket',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Prendre une photo'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImageAndScan(context, ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Choisir depuis la galerie'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImageAndScan(context, ImageSource.gallery);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImageAndScan(
+    BuildContext context,
+    ImageSource source,
+  ) async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      maxWidth: 1920,
+      imageQuality: 85,
+    );
+
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ScanScreen(imageBytes: bytes),
+        ),
+      );
+    }
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {

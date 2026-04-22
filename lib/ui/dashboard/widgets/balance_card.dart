@@ -11,6 +11,10 @@ class BalanceCard extends StatelessWidget {
   final double revenues;
   final double loanTotal;
   final double loanMonthlyPayments;
+  final double recurringExpenses;
+  final double oneTimeExpenses;
+  final double recurringRevenues;
+  final double oneTimeRevenues;
 
   const BalanceCard({
     required this.balance,
@@ -21,6 +25,10 @@ class BalanceCard extends StatelessWidget {
     required this.revenues,
     required this.loanTotal,
     required this.loanMonthlyPayments,
+    this.recurringExpenses = 0,
+    this.oneTimeExpenses = 0,
+    this.recurringRevenues = 0,
+    this.oneTimeRevenues = 0,
     super.key,
   });
 
@@ -35,7 +43,7 @@ class BalanceCard extends StatelessWidget {
     final Color revenuesColor = Theme.of(context).colorScheme.primary;
 
     return FrostedCard(
-      margin: const EdgeInsets.fromLTRB(16, 30, 16, 5),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 5),
       borderRadius: 20,
       padding: EdgeInsets.zero,
       child: Column(
@@ -141,6 +149,39 @@ class BalanceCard extends StatelessWidget {
             ),
           ),
 
+          if (oneTimeExpenses > 0 || oneTimeRevenues > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  if (oneTimeExpenses > 0)
+                    Expanded(
+                      child: _buildBreakdownDetail(
+                        context,
+                        'Fixes',
+                        recurringExpenses,
+                        'Ponctuelles',
+                        oneTimeExpenses,
+                        Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  if (oneTimeExpenses > 0 && oneTimeRevenues > 0)
+                    const SizedBox(width: 16),
+                  if (oneTimeRevenues > 0)
+                    Expanded(
+                      child: _buildBreakdownDetail(
+                        context,
+                        'Fixes',
+                        recurringRevenues,
+                        'Ponctuels',
+                        oneTimeRevenues,
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Container(
@@ -244,6 +285,59 @@ class BalanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBreakdownDetail(
+    BuildContext context,
+    String recurringLabel,
+    double recurringAmount,
+    String oneTimeLabel,
+    double oneTimeAmount,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBreakdownRow(context, recurringLabel, recurringAmount, color),
+          const SizedBox(height: 4),
+          _buildBreakdownRow(context, oneTimeLabel, oneTimeAmount, color),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakdownRow(
+    BuildContext context,
+    String label,
+    double amount,
+    Color color,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+        Text(
+          formatter.format(amount),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 

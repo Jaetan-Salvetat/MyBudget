@@ -75,7 +75,7 @@ void main() {
 
     final result = service.buildExportData();
 
-    expect(result['version'], 1);
+    expect(result['version'], 2);
     expect(result['exportDate'], isNotNull);
     expect(result['filename'], startsWith('mybudget_backup_'));
     expect(result['filename'], endsWith('.json'));
@@ -99,7 +99,7 @@ void main() {
       amount: 15.0,
       categoryId: 3,
       accountId: 1,
-      date: DateTime(2025, 1, 15),
+      startDate: DateTime(2025, 1, 15),
       frequency: 'Mensuel',
     );
     expense.id = 4;
@@ -107,8 +107,8 @@ void main() {
       name: 'Salaire',
       amount: 3000.0,
       accountId: 1,
-
-      date: DateTime(2025, 1, 1),
+      startDate: DateTime(2025, 1, 1),
+      frequency: 'Mensuel',
     );
     revenue.id = 5;
     final loan = LoanModel(
@@ -176,7 +176,7 @@ void main() {
       amount: 500,
       fromAccountId: 1,
       toAccountId: 2,
-      date: DateTime(2025, 3, 15),
+      startDate: DateTime(2025, 3, 15),
       frequency: 'Mensuel',
     );
     transfer.id = 10;

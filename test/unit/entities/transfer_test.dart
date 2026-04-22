@@ -16,7 +16,7 @@ void main() {
         amount: amount,
         fromAccountId: fromAccountId,
         toAccountId: toAccountId,
-        date: DateTime(2024, 6, 15),
+        startDate: DateTime(2024, 6, 15),
         frequency: frequency,
       );
     }
@@ -30,7 +30,7 @@ void main() {
       expect(transfer.amount, 300);
       expect(transfer.fromAccountId, 1);
       expect(transfer.toAccountId, 2);
-      expect(transfer.date, DateTime(2024, 6, 15));
+      expect(transfer.startDate, DateTime(2024, 6, 15));
     });
 
     test('model getter returns underlying model', () {
@@ -50,6 +50,12 @@ void main() {
       final transfer = Transfer.fromModel(makeModel(amount: 1200, frequency: 'Annuel'));
 
       expect(transfer.monthlyAmount, 100);
+    });
+
+    test('monthlyAmount returns 0 for oneTime frequency', () {
+      final transfer = Transfer.fromModel(makeModel(amount: 500, frequency: 'Ponctuel'));
+
+      expect(transfer.monthlyAmount, 0);
     });
 
     test('isOutgoingFrom returns true when account is source', () {

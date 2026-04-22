@@ -5,6 +5,7 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'home_widget_provider.g.dart';
@@ -28,8 +29,8 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
   }
 
   Future<void> _syncMonthlySummary() async {
-    final expenses = ref.watch(monthlyExpensesProvider);
-    final revenues = ref.watch(monthlyRevenuesProvider);
+    final expenses = ref.watch(currentMonthExpensesProvider);
+    final revenues = ref.watch(currentMonthRevenuesProvider);
     final loanPayments = ref.watch(totalMonthlyLoanPaymentsProvider);
     final netBalance = revenues - (expenses + loanPayments);
 
@@ -64,7 +65,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
       items.add(UpcomingItemData(
         name: expense.name,
         amount: expense.amount,
-        day: expense.date.day,
+        day: expense.startDate.day,
         type: 'expense',
       ));
     }
@@ -74,7 +75,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
       items.add(UpcomingItemData(
         name: revenue.name,
         amount: revenue.amount,
-        day: revenue.date.day,
+        day: revenue.startDate.day,
         type: 'revenue',
       ));
     }
