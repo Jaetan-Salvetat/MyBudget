@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/services/secure_storage_service.dart';
+import 'package:mybudget/ui/settings/widgets/gemini_api_key_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
+import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/utils/app_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class UpdateConfigurationSection extends ConsumerStatefulWidget {
-  const UpdateConfigurationSection({super.key});
+class ConfigurationSection extends ConsumerStatefulWidget {
+  const ConfigurationSection({super.key});
 
   @override
-  ConsumerState<UpdateConfigurationSection> createState() =>
-      _UpdateConfigurationSectionState();
+  ConsumerState<ConfigurationSection> createState() =>
+      _ConfigurationSectionState();
 }
 
-class _UpdateConfigurationSectionState
-    extends ConsumerState<UpdateConfigurationSection> {
-  late bool _enabled;
-  late int _interval;
+class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
+  bool _hasCustomKey = false;
+  late bool _updateEnabled;
+  late int _updateInterval;
 
   static const Map<int, String> _intervalOptions = {
     1: '1 heure',
@@ -31,8 +34,16 @@ class _UpdateConfigurationSectionState
   @override
   void initState() {
     super.initState();
-    _enabled = PreferencesService.isBackgroundCheckEnabled();
-    _interval = PreferencesService.getBackgroundCheckInterval();
+    _loadKeyStatus();
+    _updateEnabled = PreferencesService.isBackgroundCheckEnabled();
+    _updateInterval = PreferencesService.getBackgroundCheckInterval();
+  }
+
+  Future<void> _loadKeyStatus() async {
+    final hasKey = await SecureStorageService.hasGeminiApiKey();
+    if (mounted) {
+      setState(() => _hasCustomKey = hasKey);
+    }
   }
 
   void _showRestartDialog() {
@@ -61,11 +72,11 @@ class _UpdateConfigurationSectionState
     if (value) {
       final status = await Permission.notification.request();
       if (status.isGranted) {
-        setState(() => _enabled = true);
+        setState(() => _updateEnabled = true);
         await PreferencesService.setBackgroundCheckEnabled(true);
         if (mounted) _showRestartDialog();
       } else {
-        setState(() => _enabled = false);
+        setState(() => _updateEnabled = false);
         await PreferencesService.setBackgroundCheckEnabled(false);
         if (mounted) {
           FrostedSnackbar.show(
@@ -76,7 +87,7 @@ class _UpdateConfigurationSectionState
         }
       }
     } else {
-      setState(() => _enabled = false);
+      setState(() => _updateEnabled = false);
       await PreferencesService.setBackgroundCheckEnabled(false);
       if (mounted) _showRestartDialog();
     }
@@ -84,7 +95,7 @@ class _UpdateConfigurationSectionState
 
   Future<void> _onIntervalChanged(int? value) async {
     if (value == null) return;
-    setState(() => _interval = value);
+    setState(() => _updateInterval = value);
     await PreferencesService.setBackgroundCheckInterval(value);
     if (mounted) _showRestartDialog();
   }
@@ -94,8 +105,26 @@ class _UpdateConfigurationSectionState
     final theme = Theme.of(context);
 
     return SettingsSection(
-      title: 'Mises à jour',
+      title: 'Configuration',
       children: [
+        SettingsTile(
+          title: _hasCustomKey
+              ? 'Clé API personnelle active'
+              : 'Utiliser ma propre clé API',
+          subtitle: _hasCustomKey
+              ? 'Vous utilisez vos propres quotas Gemini'
+              : 'Recommandé pour éviter les limites partagées',
+          leading: Icon(
+            _hasCustomKey ? Icons.vpn_key : Icons.vpn_key_outlined,
+          ),
+          onTap: () async {
+            await GeminiApiKeyBottomSheet.show(
+              context: context,
+              hasExistingKey: _hasCustomKey,
+            );
+            _loadKeyStatus();
+          },
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -124,13 +153,13 @@ class _UpdateConfigurationSectionState
                 ],
               ),
               Switch.adaptive(
-                value: _enabled,
+                value: _updateEnabled,
                 onChanged: _onToggleChanged,
               ),
             ],
           ),
         ),
-        if (_enabled)
+        if (_updateEnabled)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -159,7 +188,7 @@ class _UpdateConfigurationSectionState
                   ],
                 ),
                 DropdownButton<int>(
-                  value: _interval,
+                  value: _updateInterval,
                   underline: const SizedBox.shrink(),
                   items: _intervalOptions.entries
                       .map((e) => DropdownMenuItem<int>(
