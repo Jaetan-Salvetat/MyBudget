@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -24,11 +27,33 @@ class ScanNotifier extends _$ScanNotifier {
   Future<void> scanReceipt(Uint8List imageBytes) async {
     state = const AsyncLoading();
     try {
+      final lastTimestamp = PreferencesService.getLastScanTimestamp();
+      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - lastTimestamp;
+      final remaining = ScanException.scanCooldownSeconds - elapsed;
+      if (remaining > 0) {
+        throw ScanCooldownException(retryAfterSeconds: remaining);
+      }
+
       final categories = ref.read(categoryProvider).value ?? [];
       final result = await _scanService.extractItems(imageBytes, categories);
+      await PreferencesService.setLastScanTimestamp(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      );
       state = AsyncData(result);
-    } catch (e, st) {
+    } on ScanException catch (e, st) {
       state = AsyncError(e, st);
+    } on ServerException catch (e, st) {
+      final message = e.message.toUpperCase();
+      if (message.contains('429') || message.contains('RESOURCE_EXHAUSTED')) {
+        await PreferencesService.setLastScanTimestamp(
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        );
+        state = AsyncError(const ScanRateLimitException(), st);
+      } else {
+        state = AsyncError(ScanGenericException(details: e.message), st);
+      }
+    } catch (e, st) {
+      state = AsyncError(ScanGenericException(details: e.toString()), st);
     }
   }
 

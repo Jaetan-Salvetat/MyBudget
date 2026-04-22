@@ -49,6 +49,8 @@ class ReceiptScanService {
       }
 
       return _parseResponse(text, categories);
+    } on ServerException {
+      rethrow;
     } catch (e) {
       throw Exception('Impossible d\'analyser le ticket : $e');
     }
