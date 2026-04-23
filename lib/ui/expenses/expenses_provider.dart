@@ -13,7 +13,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   @override
   Future<List<ExpenseModel>> build() async {
     final repo = ref.watch(expenseRepositoryProvider);
-    final expenses = repo.getAll();
+    final expenses = repo.getActive();
 
     int sortKey(ExpenseModel e) {
       switch (e.frequencyEnum) {
