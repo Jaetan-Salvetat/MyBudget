@@ -20,10 +20,12 @@ void main() {
   setUp(() {
     mockRepo = MockTransferRepository();
     when(() => mockRepo.getAll()).thenReturn([]);
+    when(() => mockRepo.getActive()).thenReturn([]);
   });
 
   ProviderContainer makeContainer({List<TransferModel> transfers = const []}) {
     when(() => mockRepo.getAll()).thenReturn(transfers);
+    when(() => mockRepo.getActive()).thenReturn(transfers);
     return ProviderContainer(
       overrides: [
         transferRepositoryProvider.overrideWithValue(mockRepo),

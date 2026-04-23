@@ -40,7 +40,9 @@ void main() {
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryRepo.getAll()).thenReturn([]);
   });
@@ -89,6 +91,7 @@ void main() {
       );
 
       when(() => mockExpenseRepo.getAll()).thenReturn([foodExpense, transportExpense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([foodExpense, transportExpense]);
       when(() => mockCategoryRepo.get(catFood.id)).thenReturn(catFood);
       when(() => mockCategoryRepo.get(catTransport.id)).thenReturn(catTransport);
       when(() => mockLoanRepo.getAll()).thenReturn([]);
@@ -153,6 +156,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([foodExpense, transportExpense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([foodExpense, transportExpense]);
     when(() => mockCategoryRepo.get(catFood.id)).thenReturn(catFood);
     when(() => mockCategoryRepo.get(catTransport.id)).thenReturn(catTransport);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
@@ -199,6 +203,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual, oneTime]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual, oneTime]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryRepo.get(1)).thenReturn(null);
 
@@ -234,6 +239,7 @@ void main() {
     );
 
     when(() => mockRevenueRepo.getAll()).thenReturn([monthly, oneTime]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([monthly, oneTime]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -264,6 +270,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryRepo.get(1)).thenReturn(null);
 
@@ -299,7 +306,9 @@ void main() {
     );
 
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryRepo.get(1)).thenReturn(null);
 
