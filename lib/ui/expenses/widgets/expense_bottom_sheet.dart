@@ -187,7 +187,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
           itemCount: widget.closedExpenses.length,
           itemBuilder: (context, index) {
             final expense = widget.closedExpenses[index];
-            return ListTile(
+            return FrostedListTile(
               title: Text(expense.name),
               subtitle: Text(formatter.format(expense.amount)),
               trailing: const Icon(Icons.chevron_right),

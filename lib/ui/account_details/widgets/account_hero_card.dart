@@ -90,7 +90,7 @@ class AccountHeroCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 32),
-          const Divider(),
+          const FrostedDivider(),
           const SizedBox(height: 16),
 
           Row(

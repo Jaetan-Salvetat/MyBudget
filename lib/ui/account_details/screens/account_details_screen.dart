@@ -102,12 +102,12 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       appBar: FrostedAppBar(
         title: 'Détails du compte',
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
+          FrostedIconButton(
+            icon: Icons.edit,
             onPressed: () => _showEditAccountBottomSheet(context),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
+          FrostedIconButton(
+            icon: Icons.delete,
             onPressed: () => _showDeleteConfirmation(context),
           ),
         ],

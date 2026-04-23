@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
@@ -18,7 +19,7 @@ class LoansList extends ConsumerWidget {
     return ref
         .watch(loanProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (loans) {
             final loanNotifier = ref.read(loanProvider.notifier);

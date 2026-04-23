@@ -202,8 +202,8 @@ class DateSelector {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
+                      FrostedIconButton(
+                        icon: Icons.chevron_left,
                         onPressed: tempYear > firstYear
                             ? () => setStateDialog(() => tempYear--)
                             : null,
@@ -215,8 +215,8 @@ class DateSelector {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
+                      FrostedIconButton(
+                        icon: Icons.chevron_right,
                         onPressed: tempYear < lastYear
                             ? () => setStateDialog(() => tempYear++)
                             : null,

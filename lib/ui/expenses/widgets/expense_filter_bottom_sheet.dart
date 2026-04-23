@@ -175,7 +175,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
             ),
           ],
         ),
-        RangeSlider(
+        FrostedRangeSlider(
           values: RangeValues(_startDay, _endDay),
           min: 1,
           max: 31,

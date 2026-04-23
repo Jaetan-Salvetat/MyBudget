@@ -119,7 +119,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Switch(
+            FrostedSwitch(
               value: _enabled,
               onChanged: (v) => _onToggle(v, beneficiaries),
             ),
@@ -161,11 +161,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
                   ),
                 const Spacer(),
                 _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const FrostedCircularProgressIndicator(strokeWidth: 2, size: 24)
                     : FrostedFilledButton(
                         onPressed: _confirmCreate,
                         child: const Text('Confirmer'),

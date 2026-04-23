@@ -45,7 +45,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return ref
         .watch(revenueProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
             final selectedMonth = ref.watch(selectedMonthProvider);
@@ -295,8 +295,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                           autofocus: true,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
+                      FrostedIconButton(
+                        icon: Icons.close,
                         onPressed: () {
                           setState(() {
                             _isSearchVisible = false;
@@ -322,25 +322,21 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                       ),
                       Row(
                         children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.search,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          FrostedIconButton(
+                            icon: Icons.search,
+                            color: Theme.of(context).colorScheme.primary,
                             onPressed: () {
                               setState(() {
                                 _isSearchVisible = true;
                               });
                             },
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.filter_list,
-                              color:
-                                  _filterData.isEmpty
-                                      ? Theme.of(context).iconTheme.color
-                                      : Theme.of(context).colorScheme.primary,
-                            ),
+                          FrostedIconButton(
+                            icon: Icons.filter_list,
+                            color:
+                                _filterData.isEmpty
+                                    ? Theme.of(context).iconTheme.color
+                                    : Theme.of(context).colorScheme.primary,
                             onPressed: () => _showFilterBottomSheet(context),
                           ),
                         ],

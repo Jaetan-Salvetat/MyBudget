@@ -152,7 +152,7 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
                   ),
                 ],
               ),
-              Switch.adaptive(
+              FrostedSwitch(
                 value: _updateEnabled,
                 onChanged: _onToggleChanged,
               ),
@@ -187,9 +187,8 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
                     ),
                   ],
                 ),
-                DropdownButton<int>(
+                FrostedDropdown<int>(
                   value: _updateInterval,
-                  underline: const SizedBox.shrink(),
                   items: _intervalOptions.entries
                       .map((e) => DropdownMenuItem<int>(
                             value: e.key,

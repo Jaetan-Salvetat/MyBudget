@@ -46,7 +46,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         if (mounted) Navigator.pop(context);
       });
       return const FrostedScaffold(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: FrostedCircularProgressIndicator()),
       );
     }
 
