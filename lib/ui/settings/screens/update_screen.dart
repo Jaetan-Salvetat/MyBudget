@@ -72,7 +72,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         children: [
           _buildLogo(),
           const SizedBox(height: 24),
-          const CircularProgressIndicator(),
+          const FrostedCircularProgressIndicator(),
           const SizedBox(height: 12),
           Text(
             'Recherche de mises à jour...',

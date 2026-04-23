@@ -406,15 +406,12 @@ class _LoanCreationBottomSheetState
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(
-                icon: Icon(
-                  Icons.help_outline,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              FrostedIconButton(
+                icon: Icons.help_outline,
+                iconSize: 20,
+                color: Theme.of(context).colorScheme.primary,
                 onPressed: () => _showRepaymentTypeHelp(context),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                size: 24,
               ),
             ],
           ),
@@ -479,25 +476,30 @@ class _LoanCreationBottomSheetState
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(
-                icon: Icon(
-                  Icons.help_outline,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              FrostedIconButton(
+                icon: Icons.help_outline,
+                iconSize: 20,
+                color: Theme.of(context).colorScheme.primary,
                 onPressed: () => _showDeferredPeriodHelp(context),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                size: 24,
               ),
             ],
           ),
           const SizedBox(height: 12),
-          CheckboxListTile(
-            value: state.hasDeferredPeriod,
-            onChanged: (_) => notifier.toggleDeferredPeriod(),
-            title: const Text('Ce prêt a une période de différé (ex: PTZ)'),
-            controlAffinity: ListTileControlAffinity.leading,
-            contentPadding: EdgeInsets.zero,
+          GestureDetector(
+            onTap: () => notifier.toggleDeferredPeriod(),
+            child: Row(
+              children: [
+                FrostedCheckbox(
+                  value: state.hasDeferredPeriod,
+                  onChanged: (_) => notifier.toggleDeferredPeriod(),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text('Ce prêt a une période de différé (ex: PTZ)'),
+                ),
+              ],
+            ),
           ),
           if (state.hasDeferredPeriod) ...[
             const SizedBox(height: 12),
@@ -766,9 +768,9 @@ class _LoanCreationBottomSheetState
               ),
               const SizedBox(height: 16),
               _buildSummaryRow(context, 'Nom', state.name),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(context, 'Banque', state.lenderName),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(
                 context,
                 'Capital',
@@ -777,17 +779,17 @@ class _LoanCreationBottomSheetState
                   locale: 'fr_FR',
                 ).format(state.amount),
               ),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(context, 'Compte', accountName),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(
                 context,
                 'Durée',
                 '${state.durationValue} ${state.durationUnit == DurationUnit.years ? "Ans" : "Mois"}',
               ),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(context, 'Taux', '${state.interestRate} %'),
-              const Divider(height: 24),
+              const FrostedDivider(height: 24),
               _buildSummaryRow(
                 context,
                 'Assurance',

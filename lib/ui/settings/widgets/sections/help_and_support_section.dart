@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
+import 'package:mybudget/ui/settings/screens/help_screen.dart';
 import 'package:mybudget/ui/settings/screens/form_webview_screen.dart';
 
 const _allowedHost = 'forms.jaetan.dev';
 const _bugReportUrl = 'https://forms.jaetan.dev/p/bug-repport';
 const _feedbackUrl = 'https://forms.jaetan.dev/p/feedback-ideas';
 
-class SupportSection extends StatelessWidget {
-  const SupportSection({super.key});
+class HelpAndSupportSection extends StatelessWidget {
+  const HelpAndSupportSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: 'Support',
+      title: 'Aide & Support',
       children: [
+        SettingsTile(
+          title: 'Guide d\'utilisation',
+          subtitle: 'Consultez l\'aide et les explications',
+          leading: const Icon(Icons.help_outline),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HelpScreen()),
+          ),
+        ),
         SettingsTile(
           title: 'Signaler un bug',
           subtitle: 'Aidez-nous à corriger les problèmes',
@@ -25,7 +35,11 @@ class SupportSection extends StatelessWidget {
           title: 'Suggérer une amélioration',
           subtitle: 'Partagez vos idées et retours',
           leading: const Icon(Icons.lightbulb_outline),
-          onTap: () => _openForm(context, 'Suggérer une amélioration', _feedbackUrl),
+          onTap: () => _openForm(
+            context,
+            'Suggérer une amélioration',
+            _feedbackUrl,
+          ),
         ),
       ],
     );

@@ -206,24 +206,24 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               locale: 'fr_FR',
             ).format(state.capital),
           ),
-          const Divider(height: 24),
+          const FrostedDivider(height: 24),
 
           _buildReadOnlyField(
             context,
             'Date de signature',
             DateFormat('dd/MM/yyyy').format(state.signatureDate),
           ),
-          const Divider(height: 24),
+          const FrostedDivider(height: 24),
 
           _buildReadOnlyField(context, 'Durée', '${state.duration} mois'),
-          const Divider(height: 24),
+          const FrostedDivider(height: 24),
 
           _buildReadOnlyField(
             context,
             'Taux d\'intérêt',
             '${state.interestRate} %',
           ),
-          const Divider(height: 24),
+          const FrostedDivider(height: 24),
 
           _buildReadOnlyField(
             context,
@@ -234,7 +234,7 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           ),
 
           if (state.deferredMonths > 0) ...[
-            const Divider(height: 24),
+            const FrostedDivider(height: 24),
             _buildReadOnlyField(
               context,
               'Différé',

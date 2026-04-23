@@ -117,8 +117,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: FrostedAppBar(
         title: _currentTitle,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
+          FrostedIconButton(
+            icon: Icons.settings,
             onPressed:
                 () => Navigator.push(
                   context,
@@ -304,7 +304,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
+          FrostedListTile(
             leading: const Icon(Icons.camera_alt),
             title: const Text('Prendre une photo'),
             onTap: () {
@@ -312,7 +312,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _pickImageAndScan(context, ImageSource.camera);
             },
           ),
-          ListTile(
+          FrostedListTile(
             leading: const Icon(Icons.photo_library),
             title: const Text('Choisir depuis la galerie'),
             onTap: () {

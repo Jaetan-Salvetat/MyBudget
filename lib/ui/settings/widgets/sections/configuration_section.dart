@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:mybudget/ui/settings/widgets/gemini_api_key_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 
-class GeminiSection extends ConsumerStatefulWidget {
-  const GeminiSection({super.key});
+class ConfigurationSection extends ConsumerStatefulWidget {
+  const ConfigurationSection({super.key});
 
   @override
-  ConsumerState<GeminiSection> createState() => _GeminiSectionState();
+  ConsumerState<ConfigurationSection> createState() =>
+      _ConfigurationSectionState();
 }
 
-class _GeminiSectionState extends ConsumerState<GeminiSection> {
+class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
   bool _hasCustomKey = false;
 
   @override
@@ -31,7 +33,7 @@ class _GeminiSectionState extends ConsumerState<GeminiSection> {
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: 'Scan de tickets',
+      title: 'Configuration',
       children: [
         SettingsTile(
           title: _hasCustomKey

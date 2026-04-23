@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/main.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -62,14 +59,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final isFirstLaunch = PreferencesService.isFirstLaunch();
     final hasSeenUpdateOnboarding = PreferencesService.hasSeenUpdateOnboarding();
 
-    final launchedFromNotification =
-        ref.read(launchedFromNotificationProvider);
-
     final Widget destination;
     if (isFirstLaunch) {
       destination = const OnboardingPage();
     } else if (!hasSeenUpdateOnboarding) {
-      destination = const OnboardingPage(initialPage: 3);
+      destination = const OnboardingPage();
     } else {
       destination = const HomeScreen();
     }
@@ -83,14 +77,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         transitionDuration: const Duration(milliseconds: 800),
       ),
     );
-
-    if (launchedFromNotification && destination is HomeScreen) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (_) => const UpdateScreen()),
-        );
-      });
-    }
   }
 
   @override

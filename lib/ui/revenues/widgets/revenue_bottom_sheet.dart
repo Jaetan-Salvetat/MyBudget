@@ -112,7 +112,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           itemCount: widget.closedRevenues.length,
           itemBuilder: (context, index) {
             final revenue = widget.closedRevenues[index];
-            return ListTile(
+            return FrostedListTile(
               title: Text(revenue.name),
               subtitle: Text(formatter.format(revenue.amount)),
               trailing: const Icon(Icons.chevron_right),

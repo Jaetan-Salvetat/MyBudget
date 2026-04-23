@@ -95,13 +95,11 @@ class LoanCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
+                  child: FrostedLinearProgressIndicator(
                     value: progress,
                     minHeight: 4,
                     backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      theme.colorScheme.primary,
-                    ),
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ],

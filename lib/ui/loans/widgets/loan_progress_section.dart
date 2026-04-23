@@ -101,14 +101,12 @@ class LoanProgressSection extends StatelessWidget {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
+                child: FrostedLinearProgressIndicator(
                   value: progress,
                   minHeight: 12,
                   backgroundColor:
                       Theme.of(context).colorScheme.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
-                  ),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
