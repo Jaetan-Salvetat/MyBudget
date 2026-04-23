@@ -25,6 +25,7 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockCategoryRepo = MockCategoryRepository();
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([]);
     when(() => mockCategoryRepo.getAll()).thenReturn([]);
   });
 
@@ -48,6 +49,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -70,6 +72,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -100,6 +103,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -133,6 +137,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([zeroExpense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([zeroExpense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -153,6 +158,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
     when(() => mockCategoryRepo.get(999)).thenReturn(null);
 
     final container = makeContainer();
@@ -188,6 +194,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([upcoming, past]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([upcoming, past]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -212,6 +219,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -235,6 +243,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -259,6 +268,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -298,6 +308,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual, oneTime]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual, oneTime]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -324,6 +335,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -358,6 +370,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([annualThisMonth, annualOtherMonth]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([annualThisMonth, annualOtherMonth]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -382,6 +395,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -405,6 +419,7 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -452,6 +467,9 @@ void main() {
     );
 
     when(() => mockExpenseRepo.getAll()).thenReturn([
+      monthly, annual, oneTimeThisYear, oneTimeOtherYear,
+    ]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([
       monthly, annual, oneTimeThisYear, oneTimeOtherYear,
     ]);
 

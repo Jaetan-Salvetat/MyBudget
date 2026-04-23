@@ -20,6 +20,7 @@ void main() {
   setUp(() {
     mockRepository = MockRevenueRepository();
     when(() => mockRepository.getAll()).thenReturn([]);
+    when(() => mockRepository.getActive()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -54,6 +55,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2, rev3]);
+    when(() => mockRepository.getActive()).thenReturn([rev1, rev2, rev3]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -88,6 +90,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev]);
+    when(() => mockRepository.getActive()).thenReturn([rev]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -112,6 +115,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev]);
+    when(() => mockRepository.getActive()).thenReturn([rev]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -135,6 +139,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev]);
+    when(() => mockRepository.getActive()).thenReturn([rev]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -159,6 +164,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev]);
+    when(() => mockRepository.getActive()).thenReturn([rev]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -196,6 +202,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([monthly, annual, oneTime]);
+    when(() => mockRepository.getActive()).thenReturn([monthly, annual, oneTime]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -225,6 +232,7 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2]);
+    when(() => mockRepository.getActive()).thenReturn([rev1, rev2]);
 
     final container = makeContainer();
     addTearDown(container.dispose);

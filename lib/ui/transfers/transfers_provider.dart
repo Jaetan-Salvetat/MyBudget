@@ -12,7 +12,7 @@ class TransferNotifier extends _$TransferNotifier {
   @override
   Future<List<Transfer>> build() async {
     final repo = ref.watch(transferRepositoryProvider);
-    final models = repo.getAll();
+    final models = repo.getActive();
     return models.map(Transfer.fromModel).toList();
   }
 

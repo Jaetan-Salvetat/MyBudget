@@ -48,10 +48,13 @@ void main() {
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
+    when(() => mockTransferRepo.getActive()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -80,6 +83,7 @@ void main() {
         frequency: 'Mensuel',
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
 
       final expense = ExpenseModel.create(
         name: 'Groceries',
@@ -90,6 +94,7 @@ void main() {
         frequency: 'Mensuel',
       );
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
       final loanModel = LoanModel.create(
         name: 'Car Loan',
@@ -158,7 +163,9 @@ void main() {
     );
 
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
     final container = makeContainer();
@@ -185,6 +192,7 @@ void main() {
       frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -197,6 +205,7 @@ void main() {
       frequency: 'Mensuel',
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -222,6 +231,7 @@ void main() {
       frequency: 'Mensuel',
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -234,6 +244,7 @@ void main() {
       frequency: 'Mensuel',
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
 
     final container = makeContainer();
     addTearDown(container.dispose);

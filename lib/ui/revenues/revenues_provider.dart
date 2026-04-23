@@ -12,7 +12,7 @@ class RevenueNotifier extends _$RevenueNotifier {
   @override
   Future<List<RevenueModel>> build() async {
     final repo = ref.watch(revenueRepositoryProvider);
-    final revenues = repo.getAll();
+    final revenues = repo.getActive();
 
     int sortKey(RevenueModel r) {
       switch (r.frequencyEnum) {
