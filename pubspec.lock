@@ -397,7 +397,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_local_notifications:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_local_notifications
       sha256: ef41ae901e7529e52934feba19ed82827b11baa67336829564aeab3129460610
@@ -542,10 +542,12 @@ packages:
   frosted_ui:
     dependency: "direct main"
     description:
-      path: "../frosted_ui"
-      relative: true
-    source: path
-    version: "0.2.0"
+      path: "."
+      ref: "v0.2.1"
+      resolved-ref: a136ec7d36ef09a30748e1218047fa16e6200a29
+      url: "https://github.com/Jaetan-Salvetat/frosted_ui"
+    source: git
+    version: "0.2.1"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
@@ -1578,7 +1580,7 @@ packages:
     source: hosted
     version: "5.15.0"
   workmanager:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: workmanager
       sha256: "065673b2a465865183093806925419d311a9a5e0995aa74ccf8920fd695e2d10"

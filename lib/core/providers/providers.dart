@@ -16,10 +16,6 @@ final appUpdaterProvider = Provider<AppUpdater>(
   (ref) => throw UnimplementedError('AppUpdater must be overridden at startup'),
 );
 
-final launchedFromNotificationProvider = Provider<bool>(
-  (ref) => false,
-);
-
 @Riverpod(keepAlive: true)
 Future<ObjectBoxService> objectBoxService(Ref ref) {
   return ObjectBoxService.getInstance();

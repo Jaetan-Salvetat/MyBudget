@@ -8,14 +8,13 @@ class PreferencesService {
   static const String keyIsFirstLaunch = 'isFirstLaunch';
   static const String keyThemeMode = 'themeMode';
   static const String keyLanguage = 'language';
-  static const String keyIsNotificationsEnabled = 'isNotificationsEnabled';
+
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
   static const String keyThemeType = 'themeType';
   static const String keyIsCategoriesCreated = 'isCategoriesCreated';
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
-  static const String keyIsBackgroundCheckEnabled = 'isBackgroundCheckEnabled';
-  static const String keyBackgroundCheckInterval = 'backgroundCheckInterval';
+
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
 
   static Future<void> init() async {
@@ -49,13 +48,6 @@ class PreferencesService {
     await _prefs.setString(keyLanguage, language);
   }
 
-  static bool isNotificationsEnabled() {
-    return _prefs.getBool(keyIsNotificationsEnabled) ?? true;
-  }
-
-  static Future<void> setNotificationsEnabled(bool enabled) async {
-    await _prefs.setBool(keyIsNotificationsEnabled, enabled);
-  }
 
   static int getExportFrequency() {
     return _prefs.getInt(keyExportFrequency) ?? 0;
@@ -100,21 +92,6 @@ class PreferencesService {
     await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
   }
 
-  static bool isBackgroundCheckEnabled() {
-    return _prefs.getBool(keyIsBackgroundCheckEnabled) ?? true;
-  }
-
-  static Future<void> setBackgroundCheckEnabled(bool enabled) async {
-    await _prefs.setBool(keyIsBackgroundCheckEnabled, enabled);
-  }
-
-  static int getBackgroundCheckInterval() {
-    return _prefs.getInt(keyBackgroundCheckInterval) ?? 24;
-  }
-
-  static Future<void> setBackgroundCheckInterval(int hours) async {
-    await _prefs.setInt(keyBackgroundCheckInterval, hours);
-  }
 
   static int getLastScanTimestamp() {
     return _prefs.getInt(keyLastScanTimestamp) ?? 0;
