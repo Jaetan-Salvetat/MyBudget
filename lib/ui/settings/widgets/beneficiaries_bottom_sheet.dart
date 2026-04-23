@@ -20,7 +20,7 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
     return ref
         .watch(beneficiaryProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (beneficiaries) {
             return SingleChildScrollView(
@@ -45,7 +45,7 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: beneficiaries.length,
-                      separatorBuilder: (context, index) => const Divider(),
+                      separatorBuilder: (context, index) => const FrostedDivider(),
                       itemBuilder: (context, index) {
                         final beneficiary = beneficiaries[index];
                         return FrostedListTile(
@@ -55,8 +55,8 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
                             avatarColor: beneficiary.color,
                           ),
                           title: Text(beneficiary.name),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
+                          trailing: FrostedIconButton(
+                            icon: Icons.delete,
                             onPressed:
                                 () => _showDeleteConfirmation(
                                   context,

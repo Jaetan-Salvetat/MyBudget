@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
 import 'package:mybudget/ui/onboarding/widgets/onboarding_slide.dart';
-import 'package:mybudget/ui/onboarding/widgets/onboarding_update_slide.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class OnboardingPage extends StatelessWidget {
   final int initialPage;
@@ -55,14 +52,9 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
     );
   }
 
-  Future<void> _finishOnboarding({required bool enableBackgroundCheck}) async {
+  Future<void> _finishOnboarding() async {
     await ref.read(onboardingProvider.notifier).completeOnboarding();
     await PreferencesService.setHasSeenUpdateOnboarding();
-    await PreferencesService.setBackgroundCheckEnabled(enableBackgroundCheck);
-
-    if (enableBackgroundCheck) {
-      await ref.read(appUpdaterProvider).startBackgroundWorker();
-    }
 
     if (mounted) {
       Navigator.of(context).pushReplacement(
@@ -71,21 +63,6 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
         ),
       );
     }
-  }
-
-  Future<void> _activateUpdates() async {
-    final status = await Permission.notification.request();
-    if (!status.isGranted && mounted) {
-      FrostedSnackbar.show(
-        context,
-        message: 'Permission refusée. Vous pourrez l\'activer plus tard dans les réglages.',
-      );
-    }
-    await _finishOnboarding(enableBackgroundCheck: status.isGranted);
-  }
-
-  Future<void> _skipUpdates() async {
-    await _finishOnboarding(enableBackgroundCheck: false);
   }
 
   @override
@@ -118,7 +95,6 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
                     "Vos données ne sortent jamais de ce téléphone. Aucune connexion bancaire, aucune pub, 100% privé.",
                 icon: CupertinoIcons.lock_shield,
               ),
-              const OnboardingUpdateSlide(),
             ],
           ),
 
@@ -130,7 +106,7 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
+                  children: List.generate(3, (index) {
                     final isActive = currentPage == index;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
@@ -152,31 +128,22 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
 
                 const SizedBox(height: 32),
 
-                if (currentPage == 3) ...[
+                if (currentPage == 2)
                   SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: FrostedFilledButton(
-                      onPressed: _activateUpdates,
+                      onPressed: _finishOnboarding,
                       child: const Text(
-                        'Activer',
+                        'Commencer',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: FrostedTextButton(
-                      onPressed: _skipUpdates,
-                      child: const Text('Plus tard'),
-                    ),
-                  ),
-                ] else
+                  )
+                else
                   SizedBox(
                     width: double.infinity,
                     height: 56,

@@ -45,26 +45,6 @@ void main() {
       expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
     });
 
-    test('isBackgroundCheckEnabled is true by default', () {
-      expect(PreferencesService.isBackgroundCheckEnabled(), isTrue);
-    });
 
-    test('setBackgroundCheckEnabled persists value', () async {
-      await PreferencesService.setBackgroundCheckEnabled(false);
-      expect(PreferencesService.isBackgroundCheckEnabled(), isFalse);
-      await PreferencesService.setBackgroundCheckEnabled(true);
-      expect(PreferencesService.isBackgroundCheckEnabled(), isTrue);
-    });
-
-    test('getBackgroundCheckInterval is 24 by default', () {
-      expect(PreferencesService.getBackgroundCheckInterval(), 24);
-    });
-
-    test('setBackgroundCheckInterval persists value', () async {
-      await PreferencesService.setBackgroundCheckInterval(12);
-      expect(PreferencesService.getBackgroundCheckInterval(), 12);
-      await PreferencesService.setBackgroundCheckInterval(168);
-      expect(PreferencesService.getBackgroundCheckInterval(), 168);
-    });
   });
 }

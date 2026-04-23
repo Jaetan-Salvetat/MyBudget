@@ -205,7 +205,7 @@ class _AccountCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Divider(
+          FrostedDivider(
             color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 12),

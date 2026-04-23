@@ -22,7 +22,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
     return ref
         .watch(categoryProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (categories) {
             return SingleChildScrollView(
@@ -33,7 +33,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: categories.length,
-                    separatorBuilder: (context, index) => const Divider(),
+                    separatorBuilder: (context, index) => const FrostedDivider(),
                     itemBuilder: (context, index) {
                       final category = categories[index];
                       return FrostedListTile(
@@ -47,8 +47,8 @@ class CategoriesBottomSheet extends ConsumerWidget {
                           ),
                         ),
                         title: Text(category.name),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
+                        trailing: FrostedIconButton(
+                          icon: Icons.delete,
                           onPressed:
                               () => _showDeleteConfirmation(
                                 context,

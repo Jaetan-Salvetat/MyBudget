@@ -155,7 +155,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
           itemCount: widget.closedTransfers.length,
           itemBuilder: (context, index) {
             final transfer = widget.closedTransfers[index];
-            return ListTile(
+            return FrostedListTile(
               title: Text(transfer.name),
               subtitle: Text(formatter.format(transfer.amount)),
               trailing: const Icon(Icons.chevron_right),
