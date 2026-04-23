@@ -35,7 +35,7 @@ dependencies:
   frosted_ui:
     git:
       url: https://github.com/Jaetan-Salvetat/frosted_ui
-      ref: v0.2.1
+      ref: v0.2.3
   intl: ^0.20.2
   path: ^1.8.3
   path_provider: ^2.1.5
