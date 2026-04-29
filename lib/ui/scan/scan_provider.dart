@@ -85,6 +85,14 @@ class ScanNotifier extends _$ScanNotifier {
     state = AsyncData(result.copyWith(items: updatedItems));
   }
 
+  void updateItemDiscount(int index, double discount) {
+    final result = state.value;
+    if (result == null) return;
+    final updatedItems = [...result.items];
+    updatedItems[index] = updatedItems[index].copyWith(discount: discount);
+    state = AsyncData(result.copyWith(items: updatedItems));
+  }
+
   void removeItem(int index) {
     final result = state.value;
     if (result == null) return;
@@ -110,7 +118,7 @@ class ScanNotifier extends _$ScanNotifier {
 
     for (final item in result.items) {
       if (item.categoryId == null) continue;
-      grouped.putIfAbsent(item.categoryId!, () => []).add(item.amount);
+      grouped.putIfAbsent(item.categoryId!, () => []).add(item.effectiveAmount);
       categoryLabels.putIfAbsent(item.categoryId!, () => item.categoryName ?? '');
     }
 

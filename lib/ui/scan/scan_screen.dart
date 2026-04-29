@@ -479,7 +479,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     List<CategoryModel> categories,
   ) {
     final theme = Theme.of(context);
-    final total = items.fold(0.0, (sum, i) => sum + i.item.amount);
+    final total = items.fold(0.0, (sum, i) => sum + i.item.effectiveAmount);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -536,7 +536,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     List<CategoryModel> categories,
   ) {
     final theme = Theme.of(context);
-    final total = items.fold(0.0, (sum, i) => sum + i.amount);
+    final total = items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
     final result = ref.read(scanProvider).value;
     if (result == null) return const SizedBox.shrink();
 
@@ -605,11 +605,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   ) {
     final theme = Theme.of(context);
 
+    final item = indexedItem.item;
+
     return InkWell(
       onTap: () => _openEditSheet(
         context,
         indexedItem.index,
-        indexedItem.item,
+        item,
         categories,
       ),
       borderRadius: BorderRadius.circular(8),
@@ -626,12 +628,23 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                indexedItem.item.name,
+                item.name,
                 style: theme.textTheme.bodyMedium,
               ),
             ),
+            if (item.hasDiscount)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text(
+                  '-${formatter.format(item.discount)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.tertiary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             Text(
-              formatter.format(indexedItem.item.amount),
+              formatter.format(item.effectiveAmount),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -657,7 +670,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       symbol: '€',
       decimalDigits: 2,
     );
-    final total = result.items.fold(0.0, (sum, i) => sum + i.amount);
+    final total = result.items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
     final hasUncategorized = result.items.any((i) => i.categoryId == null);
     final categoryCount = _countCategories(result.items);
 
@@ -755,6 +768,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       },
       onAmountChanged: (amount) {
         ref.read(scanProvider.notifier).updateItemAmount(index, amount);
+      },
+      onDiscountChanged: (discount) {
+        ref.read(scanProvider.notifier).updateItemDiscount(index, discount);
       },
       onDelete: () {
         ref.read(scanProvider.notifier).removeItem(index);
