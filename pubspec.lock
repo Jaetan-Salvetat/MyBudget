@@ -62,7 +62,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "54247f83e76f6bef1125aaae575b10ebaff2eb93"
+      resolved-ref: "2532dda0137b8dc46ca70e5288d90e7403aceb7a"
       url: "https://github.com/Jaetan-Salvetat/app_updater"
     source: git
     version: "0.0.2"
@@ -581,10 +581,10 @@ packages:
     dependency: "direct main"
     description:
       name: home_widget
-      sha256: "7430f7549d42cef2e729bd3c779de748b93f1eb78b1abfe6bca8fffd1cfce3e9"
+      sha256: b04f99438ad6c5aad80fc9fca1e2e3471bf2a15028f614e4814d2552e13bc2a3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0+1"
+    version: "0.9.1"
   hooks:
     dependency: transitive
     description:
