@@ -1,6 +1,6 @@
 bool isActiveForMonth(DateTime startDate, DateTime? endDate, DateTime month) {
-  final endOfMonth = DateTime(month.year, month.month + 1, 0);
-  if (startDate.isAfter(endOfMonth)) return false;
+  final startOfNextMonth = DateTime(month.year, month.month + 1);
+  if (!startDate.isBefore(startOfNextMonth)) return false;
   final startOfMonth = DateTime(month.year, month.month, 1);
   if (endDate != null && endDate.isBefore(startOfMonth)) return false;
   return true;
