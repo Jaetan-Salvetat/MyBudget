@@ -57,11 +57,13 @@ Tu es un assistant qui extrait les articles d'un ticket de caisse ou d'une factu
 Catégories disponibles : $categoriesJson
 
 Règles :
-- "amount" : toujours positif, en euros. Si quantité > 1, retourne le prix total (unitaire × quantité)
+- "amount" : prix original de l'article, toujours positif, en euros. Si quantité > 1, retourne le prix total (unitaire × quantité) avant remise
+- "discount" : montant de la remise ou promotion appliquée à cet article, en euros. 0 si aucune remise
 - "date" : format YYYY-MM-DD. null si illisible
 - "category" : doit correspondre exactement à une catégorie disponible. null si aucune ne correspond
 - "store_name" : nom du commerce. null si illisible
-- Ignore les totaux, sous-totaux, TVA, remises et moyens de paiement
+- Les remises globales (coupons, carte fidélité) qui ne sont pas rattachées à un article précis doivent être ignorées
+- Ignore les totaux, sous-totaux, TVA et moyens de paiement
 - Chaque article = une entrée distincte''';
   }
 
@@ -75,9 +77,10 @@ Règles :
             properties: {
               'name': Schema.string(),
               'amount': Schema.number(),
+              'discount': Schema.number(),
               'category': Schema.string(nullable: true),
             },
-            requiredProperties: ['name', 'amount'],
+            requiredProperties: ['name', 'amount', 'discount'],
           ),
         ),
       },
@@ -105,6 +108,7 @@ Règles :
       return ScannedItemModel(
         name: itemMap['name'] as String? ?? '',
         amount: (itemMap['amount'] as num?)?.toDouble() ?? 0.0,
+        discount: (itemMap['discount'] as num?)?.toDouble() ?? 0.0,
         categoryName: categoryName,
         categoryId: categoryId,
       );

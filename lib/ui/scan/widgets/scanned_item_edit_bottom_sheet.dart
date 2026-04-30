@@ -8,6 +8,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
   final List<CategoryModel> categories;
   final void Function(int categoryId, String categoryName) onCategoryChanged;
   final void Function(double amount) onAmountChanged;
+  final void Function(double discount) onDiscountChanged;
   final VoidCallback onDelete;
 
   const ScannedItemEditBottomSheet({
@@ -15,6 +16,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
     required this.categories,
     required this.onCategoryChanged,
     required this.onAmountChanged,
+    required this.onDiscountChanged,
     required this.onDelete,
     super.key,
   });
@@ -25,6 +27,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
     required List<CategoryModel> categories,
     required void Function(int categoryId, String categoryName) onCategoryChanged,
     required void Function(double amount) onAmountChanged,
+    required void Function(double discount) onDiscountChanged,
     required VoidCallback onDelete,
   }) {
     FrostedBottomSheet.show(
@@ -35,6 +38,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
         categories: categories,
         onCategoryChanged: onCategoryChanged,
         onAmountChanged: onAmountChanged,
+        onDiscountChanged: onDiscountChanged,
         onDelete: onDelete,
       ),
     );
@@ -48,6 +52,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
 class _ScannedItemEditBottomSheetState
     extends State<ScannedItemEditBottomSheet> {
   late final TextEditingController _amountController;
+  late final TextEditingController _discountController;
   int? _selectedCategoryId;
 
   @override
@@ -56,12 +61,16 @@ class _ScannedItemEditBottomSheetState
     _amountController = TextEditingController(
       text: widget.item.amount.toStringAsFixed(2),
     );
+    _discountController = TextEditingController(
+      text: widget.item.discount.toStringAsFixed(2),
+    );
     _selectedCategoryId = widget.item.categoryId;
   }
 
   @override
   void dispose() {
     _amountController.dispose();
+    _discountController.dispose();
     super.dispose();
   }
 
@@ -89,6 +98,14 @@ class _ScannedItemEditBottomSheetState
             prefixIcon: const Icon(Icons.euro),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => _handleAmountChanged(),
+          ),
+          const SizedBox(height: 8),
+          FrostedTextField(
+            controller: _discountController,
+            labelText: 'Remise (€)',
+            prefixIcon: const Icon(Icons.discount_outlined),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (_) => _handleDiscountChanged(),
           ),
           const SizedBox(height: 16),
           FrostedDropdown<int>(
@@ -140,6 +157,13 @@ class _ScannedItemEditBottomSheetState
     final parsed = double.tryParse(_amountController.text);
     if (parsed != null && parsed >= 0) {
       widget.onAmountChanged(parsed);
+    }
+  }
+
+  void _handleDiscountChanged() {
+    final parsed = double.tryParse(_discountController.text);
+    if (parsed != null && parsed >= 0) {
+      widget.onDiscountChanged(parsed);
     }
   }
 }
