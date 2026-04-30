@@ -107,7 +107,6 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
             });
           },
           onSelected: (String selection) {
-            _bankController.text = selection;
             _validateForm();
           },
           textEditingController: _bankController,
