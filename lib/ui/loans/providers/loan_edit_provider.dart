@@ -91,7 +91,7 @@ Loan loanToEdit(Ref ref) => throw UnimplementedError(
   'loanToEditProvider must be overridden via ProviderScope',
 );
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: false, dependencies: [loanToEdit])
 class LoanEditNotifier extends _$LoanEditNotifier {
   @override
   LoanEditState build() {
