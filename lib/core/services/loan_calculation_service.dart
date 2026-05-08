@@ -16,8 +16,10 @@ class LoanCalculationService {
     required LoanInsuranceType insuranceType,
     required double insuranceValue,
     required InsuranceCalculationMode insuranceCalcMode,
+    bool immediateFirstPayment = false,
   }) {
-    final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
+    final rawMonths = _calculateMonthsSinceStart(startDate, currentDate);
+    final monthsSinceStart = immediateFirstPayment ? rawMonths + 1 : rawMonths;
 
     if (monthsSinceStart < deferredMonths) {
       return 0.0;
@@ -31,6 +33,7 @@ class LoanCalculationService {
       startDate: startDate,
       currentDate: currentDate,
       deferredMonths: deferredMonths,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final loanPayment = repaymentType == LoanRepaymentType.inFine
@@ -60,12 +63,14 @@ class LoanCalculationService {
     required DateTime startDate,
     required DateTime currentDate,
     required int deferredMonths,
+    bool immediateFirstPayment = false,
   }) {
     if (currentDate.isBefore(startDate)) {
       return amount;
     }
 
-    final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
+    final rawMonths = _calculateMonthsSinceStart(startDate, currentDate);
+    final monthsSinceStart = immediateFirstPayment ? rawMonths + 1 : rawMonths;
 
     if (monthsSinceStart < deferredMonths) {
       return amount;
@@ -91,6 +96,7 @@ class LoanCalculationService {
     required DateTime endDate,
     required DateTime startDate,
     required int durationInMonths,
+    bool immediateFirstPayment = false,
   }) {
     if (currentDate.isAfter(endDate)) return 0;
     if (currentDate.isBefore(startDate)) return durationInMonths;
@@ -109,6 +115,7 @@ class LoanCalculationService {
     required int dayOfMonth,
     required int deferredMonths,
     required double monthlyPayment,
+    bool immediateFirstPayment = false,
   }) {
     if (currentDate.isBefore(startDate)) {
       return 0.0;
@@ -120,7 +127,9 @@ class LoanCalculationService {
     final endYearMonth = effectiveEndDate.year * 12 + effectiveEndDate.month - 1;
     final daysPassed = effectiveEndDate.day >= dayOfMonth ? 1 : 0;
 
-    final totalMonthsPassed = (endYearMonth - startYearMonth) + daysPassed;
+    final totalMonthsPassed = immediateFirstPayment
+        ? (endYearMonth - startYearMonth) + 1
+        : (endYearMonth - startYearMonth) + daysPassed;
     final effectiveMonthsPaid = (totalMonthsPassed - deferredMonths).clamp(0, double.infinity).toInt();
 
     return effectiveMonthsPaid * monthlyPayment;

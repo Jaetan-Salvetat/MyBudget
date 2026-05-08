@@ -239,6 +239,15 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               '${state.deferredMonths} mois',
             ),
           ],
+
+          if (state.immediateFirstPayment) ...[
+            const FrostedDivider(height: 24),
+            _buildReadOnlyField(
+              context,
+              'Premier paiement',
+              'Immédiat',
+            ),
+          ],
         ],
       ),
     );

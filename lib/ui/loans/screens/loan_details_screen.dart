@@ -42,9 +42,6 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
 
     final exists = loans.any((l) => l.id == loan.id);
     if (!exists) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) Navigator.pop(context);
-      });
       return const FrostedScaffold(
         child: Center(child: FrostedCircularProgressIndicator()),
       );
@@ -141,10 +138,13 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
           onPressed: () async {
             try {
               await ref.read(loanProvider.notifier).deleteLoan(loan.id);
-              if (context.mounted) Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              }
             } catch (e) {
               if (context.mounted) {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
                 FrostedSnackbar.show(context, message: 'Erreur lors de la suppression: \$e');
               }
             }

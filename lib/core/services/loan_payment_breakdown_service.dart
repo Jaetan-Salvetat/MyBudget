@@ -19,8 +19,10 @@ class LoanPaymentBreakdownService {
     required LoanInsuranceType insuranceType,
     required double insuranceValue,
     required InsuranceCalculationMode insuranceCalcMode,
+    bool immediateFirstPayment = false,
   }) {
-    final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
+    final rawMonths = _calculateMonthsSinceStart(startDate, currentDate);
+    final monthsSinceStart = immediateFirstPayment ? rawMonths + 1 : rawMonths;
 
     if (monthsSinceStart < deferredMonths) {
       return const LoanPaymentBreakdown.zero();
@@ -34,6 +36,7 @@ class LoanPaymentBreakdownService {
       startDate: startDate,
       currentDate: currentDate,
       deferredMonths: deferredMonths,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final interestPayment = _calculateCurrentInterestPayment(
@@ -62,6 +65,7 @@ class LoanPaymentBreakdownService {
       insuranceType: insuranceType,
       insuranceValue: insuranceValue,
       insuranceCalcMode: insuranceCalcMode,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final capitalPayment = repaymentType == LoanRepaymentType.inFine
@@ -89,6 +93,7 @@ class LoanPaymentBreakdownService {
     required LoanInsuranceType insuranceType,
     required double insuranceValue,
     required InsuranceCalculationMode insuranceCalcMode,
+    bool immediateFirstPayment = false,
   }) {
     if (currentDate.isBefore(startDate)) {
       return const LoanPaymentBreakdown.zero();
@@ -105,6 +110,7 @@ class LoanPaymentBreakdownService {
       insuranceType: insuranceType,
       insuranceValue: insuranceValue,
       insuranceCalcMode: insuranceCalcMode,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final totalPaid = _calculationService.calculateTotalPaidAmount(
@@ -114,6 +120,7 @@ class LoanPaymentBreakdownService {
       dayOfMonth: dayOfMonth,
       deferredMonths: deferredMonths,
       monthlyPayment: monthlyPayment,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final remainingCapital = _calculationService.calculateRemainingCapital(
@@ -124,6 +131,7 @@ class LoanPaymentBreakdownService {
       startDate: startDate,
       currentDate: currentDate,
       deferredMonths: deferredMonths,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final capitalPaid = amount - remainingCapital;
@@ -139,6 +147,7 @@ class LoanPaymentBreakdownService {
       repaymentType: repaymentType,
       interestRate: interestRate,
       durationInMonths: durationInMonths,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final interestsPaid = totalPaid - capitalPaid - insurancePaid;
@@ -197,12 +206,14 @@ class LoanPaymentBreakdownService {
     required LoanRepaymentType repaymentType,
     required double interestRate,
     required int durationInMonths,
+    bool immediateFirstPayment = false,
   }) {
     if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {
       return 0.0;
     }
 
-    final monthsSinceStart = _calculateMonthsSinceStart(startDate, currentDate);
+    final rawMonths = _calculateMonthsSinceStart(startDate, currentDate);
+    final monthsSinceStart = immediateFirstPayment ? rawMonths + 1 : rawMonths;
     final effectiveMonthsPaid = (monthsSinceStart - deferredMonths).clamp(0, double.infinity).toInt();
 
     if (effectiveMonthsPaid <= 0) return 0.0;
@@ -226,6 +237,7 @@ class LoanPaymentBreakdownService {
       startDate: startDate,
       currentDate: currentDate,
       deferredMonths: deferredMonths,
+      immediateFirstPayment: immediateFirstPayment,
     );
 
     final currentMonthly = (currentRemaining * (insuranceValue / 100)) / 12;

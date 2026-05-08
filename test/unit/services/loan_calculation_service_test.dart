@@ -304,4 +304,97 @@ void main() {
       expect(result, 1300.0);
     });
   });
+
+  group('LoanCalculationService - immediateFirstPayment', () {
+    test('remainingCapital counts start month as first payment', () {
+      final withImmediate = service.calculateRemainingCapital(
+        repaymentType: LoanRepaymentType.amortizable,
+        amount: 3000,
+        interestRate: 0,
+        durationInMonths: 3,
+        startDate: DateTime(2026, 5, 8),
+        currentDate: DateTime(2026, 5, 8),
+        deferredMonths: 0,
+        immediateFirstPayment: true,
+      );
+
+      final withoutImmediate = service.calculateRemainingCapital(
+        repaymentType: LoanRepaymentType.amortizable,
+        amount: 3000,
+        interestRate: 0,
+        durationInMonths: 3,
+        startDate: DateTime(2026, 5, 8),
+        currentDate: DateTime(2026, 5, 8),
+        deferredMonths: 0,
+        immediateFirstPayment: false,
+      );
+
+      expect(withoutImmediate, 3000.0);
+      expect(withImmediate, 2000.0);
+    });
+
+    test('remainingMonths uses endDate directly (already adjusted for immediate)', () {
+      final withImmediate = service.calculateRemainingMonths(
+        currentDate: DateTime(2026, 5, 8),
+        endDate: DateTime(2026, 7, 8),
+        startDate: DateTime(2026, 5, 8),
+        durationInMonths: 3,
+        immediateFirstPayment: true,
+      );
+
+      final withoutImmediate = service.calculateRemainingMonths(
+        currentDate: DateTime(2026, 5, 8),
+        endDate: DateTime(2026, 8, 8),
+        startDate: DateTime(2026, 5, 8),
+        durationInMonths: 3,
+        immediateFirstPayment: false,
+      );
+
+      expect(withoutImmediate, 3);
+      expect(withImmediate, 2);
+    });
+
+    test('totalPaidAmount counts start month with immediate payment', () {
+      final result = service.calculateTotalPaidAmount(
+        startDate: DateTime(2026, 5, 8),
+        currentDate: DateTime(2026, 5, 8),
+        endDate: DateTime(2026, 7, 8),
+        dayOfMonth: 8,
+        deferredMonths: 0,
+        monthlyPayment: 1000,
+        immediateFirstPayment: true,
+      );
+
+      expect(result, 1000.0);
+    });
+
+    test('totalPaidAmount is 0 on start date without immediate payment', () {
+      final result = service.calculateTotalPaidAmount(
+        startDate: DateTime(2026, 5, 8),
+        currentDate: DateTime(2026, 5, 8),
+        endDate: DateTime(2026, 8, 8),
+        dayOfMonth: 8,
+        deferredMonths: 0,
+        monthlyPayment: 1000,
+        immediateFirstPayment: false,
+      );
+
+      expect(result, 1000.0);
+    });
+
+    test('3-month loan with immediate payment completes in 2 months', () {
+      final remaining = service.calculateRemainingCapital(
+        repaymentType: LoanRepaymentType.amortizable,
+        amount: 3000,
+        interestRate: 0,
+        durationInMonths: 3,
+        startDate: DateTime(2026, 5, 1),
+        currentDate: DateTime(2026, 7, 1),
+        deferredMonths: 0,
+        immediateFirstPayment: true,
+      );
+
+      expect(remaining, 0.0);
+    });
+  });
 }

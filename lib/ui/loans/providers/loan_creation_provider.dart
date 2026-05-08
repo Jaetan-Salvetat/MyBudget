@@ -25,6 +25,7 @@ class LoanCreationState {
   final LoanInsuranceType insuranceType;
   final double insuranceValue;
   final InsuranceCalculationMode insuranceCalcMode;
+  final bool immediateFirstPayment;
 
   const LoanCreationState({
     this.currentStep = 0,
@@ -43,6 +44,7 @@ class LoanCreationState {
     this.insuranceType = LoanInsuranceType.none,
     this.insuranceValue = 0.0,
     this.insuranceCalcMode = InsuranceCalculationMode.initialCapital,
+    this.immediateFirstPayment = false,
   });
 
   LoanCreationState copyWith({
@@ -62,6 +64,7 @@ class LoanCreationState {
     LoanInsuranceType? insuranceType,
     double? insuranceValue,
     InsuranceCalculationMode? insuranceCalcMode,
+    bool? immediateFirstPayment,
   }) {
     return LoanCreationState(
       currentStep: currentStep ?? this.currentStep,
@@ -80,6 +83,7 @@ class LoanCreationState {
       insuranceType: insuranceType ?? this.insuranceType,
       insuranceValue: insuranceValue ?? this.insuranceValue,
       insuranceCalcMode: insuranceCalcMode ?? this.insuranceCalcMode,
+      immediateFirstPayment: immediateFirstPayment ?? this.immediateFirstPayment,
     );
   }
 
@@ -90,9 +94,11 @@ class LoanCreationState {
   }
 
   DateTime get calculatedEndDate {
-    final months = durationInMonths;
-    final years = months ~/ 12;
-    final remainingMonths = months % 12;
+    final effectiveMonths = immediateFirstPayment
+        ? durationInMonths - 1
+        : durationInMonths;
+    final years = effectiveMonths ~/ 12;
+    final remainingMonths = effectiveMonths % 12;
     return DateTime(
       startDate.year + years,
       startDate.month + remainingMonths,
@@ -227,6 +233,10 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
     state = state.copyWith(insuranceCalcMode: mode);
   }
 
+  void toggleImmediateFirstPayment() {
+    state = state.copyWith(immediateFirstPayment: !state.immediateFirstPayment);
+  }
+
   LoanModel createLoanModel() {
     return LoanModel.create(
       name: state.name,
@@ -243,6 +253,7 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
       insuranceType: state.insuranceType,
       insuranceValue: state.insuranceValue,
       insuranceCalculationMode: state.insuranceCalcMode,
+      immediateFirstPayment: state.immediateFirstPayment,
     );
   }
 }

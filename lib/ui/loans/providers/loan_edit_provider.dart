@@ -68,6 +68,7 @@ class LoanEditState {
   double get interestRate => initialLoan.interestRate;
   LoanRepaymentType get repaymentType => initialLoan.repaymentType;
   int get deferredMonths => initialLoan.deferredMonths;
+  bool get immediateFirstPayment => initialLoan.immediateFirstPayment;
 
   double get monthlyInsurancePayment {
     if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {

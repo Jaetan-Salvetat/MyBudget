@@ -322,6 +322,16 @@ class _LoanCreationBottomSheetState
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: state.immediateFirstPayment,
+            onChanged: (_) => notifier.toggleImmediateFirstPayment(),
+            title: const Text('Premier paiement immédiat'),
+            subtitle: const Text('Le premier paiement a lieu le mois de signature'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
         ],
       ),
     );

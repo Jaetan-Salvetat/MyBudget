@@ -61,6 +61,8 @@ class LoanModel {
   double insuranceValue;
   String insuranceCalculationModeId;
 
+  bool immediateFirstPayment;
+
   LoanRepaymentType get repaymentType {
     return LoanRepaymentType.values.firstWhere(
       (e) => e.name == repaymentTypeId,
@@ -110,6 +112,7 @@ class LoanModel {
     this.insuranceTypeId = 'none',
     this.insuranceValue = 0.0,
     this.insuranceCalculationModeId = 'initialCapital',
+    this.immediateFirstPayment = false,
     this.notes,
   });
 
@@ -129,6 +132,7 @@ class LoanModel {
     double insuranceValue = 0.0,
     InsuranceCalculationMode insuranceCalculationMode =
         InsuranceCalculationMode.initialCapital,
+    bool immediateFirstPayment = false,
     String? notes,
   }) {
     return LoanModel(
@@ -146,6 +150,7 @@ class LoanModel {
       insuranceTypeId: insuranceType.name,
       insuranceValue: insuranceValue,
       insuranceCalculationModeId: insuranceCalculationMode.name,
+      immediateFirstPayment: immediateFirstPayment,
       notes: notes,
     );
   }
@@ -167,6 +172,7 @@ class LoanModel {
       'insuranceTypeId': insuranceTypeId,
       'insuranceValue': insuranceValue,
       'insuranceCalculationModeId': insuranceCalculationModeId,
+      'immediateFirstPayment': immediateFirstPayment,
       'notes': notes,
     };
   }
@@ -212,6 +218,10 @@ class LoanModel {
       insuranceCalculationModeId: (resolve('insuranceCalculationModeId',
               'insurance_calculation_mode_id') as String?) ??
           'initialCapital',
+      immediateFirstPayment:
+          (resolve('immediateFirstPayment', 'immediate_first_payment')
+                  as bool?) ??
+              false,
       notes: json['notes'] as String?,
     );
   }
@@ -231,6 +241,7 @@ class LoanModel {
     LoanInsuranceType? insuranceType,
     double? insuranceValue,
     InsuranceCalculationMode? insuranceCalculationMode,
+    bool? immediateFirstPayment,
     String? notes,
   }) {
     return LoanModel(
@@ -250,6 +261,8 @@ class LoanModel {
       insuranceValue: insuranceValue ?? this.insuranceValue,
       insuranceCalculationModeId:
           insuranceCalculationMode?.name ?? insuranceCalculationModeId,
+      immediateFirstPayment:
+          immediateFirstPayment ?? this.immediateFirstPayment,
       notes: notes ?? this.notes,
     );
   }

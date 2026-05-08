@@ -169,7 +169,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 8471750721460440152),
     name: 'LoanModel',
-    lastPropertyId: const obx_int.IdUid(18, 5643985183887639942),
+    lastPropertyId: const obx_int.IdUid(19, 8138263455102980410),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -266,6 +266,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(18, 5643985183887639942),
         name: 'insuranceCalculationModeId',
         type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(19, 8138263455102980410),
+        name: 'immediateFirstPayment',
+        type: 1,
         flags: 0,
       ),
     ],
@@ -669,7 +675,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final insuranceCalculationModeIdOffset = fbb.writeString(
           object.insuranceCalculationModeId,
         );
-        fbb.startTable(19);
+        fbb.startTable(20);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -686,6 +692,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(15, repaymentTypeIdOffset);
         fbb.addInt64(16, object.deferredMonths);
         fbb.addOffset(17, insuranceCalculationModeIdOffset);
+        fbb.addBool(18, object.immediateFirstPayment);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -761,6 +768,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final insuranceCalculationModeIdParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 38, '');
+        final immediateFirstPaymentParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          40,
+          false,
+        );
         final notesParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 22);
@@ -780,6 +793,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           insuranceTypeId: insuranceTypeIdParam,
           insuranceValue: insuranceValueParam,
           insuranceCalculationModeId: insuranceCalculationModeIdParam,
+          immediateFirstPayment: immediateFirstPaymentParam,
           notes: notesParam,
         );
 
@@ -1146,6 +1160,11 @@ class LoanModel_ {
   /// See [LoanModel.insuranceCalculationModeId].
   static final insuranceCalculationModeId = obx.QueryStringProperty<LoanModel>(
     _entities[3].properties[15],
+  );
+
+  /// See [LoanModel.immediateFirstPayment].
+  static final immediateFirstPayment = obx.QueryBooleanProperty<LoanModel>(
+    _entities[3].properties[16],
   );
 }
 
