@@ -128,7 +128,7 @@
     },
     {
       "id": "4:8471750721460440152",
-      "lastPropertyId": "18:5643985183887639942",
+      "lastPropertyId": "19:8138263455102980410",
       "name": "LoanModel",
       "properties": [
         {
@@ -211,6 +211,11 @@
           "id": "18:5643985183887639942",
           "name": "insuranceCalculationModeId",
           "type": 9
+        },
+        {
+          "id": "19:8138263455102980410",
+          "name": "immediateFirstPayment",
+          "type": 1
         }
       ],
       "relations": []
