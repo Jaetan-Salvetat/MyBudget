@@ -105,8 +105,7 @@ class LoanCalculationService {
     final nowYearMonth = currentDate.year * 12 + currentDate.month;
 
     final diff = endYearMonth - nowYearMonth;
-    final adjustment = immediateFirstPayment ? -1 : 0;
-    return (diff + adjustment).clamp(0, durationInMonths);
+    return diff.clamp(0, durationInMonths);
   }
 
   double calculateTotalPaidAmount({

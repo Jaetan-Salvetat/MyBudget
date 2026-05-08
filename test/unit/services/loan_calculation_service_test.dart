@@ -333,7 +333,7 @@ void main() {
       expect(withImmediate, 2000.0);
     });
 
-    test('remainingMonths is 1 less with immediate first payment', () {
+    test('remainingMonths uses endDate directly (already adjusted for immediate)', () {
       final withImmediate = service.calculateRemainingMonths(
         currentDate: DateTime(2026, 5, 8),
         endDate: DateTime(2026, 7, 8),
@@ -344,14 +344,14 @@ void main() {
 
       final withoutImmediate = service.calculateRemainingMonths(
         currentDate: DateTime(2026, 5, 8),
-        endDate: DateTime(2026, 7, 8),
+        endDate: DateTime(2026, 8, 8),
         startDate: DateTime(2026, 5, 8),
         durationInMonths: 3,
         immediateFirstPayment: false,
       );
 
-      expect(withoutImmediate, 2);
-      expect(withImmediate, 1);
+      expect(withoutImmediate, 3);
+      expect(withImmediate, 2);
     });
 
     test('totalPaidAmount counts start month with immediate payment', () {
