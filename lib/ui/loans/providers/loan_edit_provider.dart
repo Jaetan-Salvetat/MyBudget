@@ -68,6 +68,7 @@ class LoanEditState {
   double get interestRate => initialLoan.interestRate;
   LoanRepaymentType get repaymentType => initialLoan.repaymentType;
   int get deferredMonths => initialLoan.deferredMonths;
+  bool get immediateFirstPayment => initialLoan.immediateFirstPayment;
 
   double get monthlyInsurancePayment {
     if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {
@@ -91,7 +92,7 @@ Loan loanToEdit(Ref ref) => throw UnimplementedError(
   'loanToEditProvider must be overridden via ProviderScope',
 );
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: false, dependencies: [loanToEdit])
 class LoanEditNotifier extends _$LoanEditNotifier {
   @override
   LoanEditState build() {

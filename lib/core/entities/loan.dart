@@ -32,6 +32,7 @@ class Loan {
   double get insuranceValue => _model.insuranceValue;
   LoanInsuranceType get insuranceType => _model.insuranceType;
   InsuranceCalculationMode get insuranceCalculationMode => _model.insuranceCalculationMode;
+  bool get immediateFirstPayment => _model.immediateFirstPayment;
 
   LoanModel get model => _model;
 
@@ -47,6 +48,7 @@ class Loan {
       insuranceType: _model.insuranceType,
       insuranceValue: _model.insuranceValue,
       insuranceCalcMode: _model.insuranceCalculationMode,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 
@@ -59,6 +61,7 @@ class Loan {
       startDate: _model.startDate,
       currentDate: DateTime.now(),
       deferredMonths: _model.deferredMonths,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 
@@ -68,6 +71,7 @@ class Loan {
       endDate: _model.endDate,
       startDate: _model.startDate,
       durationInMonths: _model.duration,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 
@@ -79,6 +83,7 @@ class Loan {
       dayOfMonth: _model.dayOfMonth,
       deferredMonths: _model.deferredMonths,
       monthlyPayment: currentMonthlyPayment,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 
@@ -94,6 +99,7 @@ class Loan {
       insuranceType: _model.insuranceType,
       insuranceValue: _model.insuranceValue,
       insuranceCalcMode: _model.insuranceCalculationMode,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 
@@ -111,6 +117,7 @@ class Loan {
       insuranceType: _model.insuranceType,
       insuranceValue: _model.insuranceValue,
       insuranceCalcMode: _model.insuranceCalculationMode,
+      immediateFirstPayment: _model.immediateFirstPayment,
     );
   }
 

@@ -96,15 +96,14 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
     final state = ref.watch(loanEditProvider);
     final notifier = ref.read(loanEditProvider.notifier);
 
-    return Flexible(
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          const SizedBox(height: 16),
+    return ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      children: [
+        const SizedBox(height: 16),
 
-          _buildEditableIdentitySection(context),
-          const SizedBox(height: 16),
+        _buildEditableIdentitySection(context),
+        const SizedBox(height: 16),
 
           _buildReadOnlyFinancialSection(context, state),
           const SizedBox(height: 16),
@@ -118,8 +117,7 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           _buildActionButtons(context, state, notifier),
           const SizedBox(height: 20),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildEditableIdentitySection(BuildContext context) {
@@ -239,6 +237,15 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               context,
               'Différé',
               '${state.deferredMonths} mois',
+            ),
+          ],
+
+          if (state.immediateFirstPayment) ...[
+            const FrostedDivider(height: 24),
+            _buildReadOnlyField(
+              context,
+              'Premier paiement',
+              'Immédiat',
             ),
           ],
         ],

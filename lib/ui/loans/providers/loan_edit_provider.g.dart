@@ -61,9 +61,13 @@ final class LoanEditNotifierProvider
         retry: null,
         name: r'loanEditProvider',
         isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
+        dependencies: <ProviderOrFamily>[loanToEditProvider],
+        $allTransitiveDependencies: <ProviderOrFamily>[
+          LoanEditNotifierProvider.$allTransitiveDependencies0,
+        ],
       );
+
+  static final $allTransitiveDependencies0 = loanToEditProvider;
 
   @override
   String debugGetCreateSourceHash() => _$loanEditNotifierHash();
@@ -81,7 +85,7 @@ final class LoanEditNotifierProvider
   }
 }
 
-String _$loanEditNotifierHash() => r'619311cd4b92836a7d441d3b4ed4d174a07ae19f';
+String _$loanEditNotifierHash() => r'844bc8115193ac6f7acc562eaa85e9e0036fc3db';
 
 abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
   LoanEditState build();
