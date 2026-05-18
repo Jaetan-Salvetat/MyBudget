@@ -11,7 +11,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
 
 class OpenRouterService {
-  static const String _model = 'google/gemma-4-31b-it';
+  static const String _model = 'deepseek/deepseek-v4-flash';
   static const String _baseUrl = 'https://openrouter.ai/api/v1';
 
   final OpenAIClient _client;

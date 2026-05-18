@@ -54,18 +54,20 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
       child: Row(
         children: [
           Expanded(
-            child: FrostedTextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              hintText: 'café 3.50, netflix 13.99...',
-              prefixIcon: Icon(
-                Icons.bolt,
-                size: 18,
-                color: colorScheme.primary,
+            child: IgnorePointer(
+              ignoring: isLoading,
+              child: FrostedTextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                hintText: 'café 3.50, netflix 13.99...',
+                prefixIcon: Icon(
+                  Icons.bolt,
+                  size: 18,
+                  color: colorScheme.primary,
+                ),
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _submit(),
               ),
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _submit(),
-              readOnly: isLoading,
             ),
           ),
           const SizedBox(width: FrostedSpacing.sm),

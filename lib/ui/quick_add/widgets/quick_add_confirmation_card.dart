@@ -131,8 +131,18 @@ class _QuickAddConfirmationCardState
         FrostedSpacing.xl,
         0,
       ),
-      child: FrostedCard(
+      child: Container(
         padding: const EdgeInsets.all(FrostedSpacing.md),
+        decoration: BoxDecoration(
+          color: colorScheme.surface.withValues(alpha: FrostedOpacity.strong),
+          borderRadius: BorderRadius.circular(FrostedRadius.lg),
+          border: Border.all(
+            color: colorScheme.onSurface.withValues(
+              alpha: FrostedOpacity.light,
+            ),
+            width: 0.5,
+          ),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
