@@ -113,6 +113,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return FrostedScaffold(
       animateFloatingActionButtonTransitions: false,
       appBar: FrostedAppBar(
@@ -130,36 +132,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: _buildFab(context),
+      floatingActionButton: keyboardVisible ? null : _buildFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          QuickAddSection(
-            onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-          ),
-          FrostedBottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: (index) {
-              if (_selectedIndex != index) {
-                setState(() {
-                  _selectedIndex = index;
-                  _updateTitle();
-                });
-              }
-            },
-            items:
-                _items
-                    .map(
-                      (item) => BottomNavigationBarItem(
-                        icon: Icon(item.icon),
-                        activeIcon: Icon(item.selectedIcon),
-                        label: item.label,
-                      ),
-                    )
-                    .toList(),
-          ),
-        ],
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QuickAddSection(
+              onNoAccount:
+                  () => _showNoAccountDialog(context, 'une dépense'),
+            ),
+            if (!keyboardVisible)
+              FrostedBottomNavigationBar(
+                currentIndex: _selectedIndex,
+                onTap: (index) {
+                  if (_selectedIndex != index) {
+                    setState(() {
+                      _selectedIndex = index;
+                      _updateTitle();
+                    });
+                  }
+                },
+                items:
+                    _items
+                        .map(
+                          (item) => BottomNavigationBarItem(
+                            icon: Icon(item.icon),
+                            activeIcon: Icon(item.selectedIcon),
+                            label: item.label,
+                          ),
+                        )
+                        .toList(),
+              ),
+          ],
+        ),
       ),
       child: IndexedStack(index: _selectedIndex, children: _screens),
     );

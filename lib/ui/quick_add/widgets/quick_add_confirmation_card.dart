@@ -35,13 +35,9 @@ class _QuickAddConfirmationCardState
     }
   }
 
-  String _formatAmount(double amount) {
-    return NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(amount);
-  }
-
   String _categoryLabel() {
     if (widget.result.newCategory != null) {
-      return 'Nouvelle : ${widget.result.newCategory}';
+      return widget.result.newCategory!;
     }
     final categories = ref.read(categoryProvider).value ?? [];
     final cat = categories.where((c) => c.id == widget.result.categoryId);
@@ -60,8 +56,10 @@ class _QuickAddConfirmationCardState
   }
 
   Color _categoryColor() {
-    if (widget.result.newCategory != null && widget.result.newCategoryColor != null) {
-      final color = CategoryDefaults.hexToColor(widget.result.newCategoryColor!);
+    if (widget.result.newCategory != null &&
+        widget.result.newCategoryColor != null) {
+      final color =
+          CategoryDefaults.hexToColor(widget.result.newCategoryColor!);
       if (color != null) return Color(color);
     }
     if (widget.result.categoryId != null) {
@@ -108,9 +106,7 @@ class _QuickAddConfirmationCardState
     if (_selectedAccountId == null) return;
 
     try {
-      ref
-          .read(quickAddProvider.notifier)
-          .confirmExpense(_selectedAccountId!);
+      ref.read(quickAddProvider.notifier).confirmExpense(_selectedAccountId!);
     } catch (e) {
       if (context.mounted) {
         FrostedSnackbar.show(
@@ -126,11 +122,14 @@ class _QuickAddConfirmationCardState
     final accounts = ref.watch(accountProvider).value ?? [];
     final colorScheme = Theme.of(context).colorScheme;
     final catColor = _categoryColor();
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FrostedSpacing.md,
-        vertical: FrostedSpacing.xs,
+      padding: const EdgeInsets.fromLTRB(
+        FrostedSpacing.xl,
+        FrostedSpacing.sm,
+        FrostedSpacing.xl,
+        0,
       ),
       child: FrostedCard(
         padding: const EdgeInsets.all(FrostedSpacing.md),
@@ -139,43 +138,103 @@ class _QuickAddConfirmationCardState
           children: [
             Row(
               children: [
-                Icon(_categoryIcon(), size: 20, color: catColor),
-                const SizedBox(width: FrostedSpacing.sm),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: catColor.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(_categoryIcon(), size: 18, color: catColor),
+                ),
+                const SizedBox(width: FrostedSpacing.md),
                 Expanded(
-                  child: Text(
-                    _categoryLabel(),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: catColor,
-                        ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.result.name,
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            _categoryLabel(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: catColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                          if (widget.result.newCategory != null) ...[
+                            const SizedBox(width: FrostedSpacing.xs),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: catColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'nouvelle',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w500,
+                                  color: catColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  _formatAmount(widget.result.amount),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      formatter.format(widget.result.amount),
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: colorScheme.error,
                       ),
+                    ),
+                    const SizedBox(height: 2),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        widget.result.frequency,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(width: FrostedSpacing.xxs),
                 GestureDetector(
-                  onTap: () =>
-                      ref.read(quickAddProvider.notifier).reset(),
+                  onTap: () => ref.read(quickAddProvider.notifier).reset(),
                   child: Icon(
                     Icons.close,
                     size: 18,
                     color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: FrostedSpacing.xxs),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${widget.result.name} · ${widget.result.frequency}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
                   ),
                 ),
               ],

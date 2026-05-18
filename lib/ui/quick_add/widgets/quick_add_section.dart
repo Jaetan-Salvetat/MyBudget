@@ -15,68 +15,81 @@ class QuickAddSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(quickAddProvider);
+
+    return FrostedContainer(
+      borderRadius: BorderRadius.zero,
+      showBorder: false,
+      showShadow: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: state.when(
+              data: (result) {
+                if (result == null) return const SizedBox.shrink();
+                return QuickAddConfirmationCard(result: result);
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (error, _) => _QuickAddErrorBanner(
+                message: error is QuickAddException
+                    ? error.message
+                    : 'Une erreur est survenue',
+                onDismiss: () => ref.read(quickAddProvider.notifier).reset(),
+              ),
+            ),
+          ),
+          QuickAddInputBar(onNoAccount: onNoAccount),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickAddErrorBanner extends StatelessWidget {
+  final String message;
+  final VoidCallback onDismiss;
+
+  const _QuickAddErrorBanner({
+    required this.message,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const FrostedDivider(),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          child: state.when(
-            data: (result) {
-              if (result == null) return const SizedBox.shrink();
-              return QuickAddConfirmationCard(result: result);
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (error, _) {
-              final message = error is QuickAddException
-                  ? error.message
-                  : 'Une erreur est survenue';
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: FrostedSpacing.md,
-                  vertical: FrostedSpacing.xs,
-                ),
-                child: FrostedCard(
-                  padding: const EdgeInsets.all(FrostedSpacing.sm),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 18,
-                        color: colorScheme.error,
-                      ),
-                      const SizedBox(width: FrostedSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          message,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: colorScheme.error),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => ref
-                            .read(quickAddProvider.notifier)
-                            .reset(),
-                        child: Icon(
-                          Icons.close,
-                          size: 18,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FrostedSpacing.xl,
+        FrostedSpacing.sm,
+        FrostedSpacing.xl,
+        0,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, size: 16, color: colorScheme.error),
+          const SizedBox(width: FrostedSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.error),
+            ),
           ),
-        ),
-        QuickAddInputBar(onNoAccount: onNoAccount),
-      ],
+          GestureDetector(
+            onTap: onDismiss,
+            child: Icon(
+              Icons.close,
+              size: 16,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

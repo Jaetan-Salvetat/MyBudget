@@ -16,10 +16,12 @@ class QuickAddInputBar extends ConsumerStatefulWidget {
 
 class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
   final _controller = TextEditingController();
+  final _focusNode = FocusNode();
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -35,41 +37,62 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
 
     ref.read(quickAddProvider.notifier).parseExpense(text);
     _controller.clear();
+    _focusNode.unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(quickAddProvider);
     final isLoading = state is AsyncLoading;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: FrostedSpacing.md,
-        vertical: FrostedSpacing.xs,
+        horizontal: FrostedSpacing.xl,
+        vertical: FrostedSpacing.sm,
       ),
       child: Row(
         children: [
           Expanded(
             child: FrostedTextField(
               controller: _controller,
-              hintText: 'Ex: café 3.50',
-              prefixIcon: const Icon(Icons.bolt, size: 20),
+              focusNode: _focusNode,
+              hintText: 'café 3.50, netflix 13.99...',
+              prefixIcon: Icon(
+                Icons.bolt,
+                size: 18,
+                color: colorScheme.primary,
+              ),
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _submit(),
               readOnly: isLoading,
             ),
           ),
           const SizedBox(width: FrostedSpacing.sm),
-          isLoading
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : FrostedIconButton(
-                  icon: Icons.send,
-                  onPressed: _submit,
-                ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: isLoading
+                ? SizedBox(
+                    key: const ValueKey('loader'),
+                    width: FrostedSize.iconButton,
+                    height: FrostedSize.iconButton,
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  )
+                : FrostedIconButton(
+                    key: const ValueKey('send'),
+                    icon: Icons.send_rounded,
+                    onPressed: _submit,
+                  ),
+          ),
         ],
       ),
     );
