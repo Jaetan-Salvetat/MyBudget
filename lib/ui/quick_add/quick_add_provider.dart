@@ -36,8 +36,16 @@ class QuickAddNotifier extends _$QuickAddNotifier {
 
     try {
       final categories = ref.read(categoryProvider).value ?? [];
+      final allExpenses = ref.read(expenseProvider).value ?? [];
+      final recurringExpenses = allExpenses
+          .where((e) => e.frequency != 'Ponctuel')
+          .toList();
       final service = OpenRouterService();
-      final result = await service.parseExpense(input, categories);
+      final result = await service.parseExpense(
+        input,
+        categories,
+        recurringExpenses: recurringExpenses,
+      );
       await PreferencesService.incrementQuickAddCount();
       state = AsyncData(result);
     } on QuickAddException catch (e, st) {

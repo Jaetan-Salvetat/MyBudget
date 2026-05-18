@@ -7,6 +7,7 @@ import 'package:openai_dart/openai_dart.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
 
 class OpenRouterService {
@@ -21,7 +22,10 @@ class OpenRouterService {
           baseUrl: _baseUrl,
         );
 
-  String _buildSystemPrompt(List<CategoryModel> categories) {
+  String _buildSystemPrompt(
+    List<CategoryModel> categories,
+    List<ExpenseModel> recurringExpenses,
+  ) {
     final categoriesJson = categories
         .map((c) =>
             '{"id": ${c.id}, "name": "${c.name}", "icon": "${c.icon}", "color": "${CategoryDefaults.colorToHex(c.color)}"}')
@@ -33,28 +37,54 @@ class OpenRouterService {
         .map(CategoryDefaults.colorToHex)
         .join(', ');
 
-    return 'Tu es un assistant de catégorisation de dépenses.\n'
-        'Catégories existantes : [$categoriesJson]\n'
-        'Icônes disponibles : [$availableIcons]\n'
-        'Couleurs disponibles (hex) : [$availableColors]\n'
-        'Règles :\n'
-        '1. Extrais le nom, le montant et la fréquence\n'
-        '2. Si une catégorie existante correspond → categoryId (et newCategory/newCategoryIcon/newCategoryColor = null)\n'
-        '3. Sinon → newCategory = "<nom>", newCategoryIcon = icône la plus pertinente, newCategoryColor = couleur hex la plus pertinente (et categoryId = null)\n'
-        '4. Fréquence = "Ponctuel" sauf si "mensuel" ou "annuel" précisé';
+    final buffer = StringBuffer()
+      ..writeln('Tu es un assistant de catégorisation de dépenses.')
+      ..writeln('Catégories existantes : [$categoriesJson]')
+      ..writeln('Icônes disponibles : [$availableIcons]')
+      ..writeln('Couleurs disponibles (hex) : [$availableColors]');
+
+    if (recurringExpenses.isNotEmpty) {
+      final recurringJson = recurringExpenses
+          .map((e) => '{"name": "${e.name}", "frequency": "${e.frequency}"}')
+          .join(', ');
+      buffer.writeln(
+        'Dépenses récurrentes de l\'utilisateur : [$recurringJson]',
+      );
+    }
+
+    buffer
+      ..writeln('Règles :')
+      ..writeln('1. Extrais le nom, le montant et la fréquence')
+      ..writeln(
+        '2. Si une catégorie existante correspond → categoryId (et newCategory/newCategoryIcon/newCategoryColor = null)',
+      )
+      ..writeln(
+        '3. Sinon → newCategory = "<nom>", newCategoryIcon = icône la plus pertinente, newCategoryColor = couleur hex la plus pertinente (et categoryId = null)',
+      )
+      ..writeln(
+        '4. Si le nom correspond à une dépense récurrente connue, utilise la même fréquence',
+      )
+      ..write(
+        '5. Sinon, fréquence = "Ponctuel" sauf si "mensuel" ou "annuel" précisé explicitement',
+      );
+
+    return buffer.toString();
   }
 
   Future<QuickAddResultModel> parseExpense(
     String input,
-    List<CategoryModel> categories,
-  ) async {
+    List<CategoryModel> categories, {
+    List<ExpenseModel> recurringExpenses = const [],
+  }) async {
     try {
       final response = await _client.chat.completions.create(
         ChatCompletionCreateRequest(
           model: _model,
           temperature: 0.1,
           messages: [
-            ChatMessage.system(_buildSystemPrompt(categories)),
+            ChatMessage.system(
+              _buildSystemPrompt(categories, recurringExpenses),
+            ),
             ChatMessage.user(input),
           ],
           responseFormat: ResponseFormat.jsonSchema(
