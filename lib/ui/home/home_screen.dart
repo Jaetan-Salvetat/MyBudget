@@ -21,6 +21,7 @@ import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
@@ -131,26 +132,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       floatingActionButton: _buildFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: FrostedBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          if (_selectedIndex != index) {
-            setState(() {
-              _selectedIndex = index;
-              _updateTitle();
-            });
-          }
-        },
-        items:
-            _items
-                .map(
-                  (item) => BottomNavigationBarItem(
-                    icon: Icon(item.icon),
-                    activeIcon: Icon(item.selectedIcon),
-                    label: item.label,
-                  ),
-                )
-                .toList(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          QuickAddSection(
+            onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+          ),
+          FrostedBottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: (index) {
+              if (_selectedIndex != index) {
+                setState(() {
+                  _selectedIndex = index;
+                  _updateTitle();
+                });
+              }
+            },
+            items:
+                _items
+                    .map(
+                      (item) => BottomNavigationBarItem(
+                        icon: Icon(item.icon),
+                        activeIcon: Icon(item.selectedIcon),
+                        label: item.label,
+                      ),
+                    )
+                    .toList(),
+          ),
+        ],
       ),
       child: IndexedStack(index: _selectedIndex, children: _screens),
     );

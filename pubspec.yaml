@@ -64,6 +64,7 @@ dependencies:
   google_generative_ai: ^0.4.7
   image_picker: ^1.1.2
   flutter_secure_storage: ^10.0.0
+  openai_dart: ^5.0.0
 
 dev_dependencies:
   flutter_test:

@@ -16,6 +16,8 @@ class PreferencesService {
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
+  static const String keyQuickAddCount = 'quickAddCount';
+  static const String keyQuickAddMonth = 'quickAddMonth';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -99,6 +101,29 @@ class PreferencesService {
 
   static Future<void> setLastScanTimestamp(int timestamp) async {
     await _prefs.setInt(keyLastScanTimestamp, timestamp);
+  }
+
+  static int getQuickAddCount() {
+    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
+    final currentMonth =
+        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
+    if (storedMonth != currentMonth) {
+      return 0;
+    }
+    return _prefs.getInt(keyQuickAddCount) ?? 0;
+  }
+
+  static Future<void> incrementQuickAddCount() async {
+    final currentMonth =
+        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
+    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
+    if (storedMonth != currentMonth) {
+      await _prefs.setString(keyQuickAddMonth, currentMonth);
+      await _prefs.setInt(keyQuickAddCount, 1);
+    } else {
+      final current = _prefs.getInt(keyQuickAddCount) ?? 0;
+      await _prefs.setInt(keyQuickAddCount, current + 1);
+    }
   }
 
   static Future<void> clearAll() async {
