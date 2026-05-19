@@ -77,7 +77,6 @@ class _BalanceDonutState extends State<BalanceDonut>
                   progress: _animation.value,
                   arcColor: widget.arcColor,
                   trackColor: scheme.onSurface.withValues(alpha: 0.08),
-                  tickColor: scheme.onSurface.withValues(alpha: 0.12),
                   strokeWidth: widget.strokeWidth,
                 ),
               );
@@ -94,14 +93,12 @@ class _DonutPainter extends CustomPainter {
   final double progress;
   final Color arcColor;
   final Color trackColor;
-  final Color tickColor;
   final double strokeWidth;
 
   _DonutPainter({
     required this.progress,
     required this.arcColor,
     required this.trackColor,
-    required this.tickColor,
     required this.strokeWidth,
   });
 
@@ -125,17 +122,6 @@ class _DonutPainter extends CustomPainter {
         ..color = arcColor;
       canvas.drawArc(rect, -math.pi / 2, 2 * math.pi * progress, false, arcPaint);
     }
-
-    final tickPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = tickColor;
-    for (final percent in const [0.0, 0.25, 0.5, 0.75]) {
-      final angle = -math.pi / 2 + 2 * math.pi * percent;
-      final inner = center + Offset(math.cos(angle), math.sin(angle)) * (radius - 6);
-      final outer = center + Offset(math.cos(angle), math.sin(angle)) * (radius + 6);
-      canvas.drawLine(inner, outer, tickPaint);
-    }
   }
 
   @override
@@ -143,7 +129,6 @@ class _DonutPainter extends CustomPainter {
     return oldDelegate.progress != progress ||
         oldDelegate.arcColor != arcColor ||
         oldDelegate.trackColor != trackColor ||
-        oldDelegate.tickColor != tickColor ||
         oldDelegate.strokeWidth != strokeWidth;
   }
 }

@@ -6,21 +6,29 @@ class DashboardGreeting extends StatelessWidget {
 
   const DashboardGreeting({super.key, this.onSettingsTap});
 
+  String _greetingForHour(int hour) {
+    if (hour >= 5 && hour < 12) return 'Bonjour';
+    if (hour >= 12 && hour < 18) return 'Bon après-midi';
+    return 'Bonsoir';
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final greeting = _greetingForHour(DateTime.now().hour);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Eyebrow('Bonjour'),
-                SizedBox(height: 2),
-                Text(
+                Eyebrow(greeting),
+                const SizedBox(height: 2),
+                const Text(
                   'Ton mois en clair.',
                   style: TextStyle(
                     fontSize: 22,
