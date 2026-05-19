@@ -10,25 +10,20 @@ import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 class AccountHeroCard extends StatelessWidget {
   final AccountModel account;
   final double balance;
-  final DateTime selectedMonth;
 
   const AccountHeroCard({
     super.key,
     required this.account,
     required this.balance,
-    required this.selectedMonth,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPositive = balance >= 0;
     final balanceColor = isPositive ? finance.income : finance.expense;
-
-    final monthLabel = DateFormat('MMMM', 'fr_FR').format(selectedMonth);
-    final capitalizedMonth =
-        monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase());
 
     final formatter = NumberFormat.currency(
       locale: 'fr_FR',
@@ -36,62 +31,81 @@ class AccountHeroCard extends StatelessWidget {
       decimalDigits: 2,
     );
 
-    return FrostedContainer(
-      padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
-      borderRadius: BorderRadius.circular(22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CategoryIcon(
-                icon: Icons.account_balance_wallet_rounded,
-                color: scheme.primary,
-                size: CategoryIconSize.md,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      account.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 20 / 16,
-                        fontWeight: FontWeight.w600,
-                        color: scheme.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      account.bank,
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 16 / 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.30 : 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
-          const SizedBox(height: 14),
-          Eyebrow('Solde de $capitalizedMonth'),
-          const SizedBox(height: 4),
-          Text(
-            '${isPositive ? '+' : '−'}${formatter.format(balance.abs())}',
-            style: AppTextStyles.displaySerifItalic(
-              fontSize: 48,
-              height: 52 / 48,
-              color: balanceColor,
-            ),
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: FrostedContainer(
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+        borderRadius: BorderRadius.circular(22),
+        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
+        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CategoryIcon(
+                  icon: Icons.account_balance_wallet_rounded,
+                  color: scheme.primary,
+                  size: CategoryIconSize.md,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        account.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 20 / 16,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        account.bank,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 16 / 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            const Eyebrow('Solde du mois'),
+            const SizedBox(height: 4),
+            Text(
+              '${isPositive ? '+' : '−'}${formatter.format(balance.abs())}',
+              style: AppTextStyles.displaySerifItalic(
+                fontSize: 48,
+                height: 52 / 48,
+                color: balanceColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

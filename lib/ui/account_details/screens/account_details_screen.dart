@@ -96,19 +96,21 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     final balance =
         totalRevenues - totalExpenses - totalLoanPayments + totalTransfers;
 
+    final topInset = MediaQuery.of(context).padding.top;
+
     return FrostedScaffold(
-      appBar: FrostedAppBar(title: 'Détails du compte'),
+      appBar: _DetailsAppBar(title: account.name),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: EdgeInsets.fromLTRB(16, topInset + kToolbarHeight + 12, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AccountHeroCard(
               account: account,
               balance: balance,
-              selectedMonth: selectedMonth,
             ),
+            const SizedBox(height: 14),
             AccountBalanceBreakdown(
               totalRevenues: totalRevenues,
               totalExpenses: totalExpenses,
@@ -390,6 +392,62 @@ class _TransfersSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DetailsAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+
+  const _DetailsAppBar({required this.title});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return FrostedContainer(
+      blurStrength: FrostedBlur.medium,
+      backgroundColor:
+          scheme.surface.withValues(alpha: FrostedOpacity.strong),
+      borderRadius: BorderRadius.zero,
+      showBorder: false,
+      showShadow: false,
+      child: SafeArea(
+        bottom: false,
+        child: SizedBox(
+          height: kToolbarHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              children: [
+                FrostedIconButton(
+                  icon: Icons.arrow_back_rounded,
+                  onPressed: () => Navigator.maybePop(context),
+                  color: scheme.onSurface,
+                  iconSize: 22,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 22,
+                      height: 28 / 22,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.018 * 22,
+                      color: scheme.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
