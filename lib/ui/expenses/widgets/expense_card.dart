@@ -3,7 +3,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 
@@ -14,6 +13,7 @@ class ExpenseCard extends StatelessWidget {
   final CategoryModel? category;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final bool showDivider;
 
   const ExpenseCard({
     required this.expense,
@@ -22,13 +22,13 @@ class ExpenseCard extends StatelessWidget {
     required this.onEdit,
     this.beneficiary,
     this.category,
+    this.showDivider = true,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final finance = context.financeColors;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final categoryColor = category != null
         ? Color(category!.color)
@@ -48,22 +48,22 @@ class ExpenseCard extends StatelessWidget {
       if (beneficiary != null) beneficiary!.name,
     ];
 
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 8),
-      borderRadius: 14,
-      padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
-      onClick: onEdit,
-      child: IntrinsicHeight(
+    return InkWell(
+      onTap: onEdit,
+      child: Container(
+        decoration: BoxDecoration(
+          border: showDivider
+              ? Border(
+                  bottom: BorderSide(
+                    width: 0.5,
+                    color: scheme.onSurface.withValues(alpha: 0.07),
+                  ),
+                )
+              : null,
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Container(
-              width: 3,
-              decoration: BoxDecoration(
-                color: categoryColor,
-                borderRadius: BorderRadius.circular(1.5),
-              ),
-            ),
-            const SizedBox(width: 10),
             _CategoryDot(color: categoryColor, icon: category?.getIconData()),
             const SizedBox(width: 12),
             Expanded(
@@ -115,7 +115,7 @@ class ExpenseCard extends StatelessWidget {
                 fontSize: 15,
                 height: 20 / 15,
                 fontWeight: FontWeight.w600,
-                color: finance.expense,
+                color: scheme.onSurface,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -158,9 +159,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 'Récurrentes',
                 recurringExpenses.length,
               ));
-              for (final expense in recurringExpenses) {
-                items.add(_ListItem.expense(expense));
-              }
+              items.add(_ListItem.expensesGroup(recurringExpenses));
             }
 
             if (oneTimeExpenses.isNotEmpty) {
@@ -168,9 +167,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 'Ponctuelles',
                 oneTimeExpenses.length,
               ));
-              for (final expense in oneTimeExpenses) {
-                items.add(_ListItem.expense(expense));
-              }
+              items.add(_ListItem.expensesGroup(oneTimeExpenses));
             }
 
             return ListView.builder(
@@ -208,70 +205,12 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   return _buildSectionTitle(context, item.title!, item.count!);
                 }
 
-                final expense = item.expense!;
-                final account = accounts.firstWhere(
-                  (a) => a.id == expense.accountId,
-                  orElse:
-                      () =>
-                          AccountModel.create(name: 'Compte inconnu', bank: ''),
-                );
-
-                final beneficiary =
-                    expense.beneficiaryId != null
-                        ? beneficiaries
-                            .where((b) => b.id == expense.beneficiaryId)
-                            .firstOrNull
-                        : null;
-
-                final category = categories.firstWhere(
-                  (c) => c.id == expense.categoryId,
-                  orElse:
-                      () =>
-                          CategoryModel.create(name: 'Autre', icon: 'category'),
-                );
-
-                return ExpenseCard(
-                  expense: expense,
-                  accountName: account.name,
-                  beneficiary: beneficiary,
-                  category: category,
-                  onDelete: () async {
-                    try {
-                      await ref
-                          .read(expenseProvider.notifier)
-                          .deleteExpense(expense.id);
-                    } catch (e) {
-                      if (context.mounted) {
-                        FrostedSnackbar.show(
-                          context,
-                          message: 'Erreur lors de la suppression: \$e',
-                        );
-                      }
-                    }
-                  },
-                  onEdit: () {
-                    ExpenseBottomSheet.show(
-                      context: context,
-                      accounts: accounts,
-                      categories: categories,
-                      expense: expense,
-                      onSubmit: (updatedExpense) async {
-                        try {
-                          await ref
-                              .read(expenseProvider.notifier)
-                              .updateExpense(updatedExpense);
-                        } catch (e) {
-                          if (context.mounted) {
-                            FrostedSnackbar.show(
-                              context,
-                              message: 'Erreur lors de la modification: \$e',
-                            );
-                          }
-                        }
-                      },
-                      onCancel: () {},
-                    );
-                  },
+                return _buildExpensesGroup(
+                  context,
+                  item.expenses!,
+                  accounts,
+                  categories,
+                  beneficiaries,
                 );
               },
             );
@@ -298,6 +237,101 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         _buildSectionHeader(context),
         if (isEmpty) _buildEmptyState(context),
       ],
+    );
+  }
+
+  Widget _buildExpensesGroup(
+    BuildContext context,
+    List<ExpenseModel> expenses,
+    List<AccountModel> accounts,
+    List<CategoryModel> categories,
+    List<Beneficiary> beneficiaries,
+  ) {
+    return FrostedCard(
+      margin: EdgeInsets.zero,
+      borderRadius: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      child: Column(
+        children: [
+          for (int i = 0; i < expenses.length; i++)
+            _buildExpenseRow(
+              context,
+              expenses[i],
+              accounts,
+              categories,
+              beneficiaries,
+              showDivider: i < expenses.length - 1,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpenseRow(
+    BuildContext context,
+    ExpenseModel expense,
+    List<AccountModel> accounts,
+    List<CategoryModel> categories,
+    List<Beneficiary> beneficiaries, {
+    required bool showDivider,
+  }) {
+    final account = accounts.firstWhere(
+      (a) => a.id == expense.accountId,
+      orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
+    );
+    final beneficiary = expense.beneficiaryId != null
+        ? beneficiaries
+            .where((b) => b.id == expense.beneficiaryId)
+            .firstOrNull
+        : null;
+    final category = categories.firstWhere(
+      (c) => c.id == expense.categoryId,
+      orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
+    );
+
+    return ExpenseCard(
+      expense: expense,
+      accountName: account.name,
+      beneficiary: beneficiary,
+      category: category,
+      showDivider: showDivider,
+      onDelete: () async {
+        try {
+          await ref
+              .read(expenseProvider.notifier)
+              .deleteExpense(expense.id);
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la suppression: \$e',
+            );
+          }
+        }
+      },
+      onEdit: () {
+        ExpenseBottomSheet.show(
+          context: context,
+          accounts: accounts,
+          categories: categories,
+          expense: expense,
+          onSubmit: (updatedExpense) async {
+            try {
+              await ref
+                  .read(expenseProvider.notifier)
+                  .updateExpense(updatedExpense);
+            } catch (e) {
+              if (context.mounted) {
+                FrostedSnackbar.show(
+                  context,
+                  message: 'Erreur lors de la modification: \$e',
+                );
+              }
+            }
+          },
+          onCancel: () {},
+        );
+      },
     );
   }
 
@@ -546,7 +580,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 }
 
-enum _ListItemType { monthSelector, header, filterChips, sectionTitle, expense }
+enum _ListItemType {
+  monthSelector,
+  header,
+  filterChips,
+  sectionTitle,
+  expensesGroup,
+}
 
 class _ListItem {
   final _ListItemType type;
@@ -554,7 +594,6 @@ class _ListItem {
   final bool? isEmpty;
   final String? title;
   final int? count;
-  final ExpenseModel? expense;
   final double? monthlyAmount;
   final double? annualAmount;
   final double? oneTimeAmount;
@@ -566,7 +605,6 @@ class _ListItem {
     this.isEmpty,
     this.title,
     this.count,
-    this.expense,
     this.monthlyAmount,
     this.annualAmount,
     this.oneTimeAmount,
@@ -595,8 +633,8 @@ class _ListItem {
   factory _ListItem.sectionTitle(String title, int count) =>
       _ListItem._(type: _ListItemType.sectionTitle, title: title, count: count);
 
-  factory _ListItem.expense(ExpenseModel expense) =>
-      _ListItem._(type: _ListItemType.expense, expense: expense);
+  factory _ListItem.expensesGroup(List<ExpenseModel> expenses) =>
+      _ListItem._(type: _ListItemType.expensesGroup, expenses: expenses);
 
   factory _ListItem.monthSelector() =>
       _ListItem._(type: _ListItemType.monthSelector);
