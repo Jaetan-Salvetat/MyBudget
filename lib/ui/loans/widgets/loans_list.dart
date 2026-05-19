@@ -39,31 +39,19 @@ class LoansList extends ConsumerWidget {
               ),
               children: [
                 _buildSummaryCard(context, ref),
-                const SizedBox(height: 24),
-                if (isEmpty) _buildEmptyState(context, ref),
+                if (isEmpty) ...[
+                  const SizedBox(height: 24),
+                  _buildEmptyState(context, ref),
+                ],
                 if (activeLoans.isNotEmpty) ...[
-                  Text(
-                    'Emprunts actifs (${activeLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  _buildSectionTitle(context, 'Actifs', activeLoans.length),
                   ...activeLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
                 ],
                 if (completedLoans.isNotEmpty) ...[
-                  const SizedBox(height: 32),
-                  Text(
-                    'Emprunts remboursés (${completedLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  _buildSectionTitle(
+                      context, 'Remboursés', completedLoans.length),
                   ...completedLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
@@ -72,6 +60,38 @@ class LoansList extends ConsumerWidget {
             );
           },
         );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title, int count) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.09 * 11,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {

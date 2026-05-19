@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/category_model.dart';
-
+import 'package:mybudget/models/expense_model.dart';
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
@@ -26,21 +27,31 @@ class ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final finance = context.financeColors;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    final categoryColor = category != null
+        ? Color(category!.color)
+        : scheme.primary;
 
-    String dateStr;
-    if (expense.frequency == 'Mensuel') {
-      dateStr = 'le ${expense.startDate.day}';
-    } else if (expense.frequency == 'Annuel') {
-      dateStr = 'le ${DateFormat('d MMMM', 'fr_FR').format(expense.startDate)}';
-    } else {
-      dateStr = DateFormat('dd/MM/yyyy').format(expense.startDate);
-    }
+    final dateLabel = switch (expense.frequencyEnum) {
+      Frequency.monthly => 'Le ${expense.startDate.day}',
+      Frequency.annual =>
+        DateFormat("'Le' d MMMM", 'fr_FR').format(expense.startDate),
+      Frequency.oneTime =>
+        DateFormat('d MMMM', 'fr_FR').format(expense.startDate),
+    };
+
+    final metaParts = <String>[
+      dateLabel,
+      if (category != null) category!.name,
+      if (beneficiary != null) beneficiary!.name,
+    ];
 
     return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      borderRadius: 12,
-      padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
+      margin: const EdgeInsets.only(bottom: 8),
+      borderRadius: 14,
+      padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
       onClick: onEdit,
       child: IntrinsicHeight(
         child: Row(
@@ -48,145 +59,69 @@ class ExpenseCard extends StatelessWidget {
             Container(
               width: 3,
               decoration: BoxDecoration(
-                color: category != null
-                    ? Color(category!.color)
-                    : Theme.of(context).colorScheme.primaryContainer,
+                color: categoryColor,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
+            _CategoryDot(color: categoryColor, icon: category?.getIconData()),
+            const SizedBox(width: 12),
             Expanded(
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: category != null
-                    ? Color(category!.color).withValues(alpha: 0.25)
-                    : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                category?.getIconData() ?? Icons.arrow_downward,
-                color: category != null
-                    ? Color(category!.color)
-                    : Theme.of(context).colorScheme.error,
-                size: 20,
-              ),
-            ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  expense.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (category != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    category!.name,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Color(category!.color),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        accountName,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        dateStr,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (beneficiary != null) ...[
-                      const SizedBox(width: 12),
-                      Icon(
-                        Icons.person_outline,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
+                  Row(
+                    children: [
                       Flexible(
                         child: Text(
-                          beneficiary!.name,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          expense.name,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            height: 20 / 15,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (expense.frequencyEnum == Frequency.monthly) ...[
+                        const SizedBox(width: 6),
+                        _FreqBadge(letter: 'M', color: scheme.primary),
+                      ] else if (expense.frequencyEnum == Frequency.annual) ...[
+                        const SizedBox(width: 6),
+                        _FreqBadge(letter: 'A', color: scheme.secondary),
+                      ],
                     ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                formatter.format(expense.amount),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              ),
-              const SizedBox(height: 4),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  expense.frequency,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                ),
-              ),
-            ],
-          ),
-          FrostedIconButton(
-            icon: Icons.more_vert,
-            onPressed: () => _showOptionsBottomSheet(context),
-          ),
+                  const SizedBox(height: 2),
+                  Text(
+                    metaParts.join(' · '),
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 16 / 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '− ${formatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
+              style: TextStyle(
+                fontSize: 15,
+                height: 20 / 15,
+                fontWeight: FontWeight.w600,
+                color: finance.expense,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            FrostedIconButton(
+              icon: Icons.more_vert,
+              onPressed: () => _showOptionsBottomSheet(context),
             ),
           ],
         ),
@@ -249,6 +184,54 @@ class ExpenseCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CategoryDot extends StatelessWidget {
+  final Color color;
+  final IconData? icon;
+
+  const _CategoryDot({required this.color, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      alignment: Alignment.center,
+      child: Icon(icon ?? Icons.category, color: color, size: 18),
+    );
+  }
+}
+
+class _FreqBadge extends StatelessWidget {
+  final String letter;
+  final Color color;
+
+  const _FreqBadge({required this.letter, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        letter,
+        style: TextStyle(
+          fontSize: 10,
+          height: 13 / 10,
+          fontWeight: FontWeight.w500,
+          color: color,
+        ),
+      ),
     );
   }
 }

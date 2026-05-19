@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -122,16 +121,20 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
             ));
 
             if (recurringRevenues.isNotEmpty) {
-              items.add(_RevenueListItem.sectionTitle('Récurrents'));
+              items.add(_RevenueListItem.sectionTitle(
+                'Récurrents',
+                recurringRevenues.length,
+              ));
               for (final revenue in recurringRevenues) {
                 items.add(_RevenueListItem.revenue(revenue));
               }
             }
 
             if (oneTimeRevenues.isNotEmpty) {
-              final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
-              final capitalized = monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase());
-              items.add(_RevenueListItem.sectionTitle('Ponctuels — $capitalized'));
+              items.add(_RevenueListItem.sectionTitle(
+                'Ponctuels',
+                oneTimeRevenues.length,
+              ));
               for (final revenue in oneTimeRevenues) {
                 items.add(_RevenueListItem.revenue(revenue));
               }
@@ -162,15 +165,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 }
 
                 if (item.type == _RevenueItemType.sectionTitle) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 16, bottom: 8),
-                    child: Text(
-                      item.title!,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  );
+                  return _buildSectionTitle(context, item.title!, item.count!);
                 }
 
                 final revenue = item.revenue!;
@@ -242,16 +237,45 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         ref.read(revenueProvider.notifier).getMonthlyRevenues();
     return Column(
       children: [
-        Container(
-          margin: const EdgeInsets.only(bottom: 5),
-          child: RevenuesSummaryCard(
-            transactionCount: displayedRevenues.length,
-            monthlyRevenues: monthlyRevenues,
-          ),
+        RevenuesSummaryCard(
+          transactionCount: displayedRevenues.length,
+          monthlyRevenues: monthlyRevenues,
         ),
         _buildSectionHeader(context),
         if (isEmpty) _buildEmptyState(context),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title, int count) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.09 * 11,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -408,6 +432,7 @@ class _RevenueListItem {
   final List<RevenueModel>? revenues;
   final bool? isEmpty;
   final String? title;
+  final int? count;
   final RevenueModel? revenue;
 
   _RevenueListItem._({
@@ -415,14 +440,19 @@ class _RevenueListItem {
     this.revenues,
     this.isEmpty,
     this.title,
+    this.count,
     this.revenue,
   });
 
   factory _RevenueListItem.header(List<RevenueModel> revenues, bool isEmpty) =>
       _RevenueListItem._(type: _RevenueItemType.header, revenues: revenues, isEmpty: isEmpty);
 
-  factory _RevenueListItem.sectionTitle(String title) =>
-      _RevenueListItem._(type: _RevenueItemType.sectionTitle, title: title);
+  factory _RevenueListItem.sectionTitle(String title, int count) =>
+      _RevenueListItem._(
+        type: _RevenueItemType.sectionTitle,
+        title: title,
+        count: count,
+      );
 
   factory _RevenueListItem.revenue(RevenueModel revenue) =>
       _RevenueListItem._(type: _RevenueItemType.revenue, revenue: revenue);

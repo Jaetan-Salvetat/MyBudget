@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -130,25 +129,45 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     e.startDate.month == selectedMonth.month)
                 .toList();
 
+            final monthlyAmount = recurringExpenses
+                .where((e) => e.frequencyEnum == Frequency.monthly)
+                .fold<double>(0, (s, e) => s + e.amount);
+            final annualAmount = recurringExpenses
+                .where((e) => e.frequencyEnum == Frequency.annual)
+                .fold<double>(0, (s, e) => s + e.amount);
+            final oneTimeAmount = oneTimeExpenses
+                .fold<double>(0, (s, e) => s + e.amount);
+
             final isEmpty = recurringExpenses.isEmpty &&
                 oneTimeExpenses.isEmpty &&
                 _filterData.isEmpty;
 
             final items = <_ListItem>[];
             items.add(_ListItem.monthSelector());
-            items.add(_ListItem.header(displayedExpenses, isEmpty));
+            items.add(_ListItem.header(
+              displayedExpenses,
+              isEmpty,
+              monthlyAmount,
+              annualAmount,
+              oneTimeAmount,
+            ));
+            items.add(_ListItem.filterChips(categories));
 
             if (recurringExpenses.isNotEmpty) {
-              items.add(_ListItem.sectionTitle('Récurrents'));
+              items.add(_ListItem.sectionTitle(
+                'Récurrentes',
+                recurringExpenses.length,
+              ));
               for (final expense in recurringExpenses) {
                 items.add(_ListItem.expense(expense));
               }
             }
 
             if (oneTimeExpenses.isNotEmpty) {
-              final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
-              final capitalized = monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase());
-              items.add(_ListItem.sectionTitle('Ponctuels — $capitalized'));
+              items.add(_ListItem.sectionTitle(
+                'Ponctuelles',
+                oneTimeExpenses.length,
+              ));
               for (final expense in oneTimeExpenses) {
                 items.add(_ListItem.expense(expense));
               }
@@ -175,19 +194,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     context,
                     [...recurringExpenses, ...oneTimeExpenses],
                     isEmpty,
+                    item.monthlyAmount ?? 0,
+                    item.annualAmount ?? 0,
+                    item.oneTimeAmount ?? 0,
                   );
                 }
 
+                if (item.type == _ListItemType.filterChips) {
+                  return _buildFilterChips(context, item.categories ?? []);
+                }
+
                 if (item.type == _ListItemType.sectionTitle) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 16, bottom: 8),
-                    child: Text(
-                      item.title!,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  );
+                  return _buildSectionTitle(context, item.title!, item.count!);
                 }
 
                 final expense = item.expense!;
@@ -265,25 +283,115 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     BuildContext context,
     List<ExpenseModel> displayedExpenses,
     bool isEmpty,
+    double monthlyAmount,
+    double annualAmount,
+    double oneTimeAmount,
   ) {
-    final totalExpenses = ref
-        .read(expenseProvider.notifier)
-        .getTotalExpenses(displayedExpenses);
-    final annualExpenses = ref
-        .read(expenseProvider.notifier)
-        .getAnnualExpenses(displayedExpenses);
-
     return Column(
       children: [
         ExpensesSummaryCard(
-          totalExpenses: totalExpenses,
+          monthlyAmount: monthlyAmount,
+          annualAmount: annualAmount,
+          oneTimeAmount: oneTimeAmount,
           transactionCount: displayedExpenses.length,
-          monthlyExpenses: totalExpenses,
-          annualExpenses: annualExpenses,
         ),
         _buildSectionHeader(context),
         if (isEmpty) _buildEmptyState(context),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title, int count) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.09 * 11,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(
+      BuildContext context, List<CategoryModel> categories) {
+    final scheme = Theme.of(context).colorScheme;
+    final allSelected = _filterData.categoryIds.isEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            FrostedChip(
+              label: const Text('Tout'),
+              selected: allSelected,
+              avatar: Icon(
+                Icons.filter_list,
+                size: 16,
+                color: allSelected ? scheme.primary : scheme.onSurfaceVariant,
+              ),
+              onPressed: () {
+                setState(() {
+                  _filterData.categoryIds = const [];
+                });
+              },
+            ),
+            ...categories.map((category) {
+              final selected = _filterData.categoryIds.contains(category.id);
+              final color = Color(category.color);
+              return Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: FrostedChip(
+                  label: Text(category.name),
+                  selected: selected,
+                  selectedColor: color,
+                  avatar: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: selected ? 0.9 : 0.6),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      final ids = List<int>.from(_filterData.categoryIds);
+                      if (selected) {
+                        ids.remove(category.id);
+                      } else {
+                        ids.add(category.id);
+                      }
+                      _filterData.categoryIds = ids;
+                    });
+                  },
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
     );
   }
 
@@ -438,28 +546,54 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 }
 
-enum _ListItemType { monthSelector, header, sectionTitle, expense }
+enum _ListItemType { monthSelector, header, filterChips, sectionTitle, expense }
 
 class _ListItem {
   final _ListItemType type;
   final List<ExpenseModel>? expenses;
   final bool? isEmpty;
   final String? title;
+  final int? count;
   final ExpenseModel? expense;
+  final double? monthlyAmount;
+  final double? annualAmount;
+  final double? oneTimeAmount;
+  final List<CategoryModel>? categories;
 
   _ListItem._({
     required this.type,
     this.expenses,
     this.isEmpty,
     this.title,
+    this.count,
     this.expense,
+    this.monthlyAmount,
+    this.annualAmount,
+    this.oneTimeAmount,
+    this.categories,
   });
 
-  factory _ListItem.header(List<ExpenseModel> expenses, bool isEmpty) =>
-      _ListItem._(type: _ListItemType.header, expenses: expenses, isEmpty: isEmpty);
+  factory _ListItem.header(
+    List<ExpenseModel> expenses,
+    bool isEmpty,
+    double monthlyAmount,
+    double annualAmount,
+    double oneTimeAmount,
+  ) =>
+      _ListItem._(
+        type: _ListItemType.header,
+        expenses: expenses,
+        isEmpty: isEmpty,
+        monthlyAmount: monthlyAmount,
+        annualAmount: annualAmount,
+        oneTimeAmount: oneTimeAmount,
+      );
 
-  factory _ListItem.sectionTitle(String title) =>
-      _ListItem._(type: _ListItemType.sectionTitle, title: title);
+  factory _ListItem.filterChips(List<CategoryModel> categories) =>
+      _ListItem._(type: _ListItemType.filterChips, categories: categories);
+
+  factory _ListItem.sectionTitle(String title, int count) =>
+      _ListItem._(type: _ListItemType.sectionTitle, title: title, count: count);
 
   factory _ListItem.expense(ExpenseModel expense) =>
       _ListItem._(type: _ListItemType.expense, expense: expense);
