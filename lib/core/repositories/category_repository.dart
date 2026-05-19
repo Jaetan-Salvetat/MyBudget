@@ -11,6 +11,7 @@ class CategoryRepository {
   }
 
   CategoryModel? get(int id) {
+    if (id <= 0) return null;
     return _box.get(id);
   }
 

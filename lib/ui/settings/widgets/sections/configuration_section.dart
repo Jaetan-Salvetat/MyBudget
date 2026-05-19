@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/secure_storage_service.dart';
+import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/settings/widgets/gemini_api_key_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
@@ -35,6 +37,12 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
     return SettingsSection(
       title: 'Configuration',
       children: [
+        SettingsTile(
+          title: 'Ajout rapide (IA)',
+          subtitle:
+              '${QuickAddNotifier.monthlyLimit - PreferencesService.getQuickAddCount()}/${QuickAddNotifier.monthlyLimit} requêtes restantes ce mois',
+          leading: const Icon(Icons.bolt),
+        ),
         SettingsTile(
           title: _hasCustomKey
               ? 'Clé API personnelle active'

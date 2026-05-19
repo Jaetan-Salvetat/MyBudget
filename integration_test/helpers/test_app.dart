@@ -1,5 +1,4 @@
 import 'package:app_updater/app_updater.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,23 +64,19 @@ class _TestApp extends ConsumerWidget {
         final themeState = ref.watch(themeProvider);
         final themeNotifier = ref.read(themeProvider.notifier);
 
-        return DynamicColorBuilder(
-          builder: (lightDynamic, darkDynamic) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              title: 'My Budget - Test',
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('fr')],
-              theme: themeNotifier.getLightTheme(dynamicColorScheme: lightDynamic),
-              darkTheme: themeNotifier.getDarkTheme(dynamicColorScheme: darkDynamic),
-              themeMode: themeState.themeMode,
-              home: const HomeScreen(),
-            );
-          },
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'My Budget - Test',
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('fr')],
+          theme: themeNotifier.lightTheme,
+          darkTheme: themeNotifier.darkTheme,
+          themeMode: themeState.themeMode,
+          home: const HomeScreen(),
         );
       },
     );

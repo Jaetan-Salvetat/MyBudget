@@ -1,107 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1565C0),
-      brightness: Brightness.light,
-    ),
-    useMaterial3: true,
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: <TargetPlatform, PageTransitionsBuilder>{
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-      },
-    ),
-  );
+  AppTheme._();
 
-  static ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1565C0),
-      brightness: Brightness.dark,
-    ),
-    useMaterial3: true,
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: <TargetPlatform, PageTransitionsBuilder>{
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-      },
-    ),
-  );
+  static const Color _seedColor = Color(0xFF2A55D3);
+  static const Color _secondaryColor = Color(0xFF6750A4);
 
-  static ThemeData generateTheme(
-    Brightness brightness,
-    AppThemeType themeType, {
-    ColorScheme? dynamicColorScheme,
-  }) {
-    ColorScheme? scheme;
+  static ThemeData light() => _build(Brightness.light);
+  static ThemeData dark() => _build(Brightness.dark);
 
-    if (themeType == AppThemeType.dynamicColor && dynamicColorScheme != null) {
-      scheme = dynamicColorScheme;
-    } else {
-      scheme = ColorScheme.fromSeed(
-        seedColor: themeType.seedColor,
-        brightness: brightness,
-      );
-    }
+  static ThemeData _build(Brightness brightness) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: _seedColor,
+      brightness: brightness,
+    ).copyWith(
+      secondary: _secondaryColor,
+    );
 
     return ThemeData(
       brightness: brightness,
       colorScheme: scheme,
       useMaterial3: true,
+      scaffoldBackgroundColor: scheme.surface,
+      textTheme: AppTextStyles.buildTextTheme(brightness),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
           TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
         },
       ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: scheme.onSurface,
+        unselectedItemColor: scheme.onSurface,
+      ),
+      extensions: <ThemeExtension<dynamic>>[
+        brightness == Brightness.dark ? FinanceColors.dark : FinanceColors.light,
+      ],
     );
-  }
-}
-
-enum AppThemeType {
-  dynamicColor,
-  purple,
-  green,
-  blue,
-  cyan,
-  red,
-  orange;
-
-  Color get seedColor {
-    switch (this) {
-      case AppThemeType.dynamicColor:
-        return Colors.transparent;
-      case AppThemeType.blue:
-        return const Color(0xFF1565C0);
-      case AppThemeType.purple:
-        return const Color(0xFF673AB7);
-      case AppThemeType.green:
-        return const Color(0xFF2E7D32);
-      case AppThemeType.red:
-        return const Color(0xFFD32F2F);
-      case AppThemeType.orange:
-        return const Color(0xFFEF6C00);
-      case AppThemeType.cyan:
-        return const Color(0xFF00838F);
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case AppThemeType.dynamicColor:
-        return 'Dynamique';
-      case AppThemeType.blue:
-        return 'Bleu';
-      case AppThemeType.purple:
-        return 'Violet';
-      case AppThemeType.green:
-        return 'Vert';
-      case AppThemeType.red:
-        return 'Rouge';
-      case AppThemeType.orange:
-        return 'Orange';
-      case AppThemeType.cyan:
-        return 'Cyan';
-    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/models/category_model.dart';
 
 class CategoryFormBottomSheet extends StatefulWidget {
@@ -34,45 +35,10 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
   late int _selectedColor;
   late String _selectedIcon;
 
-  static const List<int> _colors = [
-    0xFFEF5350,
-    0xFFEC407A,
-    0xFFAB47BC,
-    0xFF7E57C2,
-    0xFF42A5F5,
-    0xFF26C6DA,
-    0xFF26A69A,
-    0xFF66BB6A,
-    0xFFD4E157,
-    0xFFFFCA28,
-    0xFFFFA726,
-    0xFF8D6E63,
-    0xFF78909C,
-    0xFF9E9E9E,
-  ];
+  static const List<int> _colors = CategoryDefaults.colors;
 
-  static final List<IconData> _icons = [
-    Icons.home,
-    Icons.restaurant,
-    Icons.directions_car,
-    Icons.shopping_bag,
-    Icons.medical_services,
-    Icons.sports_esports,
-    Icons.movie,
-    Icons.school,
-    Icons.flight_takeoff,
-    Icons.fitness_center,
-    Icons.checkroom,
-    Icons.pets,
-    Icons.wifi,
-    Icons.phone_android,
-    Icons.local_gas_station,
-    Icons.child_care,
-    Icons.account_balance_wallet,
-    Icons.subscriptions,
-    Icons.local_cafe,
-    Icons.more_horiz,
-  ];
+  static final List<IconData> _icons =
+      CategoryDefaults.icons.values.toList();
 
   @override
   void initState() {

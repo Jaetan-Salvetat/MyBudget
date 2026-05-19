@@ -1,26 +1,28 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
-import 'package:mybudget/ui/accounts/accounts_screen.dart';
-import 'package:mybudget/ui/expenses/expenses_screen.dart';
-import 'package:mybudget/ui/revenues/revenues_screen.dart';
-import 'package:mybudget/ui/loans/loans_screen.dart';
-import 'package:mybudget/ui/settings/settings_screen.dart';
-import 'package:mybudget/ui/scan/scan_screen.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
-import 'package:mybudget/ui/settings/update_provider.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
+import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/frosted_background.dart';
+import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
+import 'package:mybudget/ui/scan/scan_screen.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/settings/screens/update_screen.dart';
+import 'package:mybudget/ui/settings/update_provider.dart';
+import 'package:mybudget/ui/transactions/transactions_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final int initialIndex;
@@ -33,13 +35,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late int _selectedIndex;
-  late String _currentTitle;
+  int _transactionsSubTab = 0;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
-    _currentTitle = _getTitleForIndex(_selectedIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(updateProvider.notifier).checkForUpdates(silent: true);
@@ -63,134 +64,114 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  String _getTitleForIndex(int index) {
-    switch (index) {
-      case 0:
-        return 'MyBudget';
-      case 1:
-        return 'Comptes';
-      case 2:
-        return 'Dépenses';
-      case 3:
-        return 'Revenus';
-      case 4:
-        return 'Emprunts';
-      default:
-        return 'MyBudget';
-    }
-  }
-
-  static final List<_NavItem> _items = [
-    const _NavItem('Accueil', Icons.dashboard_outlined, Icons.dashboard),
-    const _NavItem(
+  static const List<_NavItem> _items = [
+    _NavItem('Accueil', Icons.dashboard_outlined, Icons.dashboard),
+    _NavItem('Transactions', Icons.swap_vert_outlined, Icons.swap_vert),
+    _NavItem(
       'Comptes',
       Icons.account_balance_outlined,
       Icons.account_balance,
     ),
-    const _NavItem('Dépenses', Icons.money_off_outlined, Icons.money_off),
-    const _NavItem('Revenus', Icons.attach_money_outlined, Icons.attach_money),
-    const _NavItem(
-      'Emprunts',
-      Icons.account_balance_wallet_outlined,
-      Icons.account_balance_wallet,
-    ),
   ];
-
-  final List<Widget> _screens = [
-    const DashboardScreen(isNested: true, fabTag: 'dashboard_fab_nested'),
-    const AccountsScreen(),
-    const ExpensesScreen(),
-    const RevenuesScreen(),
-    const LoansScreen(),
-  ];
-
-  void _updateTitle() {
-    setState(() {
-      _currentTitle = _getTitleForIndex(_selectedIndex);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
+    final screens = [
+      const DashboardScreen(isNested: true, fabTag: 'dashboard_fab_nested'),
+      TransactionsScreen(
+        selectedTab: _transactionsSubTab,
+        onTabChanged: (i) => setState(() => _transactionsSubTab = i),
+      ),
+      const AccountsScreen(),
+    ];
+
     return FrostedScaffold(
       animateFloatingActionButtonTransitions: false,
-      appBar: FrostedAppBar(
-        title: _currentTitle,
-        actions: [
-          FrostedIconButton(
-            icon: Icons.settings,
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                ),
-          ),
-        ],
-      ),
-      floatingActionButton: _buildFab(context),
+      extendBodyBehindAppBar: true,
+      floatingActionButton: keyboardVisible ? null : _buildFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: FrostedBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          if (_selectedIndex != index) {
-            setState(() {
-              _selectedIndex = index;
-              _updateTitle();
-            });
-          }
-        },
-        items:
-            _items
-                .map(
-                  (item) => BottomNavigationBarItem(
-                    icon: Icon(item.icon),
-                    activeIcon: Icon(item.selectedIcon),
-                    label: item.label,
-                  ),
-                )
-                .toList(),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QuickAddSection(
+              onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+              onScanRequested: () => _showImageSourceChoice(context),
+            ),
+            if (!keyboardVisible)
+              FrostedBottomNavigationBar(
+                currentIndex: _selectedIndex,
+                onTap: (index) {
+                  if (_selectedIndex != index) {
+                    setState(() => _selectedIndex = index);
+                  }
+                },
+                items: _items
+                    .map(
+                      (item) => BottomNavigationBarItem(
+                        icon: Icon(item.icon),
+                        activeIcon: Icon(item.selectedIcon),
+                        label: item.label,
+                      ),
+                    )
+                    .toList(),
+              ),
+          ],
+        ),
       ),
-      child: IndexedStack(index: _selectedIndex, children: _screens),
+      child: FrostedBackground(
+        child: Stack(
+          children: [
+            IndexedStack(index: _selectedIndex, children: screens),
+            _QuickAddScrim(),
+          ],
+        ),
+      ),
     );
   }
 
   Widget? _buildFab(BuildContext context) {
-    switch (_selectedIndex) {
-      case 1:
-        return FrostedFloatingActionButton(
-          onPressed: () => _showAddAccountDialog(context),
-          child: const Icon(Icons.add),
-        );
-      case 2:
-        return FrostedExpandableFab(
-          children: [
-            FrostedExpandableFabChild(
-              icon: const Icon(Icons.document_scanner),
-              label: 'Scanner',
-              onPressed: () => _showImageSourceChoice(context),
-            ),
-            FrostedExpandableFabChild(
-              icon: const Icon(Icons.edit),
-              label: 'Manuel',
-              onPressed: () => _showAddExpenseBottomSheet(context),
-            ),
-          ],
-        );
-      case 3:
-        return FrostedFloatingActionButton(
-          onPressed: () => _showAddRevenueBottomSheet(context),
-          child: const Icon(Icons.add),
-        );
-      case 4:
-        return FrostedFloatingActionButton(
-          onPressed: () => _showAddLoanBottomSheet(context),
-          child: const Icon(Icons.add),
-        );
-      default:
-        return null;
+    if (_selectedIndex == 1) {
+      switch (_transactionsSubTab) {
+        case 0:
+          return FrostedExpandableFab(
+            children: [
+              FrostedExpandableFabChild(
+                icon: const Icon(Icons.document_scanner),
+                label: 'Scanner',
+                onPressed: () => _showImageSourceChoice(context),
+              ),
+              FrostedExpandableFabChild(
+                icon: const Icon(Icons.edit),
+                label: 'Manuel',
+                onPressed: () => _showAddExpenseBottomSheet(context),
+              ),
+            ],
+          );
+        case 1:
+          return FrostedFloatingActionButton(
+            onPressed: () => _showAddRevenueBottomSheet(context),
+            child: const Icon(Icons.add),
+          );
+        case 2:
+          return FrostedFloatingActionButton(
+            onPressed: () => _showAddLoanBottomSheet(context),
+            child: const Icon(Icons.add),
+          );
+      }
     }
+    if (_selectedIndex == 2) {
+      return FrostedFloatingActionButton(
+        onPressed: () => _showAddAccountDialog(context),
+        child: const Icon(Icons.add),
+      );
+    }
+    return null;
   }
 
   void _showAddAccountDialog(BuildContext context) {
@@ -204,7 +185,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           await ref.read(accountProvider.notifier).addAccount(account);
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
           }
         }
       },
@@ -258,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           await ref.read(revenueProvider.notifier).addRevenue(revenue);
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
           }
         }
       },
@@ -282,7 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           await ref.read(loanProvider.notifier).addLoan(loan);
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: \$e');
+            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
           }
         }
       },
@@ -374,4 +355,37 @@ class _NavItem {
   final IconData selectedIcon;
 
   const _NavItem(this.label, this.icon, this.selectedIcon);
+}
+
+class _QuickAddScrim extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(quickAddProvider);
+    final hasResult = state.hasValue && state.value != null;
+    final isVisible = hasResult || state.isLoading || state.hasError;
+    final dismissible = hasResult || state.hasError;
+
+    return IgnorePointer(
+      ignoring: !isVisible,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        opacity: isVisible ? 1 : 0,
+        child: GestureDetector(
+          onTap: dismissible
+              ? () => ref.read(quickAddProvider.notifier).reset()
+              : null,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: FrostedBlur.medium,
+              sigmaY: FrostedBlur.medium,
+            ),
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: FrostedOpacity.half),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
