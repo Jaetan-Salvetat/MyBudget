@@ -11,25 +11,36 @@ class AccountsScreen extends StatelessWidget {
 
     return SafeArea(
       bottom: false,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Text(
-              'Mes comptes',
-              style: TextStyle(
-                fontSize: 22,
-                height: 26 / 22,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.4,
-                color: scheme.onSurface,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 180),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+              child: SizedBox(
+                height: 48,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Mes comptes',
+                    style: TextStyle(
+                      fontSize: 28,
+                      height: 34 / 28,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.022 * 28,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-          const MonthSelector(),
-          const SizedBox(height: 4),
-          const Expanded(child: AccountList()),
-        ],
+            const MonthSelector(),
+            const SizedBox(height: 4),
+            const AccountList(),
+          ],
+        ),
       ),
     );
   }

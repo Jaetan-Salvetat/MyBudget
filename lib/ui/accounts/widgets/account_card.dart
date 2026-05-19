@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -39,112 +40,145 @@ class AccountCard extends StatelessWidget {
       decimalDigits: 0,
     );
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.30 : 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: FrostedContainer(
         borderRadius: BorderRadius.circular(20),
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
+        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
+        padding: EdgeInsets.zero,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CategoryIcon(
-                  icon: Icons.account_balance_wallet_rounded,
-                  color: scheme.primary,
-                  size: CategoryIconSize.md,
+                Row(
+                  children: [
+                    CategoryIcon(
+                      icon: Icons.account_balance_wallet_rounded,
+                      color: scheme.primary,
+                      size: CategoryIconSize.md,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            account.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 22 / 16,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            account.bank,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 16 / 12,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 22,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        account.name,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 22 / 16,
-                          fontWeight: FontWeight.w600,
-                          color: scheme.onSurface,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 14),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    const Expanded(child: Eyebrow('Solde du mois')),
+                    Text(
+                      '${isPositive ? '+' : '−'} ${formatter.format(balance.abs())}',
+                      style: GoogleFonts.inter(
+                        fontSize: 24,
+                        height: 28 / 24,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.02 * 24,
+                        color: balanceColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
-                      Text(
-                        account.bank,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 16 / 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: scheme.onSurface.withValues(alpha: 0.07),
+                        width: 0.5,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _StatItem(
+                            label: 'Entrées',
+                            value: compactFormatter.format(monthlyIncomes),
+                            color: finance.income,
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          color: scheme.onSurface.withValues(alpha: 0.08),
+                        ),
+                        Expanded(
+                          child: _StatItem(
+                            label: 'Charges',
+                            value: compactFormatter.format(monthlyCharges),
+                            color: finance.expense,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                const Expanded(child: Eyebrow('Solde du mois')),
-                Text(
-                  '${isPositive ? '+' : '−'} ${formatter.format(balance.abs())}',
-                  style: AppTextStyles.amount(
-                    fontSize: 24,
-                    color: balanceColor,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: scheme.onSurface.withValues(alpha: 0.07),
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _StatItem(
-                      label: 'Entrées',
-                      value: compactFormatter.format(monthlyIncomes),
-                      color: finance.income,
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    color: scheme.onSurface.withValues(alpha: 0.08),
-                  ),
-                  Expanded(
-                    child: _StatItem(
-                      label: 'Charges',
-                      value: compactFormatter.format(monthlyCharges),
-                      color: finance.expense,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
@@ -161,16 +195,27 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Eyebrow(label),
+          Text(
+            label.toUpperCase(),
+            style: AppTextStyles.eyebrowMono(color: scheme.onSurfaceVariant)
+                .copyWith(
+              fontSize: 11,
+              height: 14 / 11,
+              letterSpacing: 0.08 * 11,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: AppTextStyles.amount(fontSize: 16, color: color),
+            style: AppTextStyles.amount(fontSize: 18, color: color),
           ),
         ],
       ),
