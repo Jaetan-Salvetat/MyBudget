@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -12,6 +14,7 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
@@ -122,7 +125,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
       child: FrostedBackground(
-        child: IndexedStack(index: _selectedIndex, children: screens),
+        child: Stack(
+          children: [
+            IndexedStack(index: _selectedIndex, children: screens),
+            _QuickAddScrim(),
+          ],
+        ),
       ),
     );
   }
@@ -347,4 +355,37 @@ class _NavItem {
   final IconData selectedIcon;
 
   const _NavItem(this.label, this.icon, this.selectedIcon);
+}
+
+class _QuickAddScrim extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(quickAddProvider);
+    final hasResult = state.hasValue && state.value != null;
+    final isVisible = hasResult || state.isLoading || state.hasError;
+    final dismissible = hasResult || state.hasError;
+
+    return IgnorePointer(
+      ignoring: !isVisible,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        opacity: isVisible ? 1 : 0,
+        child: GestureDetector(
+          onTap: dismissible
+              ? () => ref.read(quickAddProvider.notifier).reset()
+              : null,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: FrostedBlur.medium,
+              sigmaY: FrostedBlur.medium,
+            ),
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: FrostedOpacity.half),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
