@@ -5,10 +5,17 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 
+const double kQuickAddBlur = 24;
+
 class QuickAddInputBar extends ConsumerStatefulWidget {
   final VoidCallback onNoAccount;
+  final VoidCallback onScanRequested;
 
-  const QuickAddInputBar({required this.onNoAccount, super.key});
+  const QuickAddInputBar({
+    required this.onNoAccount,
+    required this.onScanRequested,
+    super.key,
+  });
 
   @override
   ConsumerState<QuickAddInputBar> createState() => _QuickAddInputBarState();
@@ -44,58 +51,123 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
   Widget build(BuildContext context) {
     final state = ref.watch(quickAddProvider);
     final isLoading = state is AsyncLoading;
-    final colorScheme = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FrostedSpacing.xl,
-        vertical: FrostedSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: IgnorePointer(
-              ignoring: isLoading,
-              child: FrostedTextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                hintText: 'café 3.50, netflix 13.99...',
-                prefixIcon: Icon(
-                  Icons.bolt,
-                  size: 18,
-                  color: colorScheme.primary,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: FrostedContainer(
+        borderRadius: BorderRadius.circular(9999),
+        blurStrength: kQuickAddBlur,
+        padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+        child: SizedBox(
+          height: 48,
+          child: Row(
+            children: [
+              _CircleButton(
+                onTap: widget.onScanRequested,
+                child: Icon(
+                  Icons.document_scanner_outlined,
+                  size: 22,
+                  color: scheme.onSurfaceVariant,
                 ),
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _submit(),
               ),
-            ),
-          ),
-          const SizedBox(width: FrostedSpacing.sm),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: isLoading
-                ? SizedBox(
-                    key: const ValueKey('loader'),
-                    width: FrostedSize.iconButton,
-                    height: FrostedSize.iconButton,
-                    child: Center(
-                      child: SizedBox(
+              const SizedBox(width: 4),
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  enabled: !isLoading,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 20 / 14,
+                    color: scheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText:
+                        'Saisir : « café 3,50 », « netflix 13,99 » …',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      height: 20 / 14,
+                      color: scheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _submit(),
+                ),
+              ),
+              const SizedBox(width: 4),
+              _FilledCircleButton(
+                onTap: isLoading ? null : _submit,
+                background: scheme.primary,
+                foreground: scheme.onPrimary,
+                child: isLoading
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: colorScheme.primary,
+                          color: scheme.onPrimary,
                         ),
+                      )
+                    : Icon(
+                        Icons.auto_awesome,
+                        size: 20,
+                        color: scheme.onPrimary,
+                        fill: 1,
                       ),
-                    ),
-                  )
-                : FrostedIconButton(
-                    key: const ValueKey('send'),
-                    icon: Icons.send_rounded,
-                    onPressed: _submit,
-                  ),
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final Widget child;
+
+  const _CircleButton({required this.onTap, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(width: 44, height: 44, child: Center(child: child)),
+      ),
+    );
+  }
+}
+
+class _FilledCircleButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final Color background;
+  final Color foreground;
+  final Widget child;
+
+  const _FilledCircleButton({
+    required this.onTap,
+    required this.background,
+    required this.foreground,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: background,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(width: 44, height: 44, child: Center(child: child)),
       ),
     );
   }

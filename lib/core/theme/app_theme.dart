@@ -30,6 +30,10 @@ class AppTheme {
           TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
         },
       ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: scheme.onSurface,
+        unselectedItemColor: scheme.onSurface,
+      ),
       extensions: <ThemeExtension<dynamic>>[
         brightness == Brightness.dark ? FinanceColors.dark : FinanceColors.light,
       ],

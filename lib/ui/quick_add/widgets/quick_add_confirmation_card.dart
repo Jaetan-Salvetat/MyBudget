@@ -4,12 +4,18 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/category_icon.dart';
+import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 import 'package:mybudget/ui/settings/category_provider.dart';
 
 class QuickAddConfirmationCard extends ConsumerStatefulWidget {
@@ -30,7 +36,7 @@ class _QuickAddConfirmationCardState
   void initState() {
     super.initState();
     final accounts = ref.read(accountProvider).value ?? [];
-    if (accounts.length == 1) {
+    if (accounts.isNotEmpty) {
       _selectedAccountId = accounts.first.id;
     }
   }
@@ -58,8 +64,7 @@ class _QuickAddConfirmationCardState
   Color _categoryColor() {
     if (widget.result.newCategory != null &&
         widget.result.newCategoryColor != null) {
-      final color =
-          CategoryDefaults.hexToColor(widget.result.newCategoryColor!);
+      final color = CategoryDefaults.hexToColor(widget.result.newCategoryColor!);
       if (color != null) return Color(color);
     }
     if (widget.result.categoryId != null) {
@@ -109,179 +114,315 @@ class _QuickAddConfirmationCardState
       ref.read(quickAddProvider.notifier).confirmExpense(_selectedAccountId!);
     } catch (e) {
       if (context.mounted) {
-        FrostedSnackbar.show(
-          context,
-          message: 'Erreur lors de l\'ajout: $e',
-        );
+        FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
       }
     }
+  }
+
+  String _frequencyLabel() {
+    final freq = widget.result.frequency;
+    if (freq == 'Mensuel') return 'Mensuel · Récurrent détecté';
+    if (freq == 'Annuel') return 'Annuel · Récurrent détecté';
+    return 'Ponctuel';
   }
 
   @override
   Widget build(BuildContext context) {
     final accounts = ref.watch(accountProvider).value ?? [];
-    final colorScheme = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
+    final finance = context.financeColors;
     final catColor = _categoryColor();
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        FrostedSpacing.xl,
-        FrostedSpacing.sm,
-        FrostedSpacing.xl,
-        0,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(FrostedSpacing.md),
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: FrostedOpacity.strong),
-          borderRadius: BorderRadius.circular(FrostedRadius.lg),
-          border: Border.all(
-            color: colorScheme.onSurface.withValues(
-              alpha: FrostedOpacity.light,
-            ),
-            width: 0.5,
+    return FrostedContainer(
+      padding: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(22),
+      blurStrength: kQuickAddBlur,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: scheme.primary,
+                fill: 1,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Eyebrow(
+                  '1 dépense détectée',
+                  color: scheme.primary,
+                ),
+              ),
+              Text(
+                'Total ',
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 14 / 12,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                formatter.format(widget.result.amount),
+                style: AppTextStyles.amount(
+                  fontSize: 12,
+                  color: scheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => ref.read(quickAddProvider.notifier).reset(),
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: catColor.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(_categoryIcon(), size: 18, color: catColor),
+          const SizedBox(height: 12),
+          _ParsedRow(
+            name: widget.result.name,
+            categoryLabel: _categoryLabel(),
+            frequencyLabel: _frequencyLabel(),
+            icon: _categoryIcon(),
+            color: catColor,
+            amount: widget.result.amount,
+            expenseColor: finance.expense,
+            isNewCategory: widget.result.newCategory != null,
+          ),
+          const SizedBox(height: 12),
+          if (accounts.isNotEmpty)
+            _AccountSelector(
+              accounts: accounts,
+              selectedId: _selectedAccountId,
+              onChanged: (id) => setState(() => _selectedAccountId = id),
+            ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FrostedOutlinedButton.icon(
+                  onPressed: _openFullForm,
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text('Modifier'),
                 ),
-                const SizedBox(width: FrostedSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.result.name,
-                        style:
-                            Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Text(
-                            _categoryLabel(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: catColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                          if (widget.result.newCategory != null) ...[
-                            const SizedBox(width: FrostedSpacing.xs),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: catColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'nouvelle',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w500,
-                                  color: catColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FrostedFilledButton.icon(
+                  onPressed: _selectedAccountId != null ? _confirm : null,
+                  icon: const Icon(Icons.check, size: 16),
+                  label: const Text('Confirmer'),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      formatter.format(widget.result.amount),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParsedRow extends StatelessWidget {
+  final String name;
+  final String categoryLabel;
+  final String frequencyLabel;
+  final IconData icon;
+  final Color color;
+  final double amount;
+  final Color expenseColor;
+  final bool isNewCategory;
+
+  const _ParsedRow({
+    required this.name,
+    required this.categoryLabel,
+    required this.frequencyLabel,
+    required this.icon,
+    required this.color,
+    required this.amount,
+    required this.expenseColor,
+    required this.isNewCategory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+
+    return Row(
+      children: [
+        CategoryIcon(icon: icon, color: color, size: CategoryIconSize.sm),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 18 / 14,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      '$categoryLabel · $frequencyLabel',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: colorScheme.error,
+                        fontSize: 12,
+                        height: 16 / 12,
+                        color: scheme.onSurfaceVariant,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                  ),
+                  if (isNewCategory) ...[
+                    const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                        horizontal: 5,
+                        vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
+                        color: color.withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        widget.result.frequency,
+                        'nouvelle',
                         style: TextStyle(
                           fontSize: 10,
-                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                          color: color,
                         ),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(width: FrostedSpacing.xxs),
-                GestureDetector(
-                  onTap: () => ref.read(quickAddProvider.notifier).reset(),
-                  child: Icon(
-                    Icons.close,
-                    size: 18,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            if (accounts.length > 1) ...[
-              const SizedBox(height: FrostedSpacing.sm),
-              FrostedDropdown<int>(
-                value: _selectedAccountId,
-                hint: 'Compte',
-                items: accounts
-                    .map(
-                      (a) => DropdownMenuItem(
-                        value: a.id,
-                        child: Text(a.name),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (id) => setState(() => _selectedAccountId = id),
+                ],
               ),
             ],
-            const SizedBox(height: FrostedSpacing.sm),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FrostedTextButton(
-                  onPressed: _openFullForm,
-                  child: const Text('Modifier'),
-                ),
-                const SizedBox(width: FrostedSpacing.sm),
-                FrostedFilledButton(
-                  onPressed: _selectedAccountId != null ? _confirm : null,
-                  child: const Text('Confirmer'),
-                ),
-              ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          '− ${formatter.format(amount).replaceAll('−', '').replaceAll('+', '')}',
+          style: AppTextStyles.amount(fontSize: 16, color: expenseColor),
+        ),
+      ],
+    );
+  }
+}
+
+class _AccountSelector extends StatelessWidget {
+  final List<AccountModel> accounts;
+  final int? selectedId;
+  final ValueChanged<int> onChanged;
+
+  const _AccountSelector({
+    required this.accounts,
+    required this.selectedId,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    final current = accounts.firstWhere(
+      (a) => a.id == selectedId,
+      orElse: () => accounts.first,
+    );
+
+    return InkWell(
+      onTap: accounts.length > 1
+          ? () => _showPicker(context)
+          : null,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: scheme.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.account_balance_wallet_outlined,
+              size: 16,
+              color: scheme.onSurfaceVariant,
             ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 16 / 12,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Vers '),
+                    TextSpan(
+                      text: current.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (accounts.length > 1)
+              Icon(
+                Icons.expand_more,
+                size: 16,
+                color: scheme.onSurfaceVariant,
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showPicker(BuildContext context) {
+    FrostedBottomSheet.show<void>(
+      context: context,
+      title: 'Vers quel compte ?',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: accounts
+            .map(
+              (a) => FrostedListTile(
+                leading: const Icon(Icons.account_balance_wallet_outlined),
+                title: Text(a.name),
+                subtitle: Text(a.bank),
+                trailing: a.id == selectedId
+                    ? Icon(
+                        Icons.check,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
+                onTap: () {
+                  onChanged(a.id);
+                  Navigator.of(context).pop();
+                },
+              ),
+            )
+            .toList(),
       ),
     );
   }
