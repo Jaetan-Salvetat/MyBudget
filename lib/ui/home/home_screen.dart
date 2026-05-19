@@ -5,7 +5,6 @@ import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
-import 'package:mybudget/ui/settings/settings_screen.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +17,7 @@ import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
@@ -34,13 +34,11 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late int _selectedIndex;
-  late String _currentTitle;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
-    _currentTitle = _getTitleForIndex(_selectedIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(updateProvider.notifier).checkForUpdates(silent: true);
@@ -62,23 +60,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       });
     });
-  }
-
-  String _getTitleForIndex(int index) {
-    switch (index) {
-      case 0:
-        return 'MyBudget';
-      case 1:
-        return 'Comptes';
-      case 2:
-        return 'Dépenses';
-      case 3:
-        return 'Revenus';
-      case 4:
-        return 'Emprunts';
-      default:
-        return 'MyBudget';
-    }
   }
 
   static final List<_NavItem> _items = [
@@ -105,33 +86,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     const LoansScreen(),
   ];
 
-  void _updateTitle() {
-    setState(() {
-      _currentTitle = _getTitleForIndex(_selectedIndex);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return FrostedScaffold(
       animateFloatingActionButtonTransitions: false,
-      appBar: FrostedAppBar(
-        title: _currentTitle,
-        actions: [
-          FrostedIconButton(
-            icon: Icons.settings,
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                ),
-          ),
-        ],
-      ),
+      extendBodyBehindAppBar: true,
       floatingActionButton: keyboardVisible ? null : _buildFab(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Padding(
@@ -152,7 +113,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   if (_selectedIndex != index) {
                     setState(() {
                       _selectedIndex = index;
-                      _updateTitle();
                     });
                   }
                 },
@@ -170,7 +130,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-      child: IndexedStack(index: _selectedIndex, children: _screens),
+      child: FrostedBackground(
+        child: IndexedStack(index: _selectedIndex, children: _screens),
+      ),
     );
   }
 

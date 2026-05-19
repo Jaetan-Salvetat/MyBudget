@@ -1,5 +1,6 @@
 ## ✨ Améliorations
-- Nouvelle identité visuelle : thème bleu indigo unique, typographies Inter et Instrument Serif italique pour les chiffres clés
+
+- Dashboard refondu : reste à vivre mis en avant avec un anneau de progression, mouvements à venir, répartition par catégorie et résumé d'emprunts
 - Le sélecteur de couleur de thème a été retiré ; le mode clair / sombre / automatique reste disponible
 
 ## 🚀 Nouveautés

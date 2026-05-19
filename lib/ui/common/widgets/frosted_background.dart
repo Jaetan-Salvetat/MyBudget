@@ -8,21 +8,38 @@ class FrostedBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        gradient: RadialGradient(
-          center: const Alignment(-1.0, -1.0),
-          radius: 1.4,
-          colors: [
-            scheme.primary.withValues(alpha: 0.14),
-            scheme.surface,
-            scheme.secondary.withValues(alpha: 0.16),
-          ],
-          stops: const [0.0, 0.55, 1.0],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: scheme.surface),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(-1, -1),
+              radius: 0.55,
+              colors: [
+                scheme.primary.withValues(alpha: 0.14),
+                Colors.transparent,
+              ],
+              stops: const [0.0, 0.7],
+            ),
+          ),
         ),
-      ),
-      child: child,
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(1, 1),
+              radius: 0.55,
+              colors: [
+                scheme.secondary.withValues(alpha: 0.16),
+                Colors.transparent,
+              ],
+              stops: const [0.0, 0.7],
+            ),
+          ),
+        ),
+        Positioned.fill(child: child),
+      ],
     );
   }
 }

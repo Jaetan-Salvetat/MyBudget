@@ -105,6 +105,7 @@ Map<CategoryModel, double> expensesByCategory(Ref ref) {
 
   final Map<int, double> categoryTotals = {};
   for (final expense in expenses) {
+    if (expense.categoryId <= 0) continue;
     final amount = _expenseAmountForMonth(expense, selectedMonth);
     if (amount > 0) {
       categoryTotals.update(

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
-import 'package:mybudget/ui/dashboard/widgets/balance_card.dart';
-import 'package:mybudget/ui/dashboard/widgets/upcoming_payments_card.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
-import 'package:mybudget/ui/expenses/expenses_screen.dart';
-import 'package:mybudget/ui/dashboard/widgets/category_summary_card.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
+import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
+import 'package:mybudget/ui/dashboard/widgets/category_breakdown_section.dart';
+import 'package:mybudget/ui/dashboard/widgets/dashboard_greeting.dart';
+import 'package:mybudget/ui/dashboard/widgets/hero_balance_card.dart';
+import 'package:mybudget/ui/dashboard/widgets/loan_progress_section.dart';
+import 'package:mybudget/ui/dashboard/widgets/upcoming_movements_section.dart';
+import 'package:mybudget/ui/expenses/expenses_screen.dart';
+import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   final bool isNested;
@@ -23,76 +25,37 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (isNested) {
-      return _buildDashboardContent(context, ref);
+      return _buildContent(context, ref);
     }
-
-    return FrostedScaffold(child: _buildDashboardContent(context, ref));
+    return FrostedScaffold(child: _buildContent(context, ref));
   }
 
-  Widget _buildDashboardContent(BuildContext context, WidgetRef ref) {
-    final dashboardState = ref.watch(dashboardProvider);
+  Widget _buildContent(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(dashboardProvider);
 
-    final netCashFlow = dashboardState.netCashFlow;
-    final savingsRate = dashboardState.savingsRate;
-    final totalLoanAmount = dashboardState.totalLoanAmount;
-    final totalExpenses = dashboardState.totalExpenses;
-    final monthlyRevenues = dashboardState.monthlyRevenues;
-    final totalMonthlyLoanPayments = dashboardState.totalMonthlyLoanPayments;
-    final categorySummaries = dashboardState.categorySummaries;
-
-    final NumberFormat formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    );
-
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 120),
-          const MonthSelector(),
-
-          BalanceCard(
-            balance: netCashFlow,
-            netFlow: totalLoanAmount,
-            savingsRate: savingsRate,
-            formatter: formatter,
-            expenses: totalExpenses,
-            revenues: monthlyRevenues,
-            loanTotal: totalLoanAmount,
-            loanMonthlyPayments: totalMonthlyLoanPayments,
-            recurringExpenses: dashboardState.recurringExpenses,
-            oneTimeExpenses: dashboardState.oneTimeExpenses,
-            recurringRevenues: dashboardState.recurringRevenues,
-            oneTimeRevenues: dashboardState.oneTimeRevenues,
-          ),
-
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text(
-              'Paiements à venir',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return SafeArea(
+      bottom: false,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 180),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DashboardGreeting(
+              onSettingsTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              ),
             ),
-          ),
-
-          UpcomingPaymentsCard(formatter: formatter),
-
-          const SizedBox(height: 16),
-
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Text(
-              'Dépenses par catégorie',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            const MonthSelector(),
+            HeroBalanceCard(
+              balance: state.netCashFlow,
+              totalIncomes: state.monthlyRevenues,
+              totalExpenses: state.totalExpenses,
             ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CategorySummaryCard(
-              categories: categorySummaries,
-              formatter: formatter,
+            UpcomingMovementsSection(movements: state.upcomingMovements),
+            CategoryBreakdownSection(
+              categories: state.categorySummaries,
               onCategoryTap: (categoryId) => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -103,10 +66,9 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 100),
-        ],
+            LoanProgressSection(summary: state.loanProgress),
+          ],
+        ),
       ),
     );
   }
