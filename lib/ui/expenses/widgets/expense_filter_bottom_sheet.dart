@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/models/expense_filter_data.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/expense_filter_data.dart';
 
 class ExpenseFilterBottomSheet extends StatefulWidget {
   final ExpenseFilterData initialFilterData;
   final List<CategoryModel> categories;
   final List<AccountModel> accounts;
+  final int Function(ExpenseFilterData) resultCount;
   final Function(ExpenseFilterData) onApply;
   final VoidCallback onClear;
   final VoidCallback onCancel;
@@ -16,6 +18,7 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
     required this.initialFilterData,
     required this.categories,
     required this.accounts,
+    required this.resultCount,
     required this.onApply,
     required this.onClear,
     required this.onCancel,
@@ -27,6 +30,7 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
     required ExpenseFilterData initialFilterData,
     required List<CategoryModel> categories,
     required List<AccountModel> accounts,
+    required int Function(ExpenseFilterData) resultCount,
     required Function(ExpenseFilterData) onApply,
     required VoidCallback onClear,
     required VoidCallback onCancel,
@@ -38,6 +42,7 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
         initialFilterData: initialFilterData,
         categories: categories,
         accounts: accounts,
+        resultCount: resultCount,
         onApply: onApply,
         onClear: onClear,
         onCancel: onCancel,
@@ -51,64 +56,36 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
 }
 
 class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
-  late TextEditingController _minAmountController;
-  late TextEditingController _maxAmountController;
+  static const double _maxAmountSliderValue = 1000;
+
   List<int> _selectedCategoryIds = [];
   List<int> _selectedAccountIds = [];
-  List<String> _selectedFrequencies = [];
-  double _startDay = 1;
-  double _endDay = 31;
+  List<Frequency> _selectedTypes = [];
+  RangeValues _amountRange = const RangeValues(0, _maxAmountSliderValue);
 
   @override
   void initState() {
     super.initState();
-    _minAmountController = TextEditingController(
-      text: widget.initialFilterData.minAmount?.toString() ?? '',
-    );
-    _maxAmountController = TextEditingController(
-      text: widget.initialFilterData.maxAmount?.toString() ?? '',
-    );
     _selectedCategoryIds = List.from(widget.initialFilterData.categoryIds);
     _selectedAccountIds = List.from(widget.initialFilterData.accountIds);
-    _selectedFrequencies = List.from(widget.initialFilterData.frequencies);
-    _startDay = (widget.initialFilterData.startDay ?? 1).toDouble();
-    _endDay = (widget.initialFilterData.endDay ?? 31).toDouble();
+    _selectedTypes = List.from(widget.initialFilterData.types);
+    _amountRange = RangeValues(
+      widget.initialFilterData.minAmount ?? 0,
+      widget.initialFilterData.maxAmount ?? _maxAmountSliderValue,
+    );
   }
 
-  @override
-  void dispose() {
-    _minAmountController.dispose();
-    _maxAmountController.dispose();
-    super.dispose();
-  }
-
-  void _handleApply() {
-    final minAmount = double.tryParse(
-      _minAmountController.text.replaceAll(',', '.'),
-    );
-    final maxAmount = double.tryParse(
-      _maxAmountController.text.replaceAll(',', '.'),
-    );
-
-    final startDay = _startDay.round();
-    final endDay = _endDay.round();
-    final filterData = ExpenseFilterData(
-      startDay: (startDay == 1 && endDay == 31) ? null : startDay,
-      endDay: (startDay == 1 && endDay == 31) ? null : endDay,
-      minAmount: minAmount,
-      maxAmount: maxAmount,
+  ExpenseFilterData _buildFilterData() {
+    final hasMin = _amountRange.start > 0;
+    final hasMax = _amountRange.end < _maxAmountSliderValue;
+    return ExpenseFilterData(
+      searchQuery: widget.initialFilterData.searchQuery,
+      minAmount: hasMin ? _amountRange.start : null,
+      maxAmount: hasMax ? _amountRange.end : null,
       categoryIds: _selectedCategoryIds,
       accountIds: _selectedAccountIds,
-      frequencies: _selectedFrequencies,
+      types: _selectedTypes,
     );
-
-    widget.onApply(filterData);
-    Navigator.pop(context);
-  }
-
-  void _handleClear() {
-    widget.onClear();
-    Navigator.pop(context);
   }
 
   void _toggleCategory(int id) {
@@ -116,7 +93,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       if (_selectedCategoryIds.contains(id)) {
         _selectedCategoryIds.remove(id);
       } else {
-        _selectedCategoryIds.add(id);
+        _selectedCategoryIds = [..._selectedCategoryIds, id];
       }
     });
   }
@@ -126,267 +103,258 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       if (_selectedAccountIds.contains(id)) {
         _selectedAccountIds.remove(id);
       } else {
-        _selectedAccountIds.add(id);
+        _selectedAccountIds = [..._selectedAccountIds, id];
       }
     });
   }
 
-  void _toggleFrequency(String label) {
+  void _toggleType(Frequency type) {
     setState(() {
-      if (_selectedFrequencies.contains(label)) {
-        _selectedFrequencies.remove(label);
+      if (_selectedTypes.contains(type)) {
+        _selectedTypes.remove(type);
       } else {
-        _selectedFrequencies.add(label);
+        _selectedTypes = [..._selectedTypes, type];
       }
     });
+  }
+
+  void _handleReset() {
+    setState(() {
+      _selectedCategoryIds = [];
+      _selectedAccountIds = [];
+      _selectedTypes = [];
+      _amountRange = const RangeValues(0, _maxAmountSliderValue);
+    });
+  }
+
+  void _handleApply() {
+    widget.onApply(_buildFilterData());
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final currentFilter = _buildFilterData();
+    final count = widget.resultCount(currentFilter);
+
     return SingleChildScrollView(
       child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Période (jour du mois)',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _GroupLabel(text: 'Type'),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _Chip(
+                label: 'Mensuel',
+                icon: Icons.event_repeat,
+                selected: _selectedTypes.contains(Frequency.monthly),
+                onTap: () => _toggleType(Frequency.monthly),
+              ),
+              _Chip(
+                label: 'Annuel',
+                icon: Icons.calendar_month,
+                selected: _selectedTypes.contains(Frequency.annual),
+                onTap: () => _toggleType(Frequency.annual),
+              ),
+              _Chip(
+                label: 'Ponctuel',
+                icon: Icons.circle_outlined,
+                selected: _selectedTypes.contains(Frequency.oneTime),
+                onTap: () => _toggleType(Frequency.oneTime),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Du ${_startDay.round()}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+          const SizedBox(height: 20),
+
+          if (widget.categories.isNotEmpty) ...[
+            _GroupLabel(
+              text: 'Catégories',
+              hint: _selectedCategoryIds.isNotEmpty
+                  ? '${_selectedCategoryIds.length} sélectionnée${_selectedCategoryIds.length > 1 ? 's' : ''}'
+                  : null,
             ),
-            Text(
-              'au ${_endDay.round()}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: widget.categories.map((category) {
+                final selected = _selectedCategoryIds.contains(category.id);
+                return _Chip(
+                  label: category.name,
+                  color: Color(category.color),
+                  selected: selected,
+                  onTap: () => _toggleCategory(category.id),
+                );
+              }).toList(),
             ),
+            const SizedBox(height: 20),
           ],
-        ),
-        FrostedRangeSlider(
-          values: RangeValues(_startDay, _endDay),
-          min: 1,
-          max: 31,
-          divisions: 30,
-          labels: RangeLabels(
-            _startDay.round().toString(),
-            _endDay.round().toString(),
-          ),
-          onChanged: (values) {
-            setState(() {
-              _startDay = values.start;
-              _endDay = values.end;
-            });
-          },
-        ),
 
-        const SizedBox(height: 16),
-
-        Text(
-          'Montant',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+          _GroupLabel(
+            text: 'Montant',
+            hint:
+                '${_amountRange.start.round()} € – ${_amountRange.end.round()} €',
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: FrostedTextField(
-                controller: _minAmountController,
-                labelText: 'Min',
-                hintText: '0.00',
-                prefixIcon: const Icon(Icons.euro),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+          const SizedBox(height: 4),
+          FrostedRangeSlider(
+            values: _amountRange,
+            min: 0,
+            max: _maxAmountSliderValue,
+            divisions: 100,
+            onChanged: (values) {
+              setState(() => _amountRange = values);
+            },
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '0 €',
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 14 / 11,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurfaceVariant,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: FrostedTextField(
-                controller: _maxAmountController,
-                labelText: 'Max',
-                hintText: '∞',
-                prefixIcon: const Icon(Icons.euro),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+              Text(
+                '${_maxAmountSliderValue.round()} €',
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 14 / 11,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurfaceVariant,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          if (widget.accounts.isNotEmpty) ...[
+            _GroupLabel(text: 'Compte'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: widget.accounts.map((account) {
+                final selected = _selectedAccountIds.contains(account.id);
+                return _Chip(
+                  label: account.name,
+                  icon: Icons.account_balance_wallet_outlined,
+                  selected: selected,
+                  onTap: () => _toggleAccount(account.id),
+                );
+              }).toList(),
             ),
+            const SizedBox(height: 24),
           ],
-        ),
 
-        const SizedBox(height: 24),
-
-        Text(
-          'Fréquence',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Expanded(
+                child: FrostedOutlinedButton(
+                  onPressed: _handleReset,
+                  child: const Text('Réinitialiser'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: FrostedFilledButton(
+                  onPressed: _handleApply,
+                  child: Text('Voir $count résultats'),
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _FilterChip(
-              label: 'Mensuel',
-              isSelected: _selectedFrequencies.contains('Mensuel'),
-              onTap: () => _toggleFrequency('Mensuel'),
-            ),
-            _FilterChip(
-              label: 'Annuel',
-              isSelected: _selectedFrequencies.contains('Annuel'),
-              onTap: () => _toggleFrequency('Annuel'),
-            ),
-            _FilterChip(
-              label: 'Ponctuel',
-              isSelected: _selectedFrequencies.contains('Ponctuel'),
-              onTap: () => _toggleFrequency('Ponctuel'),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 24),
-
-        if (widget.categories.isNotEmpty) ...[
-          Text(
-            'Catégories',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                widget.categories.map((category) {
-                  final isSelected = _selectedCategoryIds.contains(category.id);
-                  return _FilterChip(
-                    label: category.name,
-                    isSelected: isSelected,
-                    onTap: () => _toggleCategory(category.id),
-                  );
-                }).toList(),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
         ],
-
-        if (widget.accounts.isNotEmpty) ...[
-          Text(
-            'Comptes',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                widget.accounts.map((account) {
-                  final isSelected = _selectedAccountIds.contains(account.id);
-                  return _FilterChip(
-                    label: account.name,
-                    isSelected: isSelected,
-                    onTap: () => _toggleAccount(account.id),
-                  );
-                }).toList(),
-          ),
-          const SizedBox(height: 32),
-        ],
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FrostedTextButton(
-              onPressed: _handleClear,
-              child: const Text('Effacer'),
-            ),
-            const SizedBox(width: 8),
-            FrostedTextButton(
-              onPressed: () {
-                widget.onCancel();
-                Navigator.pop(context);
-              },
-              child: const Text('Annuler'),
-            ),
-            const SizedBox(width: 16),
-            FrostedFilledButton(
-              onPressed: _handleApply,
-              child: const Text('Appliquer'),
-            ),
-          ],
-        ),
-      ],
-    ),
+      ),
     );
   }
 }
 
-class _FilterChip extends StatelessWidget {
+class _GroupLabel extends StatelessWidget {
+  final String text;
+  final String? hint;
+
+  const _GroupLabel({required this.text, this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          text.toUpperCase(),
+          style: TextStyle(
+            fontSize: 11,
+            height: 14 / 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.09 * 11,
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+        if (hint != null) ...[
+          const Spacer(),
+          Text(
+            hint!,
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.primary,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
   final String label;
-  final bool isSelected;
+  final bool selected;
+  final IconData? icon;
+  final Color? color;
   final VoidCallback onTap;
 
-  const _FilterChip({
+  const _Chip({
     required this.label,
-    required this.isSelected,
+    required this.selected,
     required this.onTap,
+    this.icon,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? theme.colorScheme.primary.withValues(alpha: 0.2)
-                  : theme.colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.1,
+    return FrostedChip(
+      label: Text(label),
+      selected: selected,
+      selectedColor: color,
+      avatar: icon != null
+          ? Icon(icon, size: 14)
+          : color != null
+              ? Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color!.withValues(alpha: selected ? 0.9 : 0.6),
+                    borderRadius: BorderRadius.circular(3),
                   ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color:
-                isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline.withValues(alpha: 0.1),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color:
-                isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface,
-          ),
-        ),
-      ),
+                )
+              : null,
+      onPressed: onTap,
     );
   }
 }

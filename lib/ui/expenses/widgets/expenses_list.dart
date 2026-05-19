@@ -2,23 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/enums/expense_group_by.dart';
+import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_card.dart';
+import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/expenses/widgets/active_filter_pills.dart';
+import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
-
+import 'package:mybudget/ui/expenses/widgets/expense_group_header.dart';
+import 'package:mybudget/ui/expenses/widgets/expense_sort_menu.dart';
+import 'package:mybudget/ui/expenses/widgets/expenses_quick_filters.dart';
+import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
-import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/common/widgets/month_selector.dart';
+import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
+import 'package:mybudget/ui/settings/beneficiary_provider.dart';
+import 'package:mybudget/ui/settings/category_provider.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   final ExpenseFilterData? initialFilter;
@@ -31,14 +39,18 @@ class ExpensesList extends ConsumerStatefulWidget {
 
 class _ExpensesListState extends ConsumerState<ExpensesList> {
   late ExpenseFilterData _filterData;
-  bool _isSearchVisible = false;
   late TextEditingController _searchController;
+  late ExpenseSortBy _sortBy;
+  late bool _recurringExpanded;
 
   @override
   void initState() {
     super.initState();
     _filterData = widget.initialFilter ?? ExpenseFilterData();
-    _searchController = TextEditingController();
+    _searchController =
+        TextEditingController(text: _filterData.searchQuery ?? '');
+    _sortBy = ExpenseSortBy.fromName(PreferencesService.getExpensesSortBy());
+    _recurringExpanded = PreferencesService.getExpensesRecurringExpanded();
   }
 
   @override
@@ -47,480 +59,393 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     super.dispose();
   }
 
+  bool _matchesFilter(ExpenseModel expense, ExpenseFilterData filter) {
+    if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
+      if (!expense.name
+          .toLowerCase()
+          .contains(filter.searchQuery!.toLowerCase())) {
+        return false;
+      }
+    }
+    if (filter.minAmount != null && expense.amount < filter.minAmount!) {
+      return false;
+    }
+    if (filter.maxAmount != null && expense.amount > filter.maxAmount!) {
+      return false;
+    }
+    if (filter.categoryIds.isNotEmpty &&
+        !filter.categoryIds.contains(expense.categoryId)) {
+      return false;
+    }
+    if (filter.accountIds.isNotEmpty &&
+        !filter.accountIds.contains(expense.accountId)) {
+      return false;
+    }
+    if (filter.types.isNotEmpty &&
+        !filter.types.contains(expense.frequencyEnum)) {
+      return false;
+    }
+    return true;
+  }
+
+  List<ExpenseModel> _filterExpenses(
+      List<ExpenseModel> expenses, ExpenseFilterData filter) {
+    return expenses.where((e) => _matchesFilter(e, filter)).toList();
+  }
+
+  bool _belongsToSelectedMonth(ExpenseModel expense, DateTime selectedMonth) {
+    switch (expense.frequencyEnum) {
+      case Frequency.monthly:
+        return true;
+      case Frequency.annual:
+        return expense.startDate.month == selectedMonth.month;
+      case Frequency.oneTime:
+        return expense.startDate.year == selectedMonth.year &&
+            expense.startDate.month == selectedMonth.month;
+    }
+  }
+
+  DateTime _effectiveDate(ExpenseModel expense, DateTime selectedMonth) {
+    switch (expense.frequencyEnum) {
+      case Frequency.monthly:
+        return DateTime(
+          selectedMonth.year,
+          selectedMonth.month,
+          expense.startDate.day,
+        );
+      case Frequency.annual:
+        return DateTime(
+          selectedMonth.year,
+          expense.startDate.month,
+          expense.startDate.day,
+        );
+      case Frequency.oneTime:
+        return expense.startDate;
+    }
+  }
+
+  ExpenseModel _withEffectiveDate(
+      ExpenseModel expense, DateTime selectedMonth) {
+    final effective = _effectiveDate(expense, selectedMonth);
+    if (effective.year == expense.startDate.year &&
+        effective.month == expense.startDate.month &&
+        effective.day == expense.startDate.day) {
+      return expense;
+    }
+    return expense.copyWith(startDate: effective);
+  }
+
+  List<ActiveFilterPill> _activeFilterPills(
+      List<CategoryModel> categories, List<AccountModel> accounts) {
+    final pills = <ActiveFilterPill>[];
+
+    for (final type in _filterData.types) {
+      final label = switch (type) {
+        Frequency.monthly => 'Mensuel',
+        Frequency.annual => 'Annuel',
+        Frequency.oneTime => 'Ponctuel',
+      };
+      pills.add(ActiveFilterPill(
+        id: 'type-${type.name}',
+        label: label,
+        onRemove: () {
+          setState(() {
+            _filterData = _filterData.copyWith(
+              types: _filterData.types.where((t) => t != type).toList(),
+            );
+          });
+        },
+      ));
+    }
+
+    for (final id in _filterData.categoryIds) {
+      final cat = categories.firstWhere(
+        (c) => c.id == id,
+        orElse: () => CategoryModel.create(name: '—', icon: 'category'),
+      );
+      pills.add(ActiveFilterPill(
+        id: 'cat-$id',
+        label: cat.name,
+        onRemove: () {
+          setState(() {
+            _filterData = _filterData.copyWith(
+              categoryIds:
+                  _filterData.categoryIds.where((c) => c != id).toList(),
+            );
+          });
+        },
+      ));
+    }
+
+    for (final id in _filterData.accountIds) {
+      final acc = accounts.firstWhere(
+        (a) => a.id == id,
+        orElse: () => AccountModel.create(name: '—', bank: ''),
+      );
+      pills.add(ActiveFilterPill(
+        id: 'acc-$id',
+        label: acc.name,
+        onRemove: () {
+          setState(() {
+            _filterData = _filterData.copyWith(
+              accountIds:
+                  _filterData.accountIds.where((a) => a != id).toList(),
+            );
+          });
+        },
+      ));
+    }
+
+    if (_filterData.minAmount != null || _filterData.maxAmount != null) {
+      final min = _filterData.minAmount?.round();
+      final max = _filterData.maxAmount?.round();
+      String label;
+      if (min != null && max != null) {
+        label = '$min – $max €';
+      } else if (min != null) {
+        label = '≥ $min €';
+      } else {
+        label = '≤ $max €';
+      }
+      pills.add(ActiveFilterPill(
+        id: 'amount',
+        label: label,
+        onRemove: () {
+          setState(() {
+            _filterData = _filterData.copyWith(
+              minAmount: null,
+              maxAmount: null,
+            );
+          });
+        },
+      ));
+    }
+
+    return pills;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ref
-        .watch(expenseProvider)
-        .when(
-          loading: () => const Center(child: FrostedCircularProgressIndicator()),
+    return ref.watch(expenseProvider).when(
+          loading: () =>
+              const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (expensesRaw) {
             final selectedMonth = ref.watch(selectedMonthProvider);
+            final groupBy = ref.watch(expensesGroupByProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final categories = ref.watch(categoryProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
             final activeExpenses = expensesRaw
                 .where((e) => e.endDate == null)
+                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+                .map((e) => _withEffectiveDate(e, selectedMonth))
                 .toList();
 
-            List<ExpenseModel> displayedExpenses = activeExpenses;
+            final filteredExpenses =
+                _filterExpenses(activeExpenses, _filterData);
 
-            if (!_filterData.isEmpty) {
-              displayedExpenses =
-                  displayedExpenses.where((expense) {
-                    if (_filterData.searchQuery != null &&
-                        _filterData.searchQuery!.isNotEmpty &&
-                        !expense.name.toLowerCase().contains(
-                          _filterData.searchQuery!.toLowerCase(),
-                        )) {
-                      return false;
-                    }
-
-                    if (_filterData.startDay != null &&
-                        expense.startDate.day < _filterData.startDay!) {
-                      return false;
-                    }
-                    if (_filterData.endDay != null &&
-                        expense.startDate.day > _filterData.endDay!) {
-                      return false;
-                    }
-
-                    if (_filterData.minAmount != null &&
-                        expense.amount < _filterData.minAmount!) {
-                      return false;
-                    }
-                    if (_filterData.maxAmount != null &&
-                        expense.amount > _filterData.maxAmount!) {
-                      return false;
-                    }
-
-                    if (_filterData.categoryIds.isNotEmpty &&
-                        !_filterData.categoryIds.contains(expense.categoryId)) {
-                      return false;
-                    }
-
-                    if (_filterData.accountIds.isNotEmpty &&
-                        !_filterData.accountIds.contains(expense.accountId)) {
-                      return false;
-                    }
-
-                    if (_filterData.frequencies.isNotEmpty &&
-                        !_filterData.frequencies.contains(expense.frequency)) {
-                      return false;
-                    }
-
-                    return true;
-                  }).toList();
-            }
-
-            final recurringExpenses = displayedExpenses
-                .where((e) {
-                  if (e.frequencyEnum == Frequency.oneTime) return false;
-                  if (e.frequencyEnum == Frequency.annual) {
-                    return e.startDate.month == selectedMonth.month;
-                  }
-                  return true;
-                })
+            final recurring = filteredExpenses
+                .where((e) => e.frequencyEnum != Frequency.oneTime)
                 .toList();
-            final oneTimeExpenses = displayedExpenses
-                .where((e) =>
-                    e.frequencyEnum == Frequency.oneTime &&
-                    e.startDate.year == selectedMonth.year &&
-                    e.startDate.month == selectedMonth.month)
+            final oneTime = filteredExpenses
+                .where((e) => e.frequencyEnum == Frequency.oneTime)
                 .toList();
 
-            final monthlyAmount = recurringExpenses
-                .where((e) => e.frequencyEnum == Frequency.monthly)
-                .fold<double>(0, (s, e) => s + e.amount);
-            final annualAmount = recurringExpenses
-                .where((e) => e.frequencyEnum == Frequency.annual)
-                .fold<double>(0, (s, e) => s + e.amount);
-            final oneTimeAmount = oneTimeExpenses
-                .fold<double>(0, (s, e) => s + e.amount);
+            final sortedOneTime = _sortBy.apply(oneTime);
+            final sortedRecurring = _sortBy.apply(recurring);
 
-            final isEmpty = recurringExpenses.isEmpty &&
-                oneTimeExpenses.isEmpty &&
-                _filterData.isEmpty;
+            final descending = _sortBy != ExpenseSortBy.dateAsc;
+            final dayGroups = groupBy == ExpenseGroupBy.day
+                ? ExpenseGroupingService.groupByDay(sortedOneTime,
+                    descending: descending)
+                : null;
+            final weekGroups = groupBy == ExpenseGroupBy.week
+                ? ExpenseGroupingService.groupByWeek(
+                    sortedOneTime,
+                    selectedMonth,
+                    descending: descending,
+                  )
+                : null;
 
-            final items = <_ListItem>[];
-            items.add(_ListItem.monthSelector());
-            items.add(_ListItem.header(
-              displayedExpenses,
-              isEmpty,
-              monthlyAmount,
-              annualAmount,
-              oneTimeAmount,
-            ));
-            items.add(_ListItem.filterChips(categories));
+            final weeklyBars = ExpenseGroupingService.weeklyTotals(
+              filteredExpenses,
+              selectedMonth,
+            );
 
-            if (recurringExpenses.isNotEmpty) {
-              items.add(_ListItem.sectionTitle(
-                'Récurrentes',
-                recurringExpenses.length,
-              ));
-              items.add(_ListItem.expensesGroup(recurringExpenses));
-            }
+            final total =
+                filteredExpenses.fold<double>(0, (s, e) => s + e.amount);
+            final pills = _activeFilterPills(categories, accounts);
 
-            if (oneTimeExpenses.isNotEmpty) {
-              items.add(_ListItem.sectionTitle(
-                'Ponctuelles',
-                oneTimeExpenses.length,
-              ));
-              items.add(_ListItem.expensesGroup(oneTimeExpenses));
-            }
+            final today = DateTime.now();
+            final isViewingCurrentMonth = today.year == selectedMonth.year &&
+                today.month == selectedMonth.month;
 
-            return ListView.builder(
+            final isEmpty = filteredExpenses.isEmpty && _filterData.isEmpty;
+
+            return ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.only(
-                top: 120,
+                top: 16,
                 bottom: 145,
                 left: 16,
                 right: 16,
               ),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-
-                if (item.type == _ListItemType.monthSelector) {
-                  return const MonthSelector();
-                }
-
-                if (item.type == _ListItemType.header) {
-                  return _buildHeaderContainer(
-                    context,
-                    [...recurringExpenses, ...oneTimeExpenses],
-                    isEmpty,
-                    item.monthlyAmount ?? 0,
-                    item.annualAmount ?? 0,
-                    item.oneTimeAmount ?? 0,
-                  );
-                }
-
-                if (item.type == _ListItemType.filterChips) {
-                  return _buildFilterChips(context, item.categories ?? []);
-                }
-
-                if (item.type == _ListItemType.sectionTitle) {
-                  return _buildSectionTitle(context, item.title!, item.count!);
-                }
-
-                return _buildExpensesGroup(
-                  context,
-                  item.expenses!,
-                  accounts,
-                  categories,
-                  beneficiaries,
-                );
-              },
+              children: [
+                ExpensesSummaryCard(
+                  total: total,
+                  filteredCount: filteredExpenses.length,
+                  totalCount: activeExpenses.length,
+                  weeklyTotals: weeklyBars,
+                ),
+                ExpensesSearchBar(
+                  controller: _searchController,
+                  activeFiltersCount: _filterData.activeCount,
+                  onChanged: (value) {
+                    setState(() {
+                      _filterData =
+                          _filterData.copyWith(searchQuery: value);
+                    });
+                  },
+                  onOpenFilters: () =>
+                      _showFilterSheet(context, categories, accounts),
+                ),
+                const SizedBox(height: 10),
+                ExpensesQuickFilters(
+                  categories: categories,
+                  selectedCategoryIds: _filterData.categoryIds,
+                  sortBy: _sortBy,
+                  onOpenSort: _openSortMenu,
+                  onCategoryTap: _toggleCategoryFilter,
+                ),
+                if (pills.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  ActiveFilterPills(pills: pills, onReset: _resetFilters),
+                ],
+                if (isEmpty) ...[
+                  const SizedBox(height: 24),
+                  _buildEmptyState(context),
+                ],
+                if (sortedRecurring.isNotEmpty)
+                  RecurringSummaryCard(
+                    count: sortedRecurring.length,
+                    total: sortedRecurring.fold<double>(
+                      0,
+                      (s, e) => s + e.amount,
+                    ),
+                    expanded: _recurringExpanded,
+                    onToggle: _toggleRecurringExpanded,
+                    expandedContent: _recurringExpanded
+                        ? _buildRecurringRows(
+                            sortedRecurring, categories, beneficiaries)
+                        : null,
+                  ),
+                if (dayGroups != null)
+                  for (final group in dayGroups) ...[
+                    ExpenseDayHeader(
+                      date: group.date,
+                      count: group.items.length,
+                      total: group.total,
+                      isToday: isViewingCurrentMonth &&
+                          group.date.day == today.day,
+                    ),
+                    FrostedCard(
+                      margin: EdgeInsets.zero,
+                      borderRadius: 16,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 2),
+                      child: Column(
+                        children: [
+                          for (int i = 0; i < group.items.length; i++)
+                            _buildRow(
+                              group.items[i],
+                              categories,
+                              beneficiaries,
+                              showDivider: i < group.items.length - 1,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                if (weekGroups != null)
+                  for (final group in weekGroups) ...[
+                    ExpenseWeekHeader(
+                      weekNumber: group.weekNumber,
+                      weekStart: group.weekStart,
+                      weekEnd: group.weekEnd,
+                      count: group.items.length,
+                      total: group.total,
+                    ),
+                    FrostedCard(
+                      margin: EdgeInsets.zero,
+                      borderRadius: 16,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 2),
+                      child: Column(
+                        children: [
+                          for (int i = 0; i < group.items.length; i++)
+                            _buildRow(
+                              group.items[i],
+                              categories,
+                              beneficiaries,
+                              showDivider: i < group.items.length - 1,
+                              showDate: true,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                const SizedBox(height: 12),
+              ],
             );
           },
         );
   }
 
-  Widget _buildHeaderContainer(
-    BuildContext context,
-    List<ExpenseModel> displayedExpenses,
-    bool isEmpty,
-    double monthlyAmount,
-    double annualAmount,
-    double oneTimeAmount,
+  Widget _buildRecurringRows(
+    List<ExpenseModel> rows,
+    List<CategoryModel> categories,
+    List<Beneficiary> beneficiaries,
   ) {
     return Column(
       children: [
-        ExpensesSummaryCard(
-          monthlyAmount: monthlyAmount,
-          annualAmount: annualAmount,
-          oneTimeAmount: oneTimeAmount,
-          transactionCount: displayedExpenses.length,
-        ),
-        _buildSectionHeader(context),
-        if (isEmpty) _buildEmptyState(context),
+        for (int i = 0; i < rows.length; i++)
+          _buildRow(
+            rows[i],
+            categories,
+            beneficiaries,
+            showDivider: i < rows.length - 1,
+          ),
       ],
     );
   }
 
-  Widget _buildExpensesGroup(
-    BuildContext context,
-    List<ExpenseModel> expenses,
-    List<AccountModel> accounts,
-    List<CategoryModel> categories,
-    List<Beneficiary> beneficiaries,
-  ) {
-    return FrostedCard(
-      margin: EdgeInsets.zero,
-      borderRadius: 16,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      child: Column(
-        children: [
-          for (int i = 0; i < expenses.length; i++)
-            _buildExpenseRow(
-              context,
-              expenses[i],
-              accounts,
-              categories,
-              beneficiaries,
-              showDivider: i < expenses.length - 1,
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpenseRow(
-    BuildContext context,
+  Widget _buildRow(
     ExpenseModel expense,
-    List<AccountModel> accounts,
     List<CategoryModel> categories,
     List<Beneficiary> beneficiaries, {
     required bool showDivider,
+    bool showDate = false,
   }) {
-    final account = accounts.firstWhere(
-      (a) => a.id == expense.accountId,
-      orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
+    final category = categories.firstWhere(
+      (c) => c.id == expense.categoryId,
+      orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
     );
     final beneficiary = expense.beneficiaryId != null
         ? beneficiaries
             .where((b) => b.id == expense.beneficiaryId)
             .firstOrNull
         : null;
-    final category = categories.firstWhere(
-      (c) => c.id == expense.categoryId,
-      orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
-    );
 
-    return ExpenseCard(
+    return CompactExpenseRow(
       expense: expense,
-      accountName: account.name,
-      beneficiary: beneficiary,
       category: category,
+      beneficiary: beneficiary,
       showDivider: showDivider,
-      onDelete: () async {
-        try {
-          await ref
-              .read(expenseProvider.notifier)
-              .deleteExpense(expense.id);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de la suppression: \$e',
-            );
-          }
-        }
-      },
-      onEdit: () {
-        ExpenseBottomSheet.show(
-          context: context,
-          accounts: accounts,
-          categories: categories,
-          expense: expense,
-          onSubmit: (updatedExpense) async {
-            try {
-              await ref
-                  .read(expenseProvider.notifier)
-                  .updateExpense(updatedExpense);
-            } catch (e) {
-              if (context.mounted) {
-                FrostedSnackbar.show(
-                  context,
-                  message: 'Erreur lors de la modification: \$e',
-                );
-              }
-            }
-          },
-          onCancel: () {},
-        );
-      },
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title, int count) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              height: 14 / 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.09 * 11,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 11,
-              height: 14 / 11,
-              fontWeight: FontWeight.w500,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChips(
-      BuildContext context, List<CategoryModel> categories) {
-    final scheme = Theme.of(context).colorScheme;
-    final allSelected = _filterData.categoryIds.isEmpty;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: [
-            FrostedChip(
-              label: const Text('Tout'),
-              selected: allSelected,
-              avatar: Icon(
-                Icons.filter_list,
-                size: 16,
-                color: allSelected ? scheme.primary : scheme.onSurfaceVariant,
-              ),
-              onPressed: () {
-                setState(() {
-                  _filterData.categoryIds = const [];
-                });
-              },
-            ),
-            ...categories.map((category) {
-              final selected = _filterData.categoryIds.contains(category.id);
-              final color = Color(category.color);
-              return Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: FrostedChip(
-                  label: Text(category.name),
-                  selected: selected,
-                  selectedColor: color,
-                  avatar: Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: selected ? 0.9 : 0.6),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      final ids = List<int>.from(_filterData.categoryIds);
-                      if (selected) {
-                        ids.remove(category.id);
-                      } else {
-                        ids.add(category.id);
-                      }
-                      _filterData.categoryIds = ids;
-                    });
-                  },
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          final isSearch = child.key == const ValueKey('search');
-          final beginOffset =
-              isSearch ? const Offset(0.2, 0.0) : const Offset(-0.2, 0.0);
-
-          final offsetAnimation = Tween<Offset>(
-            begin: beginOffset,
-            end: Offset.zero,
-          ).animate(animation);
-
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(position: offsetAnimation, child: child),
-          );
-        },
-        child:
-            _isSearchVisible
-                ? SizedBox(
-                  key: const ValueKey('search'),
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FrostedTextField(
-                          controller: _searchController,
-                          hintText: 'Rechercher une dépense...',
-                          prefixIcon: const Icon(Icons.search),
-                          onChanged: (value) {
-                            setState(() {
-                              _filterData.searchQuery = value;
-                            });
-                          },
-                          autofocus: true,
-                        ),
-                      ),
-                      FrostedIconButton(
-                        icon: Icons.close,
-                        onPressed: () {
-                          setState(() {
-                            _isSearchVisible = false;
-                            _searchController.clear();
-                            _filterData.searchQuery = '';
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                )
-                : SizedBox(
-                  key: const ValueKey('title'),
-                  height: 60,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Mes transactions',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          FrostedIconButton(
-                            icon: Icons.search,
-                            color: Theme.of(context).colorScheme.primary,
-                            onPressed: () {
-                              setState(() {
-                                _isSearchVisible = true;
-                              });
-                            },
-                          ),
-                          FrostedIconButton(
-                            icon: Icons.filter_list,
-                            color:
-                                _filterData.isEmpty
-                                    ? Theme.of(context).iconTheme.color
-                                    : Theme.of(context).colorScheme.primary,
-                            onPressed: () => _showFilterBottomSheet(context),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-      ),
+      showDate: showDate,
+      onEdit: () => _openEditSheet(expense),
+      onDelete: () => _deleteExpense(expense),
     );
   }
 
@@ -537,7 +462,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           context: context,
           accounts: accounts,
           categories: categories,
-          closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
+          closedExpenses:
+              ref.read(expenseProvider.notifier).getClosedExpenses(),
           onSubmit: (newExpense) async {
             try {
               await ref.read(expenseProvider.notifier).addExpense(newExpense);
@@ -545,7 +471,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
               if (context.mounted) {
                 FrostedSnackbar.show(
                   context,
-                  message: 'Erreur lors de l\'ajout: \$e',
+                  message: 'Erreur lors de l\'ajout: $e',
                 );
               }
             }
@@ -556,86 +482,111 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
-  void _showFilterBottomSheet(BuildContext context) {
-    final categories = ref.read(categoryProvider).value ?? [];
-    final accounts = ref.read(accountProvider).value ?? [];
+  void _toggleCategoryFilter(int? id) {
+    setState(() {
+      if (id == null) {
+        _filterData = _filterData.copyWith(categoryIds: const []);
+      } else {
+        final ids = List<int>.from(_filterData.categoryIds);
+        if (ids.contains(id)) {
+          ids.remove(id);
+        } else {
+          ids.add(id);
+        }
+        _filterData = _filterData.copyWith(categoryIds: ids);
+      }
+    });
+  }
 
+  void _resetFilters() {
+    setState(() {
+      _filterData = ExpenseFilterData(
+        searchQuery: _filterData.searchQuery,
+      );
+    });
+  }
+
+  Future<void> _toggleRecurringExpanded() async {
+    final next = !_recurringExpanded;
+    setState(() => _recurringExpanded = next);
+    await PreferencesService.setExpensesRecurringExpanded(next);
+  }
+
+  Future<void> _openSortMenu() async {
+    ExpenseSortMenu.show(
+      context: context,
+      current: _sortBy,
+      onSelect: (option) async {
+        setState(() => _sortBy = option);
+        await PreferencesService.setExpensesSortBy(option.name);
+      },
+    );
+  }
+
+  void _showFilterSheet(
+    BuildContext context,
+    List<CategoryModel> categories,
+    List<AccountModel> accounts,
+  ) {
     ExpenseFilterBottomSheet.show(
       context: context,
       initialFilterData: _filterData,
       categories: categories,
       accounts: accounts,
-      onApply: (updatedFilterData) {
+      resultCount: (filter) {
+        final selectedMonth = ref.read(selectedMonthProvider);
+        final activeExpenses = (ref.read(expenseProvider).value ?? [])
+            .where((e) => e.endDate == null)
+            .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+            .toList();
+        return _filterExpenses(activeExpenses, filter).length;
+      },
+      onApply: (updated) {
         setState(() {
-          _filterData = updatedFilterData;
+          _filterData = updated.copyWith(searchQuery: _filterData.searchQuery);
         });
       },
-      onClear: () {
-        setState(() {
-          _filterData = ExpenseFilterData();
-        });
+      onClear: () {},
+      onCancel: () {},
+    );
+  }
+
+  Future<void> _openEditSheet(ExpenseModel expense) async {
+    final accounts = ref.read(accountProvider).value ?? [];
+    final categories = ref.read(categoryProvider).value ?? [];
+    ExpenseBottomSheet.show(
+      context: context,
+      accounts: accounts,
+      categories: categories,
+      expense: expense,
+      onSubmit: (updatedExpense) async {
+        try {
+          await ref
+              .read(expenseProvider.notifier)
+              .updateExpense(updatedExpense);
+        } catch (e) {
+          if (mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la modification: $e',
+            );
+          }
+        }
       },
       onCancel: () {},
     );
   }
-}
 
-enum _ListItemType {
-  monthSelector,
-  header,
-  filterChips,
-  sectionTitle,
-  expensesGroup,
-}
-
-class _ListItem {
-  final _ListItemType type;
-  final List<ExpenseModel>? expenses;
-  final bool? isEmpty;
-  final String? title;
-  final int? count;
-  final double? monthlyAmount;
-  final double? annualAmount;
-  final double? oneTimeAmount;
-  final List<CategoryModel>? categories;
-
-  _ListItem._({
-    required this.type,
-    this.expenses,
-    this.isEmpty,
-    this.title,
-    this.count,
-    this.monthlyAmount,
-    this.annualAmount,
-    this.oneTimeAmount,
-    this.categories,
-  });
-
-  factory _ListItem.header(
-    List<ExpenseModel> expenses,
-    bool isEmpty,
-    double monthlyAmount,
-    double annualAmount,
-    double oneTimeAmount,
-  ) =>
-      _ListItem._(
-        type: _ListItemType.header,
-        expenses: expenses,
-        isEmpty: isEmpty,
-        monthlyAmount: monthlyAmount,
-        annualAmount: annualAmount,
-        oneTimeAmount: oneTimeAmount,
-      );
-
-  factory _ListItem.filterChips(List<CategoryModel> categories) =>
-      _ListItem._(type: _ListItemType.filterChips, categories: categories);
-
-  factory _ListItem.sectionTitle(String title, int count) =>
-      _ListItem._(type: _ListItemType.sectionTitle, title: title, count: count);
-
-  factory _ListItem.expensesGroup(List<ExpenseModel> expenses) =>
-      _ListItem._(type: _ListItemType.expensesGroup, expenses: expenses);
-
-  factory _ListItem.monthSelector() =>
-      _ListItem._(type: _ListItemType.monthSelector);
+  Future<void> _deleteExpense(ExpenseModel expense) async {
+    try {
+      await ref.read(expenseProvider.notifier).deleteExpense(expense.id);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la suppression: $e',
+        );
+      }
+    }
+  }
 }

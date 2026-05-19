@@ -5,7 +5,9 @@ import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class MonthSelector extends ConsumerWidget {
-  const MonthSelector({super.key});
+  final AlignmentGeometry alignment;
+
+  const MonthSelector({super.key, this.alignment = Alignment.center});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +18,8 @@ class MonthSelector extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Center(
+      child: Align(
+        alignment: alignment,
         child: Material(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(9999),
