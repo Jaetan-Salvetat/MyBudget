@@ -4,6 +4,7 @@ import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
+import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class TransactionsScreen extends StatelessWidget {
   final int selectedTab;
@@ -24,15 +25,33 @@ class TransactionsScreen extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Text(
-              'Transactions',
-              style: TextStyle(
-                fontSize: 22,
-                height: 26 / 22,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.4,
-                color: scheme.onSurface,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: SizedBox(
+              height: 48,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Transactions',
+                      style: TextStyle(
+                        fontSize: 28,
+                        height: 34 / 28,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.022 * 28,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  FrostedControlButton(
+                    icon: Icons.settings_rounded,
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SettingsScreen(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

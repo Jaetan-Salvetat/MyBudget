@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/accounts/widgets/account_list.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
+import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
@@ -21,18 +23,30 @@ class AccountsScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
               child: SizedBox(
                 height: 48,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Mes comptes',
-                    style: TextStyle(
-                      fontSize: 28,
-                      height: 34 / 28,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.022 * 28,
-                      color: scheme.onSurface,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Mes comptes',
+                        style: TextStyle(
+                          fontSize: 28,
+                          height: 34 / 28,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.022 * 28,
+                          color: scheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
+                    FrostedControlButton(
+                      icon: Icons.settings_rounded,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
