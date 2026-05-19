@@ -44,7 +44,7 @@ final class QuickAddNotifierProvider
   }
 }
 
-String _$quickAddNotifierHash() => r'f933ae7a2ec5a907f3d69c72b698a8e183240d8b';
+String _$quickAddNotifierHash() => r'90807b691ee86d290700d854628d7d2cfc068b9e';
 
 abstract class _$QuickAddNotifier
     extends $Notifier<AsyncValue<QuickAddResultModel?>> {

@@ -54,7 +54,7 @@ dependencies:
       url: https://github.com/Jaetan-Salvetat/app_updater
       ref: main
   permission_handler: ^12.0.1
-  dynamic_color: ^1.8.1
+  google_fonts: ^6.2.1
   url_launcher: ^6.3.1
   webview_flutter: ^4.10.0
   webview_flutter_android: ^4.10.15

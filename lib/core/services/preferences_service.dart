@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -11,7 +10,6 @@ class PreferencesService {
 
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyThemeType = 'themeType';
   static const String keyIsCategoriesCreated = 'isCategoriesCreated';
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
@@ -65,17 +63,6 @@ class PreferencesService {
 
   static Future<void> setSkipAuth(bool skip) async {
     await _prefs.setBool(keySkipAuth, skip);
-  }
-
-  static AppThemeType getThemeType() {
-    return AppThemeType.values.firstWhere(
-      (element) => element.name == _prefs.getString(keyThemeType),
-      orElse: () => AppThemeType.purple,
-    );
-  }
-
-  static Future<void> setThemeType(AppThemeType themeType) async {
-    await _prefs.setString(keyThemeType, themeType.name);
   }
 
   static bool isCategoriesCreated() {
