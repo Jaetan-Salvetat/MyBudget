@@ -27,6 +27,7 @@ class ExpensesQuickFilters extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           _SortChip(label: sortBy.label, onTap: onOpenSort),

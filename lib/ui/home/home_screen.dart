@@ -8,16 +8,9 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
@@ -86,10 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
 
     return FrostedScaffold(
-      animateFloatingActionButtonTransitions: false,
       extendBodyBehindAppBar: true,
-      floatingActionButton: keyboardVisible ? null : _buildFab(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -130,117 +120,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget? _buildFab(BuildContext context) {
-    if (_selectedIndex == 1) {
-      switch (_transactionsSubTab) {
-        case 0:
-          return FrostedExpandableFab(
-            children: [
-              FrostedExpandableFabChild(
-                icon: const Icon(Icons.document_scanner),
-                label: 'Scanner',
-                onPressed: () => _showImageSourceChoice(context),
-              ),
-              FrostedExpandableFabChild(
-                icon: const Icon(Icons.edit),
-                label: 'Manuel',
-                onPressed: () => _showAddExpenseBottomSheet(context),
-              ),
-            ],
-          );
-        case 1:
-          return FrostedFloatingActionButton(
-            onPressed: () => _showAddRevenueBottomSheet(context),
-            child: const Icon(Icons.add),
-          );
-        case 2:
-          return FrostedFloatingActionButton(
-            onPressed: () => _showAddLoanBottomSheet(context),
-            child: const Icon(Icons.add),
-          );
-      }
-    }
-    return null;
-  }
-
-  void _showAddExpenseBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
-
-    if (accounts.isEmpty) {
-      _showNoAccountDialog(context, 'une dépense');
-      return;
-    }
-
-    ExpenseBottomSheet.show(
-      context: context,
-      accounts: accounts,
-      categories: ref.read(categoryProvider).value ?? [],
-      closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
-      onSubmit: (expense) async {
-        try {
-          await ref.read(expenseProvider.notifier).addExpense(expense);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de l\'ajout: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
-    );
-  }
-
-  void _showAddRevenueBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
-
-    if (accounts.isEmpty) {
-      _showNoAccountDialog(context, 'un revenu');
-      return;
-    }
-
-    RevenueBottomSheet.show(
-      context: context,
-      accounts: accounts,
-      closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
-      onSubmit: (revenue) async {
-        try {
-          await ref.read(revenueProvider.notifier).addRevenue(revenue);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
-          }
-        }
-      },
-      onCancel: () {},
-    );
-  }
-
-  void _showAddLoanBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
-
-    if (accounts.isEmpty) {
-      _showNoAccountDialog(context, 'un emprunt');
-      return;
-    }
-
-    LoanCreationBottomSheet.show(
-      context: context,
-      accounts: accounts,
-      onSubmit: (loan) async {
-        try {
-          await ref.read(loanProvider.notifier).addLoan(loan);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
-          }
-        }
-      },
-      onCancel: () {},
     );
   }
 

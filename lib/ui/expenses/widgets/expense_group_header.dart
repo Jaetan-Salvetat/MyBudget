@@ -87,7 +87,7 @@ class _GroupHeader extends StatelessWidget {
       decimalDigits: 0,
     );
     return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 6, left: 4, right: 4),
+      padding: const EdgeInsets.only(top: 12, bottom: 6, left: 2, right: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,

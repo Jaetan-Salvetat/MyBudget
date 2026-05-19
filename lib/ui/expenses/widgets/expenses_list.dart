@@ -50,7 +50,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     _searchController =
         TextEditingController(text: _filterData.searchQuery ?? '');
     _sortBy = ExpenseSortBy.fromName(PreferencesService.getExpensesSortBy());
-    _recurringExpanded = PreferencesService.getExpensesRecurringExpanded();
+    _recurringExpanded = false;
   }
 
   @override
@@ -286,31 +286,25 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(
-                top: 16,
-                bottom: 145,
-                left: 16,
-                right: 16,
-              ),
+              padding: const EdgeInsets.only(top: 0, bottom: 145),
               children: [
-                ExpensesSummaryCard(
+                _hPad(ExpensesSummaryCard(
                   total: total,
                   filteredCount: filteredExpenses.length,
                   totalCount: activeExpenses.length,
                   weeklyTotals: weeklyBars,
-                ),
-                ExpensesSearchBar(
+                )),
+                _hPad(ExpensesSearchBar(
                   controller: _searchController,
                   activeFiltersCount: _filterData.activeCount,
                   onChanged: (value) {
                     setState(() {
-                      _filterData =
-                          _filterData.copyWith(searchQuery: value);
+                      _filterData = _filterData.copyWith(searchQuery: value);
                     });
                   },
                   onOpenFilters: () =>
                       _showFilterSheet(context, categories, accounts),
-                ),
+                )),
                 const SizedBox(height: 10),
                 ExpensesQuickFilters(
                   categories: categories,
@@ -319,16 +313,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   onOpenSort: _openSortMenu,
                   onCategoryTap: _toggleCategoryFilter,
                 ),
+                const SizedBox(height: 12),
                 if (pills.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  ActiveFilterPills(pills: pills, onReset: _resetFilters),
+                  _hPad(ActiveFilterPills(
+                      pills: pills, onReset: _resetFilters)),
+                  const SizedBox(height: 12),
                 ],
                 if (isEmpty) ...[
-                  const SizedBox(height: 24),
-                  _buildEmptyState(context),
+                  const SizedBox(height: 12),
+                  _hPad(_buildEmptyState(context)),
                 ],
                 if (sortedRecurring.isNotEmpty)
-                  RecurringSummaryCard(
+                  _hPad(RecurringSummaryCard(
                     count: sortedRecurring.length,
                     total: sortedRecurring.fold<double>(
                       0,
@@ -336,21 +332,22 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     ),
                     expanded: _recurringExpanded,
                     onToggle: _toggleRecurringExpanded,
-                    expandedContent: _recurringExpanded
-                        ? _buildRecurringRows(
-                            sortedRecurring, categories, beneficiaries)
-                        : null,
-                  ),
+                    expandedContent: _buildRecurringRows(
+                      sortedRecurring,
+                      categories,
+                      beneficiaries,
+                    ),
+                  )),
                 if (dayGroups != null)
                   for (final group in dayGroups) ...[
-                    ExpenseDayHeader(
+                    _hPad(ExpenseDayHeader(
                       date: group.date,
                       count: group.items.length,
                       total: group.total,
                       isToday: isViewingCurrentMonth &&
                           group.date.day == today.day,
-                    ),
-                    FrostedCard(
+                    )),
+                    _hPad(FrostedCard(
                       margin: EdgeInsets.zero,
                       borderRadius: 16,
                       padding: const EdgeInsets.symmetric(
@@ -366,18 +363,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                             ),
                         ],
                       ),
-                    ),
+                    )),
                   ],
                 if (weekGroups != null)
                   for (final group in weekGroups) ...[
-                    ExpenseWeekHeader(
+                    _hPad(ExpenseWeekHeader(
                       weekNumber: group.weekNumber,
                       weekStart: group.weekStart,
                       weekEnd: group.weekEnd,
                       count: group.items.length,
                       total: group.total,
-                    ),
-                    FrostedCard(
+                    )),
+                    _hPad(FrostedCard(
                       margin: EdgeInsets.zero,
                       borderRadius: 16,
                       padding: const EdgeInsets.symmetric(
@@ -394,13 +391,20 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                             ),
                         ],
                       ),
-                    ),
+                    )),
                   ],
                 const SizedBox(height: 12),
               ],
             );
           },
         );
+  }
+
+  Widget _hPad(Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: child,
+    );
   }
 
   Widget _buildRecurringRows(
@@ -506,10 +510,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     });
   }
 
-  Future<void> _toggleRecurringExpanded() async {
-    final next = !_recurringExpanded;
-    setState(() => _recurringExpanded = next);
-    await PreferencesService.setExpensesRecurringExpanded(next);
+  void _toggleRecurringExpanded() {
+    setState(() => _recurringExpanded = !_recurringExpanded);
   }
 
   Future<void> _openSortMenu() async {

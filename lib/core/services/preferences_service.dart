@@ -19,7 +19,6 @@ class PreferencesService {
 
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
-  static const String keyExpensesRecurringExpanded = 'expensesRecurringExpanded';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -131,14 +130,6 @@ class PreferencesService {
 
   static Future<void> setExpensesSortBy(String value) async {
     await _prefs.setString(keyExpensesSortBy, value);
-  }
-
-  static bool getExpensesRecurringExpanded() {
-    return _prefs.getBool(keyExpensesRecurringExpanded) ?? false;
-  }
-
-  static Future<void> setExpensesRecurringExpanded(bool value) async {
-    await _prefs.setBool(keyExpensesRecurringExpanded, value);
   }
 
   static Future<void> clearAll() async {
