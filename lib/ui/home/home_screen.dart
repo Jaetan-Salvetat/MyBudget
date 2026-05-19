@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
-import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -165,32 +163,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           );
       }
     }
-    if (_selectedIndex == 2) {
-      return FrostedFloatingActionButton(
-        onPressed: () => _showAddAccountDialog(context),
-        child: const Icon(Icons.add),
-      );
-    }
     return null;
-  }
-
-  void _showAddAccountDialog(BuildContext context) {
-    AccountBottomSheet.show(
-      context: context,
-      onSubmit: (name, bank) async {
-        if (name.isEmpty || bank.isEmpty) return;
-
-        try {
-          final account = AccountModel.create(name: name, bank: bank);
-          await ref.read(accountProvider.notifier).addAccount(account);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
-          }
-        }
-      },
-      onCancel: () {},
-    );
   }
 
   void _showAddExpenseBottomSheet(BuildContext context) {
