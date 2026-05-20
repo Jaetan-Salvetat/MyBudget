@@ -51,7 +51,7 @@ class CompactExpenseRow extends StatelessWidget {
     return InkWell(
       onTap: onEdit,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           border: showDivider
               ? Border(

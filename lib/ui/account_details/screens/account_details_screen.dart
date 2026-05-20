@@ -10,6 +10,7 @@ import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/app_top_bar.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -99,7 +100,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     final topInset = MediaQuery.of(context).padding.top;
 
     return FrostedScaffold(
-      appBar: _DetailsAppBar(title: account.name),
+      appBar: AppTopBar(title: account.name),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(16, topInset + kToolbarHeight + 12, 16, 32),
@@ -396,58 +397,3 @@ class _TransfersSection extends StatelessWidget {
   }
 }
 
-class _DetailsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-
-  const _DetailsAppBar({required this.title});
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return FrostedContainer(
-      blurStrength: FrostedBlur.medium,
-      backgroundColor:
-          scheme.surface.withValues(alpha: FrostedOpacity.strong),
-      borderRadius: BorderRadius.zero,
-      showBorder: false,
-      showShadow: false,
-      child: SafeArea(
-        bottom: false,
-        child: SizedBox(
-          height: kToolbarHeight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                FrostedIconButton(
-                  icon: Icons.arrow_back_rounded,
-                  onPressed: () => Navigator.maybePop(context),
-                  color: scheme.onSurface,
-                  iconSize: 22,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 22,
-                      height: 28 / 22,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.018 * 22,
-                      color: scheme.onSurface,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -16,7 +16,7 @@ class SolidCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final radius = borderRadius ?? BorderRadius.circular(12);
+    final radius = borderRadius ?? BorderRadius.circular(16);
 
     return DecoratedBox(
       decoration: BoxDecoration(

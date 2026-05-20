@@ -60,14 +60,14 @@ class ExpensesSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 14),
           Text(
             formatter.format(total),
             style: TextStyle(
-              fontSize: 30,
-              height: 36 / 30,
+              fontSize: 32,
+              height: 36 / 32,
               fontWeight: FontWeight.w600,
-              letterSpacing: -0.022 * 30,
+              letterSpacing: -0.022 * 32,
               color: finance.expense,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),

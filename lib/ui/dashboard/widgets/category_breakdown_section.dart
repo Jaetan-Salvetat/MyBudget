@@ -132,7 +132,7 @@ class _CategoryRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
         child: Row(
           children: [
             Container(

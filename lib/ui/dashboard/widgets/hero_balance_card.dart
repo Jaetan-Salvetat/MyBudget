@@ -55,7 +55,7 @@ class HeroBalanceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _TopRow(isPositive: isPositive, accentColor: accentColor),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Center(
               child: BalanceDonut(
                 progress: progress,

@@ -535,11 +535,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.2.3"
-      resolved-ref: "079359dd70d50c924edf08b56103cb4235e82a33"
+      ref: "v0.2.4"
+      resolved-ref: "3ee8bd9584616a697c5bd9d3ebc4f6a228c749dc"
       url: "https://github.com/Jaetan-Salvetat/frosted_ui"
     source: git
-    version: "0.2.3"
+    version: "0.2.4"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
