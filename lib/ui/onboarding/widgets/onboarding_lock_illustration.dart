@@ -33,15 +33,14 @@ class OnboardingLockIllustration extends StatelessWidget {
         children: [
           SvgPicture.string(svg),
           Icon(
-            Icons.lock_rounded,
+            Icons.lock_outline_rounded,
             size: 88,
             color: scheme.primary.withValues(alpha: 0.7),
           ),
           Positioned(
             bottom: 16,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: scheme.surface.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(9999),
