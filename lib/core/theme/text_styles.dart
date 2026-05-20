@@ -22,11 +22,12 @@ class AppTextStyles {
     double fontSize = 48,
     double? height,
     Color? color,
+    FontWeight fontWeight = FontWeight.w400,
   }) {
-    return GoogleFonts.instrumentSerif(
+    return GoogleFonts.ptSerif(
       fontSize: fontSize,
       fontStyle: FontStyle.italic,
-      fontWeight: FontWeight.w400,
+      fontWeight: fontWeight,
       height: height,
       color: color,
       letterSpacing: -0.02 * fontSize,
