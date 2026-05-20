@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanCard extends StatelessWidget {
   final Loan loan;
@@ -97,9 +98,9 @@ class LoanCard extends StatelessWidget {
                   ),
                   Text(
                     '/ mois',
-                    style: TextStyle(
+                    style: AppTextStyles.mono(
                       fontSize: 11,
-                      height: 14 / 11,
+                      fontWeight: FontWeight.w400,
                       color: scheme.onSurfaceVariant,
                     ),
                   ),

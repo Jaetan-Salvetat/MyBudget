@@ -44,6 +44,22 @@ class AppTextStyles {
     );
   }
 
+  static TextStyle mono({
+    required double fontSize,
+    double? lineHeight,
+    FontWeight fontWeight = FontWeight.w500,
+    double letterSpacingEm = 0,
+    Color? color,
+  }) {
+    return GoogleFonts.jetBrainsMono(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      height: (lineHeight ?? 14) / fontSize,
+      letterSpacing: letterSpacingEm * fontSize,
+      color: color,
+    );
+  }
+
   static TextStyle amount({
     double fontSize = 15,
     FontWeight fontWeight = FontWeight.w600,

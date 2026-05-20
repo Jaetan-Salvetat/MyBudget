@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanSummaryCard extends StatelessWidget {
   final double totalDebt;
@@ -38,11 +39,9 @@ class LoanSummaryCard extends StatelessWidget {
         children: [
           Text(
             'MENSUALITÉS DU MOIS',
-            style: TextStyle(
+            style: AppTextStyles.mono(
               fontSize: 10,
-              height: 14 / 10,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.10 * 10,
+              letterSpacingEm: 0.10,
               color: scheme.onSurfaceVariant,
             ),
           ),
@@ -157,10 +156,8 @@ class _Stat extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.mono(
             fontSize: 11,
-            height: 14 / 11,
-            fontWeight: FontWeight.w500,
             color: scheme.onSurfaceVariant,
           ),
         ),
@@ -179,9 +176,9 @@ class _Stat extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             hint!,
-            style: TextStyle(
+            style: AppTextStyles.mono(
               fontSize: 10,
-              height: 14 / 10,
+              fontWeight: FontWeight.w400,
               color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),

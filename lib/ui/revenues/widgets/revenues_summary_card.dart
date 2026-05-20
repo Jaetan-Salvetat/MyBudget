@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class RevenuesSummaryCard extends StatelessWidget {
   final double monthlyRevenues;
@@ -32,21 +33,18 @@ class RevenuesSummaryCard extends StatelessWidget {
             children: [
               Text(
                 'TOTAL ENTRÉES',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 10,
-                  height: 14 / 10,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.10 * 10,
+                  letterSpacingEm: 0.10,
                   color: scheme.onSurfaceVariant,
                 ),
               ),
               const Spacer(),
               Text(
                 '$transactionCount transactions',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 12,
-                  height: 14 / 12,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+                  fontWeight: FontWeight.w400,
                   color: scheme.onSurfaceVariant,
                 ),
               ),

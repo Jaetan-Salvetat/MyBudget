@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpenseDayHeader extends StatelessWidget {
   final DateTime date;
@@ -95,11 +96,10 @@ class _GroupHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
+              style: AppTextStyles.mono(
                 fontSize: 11,
-                height: 14 / 11,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.09 * 11,
+                letterSpacingEm: 0.09,
                 color: color,
               ),
               maxLines: 1,
@@ -108,12 +108,9 @@ class _GroupHeader extends StatelessWidget {
           ),
           Text(
             '${formatter.format(total)} · $count',
-            style: TextStyle(
-              fontSize: 11.5,
-              height: 14 / 11.5,
-              fontWeight: FontWeight.w500,
+            style: AppTextStyles.mono(
+              fontSize: 11,
               color: scheme.onSurfaceVariant,
-              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],

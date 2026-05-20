@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_row.dart';
 
 class LoanDetailInfoCard extends StatelessWidget {
@@ -22,11 +23,10 @@ class LoanDetailInfoCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
           child: Text(
             title.toUpperCase(),
-            style: TextStyle(
+            style: AppTextStyles.mono(
               fontSize: 11,
-              height: 14 / 11,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.09 * 11,
+              letterSpacingEm: 0.09,
               color: scheme.onSurfaceVariant,
             ),
           ),

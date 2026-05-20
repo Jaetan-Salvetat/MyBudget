@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/app_top_bar.dart';
@@ -242,11 +243,10 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
               const SizedBox(width: 8),
               Text(
                 'NOTES',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 11,
-                  height: 14 / 11,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.09 * 11,
+                  letterSpacingEm: 0.09,
                   color: scheme.onSurfaceVariant,
                 ),
               ),

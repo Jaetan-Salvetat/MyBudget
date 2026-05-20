@@ -80,20 +80,20 @@ class CompactExpenseRow extends StatelessWidget {
                   Text(
                     expense.name,
                     style: const TextStyle(
-                      fontSize: 14.5,
-                      height: 19 / 14.5,
+                      fontSize: 15,
+                      height: 20 / 15,
                       fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (metaParts.isNotEmpty) ...[
-                    const SizedBox(height: 1),
+                    const SizedBox(height: 2),
                     Text(
                       metaParts.join(' · '),
                       style: TextStyle(
-                        fontSize: 11.5,
-                        height: 15 / 11.5,
+                        fontSize: 12,
+                        height: 16 / 12,
                         color: scheme.onSurfaceVariant,
                       ),
                       maxLines: 1,
@@ -107,8 +107,8 @@ class CompactExpenseRow extends StatelessWidget {
             Text(
               '− ${formatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
               style: TextStyle(
-                fontSize: 14.5,
-                height: 19 / 14.5,
+                fontSize: 15,
+                height: 20 / 15,
                 fontWeight: FontWeight.w600,
                 color: scheme.onSurface,
                 fontFeatures: const [FontFeature.tabularFigures()],

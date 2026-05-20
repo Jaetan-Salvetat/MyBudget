@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpensesSummaryCard extends StatelessWidget {
   final double total;
@@ -38,11 +39,9 @@ class ExpensesSummaryCard extends StatelessWidget {
             children: [
               Text(
                 (_isFiltered ? 'TOTAL FILTRÉ' : 'TOTAL CE MOIS'),
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 10,
-                  height: 14 / 10,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.10 * 10,
+                  letterSpacingEm: 0.10,
                   color: scheme.onSurfaceVariant,
                 ),
               ),
@@ -51,11 +50,10 @@ class ExpensesSummaryCard extends StatelessWidget {
                 _isFiltered
                     ? '$filteredCount / $totalCount'
                     : '$totalCount transactions',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 12,
-                  height: 14 / 12,
+                  fontWeight: FontWeight.w400,
                   color: scheme.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],
@@ -126,11 +124,9 @@ class _WeeklyBars extends StatelessWidget {
                 child: Text(
                   'S${i + 1}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: AppTextStyles.mono(
                     fontSize: 10,
-                    height: 14 / 10,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.04 * 10,
+                    letterSpacingEm: 0.04,
                     color: scheme.onSurfaceVariant,
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class LoanDetailHero extends StatelessWidget {
@@ -87,11 +88,9 @@ class LoanDetailHero extends StatelessWidget {
                 ),
                 child: Text(
                   status.label.toUpperCase(),
-                  style: TextStyle(
+                  style: AppTextStyles.mono(
                     fontSize: 11,
-                    height: 14 / 11,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.05 * 11,
+                    letterSpacingEm: 0.05,
                     color: statusColor,
                   ),
                 ),
@@ -101,11 +100,9 @@ class LoanDetailHero extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'MENSUALITÉ COURANTE',
-            style: TextStyle(
+            style: AppTextStyles.mono(
               fontSize: 10,
-              height: 14 / 10,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.10 * 10,
+              letterSpacingEm: 0.10,
               color: scheme.onSurfaceVariant,
             ),
           ),
@@ -161,20 +158,18 @@ class LoanDetailHero extends StatelessWidget {
             children: [
               Text(
                 '${compactFormatter.format(amortized)} remboursés',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 11,
-                  height: 14 / 11,
+                  fontWeight: FontWeight.w400,
                   color: scheme.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
               Text(
                 'sur ${compactFormatter.format(loan.amount)}',
-                style: TextStyle(
+                style: AppTextStyles.mono(
                   fontSize: 11,
-                  height: 14 / 11,
+                  fontWeight: FontWeight.w400,
                   color: scheme.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],
