@@ -156,6 +156,10 @@ class LoansList extends ConsumerWidget {
       buttonText: 'Ajouter un emprunt',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];
+        if (accounts.isEmpty) {
+          _showNoAccountDialog(context, 'un emprunt');
+          return;
+        }
         final loanNotifier = ref.read(loanProvider.notifier);
 
         LoanCreationBottomSheet.show(
@@ -167,6 +171,23 @@ class LoansList extends ConsumerWidget {
           onCancel: () {},
         );
       },
+    );
+  }
+
+  void _showNoAccountDialog(BuildContext context, String action) {
+    FrostedDialog.show(
+      context: context,
+      barrierDismissible: false,
+      title: const Text('Aucun compte disponible'),
+      content: Text(
+        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

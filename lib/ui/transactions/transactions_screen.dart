@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
 import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -15,7 +14,6 @@ import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
-import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
@@ -56,11 +54,9 @@ class TransactionsScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  _AddButton(
-                    isExpensesTab: isExpensesTab,
-                    onAddPressed: () => _handleAdd(context, ref),
-                    onAddManual: () => _showAddExpenseBottomSheet(context, ref),
-                    onAddScan: () => _showImageSourceChoice(context, ref),
+                  FrostedControlButton(
+                    icon: Icons.add_rounded,
+                    onPressed: () => _handleAdd(context, ref),
                   ),
                   const SizedBox(width: 4),
                   FrostedControlButton(
@@ -123,20 +119,13 @@ class TransactionsScreen extends ConsumerWidget {
 
   void _handleAdd(BuildContext context, WidgetRef ref) {
     switch (selectedTab) {
+      case 0:
+        _showAddExpenseBottomSheet(context, ref);
       case 1:
         _showAddRevenueBottomSheet(context, ref);
       case 2:
         _showAddLoanBottomSheet(context, ref);
     }
-  }
-
-  bool _ensureAccountForExpense(BuildContext context, WidgetRef ref) {
-    final accounts = ref.read(accountProvider).value ?? [];
-    if (accounts.isEmpty) {
-      _showNoAccountDialog(context, 'une dépense');
-      return false;
-    }
-    return true;
   }
 
   void _showAddExpenseBottomSheet(BuildContext context, WidgetRef ref) {
@@ -219,55 +208,6 @@ class TransactionsScreen extends ConsumerWidget {
     );
   }
 
-  void _showImageSourceChoice(BuildContext context, WidgetRef ref) {
-    if (!_ensureAccountForExpense(context, ref)) return;
-    FrostedBottomSheet.show(
-      context: context,
-      title: 'Scanner un ticket',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FrostedListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Prendre une photo'),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImageAndScan(context, ImageSource.camera);
-            },
-          ),
-          FrostedListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choisir depuis la galerie'),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImageAndScan(context, ImageSource.gallery);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _pickImageAndScan(
-    BuildContext context,
-    ImageSource source,
-  ) async {
-    final picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      imageQuality: 85,
-    );
-    if (image == null) return;
-    final bytes = await image.readAsBytes();
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ScanScreen(imageBytes: bytes)),
-      );
-    }
-  }
-
   void _showNoAccountDialog(BuildContext context, String action) {
     FrostedDialog.show(
       context: context,
@@ -286,60 +226,6 @@ class TransactionsScreen extends ConsumerWidget {
   }
 }
 
-class _AddButton extends StatelessWidget {
-  final bool isExpensesTab;
-  final VoidCallback onAddPressed;
-  final VoidCallback onAddManual;
-  final VoidCallback onAddScan;
-
-  const _AddButton({
-    required this.isExpensesTab,
-    required this.onAddPressed,
-    required this.onAddManual,
-    required this.onAddScan,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (!isExpensesTab) {
-      return FrostedControlButton(
-        icon: Icons.add_rounded,
-        onPressed: onAddPressed,
-      );
-    }
-
-    return FrostedPopupMenu<_AddAction>(
-      onSelected: (action) {
-        switch (action) {
-          case _AddAction.manual:
-            onAddManual();
-          case _AddAction.scan:
-            onAddScan();
-        }
-      },
-      items: const [
-        FrostedPopupMenuItem(
-          value: _AddAction.manual,
-          icon: Icon(Icons.edit_rounded, size: 18),
-          child: Text('Manuel'),
-        ),
-        FrostedPopupMenuItem(
-          value: _AddAction.scan,
-          icon: Icon(Icons.document_scanner_rounded, size: 18),
-          child: Text('Scanner un ticket'),
-        ),
-      ],
-      child: IgnorePointer(
-        child: FrostedControlButton(
-          icon: Icons.add_rounded,
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
-}
-
-enum _AddAction { manual, scan }
 
 class _GroupByToggle extends StatelessWidget {
   final ExpenseGroupBy value;

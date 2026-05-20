@@ -268,6 +268,10 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       buttonText: 'Ajouter un revenu',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];
+        if (accounts.isEmpty) {
+          _showNoAccountDialog(context, 'un revenu');
+          return;
+        }
         RevenueBottomSheet.show(
           context: context,
           accounts: accounts,
@@ -288,6 +292,23 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           onCancel: () {},
         );
       },
+    );
+  }
+
+  void _showNoAccountDialog(BuildContext context, String action) {
+    FrostedDialog.show(
+      context: context,
+      barrierDismissible: false,
+      title: const Text('Aucun compte disponible'),
+      content: Text(
+        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 

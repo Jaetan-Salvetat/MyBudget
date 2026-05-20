@@ -511,6 +511,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       buttonText: 'Ajouter une dépense',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];
+        if (accounts.isEmpty) {
+          _showNoAccountDialog(context, 'une dépense');
+          return;
+        }
         final categories = ref.read(categoryProvider).value ?? [];
         ExpenseBottomSheet.show(
           context: context,
@@ -533,6 +537,23 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           onCancel: () {},
         );
       },
+    );
+  }
+
+  void _showNoAccountDialog(BuildContext context, String action) {
+    FrostedDialog.show(
+      context: context,
+      barrierDismissible: false,
+      title: const Text('Aucun compte disponible'),
+      content: Text(
+        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 
