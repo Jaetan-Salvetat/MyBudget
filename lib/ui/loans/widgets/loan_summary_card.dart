@@ -30,7 +30,7 @@ class LoanSummaryCard extends StatelessWidget {
     final progressPct = (progress * 100).clamp(0, 100).round();
 
     return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       borderRadius: 20,
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -46,7 +46,7 @@ class LoanSummaryCard extends StatelessWidget {
               color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,

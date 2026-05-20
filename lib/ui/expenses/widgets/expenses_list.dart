@@ -47,8 +47,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   void initState() {
     super.initState();
     _filterData = widget.initialFilter ?? ExpenseFilterData();
-    _searchController =
-        TextEditingController(text: _filterData.searchQuery ?? '');
+    _searchController = TextEditingController(
+      text: _filterData.searchQuery ?? '',
+    );
     _sortBy = ExpenseSortBy.fromName(PreferencesService.getExpensesSortBy());
     _recurringExpanded = false;
   }
@@ -61,9 +62,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   bool _matchesFilter(ExpenseModel expense, ExpenseFilterData filter) {
     if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-      if (!expense.name
-          .toLowerCase()
-          .contains(filter.searchQuery!.toLowerCase())) {
+      if (!expense.name.toLowerCase().contains(
+        filter.searchQuery!.toLowerCase(),
+      )) {
         return false;
       }
     }
@@ -89,7 +90,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   List<ExpenseModel> _filterExpenses(
-      List<ExpenseModel> expenses, ExpenseFilterData filter) {
+    List<ExpenseModel> expenses,
+    ExpenseFilterData filter,
+  ) {
     return expenses.where((e) => _matchesFilter(e, filter)).toList();
   }
 
@@ -125,7 +128,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   ExpenseModel _withEffectiveDate(
-      ExpenseModel expense, DateTime selectedMonth) {
+    ExpenseModel expense,
+    DateTime selectedMonth,
+  ) {
     final effective = _effectiveDate(expense, selectedMonth);
     if (effective.year == expense.startDate.year &&
         effective.month == expense.startDate.month &&
@@ -136,7 +141,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   List<ActiveFilterPill> _activeFilterPills(
-      List<CategoryModel> categories, List<AccountModel> accounts) {
+    List<CategoryModel> categories,
+    List<AccountModel> accounts,
+  ) {
     final pills = <ActiveFilterPill>[];
 
     for (final type in _filterData.types) {
@@ -145,17 +152,19 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         Frequency.annual => 'Annuel',
         Frequency.oneTime => 'Ponctuel',
       };
-      pills.add(ActiveFilterPill(
-        id: 'type-${type.name}',
-        label: label,
-        onRemove: () {
-          setState(() {
-            _filterData = _filterData.copyWith(
-              types: _filterData.types.where((t) => t != type).toList(),
-            );
-          });
-        },
-      ));
+      pills.add(
+        ActiveFilterPill(
+          id: 'type-${type.name}',
+          label: label,
+          onRemove: () {
+            setState(() {
+              _filterData = _filterData.copyWith(
+                types: _filterData.types.where((t) => t != type).toList(),
+              );
+            });
+          },
+        ),
+      );
     }
 
     for (final id in _filterData.categoryIds) {
@@ -163,18 +172,20 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         (c) => c.id == id,
         orElse: () => CategoryModel.create(name: '—', icon: 'category'),
       );
-      pills.add(ActiveFilterPill(
-        id: 'cat-$id',
-        label: cat.name,
-        onRemove: () {
-          setState(() {
-            _filterData = _filterData.copyWith(
-              categoryIds:
-                  _filterData.categoryIds.where((c) => c != id).toList(),
-            );
-          });
-        },
-      ));
+      pills.add(
+        ActiveFilterPill(
+          id: 'cat-$id',
+          label: cat.name,
+          onRemove: () {
+            setState(() {
+              _filterData = _filterData.copyWith(
+                categoryIds:
+                    _filterData.categoryIds.where((c) => c != id).toList(),
+              );
+            });
+          },
+        ),
+      );
     }
 
     for (final id in _filterData.accountIds) {
@@ -182,18 +193,20 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         (a) => a.id == id,
         orElse: () => AccountModel.create(name: '—', bank: ''),
       );
-      pills.add(ActiveFilterPill(
-        id: 'acc-$id',
-        label: acc.name,
-        onRemove: () {
-          setState(() {
-            _filterData = _filterData.copyWith(
-              accountIds:
-                  _filterData.accountIds.where((a) => a != id).toList(),
-            );
-          });
-        },
-      ));
+      pills.add(
+        ActiveFilterPill(
+          id: 'acc-$id',
+          label: acc.name,
+          onRemove: () {
+            setState(() {
+              _filterData = _filterData.copyWith(
+                accountIds:
+                    _filterData.accountIds.where((a) => a != id).toList(),
+              );
+            });
+          },
+        ),
+      );
     }
 
     if (_filterData.minAmount != null || _filterData.maxAmount != null) {
@@ -207,18 +220,20 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       } else {
         label = '≤ $max €';
       }
-      pills.add(ActiveFilterPill(
-        id: 'amount',
-        label: label,
-        onRemove: () {
-          setState(() {
-            _filterData = _filterData.copyWith(
-              minAmount: null,
-              maxAmount: null,
-            );
-          });
-        },
-      ));
+      pills.add(
+        ActiveFilterPill(
+          id: 'amount',
+          label: label,
+          onRemove: () {
+            setState(() {
+              _filterData = _filterData.copyWith(
+                minAmount: null,
+                maxAmount: null,
+              );
+            });
+          },
+        ),
+      );
     }
 
     return pills;
@@ -226,9 +241,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   @override
   Widget build(BuildContext context) {
-    return ref.watch(expenseProvider).when(
-          loading: () =>
-              const Center(child: FrostedCircularProgressIndicator()),
+    return ref
+        .watch(expenseProvider)
+        .when(
+          loading:
+              () => const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (expensesRaw) {
             final selectedMonth = ref.watch(selectedMonthProvider);
@@ -237,74 +254,90 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             final categories = ref.watch(categoryProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            final activeExpenses = expensesRaw
-                .where((e) => e.endDate == null)
-                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-                .map((e) => _withEffectiveDate(e, selectedMonth))
-                .toList();
+            final activeExpenses =
+                expensesRaw
+                    .where((e) => e.endDate == null)
+                    .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+                    .map((e) => _withEffectiveDate(e, selectedMonth))
+                    .toList();
 
-            final filteredExpenses =
-                _filterExpenses(activeExpenses, _filterData);
+            final filteredExpenses = _filterExpenses(
+              activeExpenses,
+              _filterData,
+            );
 
-            final recurring = filteredExpenses
-                .where((e) => e.frequencyEnum != Frequency.oneTime)
-                .toList();
-            final oneTime = filteredExpenses
-                .where((e) => e.frequencyEnum == Frequency.oneTime)
-                .toList();
+            final recurring =
+                filteredExpenses
+                    .where((e) => e.frequencyEnum != Frequency.oneTime)
+                    .toList();
+            final oneTime =
+                filteredExpenses
+                    .where((e) => e.frequencyEnum == Frequency.oneTime)
+                    .toList();
 
             final sortedOneTime = _sortBy.apply(oneTime);
             final sortedRecurring = _sortBy.apply(recurring);
 
             final descending = _sortBy != ExpenseSortBy.dateAsc;
-            final dayGroups = groupBy == ExpenseGroupBy.day
-                ? ExpenseGroupingService.groupByDay(sortedOneTime,
-                    descending: descending)
-                : null;
-            final weekGroups = groupBy == ExpenseGroupBy.week
-                ? ExpenseGroupingService.groupByWeek(
-                    sortedOneTime,
-                    selectedMonth,
-                    descending: descending,
-                  )
-                : null;
+            final dayGroups =
+                groupBy == ExpenseGroupBy.day
+                    ? ExpenseGroupingService.groupByDay(
+                      sortedOneTime,
+                      descending: descending,
+                    )
+                    : null;
+            final weekGroups =
+                groupBy == ExpenseGroupBy.week
+                    ? ExpenseGroupingService.groupByWeek(
+                      sortedOneTime,
+                      selectedMonth,
+                      descending: descending,
+                    )
+                    : null;
 
             final weeklyBars = ExpenseGroupingService.weeklyTotals(
               filteredExpenses,
               selectedMonth,
             );
 
-            final total =
-                filteredExpenses.fold<double>(0, (s, e) => s + e.amount);
+            final total = filteredExpenses.fold<double>(
+              0,
+              (s, e) => s + e.amount,
+            );
             final pills = _activeFilterPills(categories, accounts);
 
             final today = DateTime.now();
-            final isViewingCurrentMonth = today.year == selectedMonth.year &&
+            final isViewingCurrentMonth =
+                today.year == selectedMonth.year &&
                 today.month == selectedMonth.month;
 
             final isEmpty = filteredExpenses.isEmpty && _filterData.isEmpty;
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(top: 0, bottom: 145),
+              padding: const EdgeInsets.only(top: 16, bottom: 145),
               children: [
-                _hPad(ExpensesSummaryCard(
-                  total: total,
-                  filteredCount: filteredExpenses.length,
-                  totalCount: activeExpenses.length,
-                  weeklyTotals: weeklyBars,
-                )),
-                _hPad(ExpensesSearchBar(
-                  controller: _searchController,
-                  activeFiltersCount: _filterData.activeCount,
-                  onChanged: (value) {
-                    setState(() {
-                      _filterData = _filterData.copyWith(searchQuery: value);
-                    });
-                  },
-                  onOpenFilters: () =>
-                      _showFilterSheet(context, categories, accounts),
-                )),
+                _hPad(
+                  ExpensesSummaryCard(
+                    total: total,
+                    filteredCount: filteredExpenses.length,
+                    totalCount: activeExpenses.length,
+                    weeklyTotals: weeklyBars,
+                  ),
+                ),
+                _hPad(
+                  ExpensesSearchBar(
+                    controller: _searchController,
+                    activeFiltersCount: _filterData.activeCount,
+                    onChanged: (value) {
+                      setState(() {
+                        _filterData = _filterData.copyWith(searchQuery: value);
+                      });
+                    },
+                    onOpenFilters:
+                        () => _showFilterSheet(context, categories, accounts),
+                  ),
+                ),
                 const SizedBox(height: 10),
                 ExpensesQuickFilters(
                   categories: categories,
@@ -315,8 +348,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 ),
                 const SizedBox(height: 12),
                 if (pills.isNotEmpty) ...[
-                  _hPad(ActiveFilterPills(
-                      pills: pills, onReset: _resetFilters)),
+                  _hPad(
+                    ActiveFilterPills(pills: pills, onReset: _resetFilters),
+                  ),
                   const SizedBox(height: 12),
                 ],
                 if (isEmpty) ...[
@@ -324,74 +358,89 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   _hPad(_buildEmptyState(context)),
                 ],
                 if (sortedRecurring.isNotEmpty)
-                  _hPad(RecurringSummaryCard(
-                    count: sortedRecurring.length,
-                    total: sortedRecurring.fold<double>(
-                      0,
-                      (s, e) => s + e.amount,
+                  _hPad(
+                    RecurringSummaryCard(
+                      count: sortedRecurring.length,
+                      total: sortedRecurring.fold<double>(
+                        0,
+                        (s, e) => s + e.amount,
+                      ),
+                      expanded: _recurringExpanded,
+                      onToggle: _toggleRecurringExpanded,
+                      expandedContent: _buildRecurringRows(
+                        sortedRecurring,
+                        categories,
+                        beneficiaries,
+                      ),
                     ),
-                    expanded: _recurringExpanded,
-                    onToggle: _toggleRecurringExpanded,
-                    expandedContent: _buildRecurringRows(
-                      sortedRecurring,
-                      categories,
-                      beneficiaries,
-                    ),
-                  )),
+                  ),
                 if (dayGroups != null)
                   for (final group in dayGroups) ...[
-                    _hPad(ExpenseDayHeader(
-                      date: group.date,
-                      count: group.items.length,
-                      total: group.total,
-                      isToday: isViewingCurrentMonth &&
-                          group.date.day == today.day,
-                    )),
-                    _hPad(FrostedCard(
-                      margin: EdgeInsets.zero,
-                      borderRadius: 16,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 2),
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < group.items.length; i++)
-                            _buildRow(
-                              group.items[i],
-                              categories,
-                              beneficiaries,
-                              showDivider: i < group.items.length - 1,
-                            ),
-                        ],
+                    _hPad(
+                      ExpenseDayHeader(
+                        date: group.date,
+                        count: group.items.length,
+                        total: group.total,
+                        isToday:
+                            isViewingCurrentMonth &&
+                            group.date.day == today.day,
                       ),
-                    )),
+                    ),
+                    _hPad(
+                      FrostedCard(
+                        margin: EdgeInsets.zero,
+                        borderRadius: 16,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 2,
+                        ),
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < group.items.length; i++)
+                              _buildRow(
+                                group.items[i],
+                                categories,
+                                beneficiaries,
+                                showDivider: i < group.items.length - 1,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 if (weekGroups != null)
                   for (final group in weekGroups) ...[
-                    _hPad(ExpenseWeekHeader(
-                      weekNumber: group.weekNumber,
-                      weekStart: group.weekStart,
-                      weekEnd: group.weekEnd,
-                      count: group.items.length,
-                      total: group.total,
-                    )),
-                    _hPad(FrostedCard(
-                      margin: EdgeInsets.zero,
-                      borderRadius: 16,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 2),
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < group.items.length; i++)
-                            _buildRow(
-                              group.items[i],
-                              categories,
-                              beneficiaries,
-                              showDivider: i < group.items.length - 1,
-                              showDate: true,
-                            ),
-                        ],
+                    _hPad(
+                      ExpenseWeekHeader(
+                        weekNumber: group.weekNumber,
+                        weekStart: group.weekStart,
+                        weekEnd: group.weekEnd,
+                        count: group.items.length,
+                        total: group.total,
                       ),
-                    )),
+                    ),
+                    _hPad(
+                      FrostedCard(
+                        margin: EdgeInsets.zero,
+                        borderRadius: 16,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 2,
+                        ),
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < group.items.length; i++)
+                              _buildRow(
+                                group.items[i],
+                                categories,
+                                beneficiaries,
+                                showDivider: i < group.items.length - 1,
+                                showDate: true,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 const SizedBox(height: 12),
               ],
@@ -436,11 +485,12 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       (c) => c.id == expense.categoryId,
       orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
     );
-    final beneficiary = expense.beneficiaryId != null
-        ? beneficiaries
-            .where((b) => b.id == expense.beneficiaryId)
-            .firstOrNull
-        : null;
+    final beneficiary =
+        expense.beneficiaryId != null
+            ? beneficiaries
+                .where((b) => b.id == expense.beneficiaryId)
+                .firstOrNull
+            : null;
 
     return CompactExpenseRow(
       expense: expense,
@@ -504,9 +554,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   void _resetFilters() {
     setState(() {
-      _filterData = ExpenseFilterData(
-        searchQuery: _filterData.searchQuery,
-      );
+      _filterData = ExpenseFilterData(searchQuery: _filterData.searchQuery);
     });
   }
 
@@ -537,10 +585,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       accounts: accounts,
       resultCount: (filter) {
         final selectedMonth = ref.read(selectedMonthProvider);
-        final activeExpenses = (ref.read(expenseProvider).value ?? [])
-            .where((e) => e.endDate == null)
-            .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-            .toList();
+        final activeExpenses =
+            (ref.read(expenseProvider).value ?? [])
+                .where((e) => e.endDate == null)
+                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+                .toList();
         return _filterExpenses(activeExpenses, filter).length;
       },
       onApply: (updated) {

@@ -1,3 +1,8 @@
+## ✨ Améliorations
+
+- Onglet Revenus aligné sur le nouveau design : lignes compactes regroupées dans une carte unique, recherche persistante et filtres accessibles depuis la même barre
+- Espacements affinés sur la carte de résumé des emprunts
+
 ## 🚀 Nouveautés
 
 - Onglet Dépenses repensé pour le volume : liste chronologique groupée par jour ou par semaine (toggle dans l'en-tête), résumé "Récurrentes du mois" repliable au-dessus de la liste

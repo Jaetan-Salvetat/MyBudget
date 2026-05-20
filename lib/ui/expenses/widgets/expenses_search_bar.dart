@@ -6,12 +6,14 @@ class ExpensesSearchBar extends StatelessWidget {
   final int activeFiltersCount;
   final ValueChanged<String> onChanged;
   final VoidCallback onOpenFilters;
+  final String hintText;
 
   const ExpensesSearchBar({
     required this.controller,
     required this.activeFiltersCount,
     required this.onChanged,
     required this.onOpenFilters,
+    this.hintText = 'Rechercher un nom, un bénéficiaire…',
     super.key,
   });
 
@@ -53,7 +55,7 @@ class ExpensesSearchBar extends StatelessWidget {
                     decoration: InputDecoration(
                       isCollapsed: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      hintText: 'Rechercher un nom, un bénéficiaire…',
+                      hintText: hintText,
                       hintStyle: TextStyle(
                         fontSize: 13.5,
                         color: scheme.onSurface.withValues(alpha: 0.5),
