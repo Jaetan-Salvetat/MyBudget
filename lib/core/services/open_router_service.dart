@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:openai_dart/openai_dart.dart';
 
-import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
+import 'package:mybudget/core/services/expense_prompt_builder.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
@@ -26,49 +26,7 @@ class OpenRouterService {
     List<CategoryModel> categories,
     List<ExpenseModel> recurringExpenses,
   ) {
-    final categoriesJson = categories
-        .map((c) =>
-            '{"id": ${c.id}, "name": "${c.name}", "icon": "${c.icon}", "color": "${CategoryDefaults.colorToHex(c.color)}"}')
-        .join(', ');
-
-    final availableIcons = CategoryDefaults.iconNames.join(', ');
-
-    final availableColors = CategoryDefaults.colors
-        .map(CategoryDefaults.colorToHex)
-        .join(', ');
-
-    final buffer = StringBuffer()
-      ..writeln('Tu es un assistant de catégorisation de dépenses.')
-      ..writeln('Catégories existantes : [$categoriesJson]')
-      ..writeln('Icônes disponibles : [$availableIcons]')
-      ..writeln('Couleurs disponibles (hex) : [$availableColors]');
-
-    if (recurringExpenses.isNotEmpty) {
-      final recurringJson = recurringExpenses
-          .map((e) => '{"name": "${e.name}", "frequency": "${e.frequency}"}')
-          .join(', ');
-      buffer.writeln(
-        'Dépenses récurrentes de l\'utilisateur : [$recurringJson]',
-      );
-    }
-
-    buffer
-      ..writeln('Règles :')
-      ..writeln('1. Extrais le nom, le montant et la fréquence')
-      ..writeln(
-        '2. Si une catégorie existante correspond → categoryId (et newCategory/newCategoryIcon/newCategoryColor = null)',
-      )
-      ..writeln(
-        '3. Sinon → newCategory = "<nom>", newCategoryIcon = icône la plus pertinente, newCategoryColor = couleur hex la plus pertinente (et categoryId = null)',
-      )
-      ..writeln(
-        '4. Si le nom correspond à une dépense récurrente connue, utilise la même fréquence',
-      )
-      ..write(
-        '5. Sinon, fréquence = "Ponctuel" sauf si "mensuel" ou "annuel" précisé explicitement',
-      );
-
-    return buffer.toString();
+    return ExpensePromptBuilder.build(categories, recurringExpenses);
   }
 
   Future<QuickAddResultModel> parseExpense(

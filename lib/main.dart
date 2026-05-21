@@ -15,6 +15,8 @@ import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 
+
+
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
@@ -135,6 +137,7 @@ class _AppContent extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
     ref.watch(homeWidgetProvider);
+    ref.watch(litertEngineProvider);
 
     return MaterialApp(
       navigatorKey: navigatorKey,

@@ -52,13 +52,16 @@ QuickAddInput
   └─ [incompatible] → DeepSeek V4 Flash (cloud)
 ```
 
-## Fichiers concernés (à créer)
+## Fichiers concernés
 
-- `lib/core/services/ai/quick_add_ai_service.dart` — façade publique
-- `lib/core/services/ai/on_device_inference_service.dart` — Gemma 4 E2B via MediaPipe
-- `lib/core/services/ai/cloud_inference_service.dart` — DeepSeek via OpenRouter
-- `lib/core/services/ai/device_capability_checker.dart` — détection device
-- `lib/core/services/ai/model_downloader.dart` — gestion .task download/cache
+- `lib/core/services/litert_engine_service.dart` — singleton moteur LiteRT-LM
+- `lib/core/services/local_inference_service.dart` — inférence locale → QuickAddResultModel
+- `lib/core/services/model_download_service.dart` — download + vérification .litertlm
+- `lib/core/services/expense_prompt_builder.dart` — prompt partagé cloud/local
+- `lib/core/services/open_router_service.dart` — DeepSeek via OpenRouter (cloud fallback)
+- `lib/ui/settings/local_model_provider.dart` — notifier download/state
+- `lib/ui/settings/widgets/sections/local_ai_section.dart` — section Settings
+- `lib/ui/settings/widgets/local_model_bottom_sheet.dart` — bottom sheet install/delete
 
 ## Benchmark complet
 
@@ -72,9 +75,11 @@ Voir `/tmp/quick_add_tests/prompt.txt` — JSON strict avec enum de catégories 
 
 - [x] Benchmark modèles
 - [x] Choix des 2 modèles (Gemma 4 E2B + DeepSeek V4 Flash)
-- [ ] Intégration MediaPipe LLM Inference (Android)
-- [ ] Intégration OpenRouter API
-- [ ] Device capability detection
-- [ ] UX quick-add input
-- [ ] Cache `.task` + version checking
+- [x] Intégration LiteRT-LM (remplace MediaPipe, deprecated)
+- [x] Download on-demand depuis HuggingFace (background_downloader)
+- [x] Settings UI (opt-in, install/delete/progress)
+- [x] Service d'inférence locale (LocalInferenceService)
+- [x] Prompt partagé cloud/local (ExpensePromptBuilder)
+- [ ] Brancher QuickAddNotifier sur LocalInferenceService (fallback OpenRouter)
 - [ ] Tests unitaires + intégration
+- [ ] Test sur device physique Android

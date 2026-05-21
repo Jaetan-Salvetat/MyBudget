@@ -48,6 +48,47 @@ final class ObjectBoxServiceProvider
 
 String _$objectBoxServiceHash() => r'02c6f5f49e110b24ad5cbc0ccc9331e0dad3f814';
 
+@ProviderFor(litertEngine)
+final litertEngineProvider = LitertEngineProvider._();
+
+final class LitertEngineProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LitertEngineService?>,
+          LitertEngineService?,
+          FutureOr<LitertEngineService?>
+        >
+    with
+        $FutureModifier<LitertEngineService?>,
+        $FutureProvider<LitertEngineService?> {
+  LitertEngineProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'litertEngineProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$litertEngineHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<LitertEngineService?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LitertEngineService?> create(Ref ref) {
+    return litertEngine(ref);
+  }
+}
+
+String _$litertEngineHash() => r'c070ccbba69ea6735a6401bfaa0763f3d5e651da';
+
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();
 

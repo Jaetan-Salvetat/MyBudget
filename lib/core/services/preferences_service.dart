@@ -20,6 +20,10 @@ class PreferencesService {
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
 
+  static const String keyLocalModelStatus = 'localModelStatus';
+  static const String keyLocalModelPath = 'localModelPath';
+  static const String keyLocalModelVersion = 'localModelVersion';
+
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
@@ -130,6 +134,34 @@ class PreferencesService {
 
   static Future<void> setExpensesSortBy(String value) async {
     await _prefs.setString(keyExpensesSortBy, value);
+  }
+
+  static String getLocalModelStatus() {
+    return _prefs.getString(keyLocalModelStatus) ?? 'none';
+  }
+
+  static Future<void> setLocalModelStatus(String status) async {
+    await _prefs.setString(keyLocalModelStatus, status);
+  }
+
+  static String? getLocalModelPath() {
+    return _prefs.getString(keyLocalModelPath);
+  }
+
+  static Future<void> setLocalModelPath(String? path) async {
+    if (path == null) {
+      await _prefs.remove(keyLocalModelPath);
+    } else {
+      await _prefs.setString(keyLocalModelPath, path);
+    }
+  }
+
+  static String getLocalModelVersion() {
+    return _prefs.getString(keyLocalModelVersion) ?? '';
+  }
+
+  static Future<void> setLocalModelVersion(String version) async {
+    await _prefs.setString(keyLocalModelVersion, version);
   }
 
   static Future<void> clearAll() async {

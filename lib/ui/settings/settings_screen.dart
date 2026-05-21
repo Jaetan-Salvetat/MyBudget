@@ -5,6 +5,7 @@ import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/configuration_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/local_ai_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
@@ -44,6 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           InputSection(),
           DataSection(),
           ConfigurationSection(),
+          LocalAiSection(),
           HelpAndSupportSection(),
           AboutSection(),
           if (kDebugMode) DebugSection(),

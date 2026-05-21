@@ -273,4 +273,4 @@ final class ExpensesByCategoryProvider
 }
 
 String _$expensesByCategoryHash() =>
-    r'2e7cd2ea7e75fbd950db929edc57de78513dd1be';
+    r'7b9a8d4959dce977b753452293b6bcd6f7ea96a8';

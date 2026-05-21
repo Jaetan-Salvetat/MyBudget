@@ -66,6 +66,9 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   openai_dart: ^5.0.0
   material_symbols_icons: ^4.2928.1
+  flutter_litert_lm: ^0.3.0
+  background_downloader: ^9.5.4
+  disk_space_plus: ^0.2.6
 
 dev_dependencies:
   flutter_test:
