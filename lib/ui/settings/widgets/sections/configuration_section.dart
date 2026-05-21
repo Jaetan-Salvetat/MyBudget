@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:mybudget/core/enums/local_model_status.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/settings/local_model_provider.dart';
 import 'package:mybudget/ui/settings/widgets/gemini_api_key_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
@@ -35,6 +37,11 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
 
   @override
   Widget build(BuildContext context) {
+    final isAiReady =
+        ref.watch(localModelProvider).status == LocalModelStatus.ready;
+
+    if (!isAiReady) return const SizedBox.shrink();
+
     return SettingsSection(
       title: 'Configuration',
       children: [

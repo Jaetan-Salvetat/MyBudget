@@ -9,8 +9,10 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
+import 'package:mybudget/core/enums/local_model_status.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
+import 'package:mybudget/ui/settings/local_model_provider.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -69,6 +71,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    final isAiReady =
+        ref.watch(localModelProvider).status == LocalModelStatus.ready;
 
     final screens = [
       const DashboardScreen(isNested: true, fabTag: 'dashboard_fab_nested'),
@@ -88,10 +92,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            QuickAddSection(
-              onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-              onScanRequested: () => _showImageSourceChoice(context),
-            ),
+            if (isAiReady)
+              QuickAddSection(
+                onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+                onScanRequested: () => _showImageSourceChoice(context),
+              ),
             if (!keyboardVisible)
               FrostedBottomNavigationBar(
                 currentIndex: _selectedIndex,
@@ -117,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Stack(
           children: [
             IndexedStack(index: _selectedIndex, children: screens),
-            _QuickAddScrim(),
+            if (isAiReady) _QuickAddScrim(),
           ],
         ),
       ),
