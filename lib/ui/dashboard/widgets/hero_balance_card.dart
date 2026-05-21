@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -55,7 +56,7 @@ class HeroBalanceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _TopRow(isPositive: isPositive, accentColor: accentColor),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Center(
               child: BalanceDonut(
                 progress: progress,
@@ -74,7 +75,7 @@ class HeroBalanceCard extends StatelessWidget {
                   child: _DirectionChip(
                     label: 'Entrées',
                     amount: totalIncomes,
-                    icon: Icons.arrow_downward_rounded,
+                    icon: Symbols.arrow_downward_rounded,
                     background: finance.incomeSoft,
                     foreground: finance.incomeOnSoft,
                     accent: finance.income,
@@ -85,7 +86,7 @@ class HeroBalanceCard extends StatelessWidget {
                   child: _DirectionChip(
                     label: 'Sorties',
                     amount: totalExpenses,
-                    icon: Icons.arrow_upward_rounded,
+                    icon: Symbols.arrow_upward_rounded,
                     background: finance.expenseSoft,
                     foreground: finance.expenseOnSoft,
                     accent: finance.expense,
@@ -125,7 +126,7 @@ class _TopRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+              isPositive ? Symbols.trending_up_rounded : Symbols.trending_down_rounded,
               size: 14,
               color: accentColor,
               fill: 1,

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -21,19 +22,19 @@ class DataSection extends ConsumerWidget {
         SettingsTile(
           title: 'Exporter mes données',
           subtitle: 'Sauvegardez vos données financières',
-          leading: const Icon(Icons.upload_file),
+          leading: const Icon(Symbols.upload_file_rounded),
           onTap: () => _exportUserData(context, ref),
         ),
         SettingsTile(
           title: 'Importer mes données',
           subtitle: 'Restaurez vos données depuis une sauvegarde',
-          leading: const Icon(Icons.download),
+          leading: const Icon(Symbols.download_rounded),
           onTap: () => _importUserData(context, ref),
         ),
         SettingsTile(
           title: 'Supprimer toutes mes données',
           subtitle: 'Cette action est irréversible',
-          leading: const Icon(Icons.delete_forever),
+          leading: const Icon(Symbols.delete_forever_rounded),
           onTap: () => DataManagementDialogs.showDeleteDataConfirmationDialog(
               context, ref),
         ),

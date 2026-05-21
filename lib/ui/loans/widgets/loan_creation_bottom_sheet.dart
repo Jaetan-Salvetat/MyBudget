@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
@@ -222,14 +223,14 @@ class _LoanCreationBottomSheetState
         FrostedTextField(
           labelText: 'Nom du prêt',
           hintText: 'Ex: Prêt Immo Résidence',
-          prefixIcon: const Icon(Icons.description),
+          prefixIcon: const Icon(Symbols.description_rounded),
           controller: _nameController,
         ),
         const SizedBox(height: 12),
         FrostedTextField(
           labelText: 'Prêteur (Banque)',
           hintText: 'Ex: Banque Populaire',
-          prefixIcon: const Icon(Icons.account_balance),
+          prefixIcon: const Icon(Symbols.account_balance_rounded),
           controller: _lenderController,
         ),
       ],
@@ -257,7 +258,7 @@ class _LoanCreationBottomSheetState
           FrostedTextField(
             labelText: 'Montant emprunté',
             hintText: '200000',
-            prefixIcon: const Icon(Icons.euro),
+            prefixIcon: const Icon(Symbols.euro_rounded),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             controller: _amountController,
           ),
@@ -284,7 +285,7 @@ class _LoanCreationBottomSheetState
                   controller: TextEditingController(
                     text: DateFormat('dd/MM/yyyy').format(state.startDate),
                   ),
-                  prefixIcon: const Icon(Icons.calendar_today),
+                  prefixIcon: const Icon(Symbols.calendar_today_rounded),
                   onTap: () async {
                     final date = await showDatePicker(
                       context: context,
@@ -304,7 +305,7 @@ class _LoanCreationBottomSheetState
                   controller: TextEditingController(
                     text: state.dayOfMonth.toString(),
                   ),
-                  prefixIcon: const Icon(Icons.event),
+                  prefixIcon: const Icon(Symbols.event_rounded),
                   onTap: () async {
                     final selectedDate = await DateSelector.showDayPicker(
                       context: context,
@@ -388,7 +389,7 @@ class _LoanCreationBottomSheetState
             labelText: 'Taux d\'intérêt (Annuel)',
             hintText: '3.5',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            prefixIcon: const Icon(Icons.percent),
+            prefixIcon: const Icon(Symbols.percent_rounded),
             controller: _rateController,
           ),
         ],
@@ -417,7 +418,7 @@ class _LoanCreationBottomSheetState
               ),
               const SizedBox(width: 8),
               FrostedIconButton(
-                icon: Icons.help_outline,
+                icon: Symbols.help_rounded,
                 iconSize: 20,
                 color: Theme.of(context).colorScheme.primary,
                 onPressed: () => _showRepaymentTypeHelp(context),
@@ -456,7 +457,7 @@ class _LoanCreationBottomSheetState
             child: Row(
               children: [
                 Icon(
-                  Icons.info_outline,
+                  Symbols.info_rounded,
                   size: 18,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -487,7 +488,7 @@ class _LoanCreationBottomSheetState
               ),
               const SizedBox(width: 8),
               FrostedIconButton(
-                icon: Icons.help_outline,
+                icon: Symbols.help_rounded,
                 iconSize: 20,
                 color: Theme.of(context).colorScheme.primary,
                 onPressed: () => _showDeferredPeriodHelp(context),
@@ -518,7 +519,7 @@ class _LoanCreationBottomSheetState
               hintText: 'Ex: 24',
               keyboardType: TextInputType.number,
               controller: _deferredMonthsController,
-              prefixIcon: const Icon(Icons.schedule),
+              prefixIcon: const Icon(Symbols.schedule_rounded),
             ),
           ],
         ],
@@ -578,7 +579,7 @@ class _LoanCreationBottomSheetState
               child: Row(
                 children: [
                   Icon(
-                    Icons.lightbulb_outline,
+                    Symbols.lightbulb_rounded,
                     size: 18,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
@@ -647,7 +648,7 @@ class _LoanCreationBottomSheetState
               child: Row(
                 children: [
                   Icon(
-                    Icons.calculate_outlined,
+                    Symbols.calculate_rounded,
                     size: 18,
                     color: Theme.of(context).colorScheme.onTertiaryContainer,
                   ),

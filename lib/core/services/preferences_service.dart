@@ -17,6 +17,9 @@ class PreferencesService {
   static const String keyQuickAddCount = 'quickAddCount';
   static const String keyQuickAddMonth = 'quickAddMonth';
 
+  static const String keyExpensesGroupBy = 'expensesGroupBy';
+  static const String keyExpensesSortBy = 'expensesSortBy';
+
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
@@ -111,6 +114,22 @@ class PreferencesService {
       final current = _prefs.getInt(keyQuickAddCount) ?? 0;
       await _prefs.setInt(keyQuickAddCount, current + 1);
     }
+  }
+
+  static String getExpensesGroupBy() {
+    return _prefs.getString(keyExpensesGroupBy) ?? 'day';
+  }
+
+  static Future<void> setExpensesGroupBy(String value) async {
+    await _prefs.setString(keyExpensesGroupBy, value);
+  }
+
+  static String getExpensesSortBy() {
+    return _prefs.getString(keyExpensesSortBy) ?? 'dateDesc';
+  }
+
+  static Future<void> setExpensesSortBy(String value) async {
+    await _prefs.setString(keyExpensesSortBy, value);
   }
 
   static Future<void> clearAll() async {

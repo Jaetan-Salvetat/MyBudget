@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 abstract final class CategoryDefaults {
   static const List<int> colors = [
@@ -23,45 +24,45 @@ abstract final class CategoryDefaults {
   ];
 
   static const Map<String, IconData> icons = {
-    'home': Icons.home,
-    'restaurant': Icons.restaurant,
-    'local_cafe': Icons.local_cafe,
-    'local_bar': Icons.local_bar,
-    'shopping_cart': Icons.shopping_cart,
-    'shopping_bag': Icons.shopping_bag,
-    'directions_car': Icons.directions_car,
-    'directions_bus': Icons.directions_bus,
-    'two_wheeler': Icons.two_wheeler,
-    'local_gas_station': Icons.local_gas_station,
-    'flight_takeoff': Icons.flight_takeoff,
-    'hotel': Icons.hotel,
-    'medical_services': Icons.medical_services,
-    'local_pharmacy': Icons.local_pharmacy,
-    'fitness_center': Icons.fitness_center,
-    'sports_esports': Icons.sports_esports,
-    'movie': Icons.movie,
-    'music_note': Icons.music_note,
-    'menu_book': Icons.menu_book,
-    'school': Icons.school,
-    'child_care': Icons.child_care,
-    'pets': Icons.pets,
-    'checkroom': Icons.checkroom,
-    'dry_cleaning': Icons.dry_cleaning,
-    'wifi': Icons.wifi,
-    'phone_android': Icons.phone_android,
-    'subscriptions': Icons.subscriptions,
-    'account_balance_wallet': Icons.account_balance_wallet,
-    'account_balance': Icons.account_balance,
-    'savings': Icons.savings,
-    'card_giftcard': Icons.card_giftcard,
-    'volunteer_activism': Icons.volunteer_activism,
-    'build': Icons.build,
-    'handyman': Icons.handyman,
-    'local_laundry_service': Icons.local_laundry_service,
-    'spa': Icons.spa,
-    'self_improvement': Icons.self_improvement,
-    'label': Icons.label,
-    'more_horiz': Icons.more_horiz,
+    'home': Symbols.home_rounded,
+    'restaurant': Symbols.restaurant_rounded,
+    'local_cafe': Symbols.local_cafe_rounded,
+    'local_bar': Symbols.local_bar_rounded,
+    'shopping_cart': Symbols.shopping_cart_rounded,
+    'shopping_bag': Symbols.shopping_bag_rounded,
+    'directions_car': Symbols.directions_car_rounded,
+    'directions_bus': Symbols.directions_bus_rounded,
+    'two_wheeler': Symbols.two_wheeler_rounded,
+    'local_gas_station': Symbols.local_gas_station_rounded,
+    'flight_takeoff': Symbols.flight_takeoff_rounded,
+    'hotel': Symbols.hotel_rounded,
+    'medical_services': Symbols.medical_services_rounded,
+    'local_pharmacy': Symbols.local_pharmacy_rounded,
+    'fitness_center': Symbols.fitness_center_rounded,
+    'sports_esports': Symbols.sports_esports_rounded,
+    'movie': Symbols.movie_rounded,
+    'music_note': Symbols.music_note_rounded,
+    'menu_book': Symbols.menu_book_rounded,
+    'school': Symbols.school_rounded,
+    'child_care': Symbols.child_care_rounded,
+    'pets': Symbols.pets_rounded,
+    'checkroom': Symbols.checkroom_rounded,
+    'dry_cleaning': Symbols.dry_cleaning_rounded,
+    'wifi': Symbols.wifi_rounded,
+    'phone_android': Symbols.phone_android_rounded,
+    'subscriptions': Symbols.subscriptions_rounded,
+    'account_balance_wallet': Symbols.account_balance_wallet_rounded,
+    'account_balance': Symbols.account_balance_rounded,
+    'savings': Symbols.savings_rounded,
+    'card_giftcard': Symbols.card_giftcard_rounded,
+    'volunteer_activism': Symbols.volunteer_activism_rounded,
+    'build': Symbols.build_rounded,
+    'handyman': Symbols.handyman_rounded,
+    'local_laundry_service': Symbols.local_laundry_service_rounded,
+    'spa': Symbols.spa_rounded,
+    'self_improvement': Symbols.self_improvement_rounded,
+    'label': Symbols.label_rounded,
+    'more_horiz': Symbols.more_horiz_rounded,
   };
 
   static const String defaultIcon = 'label';
@@ -71,7 +72,7 @@ abstract final class CategoryDefaults {
     if (RegExp(r'^\d+$').hasMatch(iconKey)) {
       return IconData(int.parse(iconKey), fontFamily: 'MaterialIcons');
     }
-    return icons[iconKey] ?? Icons.category;
+    return icons[iconKey] ?? Symbols.category_rounded;
   }
 
   static List<String> get iconNames => icons.keys.toList();

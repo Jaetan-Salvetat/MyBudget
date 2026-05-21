@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class MonthSelector extends ConsumerWidget {
-  const MonthSelector({super.key});
+  final AlignmentGeometry alignment;
+
+  const MonthSelector({super.key, this.alignment = Alignment.center});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +19,8 @@ class MonthSelector extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Center(
+      child: Align(
+        alignment: alignment,
         child: Material(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(9999),
@@ -37,7 +41,7 @@ class MonthSelector extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ChevronButton(
-                    icon: Icons.chevron_left_rounded,
+                    icon: Symbols.chevron_left_rounded,
                     onPressed: () => ref.read(selectedMonthProvider.notifier).previousMonth(),
                   ),
                   Padding(
@@ -53,7 +57,7 @@ class MonthSelector extends ConsumerWidget {
                     ),
                   ),
                   _ChevronButton(
-                    icon: Icons.chevron_right_rounded,
+                    icon: Symbols.chevron_right_rounded,
                     onPressed: () => ref.read(selectedMonthProvider.notifier).nextMonth(),
                   ),
                 ],

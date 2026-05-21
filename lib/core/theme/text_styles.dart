@@ -22,11 +22,12 @@ class AppTextStyles {
     double fontSize = 48,
     double? height,
     Color? color,
+    FontWeight fontWeight = FontWeight.w400,
   }) {
-    return GoogleFonts.instrumentSerif(
+    return GoogleFonts.ptSerif(
       fontSize: fontSize,
       fontStyle: FontStyle.italic,
-      fontWeight: FontWeight.w400,
+      fontWeight: fontWeight,
       height: height,
       color: color,
       letterSpacing: -0.02 * fontSize,
@@ -40,6 +41,22 @@ class AppTextStyles {
       height: 14 / 10,
       fontWeight: FontWeight.w500,
       letterSpacing: 1.0,
+      color: color,
+    );
+  }
+
+  static TextStyle mono({
+    required double fontSize,
+    double? lineHeight,
+    FontWeight fontWeight = FontWeight.w500,
+    double letterSpacingEm = 0,
+    Color? color,
+  }) {
+    return GoogleFonts.jetBrainsMono(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      height: (lineHeight ?? 14) / fontSize,
+      letterSpacing: letterSpacingEm * fontSize,
       color: color,
     );
   }

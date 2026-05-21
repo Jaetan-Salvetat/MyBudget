@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +59,7 @@ class _QuickAddConfirmationCardState
     }
     final categories = ref.read(categoryProvider).value ?? [];
     final cat = categories.where((c) => c.id == widget.result.categoryId);
-    return cat.isNotEmpty ? cat.first.getIconData() : Icons.category;
+    return cat.isNotEmpty ? cat.first.getIconData() : Symbols.category_rounded;
   }
 
   Color _categoryColor() {
@@ -145,7 +146,7 @@ class _QuickAddConfirmationCardState
           Row(
             children: [
               Icon(
-                Icons.auto_awesome,
+                Symbols.auto_awesome_rounded,
                 size: 16,
                 color: scheme.primary,
                 fill: 1,
@@ -176,7 +177,7 @@ class _QuickAddConfirmationCardState
               GestureDetector(
                 onTap: () => ref.read(quickAddProvider.notifier).reset(),
                 child: Icon(
-                  Icons.close,
+                  Symbols.close_rounded,
                   size: 18,
                   color: scheme.onSurfaceVariant,
                 ),
@@ -207,7 +208,7 @@ class _QuickAddConfirmationCardState
               Expanded(
                 child: FrostedOutlinedButton.icon(
                   onPressed: _openFullForm,
-                  icon: const Icon(Icons.edit, size: 16),
+                  icon: const Icon(Symbols.edit_rounded, size: 16),
                   label: const Text('Modifier'),
                 ),
               ),
@@ -215,7 +216,7 @@ class _QuickAddConfirmationCardState
               Expanded(
                 child: FrostedFilledButton.icon(
                   onPressed: _selectedAccountId != null ? _confirm : null,
-                  icon: const Icon(Icons.check, size: 16),
+                  icon: const Icon(Symbols.check_rounded, size: 16),
                   label: const Text('Confirmer'),
                 ),
               ),
@@ -358,7 +359,7 @@ class _AccountSelector extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.account_balance_wallet_outlined,
+              Symbols.account_balance_wallet_rounded,
               size: 16,
               color: scheme.onSurfaceVariant,
             ),
@@ -388,7 +389,7 @@ class _AccountSelector extends StatelessWidget {
             ),
             if (accounts.length > 1)
               Icon(
-                Icons.expand_more,
+                Symbols.expand_more_rounded,
                 size: 16,
                 color: scheme.onSurfaceVariant,
               ),
@@ -407,12 +408,12 @@ class _AccountSelector extends StatelessWidget {
         children: accounts
             .map(
               (a) => FrostedListTile(
-                leading: const Icon(Icons.account_balance_wallet_outlined),
+                leading: const Icon(Symbols.account_balance_wallet_rounded),
                 title: Text(a.name),
                 subtitle: Text(a.bank),
                 trailing: a.id == selectedId
                     ? Icon(
-                        Icons.check,
+                        Symbols.check_rounded,
                         color: Theme.of(context).colorScheme.primary,
                       )
                     : null,

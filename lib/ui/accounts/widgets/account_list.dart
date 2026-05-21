@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
-import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
+import 'package:mybudget/ui/accounts/widgets/account_card.dart';
+import 'package:mybudget/ui/accounts/widgets/add_account_tile.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class AccountList extends ConsumerWidget {
   const AccountList({super.key});
@@ -21,8 +27,8 @@ class AccountList extends ConsumerWidget {
     return ref
         .watch(accountProvider)
         .when(
-          loading:
-              () => const Center(child: FrostedCircularProgressIndicator()),
+          loading: () =>
+              const Center(child: FrostedCircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (accounts) {
             if (accounts.isEmpty) {
@@ -30,71 +36,24 @@ class AccountList extends ConsumerWidget {
                 child: EmptyState(
                   message: 'Aucun compte',
                   subMessage: 'Ajoutez un compte pour commencer',
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: Symbols.account_balance_wallet_rounded,
                   buttonText: 'Ajouter un compte',
                   onPressed: () => _showAddAccountDialog(context, ref),
                 ),
               );
             }
 
-            final now = DateTime.now();
-            return ListView.builder(
-              padding: const EdgeInsets.only(
-                top: 120,
-                bottom: 145,
-                left: 16,
-                right: 16,
-              ),
-              itemCount: accounts.length + 1,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return const MonthSelector();
-                }
-                final account = accounts[index - 1];
-                final balance = ref
-                    .read(accountProvider.notifier)
-                    .getAccountBalance(account.id);
-
-                final accountExpenses = ref
-                    .read(expenseProvider.notifier)
-                    .getExpensesForAccount(account.id)
-                    .where((e) => e.endDate == null)
-                    .toList();
-
-                final currentMonthExpenses = accountExpenses
-                    .where((e) =>
-                        e.frequencyEnum == Frequency.monthly ||
-                        (e.frequencyEnum == Frequency.annual &&
-                            e.startDate.month == now.month))
-                    .fold(0.0, (double sum, e) => sum + e.amount);
-
-                final monthlyRevenues = ref
-                    .read(revenueProvider.notifier)
-                    .getRevenuesForAccount(account.id)
-                    .where((r) => r.endDate == null)
-                    .fold(0.0, (double sum, r) => sum + r.amount);
-
-                final transferNotifier = ref.read(transferProvider.notifier);
-                final outgoingTransfers = transferNotifier.getOutgoingTotalForAccount(account.id);
-                final incomingTransfers = transferNotifier.getIncomingTotalForAccount(account.id);
-
-                return _AccountCard(
-                  account: account,
-                  balance: balance,
-                  currentMonthExpenses: currentMonthExpenses + outgoingTransfers,
-                  monthlyRevenues: monthlyRevenues + incomingTransfers,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => AccountDetailsScreen(account: account),
-                        settings: RouteSettings(arguments: account),
-                      ),
-                    );
-                  },
-                );
-              },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final account in accounts) ...[
+                  _AccountCardEntry(account: account),
+                  const SizedBox(height: 12),
+                ],
+                AddAccountTile(
+                  onTap: () => _showAddAccountDialog(context, ref),
+                ),
+              ],
             );
           },
         );
@@ -113,7 +72,7 @@ class AccountList extends ConsumerWidget {
           if (context.mounted) {
             FrostedSnackbar.show(
               context,
-              message: 'Erreur lors de l\'ajout: \$e',
+              message: 'Erreur lors de l\'ajout: $e',
             );
           }
         }
@@ -123,174 +82,79 @@ class AccountList extends ConsumerWidget {
   }
 }
 
-class _AccountCard extends StatelessWidget {
+class _AccountCardEntry extends ConsumerWidget {
   final AccountModel account;
-  final double balance;
-  final double currentMonthExpenses;
-  final double monthlyRevenues;
-  final VoidCallback onTap;
 
-  const _AccountCard({
-    required this.account,
-    required this.balance,
-    required this.currentMonthExpenses,
-    required this.monthlyRevenues,
-    required this.onTap,
-  });
+  const _AccountCardEntry({required this.account});
 
   @override
-  Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final balanceColor =
-        balance >= 0
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.error;
-    final now = DateTime.now();
-    final monthLabel = DateFormat.MMMM('fr_FR').format(now);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    final expenses = ref.watch(expenseProvider).value ?? [];
+    final revenues = ref.watch(revenueProvider).value ?? [];
 
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 16),
-      borderRadius: 20,
-      padding: const EdgeInsets.all(24),
-      onClick: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                account.bank.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              Icon(
-                Icons.contactless,
-                size: 20,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+    final monthlyLoanPayments = ref
+        .watch(loanProvider.notifier)
+        .getTotalMonthlyPaymentsForAccount(account.id);
 
-          Text(
-            account.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+    final transferNotifier = ref.watch(transferProvider.notifier);
+    final outgoingTransfers =
+        transferNotifier.getOutgoingTotalForAccount(account.id);
+    final incomingTransfers =
+        transferNotifier.getIncomingTotalForAccount(account.id);
 
-          const SizedBox(height: 32),
+    final totalExpenses = expenses
+        .where((e) => e.accountId == account.id)
+        .where((e) => isActiveForMonth(e.startDate, e.endDate, selectedMonth))
+        .fold(0.0, (sum, e) => sum + _amountIfApplicable(e, selectedMonth));
 
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              currencyFormat.format(balance),
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: balanceColor,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ),
+    final totalRevenues = revenues
+        .where((r) => r.accountId == account.id)
+        .where((r) => isActiveForMonth(r.startDate, r.endDate, selectedMonth))
+        .fold(0.0, (sum, r) => sum + _revenueAmountIfApplicable(r, selectedMonth));
 
-          const SizedBox(height: 16),
-          FrostedDivider(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 12),
+    final charges = totalExpenses + monthlyLoanPayments + outgoingTransfers;
+    final incomes = totalRevenues + incomingTransfers;
 
-          Text(
-            'En $monthLabel',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  context,
-                  'Charges',
-                  currentMonthExpenses,
-                  Icons.arrow_downward,
-                  Theme.of(context).colorScheme.error,
-                  currencyFormat,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 32,
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  context,
-                  'Revenus',
-                  monthlyRevenues,
-                  Icons.arrow_upward,
-                  Theme.of(context).colorScheme.primary,
-                  currencyFormat,
-                ),
-              ),
-            ],
-          ),
-        ],
+    return AccountCard(
+      account: account,
+      monthlyIncomes: incomes,
+      monthlyCharges: charges,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AccountDetailsScreen(account: account),
+          settings: RouteSettings(arguments: account),
+        ),
       ),
     );
   }
 
-  Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    double amount,
-    IconData icon,
-    Color color,
-    NumberFormat formatter,
-  ) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 12, color: color.withValues(alpha: 0.8)),
-            const SizedBox(width: 4),
-            Text(
-              label.toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color.withValues(alpha: 0.8),
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          formatter.format(amount),
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-      ],
-    );
+  double _amountIfApplicable(ExpenseModel e, DateTime selectedMonth) {
+    switch (e.frequencyEnum) {
+      case Frequency.monthly:
+        return e.amount;
+      case Frequency.annual:
+        return e.startDate.month == selectedMonth.month ? e.amount : 0;
+      case Frequency.oneTime:
+        return e.startDate.year == selectedMonth.year &&
+                e.startDate.month == selectedMonth.month
+            ? e.amount
+            : 0;
+    }
+  }
+
+  double _revenueAmountIfApplicable(RevenueModel r, DateTime selectedMonth) {
+    switch (r.frequencyEnum) {
+      case Frequency.monthly:
+        return r.amount;
+      case Frequency.annual:
+        return r.startDate.month == selectedMonth.month ? r.amount : 0;
+      case Frequency.oneTime:
+        return r.startDate.year == selectedMonth.year &&
+                r.startDate.month == selectedMonth.month
+            ? r.amount
+            : 0;
+    }
   }
 }

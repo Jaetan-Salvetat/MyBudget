@@ -1,179 +1,113 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/ui/common/widgets/category_icon.dart';
+import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class AccountHeroCard extends StatelessWidget {
   final AccountModel account;
   final double balance;
-  final double totalRevenues;
-  final double totalExpenses;
-  final double totalTransfers;
-  final NumberFormat formatter;
 
   const AccountHeroCard({
+    super.key,
     required this.account,
     required this.balance,
-    required this.totalRevenues,
-    required this.totalExpenses,
-    required this.totalTransfers,
-    required this.formatter,
-    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final balanceColor =
-        balance >= 0
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.error;
+    final scheme = Theme.of(context).colorScheme;
+    final finance = context.financeColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isPositive = balance >= 0;
+    final balanceColor = isPositive ? finance.income : finance.expense;
 
-    return FrostedCard(
-      borderRadius: 24,
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.account_balance,
-                    size: 16,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    account.bank.toUpperCase(),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-              Icon(
-                Icons.contactless,
-                size: 20,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ],
+    final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 2,
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.30 : 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
-          const SizedBox(height: 32),
-
-          Text(
-            account.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.8),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            formatter.format(balance),
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: balanceColor,
-              letterSpacing: -1,
-            ),
-          ),
-
-          const SizedBox(height: 32),
-          const FrostedDivider(),
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  context,
-                  'Charges',
-                  totalExpenses,
-                  Icons.arrow_downward,
-                  Theme.of(context).colorScheme.error,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  context,
-                  'Revenus',
-                  totalRevenues,
-                  Icons.arrow_upward,
-                  Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  context,
-                  'Virements',
-                  totalTransfers,
-                  Icons.swap_horiz,
-                  totalTransfers >= 0
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
-                ),
-              ),
-            ],
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    double amount,
-    IconData icon,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      child: FrostedContainer(
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+        borderRadius: BorderRadius.circular(22),
+        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
+        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 14, color: color.withValues(alpha: 0.8)),
-            const SizedBox(width: 4),
+            Row(
+              children: [
+                CategoryIcon(
+                  icon: Symbols.account_balance_wallet_rounded,
+                  color: scheme.primary,
+                  size: CategoryIconSize.md,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        account.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 20 / 16,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        account.bank,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 16 / 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            const Eyebrow('Solde du mois'),
+            const SizedBox(height: 4),
             Text(
-              label.toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color.withValues(alpha: 0.8),
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
+              '${isPositive ? '+' : '−'}${formatter.format(balance.abs())}',
+              style: AppTextStyles.displaySerifItalic(
+                fontSize: 48,
+                height: 52 / 48,
+                color: balanceColor,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          formatter.format(amount),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

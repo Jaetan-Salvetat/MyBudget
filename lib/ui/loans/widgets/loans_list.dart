@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
@@ -31,39 +32,22 @@ class LoansList extends ConsumerWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(
-                top: 16,
-                bottom: 100,
-                left: 16,
-                right: 16,
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 145),
               children: [
                 _buildSummaryCard(context, ref),
-                const SizedBox(height: 24),
-                if (isEmpty) _buildEmptyState(context, ref),
+                if (isEmpty) ...[
+                  const SizedBox(height: 24),
+                  _buildEmptyState(context, ref),
+                ],
                 if (activeLoans.isNotEmpty) ...[
-                  Text(
-                    'Emprunts actifs (${activeLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  _buildSectionTitle(context, 'Actifs', activeLoans.length),
                   ...activeLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
                 ],
                 if (completedLoans.isNotEmpty) ...[
-                  const SizedBox(height: 32),
-                  Text(
-                    'Emprunts remboursés (${completedLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  _buildSectionTitle(
+                      context, 'Remboursés', completedLoans.length),
                   ...completedLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
@@ -72,6 +56,38 @@ class LoansList extends ConsumerWidget {
             );
           },
         );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title, int count) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.09 * 11,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {
@@ -137,10 +153,14 @@ class LoansList extends ConsumerWidget {
     return EmptyState(
       message: 'Aucun emprunt enregistré',
       subMessage: 'Ajoutez vos emprunts pour suivre vos remboursements',
-      icon: Icons.payments,
+      icon: Symbols.payments_rounded,
       buttonText: 'Ajouter un emprunt',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];
+        if (accounts.isEmpty) {
+          _showNoAccountDialog(context, 'un emprunt');
+          return;
+        }
         final loanNotifier = ref.read(loanProvider.notifier);
 
         LoanCreationBottomSheet.show(
@@ -152,6 +172,23 @@ class LoansList extends ConsumerWidget {
           onCancel: () {},
         );
       },
+    );
+  }
+
+  void _showNoAccountDialog(BuildContext context, String action) {
+    FrostedDialog.show(
+      context: context,
+      barrierDismissible: false,
+      title: const Text('Aucun compte disponible'),
+      content: Text(
+        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
+      ),
+      actions: [
+        FrostedTextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

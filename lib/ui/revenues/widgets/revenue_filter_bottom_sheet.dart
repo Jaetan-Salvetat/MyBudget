@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -155,7 +156,7 @@ class _RevenueFilterBottomSheetState extends State<RevenueFilterBottomSheet> {
                 controller: _minAmountController,
                 labelText: 'Min',
                 hintText: '0.00',
-                prefixIcon: const Icon(Icons.euro),
+                prefixIcon: const Icon(Symbols.euro_rounded),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -167,7 +168,7 @@ class _RevenueFilterBottomSheetState extends State<RevenueFilterBottomSheet> {
                 controller: _maxAmountController,
                 labelText: 'Max',
                 hintText: '∞',
-                prefixIcon: const Icon(Icons.euro),
+                prefixIcon: const Icon(Symbols.euro_rounded),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),

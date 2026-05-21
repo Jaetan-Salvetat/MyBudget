@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:objectbox/objectbox.dart';
 
 enum LoanStatus {
-  pending('À commencer', Icons.schedule),
-  partiallyPaid('En cours', Icons.pending_actions),
-  completed('Remboursé', Icons.check_circle);
+  pending('À commencer', Symbols.schedule_rounded),
+  partiallyPaid('En cours', Symbols.pending_actions_rounded),
+  completed('Remboursé', Symbols.check_circle_rounded);
 
   final String label;
   final IconData icon;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 
@@ -57,7 +57,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
 
     final isFirstLaunch = PreferencesService.isFirstLaunch();
-    final hasSeenUpdateOnboarding = PreferencesService.hasSeenUpdateOnboarding();
+    final hasSeenUpdateOnboarding =
+        PreferencesService.hasSeenUpdateOnboarding();
 
     final Widget destination;
     if (isFirstLaunch) {
@@ -81,53 +82,114 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
+    final gradientStart = Color.lerp(scheme.primary, Colors.white, 0.08)!;
+    final gradientEnd = Color.lerp(scheme.primary, scheme.secondary, 0.7)!;
 
-    return FrostedScaffold(
-      child: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _opacityAnimation.value,
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FrostedCard(
-                      padding: const EdgeInsets.all(32),
-                      borderRadius: 40,
-                      child: Icon(
-                        Icons.account_balance_wallet_rounded,
-                        size: 80,
-                        color: colorScheme.primary,
+    return Scaffold(
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: const Alignment(0.6, -1.0),
+            end: const Alignment(-0.4, 1.0),
+            colors: [gradientStart, scheme.primary, gradientEnd],
+            stops: const [0.0, 0.45, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Center(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _opacityAnimation.value,
+                      child: Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: child,
                       ),
-                    ),
-                    const SizedBox(height: 40),
-
-                    Text(
-                      'MyBudget',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                        letterSpacing: 1.2,
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 116,
+                        height: 116,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            width: 1,
+                            color: Colors.white.withValues(alpha: 0.40),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Image.asset(
+                            'assets/logo.png',
+                            width: 84,
+                            height: 84,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Text(
-                      'Gérez l\'essentiel',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: colorScheme.primary.withValues(alpha: 0.8),
-                        letterSpacing: 0.5,
+                      const SizedBox(height: 28),
+                      const Text(
+                        'MyBudget',
+                        style: TextStyle(
+                          fontSize: 38,
+                          height: 44 / 38,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.030 * 38,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Text(
+                        "Gérez l'essentiel.",
+                        style: AppTextStyles.displaySerifItalic(
+                          fontSize: 22,
+                          height: 26 / 22,
+                          color: Colors.white.withValues(alpha: 0.86),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            );
-          },
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 60,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    3,
+                    (i) => Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

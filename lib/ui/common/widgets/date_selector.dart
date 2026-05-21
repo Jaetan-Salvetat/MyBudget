@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -203,7 +204,7 @@ class DateSelector {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FrostedIconButton(
-                        icon: Icons.chevron_left,
+                        icon: Symbols.chevron_left_rounded,
                         onPressed: tempYear > firstYear
                             ? () => setStateDialog(() => tempYear--)
                             : null,
@@ -216,7 +217,7 @@ class DateSelector {
                         ),
                       ),
                       FrostedIconButton(
-                        icon: Icons.chevron_right,
+                        icon: Symbols.chevron_right_rounded,
                         onPressed: tempYear < lastYear
                             ? () => setStateDialog(() => tempYear++)
                             : null,

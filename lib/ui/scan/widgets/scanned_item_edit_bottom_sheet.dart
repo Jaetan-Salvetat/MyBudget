@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
@@ -95,7 +96,7 @@ class _ScannedItemEditBottomSheetState
           FrostedTextField(
             controller: _amountController,
             labelText: 'Montant (€)',
-            prefixIcon: const Icon(Icons.euro),
+            prefixIcon: const Icon(Symbols.euro_rounded),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => _handleAmountChanged(),
           ),
@@ -103,7 +104,7 @@ class _ScannedItemEditBottomSheetState
           FrostedTextField(
             controller: _discountController,
             labelText: 'Remise (€)',
-            prefixIcon: const Icon(Icons.discount_outlined),
+            prefixIcon: const Icon(Symbols.sell_rounded),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => _handleDiscountChanged(),
           ),
@@ -138,7 +139,7 @@ class _ScannedItemEditBottomSheetState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.delete_outline, color: theme.colorScheme.error),
+                  Icon(Symbols.delete_rounded, color: theme.colorScheme.error),
                   const SizedBox(width: 8),
                   Text(
                     'Supprimer cet article',

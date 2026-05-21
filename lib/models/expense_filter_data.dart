@@ -1,3 +1,5 @@
+import 'package:mybudget/core/enums/frequency.dart';
+
 class ExpenseFilterData {
   int? startDay;
   int? endDay;
@@ -6,7 +8,7 @@ class ExpenseFilterData {
   String? searchQuery;
   List<int> categoryIds;
   List<int> accountIds;
-  List<String> frequencies;
+  List<Frequency> types;
 
   ExpenseFilterData({
     this.startDay,
@@ -16,7 +18,7 @@ class ExpenseFilterData {
     this.searchQuery,
     this.categoryIds = const [],
     this.accountIds = const [],
-    this.frequencies = const [],
+    this.types = const [],
   });
 
   bool get isEmpty {
@@ -27,6 +29,38 @@ class ExpenseFilterData {
         (searchQuery == null || searchQuery!.isEmpty) &&
         categoryIds.isEmpty &&
         accountIds.isEmpty &&
-        frequencies.isEmpty;
+        types.isEmpty;
+  }
+
+  int get activeCount {
+    int count = 0;
+    if (minAmount != null || maxAmount != null) count++;
+    if (categoryIds.isNotEmpty) count++;
+    if (accountIds.isNotEmpty) count++;
+    if (types.isNotEmpty) count++;
+    if (startDay != null || endDay != null) count++;
+    return count;
+  }
+
+  ExpenseFilterData copyWith({
+    int? startDay,
+    int? endDay,
+    double? minAmount,
+    double? maxAmount,
+    String? searchQuery,
+    List<int>? categoryIds,
+    List<int>? accountIds,
+    List<Frequency>? types,
+  }) {
+    return ExpenseFilterData(
+      startDay: startDay ?? this.startDay,
+      endDay: endDay ?? this.endDay,
+      minAmount: minAmount ?? this.minAmount,
+      maxAmount: maxAmount ?? this.maxAmount,
+      searchQuery: searchQuery ?? this.searchQuery,
+      categoryIds: categoryIds ?? this.categoryIds,
+      accountIds: accountIds ?? this.accountIds,
+      types: types ?? this.types,
+    );
   }
 }

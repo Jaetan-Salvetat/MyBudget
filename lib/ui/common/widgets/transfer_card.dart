@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/transfer.dart';
@@ -30,8 +31,8 @@ class TransferCard extends StatelessWidget {
         ? 'Vers $otherAccountName'
         : 'Depuis $otherAccountName';
     final directionIcon = isOutgoing
-        ? Icons.arrow_upward
-        : Icons.arrow_downward;
+        ? Symbols.arrow_upward_rounded
+        : Symbols.arrow_downward_rounded;
 
     return FrostedCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -79,7 +80,7 @@ class TransferCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.swap_horiz,
+                              Symbols.swap_horiz_rounded,
                               size: 14,
                               color: directionColor,
                             ),
@@ -128,7 +129,7 @@ class TransferCard extends StatelessWidget {
                     ],
                   ),
                   FrostedIconButton(
-                    icon: Icons.more_vert,
+                    icon: Symbols.more_vert_rounded,
                     onPressed: () => _showOptionsBottomSheet(context),
                   ),
                 ],
@@ -148,7 +149,7 @@ class TransferCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FrostedListTile(
-            leading: const Icon(Icons.edit),
+            leading: const Icon(Symbols.edit_rounded),
             title: const Text('Modifier'),
             onTap: () {
               Navigator.pop(context);
@@ -157,7 +158,7 @@ class TransferCard extends StatelessWidget {
           ),
           FrostedListTile(
             leading: Icon(
-              Icons.delete,
+              Symbols.delete_rounded,
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(

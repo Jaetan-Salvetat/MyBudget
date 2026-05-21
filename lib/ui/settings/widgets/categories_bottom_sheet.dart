@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/settings/category_provider.dart';
@@ -48,7 +49,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
                         ),
                         title: Text(category.name),
                         trailing: FrostedIconButton(
-                          icon: Icons.delete,
+                          icon: Symbols.delete_rounded,
                           onPressed:
                               () => _showDeleteConfirmation(
                                 context,
@@ -65,7 +66,7 @@ class CategoriesBottomSheet extends ConsumerWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: FrostedFilledButton.icon(
                       onPressed: () => _showAddCategoryForm(context, ref),
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Symbols.add_rounded),
                       label: const Text('Ajouter une catégorie'),
                     ),
                   ),

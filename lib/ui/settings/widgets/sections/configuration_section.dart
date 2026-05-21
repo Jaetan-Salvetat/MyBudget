@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -41,7 +42,7 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
           title: 'Ajout rapide (IA)',
           subtitle:
               '${QuickAddNotifier.monthlyLimit - PreferencesService.getQuickAddCount()}/${QuickAddNotifier.monthlyLimit} requêtes restantes ce mois',
-          leading: const Icon(Icons.bolt),
+          leading: const Icon(Symbols.bolt_rounded),
         ),
         SettingsTile(
           title: _hasCustomKey
@@ -51,7 +52,7 @@ class _ConfigurationSectionState extends ConsumerState<ConfigurationSection> {
               ? 'Vous utilisez vos propres quotas Gemini'
               : 'Recommandé pour éviter les limites partagées',
           leading: Icon(
-            _hasCustomKey ? Icons.vpn_key : Icons.vpn_key_outlined,
+            _hasCustomKey ? Symbols.vpn_key_rounded : Symbols.vpn_key_rounded,
           ),
           onTap: () async {
             await GeminiApiKeyBottomSheet.show(

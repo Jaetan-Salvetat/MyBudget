@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -216,7 +217,7 @@ class DashboardNotifier extends _$DashboardNotifier {
         amount: expense.amount,
         date: DateTime(selectedMonth.year, selectedMonth.month, day),
         direction: MovementDirection.outgoing,
-        icon: category?.getIconData() ?? Icons.category_rounded,
+        icon: category?.getIconData() ?? Symbols.category_rounded,
         color: category != null ? Color(category.color) : Colors.grey,
         payee: _beneficiaryName(beneficiaryById, expense.beneficiaryId),
       ));
@@ -234,7 +235,7 @@ class DashboardNotifier extends _$DashboardNotifier {
         amount: revenue.amount,
         date: DateTime(selectedMonth.year, selectedMonth.month, day),
         direction: MovementDirection.incoming,
-        icon: Icons.savings_rounded,
+        icon: Symbols.savings_rounded,
         color: Colors.green,
         payee: _beneficiaryName(beneficiaryById, revenue.beneficiaryId),
       ));

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -58,7 +59,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
     if (RegExp(r'^\d+$').hasMatch(iconStr)) {
       return IconData(int.parse(iconStr), fontFamily: 'MaterialIcons');
     }
-    return Icons.category;
+    return Symbols.category_rounded;
   }
 
   @override
@@ -87,7 +88,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         FrostedTextField(
           controller: _nameController,
           labelText: 'Nom de la catégorie',
-          prefixIcon: const Icon(Icons.label_outline),
+          prefixIcon: const Icon(Symbols.label_rounded),
         ),
         const SizedBox(height: 24),
 
@@ -129,7 +130,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
                       : null,
                 ),
                 child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
+                    ? const Icon(Symbols.check_rounded, color: Colors.white, size: 18)
                     : null,
               ),
             );

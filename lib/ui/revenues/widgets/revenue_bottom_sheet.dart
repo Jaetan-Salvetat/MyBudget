@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -115,7 +116,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             return FrostedListTile(
               title: Text(revenue.name),
               subtitle: Text(formatter.format(revenue.amount)),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Symbols.chevron_right_rounded),
               onTap: () {
                 Navigator.pop(context);
                 _fillFromClosedRevenue(revenue);
@@ -196,7 +197,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.history, size: 18, color: Theme.of(context).colorScheme.primary),
+                    Icon(Symbols.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 8),
                     Text('Reprendre un ancien revenu'),
                   ],
@@ -215,7 +216,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             controller: _nameController,
             labelText: 'Nom',
             hintText: 'Ex: Salaire',
-            prefixIcon: const Icon(Icons.edit),
+            prefixIcon: const Icon(Symbols.edit_rounded),
           ),
           if (_nameError != null)
             Padding(
@@ -233,7 +234,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             controller: _amountController,
             labelText: 'Montant',
             hintText: '0.00',
-            prefixIcon: const Icon(Icons.euro),
+            prefixIcon: const Icon(Symbols.euro_rounded),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           if (_amountError != null)

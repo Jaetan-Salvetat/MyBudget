@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
@@ -56,7 +57,7 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
                           ),
                           title: Text(beneficiary.name),
                           trailing: FrostedIconButton(
-                            icon: Icons.delete,
+                            icon: Symbols.delete_rounded,
                             onPressed:
                                 () => _showDeleteConfirmation(
                                   context,
@@ -72,7 +73,7 @@ class BeneficiariesBottomSheet extends ConsumerWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: FrostedFilledButton.icon(
                       onPressed: () => _showAddBeneficiaryDialog(context, ref),
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Symbols.add_rounded),
                       label: const Text('Ajouter un bénéficiaire'),
                     ),
                   ),

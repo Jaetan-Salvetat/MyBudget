@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
@@ -172,7 +173,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           if (state.error != null) ...[
             Row(
               children: [
-                Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
+                Icon(Symbols.error_rounded, color: theme.colorScheme.error, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
 import 'package:intl/intl.dart';
@@ -66,7 +67,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.accounts.isNotEmpty)
             _EntitySection(
               title: 'Comptes',
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Symbols.account_balance_wallet_rounded,
               count: validationResult.accounts.length,
               children: validationResult.accounts
                   .map((a) => _ItemTile(
@@ -78,7 +79,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.beneficiaries.isNotEmpty)
             _EntitySection(
               title: 'Bénéficiaires',
-              icon: Icons.people_outline,
+              icon: Symbols.people_rounded,
               count: validationResult.beneficiaries.length,
               children: validationResult.beneficiaries
                   .map((b) => _ItemTile(title: b.model.name))
@@ -87,7 +88,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.categories.isNotEmpty)
             _EntitySection(
               title: 'Catégories',
-              icon: Icons.category_outlined,
+              icon: Symbols.category_rounded,
               count: validationResult.categories.length,
               children: validationResult.categories
                   .map((c) => _ItemTile(
@@ -103,7 +104,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.expenses.isNotEmpty)
             _EntitySection(
               title: 'Dépenses',
-              icon: Icons.arrow_downward,
+              icon: Symbols.arrow_downward_rounded,
               count: validationResult.expenses.length,
               warningCount: analysis.orphanedExpenses,
               children: validationResult.expenses
@@ -129,7 +130,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.revenues.isNotEmpty)
             _EntitySection(
               title: 'Revenus',
-              icon: Icons.arrow_upward,
+              icon: Symbols.arrow_upward_rounded,
               count: validationResult.revenues.length,
               warningCount: analysis.orphanedRevenues,
               children: validationResult.revenues
@@ -152,7 +153,7 @@ class ImportPreviewScreen extends ConsumerWidget {
           if (validationResult.loans.isNotEmpty)
             _EntitySection(
               title: 'Emprunts',
-              icon: Icons.account_balance,
+              icon: Symbols.account_balance_rounded,
               count: validationResult.loans.length,
               warningCount: analysis.orphanedLoans,
               children: validationResult.loans
@@ -251,7 +252,7 @@ class _SummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            hasErrors ? Icons.warning_amber_rounded : Icons.inventory_2_outlined,
+            hasErrors ? Symbols.warning_amber_rounded : Symbols.inventory_2_rounded,
             color: hasErrors
                 ? theme.colorScheme.error
                 : theme.colorScheme.primary,
@@ -319,7 +320,7 @@ class _ErrorBanner extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  Icons.warning_amber_rounded,
+                  Symbols.warning_amber_rounded,
                   color: theme.colorScheme.error,
                   size: 20,
                 ),
@@ -444,7 +445,7 @@ class _EntitySectionState extends State<_EntitySection> {
                   turns: _expanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
-                    Icons.expand_more,
+                    Symbols.expand_more_rounded,
                     size: 20,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -495,7 +496,7 @@ class _ItemTile extends StatelessWidget {
         children: [
           if (hasWarning) ...[
             Icon(
-              Icons.warning_amber_rounded,
+              Symbols.warning_amber_rounded,
               size: 16,
               color: theme.colorScheme.error,
             ),

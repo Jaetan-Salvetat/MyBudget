@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -190,7 +191,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             return FrostedListTile(
               title: Text(expense.name),
               subtitle: Text(formatter.format(expense.amount)),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(Symbols.chevron_right_rounded),
               onTap: () {
                 Navigator.pop(context);
                 _fillFromClosedExpense(expense);
@@ -228,7 +229,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.history, size: 18, color: Theme.of(context).colorScheme.primary),
+                      Icon(Symbols.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(width: 8),
                       Text('Reprendre une ancienne dépense'),
                     ],
@@ -247,14 +248,14 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
               controller: _nameController,
               labelText: 'Nom',
               hintText: 'Ex: Loyer',
-              prefixIcon: const Icon(Icons.edit),
+              prefixIcon: const Icon(Symbols.edit_rounded),
             ),
             const SizedBox(height: 16),
             FrostedTextField(
               controller: _amountController,
               labelText: 'Montant',
               hintText: '0.00',
-              prefixIcon: const Icon(Icons.euro),
+              prefixIcon: const Icon(Symbols.euro_rounded),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),

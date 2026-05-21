@@ -37,7 +37,7 @@ class DashboardScreen extends ConsumerWidget {
       bottom: false,
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 180),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 180),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

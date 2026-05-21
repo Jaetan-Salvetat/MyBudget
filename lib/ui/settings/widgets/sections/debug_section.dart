@@ -1,6 +1,7 @@
 import 'package:app_updater/app_updater.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -21,7 +22,7 @@ class DebugSection extends ConsumerWidget {
         SettingsTile(
           title: 'Réinitialiser l\'Onboarding',
           subtitle: 'Relancer le tutoriel au prochain démarrage',
-          leading: const Icon(Icons.restart_alt),
+          leading: const Icon(Symbols.restart_alt_rounded),
           onTap: () async {
             await PreferencesService.clearAll();
             if (context.mounted) {
@@ -36,7 +37,7 @@ class DebugSection extends ConsumerWidget {
           SettingsTile(
             title: 'Tester la page Update',
             subtitle: 'Simule une mise à jour disponible',
-            leading: const Icon(Icons.bug_report),
+            leading: const Icon(Symbols.bug_report_rounded),
             onTap: () {
               ref.read(updateProvider.notifier).setFakeUpdate(
                 ReleaseInfo(

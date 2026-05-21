@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/intl.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanSummaryCard extends StatelessWidget {
   final double totalDebt;
@@ -20,238 +21,169 @@ class LoanSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final color = Theme.of(context).colorScheme.error;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final compactFormatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 0,
+    );
+    final progressPct = (progress * 100).clamp(0, 100).round();
 
     return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 14),
       borderRadius: 20,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(18),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Mensualités',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.real_estate_agent, color: color, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$activeLoanCount actifs',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: color,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    formatter.format(monthlyPayment),
-                    style: TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                      letterSpacing: -1.0,
-                    ),
-                  ),
-                ),
-              ],
+          Text(
+            'MENSUALITÉS DU MOIS',
+            style: AppTextStyles.mono(
+              fontSize: 10,
+              letterSpacingEm: 0.10,
+              color: scheme.onSurfaceVariant,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          const SizedBox(height: 2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                formatter.format(monthlyPayment),
+                style: TextStyle(
+                  fontSize: 32,
+                  height: 36 / 32,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.022 * 32,
+                  color: scheme.onSurface,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '· $activeLoanCount actif${activeLoanCount > 1 ? 's' : ''}',
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 16 / 13,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Text(
+                'Capital amorti',
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 16 / 12,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$progressPct%',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 18 / 14,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(9999),
+            child: FrostedLinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 6,
+              backgroundColor: scheme.onSurface.withValues(alpha: 0.08),
+              color: scheme.primary,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  width: 0.5,
+                  color: scheme.onSurface.withValues(alpha: 0.07),
+                ),
+              ),
+            ),
             child: Row(
               children: [
                 Expanded(
-                  child: _buildSummaryCard(
-                    context,
-                    'Coût du crédit',
-                    remainingCost,
-                    Icons.pie_chart_outline,
-                    color,
-                    formatter,
-                    'Cela représente la somme totale des intérêts et des assurances qu\'il vous reste à payer jusqu\'à la fin de vos emprunts.',
+                  child: _Stat(
+                    label: 'Capital restant',
+                    value: compactFormatter.format(totalDebt),
                   ),
                 ),
-                const SizedBox(width: 16),
                 Expanded(
-                  child: _buildSummaryCard(
-                    context,
-                    'Capital Restant',
-                    totalDebt,
-                    Icons.savings,
-                    color,
-                    formatter,
-                    'C\'est le montant total du capital emprunté qu\'il vous reste à rembourser, hors intérêts et assurances.',
+                  child: _Stat(
+                    label: 'Coût restant',
+                    value: compactFormatter.format(remainingCost),
+                    hint: 'Intérêts + assurance',
                   ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: _buildProgressSection(context, progress, primaryColor),
-          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSummaryCard(
-    BuildContext context,
-    String title,
-    double amount,
-    IconData icon,
-    Color color,
-    NumberFormat formatter,
-    String description,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(icon, size: 16, color: color),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: color.withValues(alpha: 0.8),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  FrostedDialog.show(
-                    context: context,
-                    title: Text(title),
-                    content: Text(description),
-                    actions: [
-                      FrostedTextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Compris'),
-                      ),
-                    ],
-                  );
-                },
-                child: Icon(
-                  Icons.help_outline,
-                  size: 16,
-                  color: color.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
+class _Stat extends StatelessWidget {
+  final String label;
+  final String value;
+  final String? hint;
+
+  const _Stat({required this.label, required this.value, this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.mono(
+            fontSize: 11,
+            color: scheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 8),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            height: 20 / 16,
+            fontWeight: FontWeight.w600,
+            color: scheme.onSurface,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        if (hint != null) ...[
+          const SizedBox(height: 2),
           Text(
-            formatter.format(amount),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+            hint!,
+            style: AppTextStyles.mono(
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProgressSection(
-    BuildContext context,
-    double progress,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Capital Amorti',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: color.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                '${(progress * 100).toStringAsFixed(0)}%',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: FrostedLinearProgressIndicator(
-              value: progress,
-              backgroundColor: color.withValues(alpha: 0.2),
-              color: color,
-              minHeight: 12,
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

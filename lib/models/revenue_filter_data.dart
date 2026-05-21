@@ -23,4 +23,13 @@ class RevenueFilterData {
         beneficiaryIds.isEmpty &&
         frequencies.isEmpty;
   }
+
+  int get activeCount {
+    int count = 0;
+    if (minAmount != null || maxAmount != null) count++;
+    if (accountIds.isNotEmpty) count++;
+    if (beneficiaryIds.isNotEmpty) count++;
+    if (frequencies.isNotEmpty) count++;
+    return count;
+  }
 }

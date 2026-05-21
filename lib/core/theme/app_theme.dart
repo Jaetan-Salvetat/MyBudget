@@ -15,9 +15,7 @@ class AppTheme {
     final scheme = ColorScheme.fromSeed(
       seedColor: _seedColor,
       brightness: brightness,
-    ).copyWith(
-      secondary: _secondaryColor,
-    );
+    ).copyWith(secondary: _secondaryColor);
 
     return ThemeData(
       brightness: brightness,
@@ -35,7 +33,9 @@ class AppTheme {
         unselectedItemColor: scheme.onSurface,
       ),
       extensions: <ThemeExtension<dynamic>>[
-        brightness == Brightness.dark ? FinanceColors.dark : FinanceColors.light,
+        brightness == Brightness.dark
+            ? FinanceColors.dark
+            : FinanceColors.light,
       ],
     );
   }

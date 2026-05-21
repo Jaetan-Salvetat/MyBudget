@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -21,7 +22,7 @@ class AboutSection extends ConsumerWidget {
             SettingsTile(
               title: 'Version',
               subtitle: updateState.currentVersion ?? 'Chargement...',
-              leading: const Icon(Icons.info_outline),
+              leading: const Icon(Symbols.info_rounded),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const UpdateScreen()),

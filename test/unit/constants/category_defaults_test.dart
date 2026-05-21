@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 
 void main() {
   group('CategoryDefaults', () {
     test('resolveIcon returns correct IconData for known keys', () {
-      expect(CategoryDefaults.resolveIcon('restaurant'), Icons.restaurant);
-      expect(CategoryDefaults.resolveIcon('home'), Icons.home);
-      expect(CategoryDefaults.resolveIcon('local_cafe'), Icons.local_cafe);
+      expect(CategoryDefaults.resolveIcon('restaurant'), Symbols.restaurant_rounded);
+      expect(CategoryDefaults.resolveIcon('home'), Symbols.home_rounded);
+      expect(CategoryDefaults.resolveIcon('local_cafe'), Symbols.local_cafe_rounded);
     });
 
     test('resolveIcon returns category icon for unknown keys', () {
-      expect(CategoryDefaults.resolveIcon('nonexistent'), Icons.category);
+      expect(CategoryDefaults.resolveIcon('nonexistent'), Symbols.category_rounded);
     });
 
     test('resolveIcon handles numeric codePoint strings', () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
 class SettingsTile extends StatelessWidget {
@@ -43,7 +44,7 @@ class SettingsTile extends StatelessWidget {
         trailing:
             onTap != null
                 ? Icon(
-                  Icons.chevron_right,
+                  Symbols.chevron_right_rounded,
                   color: Theme.of(context).colorScheme.primary,
                 )
                 : null,
