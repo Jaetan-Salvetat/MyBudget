@@ -143,6 +143,7 @@ class LocalModelNotifier extends _$LocalModelNotifier {
         error: e.message,
         downloadProgress: 0.0,
       );
+      rethrow;
     } catch (e) {
       await PreferencesService.setLocalModelStatus(
         LocalModelStatus.none.name,
@@ -152,35 +153,46 @@ class LocalModelNotifier extends _$LocalModelNotifier {
         error: 'Erreur inattendue : $e',
         downloadProgress: 0.0,
       );
+      rethrow;
     }
   }
 
   Future<void> cancelDownload() async {
-    _downloadService ??= ModelDownloadService();
-    await _downloadService!.cancelDownload();
+    try {
+      _downloadService ??= ModelDownloadService();
+      await _downloadService!.cancelDownload();
 
-    await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
+      await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
 
-    state = state.copyWith(
-      status: LocalModelStatus.none,
-      downloadProgress: 0.0,
-    ).clearError();
+      state = state.copyWith(
+        status: LocalModelStatus.none,
+        downloadProgress: 0.0,
+      ).clearError();
+    } catch (e) {
+      state = state.copyWith(error: 'Erreur lors de l\'annulation : $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteModel() async {
-    await LitertEngineService.resetInstance();
+    try {
+      await LitertEngineService.resetInstance();
 
-    final path = state.modelPath ?? PreferencesService.getLocalModelPath();
-    if (path != null) {
-      _downloadService ??= ModelDownloadService();
-      await _downloadService!.deleteModel(path);
+      final path = state.modelPath ?? PreferencesService.getLocalModelPath();
+      if (path != null) {
+        _downloadService ??= ModelDownloadService();
+        await _downloadService!.deleteModel(path);
+      }
+
+      await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
+      await PreferencesService.setLocalModelPath(null);
+
+      ref.invalidate(litertEngineProvider);
+
+      state = const LocalModelState();
+    } catch (e) {
+      state = state.copyWith(error: 'Erreur lors de la suppression : $e');
+      rethrow;
     }
-
-    await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
-    await PreferencesService.setLocalModelPath(null);
-
-    ref.invalidate(litertEngineProvider);
-
-    state = const LocalModelState();
   }
 }

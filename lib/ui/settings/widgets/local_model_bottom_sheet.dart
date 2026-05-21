@@ -163,9 +163,18 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
           width: double.infinity,
           child: FrostedFilledButton(
             onPressed: hasSpace
-                ? () {
-                    notifier.startDownload();
+                ? () async {
                     Navigator.pop(context);
+                    try {
+                      await notifier.startDownload();
+                    } catch (e) {
+                      if (context.mounted) {
+                        FrostedSnackbar.show(
+                          context,
+                          message: 'Erreur lors de l\'installation : $e',
+                        );
+                      }
+                    }
                   }
                 : null,
             child: const Text('Installer'),
@@ -201,9 +210,18 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
         SizedBox(
           width: double.infinity,
           child: FrostedTextButton(
-            onPressed: () {
-              ref.read(localModelProvider.notifier).cancelDownload();
+            onPressed: () async {
               Navigator.pop(context);
+              try {
+                await ref.read(localModelProvider.notifier).cancelDownload();
+              } catch (e) {
+                if (context.mounted) {
+                  FrostedSnackbar.show(
+                    context,
+                    message: 'Erreur lors de l\'annulation : $e',
+                  );
+                }
+              }
             },
             child: Text(
               'Annuler',
@@ -255,9 +273,18 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
         SizedBox(
           width: double.infinity,
           child: FrostedTextButton(
-            onPressed: () {
-              ref.read(localModelProvider.notifier).deleteModel();
+            onPressed: () async {
               Navigator.pop(context);
+              try {
+                await ref.read(localModelProvider.notifier).deleteModel();
+              } catch (e) {
+                if (context.mounted) {
+                  FrostedSnackbar.show(
+                    context,
+                    message: 'Erreur lors de la suppression : $e',
+                  );
+                }
+              }
             },
             child: Text(
               'Supprimer le modèle',
