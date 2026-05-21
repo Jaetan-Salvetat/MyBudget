@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -23,51 +23,12 @@ class CategoryNotifier extends _$CategoryNotifier {
   }
 
   Future<void> _initDefaultCategories(dynamic repo) async {
-    final defaultCategories = [
-      CategoryModel.create(
-        name: 'Alimentation',
-        icon: 'restaurant',
-        color: Colors.orange.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Logement',
-        icon: 'home',
-        color: Colors.blue.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Transport',
-        icon: 'directions_car',
-        color: Colors.green.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Loisirs',
-        icon: 'sports_esports',
-        color: Colors.purple.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Santé',
-        icon: 'medical_services',
-        color: Colors.red.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Shopping',
-        icon: 'shopping_bag',
-        color: Colors.pink.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Salaire',
-        icon: 'account_balance_wallet',
-        color: Colors.teal.toARGB32(),
-      ),
-      CategoryModel.create(
-        name: 'Divers',
-        icon: 'more_horiz',
-        color: Colors.grey.toARGB32(),
-      ),
-    ];
-
-    for (final category in defaultCategories) {
-      repo.add(category);
+    for (final def in CategoryDefaults.defaultCategories) {
+      repo.add(CategoryModel.create(
+        name: def.name,
+        icon: def.icon,
+        color: def.color,
+      ));
     }
   }
 

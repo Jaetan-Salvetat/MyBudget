@@ -49,7 +49,7 @@ void main() {
     ];
   });
 
-  Map<String, dynamic> _validJson({
+  Map<String, dynamic> validJson({
     String name = 'Café',
     double amount = 3.5,
     int? categoryId = 1,
@@ -68,7 +68,7 @@ void main() {
 
   group('LocalInferenceService', () {
     test('parses valid JSON response on first attempt', () async {
-      final json = _validJson();
+      final json = validJson();
       when(() => mockConversation.sendMessage(any())).thenAnswer(
         (_) async => LiteLmMessage.model(jsonEncode(json)),
       );
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('extracts JSON from surrounding text', () async {
-      final json = _validJson(name: 'Loyer', amount: 800.0, frequency: 'Mensuel');
+      final json = validJson(name: 'Loyer', amount: 800.0, frequency: 'Mensuel');
       final responseText = 'Voici le résultat :\n${jsonEncode(json)}\nBonne journée !';
       when(() => mockConversation.sendMessage(any())).thenAnswer(
         (_) async => LiteLmMessage.model(responseText),
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('retries on invalid first response and succeeds', () async {
-      final json = _validJson();
+      final json = validJson();
       var callCount = 0;
 
       when(() => mockConversation.sendMessage(any())).thenAnswer((_) async {

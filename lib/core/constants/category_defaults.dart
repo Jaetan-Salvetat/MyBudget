@@ -68,6 +68,17 @@ abstract final class CategoryDefaults {
   static const String defaultIcon = 'label';
   static const int defaultColor = 0xFF42A5F5;
 
+  static const List<({String name, String icon, int color})> defaultCategories = [
+    (name: 'Alimentation', icon: 'restaurant', color: 0xFFFFA726),
+    (name: 'Logement', icon: 'home', color: 0xFF42A5F5),
+    (name: 'Transport', icon: 'directions_car', color: 0xFF66BB6A),
+    (name: 'Loisirs', icon: 'sports_esports', color: 0xFFAB47BC),
+    (name: 'Santé', icon: 'medical_services', color: 0xFFEF5350),
+    (name: 'Shopping', icon: 'shopping_bag', color: 0xFFEC407A),
+    (name: 'Salaire', icon: 'account_balance_wallet', color: 0xFF26A69A),
+    (name: 'Divers', icon: 'more_horiz', color: 0xFF9E9E9E),
+  ];
+
   static IconData resolveIcon(String iconKey) {
     if (RegExp(r'^\d+$').hasMatch(iconKey)) {
       return IconData(int.parse(iconKey), fontFamily: 'MaterialIcons');
