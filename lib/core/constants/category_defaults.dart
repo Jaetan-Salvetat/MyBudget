@@ -68,15 +68,24 @@ abstract final class CategoryDefaults {
   static const String defaultIcon = 'label';
   static const int defaultColor = 0xFF42A5F5;
 
-  static const List<({String name, String icon, int color})> defaultCategories = [
-    (name: 'Alimentation', icon: 'restaurant', color: 0xFFFFA726),
-    (name: 'Logement', icon: 'home', color: 0xFF42A5F5),
-    (name: 'Transport', icon: 'directions_car', color: 0xFF66BB6A),
-    (name: 'Loisirs', icon: 'sports_esports', color: 0xFFAB47BC),
-    (name: 'Santé', icon: 'medical_services', color: 0xFFEF5350),
-    (name: 'Shopping', icon: 'shopping_bag', color: 0xFFEC407A),
-    (name: 'Salaire', icon: 'account_balance_wallet', color: 0xFF26A69A),
-    (name: 'Divers', icon: 'more_horiz', color: 0xFF9E9E9E),
+  static const List<({String name, String icon, int color, String scope})> defaultCategories = [
+    (name: 'Alimentation', icon: 'restaurant', color: 0xFFFFA726, scope: 'food, groceries, restaurants'),
+    (name: 'Logement', icon: 'home', color: 0xFF42A5F5, scope: 'rent, utilities, housing bills'),
+    (name: 'Transport', icon: 'directions_car', color: 0xFF66BB6A, scope: 'fuel, transit, flights, parking'),
+    (name: 'Loisirs', icon: 'sports_esports', color: 0xFFAB47BC, scope: 'entertainment, cinema, outings'),
+    (name: 'Santé', icon: 'medical_services', color: 0xFFEF5350, scope: 'medical, pharmacy, dental'),
+    (name: 'Shopping', icon: 'shopping_bag', color: 0xFFEC407A, scope: 'clothing, electronics, furniture'),
+    (name: 'Abonnements', icon: 'subscriptions', color: 0xFF7E57C2, scope: 'subscriptions, streaming, phone plans'),
+    (name: 'Sport', icon: 'fitness_center', color: 0xFF26A69A, scope: 'gym, fitness, sports equipment'),
+    (name: 'Cadeaux', icon: 'card_giftcard', color: 0xFFFF7043, scope: 'gifts, presents'),
+    (name: 'Éducation', icon: 'school', color: 0xFF5C6BC0, scope: 'courses, tutoring, books'),
+    (name: 'Assurance', icon: 'account_balance', color: 0xFF78909C, scope: 'insurance policies'),
+    (name: 'Animaux', icon: 'pets', color: 0xFF8D6E63, scope: 'vet, pet food, pet supplies'),
+    (name: 'Voyages', icon: 'flight_takeoff', color: 0xFF29B6F6, scope: 'hotels, vacation, trips'),
+    (name: 'Beauté', icon: 'spa', color: 0xFF26C6DA, scope: 'hairdresser, cosmetics, spa'),
+    (name: 'Enfants', icon: 'child_care', color: 0xFFFFCA28, scope: 'childcare, school supplies'),
+    (name: 'Impôts', icon: 'account_balance_wallet', color: 0xFF9CCC65, scope: 'taxes, government fees'),
+    (name: 'Divers', icon: 'more_horiz', color: 0xFF9E9E9E, scope: 'uncategorizable'),
   ];
 
   static IconData resolveIcon(String iconKey) {

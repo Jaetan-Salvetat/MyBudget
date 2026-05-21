@@ -28,6 +28,7 @@ class CategoryNotifier extends _$CategoryNotifier {
         name: def.name,
         icon: def.icon,
         color: def.color,
+        scope: def.scope,
       ));
     }
   }

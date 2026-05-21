@@ -7,9 +7,10 @@ abstract final class ExpensePromptBuilder {
     List<CategoryModel> categories,
     List<ExpenseModel> recurringExpenses,
   ) {
-    final categoriesJson = categories
-        .map((c) => '{"id":${c.id},"name":"${c.name}"}')
-        .join(',');
+    final categoriesJson = categories.map((c) {
+      final scopePart = c.scope.isNotEmpty ? ',"scope":"${c.scope}"' : '';
+      return '{"id":${c.id},"name":"${c.name}"$scopePart}';
+    }).join(',');
 
     final buffer = StringBuffer()
       ..writeln('You are an expense parser for a French finance app.')
@@ -22,21 +23,23 @@ abstract final class ExpensePromptBuilder {
       ..writeln(
         '1. name: clean concise French label, first letter uppercase, no slang',
       )
-      ..writeln('2. amount: extract numeric value')
+      ..writeln(
+        '2. amount: extract numeric value. '
+        'French slang for euros: "balles", "balle"',
+      )
       ..writeln(
         '3. frequency: "Ponctuel" (default). '
-        '"Mensuel" if user says mensuel/par mois/chaque mois. '
+        '"Mensuel" if mensuel/par mois/chaque mois. '
         '"Annuel" if annuel/par an/chaque année',
       )
       ..writeln(
-        '4. Match existing category by meaning → '
-        'categoryId=id, newCategory=null',
+        '4. Match the expense to the most fitting existing category → '
+        'categoryId=id, newCategory=null. '
+        'Always prefer an existing category over creating a new one.',
       )
       ..writeln(
-        '5. No match → categoryId=null, newCategory=broad French category name. '
-        'Must be a general theme, NOT a specific expense '
-        '(e.g. "Abonnements" not "Netflix", "Restauration" not "Café", '
-        '"Éducation" not "Cours de piano")',
+        '5. Only if no category fits at all → categoryId=null, '
+        'newCategory=broad French theme name (never an item name)',
       );
 
     if (recurringExpenses.isNotEmpty) {
@@ -52,6 +55,12 @@ abstract final class ExpensePromptBuilder {
     final alimentation =
         categories.where((c) => c.name == 'Alimentation').firstOrNull;
     final alimentationId = alimentation?.id ?? 1;
+    final sport =
+        categories.where((c) => c.name == 'Sport').firstOrNull;
+    final sportId = sport?.id;
+    final abonnements =
+        categories.where((c) => c.name == 'Abonnements').firstOrNull;
+    final abonnementsId = abonnements?.id;
 
     buffer
       ..writeln()
@@ -60,17 +69,23 @@ abstract final class ExpensePromptBuilder {
         '"café 3.50" → '
         '{"name":"Café","amount":3.5,"frequency":"Ponctuel",'
         '"categoryId":$alimentationId,"newCategory":null}',
-      )
-      ..writeln(
+      );
+
+    if (sportId != null) {
+      buffer.writeln(
         '"salle de sport 40€/mois" → '
         '{"name":"Salle de sport","amount":40.0,"frequency":"Mensuel",'
-        '"categoryId":null,"newCategory":"Sport"}',
-      )
-      ..write(
+        '"categoryId":$sportId,"newCategory":null}',
+      );
+    }
+
+    if (abonnementsId != null) {
+      buffer.write(
         '"netflix 17.99/mois" → '
         '{"name":"Netflix","amount":17.99,"frequency":"Mensuel",'
-        '"categoryId":null,"newCategory":"Abonnements"}',
+        '"categoryId":$abonnementsId,"newCategory":null}',
       );
+    }
 
     return buffer.toString();
   }
@@ -87,6 +102,23 @@ abstract final class ExpensePromptBuilder {
         'No text outside the JSON.';
   }
 
+  static String buildParseCloud(
+    List<CategoryModel> categories,
+    List<ExpenseModel> recurringExpenses,
+  ) {
+    final base = buildParse(categories, recurringExpenses);
+    final availableIcons = CategoryDefaults.iconNames.join(', ');
+    final availableColors =
+        CategoryDefaults.colors.map(CategoryDefaults.colorToHex).join(', ');
+
+    return '$base\n\n'
+        '# New category styling (only when newCategory is set)\n'
+        'If categoryId=null, also pick icon, color, and scope for the new category.\n'
+        'Icons: $availableIcons\n'
+        'Colors: $availableColors\n'
+        'scope: short English comma-separated list of what this category covers';
+  }
+
   static String buildCategorize(String categoryName) {
     final availableIcons = CategoryDefaults.iconNames.join(', ');
     final availableColors =
@@ -97,11 +129,12 @@ abstract final class ExpensePromptBuilder {
         .map(
           (c) =>
               '"${c.name}" → {"icon":"${c.icon}",'
-              '"color":"${CategoryDefaults.colorToHex(c.color)}"}',
+              '"color":"${CategoryDefaults.colorToHex(c.color)}",'
+              '"scope":"${c.scope}"}',
         )
         .join('\n');
 
-    return 'Pick the best icon and color for this French expense category.\n'
+    return 'Pick the best icon, color, and scope for this French expense category.\n'
         '\n'
         'Category: "$categoryName"\n'
         '\n'
@@ -111,9 +144,12 @@ abstract final class ExpensePromptBuilder {
         '# Colors\n'
         '$availableColors\n'
         '\n'
+        '# Rules\n'
+        'scope: short English comma-separated list of what this category covers\n'
+        '\n'
         '# Examples\n'
         '$examples\n'
         '\n'
-        'Respond with ONLY a valid JSON object: {"icon":"...","color":"#..."}';
+        'Respond with ONLY a valid JSON object: {"icon":"...","color":"#...","scope":"..."}';
   }
 }

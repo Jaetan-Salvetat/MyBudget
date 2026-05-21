@@ -57,7 +57,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 637957068368109063),
     name: 'CategoryModel',
-    lastPropertyId: const obx_int.IdUid(4, 6632633250043774965),
+    lastPropertyId: const obx_int.IdUid(5, 2223950211617359170),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -83,6 +83,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(4, 6632633250043774965),
         name: 'color',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 2223950211617359170),
+        name: 'scope',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -545,11 +551,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (CategoryModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final iconOffset = fbb.writeString(object.icon);
-        fbb.startTable(5);
+        final scopeOffset = fbb.writeString(object.scope);
+        fbb.startTable(6);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addOffset(2, iconOffset);
         fbb.addInt64(3, object.color);
+        fbb.addOffset(4, scopeOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -565,7 +573,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..icon = const fb.StringReader(
             asciiOptimization: true,
           ).vTableGet(buffer, rootOffset, 8, '')
-          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
+          ..scope = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 12, '');
 
         return object;
       },
@@ -1019,6 +1030,11 @@ class CategoryModel_ {
   /// See [CategoryModel.color].
   static final color = obx.QueryIntegerProperty<CategoryModel>(
     _entities[1].properties[3],
+  );
+
+  /// See [CategoryModel.scope].
+  static final scope = obx.QueryStringProperty<CategoryModel>(
+    _entities[1].properties[4],
   );
 }
 

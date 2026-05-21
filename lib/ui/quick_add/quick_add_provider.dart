@@ -93,6 +93,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
           name: result.newCategory!,
           icon: icon,
           color: color,
+          scope: result.newCategoryScope ?? '',
         );
         final repo = ref.read(categoryRepositoryProvider);
         categoryId = repo.add(newCat);

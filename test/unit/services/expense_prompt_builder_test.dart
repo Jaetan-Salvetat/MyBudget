@@ -13,6 +13,10 @@ void main() {
           ..id = 1,
         CategoryModel.create(name: 'Transport', icon: 'directions_car', color: 0xFF2196F3)
           ..id = 2,
+        CategoryModel.create(name: 'Sport', icon: 'fitness_center', color: 0xFF26A69A)
+          ..id = 8,
+        CategoryModel.create(name: 'Abonnements', icon: 'subscriptions', color: 0xFF7E57C2)
+          ..id = 7,
       ];
     });
 

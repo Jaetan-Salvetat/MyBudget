@@ -29,21 +29,69 @@ class OpenRouterService {
     List<ExpenseModel> recurringExpenses = const [],
   }) async {
     try {
-      final parseResult = await _runParse(
-        input,
-        categories,
-        recurringExpenses,
+      final response = await _client.chat.completions.create(
+        ChatCompletionCreateRequest(
+          model: _model,
+          temperature: 0.1,
+          messages: [
+            ChatMessage.system(
+              ExpensePromptBuilder.buildParseCloud(
+                categories,
+                recurringExpenses,
+              ),
+            ),
+            ChatMessage.user(input),
+          ],
+          responseFormat: ResponseFormat.jsonSchema(
+            name: 'expense',
+            strict: true,
+            schema: {
+              'type': 'object',
+              'properties': {
+                'name': {'type': 'string'},
+                'amount': {'type': 'number'},
+                'categoryId': {'type': ['integer', 'null']},
+                'newCategory': {'type': ['string', 'null']},
+                'newCategoryIcon': {'type': ['string', 'null']},
+                'newCategoryColor': {'type': ['string', 'null']},
+                'newCategoryScope': {'type': ['string', 'null']},
+                'frequency': {
+                  'type': 'string',
+                  'enum': ['Ponctuel', 'Mensuel', 'Annuel'],
+                },
+              },
+              'required': [
+                'name',
+                'amount',
+                'frequency',
+                'categoryId',
+                'newCategory',
+                'newCategoryIcon',
+                'newCategoryColor',
+                'newCategoryScope',
+              ],
+              'additionalProperties': false,
+            },
+          ),
+        ),
       );
 
-      if (parseResult.newCategory != null) {
-        final style = await _runCategorize(parseResult.newCategory!);
-        return parseResult.copyWith(
-          newCategoryIcon: style.$1,
-          newCategoryColor: style.$2,
+      final content = response.text;
+      if (content == null || content.isEmpty) {
+        throw const QuickAddParseException();
+      }
+
+      final json = jsonDecode(content) as Map<String, dynamic>;
+      final result = QuickAddResultModel.fromJson(json);
+
+      if (result.newCategory != null) {
+        return result.copyWith(
+          newCategoryIcon: _validateIcon(result.newCategoryIcon),
+          newCategoryColor: _validateColor(result.newCategoryColor),
         );
       }
 
-      return parseResult;
+      return result;
     } on SocketException {
       throw const QuickAddNetworkException();
     } on QuickAddException {
@@ -58,110 +106,15 @@ class OpenRouterService {
     }
   }
 
-  Future<QuickAddResultModel> _runParse(
-    String input,
-    List<CategoryModel> categories,
-    List<ExpenseModel> recurringExpenses,
-  ) async {
-    final response = await _client.chat.completions.create(
-      ChatCompletionCreateRequest(
-        model: _model,
-        temperature: 0.1,
-        messages: [
-          ChatMessage.system(
-            ExpensePromptBuilder.buildParse(categories, recurringExpenses),
-          ),
-          ChatMessage.user(input),
-        ],
-        responseFormat: ResponseFormat.jsonSchema(
-          name: 'expense',
-          strict: true,
-          schema: {
-            'type': 'object',
-            'properties': {
-              'name': {'type': 'string'},
-              'amount': {'type': 'number'},
-              'categoryId': {'type': ['integer', 'null']},
-              'newCategory': {'type': ['string', 'null']},
-              'frequency': {
-                'type': 'string',
-                'enum': ['Ponctuel', 'Mensuel', 'Annuel'],
-              },
-            },
-            'required': [
-              'name',
-              'amount',
-              'frequency',
-              'categoryId',
-              'newCategory',
-            ],
-            'additionalProperties': false,
-          },
-        ),
-      ),
-    );
-
-    final content = response.text;
-    if (content == null || content.isEmpty) {
-      throw const QuickAddParseException();
-    }
-
-    final json = jsonDecode(content) as Map<String, dynamic>;
-    return QuickAddResultModel.fromJson(json);
+  String _validateIcon(String? icon) {
+    if (icon != null && CategoryDefaults.icons.containsKey(icon)) return icon;
+    return CategoryDefaults.defaultIcon;
   }
 
-  Future<(String, String)> _runCategorize(String categoryName) async {
-    try {
-      final response = await _client.chat.completions.create(
-        ChatCompletionCreateRequest(
-          model: _model,
-          temperature: 0.1,
-          messages: [
-            ChatMessage.system(
-              ExpensePromptBuilder.buildCategorize(categoryName),
-            ),
-            ChatMessage.user(categoryName),
-          ],
-          responseFormat: ResponseFormat.jsonSchema(
-            name: 'category_style',
-            strict: true,
-            schema: {
-              'type': 'object',
-              'properties': {
-                'icon': {'type': 'string'},
-                'color': {'type': 'string'},
-              },
-              'required': ['icon', 'color'],
-              'additionalProperties': false,
-            },
-          ),
-        ),
-      );
-
-      final content = response.text;
-      if (content == null || content.isEmpty) {
-        return (CategoryDefaults.defaultIcon, _defaultColorHex);
-      }
-
-      final json = jsonDecode(content) as Map<String, dynamic>;
-      final icon = json['icon'] as String?;
-      final color = json['color'] as String?;
-
-      final validIcon =
-          icon != null && CategoryDefaults.icons.containsKey(icon)
-              ? icon
-              : CategoryDefaults.defaultIcon;
-      final validColor =
-          color != null && CategoryDefaults.hexToColor(color) != null
-              ? color
-              : _defaultColorHex;
-
-      return (validIcon, validColor);
-    } catch (_) {
-      return (CategoryDefaults.defaultIcon, _defaultColorHex);
+  String _validateColor(String? color) {
+    if (color != null && CategoryDefaults.hexToColor(color) != null) {
+      return color;
     }
+    return CategoryDefaults.colorToHex(CategoryDefaults.defaultColor);
   }
-
-  static final String _defaultColorHex =
-      CategoryDefaults.colorToHex(CategoryDefaults.defaultColor);
 }

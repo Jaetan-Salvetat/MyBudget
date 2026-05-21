@@ -33,7 +33,7 @@ final class CategoryNotifierProvider
   CategoryNotifier create() => CategoryNotifier();
 }
 
-String _$categoryNotifierHash() => r'70b83c81985846e935e6cfe16f9d0ba6cdc7fa4e';
+String _$categoryNotifierHash() => r'9b8828b51b6fd86f4a950b7a4cd54189944a5634';
 
 abstract class _$CategoryNotifier extends $AsyncNotifier<List<CategoryModel>> {
   FutureOr<List<CategoryModel>> build();
