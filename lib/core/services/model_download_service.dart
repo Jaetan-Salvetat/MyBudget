@@ -13,6 +13,7 @@ class ModelDownloadService {
   static const double modelSizeGb = 2.59;
   static const double requiredSpaceGb = 3.0;
   static const String modelVersion = '1.0.0';
+  static const String taskGroup = 'gemma_model';
 
   DownloadTask? _activeTask;
 
@@ -35,9 +36,31 @@ class ModelDownloadService {
     return '$dirPath/$modelFilename';
   }
 
-  Future<String> downloadModel({
+  Future<bool> isModelInstalled() async {
+    final path = await modelFilePath;
+    final file = File(path);
+    if (!file.existsSync()) return false;
+    final size = await file.length();
+    return size > 1000000000;
+  }
+
+  Future<TaskRecord?> getActiveDownload() async {
+    final records = await FileDownloader()
+        .database
+        .allRecords(group: taskGroup);
+    for (final record in records) {
+      if (record.status == TaskStatus.running ||
+          record.status == TaskStatus.enqueued ||
+          record.status == TaskStatus.waitingToRetry) {
+        return record;
+      }
+    }
+    return null;
+  }
+
+  Future<void> startDownload({
     required void Function(double progress) onProgress,
-    required void Function() onComplete,
+    required void Function(String path) onComplete,
     required void Function(String error) onError,
   }) async {
     final dirPath = await _modelDirectoryPath;
@@ -54,6 +77,7 @@ class ModelDownloadService {
       updates: Updates.statusAndProgress,
       retries: 3,
       allowPause: true,
+      group: taskGroup,
       displayName: 'Modèle IA Gemma',
     );
 
@@ -62,7 +86,7 @@ class ModelDownloadService {
       onProgress: onProgress,
       onStatus: (status) {
         if (status == TaskStatus.complete) {
-          onComplete();
+          onComplete('$dirPath/$modelFilename');
         } else if (status == TaskStatus.failed ||
             status == TaskStatus.notFound) {
           onError('Le téléchargement a échoué');
@@ -79,8 +103,6 @@ class ModelDownloadService {
         'Téléchargement échoué : ${result.status.name}',
       );
     }
-
-    return '$dirPath/$modelFilename';
   }
 
   Future<void> cancelDownload() async {
@@ -88,6 +110,11 @@ class ModelDownloadService {
     if (task != null) {
       await FileDownloader().cancel(task);
       _activeTask = null;
+      return;
+    }
+    final record = await getActiveDownload();
+    if (record != null) {
+      await FileDownloader().cancel(record.task);
     }
   }
 

@@ -42,7 +42,7 @@ final class LocalModelNotifierProvider
 }
 
 String _$localModelNotifierHash() =>
-    r'7c7e03244723bb158631b78503442cdd2acb2108';
+    r'8a1bad659dfc313d8539b53944bc6a0b847019df';
 
 abstract class _$LocalModelNotifier extends $Notifier<LocalModelState> {
   LocalModelState build();

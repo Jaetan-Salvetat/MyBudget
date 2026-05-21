@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:background_downloader/background_downloader.dart';
 import 'package:mybudget/core/enums/local_model_status.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/litert_engine_service.dart';
@@ -51,14 +54,114 @@ class LocalModelState {
 @Riverpod(keepAlive: true)
 class LocalModelNotifier extends _$LocalModelNotifier {
   ModelDownloadService? _downloadService;
+  StreamSubscription<TaskRecord>? _dbSubscription;
 
   @override
   LocalModelState build() {
-    final status = LocalModelStatus.fromString(
-      PreferencesService.getLocalModelStatus(),
-    );
     final path = PreferencesService.getLocalModelPath();
-    return LocalModelState(status: status, modelPath: path);
+    final initialStatus =
+        path != null ? LocalModelStatus.ready : LocalModelStatus.none;
+
+    ref.onDispose(() => _dbSubscription?.cancel());
+
+    _resolveStatus();
+
+    return LocalModelState(status: initialStatus, modelPath: path);
+  }
+
+  Future<void> _resolveStatus() async {
+    _downloadService ??= ModelDownloadService();
+
+    final isInstalled = await _downloadService!.isModelInstalled();
+    if (isInstalled) {
+      final path = await _downloadService!.modelFilePath;
+      if (state.modelPath != path) {
+        await PreferencesService.setLocalModelPath(path);
+      }
+      state = state.copyWith(
+        status: LocalModelStatus.ready,
+        modelPath: path,
+      );
+      return;
+    }
+
+    final activeRecord = await _downloadService!.getActiveDownload();
+    if (activeRecord != null) {
+      state = state.copyWith(
+        status: LocalModelStatus.downloading,
+        downloadProgress: activeRecord.progress,
+      );
+      _listenToWorkerUpdates();
+      return;
+    }
+
+    if (state.status != LocalModelStatus.none) {
+      await PreferencesService.setLocalModelPath(null);
+      state = const LocalModelState();
+    }
+  }
+
+  void _listenToWorkerUpdates() {
+    _dbSubscription?.cancel();
+    _dbSubscription = FileDownloader()
+        .database
+        .updates
+        .where((record) => record.group == ModelDownloadService.taskGroup)
+        .listen(_onWorkerUpdate);
+  }
+
+  void _onWorkerUpdate(TaskRecord record) {
+    state = state.copyWith(downloadProgress: record.progress);
+
+    if (record.status == TaskStatus.complete) {
+      _onDownloadComplete();
+    } else if (record.status == TaskStatus.failed ||
+        record.status == TaskStatus.notFound) {
+      state = state.copyWith(
+        status: LocalModelStatus.none,
+        error: 'Le téléchargement a échoué',
+        downloadProgress: 0.0,
+      );
+      _dbSubscription?.cancel();
+    } else if (record.status == TaskStatus.canceled) {
+      state = state.copyWith(
+        status: LocalModelStatus.none,
+        downloadProgress: 0.0,
+      ).clearError();
+      _dbSubscription?.cancel();
+    }
+  }
+
+  Future<void> _onDownloadComplete() async {
+    _dbSubscription?.cancel();
+    _downloadService ??= ModelDownloadService();
+
+    final path = await _downloadService!.modelFilePath;
+    final isValid = await _downloadService!.verifyModel(path);
+
+    if (!isValid) {
+      await _downloadService!.deleteModel(path);
+      await PreferencesService.setLocalModelPath(null);
+      state = state.copyWith(
+        status: LocalModelStatus.none,
+        error: 'Le modèle téléchargé est corrompu',
+        downloadProgress: 0.0,
+      );
+      return;
+    }
+
+    await PreferencesService.setLocalModelPath(path);
+    await PreferencesService.setLocalModelVersion(
+      ModelDownloadService.modelVersion,
+    );
+
+    state = state.copyWith(
+      status: LocalModelStatus.ready,
+      modelPath: path,
+      downloadProgress: 1.0,
+    );
+
+    ref.invalidate(litertEngineProvider);
   }
 
   Future<void> checkDiskSpace() async {
@@ -86,16 +189,14 @@ class LocalModelNotifier extends _$LocalModelNotifier {
       downloadProgress: 0.0,
     ).clearError();
 
-    await PreferencesService.setLocalModelStatus(
-      LocalModelStatus.downloading.name,
-    );
+    _listenToWorkerUpdates();
 
     try {
-      final path = await _downloadService!.downloadModel(
+      await _downloadService!.startDownload(
         onProgress: (progress) {
           state = state.copyWith(downloadProgress: progress);
         },
-        onComplete: () {},
+        onComplete: (_) {},
         onError: (error) {
           state = state.copyWith(
             status: LocalModelStatus.none,
@@ -105,39 +206,8 @@ class LocalModelNotifier extends _$LocalModelNotifier {
         },
       );
 
-      final isValid = await _downloadService!.verifyModel(path);
-      if (!isValid) {
-        await _downloadService!.deleteModel(path);
-        await PreferencesService.setLocalModelStatus(
-          LocalModelStatus.none.name,
-        );
-        state = state.copyWith(
-          status: LocalModelStatus.none,
-          error: 'Le modèle téléchargé est corrompu',
-          downloadProgress: 0.0,
-        );
-        return;
-      }
-
-      await PreferencesService.setLocalModelStatus(
-        LocalModelStatus.ready.name,
-      );
-      await PreferencesService.setLocalModelPath(path);
-      await PreferencesService.setLocalModelVersion(
-        ModelDownloadService.modelVersion,
-      );
-
-      state = state.copyWith(
-        status: LocalModelStatus.ready,
-        modelPath: path,
-        downloadProgress: 1.0,
-      );
-
-      ref.invalidate(litertEngineProvider);
+      await _onDownloadComplete();
     } on ModelDownloadException catch (e) {
-      await PreferencesService.setLocalModelStatus(
-        LocalModelStatus.none.name,
-      );
       state = state.copyWith(
         status: LocalModelStatus.none,
         error: e.message,
@@ -145,9 +215,6 @@ class LocalModelNotifier extends _$LocalModelNotifier {
       );
       rethrow;
     } catch (e) {
-      await PreferencesService.setLocalModelStatus(
-        LocalModelStatus.none.name,
-      );
       state = state.copyWith(
         status: LocalModelStatus.none,
         error: 'Erreur inattendue : $e',
@@ -161,8 +228,7 @@ class LocalModelNotifier extends _$LocalModelNotifier {
     try {
       _downloadService ??= ModelDownloadService();
       await _downloadService!.cancelDownload();
-
-      await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
+      _dbSubscription?.cancel();
 
       state = state.copyWith(
         status: LocalModelStatus.none,
@@ -184,7 +250,6 @@ class LocalModelNotifier extends _$LocalModelNotifier {
         await _downloadService!.deleteModel(path);
       }
 
-      await PreferencesService.setLocalModelStatus(LocalModelStatus.none.name);
       await PreferencesService.setLocalModelPath(null);
 
       ref.invalidate(litertEngineProvider);

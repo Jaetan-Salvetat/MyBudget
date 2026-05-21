@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_updater/app_updater.dart';
+import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 
@@ -30,6 +31,7 @@ void main() {
     await dotenv.load();
     await PreferencesService.init();
     await initializeDateFormatting('fr_FR', null);
+    await FileDownloader().start();
 
     final packageInfo = await PackageInfo.fromPlatform();
     final isBeta = packageInfo.packageName.endsWith('.beta');

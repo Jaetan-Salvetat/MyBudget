@@ -20,7 +20,6 @@ class PreferencesService {
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
 
-  static const String keyLocalModelStatus = 'localModelStatus';
   static const String keyLocalModelPath = 'localModelPath';
   static const String keyLocalModelVersion = 'localModelVersion';
 
@@ -134,14 +133,6 @@ class PreferencesService {
 
   static Future<void> setExpensesSortBy(String value) async {
     await _prefs.setString(keyExpensesSortBy, value);
-  }
-
-  static String getLocalModelStatus() {
-    return _prefs.getString(keyLocalModelStatus) ?? 'none';
-  }
-
-  static Future<void> setLocalModelStatus(String status) async {
-    await _prefs.setString(keyLocalModelStatus, status);
   }
 
   static String? getLocalModelPath() {

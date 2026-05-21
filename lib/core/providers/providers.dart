@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:app_updater/app_updater.dart';
 import 'package:flutter_litert_lm/flutter_litert_lm.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mybudget/core/enums/local_model_status.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_repository.dart';
@@ -27,13 +28,14 @@ Future<ObjectBoxService> objectBoxService(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<LitertEngineService?> litertEngine(Ref ref) async {
-  final status = LocalModelStatus.fromString(
-    PreferencesService.getLocalModelStatus(),
-  );
-  if (status != LocalModelStatus.ready) return null;
-
   final modelPath = PreferencesService.getLocalModelPath();
   if (modelPath == null) return null;
+
+  final file = File(modelPath);
+  if (!file.existsSync()) {
+    await PreferencesService.setLocalModelPath(null);
+    return null;
+  }
 
   try {
     return await LitertEngineService.getInstance(
@@ -47,7 +49,6 @@ Future<LitertEngineService?> litertEngine(Ref ref) async {
         LiteLmBackend.cpu,
       );
     } catch (_) {
-      await PreferencesService.setLocalModelStatus('none');
       await PreferencesService.setLocalModelPath(null);
       return null;
     }
