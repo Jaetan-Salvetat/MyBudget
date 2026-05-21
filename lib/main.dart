@@ -4,6 +4,7 @@ import 'package:app_updater/app_updater.dart';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/services/model_download_service.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +32,25 @@ void main() {
     await dotenv.load();
     await PreferencesService.init();
     await initializeDateFormatting('fr_FR', null);
+    await FileDownloader().configure(
+      androidConfig: [(Config.runInForeground, Config.always)],
+    );
+    FileDownloader().configureNotificationForGroup(
+      ModelDownloadService.taskGroup,
+      running: const TaskNotification(
+        'Téléchargement du modèle IA',
+        '{displayName} — {progress}',
+      ),
+      complete: const TaskNotification(
+        'Modèle IA installé',
+        '{displayName}',
+      ),
+      error: const TaskNotification(
+        'Échec du téléchargement',
+        '{displayName}',
+      ),
+      progressBar: true,
+    );
     await FileDownloader().start();
 
     final packageInfo = await PackageInfo.fromPlatform();

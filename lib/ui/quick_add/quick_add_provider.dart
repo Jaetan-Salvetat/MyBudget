@@ -1,6 +1,7 @@
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/local_inference_service.dart';
 import 'package:mybudget/core/services/open_router_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -40,12 +41,26 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       final recurringExpenses = allExpenses
           .where((e) => e.frequency != 'Ponctuel')
           .toList();
-      final service = OpenRouterService();
-      final result = await service.parseExpense(
-        input,
-        categories,
-        recurringExpenses: recurringExpenses,
-      );
+
+      final engine = ref.read(litertEngineProvider).value;
+      final QuickAddResultModel result;
+
+      if (engine != null) {
+        final localService = LocalInferenceService(engine);
+        result = await localService.parseExpense(
+          input,
+          categories,
+          recurringExpenses: recurringExpenses,
+        );
+      } else {
+        final cloudService = OpenRouterService();
+        result = await cloudService.parseExpense(
+          input,
+          categories,
+          recurringExpenses: recurringExpenses,
+        );
+      }
+
       await PreferencesService.incrementQuickAddCount();
       state = AsyncData(result);
     } on QuickAddException catch (e, st) {

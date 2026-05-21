@@ -192,29 +192,9 @@ class LocalModelNotifier extends _$LocalModelNotifier {
     _listenToWorkerUpdates();
 
     try {
-      await _downloadService!.startDownload(
-        onProgress: (progress) {
-          state = state.copyWith(downloadProgress: progress);
-        },
-        onComplete: (_) {},
-        onError: (error) {
-          state = state.copyWith(
-            status: LocalModelStatus.none,
-            error: error,
-            downloadProgress: 0.0,
-          );
-        },
-      );
-
-      await _onDownloadComplete();
-    } on ModelDownloadException catch (e) {
-      state = state.copyWith(
-        status: LocalModelStatus.none,
-        error: e.message,
-        downloadProgress: 0.0,
-      );
-      rethrow;
+      await _downloadService!.enqueueDownload();
     } catch (e) {
+      _dbSubscription?.cancel();
       state = state.copyWith(
         status: LocalModelStatus.none,
         error: 'Erreur inattendue : $e',

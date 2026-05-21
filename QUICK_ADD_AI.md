@@ -80,6 +80,6 @@ Voir `/tmp/quick_add_tests/prompt.txt` — JSON strict avec enum de catégories 
 - [x] Settings UI (opt-in, install/delete/progress)
 - [x] Service d'inférence locale (LocalInferenceService)
 - [x] Prompt partagé cloud/local (ExpensePromptBuilder)
-- [ ] Brancher QuickAddNotifier sur LocalInferenceService (fallback OpenRouter)
-- [ ] Tests unitaires + intégration
+- [x] Brancher QuickAddNotifier sur LocalInferenceService (fallback OpenRouter)
+- [x] Tests unitaires + intégration
 - [ ] Test sur device physique Android

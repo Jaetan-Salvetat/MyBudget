@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
@@ -14,8 +13,6 @@ class ModelDownloadService {
   static const double requiredSpaceGb = 3.0;
   static const String modelVersion = '1.0.0';
   static const String taskGroup = 'gemma_model';
-
-  DownloadTask? _activeTask;
 
   Future<double> getAvailableSpaceGb() async {
     final diskSpace = DiskSpacePlus();
@@ -45,31 +42,27 @@ class ModelDownloadService {
   }
 
   Future<TaskRecord?> getActiveDownload() async {
-    final records = await FileDownloader()
-        .database
-        .allRecords(group: taskGroup);
+    final records =
+        await FileDownloader().database.allRecords(group: taskGroup);
     for (final record in records) {
       if (record.status == TaskStatus.running ||
           record.status == TaskStatus.enqueued ||
-          record.status == TaskStatus.waitingToRetry) {
+          record.status == TaskStatus.waitingToRetry ||
+          record.status == TaskStatus.paused) {
         return record;
       }
     }
     return null;
   }
 
-  Future<void> startDownload({
-    required void Function(double progress) onProgress,
-    required void Function(String path) onComplete,
-    required void Function(String error) onError,
-  }) async {
+  Future<void> enqueueDownload() async {
     final dirPath = await _modelDirectoryPath;
     final dir = Directory(dirPath);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
 
-    _activeTask = DownloadTask(
+    final task = DownloadTask(
       url: modelUrl,
       filename: modelFilename,
       directory: dirPath,
@@ -81,37 +74,10 @@ class ModelDownloadService {
       displayName: 'Modèle IA Gemma',
     );
 
-    final result = await FileDownloader().download(
-      _activeTask!,
-      onProgress: onProgress,
-      onStatus: (status) {
-        if (status == TaskStatus.complete) {
-          onComplete('$dirPath/$modelFilename');
-        } else if (status == TaskStatus.failed ||
-            status == TaskStatus.notFound) {
-          onError('Le téléchargement a échoué');
-        } else if (status == TaskStatus.canceled) {
-          onError('Téléchargement annulé');
-        }
-      },
-    );
-
-    _activeTask = null;
-
-    if (result.status != TaskStatus.complete) {
-      throw ModelDownloadException(
-        'Téléchargement échoué : ${result.status.name}',
-      );
-    }
+    await FileDownloader().enqueue(task);
   }
 
   Future<void> cancelDownload() async {
-    final task = _activeTask;
-    if (task != null) {
-      await FileDownloader().cancel(task);
-      _activeTask = null;
-      return;
-    }
     final record = await getActiveDownload();
     if (record != null) {
       await FileDownloader().cancel(record.task);
