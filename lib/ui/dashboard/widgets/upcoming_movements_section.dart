@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -78,7 +79,7 @@ class _MovementRow extends StatelessWidget {
     final isIncoming = movement.direction == MovementDirection.incoming;
     final amountColor = isIncoming ? finance.income : finance.expense;
     final iconColor = isIncoming ? finance.income : movement.color;
-    final iconData = isIncoming ? Icons.savings_rounded : movement.icon;
+    final iconData = isIncoming ? Symbols.savings_rounded : movement.icon;
     final formattedAmount = NumberFormat.currency(
       locale: 'fr_FR',
       symbol: '€',

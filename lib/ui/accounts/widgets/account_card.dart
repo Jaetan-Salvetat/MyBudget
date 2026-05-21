@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -76,7 +77,7 @@ class AccountCard extends StatelessWidget {
                 Row(
                   children: [
                     CategoryIcon(
-                      icon: Icons.account_balance_wallet_rounded,
+                      icon: Symbols.account_balance_wallet_rounded,
                       color: scheme.primary,
                       size: CategoryIconSize.md,
                     ),
@@ -110,7 +111,7 @@ class AccountCard extends StatelessWidget {
                       ),
                     ),
                     Icon(
-                      Icons.chevron_right_rounded,
+                      Symbols.chevron_right_rounded,
                       size: 22,
                       color: scheme.onSurfaceVariant,
                     ),

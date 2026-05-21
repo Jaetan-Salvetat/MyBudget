@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/models/category_model.dart';
@@ -42,7 +43,7 @@ class ExpensesQuickFilters extends StatelessWidget {
             label: const Text('Toutes'),
             selected: allSelected,
             avatar: Icon(
-              Icons.tune,
+              Symbols.tune_rounded,
               size: 14,
               color: allSelected ? scheme.primary : scheme.onSurfaceVariant,
             ),
@@ -99,7 +100,7 @@ class _SortChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.swap_vert, size: 14, color: scheme.onSurface),
+            Icon(Symbols.swap_vert_rounded, size: 14, color: scheme.onSurface),
             const SizedBox(width: 5),
             Text(
               label,
@@ -112,7 +113,7 @@ class _SortChip extends StatelessWidget {
             ),
             const SizedBox(width: 5),
             Icon(
-              Icons.expand_more,
+              Symbols.expand_more_rounded,
               size: 14,
               color: scheme.onSurfaceVariant,
             ),

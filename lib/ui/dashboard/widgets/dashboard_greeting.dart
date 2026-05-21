@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
@@ -46,7 +47,7 @@ class DashboardGreeting extends StatelessWidget {
             ),
             if (onSettingsTap != null)
               FrostedControlButton(
-                icon: Icons.settings_rounded,
+                icon: Symbols.settings_rounded,
                 onPressed: onSettingsTap,
               ),
           ],

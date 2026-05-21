@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 
@@ -57,18 +58,18 @@ class _SortMenuTile extends StatelessWidget {
           color: selected ? scheme.primary : scheme.onSurface,
         ),
       ),
-      trailing: selected ? Icon(Icons.check, color: scheme.primary) : null,
+      trailing: selected ? Icon(Symbols.check_rounded, color: scheme.primary) : null,
       onTap: onTap,
     );
   }
 
   IconData _iconFor(ExpenseSortBy option) {
     return switch (option) {
-      ExpenseSortBy.dateDesc => Icons.arrow_downward,
-      ExpenseSortBy.dateAsc => Icons.arrow_upward,
-      ExpenseSortBy.amountDesc => Icons.south,
-      ExpenseSortBy.amountAsc => Icons.north,
-      ExpenseSortBy.name => Icons.sort_by_alpha,
+      ExpenseSortBy.dateDesc => Symbols.arrow_downward_rounded,
+      ExpenseSortBy.dateAsc => Symbols.arrow_upward_rounded,
+      ExpenseSortBy.amountDesc => Symbols.south_rounded,
+      ExpenseSortBy.amountAsc => Symbols.north_rounded,
+      ExpenseSortBy.name => Symbols.sort_by_alpha_rounded,
     };
   }
 }

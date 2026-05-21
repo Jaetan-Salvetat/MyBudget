@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class AddAccountTile extends StatelessWidget {
   final VoidCallback onTap;
@@ -37,7 +38,7 @@ class AddAccountTile extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Icon(
-                    Icons.add_rounded,
+                    Symbols.add_rounded,
                     size: 22,
                     color: scheme.primary,
                   ),

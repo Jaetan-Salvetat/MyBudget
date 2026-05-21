@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -52,25 +53,25 @@ class AccountBalanceBreakdown extends StatelessWidget {
           child: Column(
             children: [
               _DecompRow(
-                icon: Icons.arrow_downward_rounded,
+                icon: Symbols.arrow_downward_rounded,
                 label: 'Revenus',
                 value: '+ ${formatter.format(totalRevenues)}',
                 valueColor: finance.income,
               ),
               _DecompRow(
-                icon: Icons.arrow_upward_rounded,
+                icon: Symbols.arrow_upward_rounded,
                 label: 'Dépenses',
                 value: '− ${formatter.format(totalExpenses)}',
                 valueColor: finance.expense,
               ),
               _DecompRow(
-                icon: Icons.account_balance_rounded,
+                icon: Symbols.account_balance_rounded,
                 label: 'Mensualités',
                 value: '− ${formatter.format(totalLoanPayments)}',
                 valueColor: finance.expense,
               ),
               _DecompRow(
-                icon: Icons.swap_horiz_rounded,
+                icon: Symbols.swap_horiz_rounded,
                 label: 'Virements',
                 value: formatSigned(totalTransfers, forceSign: true),
                 valueColor: totalTransfers >= 0

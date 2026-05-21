@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:intl/intl.dart';
 
 class RecurringSummaryCard extends StatelessWidget {
@@ -59,7 +60,7 @@ class RecurringSummaryCard extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Icon(
-                        Icons.event_repeat,
+                        Symbols.event_repeat_rounded,
                         color: scheme.onPrimary,
                         size: 16,
                       ),
@@ -104,7 +105,7 @@ class RecurringSummaryCard extends StatelessWidget {
                       curve: _curve,
                       turns: expanded ? 0.5 : 0,
                       child: Icon(
-                        Icons.expand_more,
+                        Symbols.expand_more_rounded,
                         size: 20,
                         color: scheme.onSurfaceVariant,
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -507,7 +508,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     return EmptyState(
       message: 'Aucune dépense enregistrée',
       subMessage: 'Ajoutez vos dépenses pour commencer à gérer vos finances',
-      icon: Icons.receipt_long_outlined,
+      icon: Symbols.receipt_long_rounded,
       buttonText: 'Ajouter une dépense',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];

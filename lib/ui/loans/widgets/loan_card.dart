@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/loan.dart';
@@ -49,7 +50,7 @@ class LoanCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
-                  Icons.account_balance_rounded,
+                  Symbols.account_balance_rounded,
                   color: Colors.white,
                   size: 22,
                 ),

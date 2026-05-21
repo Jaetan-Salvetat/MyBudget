@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 
 class ExpensesSearchBar extends StatelessWidget {
@@ -39,7 +40,7 @@ class ExpensesSearchBar extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.search,
+                  Symbols.search_rounded,
                   size: 18,
                   color: scheme.onSurfaceVariant,
                 ),
@@ -79,7 +80,7 @@ class ExpensesSearchBar extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Icon(
-                        Icons.close,
+                        Symbols.close_rounded,
                         size: 12,
                         color: scheme.onSurfaceVariant,
                       ),
@@ -113,7 +114,7 @@ class ExpensesSearchBar extends StatelessWidget {
                   width: 40,
                   height: 40,
                   child: Icon(
-                    Icons.tune,
+                    Symbols.tune_rounded,
                     size: 20,
                     color: hasFilters ? scheme.onPrimary : scheme.onSurface,
                   ),

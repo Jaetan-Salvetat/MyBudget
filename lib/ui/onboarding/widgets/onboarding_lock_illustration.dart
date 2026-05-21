@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mybudget/ui/onboarding/widgets/onboarding_svgs.dart';
 
@@ -33,7 +34,7 @@ class OnboardingLockIllustration extends StatelessWidget {
         children: [
           SvgPicture.string(svg),
           Icon(
-            Icons.lock_outline_rounded,
+            Symbols.lock_rounded,
             size: 88,
             color: scheme.primary.withValues(alpha: 0.7),
           ),
@@ -60,7 +61,7 @@ class OnboardingLockIllustration extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.cloud_off_rounded,
+                    Symbols.cloud_off_rounded,
                     size: 16,
                     color: scheme.primary,
                   ),

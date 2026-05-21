@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
@@ -34,7 +35,7 @@ class QuickAddErrorCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.error_rounded,
+              Symbols.error_rounded,
               size: 20,
               color: finance.expense,
               fill: 1,

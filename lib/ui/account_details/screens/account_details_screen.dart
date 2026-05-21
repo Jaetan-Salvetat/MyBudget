@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/transfer.dart';
@@ -128,7 +129,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
             const SizedBox(height: 16),
             FrostedFilledButton.icon(
               onPressed: () => _showAddTransferBottomSheet(context),
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Symbols.add_rounded, size: 18),
               label: const Text('Ajouter un virement'),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
@@ -138,7 +139,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
                 Expanded(
                   child: FrostedTonalButton.icon(
                     onPressed: () => _showEditAccountBottomSheet(context),
-                    icon: const Icon(Icons.edit, size: 18),
+                    icon: const Icon(Symbols.edit_rounded, size: 18),
                     label: const Text('Modifier'),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -147,7 +148,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
                 Expanded(
                   child: FrostedOutlinedButton.icon(
                     onPressed: () => _showDeleteConfirmation(context),
-                    icon: const Icon(Icons.delete, size: 18),
+                    icon: const Icon(Symbols.delete_rounded, size: 18),
                     label: const Text('Supprimer'),
                     foregroundColor: Theme.of(context).colorScheme.error,
                     borderColor: Theme.of(context)

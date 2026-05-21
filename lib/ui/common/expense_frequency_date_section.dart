@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -64,7 +65,7 @@ class _ExpenseFrequencyDateSectionState
             child: Row(
               children: [
                 Icon(
-                  Icons.calendar_today,
+                  Symbols.calendar_today_rounded,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
@@ -40,7 +41,7 @@ class MonthSelector extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ChevronButton(
-                    icon: Icons.chevron_left_rounded,
+                    icon: Symbols.chevron_left_rounded,
                     onPressed: () => ref.read(selectedMonthProvider.notifier).previousMonth(),
                   ),
                   Padding(
@@ -56,7 +57,7 @@ class MonthSelector extends ConsumerWidget {
                     ),
                   ),
                   _ChevronButton(
-                    icon: Icons.chevron_right_rounded,
+                    icon: Symbols.chevron_right_rounded,
                     onPressed: () => ref.read(selectedMonthProvider.notifier).nextMonth(),
                   ),
                 ],

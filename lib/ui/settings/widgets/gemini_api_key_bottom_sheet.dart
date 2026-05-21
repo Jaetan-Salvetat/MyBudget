@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -100,7 +101,7 @@ class _GeminiApiKeyBottomSheetState extends State<GeminiApiKeyBottomSheet> {
         children: [
           _buildInfoCard(
             context,
-            icon: Icons.info_outline,
+            icon: Symbols.info_rounded,
             color: theme.colorScheme.primary,
             title: 'Comment obtenir une clé ?',
             children: [
@@ -116,7 +117,7 @@ class _GeminiApiKeyBottomSheetState extends State<GeminiApiKeyBottomSheet> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.open_in_new, size: 16),
+                    Icon(Symbols.open_in_new_rounded, size: 16),
                     SizedBox(width: 8),
                     Text('Ouvrir Google AI Studio'),
                   ],
@@ -127,7 +128,7 @@ class _GeminiApiKeyBottomSheetState extends State<GeminiApiKeyBottomSheet> {
           const SizedBox(height: 12),
           _buildInfoCard(
             context,
-            icon: Icons.warning_amber_rounded,
+            icon: Symbols.warning_amber_rounded,
             color: theme.colorScheme.error,
             title: 'Important',
             children: [
@@ -147,7 +148,7 @@ class _GeminiApiKeyBottomSheetState extends State<GeminiApiKeyBottomSheet> {
             controller: _controller,
             labelText: 'Clé API Gemini',
             hintText: 'AIza...',
-            prefixIcon: const Icon(Icons.vpn_key_outlined),
+            prefixIcon: const Icon(Symbols.vpn_key_rounded),
             obscureText: true,
           ),
           const SizedBox(height: 24),

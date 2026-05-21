@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/data/import_entity_report.dart';
@@ -119,7 +120,7 @@ class DataManagementDialogs {
             Row(
               children: [
                 Icon(
-                  Icons.warning_amber_rounded,
+                  Symbols.warning_amber_rounded,
                   color: Theme.of(context).colorScheme.error,
                   size: 18,
                 ),
@@ -266,7 +267,7 @@ class _ImportReportRow extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            entity.hasIssues ? Icons.warning_amber_rounded : Icons.check_circle,
+            entity.hasIssues ? Symbols.warning_amber_rounded : Symbols.check_circle_rounded,
             color: entity.hasIssues
                 ? theme.colorScheme.error
                 : theme.colorScheme.primary,

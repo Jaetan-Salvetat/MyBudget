@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -105,7 +106,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.edit, size: 18),
+                Icon(Symbols.edit_rounded, size: 18),
                 SizedBox(width: 8),
                 Text('Modifier'),
               ],
@@ -122,7 +123,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.delete, size: 18),
+                Icon(Symbols.delete_rounded, size: 18),
                 SizedBox(width: 8),
                 Text('Supprimer'),
               ],
@@ -164,7 +165,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
       LoanDetailRow(
         label: 'Type',
         value: loan.repaymentType.label,
-        icon: Icons.trending_down_rounded,
+        icon: Symbols.trending_down_rounded,
       ),
       if (loan.deferredMonths > 0)
         LoanDetailRow(
@@ -236,7 +237,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
           Row(
             children: [
               Icon(
-                Icons.note_outlined,
+                Symbols.note_rounded,
                 size: 16,
                 color: scheme.onSurfaceVariant,
               ),

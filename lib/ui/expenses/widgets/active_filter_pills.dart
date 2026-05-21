@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ActiveFilterPill {
   final String id;
@@ -63,7 +64,7 @@ class ActiveFilterPills extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Icon(
-                      Icons.close,
+                      Symbols.close_rounded,
                       size: 11,
                       color: scheme.onPrimaryContainer,
                     ),

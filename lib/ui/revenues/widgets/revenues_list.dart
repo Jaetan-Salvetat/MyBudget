@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -264,7 +265,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return EmptyState(
       message: 'Aucun revenu enregistré',
       subMessage: 'Ajoutez vos revenus pour commencer à gérer vos finances',
-      icon: Icons.trending_up,
+      icon: Symbols.trending_up_rounded,
       buttonText: 'Ajouter un revenu',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];

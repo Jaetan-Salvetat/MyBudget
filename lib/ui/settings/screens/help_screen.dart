@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
 class HelpScreen extends StatelessWidget {
@@ -16,42 +17,42 @@ class HelpScreen extends StatelessWidget {
             context,
             'Bienvenue dans MyBudget',
             'MyBudget vous aide à gérer vos finances personnelles simplement et efficacement.',
-            Icons.waving_hand,
+            Symbols.waving_hand_rounded,
           ),
           const SizedBox(height: 16),
           _buildSection(
             context,
             'Dashboard',
             'Visualisez votre solde actuel, vos dépenses par catégorie et vos paiements à venir en un coup d\'œil.',
-            Icons.dashboard,
+            Symbols.dashboard_rounded,
           ),
           const SizedBox(height: 16),
           _buildSection(
             context,
             'Comptes',
             'Gérez vos différents comptes bancaires. Vous pouvez voir le solde de chaque compte et les transactions associées.',
-            Icons.account_balance,
+            Symbols.account_balance_rounded,
           ),
           const SizedBox(height: 16),
           _buildSection(
             context,
             'Dépenses et Revenus',
             'Ajoutez vos transactions quotidiennes. Vous pouvez spécifier si elles sont récurrentes (mensuelles, annuelles) pour qu\'elles s\'ajoutent automatiquement.',
-            Icons.swap_horiz,
+            Symbols.swap_horiz_rounded,
           ),
           const SizedBox(height: 16),
           _buildSection(
             context,
             'Emprunts',
             'Suivez vos prêts en cours. L\'application calcule automatiquement le montant restant et la progression du remboursement.',
-            Icons.account_balance_wallet,
+            Symbols.account_balance_wallet_rounded,
           ),
           const SizedBox(height: 16),
           _buildSection(
             context,
             'Paramètres',
             'Personnalisez l\'application (thème sombre/clair), gérez vos catégories, et sauvegardez vos données.',
-            Icons.settings,
+            Symbols.settings_rounded,
           ),
         ],
       ),

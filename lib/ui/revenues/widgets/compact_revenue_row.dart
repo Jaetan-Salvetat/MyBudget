@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -125,7 +126,7 @@ class CompactRevenueRow extends StatelessWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: 18,
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(Symbols.more_vert_rounded),
                 color: scheme.onSurfaceVariant,
                 onPressed: () => _showOptionsBottomSheet(context),
               ),
@@ -144,7 +145,7 @@ class CompactRevenueRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FrostedListTile(
-            leading: const Icon(Icons.edit),
+            leading: const Icon(Symbols.edit_rounded),
             title: const Text('Modifier'),
             onTap: () {
               Navigator.pop(context);
@@ -153,7 +154,7 @@ class CompactRevenueRow extends StatelessWidget {
           ),
           FrostedListTile(
             leading: Icon(
-              Icons.delete,
+              Symbols.delete_rounded,
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(
@@ -251,7 +252,7 @@ class _Leading extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Icon(
-                      Icons.savings_rounded,
+                      Symbols.savings_rounded,
                       color: fallbackColor,
                       size: 17,
                     ),

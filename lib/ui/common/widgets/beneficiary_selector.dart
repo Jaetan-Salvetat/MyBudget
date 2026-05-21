@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -132,7 +133,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
               controller: _newNameController,
               labelText: 'Nom du bénéficiaire',
               hintText: 'Ex: Paul',
-              prefixIcon: const Icon(Icons.person_outline),
+              prefixIcon: const Icon(Symbols.person_rounded),
             ),
             if (_createError != null)
               Padding(
@@ -187,7 +188,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
                 ),
                 const SizedBox(width: 8),
                 FrostedIconButton(
-                  icon: Icons.add,
+                  icon: Symbols.add_rounded,
                   onPressed: () => setState(() {
                     _isCreating = true;
                     _newNameController.clear();

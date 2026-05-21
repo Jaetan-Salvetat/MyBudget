@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -152,8 +153,8 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
                         const SizedBox(width: 8),
                         Icon(
                           isLast
-                              ? Icons.check_rounded
-                              : Icons.arrow_forward_rounded,
+                              ? Symbols.check_rounded
+                              : Symbols.arrow_forward_rounded,
                           size: 18,
                         ),
                       ],

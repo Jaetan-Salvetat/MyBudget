@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/ui/settings/widgets/categories_bottom_sheet.dart';
@@ -15,13 +16,13 @@ class InputSection extends StatelessWidget {
         SettingsTile(
           title: 'Gérer les catégories',
           subtitle: 'Ajouter, modifier ou supprimer des catégories',
-          leading: const Icon(Icons.category),
+          leading: const Icon(Symbols.category_rounded),
           onTap: () => CategoriesBottomSheet.show(context: context),
         ),
         SettingsTile(
           title: 'Gérer les bénéficiaires',
           subtitle: 'Ajouter ou supprimer des bénéficiaires',
-          leading: const Icon(Icons.people_outline),
+          leading: const Icon(Symbols.people_rounded),
           onTap: () => BeneficiariesBottomSheet.show(context: context),
         ),
       ],

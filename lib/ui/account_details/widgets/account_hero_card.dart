@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -58,7 +59,7 @@ class AccountHeroCard extends StatelessWidget {
             Row(
               children: [
                 CategoryIcon(
-                  icon: Icons.account_balance_wallet_rounded,
+                  icon: Symbols.account_balance_wallet_rounded,
                   color: scheme.primary,
                   size: CategoryIconSize.md,
                 ),

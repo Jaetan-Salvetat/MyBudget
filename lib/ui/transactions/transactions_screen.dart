@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
@@ -55,12 +56,12 @@ class TransactionsScreen extends ConsumerWidget {
                     ),
                   ),
                   FrostedControlButton(
-                    icon: Icons.add_rounded,
+                    icon: Symbols.add_rounded,
                     onPressed: () => _handleAdd(context, ref),
                   ),
                   const SizedBox(width: 4),
                   FrostedControlButton(
-                    icon: Icons.settings_rounded,
+                    icon: Symbols.settings_rounded,
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(

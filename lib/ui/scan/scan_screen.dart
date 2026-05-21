@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
 import 'package:intl/intl.dart';
@@ -193,27 +194,27 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
     switch (scanError) {
       case ScanCooldownException():
-        icon = Icons.timer_outlined;
+        icon = Symbols.timer_rounded;
         title = scanError.message;
         subtitle = 'Vous pourrez réessayer dans un instant';
         hasCooldown = true;
       case ScanRateLimitException():
-        icon = Icons.cloud_off_outlined;
+        icon = Symbols.cloud_off_rounded;
         title = scanError.message;
         subtitle = 'Réessayez dans quelques instants';
         hasCooldown = true;
       case ScanServiceUnavailableException():
-        icon = Icons.cloud_off_outlined;
+        icon = Symbols.cloud_off_rounded;
         title = scanError.message;
         subtitle = 'Réessayez dans quelques instants';
         hasCooldown = true;
       case ScanGenericException():
-        icon = Icons.error_outline;
+        icon = Symbols.error_rounded;
         title = scanError.message;
         subtitle = '';
         hasCooldown = false;
       default:
-        icon = Icons.error_outline;
+        icon = Symbols.error_rounded;
         title = 'Une erreur est survenue';
         subtitle = '$scanError';
         hasCooldown = false;
@@ -317,7 +318,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.receipt_long_outlined,
+              Symbols.receipt_long_rounded,
               size: 64,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
@@ -442,7 +443,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                     child: Row(
                       children: [
                         Icon(
-                          Icons.calendar_today,
+                          Symbols.calendar_today_rounded,
                           size: 16,
                           color: theme.colorScheme.primary,
                         ),
@@ -455,7 +456,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                         ),
                         const SizedBox(width: 4),
                         Icon(
-                          Icons.edit,
+                          Symbols.edit_rounded,
                           size: 14,
                           color: theme.colorScheme.primary,
                         ),
@@ -558,7 +559,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               Row(
                 children: [
                   Icon(
-                    Icons.warning_amber_rounded,
+                    Symbols.warning_amber_rounded,
                     color: theme.colorScheme.error,
                     size: 20,
                   ),
@@ -651,7 +652,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
             ),
             const SizedBox(width: 8),
             Icon(
-              Icons.edit_outlined,
+              Symbols.edit_rounded,
               size: 14,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),

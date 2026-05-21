@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,12 +57,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   static const List<_NavItem> _items = [
-    _NavItem('Accueil', Icons.dashboard_outlined, Icons.dashboard),
-    _NavItem('Transactions', Icons.swap_vert_outlined, Icons.swap_vert),
+    _NavItem('Accueil', Symbols.dashboard_rounded, Symbols.dashboard_rounded),
+    _NavItem('Transactions', Symbols.swap_vert_rounded, Symbols.swap_vert_rounded),
     _NavItem(
       'Comptes',
-      Icons.account_balance_outlined,
-      Icons.account_balance,
+      Symbols.account_balance_rounded,
+      Symbols.account_balance_rounded,
     ),
   ];
 
@@ -138,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FrostedListTile(
-            leading: const Icon(Icons.camera_alt),
+            leading: const Icon(Symbols.camera_alt_rounded),
             title: const Text('Prendre une photo'),
             onTap: () {
               Navigator.pop(context);
@@ -146,7 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
           FrostedListTile(
-            leading: const Icon(Icons.photo_library),
+            leading: const Icon(Symbols.photo_library_rounded),
             title: const Text('Choisir depuis la galerie'),
             onTap: () {
               Navigator.pop(context);

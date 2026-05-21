@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
@@ -152,7 +153,7 @@ class LoansList extends ConsumerWidget {
     return EmptyState(
       message: 'Aucun emprunt enregistré',
       subMessage: 'Ajoutez vos emprunts pour suivre vos remboursements',
-      icon: Icons.payments,
+      icon: Symbols.payments_rounded,
       buttonText: 'Ajouter un emprunt',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];

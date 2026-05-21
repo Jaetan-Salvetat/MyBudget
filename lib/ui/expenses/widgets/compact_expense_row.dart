@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -66,7 +67,7 @@ class CompactExpenseRow extends StatelessWidget {
           children: [
             _CategoryDot(
               color: categoryColor,
-              icon: category?.getIconData() ?? Icons.category,
+              icon: category?.getIconData() ?? Symbols.category_rounded,
               ringColor: isRecurrent ? badgeColor : null,
               badgeLetter: letter,
               badgeColor: badgeColor,
@@ -120,7 +121,7 @@ class CompactExpenseRow extends StatelessWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: 18,
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(Symbols.more_vert_rounded),
                 color: scheme.onSurfaceVariant,
                 onPressed: () => _showOptionsBottomSheet(context),
               ),
@@ -149,7 +150,7 @@ class CompactExpenseRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FrostedListTile(
-            leading: const Icon(Icons.edit),
+            leading: const Icon(Symbols.edit_rounded),
             title: const Text('Modifier'),
             onTap: () {
               Navigator.pop(context);
@@ -158,7 +159,7 @@ class CompactExpenseRow extends StatelessWidget {
           ),
           FrostedListTile(
             leading: Icon(
-              Icons.delete,
+              Symbols.delete_rounded,
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(

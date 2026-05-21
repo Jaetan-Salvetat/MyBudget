@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
 class ThemeBottomSheet extends StatelessWidget {
@@ -36,21 +37,21 @@ class ThemeBottomSheet extends StatelessWidget {
           context,
           ThemeMode.system,
           'Automatique',
-          Icons.brightness_auto,
+          Symbols.brightness_auto_rounded,
         ),
         const SizedBox(height: 12),
         _buildThemeOption(
           context,
           ThemeMode.light,
           'Clair',
-          Icons.brightness_5,
+          Symbols.brightness_5_rounded,
         ),
         const SizedBox(height: 12),
         _buildThemeOption(
           context,
           ThemeMode.dark,
           'Sombre',
-          Icons.brightness_2,
+          Symbols.brightness_2_rounded,
         ),
       ],
     );
@@ -88,7 +89,7 @@ class ThemeBottomSheet extends StatelessWidget {
       ),
       trailing:
           isSelected
-              ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+              ? Icon(Symbols.check_rounded, color: Theme.of(context).colorScheme.primary)
               : null,
     );
   }

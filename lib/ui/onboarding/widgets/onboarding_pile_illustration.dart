@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 
@@ -14,7 +15,7 @@ class OnboardingPileIllustration extends StatelessWidget {
 
     final cards = <_PileCardData>[
       _PileCardData(
-        icon: Icons.home_rounded,
+        icon: Symbols.home_rounded,
         color: scheme.primary,
         label: 'Loyer',
         amount: '720,00 €',
@@ -24,7 +25,7 @@ class OnboardingPileIllustration extends StatelessWidget {
         rotationDeg: -6,
       ),
       _PileCardData(
-        icon: Icons.subscriptions_rounded,
+        icon: Symbols.subscriptions_rounded,
         color: finance.expense,
         label: 'Netflix',
         amount: '13,99 €',
@@ -34,7 +35,7 @@ class OnboardingPileIllustration extends StatelessWidget {
         rotationDeg: 3,
       ),
       _PileCardData(
-        icon: Icons.shopping_cart_rounded,
+        icon: Symbols.shopping_cart_rounded,
         color: finance.income,
         label: 'Courses',
         amount: '47,32 €',
@@ -44,7 +45,7 @@ class OnboardingPileIllustration extends StatelessWidget {
         rotationDeg: -2,
       ),
       _PileCardData(
-        icon: Icons.directions_subway_rounded,
+        icon: Symbols.directions_subway_rounded,
         color: scheme.tertiary,
         label: 'Navigo',
         amount: '86,40 €',

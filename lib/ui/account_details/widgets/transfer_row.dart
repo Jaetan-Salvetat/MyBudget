@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -63,7 +64,7 @@ class TransferRow extends StatelessWidget {
         child: Row(
           children: [
             CategoryIcon(
-              icon: Icons.swap_horiz_rounded,
+              icon: Symbols.swap_horiz_rounded,
               color: scheme.secondary,
               size: CategoryIconSize.sm,
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
@@ -91,7 +92,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           controller: _nameController,
           labelText: 'Nom du compte',
           hintText: 'Ex: Compte Courant',
-          prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
+          prefixIcon: const Icon(Symbols.account_balance_wallet_rounded),
           autofocus: widget.account == null,
         ),
         const SizedBox(height: 16),
@@ -113,7 +114,7 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
           focusNode: _bankFocusNode,
           labelText: 'Nom de la banque',
           hintText: 'Ex: Crédit Agricole',
-          prefixIcon: const Icon(Icons.account_balance_outlined),
+          prefixIcon: const Icon(Symbols.account_balance_rounded),
         ),
         const SizedBox(height: 32),
         Row(

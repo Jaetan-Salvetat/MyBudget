@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -35,7 +36,7 @@ class AccountList extends ConsumerWidget {
                 child: EmptyState(
                   message: 'Aucun compte',
                   subMessage: 'Ajoutez un compte pour commencer',
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: Symbols.account_balance_wallet_rounded,
                   buttonText: 'Ajouter un compte',
                   onPressed: () => _showAddAccountDialog(context, ref),
                 ),

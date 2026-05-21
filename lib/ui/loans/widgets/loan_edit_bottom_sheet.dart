@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
@@ -126,14 +127,14 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
         FrostedTextField(
           labelText: 'Nom du prêt',
           hintText: 'Ex: Prêt Immo Résidence',
-          prefixIcon: const Icon(Icons.description),
+          prefixIcon: const Icon(Symbols.description_rounded),
           controller: _nameController,
         ),
         const SizedBox(height: 12),
         FrostedTextField(
           labelText: 'Prêteur (Banque)',
           hintText: 'Ex: Banque Populaire',
-          prefixIcon: const Icon(Icons.account_balance),
+          prefixIcon: const Icon(Symbols.account_balance_rounded),
           controller: _lenderController,
         ),
       ],
@@ -160,7 +161,7 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               ),
               const SizedBox(width: 8),
               Icon(
-                Icons.lock,
+                Symbols.lock_rounded,
                 size: 16,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -177,7 +178,7 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
             child: Row(
               children: [
                 Icon(
-                  Icons.info_outline,
+                  Symbols.info_rounded,
                   size: 18,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -311,7 +312,7 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
             controller: TextEditingController(
               text: state.dayOfMonth.toString(),
             ),
-            prefixIcon: const Icon(Icons.event),
+            prefixIcon: const Icon(Symbols.event_rounded),
             onTap: () async {
               final selectedDate = await DateSelector.showDayPicker(
                 context: context,

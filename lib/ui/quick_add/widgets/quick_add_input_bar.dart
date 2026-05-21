@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
@@ -74,7 +75,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
               _CircleButton(
                 onTap: widget.onScanRequested,
                 child: Icon(
-                  Icons.document_scanner_outlined,
+                  Symbols.document_scanner_rounded,
                   size: 22,
                   color: scheme.onSurfaceVariant,
                 ),
@@ -120,7 +121,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
                         ),
                       )
                     : Icon(
-                        Icons.auto_awesome,
+                        Symbols.auto_awesome_rounded,
                         size: 20,
                         color: scheme.onPrimary,
                         fill: 1,

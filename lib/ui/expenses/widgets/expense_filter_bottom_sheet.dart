@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -151,19 +152,19 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
             children: [
               _Chip(
                 label: 'Mensuel',
-                icon: Icons.event_repeat,
+                icon: Symbols.event_repeat_rounded,
                 selected: _selectedTypes.contains(Frequency.monthly),
                 onTap: () => _toggleType(Frequency.monthly),
               ),
               _Chip(
                 label: 'Annuel',
-                icon: Icons.calendar_month,
+                icon: Symbols.calendar_month_rounded,
                 selected: _selectedTypes.contains(Frequency.annual),
                 onTap: () => _toggleType(Frequency.annual),
               ),
               _Chip(
                 label: 'Ponctuel',
-                icon: Icons.circle_outlined,
+                icon: Symbols.circle_rounded,
                 selected: _selectedTypes.contains(Frequency.oneTime),
                 onTap: () => _toggleType(Frequency.oneTime),
               ),
@@ -247,7 +248,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
                 final selected = _selectedAccountIds.contains(account.id);
                 return _Chip(
                   label: account.name,
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: Symbols.account_balance_wallet_rounded,
                   selected: selected,
                   onTap: () => _toggleAccount(account.id),
                 );

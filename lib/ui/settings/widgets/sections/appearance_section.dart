@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:mybudget/core/theme/theme_provider.dart';
@@ -19,7 +20,7 @@ class AppearanceSection extends ConsumerWidget {
         SettingsTile(
           title: 'Thème',
           subtitle: _getThemeNameFromMode(themeState.themeMode),
-          leading: const Icon(Icons.brightness_6),
+          leading: const Icon(Symbols.brightness_6_rounded),
           onTap: () => _showThemeSelectionDialog(context, ref, themeState.themeMode),
         ),
       ],
