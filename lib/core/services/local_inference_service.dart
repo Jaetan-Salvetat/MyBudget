@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_litert_lm/flutter_litert_lm.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/expense_prompt_builder.dart';
 import 'package:mybudget/core/services/litert_engine_service.dart';
@@ -18,7 +19,25 @@ class LocalInferenceService {
     List<CategoryModel> categories, {
     List<ExpenseModel> recurringExpenses = const [],
   }) async {
-    final systemPrompt = ExpensePromptBuilder.buildForLocalModel(
+    final parseResult = await _runParse(input, categories, recurringExpenses);
+
+    if (parseResult.newCategory != null) {
+      final style = await _runCategorize(parseResult.newCategory!);
+      return parseResult.copyWith(
+        newCategoryIcon: style.icon,
+        newCategoryColor: style.color,
+      );
+    }
+
+    return parseResult;
+  }
+
+  Future<QuickAddResultModel> _runParse(
+    String input,
+    List<CategoryModel> categories,
+    List<ExpenseModel> recurringExpenses,
+  ) async {
+    final systemPrompt = ExpensePromptBuilder.buildParseLocal(
       categories,
       recurringExpenses,
     );
@@ -40,8 +59,7 @@ class LocalInferenceService {
       }
 
       final retryResponse = await conversation.sendMessage(
-        'Ta réponse n\'était pas du JSON valide. '
-        'Réponds uniquement avec le JSON demandé, sans texte autour.',
+        'Invalid JSON. Respond ONLY with the JSON object, no surrounding text.',
       );
       final retryJson = _extractJson(retryResponse.text);
 
@@ -59,6 +77,49 @@ class LocalInferenceService {
     }
   }
 
+  Future<_CategoryStyle> _runCategorize(String categoryName) async {
+    final systemPrompt = ExpensePromptBuilder.buildCategorize(categoryName);
+
+    LiteLmConversation? conversation;
+    try {
+      conversation = await _engineService.engine.createConversation(
+        LiteLmConversationConfig(
+          systemInstruction: systemPrompt,
+          samplerConfig: const LiteLmSamplerConfig(temperature: 0.1),
+        ),
+      );
+
+      final response = await conversation.sendMessage(categoryName);
+      final json = _extractJson(response.text);
+
+      if (json != null) {
+        return _parseCategoryStyle(json);
+      }
+
+      return _CategoryStyle.fallback;
+    } catch (_) {
+      return _CategoryStyle.fallback;
+    } finally {
+      await conversation?.dispose();
+    }
+  }
+
+  _CategoryStyle _parseCategoryStyle(Map<String, dynamic> json) {
+    final icon = json['icon'] as String?;
+    final color = json['color'] as String?;
+
+    final validIcon =
+        icon != null && CategoryDefaults.icons.containsKey(icon)
+            ? icon
+            : CategoryDefaults.defaultIcon;
+    final validColor =
+        color != null && CategoryDefaults.hexToColor(color) != null
+            ? color
+            : CategoryDefaults.colorToHex(CategoryDefaults.defaultColor);
+
+    return _CategoryStyle(icon: validIcon, color: validColor);
+  }
+
   Map<String, dynamic>? _extractJson(String text) {
     try {
       final start = text.indexOf('{');
@@ -74,4 +135,16 @@ class LocalInferenceService {
       return null;
     }
   }
+}
+
+class _CategoryStyle {
+  final String icon;
+  final String color;
+
+  const _CategoryStyle({required this.icon, required this.color});
+
+  static final fallback = _CategoryStyle(
+    icon: CategoryDefaults.defaultIcon,
+    color: CategoryDefaults.colorToHex(CategoryDefaults.defaultColor),
+  );
 }
