@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/local_model_status.dart';
-import 'package:mybudget/core/services/model_download_service.dart';
 import 'package:mybudget/ui/settings/local_model_provider.dart';
 import 'package:mybudget/ui/settings/widgets/local_model_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
@@ -23,7 +22,7 @@ class LocalAiSection extends ConsumerWidget {
           _DownloadingTile(state: state, ref: ref)
         else
           SettingsTile(
-            title: 'Modèle Gemma',
+            title: state.installedModel?.displayName ?? 'Modèle IA',
             subtitle: _subtitle(state),
             leading: const Icon(Symbols.smart_toy_rounded),
             onTap: () => LocalModelBottomSheet.show(
@@ -40,7 +39,7 @@ class LocalAiSection extends ConsumerWidget {
       LocalModelStatus.none => state.error ?? 'Non installée',
       LocalModelStatus.downloading => 'Téléchargement…',
       LocalModelStatus.ready =>
-        'Prête · ${ModelDownloadService.modelSizeGb.toStringAsFixed(1)} Go',
+        'Prête · ${state.installedModel?.sizeGb.toStringAsFixed(1) ?? '?'} Go',
     };
   }
 }
@@ -55,6 +54,7 @@ class _DownloadingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final percent = (state.downloadProgress * 100).toStringAsFixed(0);
+    final modelName = state.installedModel?.displayName ?? 'Modèle IA';
 
     return InkWell(
       onTap: () => LocalModelBottomSheet.show(context: context, ref: ref),
@@ -83,7 +83,7 @@ class _DownloadingTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Modèle Gemma',
+                    modelName,
                     style: theme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 2),

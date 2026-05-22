@@ -5,7 +5,6 @@ class QuickAddResultModel {
   final String? newCategory;
   final String? newCategoryIcon;
   final String? newCategoryColor;
-  final String? newCategoryScope;
   final String frequency;
 
   const QuickAddResultModel({
@@ -16,7 +15,6 @@ class QuickAddResultModel {
     this.newCategory,
     this.newCategoryIcon,
     this.newCategoryColor,
-    this.newCategoryScope,
   });
 
   factory QuickAddResultModel.fromJson(Map<String, dynamic> json) {
@@ -27,7 +25,6 @@ class QuickAddResultModel {
       newCategory: json['newCategory'] as String?,
       newCategoryIcon: json['newCategoryIcon'] as String?,
       newCategoryColor: json['newCategoryColor'] as String?,
-      newCategoryScope: json['newCategoryScope'] as String?,
       frequency: json['frequency'] as String,
     );
   }
@@ -39,7 +36,6 @@ class QuickAddResultModel {
     String? newCategory,
     String? newCategoryIcon,
     String? newCategoryColor,
-    String? newCategoryScope,
     String? frequency,
   }) {
     return QuickAddResultModel(
@@ -49,7 +45,6 @@ class QuickAddResultModel {
       newCategory: newCategory ?? this.newCategory,
       newCategoryIcon: newCategoryIcon ?? this.newCategoryIcon,
       newCategoryColor: newCategoryColor ?? this.newCategoryColor,
-      newCategoryScope: newCategoryScope ?? this.newCategoryScope,
       frequency: frequency ?? this.frequency,
     );
   }

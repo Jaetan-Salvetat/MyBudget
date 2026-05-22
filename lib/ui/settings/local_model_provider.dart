@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:background_downloader/background_downloader.dart';
+import 'package:mybudget/core/constants/local_model_catalog.dart';
 import 'package:mybudget/core/enums/local_model_status.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/litert_engine_service.dart';
@@ -16,6 +17,7 @@ class LocalModelState {
   final String? error;
   final double? availableSpaceGb;
   final String? modelPath;
+  final String? modelId;
 
   const LocalModelState({
     this.status = LocalModelStatus.none,
@@ -23,7 +25,11 @@ class LocalModelState {
     this.error,
     this.availableSpaceGb,
     this.modelPath,
+    this.modelId,
   });
+
+  LocalModelConfig? get installedModel =>
+      modelId != null ? LocalModelCatalog.getById(modelId!) : null;
 
   LocalModelState copyWith({
     LocalModelStatus? status,
@@ -31,6 +37,7 @@ class LocalModelState {
     String? error,
     double? availableSpaceGb,
     String? modelPath,
+    String? modelId,
   }) {
     return LocalModelState(
       status: status ?? this.status,
@@ -38,6 +45,7 @@ class LocalModelState {
       error: error ?? this.error,
       availableSpaceGb: availableSpaceGb ?? this.availableSpaceGb,
       modelPath: modelPath ?? this.modelPath,
+      modelId: modelId ?? this.modelId,
     );
   }
 
@@ -47,6 +55,7 @@ class LocalModelState {
       downloadProgress: downloadProgress,
       availableSpaceGb: availableSpaceGb,
       modelPath: modelPath,
+      modelId: modelId,
     );
   }
 }
@@ -59,54 +68,79 @@ class LocalModelNotifier extends _$LocalModelNotifier {
   @override
   LocalModelState build() {
     final path = PreferencesService.getLocalModelPath();
+    final modelId = PreferencesService.getLocalModelId();
     final initialStatus =
         path != null ? LocalModelStatus.ready : LocalModelStatus.none;
 
     ref.onDispose(() => _dbSubscription?.cancel());
 
-    _resolveStatus();
+    Future.microtask(_resolveStatus);
 
-    return LocalModelState(status: initialStatus, modelPath: path);
+    return LocalModelState(
+      status: initialStatus,
+      modelPath: path,
+      modelId: modelId,
+    );
   }
 
   Future<void> _resolveStatus() async {
     _downloadService ??= ModelDownloadService();
+    final modelId = state.modelId;
+    final config = modelId != null ? LocalModelCatalog.getById(modelId) : null;
 
-    final isInstalled = await _downloadService!.isModelInstalled();
-    if (isInstalled) {
-      final path = await _downloadService!.modelFilePath;
-      if (state.modelPath != path) {
-        await PreferencesService.setLocalModelPath(path);
+    if (config != null) {
+      final isInstalled = await _downloadService!.isModelInstalled(config);
+      if (isInstalled) {
+        final path = await _downloadService!.modelFilePath(config);
+        if (state.modelPath != path) {
+          await PreferencesService.setLocalModelPath(path);
+        }
+        state = state.copyWith(
+          status: LocalModelStatus.ready,
+          modelPath: path,
+        );
+        return;
       }
-      state = state.copyWith(
-        status: LocalModelStatus.ready,
-        modelPath: path,
-      );
-      return;
+
+      final activeRecord = await _downloadService!.getActiveDownload(config);
+      if (activeRecord != null) {
+        state = state.copyWith(
+          status: LocalModelStatus.downloading,
+          downloadProgress: activeRecord.progress,
+        );
+        _listenToWorkerUpdates(config);
+        return;
+      }
     }
 
-    final activeRecord = await _downloadService!.getActiveDownload();
-    if (activeRecord != null) {
-      state = state.copyWith(
-        status: LocalModelStatus.downloading,
-        downloadProgress: activeRecord.progress,
-      );
-      _listenToWorkerUpdates();
-      return;
+    for (final candidate in LocalModelCatalog.models) {
+      final activeRecord =
+          await _downloadService!.getActiveDownload(candidate);
+      if (activeRecord != null) {
+        await PreferencesService.setLocalModelId(candidate.id);
+        state = state.copyWith(
+          status: LocalModelStatus.downloading,
+          downloadProgress: activeRecord.progress,
+          modelId: candidate.id,
+        );
+        _listenToWorkerUpdates(candidate);
+        return;
+      }
     }
 
     if (state.status != LocalModelStatus.none) {
       await PreferencesService.setLocalModelPath(null);
+      await PreferencesService.setLocalModelId(null);
       state = const LocalModelState();
     }
   }
 
-  void _listenToWorkerUpdates() {
+  void _listenToWorkerUpdates(LocalModelConfig config) {
     _dbSubscription?.cancel();
     _dbSubscription = FileDownloader()
         .database
         .updates
-        .where((record) => record.group == ModelDownloadService.taskGroup)
+        .where((record) => record.group == config.taskGroup)
         .listen(_onWorkerUpdate);
   }
 
@@ -136,24 +170,27 @@ class LocalModelNotifier extends _$LocalModelNotifier {
     _dbSubscription?.cancel();
     _downloadService ??= ModelDownloadService();
 
-    final path = await _downloadService!.modelFilePath;
+    final config = state.installedModel;
+    if (config == null) return;
+
+    final path = await _downloadService!.modelFilePath(config);
     final isValid = await _downloadService!.verifyModel(path);
 
     if (!isValid) {
       await _downloadService!.deleteModel(path);
       await PreferencesService.setLocalModelPath(null);
+      await PreferencesService.setLocalModelId(null);
       state = state.copyWith(
         status: LocalModelStatus.none,
         error: 'Le modèle téléchargé est corrompu',
         downloadProgress: 0.0,
+        modelId: null,
       );
       return;
     }
 
     await PreferencesService.setLocalModelPath(path);
-    await PreferencesService.setLocalModelVersion(
-      ModelDownloadService.modelVersion,
-    );
+    await PreferencesService.setLocalModelVersion(config.version);
 
     state = state.copyWith(
       status: LocalModelStatus.ready,
@@ -170,35 +207,40 @@ class LocalModelNotifier extends _$LocalModelNotifier {
     state = state.copyWith(availableSpaceGb: space);
   }
 
-  Future<void> startDownload() async {
+  Future<void> startDownload(LocalModelConfig config) async {
     if (state.status == LocalModelStatus.downloading) return;
 
     _downloadService ??= ModelDownloadService();
 
     final space = await _downloadService!.getAvailableSpaceGb();
-    if (!_downloadService!.hasEnoughSpace(space)) {
+    if (space < config.requiredSpaceGb) {
       state = state.copyWith(
         error: 'Espace insuffisant (${space.toStringAsFixed(1)} Go disponible, '
-            '${ModelDownloadService.requiredSpaceGb} Go requis)',
+            '${config.requiredSpaceGb} Go requis)',
       );
       return;
     }
 
+    await PreferencesService.setLocalModelId(config.id);
+
     state = state.copyWith(
       status: LocalModelStatus.downloading,
       downloadProgress: 0.0,
+      modelId: config.id,
     ).clearError();
 
-    _listenToWorkerUpdates();
+    _listenToWorkerUpdates(config);
 
     try {
-      await _downloadService!.enqueueDownload();
+      await _downloadService!.enqueueDownload(config);
     } catch (e) {
       _dbSubscription?.cancel();
+      await PreferencesService.setLocalModelId(null);
       state = state.copyWith(
         status: LocalModelStatus.none,
         error: 'Erreur inattendue : $e',
         downloadProgress: 0.0,
+        modelId: null,
       );
       rethrow;
     }
@@ -207,13 +249,17 @@ class LocalModelNotifier extends _$LocalModelNotifier {
   Future<void> cancelDownload() async {
     try {
       _downloadService ??= ModelDownloadService();
-      await _downloadService!.cancelDownload();
+      final config = state.installedModel;
+      if (config != null) {
+        await _downloadService!.cancelDownload(config);
+      }
       _dbSubscription?.cancel();
 
-      state = state.copyWith(
-        status: LocalModelStatus.none,
-        downloadProgress: 0.0,
-      ).clearError();
+      await PreferencesService.setLocalModelId(null);
+
+      state = const LocalModelState().copyWith(
+        availableSpaceGb: state.availableSpaceGb,
+      );
     } catch (e) {
       state = state.copyWith(error: 'Erreur lors de l\'annulation : $e');
       rethrow;
@@ -231,6 +277,7 @@ class LocalModelNotifier extends _$LocalModelNotifier {
       }
 
       await PreferencesService.setLocalModelPath(null);
+      await PreferencesService.setLocalModelId(null);
 
       ref.invalidate(litertEngineProvider);
 

@@ -1,13 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
-import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -35,12 +33,7 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
-      final userKey = await SecureStorageService.getGeminiApiKey();
-      final apiKey = userKey ?? dotenv.env['GEMINI_API_KEY'] ?? '';
-      if (apiKey.isEmpty) {
-        throw const ScanGenericException(message: 'Aucune clé API Gemini configurée');
-      }
-      final scanService = ReceiptScanService(apiKey);
+      final scanService = ReceiptScanService();
       final categories = ref.read(categoryProvider).value ?? [];
       final result = await scanService.extractItems(imageBytes, categories);
       await PreferencesService.setLastScanTimestamp(
@@ -49,15 +42,11 @@ class ScanNotifier extends _$ScanNotifier {
       state = AsyncData(result);
     } on ScanException catch (e, st) {
       state = AsyncError(e, st);
-    } on ServerException catch (e, st) {
-      final scanError = ScanException.fromServerMessage(e.message);
-      if (scanError is ScanRateLimitException ||
-          scanError is ScanServiceUnavailableException) {
-        await PreferencesService.setLastScanTimestamp(
-          DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        );
-      }
-      state = AsyncError(scanError, st);
+    } on SocketException catch (_, st) {
+      state = AsyncError(
+        const ScanGenericException(message: 'Pas de connexion internet'),
+        st,
+      );
     } catch (e, st) {
       state = AsyncError(
         const ScanGenericException(message: 'Impossible d\'analyser le ticket'),

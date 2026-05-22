@@ -26,7 +26,6 @@ class LocalInferenceService {
       return parseResult.copyWith(
         newCategoryIcon: style.icon,
         newCategoryColor: style.color,
-        newCategoryScope: style.scope,
       );
     }
 
@@ -108,7 +107,6 @@ class LocalInferenceService {
   _CategoryStyle _parseCategoryStyle(Map<String, dynamic> json) {
     final icon = json['icon'] as String?;
     final color = json['color'] as String?;
-    final scope = json['scope'] as String? ?? '';
 
     final validIcon =
         icon != null && CategoryDefaults.icons.containsKey(icon)
@@ -119,7 +117,7 @@ class LocalInferenceService {
             ? color
             : CategoryDefaults.colorToHex(CategoryDefaults.defaultColor);
 
-    return _CategoryStyle(icon: validIcon, color: validColor, scope: scope);
+    return _CategoryStyle(icon: validIcon, color: validColor);
   }
 
   Map<String, dynamic>? _extractJson(String text) {
@@ -142,12 +140,10 @@ class LocalInferenceService {
 class _CategoryStyle {
   final String icon;
   final String color;
-  final String scope;
 
   const _CategoryStyle({
     required this.icon,
     required this.color,
-    this.scope = '',
   });
 
   static final fallback = _CategoryStyle(

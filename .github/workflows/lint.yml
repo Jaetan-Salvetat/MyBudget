@@ -16,7 +16,7 @@ jobs:
           cache: true
 
       - name: Create .env
-        run: echo "GEMINI_API_KEY=" > .env
+        run: echo "OPENROUTER_API_KEY=" > .env
 
       - name: Install dependencies
         run: flutter pub get

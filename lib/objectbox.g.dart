@@ -85,12 +85,6 @@ final _entities = <obx_int.ModelEntity>[
         type: 6,
         flags: 0,
       ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 2223950211617359170),
-        name: 'scope',
-        type: 9,
-        flags: 0,
-      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -498,6 +492,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
       3745183620062731729,
       2052082936511433960,
       5939978804947497821,
+      2223950211617359170,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -551,13 +546,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (CategoryModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final iconOffset = fbb.writeString(object.icon);
-        final scopeOffset = fbb.writeString(object.scope);
         fbb.startTable(6);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addOffset(2, iconOffset);
         fbb.addInt64(3, object.color);
-        fbb.addOffset(4, scopeOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -573,10 +566,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..icon = const fb.StringReader(
             asciiOptimization: true,
           ).vTableGet(buffer, rootOffset, 8, '')
-          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
-          ..scope = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 12, '');
+          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
 
         return object;
       },
@@ -1030,11 +1020,6 @@ class CategoryModel_ {
   /// See [CategoryModel.color].
   static final color = obx.QueryIntegerProperty<CategoryModel>(
     _entities[1].properties[3],
-  );
-
-  /// See [CategoryModel.scope].
-  static final scope = obx.QueryStringProperty<CategoryModel>(
-    _entities[1].properties[4],
   );
 }
 

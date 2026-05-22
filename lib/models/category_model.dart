@@ -14,15 +14,12 @@ class CategoryModel {
 
   int color = 0xFF2196F3;
 
-  String scope = '';
-
   CategoryModel();
 
   CategoryModel.create({
     required this.name,
     required this.icon,
     this.color = 0xFF2196F3,
-    this.scope = '',
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
@@ -30,8 +27,7 @@ class CategoryModel {
         CategoryModel()
           ..name = json['name'] ?? ''
           ..icon = json['icon'] ?? ''
-          ..color = json['color'] ?? 0xFF2196F3
-          ..scope = json['scope'] ?? '';
+          ..color = json['color'] ?? 0xFF2196F3;
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;
@@ -40,14 +36,13 @@ class CategoryModel {
     return model;
   }
 
-  CategoryModel copyWith({String? name, String? icon, int? color, String? scope}) {
+  CategoryModel copyWith({String? name, String? icon, int? color}) {
     final model =
         CategoryModel()
           ..id = id
           ..name = name ?? this.name
           ..icon = icon ?? this.icon
-          ..color = color ?? this.color
-          ..scope = scope ?? this.scope;
+          ..color = color ?? this.color;
     return model;
   }
 
@@ -57,7 +52,6 @@ class CategoryModel {
       'name': name,
       'icon': icon,
       'color': color,
-      'scope': scope,
     };
   }
 

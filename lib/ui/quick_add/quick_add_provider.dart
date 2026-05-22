@@ -2,8 +2,6 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/local_inference_service.dart';
-import 'package:mybudget/core/services/open_router_service.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
@@ -15,19 +13,16 @@ part 'quick_add_provider.g.dart';
 
 @riverpod
 class QuickAddNotifier extends _$QuickAddNotifier {
-  static const int monthlyLimit = 300;
-
   @override
   AsyncValue<QuickAddResultModel?> build() {
     return const AsyncData(null);
   }
 
-  int get remainingCalls => monthlyLimit - PreferencesService.getQuickAddCount();
-
   Future<void> parseExpense(String input) async {
-    if (remainingCalls <= 0) {
+    final engine = ref.read(litertEngineProvider).value;
+    if (engine == null) {
       state = AsyncError(
-        const QuickAddRateLimitException(remaining: 0),
+        const QuickAddNoModelException(),
         StackTrace.current,
       );
       return;
@@ -42,26 +37,13 @@ class QuickAddNotifier extends _$QuickAddNotifier {
           .where((e) => e.frequency != 'Ponctuel')
           .toList();
 
-      final engine = ref.read(litertEngineProvider).value;
-      final QuickAddResultModel result;
+      final localService = LocalInferenceService(engine);
+      final result = await localService.parseExpense(
+        input,
+        categories,
+        recurringExpenses: recurringExpenses,
+      );
 
-      if (engine != null) {
-        final localService = LocalInferenceService(engine);
-        result = await localService.parseExpense(
-          input,
-          categories,
-          recurringExpenses: recurringExpenses,
-        );
-      } else {
-        final cloudService = OpenRouterService();
-        result = await cloudService.parseExpense(
-          input,
-          categories,
-          recurringExpenses: recurringExpenses,
-        );
-      }
-
-      await PreferencesService.incrementQuickAddCount();
       state = AsyncData(result);
     } on QuickAddException catch (e, st) {
       state = AsyncError(e, st);
@@ -93,7 +75,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
           name: result.newCategory!,
           icon: icon,
           color: color,
-          scope: result.newCategoryScope ?? '',
         );
         final repo = ref.read(categoryRepositoryProvider);
         categoryId = repo.add(newCat);

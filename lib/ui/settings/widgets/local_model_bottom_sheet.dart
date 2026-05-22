@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/local_model_catalog.dart';
 import 'package:mybudget/core/enums/local_model_status.dart';
-import 'package:mybudget/core/services/model_download_service.dart';
+import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/settings/local_model_provider.dart';
 
 class LocalModelBottomSheet extends ConsumerStatefulWidget {
@@ -56,22 +57,18 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
             const SizedBox(height: 12),
           ],
           switch (state.status) {
-            LocalModelStatus.none => _buildNotInstalled(context, state),
+            LocalModelStatus.none => _buildModelSelection(context, state),
             LocalModelStatus.downloading =>
               _buildDownloading(context, state),
-            LocalModelStatus.ready => _buildReady(context),
+            LocalModelStatus.ready => _buildReady(context, state),
           },
         ],
       ),
     );
   }
 
-  Widget _buildNotInstalled(BuildContext context, LocalModelState state) {
+  Widget _buildModelSelection(BuildContext context, LocalModelState state) {
     final theme = Theme.of(context);
-    final notifier = ref.read(localModelProvider.notifier);
-    final availableGb = state.availableSpaceGb;
-    final hasSpace = availableGb != null &&
-        ModelDownloadService().hasEnoughSpace(availableGb);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +80,7 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
           title: 'Catégorisation intelligente',
           children: [
             Text(
-              'Catégorise automatiquement vos dépenses et revenus '
+              'Catégorise automatiquement vos dépenses '
               'à partir de vos saisies en langage naturel. '
               'Fonctionne 100% hors ligne une fois installé.',
               style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
@@ -91,46 +88,6 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Icon(
-              Symbols.hard_drive_rounded,
-              size: 18,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Taille : ${ModelDownloadService.modelSizeGb} Go',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-        if (availableGb != null) ...[
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(
-                Symbols.storage_rounded,
-                size: 18,
-                color: hasSpace
-                    ? theme.colorScheme.onSurfaceVariant
-                    : theme.colorScheme.error,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Disponible : ${availableGb.toStringAsFixed(1)} Go',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: hasSpace
-                      ? theme.colorScheme.onSurfaceVariant
-                      : theme.colorScheme.error,
-                ),
-              ),
-            ],
-          ),
-        ],
-        const SizedBox(height: 8),
         Row(
           children: [
             Icon(
@@ -147,26 +104,73 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        if (!hasSpace && availableGb != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Espace insuffisant pour l\'installation',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.w500,
+        if (state.availableSpaceGb != null) ...[
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Symbols.storage_rounded,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
+              const SizedBox(width: 8),
+              Text(
+                'Disponible : ${state.availableSpaceGb!.toStringAsFixed(1)} Go',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 20),
+        for (final config in LocalModelCatalog.models) ...[
+          _buildModelTile(context, config, state),
+          const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildModelTile(
+    BuildContext context,
+    LocalModelConfig config,
+    LocalModelState state,
+  ) {
+    final theme = Theme.of(context);
+    final notifier = ref.read(localModelProvider.notifier);
+    final hasSpace = state.availableSpaceGb != null &&
+        state.availableSpaceGb! >= config.requiredSpaceGb;
+
+    return SolidCard(
+      borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  config.displayName,
+                  style: theme.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  config.description,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
-        SizedBox(
-          width: double.infinity,
-          child: FrostedFilledButton(
+          FrostedFilledButton(
             onPressed: hasSpace
                 ? () async {
                     Navigator.pop(context);
                     try {
-                      await notifier.startDownload();
+                      await notifier.startDownload(config);
                     } catch (e) {
                       if (context.mounted) {
                         FrostedSnackbar.show(
@@ -179,20 +183,21 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
                 : null,
             child: const Text('Installer'),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildDownloading(BuildContext context, LocalModelState state) {
     final theme = Theme.of(context);
     final percent = (state.downloadProgress * 100).toStringAsFixed(0);
+    final modelName = state.installedModel?.displayName ?? 'Modèle';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Téléchargement en cours… $percent%',
+          '$modelName — $percent%',
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 16),
@@ -233,8 +238,9 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
     );
   }
 
-  Widget _buildReady(BuildContext context) {
+  Widget _buildReady(BuildContext context, LocalModelState state) {
     final theme = Theme.of(context);
+    final config = state.installedModel;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,6 +259,25 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
           ],
         ),
         const SizedBox(height: 16),
+        if (config != null) ...[
+          Row(
+            children: [
+              Icon(
+                Symbols.smart_toy_rounded,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                config.displayName,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
         Row(
           children: [
             Icon(
@@ -262,7 +287,7 @@ class _LocalModelBottomSheetState extends ConsumerState<LocalModelBottomSheet> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Espace utilisé : ${ModelDownloadService.modelSizeGb} Go',
+              'Espace utilisé : ${config?.sizeGb ?? '?'} Go',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

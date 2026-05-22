@@ -54,7 +54,6 @@ class OpenRouterService {
                 'newCategory': {'type': ['string', 'null']},
                 'newCategoryIcon': {'type': ['string', 'null']},
                 'newCategoryColor': {'type': ['string', 'null']},
-                'newCategoryScope': {'type': ['string', 'null']},
                 'frequency': {
                   'type': 'string',
                   'enum': ['Ponctuel', 'Mensuel', 'Annuel'],
@@ -68,7 +67,6 @@ class OpenRouterService {
                 'newCategory',
                 'newCategoryIcon',
                 'newCategoryColor',
-                'newCategoryScope',
               ],
               'additionalProperties': false,
             },

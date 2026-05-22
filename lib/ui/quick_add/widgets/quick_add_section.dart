@@ -7,14 +7,13 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_confirmation_card.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_error_card.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_loading_card.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_no_model_card.dart';
 
 class QuickAddSection extends ConsumerWidget {
   final VoidCallback onNoAccount;
-  final VoidCallback onScanRequested;
 
   const QuickAddSection({
     required this.onNoAccount,
-    required this.onScanRequested,
     super.key,
   });
 
@@ -28,12 +27,19 @@ class QuickAddSection extends ConsumerWidget {
         return QuickAddConfirmationCard(result: result);
       },
       loading: () => const QuickAddLoadingCard(),
-      error: (error, _) => QuickAddErrorCard(
-        message: error is QuickAddException
-            ? error.message
-            : 'Vérifie le format ou ajoute manuellement',
-        onRetry: () => ref.read(quickAddProvider.notifier).reset(),
-      ),
+      error: (error, _) {
+        if (error is QuickAddNoModelException) {
+          return QuickAddNoModelCard(
+            onDismiss: () => ref.read(quickAddProvider.notifier).reset(),
+          );
+        }
+        return QuickAddErrorCard(
+          message: error is QuickAddException
+              ? error.message
+              : 'Vérifie le format ou ajoute manuellement',
+          onRetry: () => ref.read(quickAddProvider.notifier).reset(),
+        );
+      },
     );
 
     return Column(
@@ -50,10 +56,7 @@ class QuickAddSection extends ConsumerWidget {
                   child: overlay,
                 ),
         ),
-        QuickAddInputBar(
-          onNoAccount: onNoAccount,
-          onScanRequested: onScanRequested,
-        ),
+        QuickAddInputBar(onNoAccount: onNoAccount),
       ],
     );
   }

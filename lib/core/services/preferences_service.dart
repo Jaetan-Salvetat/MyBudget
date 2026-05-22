@@ -22,6 +22,7 @@ class PreferencesService {
 
   static const String keyLocalModelPath = 'localModelPath';
   static const String keyLocalModelVersion = 'localModelVersion';
+  static const String keyLocalModelId = 'localModelId';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -153,6 +154,18 @@ class PreferencesService {
 
   static Future<void> setLocalModelVersion(String version) async {
     await _prefs.setString(keyLocalModelVersion, version);
+  }
+
+  static String? getLocalModelId() {
+    return _prefs.getString(keyLocalModelId);
+  }
+
+  static Future<void> setLocalModelId(String? id) async {
+    if (id == null) {
+      await _prefs.remove(keyLocalModelId);
+    } else {
+      await _prefs.setString(keyLocalModelId, id);
+    }
   }
 
   static Future<void> clearAll() async {

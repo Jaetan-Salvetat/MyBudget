@@ -7,10 +7,9 @@ abstract final class ExpensePromptBuilder {
     List<CategoryModel> categories,
     List<ExpenseModel> recurringExpenses,
   ) {
-    final categoriesJson = categories.map((c) {
-      final scopePart = c.scope.isNotEmpty ? ',"scope":"${c.scope}"' : '';
-      return '{"id":${c.id},"name":"${c.name}"$scopePart}';
-    }).join(',');
+    final categoriesJson = categories
+        .map((c) => '{"id":${c.id},"name":"${c.name}"}')
+        .join(',');
 
     final buffer = StringBuffer()
       ..writeln('You are an expense parser for a French finance app.')
@@ -113,10 +112,9 @@ abstract final class ExpensePromptBuilder {
 
     return '$base\n\n'
         '# New category styling (only when newCategory is set)\n'
-        'If categoryId=null, also pick icon, color, and scope for the new category.\n'
+        'If categoryId=null, also pick icon and color for the new category.\n'
         'Icons: $availableIcons\n'
-        'Colors: $availableColors\n'
-        'scope: short English comma-separated list of what this category covers';
+        'Colors: $availableColors';
   }
 
   static String buildCategorize(String categoryName) {
@@ -129,12 +127,11 @@ abstract final class ExpensePromptBuilder {
         .map(
           (c) =>
               '"${c.name}" → {"icon":"${c.icon}",'
-              '"color":"${CategoryDefaults.colorToHex(c.color)}",'
-              '"scope":"${c.scope}"}',
+              '"color":"${CategoryDefaults.colorToHex(c.color)}"}',
         )
         .join('\n');
 
-    return 'Pick the best icon, color, and scope for this French expense category.\n'
+    return 'Pick the best icon and color for this French expense category.\n'
         '\n'
         'Category: "$categoryName"\n'
         '\n'
@@ -144,12 +141,9 @@ abstract final class ExpensePromptBuilder {
         '# Colors\n'
         '$availableColors\n'
         '\n'
-        '# Rules\n'
-        'scope: short English comma-separated list of what this category covers\n'
-        '\n'
         '# Examples\n'
         '$examples\n'
         '\n'
-        'Respond with ONLY a valid JSON object: {"icon":"...","color":"#...","scope":"..."}';
+        'Respond with ONLY a valid JSON object: {"icon":"...","color":"#..."}';
   }
 }

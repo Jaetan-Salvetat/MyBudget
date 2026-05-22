@@ -1,54 +1,53 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/constants/local_model_catalog.dart';
 import 'package:mybudget/core/services/model_download_service.dart';
 
 void main() {
-  group('ModelDownloadService', () {
-    late ModelDownloadService service;
-
-    setUp(() {
-      service = ModelDownloadService();
+  group('LocalModelCatalog', () {
+    test('all models have valid URLs pointing to HuggingFace', () {
+      for (final config in LocalModelCatalog.models) {
+        expect(config.url, contains('huggingface.co'));
+      }
     });
 
-    group('constants', () {
-      test('modelUrl points to HuggingFace', () {
-        expect(ModelDownloadService.modelUrl, contains('huggingface.co'));
-      });
-
-      test('modelFilename matches expected file', () {
-        expect(ModelDownloadService.modelFilename, 'gemma-4-E2B-it.litertlm');
-      });
-
-      test('requiredSpaceGb is greater than modelSizeGb', () {
-        expect(
-          ModelDownloadService.requiredSpaceGb,
-          greaterThan(ModelDownloadService.modelSizeGb),
-        );
-      });
-
-      test('taskGroup is non-empty', () {
-        expect(ModelDownloadService.taskGroup, isNotEmpty);
-      });
+    test('all models have non-empty filenames', () {
+      for (final config in LocalModelCatalog.models) {
+        expect(config.filename, isNotEmpty);
+        expect(config.filename, endsWith('.litertlm'));
+      }
     });
 
-    group('hasEnoughSpace', () {
-      test('returns true when space exceeds requirement', () {
-        expect(service.hasEnoughSpace(5.0), isTrue);
-      });
-
-      test('returns true when space equals requirement', () {
+    test('requiredSpaceGb is greater than sizeGb for all models', () {
+      for (final config in LocalModelCatalog.models) {
         expect(
-          service.hasEnoughSpace(ModelDownloadService.requiredSpaceGb),
-          isTrue,
+          config.requiredSpaceGb,
+          greaterThan(config.sizeGb),
         );
-      });
+      }
+    });
 
-      test('returns false when space is below requirement', () {
-        expect(service.hasEnoughSpace(1.0), isFalse);
-      });
+    test('all models have unique IDs', () {
+      final ids = LocalModelCatalog.models.map((c) => c.id).toSet();
+      expect(ids.length, LocalModelCatalog.models.length);
+    });
 
-      test('returns false when space is zero', () {
-        expect(service.hasEnoughSpace(0.0), isFalse);
-      });
+    test('all models have unique taskGroups', () {
+      final groups = LocalModelCatalog.models.map((c) => c.taskGroup).toSet();
+      expect(groups.length, LocalModelCatalog.models.length);
+    });
+
+    test('getById returns correct model', () {
+      final config = LocalModelCatalog.getById('gemma-4-e2b');
+      expect(config, isNotNull);
+      expect(config!.displayName, 'Gemma 4 E2B');
+    });
+
+    test('getById returns null for unknown id', () {
+      expect(LocalModelCatalog.getById('unknown'), isNull);
+    });
+
+    test('catalog contains 3 models', () {
+      expect(LocalModelCatalog.models.length, 3);
     });
   });
 

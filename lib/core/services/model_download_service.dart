@@ -2,17 +2,11 @@ import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
 import 'package:disk_space_plus/disk_space_plus.dart';
+import 'package:mybudget/core/constants/local_model_catalog.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ModelDownloadService {
-  static const String modelUrl =
-      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
-  static const String modelFilename = 'gemma-4-E2B-it.litertlm';
   static const String modelDirectory = 'models';
-  static const double modelSizeGb = 2.59;
-  static const double requiredSpaceGb = 3.0;
-  static const String modelVersion = '1.0.0';
-  static const String taskGroup = 'gemma_model';
 
   Future<double> getAvailableSpaceGb() async {
     final diskSpace = DiskSpacePlus();
@@ -21,29 +15,27 @@ class ModelDownloadService {
     return freeMb / 1024.0;
   }
 
-  bool hasEnoughSpace(double availableGb) => availableGb >= requiredSpaceGb;
-
   Future<String> get _modelDirectoryPath async {
     final appDir = await getApplicationSupportDirectory();
     return '${appDir.path}/$modelDirectory';
   }
 
-  Future<String> get modelFilePath async {
+  Future<String> modelFilePath(LocalModelConfig config) async {
     final dirPath = await _modelDirectoryPath;
-    return '$dirPath/$modelFilename';
+    return '$dirPath/${config.filename}';
   }
 
-  Future<bool> isModelInstalled() async {
-    final path = await modelFilePath;
+  Future<bool> isModelInstalled(LocalModelConfig config) async {
+    final path = await modelFilePath(config);
     final file = File(path);
     if (!file.existsSync()) return false;
     final size = await file.length();
     return size > 1000000000;
   }
 
-  Future<TaskRecord?> getActiveDownload() async {
+  Future<TaskRecord?> getActiveDownload(LocalModelConfig config) async {
     final records =
-        await FileDownloader().database.allRecords(group: taskGroup);
+        await FileDownloader().database.allRecords(group: config.taskGroup);
     for (final record in records) {
       if (record.status == TaskStatus.running ||
           record.status == TaskStatus.enqueued ||
@@ -55,7 +47,7 @@ class ModelDownloadService {
     return null;
   }
 
-  Future<void> enqueueDownload() async {
+  Future<void> enqueueDownload(LocalModelConfig config) async {
     final dirPath = await _modelDirectoryPath;
     final dir = Directory(dirPath);
     if (!dir.existsSync()) {
@@ -63,22 +55,22 @@ class ModelDownloadService {
     }
 
     final task = DownloadTask(
-      url: modelUrl,
-      filename: modelFilename,
+      url: config.url,
+      filename: config.filename,
       directory: dirPath,
       baseDirectory: BaseDirectory.root,
       updates: Updates.statusAndProgress,
       retries: 3,
       allowPause: true,
-      group: taskGroup,
-      displayName: 'Modèle IA Gemma',
+      group: config.taskGroup,
+      displayName: config.displayName,
     );
 
     await FileDownloader().enqueue(task);
   }
 
-  Future<void> cancelDownload() async {
-    final record = await getActiveDownload();
+  Future<void> cancelDownload(LocalModelConfig config) async {
+    final record = await getActiveDownload(config);
     if (record != null) {
       await FileDownloader().cancel(record.task);
     }

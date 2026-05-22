@@ -4,6 +4,11 @@ sealed class QuickAddException implements Exception {
   const QuickAddException({required this.message});
 }
 
+final class QuickAddNoModelException extends QuickAddException {
+  const QuickAddNoModelException()
+      : super(message: 'Aucun modèle IA installé');
+}
+
 final class QuickAddNetworkException extends QuickAddException {
   const QuickAddNetworkException()
       : super(message: 'Pas de connexion internet');
