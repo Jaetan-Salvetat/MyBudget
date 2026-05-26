@@ -86,7 +86,7 @@ class _CompactShell extends StatelessWidget {
         title: currentTitle,
         leading: Builder(
           builder: (BuildContext context) => InkResponse(
-            onTap: () => Scaffold.of(context).openDrawer(),
+            onTap: () => FrostedScaffold.of(context).openDrawer(),
             radius: 22,
             child: SizedBox(
               width: 44,
@@ -98,17 +98,18 @@ class _CompactShell extends StatelessWidget {
           ),
         ),
       ),
-      drawerScrimColor: Colors.black.withValues(alpha: 0.5),
-      drawer: FrostedDrawer(
-        header: _ShellBrand(),
-        items: destinations
-            .map((AppDestination d) => d.toNavItem())
-            .toList(growable: false),
-        currentIndex: index,
-        onTap: (int i) {
-          onSelect(i);
-          Navigator.of(context).pop();
-        },
+      drawer: Builder(
+        builder: (BuildContext context) => FrostedDrawer(
+          header: _ShellBrand(),
+          items: destinations
+              .map((AppDestination d) => d.toNavItem())
+              .toList(growable: false),
+          currentIndex: index,
+          onTap: (int i) {
+            onSelect(i);
+            FrostedScaffold.of(context).closeDrawer();
+          },
+        ),
       ),
       body: body,
     );

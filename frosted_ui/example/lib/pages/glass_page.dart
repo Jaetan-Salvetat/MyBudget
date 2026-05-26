@@ -15,6 +15,14 @@ class _GlassPageState extends State<GlassPage> {
   FrostedGlassTone _tone = FrostedGlassTone.auto;
   FrostedGlassElevation _elevation = FrostedGlassElevation.floating;
   RealisticSurfaceKind _surface = RealisticSurfaceKind.feed;
+  int _tabIndex = 0;
+
+  static const List<FrostedNavItem> _tabItems = <FrostedNavItem>[
+    FrostedNavItem(icon: Icons.home_outlined, label: 'Home'),
+    FrostedNavItem(icon: Icons.search, label: 'Search'),
+    FrostedNavItem(icon: Icons.bookmark_outline, label: 'Library'),
+    FrostedNavItem(icon: Icons.person_outline, label: 'Me'),
+  ];
 
   void _cycleSurface() {
     setState(() {
@@ -56,14 +64,13 @@ class _GlassPageState extends State<GlassPage> {
                     onCycleSurface: _cycleSurface,
                   ),
                   const SizedBox(height: FrostedSpacing.sp3),
-                  FrostedGlass(
+                  FrostedTabBar(
+                    items: _tabItems,
+                    currentIndex: _tabIndex,
+                    onTap: (int i) => setState(() => _tabIndex = i),
                     level: _level,
                     tone: _tone,
                     elevation: _elevation,
-                    borderRadius:
-                        BorderRadius.circular(FrostedRadius.full),
-                    padding: EdgeInsets.zero,
-                    child: const _SampleTabBar(),
                   ),
                 ],
               ),
@@ -268,81 +275,6 @@ class _ChipChoice extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SampleTabBar extends StatelessWidget {
-  const _SampleTabBar();
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 64,
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: _TabItem(
-              icon: Icons.home_outlined,
-              label: 'Home',
-              selected: true,
-              color: cs.onSurface,
-            ),
-          ),
-          Expanded(
-            child: _TabItem(
-              icon: Icons.search,
-              label: 'Search',
-              color: cs.onSurface,
-            ),
-          ),
-          Expanded(
-            child: _TabItem(
-              icon: Icons.bookmark_outline,
-              label: 'Library',
-              color: cs.onSurface,
-            ),
-          ),
-          Expanded(
-            child: _TabItem(
-              icon: Icons.person_outline,
-              label: 'Me',
-              color: cs.onSurface,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TabItem extends StatelessWidget {
-  const _TabItem({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color tint = selected ? color : color.withValues(alpha: 0.55);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Icon(icon, color: tint, size: 22),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: FrostedTypeScale.labelSmall.copyWith(color: tint),
-        ),
-      ],
     );
   }
 }

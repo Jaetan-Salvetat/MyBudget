@@ -38,11 +38,6 @@ class FoundationsPage extends StatelessWidget {
               title: 'Radii',
               child: _RadiusSpecimen(),
             ),
-            const SizedBox(height: FrostedSpacing.sp6),
-            const Section(
-              title: 'Glass primitive',
-              child: _GlassSpecimen(),
-            ),
           ],
         );
       },
@@ -263,61 +258,3 @@ class _RadiusSpecimen extends StatelessWidget {
   }
 }
 
-class _GlassSpecimen extends StatelessWidget {
-  const _GlassSpecimen();
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-
-    return SizedBox(
-      height: 220,
-      child: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(FrostedRadius.lg),
-              gradient: LinearGradient(
-                colors: <Color>[
-                  cs.primary,
-                  cs.tertiary,
-                  cs.secondary,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(FrostedSpacing.sp4),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: FrostedGlass(
-                  borderRadius: BorderRadius.circular(FrostedRadius.xl),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FrostedSpacing.sp4,
-                    vertical: FrostedSpacing.sp3,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(Icons.travel_explore, color: cs.onSurface),
-                      const SizedBox(width: FrostedSpacing.sp2),
-                      Text(
-                        'Glass chrome on content',
-                        style: FrostedTypeScale.labelLarge
-                            .copyWith(color: cs.onSurface),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
