@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
+  flutter_onnxruntime
   objectbox_flutter_libs
   permission_handler_windows
   share_plus

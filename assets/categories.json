@@ -1,0 +1,152 @@
+{
+    "expenses": {
+        "alimentation": {
+            "label": "Alimentation",
+            "icon": "shopping_cart",
+            "color": "#FF9800",
+            "subcategories": {
+                "supermarché": { "icon": "local_grocery_store", "color": "#FF9800" },
+                "marché": { "icon": "storefront", "color": "#FB8C00" },
+                "épicerie": { "icon": "grocery", "color": "#F57C00" },
+                "boulangerie": { "icon": "bakery_dining", "color": "#EF6C00" }
+            }
+        },
+        "restauration": {
+            "label": "Restauration",
+            "icon": "restaurant",
+            "color": "#F44336",
+            "subcategories": {
+                "restaurant": { "icon": "dinner_dining", "color": "#F44336" },
+                "fast-food/friterie": { "icon": "fastfood", "color": "#E53935" },
+                "bar/apéro": { "icon": "local_bar", "color": "#D32F2F" },
+                "café": { "icon": "local_cafe", "color": "#C62828" },
+                "livraison": { "icon": "delivery_dining", "color": "#EF5350" }
+            }
+        },
+        "transport": {
+            "label": "Transport",
+            "icon": "directions_car",
+            "color": "#2196F3",
+            "subcategories": {
+                "essence": { "icon": "local_gas_station", "color": "#2196F3" },
+                "transport en commun": { "icon": "directions_bus", "color": "#1E88E5" },
+                "taxi/VTC": { "icon": "local_taxi", "color": "#1976D2" },
+                "parking": { "icon": "local_parking", "color": "#1565C0" },
+                "péage": { "icon": "toll", "color": "#42A5F5" },
+                "entretien véhicule": { "icon": "car_repair", "color": "#0D47A1" }
+            }
+        },
+        "logement": {
+            "label": "Logement",
+            "icon": "home",
+            "color": "#3F51B5",
+            "subcategories": {
+                "loyer": { "icon": "apartment", "color": "#3F51B5" },
+                "charges": { "icon": "receipt", "color": "#3949AB" },
+                "énergie": { "icon": "bolt", "color": "#303F9F" },
+                "eau": { "icon": "water_drop", "color": "#283593" },
+                "télécom/internet": { "icon": "wifi", "color": "#5C6BC0" },
+                "assurance": { "icon": "shield", "color": "#1A237E" }
+            }
+        },
+        "sante_beaute": {
+            "label": "Santé & Beauté",
+            "icon": "health_and_safety",
+            "color": "#E91E63",
+            "subcategories": {
+                "médecin": { "icon": "stethoscope", "color": "#E91E63" },
+                "pharmacie": { "icon": "local_pharmacy", "color": "#D81B60" },
+                "mutuelle": { "icon": "medical_services", "color": "#C2185B" },
+                "coiffeur": { "icon": "content_cut", "color": "#EC407A" },
+                "esthétique": { "icon": "spa", "color": "#F06292" }
+            }
+        },
+        "loisirs": {
+            "label": "Loisirs",
+            "icon": "local_activity",
+            "color": "#9C27B0",
+            "subcategories": {
+                "cinéma/sorties": { "icon": "theaters", "color": "#9C27B0" },
+                "jeux vidéo": { "icon": "sports_esports", "color": "#8E24AA" },
+                "sport": { "icon": "fitness_center", "color": "#7B1FA2" },
+                "manga/livres": { "icon": "auto_stories", "color": "#AB47BC" },
+                "streaming": { "icon": "subscriptions", "color": "#BA68C8" },
+                "musique": { "icon": "music_note", "color": "#6A1B9A" }
+            }
+        },
+        "shopping": {
+            "label": "Shopping",
+            "icon": "shopping_bag",
+            "color": "#E040FB",
+            "subcategories": {
+                "vêtements": { "icon": "checkroom", "color": "#E040FB" },
+                "électronique": { "icon": "devices", "color": "#D500F9" },
+                "mobilier/déco": { "icon": "chair", "color": "#AA00FF" }
+            }
+        },
+        "finance_taxes": {
+            "label": "Finance & Taxes",
+            "icon": "account_balance",
+            "color": "#607D8B",
+            "subcategories": {
+                "retrait DAB": { "icon": "local_atm", "color": "#607D8B" },
+                "frais bancaires": { "icon": "credit_card", "color": "#546E7A" },
+                "impôts/taxes": { "icon": "receipt_long", "color": "#455A64" },
+                "amendes": { "icon": "gavel", "color": "#78909C" }
+            }
+        },
+        "education": {
+            "label": "Éducation",
+            "icon": "school",
+            "color": "#FFC107",
+            "subcategories": {
+                "scolarité": { "icon": "school", "color": "#FFC107" },
+                "fournitures": { "icon": "backpack", "color": "#FFB300" },
+                "formation": { "icon": "menu_book", "color": "#FFA000" }
+            }
+        },
+        "divers": {
+            "label": "Divers",
+            "icon": "category",
+            "color": "#9E9E9E",
+            "subcategories": {
+                "cadeau offert": { "icon": "card_giftcard", "color": "#9E9E9E" },
+                "vétérinaire/animaux": { "icon": "pets", "color": "#757575" },
+                "tabac/jeux d'argent": { "icon": "casino", "color": "#616161" },
+                "autre": { "icon": "more_horiz", "color": "#BDBDBD" }
+            }
+        }
+    },
+    "income": {
+        "salaire": {
+            "label": "Salaire",
+            "icon": "paid",
+            "color": "#4CAF50",
+            "subcategories": {
+                "salaire net": { "icon": "work", "color": "#4CAF50" },
+                "prime": { "icon": "savings", "color": "#43A047" },
+                "revenu freelance": { "icon": "laptop", "color": "#388E3C" }
+            }
+        },
+        "transfert": {
+            "label": "Transfert",
+            "icon": "swap_horiz",
+            "color": "#009688",
+            "subcategories": {
+                "virement reçu": { "icon": "account_balance_wallet", "color": "#009688" },
+                "remboursement santé": { "icon": "medical_services", "color": "#00897B" },
+                "remboursement ami": { "icon": "currency_exchange", "color": "#00796B" }
+            }
+        },
+        "exceptionnel": {
+            "label": "Exceptionnel",
+            "icon": "trending_up",
+            "color": "#8BC34A",
+            "subcategories": {
+                "vente occasion": { "icon": "sell", "color": "#8BC34A" },
+                "don reçu": { "icon": "volunteer_activism", "color": "#7CB342" },
+                "intérêts": { "icon": "percent", "color": "#689F38" }
+            }
+        }
+    }
+}

@@ -67,6 +67,7 @@ dependencies:
   flutter_litert_lm: ^0.3.0
   background_downloader: ^9.5.4
   disk_space_plus: ^0.2.6
+  flutter_onnxruntime: ^1.7.1
 
 dev_dependencies:
   flutter_test:
@@ -119,6 +120,7 @@ flutter:
   assets:
     - assets/
     - assets/images/onboarding/
+    - assets/models/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
