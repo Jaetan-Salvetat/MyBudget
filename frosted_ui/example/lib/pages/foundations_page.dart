@@ -11,44 +11,41 @@ class FoundationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Foundations')),
-      body: ListenableBuilder(
-        listenable: controller,
-        builder: (BuildContext context, _) {
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              FrostedSpacing.sp4,
-              FrostedSpacing.sp4,
-              FrostedSpacing.sp4,
-              FrostedSpacing.sp7,
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (BuildContext context, _) {
+        return ListView(
+          padding: EdgeInsets.fromLTRB(
+            FrostedSpacing.sp4,
+            FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
+            FrostedSpacing.sp4,
+            FrostedSpacing.sp7,
+          ),
+          children: <Widget>[
+            _ThemeControls(controller: controller),
+            const SizedBox(height: FrostedSpacing.sp6),
+            const Section(
+              title: 'Type scale',
+              child: _TypeScaleSpecimen(),
             ),
-            children: <Widget>[
-              _ThemeControls(controller: controller),
-              const SizedBox(height: FrostedSpacing.sp6),
-              const Section(
-                title: 'Type scale',
-                child: _TypeScaleSpecimen(),
-              ),
-              const SizedBox(height: FrostedSpacing.sp6),
-              const Section(
-                title: 'Spacing',
-                child: _SpacingSpecimen(),
-              ),
-              const SizedBox(height: FrostedSpacing.sp6),
-              const Section(
-                title: 'Radii',
-                child: _RadiusSpecimen(),
-              ),
-              const SizedBox(height: FrostedSpacing.sp6),
-              const Section(
-                title: 'Glass primitive',
-                child: _GlassSpecimen(),
-              ),
-            ],
-          );
-        },
-      ),
+            const SizedBox(height: FrostedSpacing.sp6),
+            const Section(
+              title: 'Spacing',
+              child: _SpacingSpecimen(),
+            ),
+            const SizedBox(height: FrostedSpacing.sp6),
+            const Section(
+              title: 'Radii',
+              child: _RadiusSpecimen(),
+            ),
+            const SizedBox(height: FrostedSpacing.sp6),
+            const Section(
+              title: 'Glass primitive',
+              child: _GlassSpecimen(),
+            ),
+          ],
+        );
+      },
     );
   }
 }

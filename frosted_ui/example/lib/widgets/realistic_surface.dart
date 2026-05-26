@@ -29,9 +29,9 @@ class _FeedSurface extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final List<_FeedItem> items = _FeedItem.sample(cs);
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         FrostedSpacing.sp4,
-        FrostedSpacing.sp8,
+        FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
         FrostedSpacing.sp4,
         260,
       ),
@@ -189,9 +189,9 @@ class _PhotosSurface extends StatelessWidget {
       <Color>[const Color(0xFF011627), const Color(0xFF2EC4B6)],
     ];
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         FrostedSpacing.sp2,
-        FrostedSpacing.sp8,
+        FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
         FrostedSpacing.sp2,
         260,
       ),
@@ -239,9 +239,9 @@ class _ReaderSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         FrostedSpacing.sp5,
-        FrostedSpacing.sp8,
+        FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
         FrostedSpacing.sp5,
         280,
       ),

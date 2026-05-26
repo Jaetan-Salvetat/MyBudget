@@ -16,79 +16,61 @@ class _GlassPageState extends State<GlassPage> {
   FrostedGlassElevation _elevation = FrostedGlassElevation.floating;
   RealisticSurfaceKind _surface = RealisticSurfaceKind.feed;
 
+  void _cycleSurface() {
+    setState(() {
+      final int next =
+          (_surface.index + 1) % RealisticSurfaceKind.values.length;
+      _surface = RealisticSurfaceKind.values[next];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      body: Stack(
-        children: <Widget>[
-          Positioned.fill(child: RealisticSurface(kind: _surface)),
-          SafeArea(
-            bottom: false,
+    return Stack(
+      children: <Widget>[
+        Positioned.fill(child: RealisticSurface(kind: _surface)),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            top: false,
             child: Padding(
-              padding: const EdgeInsets.all(FrostedSpacing.sp4),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(
+                FrostedSpacing.sp4,
+                0,
+                FrostedSpacing.sp4,
+                FrostedSpacing.sp4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  _ChromePill(
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: const Icon(Icons.arrow_back, size: 20),
+                  _ControlsPanel(
+                    level: _level,
+                    tone: _tone,
+                    elevation: _elevation,
+                    onLevelChanged: (FrostedGlassLevel v) =>
+                        setState(() => _level = v),
+                    onToneChanged: (FrostedGlassTone v) =>
+                        setState(() => _tone = v),
+                    onElevationChanged: (FrostedGlassElevation v) =>
+                        setState(() => _elevation = v),
+                    onCycleSurface: _cycleSurface,
                   ),
-                  const Spacer(),
-                  _ChromePill(
-                    onTap: () => setState(() {
-                      final int next = (_surface.index + 1) %
-                          RealisticSurfaceKind.values.length;
-                      _surface = RealisticSurfaceKind.values[next];
-                    }),
-                    child: const Icon(Icons.layers_outlined, size: 20),
+                  const SizedBox(height: FrostedSpacing.sp3),
+                  FrostedGlass(
+                    level: _level,
+                    tone: _tone,
+                    elevation: _elevation,
+                    borderRadius:
+                        BorderRadius.circular(FrostedRadius.full),
+                    padding: EdgeInsets.zero,
+                    child: const _SampleTabBar(),
                   ),
                 ],
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  FrostedSpacing.sp4,
-                  0,
-                  FrostedSpacing.sp4,
-                  FrostedSpacing.sp4,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    _ControlsPanel(
-                      level: _level,
-                      tone: _tone,
-                      elevation: _elevation,
-                      onLevelChanged: (FrostedGlassLevel v) =>
-                          setState(() => _level = v),
-                      onToneChanged: (FrostedGlassTone v) =>
-                          setState(() => _tone = v),
-                      onElevationChanged: (FrostedGlassElevation v) =>
-                          setState(() => _elevation = v),
-                    ),
-                    const SizedBox(height: FrostedSpacing.sp3),
-                    FrostedGlass(
-                      level: _level,
-                      tone: _tone,
-                      elevation: _elevation,
-                      borderRadius:
-                          BorderRadius.circular(FrostedRadius.full),
-                      padding: EdgeInsets.zero,
-                      child: const _SampleTabBar(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -101,6 +83,7 @@ class _ControlsPanel extends StatelessWidget {
     required this.onLevelChanged,
     required this.onToneChanged,
     required this.onElevationChanged,
+    required this.onCycleSurface,
   });
 
   final FrostedGlassLevel level;
@@ -109,6 +92,7 @@ class _ControlsPanel extends StatelessWidget {
   final ValueChanged<FrostedGlassLevel> onLevelChanged;
   final ValueChanged<FrostedGlassTone> onToneChanged;
   final ValueChanged<FrostedGlassElevation> onElevationChanged;
+  final VoidCallback onCycleSurface;
 
   static const Map<FrostedGlassLevel, String> _levelLabels =
       <FrostedGlassLevel, String>{
@@ -135,6 +119,7 @@ class _ControlsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return FrostedGlass(
       level: FrostedGlassLevel.thick,
       borderRadius: BorderRadius.circular(FrostedRadius.lg),
@@ -146,6 +131,30 @@ class _ControlsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Tweak the glass',
+                  style: FrostedTypeScale.labelMedium
+                      .copyWith(color: cs.onSurface),
+                ),
+              ),
+              InkResponse(
+                onTap: onCycleSurface,
+                radius: 18,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.layers_outlined,
+                    size: 18,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp2),
           _AxisRow<FrostedGlassLevel>(
             label: 'Level',
             values: FrostedGlassLevel.values,
@@ -338,22 +347,3 @@ class _TabItem extends StatelessWidget {
   }
 }
 
-class _ChromePill extends StatelessWidget {
-  const _ChromePill({required this.child, required this.onTap});
-
-  final Widget child;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: FrostedGlass(
-        level: FrostedGlassLevel.regular,
-        borderRadius: BorderRadius.circular(FrostedRadius.full),
-        padding: const EdgeInsets.all(FrostedSpacing.sp3),
-        child: child,
-      ),
-    );
-  }
-}
