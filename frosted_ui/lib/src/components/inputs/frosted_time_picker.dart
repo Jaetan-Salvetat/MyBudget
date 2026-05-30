@@ -27,6 +27,7 @@ class FrostedTimeField extends StatelessWidget {
     this.label,
     this.hintText,
     this.enabled = true,
+    this.glass = false,
     super.key,
   });
 
@@ -35,6 +36,7 @@ class FrostedTimeField extends StatelessWidget {
   final String? label;
   final String? hintText;
   final bool enabled;
+  final bool glass;
 
   Future<void> _pick(BuildContext context) async {
     final TimeOfDay? picked = await showFrostedTimePicker(
@@ -52,6 +54,7 @@ class FrostedTimeField extends StatelessWidget {
       icon: Icons.schedule_outlined,
       text: value?.format(context),
       enabled: enabled,
+      glass: glass,
       onTap: () => _pick(context),
     );
   }

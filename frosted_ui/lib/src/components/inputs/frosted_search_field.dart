@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
+import 'frosted_field_surface.dart';
 
-/// A pill-shaped search input.
+/// A rounded search input.
 ///
 /// Opaque M3 content surface on `surfaceContainerHigh`, with a leading search
 /// glyph and a trailing clear affordance that appears once text is entered.
+/// Set [glass] to render it on a blurred translucent veil (off-spec, opt-in).
 class FrostedSearchField extends StatefulWidget {
   const FrostedSearchField({
     this.controller,
@@ -17,6 +19,7 @@ class FrostedSearchField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.onClear,
+    this.glass = false,
     super.key,
   });
 
@@ -28,6 +31,7 @@ class FrostedSearchField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
+  final bool glass;
 
   @override
   State<FrostedSearchField> createState() => _FrostedSearchFieldState();
@@ -38,7 +42,6 @@ class _FrostedSearchFieldState extends State<FrostedSearchField> {
       widget.controller ?? TextEditingController();
   late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
 
-  static const double _height = 48;
   static const double _radius = 14;
 
   @override
@@ -68,15 +71,13 @@ class _FrostedSearchFieldState extends State<FrostedSearchField> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool hasText = _controller.text.isNotEmpty;
 
-    return Container(
-      height: _height,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: widget.enabled
-            ? cs.surfaceContainerHigh
-            : cs.onSurface.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(_radius),
-      ),
+    return FrostedFieldSurface(
+      focused: false,
+      hasError: false,
+      enabled: widget.enabled,
+      glass: widget.glass,
+      borderRadius: BorderRadius.circular(_radius),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: Row(
         children: <Widget>[
           Icon(Icons.search, size: 22, color: cs.onSurfaceVariant),

@@ -5,6 +5,7 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import 'frosted_field_surface.dart';
 
 /// A single option in a [FrostedDropdown].
 class FrostedDropdownItem<T> {
@@ -31,6 +32,7 @@ class FrostedDropdown<T> extends StatefulWidget {
     this.label,
     this.hintText,
     this.enabled = true,
+    this.glass = false,
     super.key,
   });
 
@@ -40,6 +42,7 @@ class FrostedDropdown<T> extends StatefulWidget {
   final String? label;
   final String? hintText;
   final bool enabled;
+  final bool glass;
 
   @override
   State<FrostedDropdown<T>> createState() => _FrostedDropdownState<T>();
@@ -48,8 +51,6 @@ class FrostedDropdown<T> extends StatefulWidget {
 class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
   final MenuController _controller = MenuController();
   bool _open = false;
-
-  static const double _height = 48;
 
   FrostedDropdownItem<T>? get _selected {
     for (final FrostedDropdownItem<T> item in widget.items) {
@@ -79,17 +80,16 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        if (widget.label != null)
+        if (widget.label != null) ...<Widget>[
           Padding(
-            padding: const EdgeInsets.only(
-              left: FrostedSpacing.sp4,
-              bottom: FrostedSpacing.sp1,
-            ),
+            padding: const EdgeInsets.only(left: FrostedSpacing.sp1),
             child: Text(
               widget.label!,
               style: FrostedTypeScale.labelMedium.copyWith(color: accent),
             ),
           ),
+          const SizedBox(height: FrostedSpacing.sp2),
+        ],
         MenuAnchor(
           controller: _controller,
           style: MenuStyle(
@@ -115,27 +115,14 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
             return GestureDetector(
               onTap: enabled ? _toggle : null,
               behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: motion.duration,
-                curve: motion.curve,
-                height: _height,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp4),
-                decoration: BoxDecoration(
-                  color: enabled
-                      ? cs.surfaceContainerHigh
-                      : cs.onSurface.withValues(alpha: 0.04),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(FrostedRadius.sm),
-                  ),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: enabled
-                          ? accent
-                          : cs.onSurface.withValues(alpha: 0.12),
-                      width: _open ? 2 : 1,
-                    ),
-                  ),
+              child: FrostedFieldSurface(
+                focused: _open,
+                hasError: false,
+                enabled: enabled,
+                glass: widget.glass,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp4,
+                  vertical: FrostedSpacing.sp3,
                 ),
                 child: Row(
                   children: <Widget>[

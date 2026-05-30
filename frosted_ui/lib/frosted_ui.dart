@@ -9,6 +9,7 @@ export 'src/components/actions/frosted_switch.dart';
 export 'src/components/actions/frosted_toggle_buttons.dart';
 export 'src/components/inputs/frosted_date_picker.dart';
 export 'src/components/inputs/frosted_dropdown.dart';
+export 'src/components/inputs/frosted_field_surface.dart';
 export 'src/components/inputs/frosted_form_field.dart';
 export 'src/components/inputs/frosted_picker_field.dart';
 export 'src/components/inputs/frosted_range_slider.dart';

@@ -39,41 +39,79 @@ class _TextFieldsDemo extends StatefulWidget {
 
 class _TextFieldsDemoState extends State<_TextFieldsDemo> {
   bool _obscure = true;
+  bool _glass = false;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final Widget fields = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const FrostedTextField(
+        FrostedTextField(
           label: 'Email',
           hintText: 'ada@glass.dev',
           leadingIcon: Icons.mail_outline,
+          glass: _glass,
         ),
         const SizedBox(height: FrostedSpacing.sp4),
-        const FrostedTextField(
+        FrostedTextField(
           label: 'Display name',
           hintText: 'Ada Lovelace',
-          variant: FrostedTextFieldVariant.outlined,
+          glass: _glass,
         ),
         const SizedBox(height: FrostedSpacing.sp4),
         FrostedTextField(
           label: 'Password',
           obscureText: _obscure,
           errorText: 'Au moins 8 caractères',
+          glass: _glass,
           trailingIcon:
               _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           onTrailingTap: () => setState(() => _obscure = !_obscure),
         ),
         const SizedBox(height: FrostedSpacing.sp4),
-        const FrostedTextField(
+        FrostedTextField(
           label: 'Notes',
           hintText: 'Multiline…',
           maxLines: 3,
           helperText: 'Optionnel',
+          glass: _glass,
         ),
         const SizedBox(height: FrostedSpacing.sp4),
         const FrostedTextField(label: 'Disabled', enabled: false),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            const Text('Glass'),
+            const SizedBox(width: FrostedSpacing.sp2),
+            FrostedSwitch(
+              value: _glass,
+              onChanged: (bool v) => setState(() => _glass = v),
+            ),
+          ],
+        ),
+        const SizedBox(height: FrostedSpacing.sp3),
+        if (_glass)
+          DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: <Color>[Color(0xFF7C5CFF), Color(0xFFFF6FA5)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(FrostedRadius.lg)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(FrostedSpacing.sp4),
+              child: fields,
+            ),
+          )
+        else
+          fields,
       ],
     );
   }

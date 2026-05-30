@@ -34,6 +34,7 @@ class FrostedDateField extends StatelessWidget {
     this.label,
     this.hintText,
     this.enabled = true,
+    this.glass = false,
     super.key,
   });
 
@@ -48,6 +49,7 @@ class FrostedDateField extends StatelessWidget {
   final String? label;
   final String? hintText;
   final bool enabled;
+  final bool glass;
 
   Future<void> _pick(BuildContext context) async {
     final DateTime? picked = await showFrostedDatePicker(
@@ -67,6 +69,7 @@ class FrostedDateField extends StatelessWidget {
       icon: Icons.calendar_today_outlined,
       text: value == null ? null : format(value!),
       enabled: enabled,
+      glass: glass,
       onTap: () => _pick(context),
     );
   }
