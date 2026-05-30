@@ -101,14 +101,17 @@ class FrostedFab extends StatelessWidget {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
     final _FabMetrics m = _metricsFor(_size);
 
+    BorderRadius shape(InteractionStates s) => BorderRadius.circular(
+          s.pressed ? m.pressedRadius : m.restingRadius,
+        );
+
     final Widget surface = InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: tooltip ?? label,
+      shape: shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
-        final double radius =
-            s.pressed ? m.pressedRadius : m.restingRadius;
 
         final Widget content = _size == _FabSize.extended
             ? Padding(
@@ -139,7 +142,7 @@ class FrostedFab extends StatelessWidget {
           width: _size == _FabSize.extended ? null : m.height,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: shape(s),
             boxShadow: s.enabled
                 ? <BoxShadow>[
                     BoxShadow(

@@ -166,15 +166,10 @@ class _MainAction extends StatelessWidget {
     return InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: label,
+      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color fg = _resolveFg(cs, s, variant);
-        final double inner = s.pressed
-            ? FrostedSplitButton._innerPressed
-            : FrostedSplitButton._inner;
-        final BorderRadius radius = BorderRadius.horizontal(
-          left: const Radius.circular(FrostedSplitButton._pill),
-          right: Radius.circular(inner),
-        );
+        final BorderRadius radius = _shape(s);
 
         return AnimatedContainer(
           duration: motion.duration,
@@ -205,6 +200,15 @@ class _MainAction extends StatelessWidget {
       },
     );
   }
+
+  BorderRadius _shape(InteractionStates s) => BorderRadius.horizontal(
+        left: const Radius.circular(FrostedSplitButton._pill),
+        right: Radius.circular(
+          s.pressed
+              ? FrostedSplitButton._innerPressed
+              : FrostedSplitButton._inner,
+        ),
+      );
 }
 
 class _ChevronAction extends StatelessWidget {
@@ -250,6 +254,16 @@ class _ChevronAction extends StatelessWidget {
                   }
                 }
               : null,
+          shape: (InteractionStates s) => open
+              ? BorderRadius.circular(FrostedSplitButton._pill)
+              : BorderRadius.horizontal(
+                  left: Radius.circular(
+                    s.pressed
+                        ? FrostedSplitButton._innerPressed
+                        : FrostedSplitButton._inner,
+                  ),
+                  right: const Radius.circular(FrostedSplitButton._pill),
+                ),
           builder: (BuildContext context, InteractionStates s) {
             final Color fg = _resolveFg(cs, s, variant);
             final BorderRadius radius = open

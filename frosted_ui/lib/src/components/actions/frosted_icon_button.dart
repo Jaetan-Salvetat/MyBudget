@@ -117,11 +117,11 @@ class FrostedIconButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       semanticsLabel: tooltip,
       semanticsSelected: selected,
+      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
         final BorderSide? border = _resolveBorder(cs, s);
-        final double radius = s.pressed ? FrostedRadius.xs : FrostedRadius.md;
 
         return AnimatedContainer(
           duration: motion.duration,
@@ -130,7 +130,7 @@ class FrostedIconButton extends StatelessWidget {
           height: _size,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: Center(
@@ -150,6 +150,10 @@ class FrostedIconButton extends StatelessWidget {
     }
     return result;
   }
+
+  BorderRadius _shape(InteractionStates s) => BorderRadius.circular(
+        s.pressed ? FrostedRadius.xs : FrostedRadius.md,
+      );
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) {

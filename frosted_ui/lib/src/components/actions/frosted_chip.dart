@@ -114,11 +114,11 @@ class FrostedChip extends StatelessWidget {
       semanticsLabel: label,
       semanticsSelected:
           _variant == _ChipVariant.filter ? selected : null,
+      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
         final BorderSide? border = _resolveBorder(cs, s);
-        final double radius = _resolveRadius();
 
         return AnimatedContainer(
           duration: motion.duration,
@@ -129,7 +129,7 @@ class FrostedChip extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: Row(
@@ -223,11 +223,11 @@ class FrostedChip extends StatelessWidget {
     }
   }
 
-  double _resolveRadius() {
+  BorderRadius _shape(InteractionStates s) {
     if (_variant == _ChipVariant.filter && selected) {
-      return FrostedRadius.full;
+      return BorderRadius.circular(FrostedRadius.full);
     }
-    return FrostedRadius.sm;
+    return BorderRadius.circular(FrostedRadius.sm);
   }
 
   Color _overlayBase(ColorScheme cs) {

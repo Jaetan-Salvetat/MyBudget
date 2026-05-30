@@ -116,12 +116,11 @@ class FrostedButton extends StatelessWidget {
     return InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: label,
+      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
         final BorderSide? border = _resolveBorder(cs, s);
-        final double radius =
-            s.pressed ? FrostedRadius.xs : FrostedRadius.md;
 
         final Widget core = AnimatedContainer(
           duration: motion.duration,
@@ -132,7 +131,7 @@ class FrostedButton extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: Row(
@@ -170,6 +169,10 @@ class FrostedButton extends StatelessWidget {
       },
     );
   }
+
+  BorderRadius _shape(InteractionStates s) => BorderRadius.circular(
+        s.pressed ? FrostedRadius.xs : FrostedRadius.md,
+      );
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) {

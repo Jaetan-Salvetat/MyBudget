@@ -36,6 +36,7 @@ class FrostedCheckbox extends StatelessWidget {
       onTap: enabled ? _handleTap : null,
       semanticsButton: false,
       semanticsSelected: value == true,
+      shape: (_) => BorderRadius.circular(FrostedRadius.full),
       builder: (BuildContext context, InteractionStates s) {
         final bool isChecked = value == true;
         final bool isIndeterminate = value == null && tristate;

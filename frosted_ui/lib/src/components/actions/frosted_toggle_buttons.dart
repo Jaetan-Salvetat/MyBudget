@@ -179,6 +179,7 @@ class _ToggleButton extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: item.tooltip ?? item.label,
       semanticsSelected: selected,
+      shape: _resolveBorderRadius,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);

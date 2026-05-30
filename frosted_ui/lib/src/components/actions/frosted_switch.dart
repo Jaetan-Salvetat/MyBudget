@@ -30,6 +30,7 @@ class FrostedSwitch extends StatelessWidget {
       onTap: onChanged == null ? null : () => onChanged!(!value),
       semanticsButton: false,
       semanticsLabel: value ? 'On' : 'Off',
+      shape: (_) => BorderRadius.circular(FrostedRadius.full),
       builder: (BuildContext context, InteractionStates s) {
         final Color trackColor = _trackColor(cs, s.enabled);
         final Color thumbColor = _thumbColor(cs, s.enabled);
