@@ -35,10 +35,12 @@ class FrostedTheme {
     );
     final bool isDark = brightness == Brightness.dark;
 
+    final FrostedStateTokens state =
+        isDark ? FrostedStateTokens.dark() : FrostedStateTokens.light();
     final FrostedTokens tokens = FrostedTokens(
       glass: FrostedGlassTokens.standard(),
       motion: FrostedMotionTokens.standard(),
-      state: isDark ? FrostedStateTokens.dark() : FrostedStateTokens.light(),
+      state: state,
     );
 
     return ThemeData(
@@ -50,6 +52,11 @@ class FrostedTheme {
         bodyColor: colorScheme.onSurface,
         displayColor: colorScheme.onSurface,
       ),
+      splashFactory: InkSparkle.splashFactory,
+      splashColor: state.press,
+      highlightColor: state.hover,
+      hoverColor: state.hover,
+      focusColor: state.focus,
       extensions: <ThemeExtension<dynamic>>[tokens],
     );
   }
