@@ -68,19 +68,25 @@ class FrostedNavigationRail extends StatelessWidget {
                     child: header!,
                   ),
                 ],
-                for (int i = 0; i < items.length; i++)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: i == 0 ? 0 : FrostedSpacing.sp1,
-                    ),
-                    child: _RailItem(
-                      item: items[i],
-                      selected: i == currentIndex,
-                      extended: extended,
-                      onTap: () => onTap(i),
-                    ),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      for (int i = 0; i < items.length; i++)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: i == 0 ? 0 : FrostedSpacing.sp1,
+                          ),
+                          child: _RailItem(
+                            item: items[i],
+                            selected: i == currentIndex,
+                            extended: extended,
+                            onTap: () => onTap(i),
+                          ),
+                        ),
+                    ],
                   ),
-                const Spacer(),
+                ),
                 ?footer,
               ],
             ),

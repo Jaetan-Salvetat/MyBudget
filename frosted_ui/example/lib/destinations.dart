@@ -6,6 +6,7 @@ import 'pages/foundations_page.dart';
 import 'pages/glass_page.dart';
 import 'pages/inputs_page.dart';
 import 'pages/navigation_page.dart';
+import 'pages/overlays_page.dart';
 import 'pages/surfaces_page.dart';
 import 'theme_controller.dart';
 
@@ -66,5 +67,11 @@ List<AppDestination> buildDestinations() => <AppDestination>[
         icon: Icons.dashboard_outlined,
         selectedIcon: Icons.dashboard,
         builder: (_, _) => const SurfacesPage(),
+      ),
+      AppDestination(
+        title: 'Overlays',
+        icon: Icons.layers_clear_outlined,
+        selectedIcon: Icons.layers_clear,
+        builder: (_, _) => const OverlaysPage(),
       ),
     ];
