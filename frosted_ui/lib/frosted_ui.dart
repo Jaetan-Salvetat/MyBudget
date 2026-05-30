@@ -48,6 +48,7 @@ export 'src/components/overlays/frosted_tooltip.dart';
 export 'src/components/surfaces/frosted_banner.dart';
 export 'src/components/surfaces/frosted_card.dart';
 export 'src/components/surfaces/frosted_divider.dart';
+export 'src/components/surfaces/frosted_expansion_tile.dart';
 export 'src/components/surfaces/frosted_hero_card.dart';
 export 'src/components/surfaces/frosted_list_avatar.dart';
 export 'src/components/surfaces/frosted_list_section.dart';

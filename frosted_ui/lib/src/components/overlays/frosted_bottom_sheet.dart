@@ -18,7 +18,7 @@ Future<T?> showFrostedBottomSheet<T>({
     barrierDismissible: isDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.transparent,
-    transitionDuration: const Duration(milliseconds: 420),
+    transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (BuildContext context, Animation<double> _,
             Animation<double> _) =>
         Theme(data: theme, child: builder(context)),

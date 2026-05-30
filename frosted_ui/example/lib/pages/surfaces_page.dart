@@ -22,6 +22,8 @@ class SurfacesPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'List', child: _ListDemo()),
         SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Expansion', child: _ExpansionDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Banner', child: _BannerDemo()),
       ],
     );
@@ -239,6 +241,44 @@ class _ListDemoState extends State<_ListDemo> {
     'Livret A',
     'Épargne',
   ];
+}
+
+class _ExpansionDemo extends StatelessWidget {
+  const _ExpansionDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        FrostedExpansionTile(
+          leading: const Icon(Icons.notifications_outlined),
+          title: 'Notifications',
+          subtitle: 'Push, e-mail, son',
+          initiallyExpanded: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                'Choisissez comment vous êtes averti des nouvelles '
+                'transactions et des dépassements de budget.',
+                style: FrostedTypeScale.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: FrostedSpacing.sp3),
+        const FrostedExpansionTile(
+          leading: Icon(Icons.help_outline),
+          title: 'Comment ça marche ?',
+          child: Text(
+            'Ajoutez vos revenus et charges fixes, MyBudget calcule '
+            'votre solde prévisionnel mois par mois.',
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _BannerDemo extends StatelessWidget {
