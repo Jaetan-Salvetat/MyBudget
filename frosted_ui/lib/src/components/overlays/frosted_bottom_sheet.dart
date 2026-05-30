@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
-import '../../primitives/frosted_glass.dart';
-import '../../primitives/frosted_glass_level.dart';
+import '../../theme/frosted_tokens.dart';
 import 'frosted_scrim.dart';
 
 /// Shows a [FrostedBottomSheet] as a modal route — a glass sheet that slides
@@ -72,13 +71,18 @@ class FrostedBottomSheet extends StatelessWidget {
     final EdgeInsets viewInsets = MediaQuery.viewInsetsOf(context);
     final double bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
 
+    const BorderRadius radius = BorderRadius.vertical(
+      top: Radius.circular(FrostedRadius.xxl),
+    );
+
     return Padding(
       padding: EdgeInsets.only(bottom: viewInsets.bottom),
-      child: FrostedGlass(
-        level: FrostedGlassLevel.ultraThick,
-        elevation: FrostedGlassElevation.lifted,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(FrostedRadius.xxl),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainer.withValues(alpha: 0.72),
+          borderRadius: radius,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          boxShadow: context.frostedTokens.glass.liftedShadow,
         ),
         child: Padding(
           padding: EdgeInsets.fromLTRB(
