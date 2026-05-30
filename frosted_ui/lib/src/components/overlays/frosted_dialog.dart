@@ -79,7 +79,9 @@ class FrostedDialog extends StatelessWidget {
         padding: const EdgeInsets.all(FrostedSpacing.sp6),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
-          child: DecoratedBox(
+          child: Material(
+            type: MaterialType.transparency,
+            child: DecoratedBox(
             decoration: BoxDecoration(
               color: cs.surfaceContainer.withValues(alpha: 0.72),
               borderRadius: BorderRadius.circular(FrostedRadius.xl),
@@ -121,6 +123,7 @@ class FrostedDialog extends StatelessWidget {
                   ],
                 ],
               ),
+            ),
             ),
           ),
         ),

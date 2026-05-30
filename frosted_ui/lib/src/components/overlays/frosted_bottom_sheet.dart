@@ -77,7 +77,9 @@ class FrostedBottomSheet extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(bottom: viewInsets.bottom),
-      child: DecoratedBox(
+      child: Material(
+        type: MaterialType.transparency,
+        child: DecoratedBox(
         decoration: BoxDecoration(
           color: cs.surfaceContainer.withValues(alpha: 0.72),
           borderRadius: radius,
@@ -109,6 +111,7 @@ class FrostedBottomSheet extends StatelessWidget {
               child,
             ],
           ),
+        ),
         ),
       ),
     );

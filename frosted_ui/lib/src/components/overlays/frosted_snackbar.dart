@@ -111,7 +111,9 @@ class _SnackbarHostState extends State<_SnackbarHost>
           ).animate(_curve),
           child: SafeArea(
             top: false,
-            child: FrostedGlass(
+            child: Material(
+              type: MaterialType.transparency,
+              child: FrostedGlass(
               level: FrostedGlassLevel.thick,
               elevation: FrostedGlassElevation.lifted,
               borderRadius: BorderRadius.circular(FrostedRadius.md),
@@ -149,6 +151,7 @@ class _SnackbarHostState extends State<_SnackbarHost>
                   ],
                 ],
               ),
+            ),
             ),
           ),
         ),
