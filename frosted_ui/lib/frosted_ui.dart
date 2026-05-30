@@ -8,6 +8,8 @@ export 'src/components/actions/frosted_split_button.dart';
 export 'src/components/actions/frosted_switch.dart';
 export 'src/components/actions/frosted_toggle_buttons.dart';
 export 'src/components/inputs/frosted_autocomplete.dart';
+export 'src/components/inputs/frosted_calendar.dart';
+export 'src/components/inputs/frosted_clock_dial.dart';
 export 'src/components/inputs/frosted_date_picker.dart';
 export 'src/components/inputs/frosted_dropdown.dart';
 export 'src/components/inputs/frosted_field_surface.dart';
