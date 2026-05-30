@@ -24,6 +24,10 @@ class SurfacesPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Expansion', child: _ExpansionDemo()),
         SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Carousel · hero', child: _CarouselDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Carousel · multi-browse', child: _MultiBrowseDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Banner', child: _BannerDemo()),
       ],
     );
@@ -276,6 +280,76 @@ class _ExpansionDemo extends StatelessWidget {
             'votre solde prévisionnel mois par mois.',
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _CarouselDemo extends StatelessWidget {
+  const _CarouselDemo();
+
+  static const List<List<Color>> _gradients = <List<Color>>[
+    <Color>[Color(0xFF7C5CFF), Color(0xFF3CC9D8)],
+    <Color>[Color(0xFFFF6FA5), Color(0xFFE3B341)],
+    <Color>[Color(0xFF4CC38A), Color(0xFF3CC9D8)],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return FrostedCarousel(
+      items: <Widget>[
+        for (int i = 0; i < _gradients.length; i++)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _gradients[i],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius:
+                  BorderRadius.circular(FrostedRadius.lg),
+            ),
+            child: Center(
+              child: Text(
+                'Carte ${i + 1}',
+                style: FrostedTypeScale.titleLarge
+                    .copyWith(color: Colors.white),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _MultiBrowseDemo extends StatelessWidget {
+  const _MultiBrowseDemo();
+
+  static const List<Color> _colors = <Color>[
+    Color(0xFF7C5CFF),
+    Color(0xFFFF6FA5),
+    Color(0xFF4CC38A),
+    Color(0xFFE3B341),
+    Color(0xFF3CC9D8),
+    Color(0xFFC9BEFF),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return FrostedMultiBrowseCarousel(
+      height: 160,
+      items: <Widget>[
+        for (int i = 0; i < _colors.length; i++)
+          ColoredBox(
+            color: _colors[i],
+            child: Center(
+              child: Text(
+                '${i + 1}',
+                style: FrostedTypeScale.headlineSmall
+                    .copyWith(color: Colors.white),
+              ),
+            ),
+          ),
       ],
     );
   }
