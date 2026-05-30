@@ -10,7 +10,7 @@ import 'frosted_list_tile.dart';
 ///
 /// Pass [FrostedListTile]s; the section assigns each one its position
 /// (first / middle / last / single) so the corners read as one group. An
-/// optional [label] renders an all-caps caption above the group.
+/// optional [label] renders a sentence-case title above the group.
 class FrostedListSection extends StatelessWidget {
   const FrostedListSection({required this.tiles, this.label, super.key});
 
@@ -37,14 +37,10 @@ class FrostedListSection extends StatelessWidget {
       children: <Widget>[
         if (label != null) ...<Widget>[
           Padding(
-            padding: const EdgeInsets.only(
-              left: FrostedSpacing.sp4,
-              bottom: FrostedSpacing.sp2,
-            ),
+            padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
             child: Text(
               label!,
-              style: FrostedTypeScale.labelSmall
-                  .copyWith(color: cs.onSurfaceVariant),
+              style: FrostedTypeScale.titleSmall.copyWith(color: cs.onSurface),
             ),
           ),
         ],
