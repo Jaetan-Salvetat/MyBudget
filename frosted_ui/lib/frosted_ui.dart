@@ -21,7 +21,7 @@ export 'src/components/navigation/frosted_sidebar_section.dart';
 export 'src/components/navigation/frosted_sliver_top_bar.dart';
 export 'src/components/navigation/frosted_step.dart';
 export 'src/components/navigation/frosted_stepper.dart';
-export 'src/components/navigation/frosted_tab_bar.dart';
+export 'src/components/navigation/frosted_bottom_bar.dart';
 export 'src/components/navigation/frosted_tabs.dart';
 export 'src/components/navigation/frosted_toolbar.dart';
 export 'src/components/navigation/frosted_top_bar.dart';

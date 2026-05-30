@@ -80,7 +80,7 @@ class _TabBarDemoState extends State<_TabBarDemo> {
             const Positioned.fill(child: _MiniFeed()),
             Padding(
               padding: const EdgeInsets.all(FrostedSpacing.sp3),
-              child: FrostedTabBar(
+              child: FrostedBottomBar(
                 items: _items,
                 currentIndex: _index,
                 onTap: (int i) => setState(() => _index = i),
@@ -192,19 +192,23 @@ class _TabsDemoState extends State<_TabsDemo> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         FrostedTabs(
-          tabs: const <String>['Profile', 'Posts', 'Photos'],
+          tabs: const <FrostedTab>[
+            FrostedTab(label: 'Profile', icon: Icons.person_outline),
+            FrostedTab(label: 'Posts', icon: Icons.article_outlined),
+            FrostedTab(label: 'Photos', icon: Icons.photo_outlined),
+          ],
           currentIndex: _primary,
           onTap: (int i) => setState(() => _primary = i),
         ),
         const SizedBox(height: FrostedSpacing.sp4),
         FrostedTabs(
-          tabs: const <String>[
-            'Overview',
-            'Activity',
-            'Insights',
-            'Schedule',
-            'Reports',
-            'Settings',
+          tabs: const <FrostedTab>[
+            FrostedTab(label: 'Overview'),
+            FrostedTab(label: 'Activity'),
+            FrostedTab(label: 'Insights'),
+            FrostedTab(label: 'Schedule'),
+            FrostedTab(label: 'Reports'),
+            FrostedTab(label: 'Settings'),
           ],
           currentIndex: _secondary,
           onTap: (int i) => setState(() => _secondary = i),

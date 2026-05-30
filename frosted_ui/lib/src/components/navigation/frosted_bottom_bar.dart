@@ -9,12 +9,12 @@ import '../../theme/frosted_tokens.dart';
 import 'frosted_badge.dart';
 import 'frosted_nav_item.dart';
 
-/// A floating bottom tab bar rendered as a Liquid Glass pill.
+/// A floating bottom navigation bar rendered as a Liquid Glass pill.
 ///
 /// Active items are highlighted with a primary-container pill that grows
 /// horizontally. Best used with 3-5 destinations.
-class FrostedTabBar extends StatelessWidget {
-  const FrostedTabBar({
+class FrostedBottomBar extends StatelessWidget {
+  const FrostedBottomBar({
     required this.items,
     required this.currentIndex,
     required this.onTap,

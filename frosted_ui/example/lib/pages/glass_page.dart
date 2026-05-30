@@ -64,7 +64,7 @@ class _GlassPageState extends State<GlassPage> {
                     onCycleSurface: _cycleSurface,
                   ),
                   const SizedBox(height: FrostedSpacing.sp3),
-                  FrostedTabBar(
+                  FrostedBottomBar(
                     items: _tabItems,
                     currentIndex: _tabIndex,
                     onTap: (int i) => setState(() => _tabIndex = i),
