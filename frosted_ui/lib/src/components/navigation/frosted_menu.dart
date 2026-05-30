@@ -52,16 +52,13 @@ class FrostedMenuPanel extends StatelessWidget {
       level: FrostedGlassLevel.regular,
       elevation: FrostedGlassElevation.lifted,
       borderRadius: BorderRadius.circular(FrostedRadius.md),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp1),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            for (final FrostedMenuEntry entry in entries)
-              _MenuRow(entry: entry),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (final FrostedMenuEntry entry in entries)
+            _MenuRow(entry: entry),
+        ],
       ),
     );
 
