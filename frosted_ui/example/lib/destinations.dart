@@ -4,6 +4,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'pages/actions_page.dart';
 import 'pages/foundations_page.dart';
 import 'pages/glass_page.dart';
+import 'pages/inputs_page.dart';
 import 'pages/navigation_page.dart';
 import 'theme_controller.dart';
 
@@ -52,5 +53,11 @@ List<AppDestination> buildDestinations() => <AppDestination>[
         icon: Icons.touch_app_outlined,
         selectedIcon: Icons.touch_app,
         builder: (_, _) => const ActionsPage(),
+      ),
+      AppDestination(
+        title: 'Inputs',
+        icon: Icons.edit_outlined,
+        selectedIcon: Icons.edit,
+        builder: (_, _) => const InputsPage(),
       ),
     ];
