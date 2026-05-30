@@ -112,38 +112,133 @@ class _CardBody extends StatelessWidget {
   }
 }
 
-class _ListDemo extends StatelessWidget {
+class _ListDemo extends StatefulWidget {
   const _ListDemo();
 
   @override
+  State<_ListDemo> createState() => _ListDemoState();
+}
+
+class _ListDemoState extends State<_ListDemo> {
+  bool _wifi = true;
+  bool _bluetooth = false;
+  int _selectedAccount = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return FrostedListSection(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        FrostedListTile(
-          leading: const FrostedListAvatar(icon: Icons.person_outline),
-          title: 'Ada Lovelace',
-          subtitle: 'Programs of the Analytical Engine',
-          trailing: const Text('9:42'),
-          onTap: () {},
+        // Two-line, avatar + meta + chevron, with a selected row.
+        FrostedListSection(
+          label: 'Récents',
+          tiles: <FrostedListTile>[
+            FrostedListTile(
+              leading: const FrostedListAvatar(icon: Icons.person_outline),
+              title: 'Ada Lovelace',
+              subtitle: 'Programs of the Analytical Engine',
+              trailing: const Text('9:42'),
+              onTap: () {},
+            ),
+            FrostedListTile(
+              leading:
+                  const FrostedListAvatar(icon: Icons.notifications_outlined),
+              title: 'Notifications',
+              subtitle: '3 mentions, 2 follows',
+              trailing: const Text('5'),
+              onTap: () {},
+            ),
+            FrostedListTile(
+              leading: const FrostedListAvatar(icon: Icons.favorite_outline),
+              title: 'Liquid Glass',
+              subtitle: 'Épinglé · 12 éléments',
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {},
+            ),
+          ],
         ),
-        FrostedListTile(
-          leading: const FrostedListAvatar(icon: Icons.notifications_outlined),
-          title: 'Notifications',
-          subtitle: '3 mentions, 2 follows',
-          trailing: const Text('5'),
-          onTap: () {},
+        const SizedBox(height: FrostedSpacing.sp5),
+
+        // One-line, bare icons, trailing switches (interactive).
+        FrostedListSection(
+          label: 'Réseau',
+          tiles: <FrostedListTile>[
+            FrostedListTile(
+              leading: const Icon(Icons.wifi),
+              title: 'Wi-Fi',
+              trailing: FrostedSwitch(
+                value: _wifi,
+                onChanged: (bool v) => setState(() => _wifi = v),
+              ),
+              onTap: () => setState(() => _wifi = !_wifi),
+            ),
+            FrostedListTile(
+              leading: const Icon(Icons.bluetooth),
+              title: 'Bluetooth',
+              trailing: FrostedSwitch(
+                value: _bluetooth,
+                onChanged: (bool v) => setState(() => _bluetooth = v),
+              ),
+              onTap: () => setState(() => _bluetooth = !_bluetooth),
+            ),
+          ],
         ),
-        FrostedListTile(
-          leading: const FrostedListAvatar(icon: Icons.favorite_outline),
-          title: 'Liquid Glass',
-          subtitle: 'Épinglé · 12 éléments',
-          trailing: const Icon(Icons.chevron_right),
-          selected: true,
-          onTap: () {},
+        const SizedBox(height: FrostedSpacing.sp5),
+
+        // Single-selection group (radio-like), no label, no leading.
+        FrostedListSection(
+          label: 'Compte par défaut',
+          tiles: <FrostedListTile>[
+            for (int i = 0; i < _accounts.length; i++)
+              FrostedListTile(
+                title: _accounts[i],
+                trailing: _selectedAccount == i
+                    ? const Icon(Icons.check)
+                    : null,
+                selected: _selectedAccount == i,
+                onTap: () => setState(() => _selectedAccount = i),
+              ),
+          ],
+        ),
+        const SizedBox(height: FrostedSpacing.sp5),
+
+        // Standalone single tile (fully rounded), no label.
+        FrostedListSection(
+          tiles: <FrostedListTile>[
+            FrostedListTile(
+              leading: const Icon(Icons.logout),
+              title: 'Se déconnecter',
+              onTap: () {},
+            ),
+          ],
+        ),
+        const SizedBox(height: FrostedSpacing.sp5),
+
+        // Read-only group (no onTap → no ripple, static).
+        FrostedListSection(
+          label: 'Informations',
+          tiles: const <FrostedListTile>[
+            FrostedListTile(
+              leading: Icon(Icons.tag),
+              title: 'Version',
+              trailing: Text('2.0.0'),
+            ),
+            FrostedListTile(
+              leading: Icon(Icons.fingerprint),
+              title: 'Build',
+              trailing: Text('1042'),
+            ),
+          ],
         ),
       ],
     );
   }
+
+  static const List<String> _accounts = <String>[
+    'Compte courant',
+    'Livret A',
+    'Épargne',
+  ];
 }
 
 class _BannerDemo extends StatelessWidget {

@@ -106,6 +106,10 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
     final BorderRadius targetRadius =
         widget.shape?.call(states) ?? BorderRadius.zero;
 
+    // The InkWell paints into a Material whose own shape clips the splash to
+    // the rounded corners — so the ink never bleeds into a neighbour. Only
+    // this ink layer is clipped; the builder's content (and any shadow it
+    // draws, e.g. the FAB) stays unclipped. The shape morphs with the press.
     child = Stack(
       children: <Widget>[
         child,
@@ -114,26 +118,27 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
             duration: motion.duration,
             curve: motion.curve,
             tween: Tween<BorderRadius?>(end: targetRadius),
-            builder: (BuildContext context, BorderRadius? radius, Widget? ink) {
-              return ClipRRect(
-                borderRadius: radius ?? targetRadius,
-                child: ink,
+            builder: (BuildContext context, BorderRadius? radius, Widget? _) {
+              return Material(
+                type: MaterialType.transparency,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: radius ?? targetRadius,
+                ),
+                child: InkWell(
+                  onTap: _enabled ? widget.onTap : null,
+                  onTapDown: _enabled
+                      ? (TapDownDetails _) => _setPressed(true)
+                      : null,
+                  onTapUp:
+                      _enabled ? (TapUpDetails _) => _setPressed(false) : null,
+                  onTapCancel: _enabled ? () => _setPressed(false) : null,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
               );
             },
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                onTap: _enabled ? widget.onTap : null,
-                onTapDown:
-                    _enabled ? (TapDownDetails _) => _setPressed(true) : null,
-                onTapUp:
-                    _enabled ? (TapUpDetails _) => _setPressed(false) : null,
-                onTapCancel: _enabled ? () => _setPressed(false) : null,
-                hoverColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-              ),
-            ),
           ),
         ),
       ],
