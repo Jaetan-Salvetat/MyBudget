@@ -1,3 +1,12 @@
+export 'src/components/actions/frosted_button.dart';
+export 'src/components/actions/frosted_checkbox.dart';
+export 'src/components/actions/frosted_chip.dart';
+export 'src/components/actions/frosted_fab.dart';
+export 'src/components/actions/frosted_icon_button.dart';
+export 'src/components/actions/frosted_radio.dart';
+export 'src/components/actions/frosted_split_button.dart';
+export 'src/components/actions/frosted_switch.dart';
+export 'src/components/actions/frosted_toggle_buttons.dart';
 export 'src/components/navigation/frosted_adaptive_navigation.dart';
 export 'src/components/navigation/frosted_badge.dart';
 export 'src/components/navigation/frosted_breadcrumb.dart';

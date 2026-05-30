@@ -5,6 +5,7 @@ class FrostedSpacing {
   const FrostedSpacing._();
 
   static const double sp0 = 0;
+  static const double sp05 = 2;
   static const double sp1 = 4;
   static const double sp2 = 8;
   static const double sp3 = 12;

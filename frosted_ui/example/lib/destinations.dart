@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
+import 'pages/actions_page.dart';
 import 'pages/foundations_page.dart';
 import 'pages/glass_page.dart';
 import 'pages/navigation_page.dart';
@@ -45,5 +46,11 @@ List<AppDestination> buildDestinations() => <AppDestination>[
         icon: Icons.alt_route_outlined,
         selectedIcon: Icons.alt_route,
         builder: (_, _) => const NavigationPage(),
+      ),
+      AppDestination(
+        title: 'Actions',
+        icon: Icons.touch_app_outlined,
+        selectedIcon: Icons.touch_app,
+        builder: (_, _) => const ActionsPage(),
       ),
     ];
