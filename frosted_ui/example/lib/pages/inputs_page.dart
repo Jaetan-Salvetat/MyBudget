@@ -22,6 +22,8 @@ class InputsPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Dropdown', child: _DropdownDemo()),
         SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Autocomplete', child: _AutocompleteDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Sliders', child: _SlidersDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Date & time', child: _DateTimeDemo()),
@@ -159,6 +161,34 @@ class _DropdownDemoState extends State<_DropdownDemo> {
           icon: Icons.bolt_outlined,
         ),
       ],
+    );
+  }
+}
+
+class _AutocompleteDemo extends StatelessWidget {
+  const _AutocompleteDemo();
+
+  static const List<String> _cities = <String>[
+    'Paris',
+    'Marseille',
+    'Lyon',
+    'Toulouse',
+    'Nice',
+    'Nantes',
+    'Strasbourg',
+    'Montpellier',
+    'Bordeaux',
+    'Lille',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return FrostedAutocomplete(
+      label: 'Ville',
+      hintText: 'Commencez à taper…',
+      leadingIcon: Icons.location_city_outlined,
+      options: _cities,
+      onSelected: (_) {},
     );
   }
 }

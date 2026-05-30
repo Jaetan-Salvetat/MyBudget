@@ -7,6 +7,7 @@ export 'src/components/actions/frosted_radio.dart';
 export 'src/components/actions/frosted_split_button.dart';
 export 'src/components/actions/frosted_switch.dart';
 export 'src/components/actions/frosted_toggle_buttons.dart';
+export 'src/components/inputs/frosted_autocomplete.dart';
 export 'src/components/inputs/frosted_date_picker.dart';
 export 'src/components/inputs/frosted_dropdown.dart';
 export 'src/components/inputs/frosted_field_surface.dart';
