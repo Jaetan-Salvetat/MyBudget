@@ -5,6 +5,7 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import '../navigation/frosted_menu.dart';
 import '_interactive_surface.dart';
 
 enum _SplitVariant { filled, tonal, outlined }
@@ -223,13 +224,15 @@ class _ChevronAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return MenuAnchor(
+      style: const MenuStyle(
+        backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+        elevation: WidgetStatePropertyAll<double>(0),
+        padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
+        shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+        surfaceTintColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+      ),
       menuChildren: <Widget>[
-        for (final FrostedSplitMenuItem item in items)
-          MenuItemButton(
-            leadingIcon: item.icon == null ? null : Icon(item.icon),
-            onPressed: item.onTap,
-            child: Text(item.label, style: FrostedTypeScale.labelLarge),
-          ),
+        _SplitMenu(items: items),
       ],
       builder: (
         BuildContext context,
@@ -282,6 +285,30 @@ class _ChevronAction extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _SplitMenu extends StatelessWidget {
+  const _SplitMenu({required this.items});
+
+  final List<FrostedSplitMenuItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final MenuController? controller = MenuController.maybeOf(context);
+    return FrostedMenuPanel(
+      entries: <FrostedMenuEntry>[
+        for (final FrostedSplitMenuItem item in items)
+          FrostedMenuEntry(
+            label: item.label,
+            icon: item.icon,
+            onTap: () {
+              item.onTap();
+              controller?.close();
+            },
+          ),
+      ],
     );
   }
 }

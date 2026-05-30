@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import '../navigation/frosted_menu.dart';
 import 'frosted_field_surface.dart';
 
 /// A single option in a [FrostedDropdown].
@@ -50,7 +50,14 @@ class FrostedDropdown<T> extends StatefulWidget {
 
 class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
   final MenuController _controller = MenuController();
+  final GlobalKey _fieldKey = GlobalKey();
   bool _open = false;
+
+  double? get _fieldWidth {
+    final RenderBox? box =
+        _fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    return box?.size.width;
+  }
 
   FrostedDropdownItem<T>? get _selected {
     for (final FrostedDropdownItem<T> item in widget.items) {
@@ -92,27 +99,35 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
         ],
         MenuAnchor(
           controller: _controller,
-          style: MenuStyle(
-            backgroundColor:
-                WidgetStatePropertyAll<Color>(cs.surfaceContainerHigh),
-            shape: WidgetStatePropertyAll<OutlinedBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(FrostedRadius.md),
-              ),
-            ),
+          style: const MenuStyle(
+            backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+            elevation: WidgetStatePropertyAll<double>(0),
+            padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
+            shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+            surfaceTintColor:
+                WidgetStatePropertyAll<Color>(Colors.transparent),
           ),
           onClose: () => setState(() => _open = false),
           menuChildren: <Widget>[
-            for (final FrostedDropdownItem<T> item in widget.items)
-              MenuItemButton(
-                leadingIcon:
-                    item.icon == null ? null : Icon(item.icon, size: 20),
-                onPressed: () => widget.onChanged?.call(item.value),
-                child: Text(item.label, style: FrostedTypeScale.bodyLarge),
-              ),
+            FrostedMenuPanel(
+              width: _fieldWidth,
+              entries: <FrostedMenuEntry>[
+                for (final FrostedDropdownItem<T> item in widget.items)
+                  FrostedMenuEntry(
+                    label: item.label,
+                    icon: item.icon,
+                    selected: item.value == widget.value,
+                    onTap: () {
+                      widget.onChanged?.call(item.value);
+                      _controller.close();
+                    },
+                  ),
+              ],
+            ),
           ],
           builder: (BuildContext context, MenuController controller, Widget? _) {
             return GestureDetector(
+              key: _fieldKey,
               onTap: enabled ? _toggle : null,
               behavior: HitTestBehavior.opaque,
               child: FrostedFieldSurface(
