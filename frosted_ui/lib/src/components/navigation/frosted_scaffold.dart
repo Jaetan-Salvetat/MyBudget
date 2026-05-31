@@ -1,6 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+
+import '../../primitives/frosted_glass.dart';
+import '../../primitives/frosted_glass_level.dart';
 
 /// A [Scaffold] wrapper that builds its own drawer overlay so the scrim
 /// (blur + light voile) sits **above** the app bar instead of underneath it.
@@ -26,8 +27,8 @@ class FrostedScaffold extends StatefulWidget {
     this.extendBodyBehindAppBar = true,
     this.resizeToAvoidBottomInset = true,
     this.drawerWidth = 296,
-    this.scrimBlurSigma = 24,
-    this.scrimColor = const Color(0x33000000),
+    this.scrimLevel = FrostedGlassLevel.regular,
+    this.scrimTone = FrostedGlassTone.dark,
     this.onDrawerChanged,
   });
 
@@ -47,13 +48,12 @@ class FrostedScaffold extends StatefulWidget {
   /// be constrained by) this value.
   final double drawerWidth;
 
-  /// Maximum blur sigma applied to the scrim when the drawer is fully open.
-  final double scrimBlurSigma;
+  /// Glass level of the scrim painted behind the drawer.
+  final FrostedGlassLevel scrimLevel;
 
-  /// Color of the scrim voile painted over the blurred backdrop when the
-  /// drawer is fully open. The actual opacity is interpolated by the drawer
-  /// animation progress.
-  final Color scrimColor;
+  /// Glass tone of the scrim. Defaults to [FrostedGlassTone.dark] so the page
+  /// behind the drawer dims regardless of the ambient theme brightness.
+  final FrostedGlassTone scrimTone;
 
   /// Fires with `true` when the drawer finishes opening, `false` when it
   /// finishes closing.
@@ -166,18 +166,12 @@ class FrostedScaffoldState extends State<FrostedScaffold>
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: closeDrawer,
-                  child: ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: widget.scrimBlurSigma * t,
-                        sigmaY: widget.scrimBlurSigma * t,
-                      ),
-                      child: ColoredBox(
-                        color: widget.scrimColor.withValues(
-                          alpha: widget.scrimColor.a * t,
-                        ),
-                      ),
-                    ),
+                  child: FrostedGlass(
+                    level: widget.scrimLevel,
+                    tone: widget.scrimTone,
+                    elevation: FrostedGlassElevation.none,
+                    borderRadius: BorderRadius.zero,
+                    animation: _controller,
                   ),
                 ),
               ),

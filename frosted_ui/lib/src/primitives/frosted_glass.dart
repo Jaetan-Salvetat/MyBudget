@@ -28,6 +28,7 @@ class FrostedGlass extends StatelessWidget {
     this.level = FrostedGlassLevel.regular,
     this.tone = FrostedGlassTone.auto,
     this.elevation = FrostedGlassElevation.floating,
+    this.animation,
   });
 
   final Widget? child;
@@ -37,21 +38,43 @@ class FrostedGlass extends StatelessWidget {
   final FrostedGlassTone tone;
   final FrostedGlassElevation elevation;
 
+  /// Optional 0→1 driver that reveals the material progressively: blur, veil,
+  /// border and shadow all scale with the animation value. When null the glass
+  /// renders at full strength.
+  ///
+  /// Use it for reveal transitions (scrims, sheets, drawers) where wrapping the
+  /// glass in [Opacity] would break the [BackdropFilter].
+  final Animation<double>? animation;
+
   @override
   Widget build(BuildContext context) {
+    final Animation<double>? reveal = animation;
+    if (reveal == null) return _buildGlass(context, 1);
+    return AnimatedBuilder(
+      animation: reveal,
+      builder: (BuildContext context, _) =>
+          _buildGlass(context, reveal.value.clamp(0, 1)),
+    );
+  }
+
+  Widget _buildGlass(BuildContext context, double t) {
     final FrostedGlassTokens glass = context.frostedTokens.glass;
     final FrostedGlassLevelSpec spec = glass.specFor(level);
     final Brightness effective = _resolveBrightness(context);
     final bool isDark = effective == Brightness.dark;
 
-    final Color veilColor = (isDark ? Colors.black : Colors.white).withValues(
-      alpha: isDark ? spec.darkVeilOpacity : spec.lightVeilOpacity,
+    final double veilAlpha =
+        (isDark ? spec.darkVeilOpacity : spec.lightVeilOpacity) * t;
+    final Color veilColor =
+        (isDark ? Colors.black : Colors.white).withValues(alpha: veilAlpha);
+    final BorderSide base = isDark ? glass.darkBorder : glass.lightBorder;
+    final BorderSide border = base.copyWith(
+      color: base.color.withValues(alpha: base.color.a * t),
     );
-    final BorderSide border = isDark ? glass.darkBorder : glass.lightBorder;
     final List<BoxShadow>? shadow = switch (elevation) {
       FrostedGlassElevation.none => null,
-      FrostedGlassElevation.floating => glass.floatingShadow,
-      FrostedGlassElevation.lifted => glass.liftedShadow,
+      FrostedGlassElevation.floating => _scaleShadow(glass.floatingShadow, t),
+      FrostedGlassElevation.lifted => _scaleShadow(glass.liftedShadow, t),
     };
 
     final BorderRadiusGeometry radius =
@@ -66,8 +89,8 @@ class FrostedGlass extends StatelessWidget {
             Positioned.fill(
               child: BackdropFilter(
                 filter: _saturatingBlur(
-                  sigma: spec.blurSigma,
-                  saturation: glass.saturation,
+                  sigma: spec.blurSigma * t,
+                  saturation: lerpDouble(1, glass.saturation, t)!,
                 ),
                 child: ColoredBox(color: veilColor),
               ),
@@ -102,6 +125,14 @@ class FrostedGlass extends StatelessWidget {
         return Brightness.dark;
     }
   }
+}
+
+List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
+  if (t >= 1) return shadows;
+  return <BoxShadow>[
+    for (final BoxShadow shadow in shadows)
+      shadow.copyWith(color: shadow.color.withValues(alpha: shadow.color.a * t)),
+  ];
 }
 
 ImageFilter _saturatingBlur({

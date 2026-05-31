@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
+import '../../primitives/frosted_glass.dart';
+import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_tokens.dart';
-import 'frosted_scrim.dart';
 
 /// Shows a [FrostedBottomSheet] as a modal route — a glass sheet that slides
 /// up from the bottom edge over a scrim. Returns the value it pops with.
@@ -34,11 +35,20 @@ Future<T?> showFrostedBottomSheet<T>({
       );
       return Stack(
         children: <Widget>[
-          FrostedScrim(
-            animation: curve,
-            onDismiss: isDismissible
-                ? () => Navigator.of(context).maybePop()
-                : null,
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: isDismissible
+                  ? () => Navigator.of(context).maybePop()
+                  : null,
+              child: FrostedGlass(
+                level: FrostedGlassLevel.regular,
+                tone: FrostedGlassTone.dark,
+                elevation: FrostedGlassElevation.none,
+                borderRadius: BorderRadius.zero,
+                animation: curve,
+              ),
+            ),
           ),
           Align(
             alignment: Alignment.bottomCenter,

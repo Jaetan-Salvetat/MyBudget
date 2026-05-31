@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
+import '../../primitives/frosted_glass.dart';
+import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_tokens.dart';
-import 'frosted_scrim.dart';
 
 /// Shows a [FrostedDialog] as a modal route — a glass shell wrapping an opaque
 /// M3 interior, over a scrim. Returns the value the dialog pops with.
@@ -35,11 +36,20 @@ Future<T?> showFrostedDialog<T>({
       );
       return Stack(
         children: <Widget>[
-          FrostedScrim(
-            animation: curve,
-            onDismiss: barrierDismissible
-                ? () => Navigator.of(context).maybePop()
-                : null,
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: barrierDismissible
+                  ? () => Navigator.of(context).maybePop()
+                  : null,
+              child: FrostedGlass(
+                level: FrostedGlassLevel.regular,
+                tone: FrostedGlassTone.dark,
+                elevation: FrostedGlassElevation.none,
+                borderRadius: BorderRadius.zero,
+                animation: curve,
+              ),
+            ),
           ),
           FadeTransition(
             opacity: curve,
