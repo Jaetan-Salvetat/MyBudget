@@ -4,11 +4,10 @@ import 'package:flutter/services.dart';
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
-import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 import '../actions/frosted_button.dart';
 import '../actions/frosted_icon_button.dart';
-import '../overlays/frosted_scrim.dart';
+import '../overlays/frosted_dialog.dart';
 import 'frosted_clock_dial.dart';
 import 'frosted_picker_field.dart';
 
@@ -21,42 +20,10 @@ Future<TimeOfDay?> showFrostedTimePicker({
   required BuildContext context,
   required TimeOfDay initialTime,
 }) {
-  final ThemeData theme = Theme.of(context);
-  return showGeneralDialog<TimeOfDay>(
+  return showFrostedDialog<TimeOfDay>(
     context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.transparent,
-    transitionDuration: const Duration(milliseconds: 420),
-    pageBuilder: (BuildContext context, Animation<double> _,
-            Animation<double> _) =>
-        Theme(data: theme, child: _TimePickerDialog(initialTime: initialTime)),
-    transitionBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondary,
-      Widget child,
-    ) {
-      final CurvedAnimation curve = CurvedAnimation(
-        parent: animation,
-        curve: const Cubic(0.32, 0.72, 0, 1),
-      );
-      return Stack(
-        children: <Widget>[
-          FrostedScrim(
-            animation: curve,
-            onDismiss: () => Navigator.of(context).maybePop(),
-          ),
-          FadeTransition(
-            opacity: curve,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.92, end: 1).animate(curve),
-              child: child,
-            ),
-          ),
-        ],
-      );
-    },
+    builder: (BuildContext context) =>
+        _TimePickerDialog(initialTime: initialTime),
   );
 }
 
@@ -77,89 +44,57 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FrostedSpacing.sp6),
-        child: Material(
-          type: MaterialType.transparency,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainer.withValues(alpha: 0.72),
-              borderRadius: BorderRadius.circular(FrostedRadius.xl),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              boxShadow: context.frostedTokens.glass.liftedShadow,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(FrostedSpacing.sp5),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Sélectionner l'heure",
-                    style: FrostedTypeScale.labelMedium
-                        .copyWith(color: cs.onSurfaceVariant),
-                  ),
-                  const SizedBox(height: FrostedSpacing.sp4),
-                  _Selectors(
-                    hour: _hour,
-                    minute: _minute,
-                    unit: _unit,
-                    keyboard: _keyboard,
-                    onUnit: (FrostedClockUnit u) => setState(() => _unit = u),
-                    onHour: (int h) => setState(() => _hour = h),
-                    onMinute: (int m) => setState(() => _minute = m),
-                  ),
-                  if (!_keyboard) ...<Widget>[
-                    const SizedBox(height: FrostedSpacing.sp5),
-                    Center(
-                      child: FrostedClockDial(
-                        unit: _unit,
-                        hour: _hour,
-                        minute: _minute,
-                        onChanged: (int v) => setState(() {
-                          if (_unit == FrostedClockUnit.hour) {
-                            _hour = v;
-                          } else {
-                            _minute = v;
-                          }
-                        }),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: FrostedSpacing.sp4),
-                  Row(
-                    children: <Widget>[
-                      FrostedIconButton.standard(
-                        icon: _keyboard
-                            ? Icons.schedule_outlined
-                            : Icons.keyboard_outlined,
-                        tooltip: _keyboard ? 'Cadran' : 'Saisie clavier',
-                        onPressed: () =>
-                            setState(() => _keyboard = !_keyboard),
-                      ),
-                      const Spacer(),
-                      FrostedButton.text(
-                        label: 'Annuler',
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      const SizedBox(width: FrostedSpacing.sp2),
-                      FrostedButton.filled(
-                        label: 'OK',
-                        onPressed: () => Navigator.of(context).pop(
-                          TimeOfDay(hour: _hour, minute: _minute),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+    return FrostedDialog(
+      title: "Sélectionner l'heure",
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _Selectors(
+            hour: _hour,
+            minute: _minute,
+            unit: _unit,
+            keyboard: _keyboard,
+            onUnit: (FrostedClockUnit u) => setState(() => _unit = u),
+            onHour: (int h) => setState(() => _hour = h),
+            onMinute: (int m) => setState(() => _minute = m),
+          ),
+          if (!_keyboard) ...<Widget>[
+            const SizedBox(height: FrostedSpacing.sp5),
+            Center(
+              child: FrostedClockDial(
+                unit: _unit,
+                hour: _hour,
+                minute: _minute,
+                onChanged: (int v) => setState(() {
+                  if (_unit == FrostedClockUnit.hour) {
+                    _hour = v;
+                  } else {
+                    _minute = v;
+                  }
+                }),
               ),
             ),
+          ],
+        ],
+      ),
+      leadingAction: FrostedIconButton.standard(
+        icon: _keyboard ? Icons.schedule_outlined : Icons.keyboard_outlined,
+        tooltip: _keyboard ? 'Cadran' : 'Saisie clavier',
+        onPressed: () => setState(() => _keyboard = !_keyboard),
+      ),
+      actions: <Widget>[
+        FrostedButton.text(
+          label: 'Annuler',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        FrostedButton.filled(
+          label: 'OK',
+          onPressed: () => Navigator.of(context).pop(
+            TimeOfDay(hour: _hour, minute: _minute),
           ),
         ),
-      ),
+      ],
     );
   }
 }

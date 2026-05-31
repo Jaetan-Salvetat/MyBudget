@@ -65,7 +65,8 @@ Future<T?> showFrostedDialog<T>({
 }
 
 /// A modal dialog: a Liquid Glass shell around an opaque M3 interior, with a
-/// title, body, and a trailing row of actions.
+/// title, body, and a bottom row of actions. An optional [leadingAction] is
+/// pinned to the left of that row (e.g. a mode toggle).
 ///
 /// Present it through [showFrostedDialog].
 class FrostedDialog extends StatelessWidget {
@@ -73,12 +74,16 @@ class FrostedDialog extends StatelessWidget {
     required this.title,
     this.body,
     this.actions = const <Widget>[],
+    this.leadingAction,
     super.key,
   });
 
   final String title;
   final Widget? body;
   final List<Widget> actions;
+
+  /// Optional widget pinned to the left of the action row, opposite [actions].
+  final Widget? leadingAction;
 
   @override
   Widget build(BuildContext context) {
@@ -119,11 +124,12 @@ class FrostedDialog extends StatelessWidget {
                       child: body!,
                     ),
                   ],
-                  if (actions.isNotEmpty) ...<Widget>[
+                  if (actions.isNotEmpty || leadingAction != null) ...<Widget>[
                     const SizedBox(height: FrostedSpacing.sp5),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
+                        ?leadingAction,
+                        const Spacer(),
                         for (int i = 0; i < actions.length; i++) ...<Widget>[
                           if (i > 0) const SizedBox(width: FrostedSpacing.sp2),
                           actions[i],
