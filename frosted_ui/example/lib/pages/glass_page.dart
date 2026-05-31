@@ -34,6 +34,7 @@ class _GlassPageState extends State<GlassPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Stack(
       children: <Widget>[
         Positioned.fill(child: RealisticSurface(kind: _surface)),
@@ -64,13 +65,34 @@ class _GlassPageState extends State<GlassPage> {
                     onCycleSurface: _cycleSurface,
                   ),
                   const SizedBox(height: FrostedSpacing.sp3),
+                  FrostedGlass(
+                    level: _level,
+                    tone: _tone,
+                    elevation: _elevation,
+                    borderRadius: BorderRadius.circular(FrostedRadius.full),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: FrostedSpacing.sp4,
+                      vertical: FrostedSpacing.sp3,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.auto_awesome, size: 18, color: cs.onSurface),
+                        const SizedBox(width: FrostedSpacing.sp2),
+                        Text(
+                          'Aperçu du verre',
+                          style: FrostedTypeScale.labelMedium
+                              .copyWith(color: cs.onSurface),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: FrostedSpacing.sp3),
                   FrostedBottomBar(
                     items: _tabItems,
                     currentIndex: _tabIndex,
                     onTap: (int i) => setState(() => _tabIndex = i),
-                    level: _level,
-                    tone: _tone,
-                    elevation: _elevation,
                   ),
                 ],
               ),

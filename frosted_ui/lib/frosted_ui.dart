@@ -42,7 +42,6 @@ export 'src/components/overlays/frosted_bottom_sheet.dart';
 export 'src/components/overlays/frosted_circular_progress.dart';
 export 'src/components/overlays/frosted_dialog.dart';
 export 'src/components/overlays/frosted_linear_progress.dart';
-export 'src/components/overlays/frosted_scrim.dart';
 export 'src/components/overlays/frosted_snackbar.dart';
 export 'src/components/overlays/frosted_tooltip.dart';
 export 'src/components/surfaces/frosted_banner.dart';

@@ -18,25 +18,19 @@ class FrostedBottomBar extends StatelessWidget {
     required this.items,
     required this.currentIndex,
     required this.onTap,
-    this.level = FrostedGlassLevel.regular,
-    this.tone = FrostedGlassTone.auto,
-    this.elevation = FrostedGlassElevation.floating,
     super.key,
   });
 
   final List<FrostedNavItem> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final FrostedGlassLevel level;
-  final FrostedGlassTone tone;
-  final FrostedGlassElevation elevation;
 
   @override
   Widget build(BuildContext context) {
     return FrostedGlass(
-      level: level,
-      tone: tone,
-      elevation: elevation,
+      level: FrostedGlassLevel.ultraThick,
+      tone: FrostedGlassTone.auto,
+      elevation: FrostedGlassElevation.floating,
       borderRadius: BorderRadius.circular(FrostedRadius.full),
       padding: const EdgeInsets.all(FrostedSpacing.sp2),
       child: Row(

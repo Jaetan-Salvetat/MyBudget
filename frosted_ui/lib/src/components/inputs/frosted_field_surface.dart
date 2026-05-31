@@ -1,18 +1,17 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../foundations/frosted_radius.dart';
+import '../../primitives/frosted_glass.dart';
+import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 
 /// The filled block shared by the form inputs (text field, search, dropdown,
 /// pickers).
 ///
-/// Solid by default. When [glass] is true the fill is replaced by a blurred,
-/// semi-transparent veil — letting whatever sits behind the field show
-/// through. Glass on content is off-spec for Glass Expressive, so it is
-/// strictly opt-in.
+/// Solid by default. When [glass] is true the fill becomes the standard Liquid
+/// Glass material — the same `regular` settings as the chrome bars — letting
+/// whatever sits behind the field show through. Opt-in per field.
 class FrostedFieldSurface extends StatelessWidget {
   const FrostedFieldSurface({
     required this.child,
@@ -34,7 +33,6 @@ class FrostedFieldSurface extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   static const double _ringWidth = 2;
-  static const double _blurSigma = 16;
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +46,19 @@ class FrostedFieldSurface extends StatelessWidget {
       width: _ringWidth,
     );
 
-    if (glass) {
-      return ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: _blurSigma, sigmaY: _blurSigma),
-          child: AnimatedContainer(
-            duration: motion.duration,
-            curve: motion.curve,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: _glassFill(cs),
-              borderRadius: radius,
-              border: border,
-            ),
-            child: child,
-          ),
+    if (glass && enabled) {
+      return AnimatedContainer(
+        duration: motion.duration,
+        curve: motion.curve,
+        foregroundDecoration:
+            BoxDecoration(borderRadius: radius, border: border),
+        child: FrostedGlass(
+          level: FrostedGlassLevel.ultraThick,
+          tone: FrostedGlassTone.auto,
+          elevation: FrostedGlassElevation.none,
+          borderRadius: radius,
+          padding: padding,
+          child: child,
         ),
       );
     }
@@ -84,10 +79,5 @@ class FrostedFieldSurface extends StatelessWidget {
   Color _solidFill(ColorScheme cs) {
     if (!enabled) return cs.onSurface.withValues(alpha: 0.04);
     return cs.surfaceContainerHigh;
-  }
-
-  Color _glassFill(ColorScheme cs) {
-    if (!enabled) return cs.onSurface.withValues(alpha: 0.04);
-    return cs.surfaceContainerHigh.withValues(alpha: 0.45);
   }
 }

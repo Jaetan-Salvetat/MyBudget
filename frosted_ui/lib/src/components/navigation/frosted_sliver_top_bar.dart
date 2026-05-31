@@ -30,9 +30,6 @@ class FrostedSliverTopBar extends StatelessWidget {
     this.leading,
     this.actions = const <Widget>[],
     this.largeTitleHeight = _kDefaultLargeHeight,
-    this.restingLevel = FrostedGlassLevel.regular,
-    this.scrolledLevel = FrostedGlassLevel.thick,
-    this.tone = FrostedGlassTone.auto,
     super.key,
   });
 
@@ -40,9 +37,6 @@ class FrostedSliverTopBar extends StatelessWidget {
   final Widget? leading;
   final List<Widget> actions;
   final double largeTitleHeight;
-  final FrostedGlassLevel restingLevel;
-  final FrostedGlassLevel scrolledLevel;
-  final FrostedGlassTone tone;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +49,6 @@ class FrostedSliverTopBar extends StatelessWidget {
         leading: leading,
         actions: actions,
         largeTitleHeight: largeTitleHeight,
-        restingLevel: restingLevel,
-        scrolledLevel: scrolledLevel,
-        tone: tone,
       ),
     );
   }
@@ -70,9 +61,6 @@ class _Delegate extends SliverPersistentHeaderDelegate {
     required this.leading,
     required this.actions,
     required this.largeTitleHeight,
-    required this.restingLevel,
-    required this.scrolledLevel,
-    required this.tone,
   });
 
   final double topInset;
@@ -80,9 +68,6 @@ class _Delegate extends SliverPersistentHeaderDelegate {
   final Widget? leading;
   final List<Widget> actions;
   final double largeTitleHeight;
-  final FrostedGlassLevel restingLevel;
-  final FrostedGlassLevel scrolledLevel;
-  final FrostedGlassTone tone;
 
   @override
   double get maxExtent => topInset + _kCompactHeight + largeTitleHeight;
@@ -99,13 +84,11 @@ class _Delegate extends SliverPersistentHeaderDelegate {
     final double range = maxExtent - minExtent;
     final double progress =
         range <= 0 ? 1.0 : (shrinkOffset / range).clamp(0.0, 1.0);
-    final FrostedGlassLevel level =
-        progress > 0.05 ? scrolledLevel : restingLevel;
     final TextTheme text = Theme.of(context).textTheme;
 
     return FrostedGlass(
-      level: level,
-      tone: tone,
+      level: FrostedGlassLevel.ultraThick,
+      tone: FrostedGlassTone.auto,
       elevation: FrostedGlassElevation.none,
       borderRadius: BorderRadius.zero,
       padding: EdgeInsets.only(top: topInset),
@@ -189,9 +172,6 @@ class _Delegate extends SliverPersistentHeaderDelegate {
         old.title != title ||
         old.leading != leading ||
         old.actions != actions ||
-        old.largeTitleHeight != largeTitleHeight ||
-        old.restingLevel != restingLevel ||
-        old.scrolledLevel != scrolledLevel ||
-        old.tone != tone;
+        old.largeTitleHeight != largeTitleHeight;
   }
 }
