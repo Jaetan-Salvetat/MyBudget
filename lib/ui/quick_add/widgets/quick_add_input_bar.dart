@@ -47,7 +47,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
       return;
     }
 
-    ref.read(quickAddProvider.notifier).parseExpense(text);
+    ref.read(quickAddProvider.notifier).parse(text);
     _controller.clear();
     _focusNode.unfocus();
   }

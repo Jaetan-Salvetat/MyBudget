@@ -5,11 +5,13 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_result_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
@@ -17,6 +19,8 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/category_provider.dart';
 
 class QuickAddConfirmationCard extends ConsumerStatefulWidget {
@@ -42,7 +46,10 @@ class _QuickAddConfirmationCardState
     }
   }
 
+  bool get _isIncome => widget.result.type == TransactionType.income;
+
   String _categoryLabel() {
+    if (_isIncome) return 'Revenu';
     if (widget.result.newCategory != null) {
       return widget.result.newCategory!;
     }
@@ -52,6 +59,7 @@ class _QuickAddConfirmationCardState
   }
 
   IconData _categoryIcon() {
+    if (_isIncome) return Symbols.paid_rounded;
     if (widget.result.newCategory != null) {
       return CategoryDefaults.resolveIcon(
         widget.result.newCategoryIcon ?? CategoryDefaults.defaultIcon,
@@ -63,10 +71,9 @@ class _QuickAddConfirmationCardState
   }
 
   Color _categoryColor() {
-    if (widget.result.newCategory != null &&
-        widget.result.newCategoryColor != null) {
-      final color = CategoryDefaults.hexToColor(widget.result.newCategoryColor!);
-      if (color != null) return Color(color);
+    if (_isIncome) return context.financeColors.income;
+    if (widget.result.newCategoryColor != null) {
+      return Color(widget.result.newCategoryColor!);
     }
     if (widget.result.categoryId != null) {
       final categories = ref.read(categoryProvider).value ?? [];
@@ -78,8 +85,36 @@ class _QuickAddConfirmationCardState
 
   void _openFullForm() {
     final accounts = ref.read(accountProvider).value ?? [];
-    final categories = ref.read(categoryProvider).value ?? [];
     final ctx = context;
+
+    if (_isIncome) {
+      RevenueBottomSheet.show(
+        context: ctx,
+        accounts: accounts,
+        closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
+        revenue: RevenueModel.create(
+          name: widget.result.name,
+          amount: widget.result.amount,
+          startDate: DateTime.now(),
+          frequency: widget.result.frequency,
+          accountId: _selectedAccountId ?? accounts.first.id,
+        ),
+        onSubmit: (revenue) async {
+          try {
+            await ref.read(revenueProvider.notifier).addRevenue(revenue);
+            ref.read(quickAddProvider.notifier).reset();
+          } catch (e) {
+            if (ctx.mounted) {
+              FrostedSnackbar.show(ctx, message: 'Erreur lors de l\'ajout: $e');
+            }
+          }
+        },
+        onCancel: () {},
+      );
+      return;
+    }
+
+    final categories = ref.read(categoryProvider).value ?? [];
 
     ExpenseBottomSheet.show(
       context: ctx,
@@ -108,13 +143,14 @@ class _QuickAddConfirmationCardState
     );
   }
 
-  void _confirm() {
-    if (_selectedAccountId == null) return;
+  Future<void> _confirm() async {
+    final accountId = _selectedAccountId;
+    if (accountId == null) return;
 
     try {
-      ref.read(quickAddProvider.notifier).confirmExpense(_selectedAccountId!);
+      await ref.read(quickAddProvider.notifier).confirm(accountId);
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
       }
     }
@@ -154,7 +190,7 @@ class _QuickAddConfirmationCardState
               const SizedBox(width: 8),
               Expanded(
                 child: Eyebrow(
-                  '1 dépense détectée',
+                  _isIncome ? '1 revenu détecté' : '1 dépense détectée',
                   color: scheme.primary,
                 ),
               ),
@@ -192,7 +228,8 @@ class _QuickAddConfirmationCardState
             icon: _categoryIcon(),
             color: catColor,
             amount: widget.result.amount,
-            expenseColor: finance.expense,
+            amountColor: _isIncome ? finance.income : finance.expense,
+            amountSign: _isIncome ? '+' : '−',
             isNewCategory: widget.result.newCategory != null,
           ),
           const SizedBox(height: 12),
@@ -235,7 +272,8 @@ class _ParsedRow extends StatelessWidget {
   final IconData icon;
   final Color color;
   final double amount;
-  final Color expenseColor;
+  final Color amountColor;
+  final String amountSign;
   final bool isNewCategory;
 
   const _ParsedRow({
@@ -245,7 +283,8 @@ class _ParsedRow extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.amount,
-    required this.expenseColor,
+    required this.amountColor,
+    required this.amountSign,
     required this.isNewCategory,
   });
 
@@ -317,8 +356,8 @@ class _ParsedRow extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '− ${formatter.format(amount).replaceAll('−', '').replaceAll('+', '')}',
-          style: AppTextStyles.amount(fontSize: 16, color: expenseColor),
+          '$amountSign ${formatter.format(amount).replaceAll('−', '').replaceAll('+', '')}',
+          style: AppTextStyles.amount(fontSize: 16, color: amountColor),
         ),
       ],
     );

@@ -1,0 +1,148 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/constants/quick_add_labels.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/exceptions/quick_add_exception.dart';
+import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
+
+class MockTokenizer extends Mock implements QuickAddTokenizer {}
+
+class MockModelRunner extends Mock implements QuickAddModelRunner {}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late MockTokenizer tokenizer;
+  late MockModelRunner runner;
+  late CategoryTaxonomyService taxonomy;
+  late QuickAddClassifierService classifier;
+
+  const emptyTokens = (inputIds: <int>[2, 1], attentionMask: <int>[1, 1]);
+
+  QuickAddModelOutput outputFor({
+    required int typeIndex,
+    required String category,
+    required int recurrenceIndex,
+  }) {
+    return (
+      type: (index: typeIndex, confidence: 0.99),
+      category: (
+        index: QuickAddLabels.categories.indexOf(category),
+        confidence: 0.95,
+      ),
+      recurrence: (index: recurrenceIndex, confidence: 0.9),
+    );
+  }
+
+  setUpAll(() {
+    registerFallbackValue(emptyTokens);
+  });
+
+  setUp(() async {
+    tokenizer = MockTokenizer();
+    runner = MockModelRunner();
+    taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
+
+    when(() => tokenizer.encode(any())).thenReturn(emptyTokens);
+
+    classifier = QuickAddClassifierService(
+      tokenizer: tokenizer,
+      modelRunner: runner,
+      taxonomy: taxonomy,
+    );
+  });
+
+  group('QuickAddClassifierService', () {
+    test('throws QuickAddNoAmountException when no amount is found', () {
+      expect(
+        () => classifier.classify('courses carrefour'),
+        throwsA(isA<QuickAddNoAmountException>()),
+      );
+    });
+
+    test('classifies a one-time expense', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'restauration.restaurant',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      final result = await classifier.classify('resto italien 25');
+
+      expect(result.type, TransactionType.expense);
+      expect(result.group.label, 'Restauration');
+      expect(result.taxonomyCategory, 'restauration.restaurant');
+      expect(result.frequency, Frequency.oneTime);
+      expect(result.amount, 25.0);
+      expect(result.name, 'Resto italien');
+    });
+
+    test('classifies a recurring income', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 1,
+          category: 'salaire.salaire net',
+          recurrenceIndex: 1,
+        ),
+      );
+
+      final result = await classifier.classify('salaire 2500');
+
+      expect(result.type, TransactionType.income);
+      expect(result.group.label, 'Salaire');
+      expect(result.frequency, Frequency.monthly);
+      expect(result.amount, 2500.0);
+    });
+
+    test('sends the cleaned text to the model', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'loisirs.streaming',
+          recurrenceIndex: 1,
+        ),
+      );
+
+      await classifier.classify('netflix 13,99€');
+
+      verify(() => tokenizer.encode('netflix')).called(1);
+    });
+
+    test('falls back to group label when text is only an amount', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'divers.autre',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      final result = await classifier.classify('20€');
+
+      expect(result.name, 'Divers');
+    });
+
+    test('reports model confidences', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'transport.essence',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      final result = await classifier.classify('essence 60');
+
+      expect(result.typeConfidence, 0.99);
+      expect(result.categoryConfidence, 0.95);
+      expect(result.recurrenceConfidence, 0.9);
+    });
+  });
+}

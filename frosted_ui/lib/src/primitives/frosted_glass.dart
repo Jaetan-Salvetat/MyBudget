@@ -139,7 +139,11 @@ ImageFilter _saturatingBlur({
   required double sigma,
   required double saturation,
 }) {
-  final ImageFilter blur = ImageFilter.blur(sigmaX: sigma, sigmaY: sigma);
+  final ImageFilter blur = ImageFilter.blur(
+    sigmaX: sigma,
+    sigmaY: sigma,
+    tileMode: TileMode.decal,
+  );
   if (saturation == 1.0) return blur;
   final double s = saturation;
   final double r = 0.213 * (1 - s);

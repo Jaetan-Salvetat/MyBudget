@@ -14,15 +14,9 @@ class PreferencesService {
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
-  static const String keyQuickAddCount = 'quickAddCount';
-  static const String keyQuickAddMonth = 'quickAddMonth';
 
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
-
-  static const String keyLocalModelPath = 'localModelPath';
-  static const String keyLocalModelVersion = 'localModelVersion';
-  static const String keyLocalModelId = 'localModelId';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -97,29 +91,6 @@ class PreferencesService {
     await _prefs.setInt(keyLastScanTimestamp, timestamp);
   }
 
-  static int getQuickAddCount() {
-    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
-    final currentMonth =
-        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
-    if (storedMonth != currentMonth) {
-      return 0;
-    }
-    return _prefs.getInt(keyQuickAddCount) ?? 0;
-  }
-
-  static Future<void> incrementQuickAddCount() async {
-    final currentMonth =
-        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
-    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
-    if (storedMonth != currentMonth) {
-      await _prefs.setString(keyQuickAddMonth, currentMonth);
-      await _prefs.setInt(keyQuickAddCount, 1);
-    } else {
-      final current = _prefs.getInt(keyQuickAddCount) ?? 0;
-      await _prefs.setInt(keyQuickAddCount, current + 1);
-    }
-  }
-
   static String getExpensesGroupBy() {
     return _prefs.getString(keyExpensesGroupBy) ?? 'day';
   }
@@ -134,38 +105,6 @@ class PreferencesService {
 
   static Future<void> setExpensesSortBy(String value) async {
     await _prefs.setString(keyExpensesSortBy, value);
-  }
-
-  static String? getLocalModelPath() {
-    return _prefs.getString(keyLocalModelPath);
-  }
-
-  static Future<void> setLocalModelPath(String? path) async {
-    if (path == null) {
-      await _prefs.remove(keyLocalModelPath);
-    } else {
-      await _prefs.setString(keyLocalModelPath, path);
-    }
-  }
-
-  static String getLocalModelVersion() {
-    return _prefs.getString(keyLocalModelVersion) ?? '';
-  }
-
-  static Future<void> setLocalModelVersion(String version) async {
-    await _prefs.setString(keyLocalModelVersion, version);
-  }
-
-  static String? getLocalModelId() {
-    return _prefs.getString(keyLocalModelId);
-  }
-
-  static Future<void> setLocalModelId(String? id) async {
-    if (id == null) {
-      await _prefs.remove(keyLocalModelId);
-    } else {
-      await _prefs.setString(keyLocalModelId, id);
-    }
   }
 
   static Future<void> clearAll() async {

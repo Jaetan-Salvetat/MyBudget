@@ -4,7 +4,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
-import 'package:mybudget/ui/settings/widgets/sections/local_ai_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
@@ -43,7 +42,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           AppearanceSection(),
           InputSection(),
           DataSection(),
-          LocalAiSection(),
           HelpAndSupportSection(),
           AboutSection(),
           if (kDebugMode) DebugSection(),

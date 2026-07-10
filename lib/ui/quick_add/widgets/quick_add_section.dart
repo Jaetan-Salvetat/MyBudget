@@ -7,7 +7,6 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_confirmation_card.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_error_card.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_loading_card.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_no_model_card.dart';
 
 class QuickAddSection extends ConsumerWidget {
   final VoidCallback onNoAccount;
@@ -28,11 +27,6 @@ class QuickAddSection extends ConsumerWidget {
       },
       loading: () => const QuickAddLoadingCard(),
       error: (error, _) {
-        if (error is QuickAddNoModelException) {
-          return QuickAddNoModelCard(
-            onDismiss: () => ref.read(quickAddProvider.notifier).reset(),
-          );
-        }
         return QuickAddErrorCard(
           message: error is QuickAddException
               ? error.message

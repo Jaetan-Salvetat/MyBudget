@@ -1,5 +1,6 @@
 ## 🚀 Nouveautés
 
-- IA locale : téléchargez le modèle Gemma pour catégoriser vos dépenses 100% hors ligne (Paramètres > IA locale)
-- Ajout rapide par IA : tapez "café 3.50" pour ajouter une dépense en 1 tap, avec catégorisation automatique
+- Ajout rapide par IA : tapez "café 3.50" ou "salaire 2500" et la transaction est analysée instantanément — montant, catégorie, récurrence et type (dépense ou revenu) détectés automatiquement
+- L'analyse fonctionne 100% hors ligne, sans téléchargement ni configuration : le modèle est intégré à l'application
+- Si la catégorie détectée n'existe pas encore, elle est créée automatiquement avec son icône et sa couleur
 - Refonte complete du design, nouvelle charte graphique et amélioration de l'expérience utilisateur

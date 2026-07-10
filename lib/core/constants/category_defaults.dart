@@ -63,6 +63,12 @@ abstract final class CategoryDefaults {
     'self_improvement': Symbols.self_improvement_rounded,
     'label': Symbols.label_rounded,
     'more_horiz': Symbols.more_horiz_rounded,
+    'health_and_safety': Symbols.health_and_safety_rounded,
+    'local_activity': Symbols.local_activity_rounded,
+    'category': Symbols.category_rounded,
+    'paid': Symbols.paid_rounded,
+    'swap_horiz': Symbols.swap_horiz_rounded,
+    'trending_up': Symbols.trending_up_rounded,
   };
 
   static const String defaultIcon = 'label';

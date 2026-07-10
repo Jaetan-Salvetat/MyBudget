@@ -1,13 +1,17 @@
+import 'package:mybudget/core/enums/transaction_type.dart';
+
 class QuickAddResultModel {
+  final TransactionType type;
   final String name;
   final double amount;
   final int? categoryId;
   final String? newCategory;
   final String? newCategoryIcon;
-  final String? newCategoryColor;
+  final int? newCategoryColor;
   final String frequency;
 
   const QuickAddResultModel({
+    required this.type,
     required this.name,
     required this.amount,
     required this.frequency,
@@ -17,28 +21,18 @@ class QuickAddResultModel {
     this.newCategoryColor,
   });
 
-  factory QuickAddResultModel.fromJson(Map<String, dynamic> json) {
-    return QuickAddResultModel(
-      name: json['name'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      categoryId: json['categoryId'] as int?,
-      newCategory: json['newCategory'] as String?,
-      newCategoryIcon: json['newCategoryIcon'] as String?,
-      newCategoryColor: json['newCategoryColor'] as String?,
-      frequency: json['frequency'] as String,
-    );
-  }
-
   QuickAddResultModel copyWith({
+    TransactionType? type,
     String? name,
     double? amount,
     int? categoryId,
     String? newCategory,
     String? newCategoryIcon,
-    String? newCategoryColor,
+    int? newCategoryColor,
     String? frequency,
   }) {
     return QuickAddResultModel(
+      type: type ?? this.type,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       categoryId: categoryId ?? this.categoryId,

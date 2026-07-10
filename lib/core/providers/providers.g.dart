@@ -48,46 +48,47 @@ final class ObjectBoxServiceProvider
 
 String _$objectBoxServiceHash() => r'02c6f5f49e110b24ad5cbc0ccc9331e0dad3f814';
 
-@ProviderFor(litertEngine)
-final litertEngineProvider = LitertEngineProvider._();
+@ProviderFor(quickAddClassifier)
+final quickAddClassifierProvider = QuickAddClassifierProvider._();
 
-final class LitertEngineProvider
+final class QuickAddClassifierProvider
     extends
         $FunctionalProvider<
-          AsyncValue<LitertEngineService?>,
-          LitertEngineService?,
-          FutureOr<LitertEngineService?>
+          AsyncValue<QuickAddClassifierService>,
+          QuickAddClassifierService,
+          FutureOr<QuickAddClassifierService>
         >
     with
-        $FutureModifier<LitertEngineService?>,
-        $FutureProvider<LitertEngineService?> {
-  LitertEngineProvider._()
+        $FutureModifier<QuickAddClassifierService>,
+        $FutureProvider<QuickAddClassifierService> {
+  QuickAddClassifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'litertEngineProvider',
+        name: r'quickAddClassifierProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$litertEngineHash();
+  String debugGetCreateSourceHash() => _$quickAddClassifierHash();
 
   @$internal
   @override
-  $FutureProviderElement<LitertEngineService?> $createElement(
+  $FutureProviderElement<QuickAddClassifierService> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<LitertEngineService?> create(Ref ref) {
-    return litertEngine(ref);
+  FutureOr<QuickAddClassifierService> create(Ref ref) {
+    return quickAddClassifier(ref);
   }
 }
 
-String _$litertEngineHash() => r'539a4f7b21f4b582ce8cd49ca3f5bcc2746511d8';
+String _$quickAddClassifierHash() =>
+    r'94df01da73090bfb6d724e595be75c8f1f3fe3bc';
 
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();

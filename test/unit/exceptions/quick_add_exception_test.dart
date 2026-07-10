@@ -3,33 +3,20 @@ import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 
 void main() {
   group('QuickAddException', () {
-    test('QuickAddNetworkException has correct message', () {
-      const exception = QuickAddNetworkException();
-      expect(exception.message, 'Pas de connexion internet');
+    test('QuickAddNoAmountException has correct message', () {
+      const exception = QuickAddNoAmountException();
+      expect(exception.message, 'Aucun montant détecté dans la saisie');
     });
 
-    test('QuickAddApiException stores custom message', () {
-      const exception = QuickAddApiException(message: 'Erreur 500');
-      expect(exception.message, 'Erreur 500');
-    });
-
-    test('QuickAddParseException has correct message', () {
-      const exception = QuickAddParseException();
-      expect(exception.message, 'Impossible d\'analyser la dépense');
-    });
-
-    test('QuickAddRateLimitException stores remaining count', () {
-      const exception = QuickAddRateLimitException(remaining: 0);
-      expect(exception.message, 'Limite mensuelle atteinte');
-      expect(exception.remaining, 0);
+    test('QuickAddClassificationException stores custom message', () {
+      const exception = QuickAddClassificationException(message: 'Erreur');
+      expect(exception.message, 'Erreur');
     });
 
     test('all exceptions are QuickAddException', () {
       const exceptions = <QuickAddException>[
-        QuickAddNetworkException(),
-        QuickAddApiException(message: 'test'),
-        QuickAddParseException(),
-        QuickAddRateLimitException(remaining: 5),
+        QuickAddNoAmountException(),
+        QuickAddClassificationException(message: 'test'),
       ];
 
       for (final e in exceptions) {
