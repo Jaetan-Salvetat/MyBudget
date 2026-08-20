@@ -1,0 +1,502 @@
+{
+  "cases": [
+    {
+      "input": "courses Carrefour 85",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Lidl 42 euros",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "marché du dimanche 30",
+      "type": "expense",
+      "category": "alimentation.marche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "baguette 1,20",
+      "type": "expense",
+      "category": "alimentation.boulangerie",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "croissants ce matin 4.50",
+      "type": "expense",
+      "category": "alimentation.boulangerie",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "resto avec Sophie 65",
+      "type": "expense",
+      "category": "restauration.restaurant",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "macdo 12",
+      "type": "expense",
+      "category": "restauration.fast_food",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "kebab 8",
+      "type": "expense",
+      "category": "restauration.fast_food",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "bières avec les potes 35",
+      "type": "expense",
+      "category": "restauration.bar",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Starbucks 6",
+      "type": "expense",
+      "category": "restauration.cafe",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "UberEats 22",
+      "type": "expense",
+      "category": "restauration.livraison",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "essence 70",
+      "type": "expense",
+      "category": "transport.essence",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Uber 18",
+      "type": "expense",
+      "category": "transport.taxi_vtc",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "parking 3",
+      "type": "expense",
+      "category": "transport.parking",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "péage 15",
+      "type": "expense",
+      "category": "transport.peage",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "vidange voiture 120",
+      "type": "expense",
+      "category": "transport.entretien_vehicule",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "loyer 850",
+      "type": "expense",
+      "category": "logement.loyer",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "facture EDF 90",
+      "type": "expense",
+      "category": "logement.energie",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "facture d'eau 40",
+      "type": "expense",
+      "category": "logement.eau",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "forfait Free 20",
+      "type": "expense",
+      "category": "logement.telecom",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "assurance habitation 35",
+      "type": "expense",
+      "category": "finance.assurance_habitation",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "médecin 25",
+      "type": "expense",
+      "category": "sante_beaute.medecin",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "pharmacie 12",
+      "type": "expense",
+      "category": "sante_beaute.pharmacie",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "mutuelle 45",
+      "type": "expense",
+      "category": "finance.assurance_sante",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "coiffeur 30",
+      "type": "expense",
+      "category": "sante_beaute.coiffeur",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "cinéma 12",
+      "type": "expense",
+      "category": "loisirs.cinema_sortie",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Netflix 14",
+      "type": "expense",
+      "category": "loisirs.streaming",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "Spotify 10",
+      "type": "expense",
+      "category": "loisirs.musique",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "jeu Steam 40",
+      "type": "expense",
+      "category": "loisirs.jeux_video",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "abonnement salle de sport 30",
+      "type": "expense",
+      "category": "loisirs.sport",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "entrée piscine 5",
+      "type": "expense",
+      "category": "loisirs.sport",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "manga 8",
+      "type": "expense",
+      "category": "loisirs.livre_presse",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Zara 60",
+      "type": "expense",
+      "category": "shopping.vetements",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "AirPods 180",
+      "type": "expense",
+      "category": "shopping.electronique",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Ikea 250",
+      "type": "expense",
+      "category": "shopping.mobilier_deco",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "retrait DAB 100",
+      "type": "expense",
+      "category": "finance.retrait_dab",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "amende 135",
+      "type": "expense",
+      "category": "finance.amende",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Udemy 15",
+      "type": "expense",
+      "category": "famille_education.formation",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "cadeau anniversaire Julie 50",
+      "type": "expense",
+      "category": "divers.cadeau_offert",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "croquettes chat 25",
+      "type": "expense",
+      "category": "divers.animaux",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "clopes 12",
+      "type": "expense",
+      "category": "divers.tabac_jeux",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "plombier 150",
+      "type": "expense",
+      "category": "logement.travaux",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "salaire 2500",
+      "type": "income",
+      "category": "salaire.salaire_net",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "prime 500",
+      "type": "income",
+      "category": "salaire.prime",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "freelance client 800",
+      "type": "income",
+      "category": "salaire.freelance",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Marc m'a remboursé 30",
+      "type": "income",
+      "category": "transfert.remboursement_ami",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "remboursement sécu 23",
+      "type": "income",
+      "category": "transfert.remboursement_sante",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "vendu sur Leboncoin 80",
+      "type": "income",
+      "category": "exceptionnel.vente_occasion",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "groceries 55",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "dinner out 40",
+      "type": "expense",
+      "category": "restauration.restaurant",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Netflix subscription 14",
+      "type": "expense",
+      "category": "loisirs.streaming",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "gym membership 30",
+      "type": "expense",
+      "category": "loisirs.sport",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "monthly rent 1200",
+      "type": "expense",
+      "category": "logement.loyer",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "salary 3000",
+      "type": "income",
+      "category": "salaire.salaire_net",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "sold on eBay 50",
+      "type": "income",
+      "category": "exceptionnel.vente_occasion",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "abonnement Spotify 10",
+      "type": "expense",
+      "category": "loisirs.musique",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "acheté un vinyle 25",
+      "type": "expense",
+      "category": "loisirs.musique",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "billet de train 45",
+      "type": "expense",
+      "category": "transport.transport_commun",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "abonnement SNCF 75",
+      "type": "expense",
+      "category": "transport.transport_commun",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "Supermarkt 60",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Netflix-Abo 14",
+      "type": "expense",
+      "category": "loisirs.streaming",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "Gehalt 2800",
+      "type": "income",
+      "category": "salaire.salaire_net",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "supermercado 45",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "alquiler 700",
+      "type": "expense",
+      "category": "logement.loyer",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "salario 2200",
+      "type": "income",
+      "category": "salaire.salaire_net",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "café 4,50",
+      "type": "expense",
+      "category": "restauration.cafe",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "taxi 23.50",
+      "type": "expense",
+      "category": "transport.taxi_vtc",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "fait les courses 120 euros",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "mangé au resto avec Marc 45",
+      "type": "expense",
+      "category": "restauration.restaurant",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "payé le loyer du mois 850",
+      "type": "expense",
+      "category": "logement.loyer",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "Netflix",
+      "type": "expense",
+      "category": "loisirs.streaming",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "loyer",
+      "type": "expense",
+      "category": "logement.loyer",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "courses",
+      "type": "expense",
+      "category": "alimentation.supermarche",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "concert 45",
+      "type": "expense",
+      "category": "loisirs.cinema_sortie",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "dentiste 60",
+      "type": "expense",
+      "category": "sante_beaute.medecin",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "charges copro 200",
+      "type": "expense",
+      "category": "logement.charges",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "impôts 350",
+      "type": "expense",
+      "category": "finance.impots_taxes",
+      "recurrence": "fixe"
+    },
+    {
+      "input": "cadeau Noël maman 80",
+      "type": "expense",
+      "category": "divers.cadeau_offert",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "vétérinaire 75",
+      "type": "expense",
+      "category": "divers.animaux",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "Sephora 55",
+      "type": "expense",
+      "category": "sante_beaute.esthetique",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "bonus annuel 1500",
+      "type": "income",
+      "category": "salaire.prime",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "dividendes 200",
+      "type": "income",
+      "category": "exceptionnel.interets",
+      "recurrence": "ponctuel"
+    },
+    {
+      "input": "iPhone 1200",
+      "type": "expense",
+      "category": "shopping.electronique",
+      "recurrence": "ponctuel"
+    }
+  ]
+}
