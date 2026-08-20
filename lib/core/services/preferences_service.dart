@@ -15,6 +15,8 @@ class PreferencesService {
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
 
+  static const String keyQuickAddEnabled = 'quickAddEnabled';
+
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
 
@@ -89,6 +91,14 @@ class PreferencesService {
 
   static Future<void> setLastScanTimestamp(int timestamp) async {
     await _prefs.setInt(keyLastScanTimestamp, timestamp);
+  }
+
+  static bool isQuickAddEnabled() {
+    return _prefs.getBool(keyQuickAddEnabled) ?? true;
+  }
+
+  static Future<void> setQuickAddEnabled(bool enabled) async {
+    await _prefs.setBool(keyQuickAddEnabled, enabled);
   }
 
   static String getExpensesGroupBy() {

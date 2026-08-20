@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
@@ -41,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: const [
           AppearanceSection(),
           InputSection(),
+          AiSection(),
           DataSection(),
           HelpAndSupportSection(),
           AboutSection(),

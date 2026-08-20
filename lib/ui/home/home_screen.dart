@@ -9,6 +9,7 @@ import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
@@ -85,9 +86,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            QuickAddSection(
-              onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-            ),
+            if (ref.watch(quickAddEnabledProvider))
+              QuickAddSection(
+                onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+              ),
             if (!keyboardVisible)
               FrostedBottomNavigationBar(
                 currentIndex: _selectedIndex,
