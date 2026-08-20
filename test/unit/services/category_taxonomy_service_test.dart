@@ -15,7 +15,7 @@ void main() {
 
   group('CategoryTaxonomyService', () {
     test('resolves an expense subcategory to its group', () {
-      final group = taxonomy.resolve('restauration.fast-food/friterie');
+      final group = taxonomy.resolve('restauration.fast_food');
 
       expect(group, isNotNull);
       expect(group!.key, 'restauration');
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('resolves an income subcategory to its group', () {
-      final group = taxonomy.resolve('salaire.salaire net');
+      final group = taxonomy.resolve('salaire.salaire_net');
 
       expect(group!.key, 'salaire');
       expect(group.label, 'Salaire');

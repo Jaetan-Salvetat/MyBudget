@@ -48,3 +48,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ML training artifacts
+ml/**/.venv/
+ml/**/output/
+ml/**/dataset/
+ml/**/.dart_tool/
+ml/**/__pycache__/

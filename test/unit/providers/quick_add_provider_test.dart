@@ -70,7 +70,7 @@ QuickAddClassification incomeClassification() {
   return const QuickAddClassification(
     type: TransactionType.income,
     group: salaireGroup,
-    taxonomyCategory: 'salaire.salaire net',
+    taxonomyCategory: 'salaire.salaire_net',
     frequency: Frequency.monthly,
     amount: 2500.0,
     name: 'Salaire',

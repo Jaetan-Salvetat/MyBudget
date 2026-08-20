@@ -14,6 +14,8 @@ typedef TaxonomyGroup = ({
 
 class CategoryTaxonomyService {
   static const String assetPath = 'assets/categories.json';
+  static const int expectedVersion = 1;
+  static const String _versionKey = 'version';
   static const String _expensesSection = 'expenses';
   static const String _incomeSection = 'income';
 
@@ -27,6 +29,14 @@ class CategoryTaxonomyService {
 
     final jsonStr = await rootBundle.loadString(assetPath);
     final Map<String, dynamic> data = json.decode(jsonStr);
+
+    final version = data[_versionKey];
+    if (version != expectedVersion) {
+      throw FormatException(
+        'Taxonomy version mismatch in $assetPath: '
+        'expected $expectedVersion, found $version',
+      );
+    }
 
     _parseSection(data[_expensesSection], TransactionType.expense);
     _parseSection(data[_incomeSection], TransactionType.income);

@@ -88,7 +88,7 @@ void main() {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 1,
-          category: 'salaire.salaire net',
+          category: 'salaire.salaire_net',
           recurrenceIndex: 1,
         ),
       );
