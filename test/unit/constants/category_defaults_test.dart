@@ -15,10 +15,16 @@ void main() {
       expect(CategoryDefaults.resolveIcon('nonexistent'), Symbols.category_rounded);
     });
 
-    test('resolveIcon handles numeric codePoint strings', () {
+    test('resolveIcon maps a known codePoint string to its declared icon', () {
+      final codePoint = Symbols.restaurant_rounded.codePoint.toString();
+
+      expect(CategoryDefaults.resolveIcon(codePoint), Symbols.restaurant_rounded);
+    });
+
+    test('resolveIcon returns category icon for an unknown codePoint string', () {
       final codePoint = Icons.star.codePoint.toString();
-      final result = CategoryDefaults.resolveIcon(codePoint);
-      expect(result.codePoint, Icons.star.codePoint);
+
+      expect(CategoryDefaults.resolveIcon(codePoint), Symbols.category_rounded);
     });
 
     test('colorToHex converts ARGB int to hex string', () {

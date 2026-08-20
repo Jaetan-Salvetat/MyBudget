@@ -55,13 +55,6 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
     super.dispose();
   }
 
-  IconData _getIconData(String iconStr) {
-    if (RegExp(r'^\d+$').hasMatch(iconStr)) {
-      return IconData(int.parse(iconStr), fontFamily: 'MaterialIcons');
-    }
-    return Symbols.category_rounded;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -77,7 +70,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _getIconData(_selectedIcon),
+              CategoryDefaults.resolveIcon(_selectedIcon),
               color: Color(_selectedColor),
               size: 32,
             ),

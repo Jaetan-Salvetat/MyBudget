@@ -21,11 +21,18 @@ void main() {
       },
     );
 
-    test('getIconData should handle integer strings (CodePoints)', () {
+    test('getIconData should resolve a known codePoint string', () {
+      final codePoint = Symbols.restaurant_rounded.codePoint;
+      final cat = CategoryModel.create(name: 'Restaurant', icon: '$codePoint');
+
+      expect(cat.getIconData(), Symbols.restaurant_rounded);
+    });
+
+    test('getIconData should fall back for an unknown codePoint string', () {
       final codePoint = Icons.star.codePoint;
       final cat = CategoryModel.create(name: 'Star', icon: '$codePoint');
 
-      expect(cat.getIconData().codePoint, codePoint);
+      expect(cat.getIconData(), Symbols.category_rounded);
     });
   });
 }

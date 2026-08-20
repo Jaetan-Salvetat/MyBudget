@@ -94,9 +94,14 @@ abstract final class CategoryDefaults {
     (name: 'Divers', icon: 'more_horiz', color: 0xFF9E9E9E),
   ];
 
+  static final Map<int, IconData> _iconsByCodePoint = {
+    for (final icon in icons.values) icon.codePoint: icon,
+  };
+
   static IconData resolveIcon(String iconKey) {
-    if (RegExp(r'^\d+$').hasMatch(iconKey)) {
-      return IconData(int.parse(iconKey), fontFamily: 'MaterialIcons');
+    final codePoint = int.tryParse(iconKey);
+    if (codePoint != null) {
+      return _iconsByCodePoint[codePoint] ?? Symbols.category_rounded;
     }
     return icons[iconKey] ?? Symbols.category_rounded;
   }

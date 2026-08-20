@@ -21,5 +21,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Install frosted_ui dependencies
+        run: flutter pub get
+        working-directory: frosted_ui
+
+      - name: Install frosted_ui example dependencies
+        run: flutter pub get
+        working-directory: frosted_ui/example
+
       - name: Run linter
         run: flutter analyze
