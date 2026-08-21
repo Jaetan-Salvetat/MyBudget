@@ -20,6 +20,8 @@ class ActionsPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Icon buttons', child: _IconButtonsDemo()),
         SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Shape morphing', child: _ShapeMorphingDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'FAB', child: _FabDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Chips', child: _ChipsDemo()),
@@ -85,6 +87,104 @@ class _ButtonsDemo extends StatelessWidget {
           onPressed: () {},
         ),
       ],
+    );
+  }
+}
+
+/// Every variant in both resting forms. Press one and it morphs into the
+/// other form for as long as it is held — pill flattens, rounded rounds out.
+class _ShapeMorphingDemo extends StatelessWidget {
+  const _ShapeMorphingDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (final FrostedShape shape in FrostedShape.values) ...<Widget>[
+          _ShapeLabel(shape: shape),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp2,
+            runSpacing: FrostedSpacing.sp2,
+            children: <Widget>[
+              FrostedButton.filled(
+                label: 'Filled',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.tonal(
+                label: 'Tonal',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.outlined(
+                label: 'Outlined',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.text(
+                label: 'Text',
+                shape: shape,
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp2,
+            runSpacing: FrostedSpacing.sp2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              FrostedIconButton.standard(
+                icon: Icons.favorite_outline,
+                shape: shape,
+                tooltip: 'Standard',
+                onPressed: () {},
+              ),
+              FrostedIconButton.filled(
+                icon: Icons.bookmark_outline,
+                shape: shape,
+                tooltip: 'Filled',
+                onPressed: () {},
+              ),
+              FrostedIconButton.tonal(
+                icon: Icons.notifications_outlined,
+                shape: shape,
+                tooltip: 'Tonal',
+                onPressed: () {},
+              ),
+              FrostedIconButton.outlined(
+                icon: Icons.share_outlined,
+                shape: shape,
+                tooltip: 'Outlined',
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp4),
+        ],
+      ],
+    );
+  }
+}
+
+class _ShapeLabel extends StatelessWidget {
+  const _ShapeLabel({required this.shape});
+
+  final FrostedShape shape;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Text(
+      switch (shape) {
+        FrostedShape.pill => 'pill — presses into rounded',
+        FrostedShape.rounded => 'rounded — presses into pill',
+      },
+      style: FrostedTypeScale.labelMedium.copyWith(
+        color: cs.onSurfaceVariant,
+      ),
     );
   }
 }

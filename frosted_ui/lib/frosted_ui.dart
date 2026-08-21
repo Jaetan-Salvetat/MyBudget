@@ -56,6 +56,7 @@ export 'src/components/surfaces/frosted_list_tile.dart';
 export 'src/components/surfaces/frosted_multi_browse_carousel.dart';
 export 'src/foundations/frosted_breakpoints.dart';
 export 'src/foundations/frosted_radius.dart';
+export 'src/foundations/frosted_shape.dart';
 export 'src/foundations/frosted_spacing.dart';
 export 'src/foundations/frosted_type_scale.dart';
 export 'src/primitives/frosted_glass.dart';

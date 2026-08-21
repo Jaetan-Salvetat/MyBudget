@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../foundations/frosted_radius.dart';
+import '../../foundations/frosted_shape.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
@@ -13,6 +13,10 @@ enum _ButtonVariant { filled, tonal, outlined, text }
 ///
 /// Comes in four flavours via named constructors: [filled], [tonal],
 /// [outlined], [text]. Pass `onPressed: null` to disable.
+///
+/// [shape] picks the resting form — [FrostedShape.rounded] by default, or
+/// [FrostedShape.pill] for the fully rounded form. A press morphs it into the
+/// other one and back, so the two shapes are each other's press state.
 class FrostedButton extends StatelessWidget {
   const FrostedButton._({
     super.key,
@@ -22,6 +26,7 @@ class FrostedButton extends StatelessWidget {
     this.trailingIcon,
     this.onPressed,
     this.expanded = false,
+    this.shape = FrostedShape.rounded,
   }) : _variant = variant;
 
   /// Solid filled button — primary action on a page.
@@ -32,6 +37,7 @@ class FrostedButton extends StatelessWidget {
     IconData? trailingIcon,
     required VoidCallback? onPressed,
     bool expanded = false,
+    FrostedShape shape = FrostedShape.rounded,
   }) =>
       FrostedButton._(
         key: key,
@@ -41,6 +47,7 @@ class FrostedButton extends StatelessWidget {
         trailingIcon: trailingIcon,
         onPressed: onPressed,
         expanded: expanded,
+        shape: shape,
       );
 
   /// Tonal button — secondary action, sits next to a filled one.
@@ -51,6 +58,7 @@ class FrostedButton extends StatelessWidget {
     IconData? trailingIcon,
     required VoidCallback? onPressed,
     bool expanded = false,
+    FrostedShape shape = FrostedShape.rounded,
   }) =>
       FrostedButton._(
         key: key,
@@ -60,6 +68,7 @@ class FrostedButton extends StatelessWidget {
         trailingIcon: trailingIcon,
         onPressed: onPressed,
         expanded: expanded,
+        shape: shape,
       );
 
   /// Outlined button — alternative action, low emphasis.
@@ -70,6 +79,7 @@ class FrostedButton extends StatelessWidget {
     IconData? trailingIcon,
     required VoidCallback? onPressed,
     bool expanded = false,
+    FrostedShape shape = FrostedShape.rounded,
   }) =>
       FrostedButton._(
         key: key,
@@ -79,6 +89,7 @@ class FrostedButton extends StatelessWidget {
         trailingIcon: trailingIcon,
         onPressed: onPressed,
         expanded: expanded,
+        shape: shape,
       );
 
   /// Text button — least emphasis. No background or border.
@@ -89,6 +100,7 @@ class FrostedButton extends StatelessWidget {
     IconData? trailingIcon,
     required VoidCallback? onPressed,
     bool expanded = false,
+    FrostedShape shape = FrostedShape.rounded,
   }) =>
       FrostedButton._(
         key: key,
@@ -98,6 +110,7 @@ class FrostedButton extends StatelessWidget {
         trailingIcon: trailingIcon,
         onPressed: onPressed,
         expanded: expanded,
+        shape: shape,
       );
 
   final String label;
@@ -105,7 +118,16 @@ class FrostedButton extends StatelessWidget {
   final IconData? trailingIcon;
   final VoidCallback? onPressed;
   final bool expanded;
+
+  /// The resting form. A press morphs it into [FrostedShape.opposite].
+  final FrostedShape shape;
+
   final _ButtonVariant _variant;
+
+  /// Buttons carry a fixed height so the pill radius is exactly half of it,
+  /// which keeps the morph to [FrostedShape.rounded] a linear interpolation.
+  static const double _height = 46;
+  static const Size _box = Size(double.infinity, _height);
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +147,9 @@ class FrostedButton extends StatelessWidget {
         final Widget core = AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
+          height: _height,
           padding: EdgeInsets.symmetric(
             horizontal: isText ? FrostedSpacing.sp3 + 2 : FrostedSpacing.sp5,
-            vertical: FrostedSpacing.sp3,
           ),
           decoration: BoxDecoration(
             color: bg,
@@ -170,9 +192,8 @@ class FrostedButton extends StatelessWidget {
     );
   }
 
-  BorderRadius _shape(InteractionStates s) => BorderRadius.circular(
-        s.pressed ? FrostedRadius.xs : FrostedRadius.md,
-      );
+  BorderRadius _shape(InteractionStates s) =>
+      shape.resolve(_box, pressed: s.pressed);
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) {
