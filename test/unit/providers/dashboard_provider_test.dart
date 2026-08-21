@@ -3,17 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/category_model.dart';
 class MockAccountRepository extends Mock implements AccountRepository {}
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -22,21 +23,25 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockAccountRepository mockAccountRepo;
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
-  late MockCategoryRepository mockCategoryRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
 
   setUp(() {
     mockAccountRepo = MockAccountRepository();
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
-    mockCategoryRepo = MockCategoryRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
@@ -44,7 +49,7 @@ void main() {
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getActive()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
   });
 
   ProviderContainer makeContainer() {
@@ -54,7 +59,8 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
+        categoryOverrideRepositoryProvider
+            .overrideWithValue(mockCategoryOverrideRepo),
       ],
     );
   }
@@ -62,21 +68,11 @@ void main() {
   test(
     'categorySummaries should calculate percentages relative to Total Expenses + Loans',
     () async {
-      final catFood = CategoryModel.create(
-        name: 'Food',
-        icon: 'fastfood',
-        color: 0xFF0000,
-      )..id = 1;
-      final catTransport = CategoryModel.create(
-        name: 'Transport',
-        icon: 'car',
-        color: 0xFF0000,
-      )..id = 2;
 
       final foodExpense = ExpenseModel.create(
         name: 'Food expense',
         amount: 600,
-        categoryId: catFood.id,
+        categorySlug: 'alimentation.supermarche',
         accountId: 1,
         startDate: DateTime.now(),
         frequency: 'Mensuel',
@@ -84,7 +80,7 @@ void main() {
       final transportExpense = ExpenseModel.create(
         name: 'Transport expense',
         amount: 200,
-        categoryId: catTransport.id,
+        categorySlug: 'transport.essence',
         accountId: 1,
         startDate: DateTime.now(),
         frequency: 'Mensuel',
@@ -92,9 +88,8 @@ void main() {
 
       when(() => mockExpenseRepo.getAll()).thenReturn([foodExpense, transportExpense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([foodExpense, transportExpense]);
-      when(() => mockCategoryRepo.get(catFood.id)).thenReturn(catFood);
-      when(() => mockCategoryRepo.get(catTransport.id)).thenReturn(catTransport);
       when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -102,17 +97,19 @@ void main() {
       await container.read(expenseProvider.future);
       await container.read(revenueProvider.future);
       await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
+      await container.read(categoryDisplayResolverProvider.future);
 
       final state = container.read(dashboardProvider);
       final summaries = state.categorySummaries;
 
       expect(summaries.length, 2);
 
-      final foodSummary = summaries.firstWhere((s) => s.categoryName == 'Food');
+      final foodSummary = summaries.firstWhere((s) => s.groupKey == 'alimentation');
       expect(foodSummary.percentage, closeTo(0.75, 0.01));
 
       final transportSummary = summaries.firstWhere(
-        (s) => s.categoryName == 'Transport',
+        (s) => s.groupKey == 'transport',
       );
       expect(transportSummary.percentage, closeTo(0.25, 0.01));
     },
@@ -121,6 +118,7 @@ void main() {
   test('categorySummaries is empty when totalExpenses is 0 (no division by zero)', () async {
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -128,20 +126,56 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final state = container.read(dashboardProvider);
     expect(state.categorySummaries, isEmpty);
     expect(state.totalExpenses, 0.0);
   });
 
+  test('uncategorised expenses get their own bucket', () async {
+    final orphan = ExpenseModel.create(
+      name: 'Inconnu',
+      amount: 100,
+      startDate: DateTime(2020),
+      frequency: 'Mensuel',
+      accountId: 1,
+    );
+    final known = ExpenseModel.create(
+      name: 'Courses',
+      amount: 300,
+      categorySlug: 'alimentation.supermarche',
+      startDate: DateTime(2020),
+      frequency: 'Mensuel',
+      accountId: 1,
+    );
+
+    when(() => mockExpenseRepo.getAll()).thenReturn([orphan, known]);
+    when(() => mockExpenseRepo.getActive()).thenReturn([orphan, known]);
+
+    final container = makeContainer();
+    await container.read(expenseProvider.future);
+    await container.read(revenueProvider.future);
+    await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
+
+    final summaries = container.read(dashboardProvider).categorySummaries;
+
+    expect(summaries, hasLength(2));
+    final bucket = summaries.firstWhere(
+        (s) => s.groupKey == CategoryDisplayResolver.uncategorizedKey);
+    expect(bucket.categoryName, 'Non catégorisé');
+    expect(bucket.amount, 100);
+    expect(summaries.fold<double>(0, (sum, s) => sum + s.percentage),
+        closeTo(1.0, 0.001));
+  });
+
   test('categorySummaries is sorted by amount descending', () async {
-    final catFood = CategoryModel.create(name: 'Food', icon: 'fastfood', color: 0xFF0000)..id = 1;
-    final catTransport = CategoryModel.create(name: 'Transport', icon: 'car', color: 0xFF0000)..id = 2;
 
     final foodExpense = ExpenseModel.create(
       name: 'Food',
       amount: 200,
-      categoryId: catFood.id,
+      categorySlug: 'alimentation.supermarche',
       accountId: 1,
       startDate: DateTime.now(),
       frequency: 'Mensuel',
@@ -149,7 +183,7 @@ void main() {
     final transportExpense = ExpenseModel.create(
       name: 'Transport',
       amount: 600,
-      categoryId: catTransport.id,
+      categorySlug: 'transport.essence',
       accountId: 1,
       startDate: DateTime.now(),
       frequency: 'Mensuel',
@@ -157,9 +191,8 @@ void main() {
 
     when(() => mockExpenseRepo.getAll()).thenReturn([foodExpense, transportExpense]);
     when(() => mockExpenseRepo.getActive()).thenReturn([foodExpense, transportExpense]);
-    when(() => mockCategoryRepo.get(catFood.id)).thenReturn(catFood);
-    when(() => mockCategoryRepo.get(catTransport.id)).thenReturn(catTransport);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -167,11 +200,12 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final summaries = container.read(dashboardProvider).categorySummaries;
     expect(summaries.length, 2);
-    expect(summaries.first.categoryName, 'Transport');
-    expect(summaries.last.categoryName, 'Food');
+    expect(summaries.first.groupKey, 'transport');
+    expect(summaries.last.groupKey, 'alimentation');
   });
 
   test('dashboard splits expenses into recurring and oneTime', () async {
@@ -180,7 +214,7 @@ void main() {
     final monthly = ExpenseModel.create(
       name: 'Rent',
       amount: 800,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
@@ -188,7 +222,7 @@ void main() {
     final annual = ExpenseModel.create(
       name: 'Insurance',
       amount: 1200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(now.year, now.month, 10),
       frequency: 'Annuel',
@@ -196,7 +230,7 @@ void main() {
     final oneTime = ExpenseModel.create(
       name: 'Repair',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(now.year, now.month, 15),
       frequency: 'Ponctuel',
@@ -205,7 +239,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual, oneTime]);
     when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual, oneTime]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.get(1)).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -213,6 +247,7 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final state = container.read(dashboardProvider);
 
@@ -242,6 +277,7 @@ void main() {
     when(() => mockRevenueRepo.getActive()).thenReturn([monthly, oneTime]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -249,6 +285,7 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final state = container.read(dashboardProvider);
 
@@ -263,7 +300,7 @@ void main() {
     final oneTime = ExpenseModel.create(
       name: 'Repair',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(now.year, otherMonth, 15),
       frequency: 'Ponctuel',
@@ -272,7 +309,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
     when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.get(1)).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -280,6 +317,7 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final state = container.read(dashboardProvider);
 
@@ -299,7 +337,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Rent',
       amount: 1000,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: now,
       frequency: 'Mensuel',
@@ -310,7 +348,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
     when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.get(1)).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -318,6 +356,7 @@ void main() {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
+    await container.read(categoryDisplayResolverProvider.future);
 
     final state = container.read(dashboardProvider);
     expect(state.netCashFlow, closeTo(2000.0, 0.01));

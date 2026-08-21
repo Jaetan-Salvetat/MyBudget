@@ -27,6 +27,9 @@ class RevenueModel {
 
   int? beneficiaryId;
 
+  @Index()
+  String? categorySlug;
+
   RevenueModel() {
     frequency = Frequency.monthly.label;
   }
@@ -40,6 +43,7 @@ class RevenueModel {
     this.endDate,
     this.parentId,
     this.beneficiaryId,
+    this.categorySlug,
   });
 
   Frequency get frequencyEnum => Frequency.fromString(frequency);
@@ -74,7 +78,8 @@ class RevenueModel {
           ..beneficiaryId =
               json['beneficiaryId'] != null
                   ? int.tryParse(json['beneficiaryId'].toString())
-                  : null;
+                  : null
+          ..categorySlug = json['categorySlug'] as String?;
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;
@@ -92,6 +97,7 @@ class RevenueModel {
     Object? endDate = _sentinel,
     Object? parentId = _sentinel,
     Object? beneficiaryId = _sentinel,
+    String? categorySlug,
   }) {
     final model =
         RevenueModel()
@@ -101,6 +107,7 @@ class RevenueModel {
           ..startDate = startDate ?? this.startDate
           ..accountId = accountId ?? this.accountId
           ..frequency = frequency ?? this.frequency
+          ..categorySlug = categorySlug ?? this.categorySlug
           ..endDate =
               endDate == _sentinel
                   ? this.endDate
@@ -127,6 +134,7 @@ class RevenueModel {
       'accountId': accountId.toString(),
       'frequency': frequency,
       'beneficiaryId': beneficiaryId?.toString(),
+      'categorySlug': categorySlug,
     };
   }
 }

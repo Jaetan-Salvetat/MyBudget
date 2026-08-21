@@ -10,7 +10,8 @@ import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -27,7 +28,7 @@ import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   final ExpenseFilterData? initialFilter;
@@ -61,6 +62,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     super.dispose();
   }
 
+  String? _groupKeyOf(ExpenseModel expense) {
+    return ref
+        .read(categoryDisplayResolverProvider)
+        .value
+        ?.groupKeyOrUncategorized(expense.categorySlug);
+  }
+
   bool _matchesFilter(ExpenseModel expense, ExpenseFilterData filter) {
     if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
       if (!expense.name.toLowerCase().contains(
@@ -75,8 +83,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     if (filter.maxAmount != null && expense.amount > filter.maxAmount!) {
       return false;
     }
-    if (filter.categoryIds.isNotEmpty &&
-        !filter.categoryIds.contains(expense.categoryId)) {
+    if (filter.groupKeys.isNotEmpty &&
+        !filter.groupKeys.contains(_groupKeyOf(expense))) {
       return false;
     }
     if (filter.accountIds.isNotEmpty &&
@@ -142,7 +150,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   List<ActiveFilterPill> _activeFilterPills(
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
     List<AccountModel> accounts,
   ) {
     final pills = <ActiveFilterPill>[];
@@ -168,20 +176,17 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       );
     }
 
-    for (final id in _filterData.categoryIds) {
-      final cat = categories.firstWhere(
-        (c) => c.id == id,
-        orElse: () => CategoryModel.create(name: '—', icon: 'category'),
-      );
+    for (final id in _filterData.groupKeys) {
+      final group = categories.where((c) => c.slug == id).firstOrNull;
       pills.add(
         ActiveFilterPill(
           id: 'cat-$id',
-          label: cat.name,
+          label: group?.label ?? '—',
           onRemove: () {
             setState(() {
               _filterData = _filterData.copyWith(
-                categoryIds:
-                    _filterData.categoryIds.where((c) => c != id).toList(),
+                groupKeys:
+                    _filterData.groupKeys.where((c) => c != id).toList(),
               );
             });
           },
@@ -252,7 +257,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             final selectedMonth = ref.watch(selectedMonthProvider);
             final groupBy = ref.watch(expensesGroupByProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
-            final categories = ref.watch(categoryProvider).value ?? [];
+            final resolver = ref.watch(categoryDisplayResolverProvider).value;
+            final categories =
+                resolver?.groupsOfType(TransactionType.expense) ?? const [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
             final activeExpenses =
@@ -342,7 +349,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 const SizedBox(height: 10),
                 ExpensesQuickFilters(
                   categories: categories,
-                  selectedCategoryIds: _filterData.categoryIds,
+                  selectedGroupKeys: _filterData.groupKeys,
                   sortBy: _sortBy,
                   onOpenSort: _openSortMenu,
                   onCategoryTap: _toggleCategoryFilter,
@@ -370,7 +377,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                       onToggle: _toggleRecurringExpanded,
                       expandedContent: _buildRecurringRows(
                         sortedRecurring,
-                        categories,
+                        resolver,
                         beneficiaries,
                       ),
                     ),
@@ -400,7 +407,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                             for (int i = 0; i < group.items.length; i++)
                               _buildRow(
                                 group.items[i],
-                                categories,
+                                resolver,
                                 beneficiaries,
                                 showDivider: i < group.items.length - 1,
                               ),
@@ -433,7 +440,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                             for (int i = 0; i < group.items.length; i++)
                               _buildRow(
                                 group.items[i],
-                                categories,
+                                resolver,
                                 beneficiaries,
                                 showDivider: i < group.items.length - 1,
                                 showDate: true,
@@ -459,7 +466,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   Widget _buildRecurringRows(
     List<ExpenseModel> rows,
-    List<CategoryModel> categories,
+    CategoryDisplayResolver? resolver,
     List<Beneficiary> beneficiaries,
   ) {
     return Column(
@@ -467,7 +474,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         for (int i = 0; i < rows.length; i++)
           _buildRow(
             rows[i],
-            categories,
+            resolver,
             beneficiaries,
             showDivider: i < rows.length - 1,
           ),
@@ -477,15 +484,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   Widget _buildRow(
     ExpenseModel expense,
-    List<CategoryModel> categories,
+    CategoryDisplayResolver? resolver,
     List<Beneficiary> beneficiaries, {
     required bool showDivider,
     bool showDate = false,
   }) {
-    final category = categories.firstWhere(
-      (c) => c.id == expense.categoryId,
-      orElse: () => CategoryModel.create(name: 'Autre', icon: 'category'),
-    );
+    final slug = expense.categorySlug;
+    final category = slug == null ? null : resolver?.resolve(slug);
     final beneficiary =
         expense.beneficiaryId != null
             ? beneficiaries
@@ -516,12 +521,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           _showNoAccountDialog(context, 'une dépense');
           return;
         }
-        final categories = ref.read(categoryProvider).value ?? [];
         ExpenseBottomSheet.show(
           context: context,
           accounts: accounts,
-          categories: categories,
-          closedExpenses:
+              closedExpenses:
               ref.read(expenseProvider.notifier).getClosedExpenses(),
           onSubmit: (newExpense) async {
             try {
@@ -558,18 +561,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
-  void _toggleCategoryFilter(int? id) {
+  void _toggleCategoryFilter(String? id) {
     setState(() {
       if (id == null) {
-        _filterData = _filterData.copyWith(categoryIds: const []);
+        _filterData = _filterData.copyWith(groupKeys: const []);
       } else {
-        final ids = List<int>.from(_filterData.categoryIds);
+        final ids = List<String>.from(_filterData.groupKeys);
         if (ids.contains(id)) {
           ids.remove(id);
         } else {
           ids.add(id);
         }
-        _filterData = _filterData.copyWith(categoryIds: ids);
+        _filterData = _filterData.copyWith(groupKeys: ids);
       }
     });
   }
@@ -597,7 +600,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   void _showFilterSheet(
     BuildContext context,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
     List<AccountModel> accounts,
   ) {
     ExpenseFilterBottomSheet.show(
@@ -626,11 +629,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   Future<void> _openEditSheet(ExpenseModel expense) async {
     final accounts = ref.read(accountProvider).value ?? [];
-    final categories = ref.read(categoryProvider).value ?? [];
     ExpenseBottomSheet.show(
       context: context,
       accounts: accounts,
-      categories: categories,
       expense: expense,
       onSubmit: (updatedExpense) async {
         try {

@@ -3,7 +3,9 @@ import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
@@ -27,11 +29,18 @@ Future<ObjectBoxService> objectBoxService(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
+Future<CategoryTaxonomyService> categoryTaxonomy(Ref ref) async {
+  final taxonomy = CategoryTaxonomyService();
+  await taxonomy.load();
+  return taxonomy;
+}
+
+@Riverpod(keepAlive: true)
 Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
   final service = QuickAddClassifierService(
     tokenizer: QuickAddTokenizer(),
     modelRunner: QuickAddModelRunner(OnnxRuntime()),
-    taxonomy: CategoryTaxonomyService(),
+    taxonomy: await ref.watch(categoryTaxonomyProvider.future),
   );
   await service.load();
   return service;
@@ -50,9 +59,20 @@ BeneficiaryRepository beneficiaryRepository(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-CategoryRepository categoryRepository(Ref ref) {
+CategoryMemoryRepository categoryMemoryRepository(Ref ref) {
   final obs = ref.watch(objectBoxServiceProvider).requireValue;
-  return CategoryRepository(obs.categoryBox);
+  return CategoryMemoryRepository(obs.categoryMemoryBox);
+}
+
+@Riverpod(keepAlive: true)
+CategoryMemoryService categoryMemory(Ref ref) {
+  return CategoryMemoryService(ref.watch(categoryMemoryRepositoryProvider));
+}
+
+@Riverpod(keepAlive: true)
+CategoryOverrideRepository categoryOverrideRepository(Ref ref) {
+  final obs = ref.watch(objectBoxServiceProvider).requireValue;
+  return CategoryOverrideRepository(obs.categoryOverrideBox);
 }
 
 @Riverpod(keepAlive: true)

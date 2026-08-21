@@ -28,12 +28,6 @@ void main() {
       expect(PreferencesService.getThemeMode(), ThemeMode.dark);
     });
 
-    test('isCategoriesCreated is false by default and true after setCategoriesCreated', () async {
-      expect(PreferencesService.isCategoriesCreated(), isFalse);
-      await PreferencesService.setCategoriesCreated();
-      expect(PreferencesService.isCategoriesCreated(), isTrue);
-    });
-
     test('hasSeenUpdateOnboarding is false by default and true after set', () async {
       expect(PreferencesService.hasSeenUpdateOnboarding(), isFalse);
       await PreferencesService.setHasSeenUpdateOnboarding();

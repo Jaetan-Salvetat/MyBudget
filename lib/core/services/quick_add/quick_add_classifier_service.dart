@@ -41,11 +41,11 @@ class QuickAddClassifierService {
     final tokens = _tokenizer.encode(cleanedText);
     final output = await _modelRunner.run(tokens);
 
-    final taxonomyCategory = QuickAddLabels.categories[output.category.index];
-    final group = _taxonomy.resolve(taxonomyCategory);
-    if (group == null) {
+    final slug = QuickAddLabels.categories[output.category.index];
+    final category = _taxonomy.resolve(slug);
+    if (category == null) {
       throw QuickAddClassificationException(
-        message: 'Catégorie inconnue : $taxonomyCategory',
+        message: 'Catégorie inconnue : $slug',
       );
     }
 
@@ -57,20 +57,28 @@ class QuickAddClassifierService {
 
     return QuickAddClassification(
       type: type,
-      group: group,
-      taxonomyCategory: taxonomyCategory,
+      category: category,
       frequency: frequency,
       amount: priceResult.price,
-      name: _buildName(priceResult.remaining, group),
+      name: _buildName(priceResult.remaining, category),
       typeConfidence: output.type.confidence,
       categoryConfidence: output.category.confidence,
       recurrenceConfidence: output.recurrence.confidence,
+      categorySuggestions: _suggestionsFor(output.category.topIndices),
+      cleanedText: cleanedText,
     );
   }
 
-  String _buildName(String cleanedText, TaxonomyGroup group) {
+  List<String> _suggestionsFor(List<int> indices) {
+    return indices
+        .map((index) => QuickAddLabels.categories[index])
+        .where((slug) => _taxonomy.resolve(slug) != null)
+        .toList();
+  }
+
+  String _buildName(String cleanedText, TaxonomyNode category) {
     final trimmed = cleanedText.trim();
-    if (trimmed.isEmpty) return group.label;
+    if (trimmed.isEmpty) return category.label;
     return trimmed[0].toUpperCase() + trimmed.substring(1);
   }
 }

@@ -3,12 +3,12 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 
 class ExpenseFilterBottomSheet extends StatefulWidget {
   final ExpenseFilterData initialFilterData;
-  final List<CategoryModel> categories;
+  final List<CategoryDisplay> categories;
   final List<AccountModel> accounts;
   final int Function(ExpenseFilterData) resultCount;
   final Function(ExpenseFilterData) onApply;
@@ -29,7 +29,7 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
   static void show({
     required BuildContext context,
     required ExpenseFilterData initialFilterData,
-    required List<CategoryModel> categories,
+    required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
     required int Function(ExpenseFilterData) resultCount,
     required Function(ExpenseFilterData) onApply,
@@ -59,7 +59,7 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
 class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
   static const double _maxAmountSliderValue = 1000;
 
-  List<int> _selectedCategoryIds = [];
+  List<String> _selectedGroupKeys = [];
   List<int> _selectedAccountIds = [];
   List<Frequency> _selectedTypes = [];
   RangeValues _amountRange = const RangeValues(0, _maxAmountSliderValue);
@@ -67,7 +67,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedCategoryIds = List.from(widget.initialFilterData.categoryIds);
+    _selectedGroupKeys = List.from(widget.initialFilterData.groupKeys);
     _selectedAccountIds = List.from(widget.initialFilterData.accountIds);
     _selectedTypes = List.from(widget.initialFilterData.types);
     _amountRange = RangeValues(
@@ -83,18 +83,18 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
       searchQuery: widget.initialFilterData.searchQuery,
       minAmount: hasMin ? _amountRange.start : null,
       maxAmount: hasMax ? _amountRange.end : null,
-      categoryIds: _selectedCategoryIds,
+      groupKeys: _selectedGroupKeys,
       accountIds: _selectedAccountIds,
       types: _selectedTypes,
     );
   }
 
-  void _toggleCategory(int id) {
+  void _toggleCategory(String key) {
     setState(() {
-      if (_selectedCategoryIds.contains(id)) {
-        _selectedCategoryIds.remove(id);
+      if (_selectedGroupKeys.contains(key)) {
+        _selectedGroupKeys.remove(key);
       } else {
-        _selectedCategoryIds = [..._selectedCategoryIds, id];
+        _selectedGroupKeys = [..._selectedGroupKeys, key];
       }
     });
   }
@@ -121,7 +121,7 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
 
   void _handleReset() {
     setState(() {
-      _selectedCategoryIds = [];
+      _selectedGroupKeys = [];
       _selectedAccountIds = [];
       _selectedTypes = [];
       _amountRange = const RangeValues(0, _maxAmountSliderValue);
@@ -175,8 +175,8 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           if (widget.categories.isNotEmpty) ...[
             _GroupLabel(
               text: 'Catégories',
-              hint: _selectedCategoryIds.isNotEmpty
-                  ? '${_selectedCategoryIds.length} sélectionnée${_selectedCategoryIds.length > 1 ? 's' : ''}'
+              hint: _selectedGroupKeys.isNotEmpty
+                  ? '${_selectedGroupKeys.length} sélectionnée${_selectedGroupKeys.length > 1 ? 's' : ''}'
                   : null,
             ),
             const SizedBox(height: 8),
@@ -184,12 +184,12 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
               spacing: 6,
               runSpacing: 6,
               children: widget.categories.map((category) {
-                final selected = _selectedCategoryIds.contains(category.id);
+                final selected = _selectedGroupKeys.contains(category.slug);
                 return _Chip(
-                  label: category.name,
+                  label: category.label,
                   color: Color(category.color),
                   selected: selected,
-                  onTap: () => _toggleCategory(category.id),
+                  onTap: () => _toggleCategory(category.slug),
                 );
               }).toList(),
             ),

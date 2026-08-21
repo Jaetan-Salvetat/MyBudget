@@ -10,7 +10,6 @@ import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -26,7 +25,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -35,7 +33,6 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
-  late MockCategoryRepository mockCategoryRepo;
   late MockTransferRepository mockTransferRepo;
 
   setUp(() {
@@ -43,7 +40,6 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
-    mockCategoryRepo = MockCategoryRepository();
     mockTransferRepo = MockTransferRepository();
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
@@ -52,7 +48,6 @@ void main() {
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getActive()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getActive()).thenReturn([]);
   });
@@ -64,7 +59,6 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
       ],
     );
@@ -89,7 +83,7 @@ void main() {
         name: 'Groceries',
         amount: 500,
         accountId: accountId,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
@@ -157,7 +151,7 @@ void main() {
       name: 'Big expense',
       amount: 800,
       accountId: accountId,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
     );

@@ -4,18 +4,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
 void main() {
   late MockExpenseRepository mockExpenseRepo;
-  late MockCategoryRepository mockCategoryRepo;
 
   setUpAll(() {
     registerFallbackValue(FakeExpenseModel());
@@ -23,17 +20,14 @@ void main() {
 
   setUp(() {
     mockExpenseRepo = MockExpenseRepository();
-    mockCategoryRepo = MockCategoryRepository();
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
       overrides: [
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
       ],
     );
   }
@@ -42,7 +36,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Annual',
       amount: 1200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Annuel',
       accountId: 1,
@@ -65,7 +59,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Monthly',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
@@ -88,7 +82,7 @@ void main() {
     final monthly = ExpenseModel.create(
       name: 'Monthly',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
@@ -96,7 +90,7 @@ void main() {
     final annual = ExpenseModel.create(
       name: 'Annual',
       amount: 1200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Annuel',
       accountId: 1,
@@ -130,7 +124,7 @@ void main() {
     final zeroExpense = ExpenseModel.create(
       name: 'Zero',
       amount: 0,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
@@ -147,30 +141,6 @@ void main() {
     expect(container.read(expenseProvider.notifier).getTotalExpenses(), 0.0);
   });
 
-  test('getExpensesByCategory ignores expenses with unknown categoryId', () async {
-    final expense = ExpenseModel.create(
-      name: 'Orphan expense',
-      amount: 100,
-      categoryId: 999,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
-
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
-    when(() => mockCategoryRepo.get(999)).thenReturn(null);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-
-    final result = container.read(expenseProvider.notifier).getExpensesByCategory();
-
-    expect(result, isEmpty);
-  });
-
   test('getUpcomingExpenses includes monthly expense due later this month', () async {
     final now = DateTime.now();
     final futureDay = now.day + 3;
@@ -179,7 +149,7 @@ void main() {
     final upcoming = ExpenseModel.create(
       name: 'Upcoming',
       amount: 200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Mensuel',
       accountId: 1,
@@ -187,7 +157,7 @@ void main() {
     final past = ExpenseModel.create(
       name: 'Past',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 1),
       frequency: 'Mensuel',
       accountId: 1,
@@ -212,7 +182,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Annual Other',
       amount: 1200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, otherMonth, 15),
       frequency: 'Annuel',
       accountId: 1,
@@ -236,7 +206,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'One-time',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 10),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -261,7 +231,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'One-time Other',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, otherMonth, 10),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -285,7 +255,7 @@ void main() {
     final monthly = ExpenseModel.create(
       name: 'Monthly',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
       accountId: 1,
@@ -293,7 +263,7 @@ void main() {
     final annual = ExpenseModel.create(
       name: 'Annual',
       amount: 1200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 10),
       frequency: 'Annuel',
       accountId: 1,
@@ -301,7 +271,7 @@ void main() {
     final oneTime = ExpenseModel.create(
       name: 'One-time',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -328,7 +298,7 @@ void main() {
     final oneTime = ExpenseModel.create(
       name: 'One-time Upcoming',
       amount: 400,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -355,7 +325,7 @@ void main() {
     final annualThisMonth = ExpenseModel.create(
       name: 'Annual This Month',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Annuel',
       accountId: 1,
@@ -363,7 +333,7 @@ void main() {
     final annualOtherMonth = ExpenseModel.create(
       name: 'Annual Other Month',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, (now.month % 12) + 1, 15),
       frequency: 'Annuel',
       accountId: 1,
@@ -388,7 +358,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Annual Old Year',
       amount: 600,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2020, now.month, 10),
       frequency: 'Annuel',
       accountId: 1,
@@ -412,7 +382,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'OneTime Last Year',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year - 1, now.month, 10),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -436,7 +406,7 @@ void main() {
     final monthly = ExpenseModel.create(
       name: 'Monthly',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, 5),
       frequency: 'Mensuel',
       accountId: 1,
@@ -444,7 +414,7 @@ void main() {
     final annual = ExpenseModel.create(
       name: 'Annual',
       amount: 600,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, 3, 10),
       frequency: 'Annuel',
       accountId: 1,
@@ -452,7 +422,7 @@ void main() {
     final oneTimeThisYear = ExpenseModel.create(
       name: 'OneTime This Year',
       amount: 200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -460,7 +430,7 @@ void main() {
     final oneTimeOtherYear = ExpenseModel.create(
       name: 'OneTime Other Year',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year - 1, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -498,7 +468,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Loyer',
       amount: 800,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -521,7 +491,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Achat unique',
       amount: 200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -544,7 +514,7 @@ void main() {
     final existing = ExpenseModel.create(
       name: 'Ancien nom',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -553,7 +523,7 @@ void main() {
     final chainEntry = ExpenseModel.create(
       name: 'Ancien nom',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 8, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -580,7 +550,7 @@ void main() {
     final existing = ExpenseModel.create(
       name: 'Loyer',
       amount: 500,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -606,7 +576,7 @@ void main() {
     final existing = ExpenseModel.create(
       name: 'Achat',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -631,7 +601,7 @@ void main() {
     final closed = ExpenseModel.create(
       name: 'Ancien',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 1, 15),
       frequency: 'Mensuel',
       accountId: 1,

@@ -1,6 +1,7 @@
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
@@ -9,7 +10,8 @@ import 'package:mybudget/core/repositories/transfer_repository.dart';
 class DataExportService {
   final AccountRepository accountRepo;
   final BeneficiaryRepository beneficiaryRepo;
-  final CategoryRepository categoryRepo;
+  final CategoryOverrideRepository categoryOverrideRepo;
+  final CategoryMemoryRepository categoryMemoryRepo;
   final ExpenseRepository expenseRepo;
   final RevenueRepository revenueRepo;
   final LoanRepository loanRepo;
@@ -18,7 +20,8 @@ class DataExportService {
   const DataExportService({
     required this.accountRepo,
     required this.beneficiaryRepo,
-    required this.categoryRepo,
+    required this.categoryOverrideRepo,
+    required this.categoryMemoryRepo,
     required this.expenseRepo,
     required this.revenueRepo,
     required this.loanRepo,
@@ -36,7 +39,15 @@ class DataExportService {
       'filename': 'mybudget_backup_$dateStr.json',
       'accounts': accountRepo.getAll().map((a) => a.toJson()).toList(),
       'beneficiaries': beneficiaryRepo.getAll().map((b) => b.toJson()).toList(),
-      'categories': categoryRepo.getAll().map((c) => c.toJson()).toList(),
+      'categoryOverrides': categoryOverrideRepo
+          .getAll()
+          .values
+          .map((override) => override.toJson())
+          .toList(),
+      'categoryMemory': categoryMemoryRepo
+          .getAll()
+          .map((entry) => entry.toJson())
+          .toList(),
       'expenses': expenseRepo.getAll().map((e) => e.toJson()).toList(),
       'revenues': revenueRepo.getAll().map((r) => r.toJson()).toList(),
       'loans': loanRepo.getAll().map((l) => l.toJson()).toList(),

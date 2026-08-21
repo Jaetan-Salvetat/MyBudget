@@ -48,6 +48,47 @@ final class ObjectBoxServiceProvider
 
 String _$objectBoxServiceHash() => r'02c6f5f49e110b24ad5cbc0ccc9331e0dad3f814';
 
+@ProviderFor(categoryTaxonomy)
+final categoryTaxonomyProvider = CategoryTaxonomyProvider._();
+
+final class CategoryTaxonomyProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CategoryTaxonomyService>,
+          CategoryTaxonomyService,
+          FutureOr<CategoryTaxonomyService>
+        >
+    with
+        $FutureModifier<CategoryTaxonomyService>,
+        $FutureProvider<CategoryTaxonomyService> {
+  CategoryTaxonomyProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoryTaxonomyProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoryTaxonomyHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<CategoryTaxonomyService> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CategoryTaxonomyService> create(Ref ref) {
+    return categoryTaxonomy(ref);
+  }
+}
+
+String _$categoryTaxonomyHash() => r'e51bd73a55feed4804c327a578c57c120b15b9c5';
+
 @ProviderFor(quickAddClassifier)
 final quickAddClassifierProvider = QuickAddClassifierProvider._();
 
@@ -88,7 +129,7 @@ final class QuickAddClassifierProvider
 }
 
 String _$quickAddClassifierHash() =>
-    r'94df01da73090bfb6d724e595be75c8f1f3fe3bc';
+    r'2236a78741d07fe4d5913ef9c856ad7e53a522a0';
 
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();
@@ -185,53 +226,149 @@ final class BeneficiaryRepositoryProvider
 String _$beneficiaryRepositoryHash() =>
     r'c7f601c1abdf47a60f7bdf62c2e89ea966b28fe0';
 
-@ProviderFor(categoryRepository)
-final categoryRepositoryProvider = CategoryRepositoryProvider._();
+@ProviderFor(categoryMemoryRepository)
+final categoryMemoryRepositoryProvider = CategoryMemoryRepositoryProvider._();
 
-final class CategoryRepositoryProvider
+final class CategoryMemoryRepositoryProvider
     extends
         $FunctionalProvider<
-          CategoryRepository,
-          CategoryRepository,
-          CategoryRepository
+          CategoryMemoryRepository,
+          CategoryMemoryRepository,
+          CategoryMemoryRepository
         >
-    with $Provider<CategoryRepository> {
-  CategoryRepositoryProvider._()
+    with $Provider<CategoryMemoryRepository> {
+  CategoryMemoryRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'categoryRepositoryProvider',
+        name: r'categoryMemoryRepositoryProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$categoryRepositoryHash();
+  String debugGetCreateSourceHash() => _$categoryMemoryRepositoryHash();
 
   @$internal
   @override
-  $ProviderElement<CategoryRepository> $createElement(
+  $ProviderElement<CategoryMemoryRepository> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  CategoryRepository create(Ref ref) {
-    return categoryRepository(ref);
+  CategoryMemoryRepository create(Ref ref) {
+    return categoryMemoryRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CategoryRepository value) {
+  Override overrideWithValue(CategoryMemoryRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CategoryRepository>(value),
+      providerOverride: $SyncValueProvider<CategoryMemoryRepository>(value),
     );
   }
 }
 
-String _$categoryRepositoryHash() =>
-    r'520072a0b7216b5e18728f428809e101a499d4d2';
+String _$categoryMemoryRepositoryHash() =>
+    r'22209c84cb8e1ab8f440753b91b2d37aeac93e3a';
+
+@ProviderFor(categoryMemory)
+final categoryMemoryProvider = CategoryMemoryProvider._();
+
+final class CategoryMemoryProvider
+    extends
+        $FunctionalProvider<
+          CategoryMemoryService,
+          CategoryMemoryService,
+          CategoryMemoryService
+        >
+    with $Provider<CategoryMemoryService> {
+  CategoryMemoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoryMemoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoryMemoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CategoryMemoryService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CategoryMemoryService create(Ref ref) {
+    return categoryMemory(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CategoryMemoryService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CategoryMemoryService>(value),
+    );
+  }
+}
+
+String _$categoryMemoryHash() => r'90ec89ba5feadabf4d0267fa3e1446ce11ef2bc5';
+
+@ProviderFor(categoryOverrideRepository)
+final categoryOverrideRepositoryProvider =
+    CategoryOverrideRepositoryProvider._();
+
+final class CategoryOverrideRepositoryProvider
+    extends
+        $FunctionalProvider<
+          CategoryOverrideRepository,
+          CategoryOverrideRepository,
+          CategoryOverrideRepository
+        >
+    with $Provider<CategoryOverrideRepository> {
+  CategoryOverrideRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoryOverrideRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoryOverrideRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CategoryOverrideRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CategoryOverrideRepository create(Ref ref) {
+    return categoryOverrideRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CategoryOverrideRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CategoryOverrideRepository>(value),
+    );
+  }
+}
+
+String _$categoryOverrideRepositoryHash() =>
+    r'62c0edf99e4840196b211f012fed4e21d481b48d';
 
 @ProviderFor(expenseRepository)
 final expenseRepositoryProvider = ExpenseRepositoryProvider._();

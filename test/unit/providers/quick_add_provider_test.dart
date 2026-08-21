@@ -5,20 +5,18 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -26,13 +24,26 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
-class FakeCategoryModel extends Fake implements CategoryModel {}
+class MockCategoryMemoryService extends Mock implements CategoryMemoryService {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
-const TaxonomyGroup restaurationGroup = (
+TaxonomyNode leafOf(TaxonomyGroup group, String key, String label, String icon) {
+  final node = TaxonomyNode(
+    slug: '${group.key}.$key',
+    label: label,
+    icon: icon,
+    group: group,
+    isDeprecated: false,
+    aliasOf: null,
+  );
+  group.children.add(node);
+  return node;
+}
+
+final TaxonomyGroup restaurationGroup = TaxonomyGroup(
   key: 'restauration',
   label: 'Restauration',
   icon: 'restaurant',
@@ -40,7 +51,7 @@ const TaxonomyGroup restaurationGroup = (
   type: TransactionType.expense,
 );
 
-const TaxonomyGroup salaireGroup = (
+final TaxonomyGroup salaireGroup = TaxonomyGroup(
   key: 'salaire',
   label: 'Salaire',
   icon: 'paid',
@@ -48,32 +59,43 @@ const TaxonomyGroup salaireGroup = (
   type: TransactionType.income,
 );
 
+final TaxonomyNode restaurantLeaf =
+    leafOf(restaurationGroup, 'restaurant', 'Restaurant', 'dinner_dining');
+
+final TaxonomyNode barLeaf =
+    leafOf(restaurationGroup, 'bar', 'Bar & apéro', 'local_bar');
+
+final TaxonomyNode salaireNetLeaf =
+    leafOf(salaireGroup, 'salaire_net', 'Salaire net', 'payments');
+
 QuickAddClassification expenseClassification({
-  TaxonomyGroup group = restaurationGroup,
+  TaxonomyNode? category,
   double amount = 25.0,
   String name = 'Resto italien',
+  double categoryConfidence = 0.95,
 }) {
   return QuickAddClassification(
     type: TransactionType.expense,
-    group: group,
-    taxonomyCategory: '${group.key}.autre',
+    category: category ?? restaurantLeaf,
     frequency: Frequency.oneTime,
     amount: amount,
     name: name,
     typeConfidence: 0.99,
-    categoryConfidence: 0.95,
+    categoryConfidence: categoryConfidence,
     recurrenceConfidence: 0.9,
+    categorySuggestions: [restaurantLeaf.slug, barLeaf.slug],
+    cleanedText: name,
   );
 }
 
 QuickAddClassification incomeClassification() {
-  return const QuickAddClassification(
+  return QuickAddClassification(
     type: TransactionType.income,
-    group: salaireGroup,
-    taxonomyCategory: 'salaire.salaire_net',
+    category: salaireNetLeaf,
     frequency: Frequency.monthly,
     amount: 2500.0,
     name: 'Salaire',
+    cleanedText: 'salaire',
     typeConfidence: 0.99,
     categoryConfidence: 0.95,
     recurrenceConfidence: 0.9,
@@ -81,28 +103,27 @@ QuickAddClassification incomeClassification() {
 }
 
 void main() {
-  late MockCategoryRepository categoryRepository;
   late MockExpenseRepository expenseRepository;
   late MockRevenueRepository revenueRepository;
   late MockClassifierService classifier;
+  late MockCategoryMemoryService memory;
 
   setUpAll(() {
-    registerFallbackValue(FakeCategoryModel());
-    registerFallbackValue(FakeExpenseModel());
+        registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeRevenueModel());
   });
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({'isCategoriesCreated': true});
+    SharedPreferences.setMockInitialValues({});
     await PreferencesService.init();
 
-    categoryRepository = MockCategoryRepository();
     expenseRepository = MockExpenseRepository();
     revenueRepository = MockRevenueRepository();
     classifier = MockClassifierService();
+    memory = MockCategoryMemoryService();
 
-    when(() => categoryRepository.getAll()).thenReturn([]);
-    when(() => categoryRepository.add(any())).thenReturn(42);
+    when(() => memory.recall(any())).thenReturn(null);
+    when(() => memory.remember(any(), any())).thenAnswer((_) {});
     when(() => expenseRepository.getActive()).thenReturn([]);
     when(() => expenseRepository.add(any())).thenReturn(1);
     when(() => revenueRepository.getActive()).thenReturn([]);
@@ -112,9 +133,9 @@ void main() {
   ProviderContainer makeContainer() {
     final container = ProviderContainer(
       overrides: [
-        categoryRepositoryProvider.overrideWithValue(categoryRepository),
         expenseRepositoryProvider.overrideWithValue(expenseRepository),
         revenueRepositoryProvider.overrideWithValue(revenueRepository),
+        categoryMemoryProvider.overrideWithValue(memory),
         quickAddClassifierProvider.overrideWith((ref) => classifier),
       ],
     );
@@ -123,13 +144,7 @@ void main() {
   }
 
   group('QuickAddNotifier.parse', () {
-    test('maps classification to an existing category', () async {
-      final existing = CategoryModel.create(
-        name: 'restauration',
-        icon: 'restaurant',
-        color: 0xFFF44336,
-      )..id = 7;
-      when(() => categoryRepository.getAll()).thenReturn([existing]);
+    test('carries the predicted leaf slug', () async {
       when(() => classifier.classify(any()))
           .thenAnswer((_) async => expenseClassification());
 
@@ -139,28 +154,85 @@ void main() {
       final result = container.read(quickAddProvider).value;
       expect(result, isNotNull);
       expect(result!.type, TransactionType.expense);
-      expect(result.categoryId, 7);
-      expect(result.newCategory, isNull);
+      expect(result.categorySlug, 'restauration.restaurant');
       expect(result.name, 'Resto italien');
       expect(result.amount, 25.0);
       expect(result.frequency, Frequency.oneTime.label);
     });
 
-    test('proposes a new category when none matches', () async {
-      when(() => classifier.classify(any()))
-          .thenAnswer((_) async => expenseClassification());
+    test('flags a low-confidence category for confirmation', () async {
+      when(() => classifier.classify(any())).thenAnswer(
+        (_) async => expenseClassification(categoryConfidence: 0.3),
+      );
+
+      final container = makeContainer();
+      await container.read(quickAddProvider.notifier).parse('truc 25');
+
+      final result = container.read(quickAddProvider).value!;
+      expect(result.needsCategoryConfirmation, isTrue);
+      expect(result.categorySuggestions,
+          ['restauration.restaurant', 'restauration.bar']);
+    });
+
+    test('a remembered category overrides the prediction', () async {
+      when(() => memory.recall('Resto italien'))
+          .thenReturn('loisirs.cinema_sortie');
+      when(() => classifier.classify(any())).thenAnswer(
+        (_) async => expenseClassification(categoryConfidence: 0.3),
+      );
 
       final container = makeContainer();
       await container.read(quickAddProvider.notifier).parse('resto 25');
 
-      final result = container.read(quickAddProvider).value;
-      expect(result!.categoryId, isNull);
-      expect(result.newCategory, 'Restauration');
-      expect(result.newCategoryIcon, 'restaurant');
-      expect(result.newCategoryColor, 0xFFF44336);
+      final result = container.read(quickAddProvider).value!;
+      expect(result.categorySlug, 'loisirs.cinema_sortie');
+      expect(result.needsCategoryConfirmation, isFalse);
     });
 
-    test('income result carries no category', () async {
+    test('the memory leaves type and recurrence untouched', () async {
+      when(() => memory.recall(any())).thenReturn('loisirs.cinema_sortie');
+      when(() => classifier.classify(any()))
+          .thenAnswer((_) async => incomeClassification());
+
+      final container = makeContainer();
+      await container.read(quickAddProvider.notifier).parse('salaire 2500');
+
+      final result = container.read(quickAddProvider).value!;
+      expect(result.type, TransactionType.income);
+      expect(result.frequency, Frequency.monthly.label);
+      expect(result.categorySlug, 'loisirs.cinema_sortie');
+    });
+
+    test('selectCategory records the pick in the memory', () async {
+      when(() => classifier.classify(any()))
+          .thenAnswer((_) async => expenseClassification());
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      await notifier.parse('resto 25');
+      notifier.selectCategory('restauration.bar');
+
+      verify(() => memory.remember('Resto italien', 'restauration.bar'))
+          .called(1);
+    });
+
+    test('selectCategory overrides the prediction and clears the flag',
+        () async {
+      when(() => classifier.classify(any())).thenAnswer(
+        (_) async => expenseClassification(categoryConfidence: 0.3),
+      );
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      await notifier.parse('truc 25');
+      notifier.selectCategory('restauration.bar');
+
+      final result = container.read(quickAddProvider).value!;
+      expect(result.categorySlug, 'restauration.bar');
+      expect(result.needsCategoryConfirmation, isFalse);
+    });
+
+    test('income results carry their income slug', () async {
       when(() => classifier.classify(any()))
           .thenAnswer((_) async => incomeClassification());
 
@@ -169,8 +241,7 @@ void main() {
 
       final result = container.read(quickAddProvider).value;
       expect(result!.type, TransactionType.income);
-      expect(result.categoryId, isNull);
-      expect(result.newCategory, isNull);
+      expect(result.categorySlug, 'salaire.salaire_net');
       expect(result.frequency, Frequency.monthly.label);
     });
 
@@ -200,13 +271,7 @@ void main() {
   });
 
   group('QuickAddNotifier.confirm', () {
-    test('adds an expense with the existing category', () async {
-      final existing = CategoryModel.create(
-        name: 'Restauration',
-        icon: 'restaurant',
-        color: 0xFFF44336,
-      )..id = 7;
-      when(() => categoryRepository.getAll()).thenReturn([existing]);
+    test('adds an expense carrying the leaf slug', () async {
       when(() => classifier.classify(any()))
           .thenAnswer((_) async => expenseClassification());
 
@@ -220,32 +285,9 @@ void main() {
       final expense = captured.single as ExpenseModel;
       expect(expense.name, 'Resto italien');
       expect(expense.amount, 25.0);
-      expect(expense.categoryId, 7);
+      expect(expense.categorySlug, 'restauration.restaurant');
       expect(expense.accountId, 3);
-      verifyNever(() => categoryRepository.add(any()));
       expect(container.read(quickAddProvider).value, isNull);
-    });
-
-    test('creates the category before adding the expense', () async {
-      when(() => classifier.classify(any()))
-          .thenAnswer((_) async => expenseClassification());
-
-      final container = makeContainer();
-      final notifier = container.read(quickAddProvider.notifier);
-      await notifier.parse('resto 25');
-      await notifier.confirm(3);
-
-      final capturedCategory =
-          verify(() => categoryRepository.add(captureAny())).captured;
-      final category = capturedCategory.single as CategoryModel;
-      expect(category.name, 'Restauration');
-      expect(category.icon, 'restaurant');
-      expect(category.color, 0xFFF44336);
-
-      final capturedExpense =
-          verify(() => expenseRepository.add(captureAny())).captured;
-      final expense = capturedExpense.single as ExpenseModel;
-      expect(expense.categoryId, 42);
     });
 
     test('adds a revenue for an income result', () async {
@@ -261,6 +303,7 @@ void main() {
           verify(() => revenueRepository.add(captureAny())).captured;
       final revenue = captured.single as RevenueModel;
       expect(revenue.name, 'Salaire');
+      expect(revenue.categorySlug, 'salaire.salaire_net');
       expect(revenue.amount, 2500.0);
       expect(revenue.accountId, 3);
       expect(revenue.frequency, Frequency.monthly.label);

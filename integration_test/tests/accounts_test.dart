@@ -55,7 +55,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Lié', 'BNP');
-      await createCategory(tester, 'Logement');
       await createExpense(tester, name: 'Loyer', amount: '800');
 
       await navigateToTab(tester, 1);

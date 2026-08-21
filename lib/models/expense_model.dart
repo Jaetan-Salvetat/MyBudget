@@ -13,7 +13,8 @@ class ExpenseModel {
 
   late double amount;
 
-  late int categoryId;
+  @Index()
+  String? categorySlug;
 
   @Property(uid: 7133072174613285923)
   late DateTime startDate;
@@ -36,7 +37,7 @@ class ExpenseModel {
   ExpenseModel.create({
     required this.name,
     required this.amount,
-    required this.categoryId,
+    this.categorySlug,
     required this.startDate,
     required this.frequency,
     required this.accountId,
@@ -49,7 +50,7 @@ class ExpenseModel {
   ExpenseModel copyWith({
     String? name,
     double? amount,
-    int? categoryId,
+    String? categorySlug,
     DateTime? startDate,
     String? frequency,
     int? accountId,
@@ -63,7 +64,7 @@ class ExpenseModel {
           ..id = id
           ..name = name ?? this.name
           ..amount = amount ?? this.amount
-          ..categoryId = categoryId ?? this.categoryId
+          ..categorySlug = categorySlug ?? this.categorySlug
           ..startDate = startDate ?? this.startDate
           ..frequency = frequency ?? this.frequency
           ..accountId = accountId ?? this.accountId
@@ -91,7 +92,7 @@ class ExpenseModel {
       'id': id.toString(),
       'name': name,
       'amount': amount,
-      'categoryId': categoryId.toString(),
+      'categorySlug': categorySlug,
       'startDate': startDate.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
       'parentId': parentId?.toString(),
@@ -121,10 +122,7 @@ class ExpenseModel {
                   ? int.tryParse(json['parentId'].toString())
                   : null
           ..frequency = json['frequency'] ?? ''
-          ..categoryId =
-              json['categoryId'] != null
-                  ? (int.tryParse(json['categoryId'].toString()) ?? 0)
-                  : 0
+          ..categorySlug = json['categorySlug'] as String?
           ..accountId =
               json['accountId'] != null
                   ? (int.tryParse(json['accountId'].toString()) ?? 0)

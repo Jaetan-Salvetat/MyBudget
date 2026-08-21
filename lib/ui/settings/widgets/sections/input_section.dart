@@ -15,9 +15,9 @@ class InputSection extends StatelessWidget {
       children: [
         SettingsTile(
           title: 'Gérer les catégories',
-          subtitle: 'Ajouter, modifier ou supprimer des catégories',
+          subtitle: 'Renommer, changer icône et couleur',
           leading: const Icon(Symbols.category_rounded),
-          onTap: () => CategoriesBottomSheet.show(context: context),
+          onTap: () => CategoriesBottomSheet.show(context),
         ),
         SettingsTile(
           title: 'Gérer les bénéficiaires',

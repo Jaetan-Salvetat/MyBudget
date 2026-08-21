@@ -1,8 +1,7 @@
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -97,31 +96,24 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
   return upcoming;
 }
 
+/// Monthly totals per taxonomy group key, for the dashboard breakdown.
+///
+/// Aggregation happens at group level: 11 expense groups stay readable where 59
+/// leaves would not.
 @Riverpod(keepAlive: true)
-Map<CategoryModel, double> expensesByCategory(Ref ref) {
+Map<String, double> expensesByGroup(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
   final selectedMonth = ref.watch(selectedMonthProvider);
-  final categoryRepo = ref.read(categoryRepositoryProvider);
+  final resolver = ref.watch(categoryDisplayResolverProvider).value;
+  if (resolver == null) return const {};
 
-  final Map<int, double> categoryTotals = {};
+  final totals = <String, double>{};
   for (final expense in expenses) {
-    if (expense.categoryId <= 0) continue;
     final amount = _expenseAmountForMonth(expense, selectedMonth);
-    if (amount > 0) {
-      categoryTotals.update(
-        expense.categoryId,
-        (value) => value + amount,
-        ifAbsent: () => amount,
-      );
-    }
+    if (amount <= 0) continue;
+    final groupKey =
+        resolver.groupKeyOrUncategorized(expense.categorySlug);
+    totals.update(groupKey, (value) => value + amount, ifAbsent: () => amount);
   }
-
-  final Map<CategoryModel, double> result = {};
-  for (final entry in categoryTotals.entries) {
-    final category = categoryRepo.get(entry.key);
-    if (category != null) {
-      result[category] = entry.value;
-    }
-  }
-  return result;
+  return totals;
 }

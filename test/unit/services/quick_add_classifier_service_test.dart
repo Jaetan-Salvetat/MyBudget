@@ -33,6 +33,10 @@ void main() {
       category: (
         index: QuickAddLabels.categories.indexOf(category),
         confidence: 0.95,
+        topIndices: [
+          QuickAddLabels.categories.indexOf(category),
+          QuickAddLabels.categories.indexOf('restauration.bar'),
+        ],
       ),
       recurrence: (index: recurrenceIndex, confidence: 0.9),
     );
@@ -77,8 +81,8 @@ void main() {
       final result = await classifier.classify('resto italien 25');
 
       expect(result.type, TransactionType.expense);
-      expect(result.group.label, 'Restauration');
-      expect(result.taxonomyCategory, 'restauration.restaurant');
+      expect(result.category.group.label, 'Restauration');
+      expect(result.categorySlug, 'restauration.restaurant');
       expect(result.frequency, Frequency.oneTime);
       expect(result.amount, 25.0);
       expect(result.name, 'Resto italien');
@@ -96,7 +100,7 @@ void main() {
       final result = await classifier.classify('salaire 2500');
 
       expect(result.type, TransactionType.income);
-      expect(result.group.label, 'Salaire');
+      expect(result.category.group.label, 'Salaire');
       expect(result.frequency, Frequency.monthly);
       expect(result.amount, 2500.0);
     });
@@ -115,18 +119,34 @@ void main() {
       verify(() => tokenizer.encode('netflix')).called(1);
     });
 
-    test('falls back to group label when text is only an amount', () async {
+    test('falls back to the subcategory label when text is only an amount',
+        () async {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 0,
-          category: 'divers.autre',
+          category: 'restauration.cafe',
           recurrenceIndex: 0,
         ),
       );
 
       final result = await classifier.classify('20€');
 
-      expect(result.name, 'Divers');
+      expect(result.name, 'Café');
+    });
+
+    test('exposes the runner-up categories as suggestions', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'restauration.restaurant',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      final result = await classifier.classify('resto 25');
+
+      expect(result.categorySuggestions,
+          ['restauration.restaurant', 'restauration.bar']);
     });
 
     test('reports model confidences', () async {

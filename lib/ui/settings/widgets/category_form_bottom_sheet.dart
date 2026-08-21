@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 
 class CategoryFormBottomSheet extends StatefulWidget {
-  final CategoryModel? initial;
+  final CategoryDisplay initial;
   final void Function(String name, int color, String icon) onSubmit;
 
   const CategoryFormBottomSheet({
     required this.onSubmit,
-    this.initial,
+    required this.initial,
     super.key,
   });
 
   static void show({
     required BuildContext context,
-    CategoryModel? initial,
+    required CategoryDisplay initial,
     required void Function(String name, int color, String icon) onSubmit,
   }) {
     FrostedBottomSheet.show(
       context: context,
-      title: initial == null ? 'Nouvelle catégorie' : 'Modifier la catégorie',
+      title: 'Personnaliser « ${initial.label} »',
       child: CategoryFormBottomSheet(initial: initial, onSubmit: onSubmit),
     );
   }
@@ -44,9 +44,9 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.initial?.name ?? '');
-    _selectedColor = widget.initial?.color ?? _colors[4];
-    _selectedIcon = widget.initial?.icon ?? _icons.last.codePoint.toString();
+    _nameController = TextEditingController(text: widget.initial.label);
+    _selectedColor = widget.initial.color;
+    _selectedIcon = widget.initial.icon;
   }
 
   @override
@@ -188,7 +188,7 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
                 Navigator.pop(context);
               }
             },
-            child: Text(widget.initial == null ? 'Ajouter' : 'Enregistrer'),
+            child: const Text('Enregistrer'),
           ),
         ),
         const SizedBox(height: 8),

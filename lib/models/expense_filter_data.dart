@@ -6,7 +6,7 @@ class ExpenseFilterData {
   double? minAmount;
   double? maxAmount;
   String? searchQuery;
-  List<int> categoryIds;
+  List<String> groupKeys;
   List<int> accountIds;
   List<Frequency> types;
 
@@ -16,7 +16,7 @@ class ExpenseFilterData {
     this.minAmount,
     this.maxAmount,
     this.searchQuery,
-    this.categoryIds = const [],
+    this.groupKeys = const [],
     this.accountIds = const [],
     this.types = const [],
   });
@@ -27,7 +27,7 @@ class ExpenseFilterData {
         minAmount == null &&
         maxAmount == null &&
         (searchQuery == null || searchQuery!.isEmpty) &&
-        categoryIds.isEmpty &&
+        groupKeys.isEmpty &&
         accountIds.isEmpty &&
         types.isEmpty;
   }
@@ -35,7 +35,7 @@ class ExpenseFilterData {
   int get activeCount {
     int count = 0;
     if (minAmount != null || maxAmount != null) count++;
-    if (categoryIds.isNotEmpty) count++;
+    if (groupKeys.isNotEmpty) count++;
     if (accountIds.isNotEmpty) count++;
     if (types.isNotEmpty) count++;
     if (startDay != null || endDay != null) count++;
@@ -48,7 +48,7 @@ class ExpenseFilterData {
     double? minAmount,
     double? maxAmount,
     String? searchQuery,
-    List<int>? categoryIds,
+    List<String>? groupKeys,
     List<int>? accountIds,
     List<Frequency>? types,
   }) {
@@ -58,7 +58,7 @@ class ExpenseFilterData {
       minAmount: minAmount ?? this.minAmount,
       maxAmount: maxAmount ?? this.maxAmount,
       searchQuery: searchQuery ?? this.searchQuery,
-      categoryIds: categoryIds ?? this.categoryIds,
+      groupKeys: groupKeys ?? this.groupKeys,
       accountIds: accountIds ?? this.accountIds,
       types: types ?? this.types,
     );

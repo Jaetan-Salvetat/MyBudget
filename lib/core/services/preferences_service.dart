@@ -10,7 +10,6 @@ class PreferencesService {
 
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyIsCategoriesCreated = 'isCategoriesCreated';
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
@@ -66,14 +65,6 @@ class PreferencesService {
 
   static Future<void> setSkipAuth(bool skip) async {
     await _prefs.setBool(keySkipAuth, skip);
-  }
-
-  static bool isCategoriesCreated() {
-    return _prefs.getBool(keyIsCategoriesCreated) ?? false;
-  }
-
-  static Future<void> setCategoriesCreated() async {
-    await _prefs.setBool(keyIsCategoriesCreated, true);
   }
 
   static bool hasSeenUpdateOnboarding() {

@@ -7,6 +7,7 @@ import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
@@ -219,10 +220,16 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 .firstOrNull
             : null;
 
+    final slug = revenue.categorySlug;
+    final category = slug == null
+        ? null
+        : ref.read(categoryDisplayResolverProvider).value?.resolve(slug);
+
     return CompactRevenueRow(
       revenue: revenue,
       accountName: account.name,
       beneficiary: beneficiary,
+      category: category,
       showDivider: showDivider,
       onEdit: () => _openEditSheet(revenue, accounts),
       onDelete: () => _deleteRevenue(revenue),

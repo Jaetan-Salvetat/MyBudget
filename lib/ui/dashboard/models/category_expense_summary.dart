@@ -6,7 +6,7 @@ class CategoryExpenseSummary {
   final double percentage;
   final Color color;
   final IconData icon;
-  final int categoryId;
+  final String groupKey;
 
   CategoryExpenseSummary({
     required this.categoryName,
@@ -14,6 +14,6 @@ class CategoryExpenseSummary {
     required this.percentage,
     required this.color,
     required this.icon,
-    required this.categoryId,
+    required this.groupKey,
   });
 }

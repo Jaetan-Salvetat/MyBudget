@@ -16,7 +16,8 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'models/account_model.dart';
 import 'models/beneficiary_model.dart';
-import 'models/category_model.dart';
+import 'models/category_memory_model.dart';
+import 'models/category_override_model.dart';
 import 'models/expense_model.dart';
 import 'models/loan_model.dart';
 import 'models/revenue_model.dart';
@@ -55,44 +56,9 @@ final _entities = <obx_int.ModelEntity>[
     backlinks: <obx_int.ModelBacklink>[],
   ),
   obx_int.ModelEntity(
-    id: const obx_int.IdUid(2, 637957068368109063),
-    name: 'CategoryModel',
-    lastPropertyId: const obx_int.IdUid(5, 2223950211617359170),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 4274885399649890297),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 6079627583281643679),
-        name: 'name',
-        type: 9,
-        flags: 2048,
-        indexId: const obx_int.IdUid(2, 2810518327203723333),
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 2964126038854478579),
-        name: 'icon',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 6632633250043774965),
-        name: 'color',
-        type: 6,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[],
-    backlinks: <obx_int.ModelBacklink>[],
-  ),
-  obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 1032015678209972615),
     name: 'ExpenseModel',
-    lastPropertyId: const obx_int.IdUid(11, 2441240728905768112),
+    lastPropertyId: const obx_int.IdUid(12, 8351109485124106539),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -112,12 +78,6 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(3, 197846412074687742),
         name: 'amount',
         type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 6567315342602454646),
-        name: 'categoryId',
-        type: 6,
         flags: 0,
       ),
       obx_int.ModelProperty(
@@ -161,6 +121,13 @@ final _entities = <obx_int.ModelEntity>[
         name: 'receiptPath',
         type: 9,
         flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 8351109485124106539),
+        name: 'categorySlug',
+        type: 9,
+        flags: 2048,
+        indexId: const obx_int.IdUid(8, 2090751105594956392),
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -281,7 +248,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(5, 3358114112895883942),
     name: 'RevenueModel',
-    lastPropertyId: const obx_int.IdUid(10, 1302652480411191202),
+    lastPropertyId: const obx_int.IdUid(11, 3735809197028549779),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -338,6 +305,13 @@ final _entities = <obx_int.ModelEntity>[
         name: 'parentId',
         type: 6,
         flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 3735809197028549779),
+        name: 'categorySlug',
+        type: 9,
+        flags: 2048,
+        indexId: const obx_int.IdUid(10, 8794940862762798163),
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -437,6 +411,94 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(8, 1277046985070582395),
+    name: 'CategoryOverrideModel',
+    lastPropertyId: const obx_int.IdUid(5, 4682048336154088821),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5688174198000870451),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 5708900184039906668),
+        name: 'slug',
+        type: 9,
+        flags: 2080,
+        indexId: const obx_int.IdUid(7, 4629863051053178780),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 1557880881204254762),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 4700457419444168703),
+        name: 'icon',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 4682048336154088821),
+        name: 'color',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(9, 2229829926542213902),
+    name: 'CategoryMemoryModel',
+    lastPropertyId: const obx_int.IdUid(6, 1978380619418795510),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5493594461019541539),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 4224412798548071027),
+        name: 'key',
+        type: 9,
+        flags: 2080,
+        indexId: const obx_int.IdUid(9, 561605749385287942),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 5093755349444568856),
+        name: 'slug',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 1414969593431498966),
+        name: 'corrections',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 572874301802069433),
+        name: 'useMemory',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 1978380619418795510),
+        name: 'updatedAt',
+        type: 10,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -482,17 +544,22 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(7, 5565231467975372089),
-    lastIndexId: const obx_int.IdUid(6, 7186843688021626475),
+    lastEntityId: const obx_int.IdUid(9, 2229829926542213902),
+    lastIndexId: const obx_int.IdUid(10, 8794940862762798163),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
-    retiredEntityUids: const [],
+    retiredEntityUids: const [637957068368109063],
     retiredIndexUids: const [],
     retiredPropertyUids: const [
       3745183620062731729,
       2052082936511433960,
       5939978804947497821,
       2223950211617359170,
+      6567315342602454646,
+      4274885399649890297,
+      6079627583281643679,
+      2964126038854478579,
+      6632633250043774965,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -535,44 +602,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
-    CategoryModel: obx_int.EntityDefinition<CategoryModel>(
-      model: _entities[1],
-      toOneRelations: (CategoryModel object) => [],
-      toManyRelations: (CategoryModel object) => {},
-      getId: (CategoryModel object) => object.id,
-      setId: (CategoryModel object, int id) {
-        object.id = id;
-      },
-      objectToFB: (CategoryModel object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        final iconOffset = fbb.writeString(object.icon);
-        fbb.startTable(6);
-        fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.addOffset(2, iconOffset);
-        fbb.addInt64(3, object.color);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-
-        final object = CategoryModel()
-          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
-          ..icon = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 8, '')
-          ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
-
-        return object;
-      },
-    ),
     ExpenseModel: obx_int.EntityDefinition<ExpenseModel>(
-      model: _entities[2],
+      model: _entities[1],
       toOneRelations: (ExpenseModel object) => [],
       toManyRelations: (ExpenseModel object) => {},
       getId: (ExpenseModel object) => object.id,
@@ -585,11 +616,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final receiptPathOffset = object.receiptPath == null
             ? null
             : fbb.writeString(object.receiptPath!);
-        fbb.startTable(12);
+        final categorySlugOffset = object.categorySlug == null
+            ? null
+            : fbb.writeString(object.categorySlug!);
+        fbb.startTable(13);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
-        fbb.addInt64(3, object.categoryId);
         fbb.addInt64(4, object.startDate.millisecondsSinceEpoch);
         fbb.addOffset(5, frequencyOffset);
         fbb.addInt64(6, object.accountId);
@@ -597,6 +630,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(8, object.endDate?.millisecondsSinceEpoch);
         fbb.addInt64(9, object.parentId);
         fbb.addOffset(10, receiptPathOffset);
+        fbb.addOffset(11, categorySlugOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -617,12 +651,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             8,
-            0,
-          )
-          ..categoryId = const fb.Int64Reader().vTableGet(
-            buffer,
-            rootOffset,
-            10,
             0,
           )
           ..startDate = DateTime.fromMillisecondsSinceEpoch(
@@ -652,13 +680,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           )
           ..receiptPath = const fb.StringReader(
             asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 24);
+          ).vTableGetNullable(buffer, rootOffset, 24)
+          ..categorySlug = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 26);
 
         return object;
       },
     ),
     LoanModel: obx_int.EntityDefinition<LoanModel>(
-      model: _entities[3],
+      model: _entities[2],
       toOneRelations: (LoanModel object) => [],
       toManyRelations: (LoanModel object) => {},
       getId: (LoanModel object) => object.id,
@@ -802,7 +833,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
     ),
     RevenueModel: obx_int.EntityDefinition<RevenueModel>(
-      model: _entities[4],
+      model: _entities[3],
       toOneRelations: (RevenueModel object) => [],
       toManyRelations: (RevenueModel object) => {},
       getId: (RevenueModel object) => object.id,
@@ -812,7 +843,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (RevenueModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final frequencyOffset = fbb.writeString(object.frequency);
-        fbb.startTable(11);
+        final categorySlugOffset = object.categorySlug == null
+            ? null
+            : fbb.writeString(object.categorySlug!);
+        fbb.startTable(12);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.accountId);
@@ -822,6 +856,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(7, frequencyOffset);
         fbb.addInt64(8, object.endDate?.millisecondsSinceEpoch);
         fbb.addInt64(9, object.parentId);
+        fbb.addOffset(10, categorySlugOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -868,13 +903,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             22,
-          );
+          )
+          ..categorySlug = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 24);
 
         return object;
       },
     ),
     BeneficiaryModel: obx_int.EntityDefinition<BeneficiaryModel>(
-      model: _entities[5],
+      model: _entities[4],
       toOneRelations: (BeneficiaryModel object) => [],
       toManyRelations: (BeneficiaryModel object) => {},
       getId: (BeneficiaryModel object) => object.id,
@@ -905,7 +943,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
     ),
     TransferModel: obx_int.EntityDefinition<TransferModel>(
-      model: _entities[6],
+      model: _entities[5],
       toOneRelations: (TransferModel object) => [],
       toManyRelations: (TransferModel object) => {},
       getId: (TransferModel object) => object.id,
@@ -977,6 +1015,107 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    CategoryOverrideModel: obx_int.EntityDefinition<CategoryOverrideModel>(
+      model: _entities[6],
+      toOneRelations: (CategoryOverrideModel object) => [],
+      toManyRelations: (CategoryOverrideModel object) => {},
+      getId: (CategoryOverrideModel object) => object.id,
+      setId: (CategoryOverrideModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (CategoryOverrideModel object, fb.Builder fbb) {
+        final slugOffset = fbb.writeString(object.slug);
+        final nameOffset = object.name == null
+            ? null
+            : fbb.writeString(object.name!);
+        final iconOffset = object.icon == null
+            ? null
+            : fbb.writeString(object.icon!);
+        fbb.startTable(6);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, slugOffset);
+        fbb.addOffset(2, nameOffset);
+        fbb.addOffset(3, iconOffset);
+        fbb.addInt64(4, object.color);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+
+        final object = CategoryOverrideModel()
+          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+          ..slug = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 8)
+          ..icon = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 10)
+          ..color = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            12,
+          );
+
+        return object;
+      },
+    ),
+    CategoryMemoryModel: obx_int.EntityDefinition<CategoryMemoryModel>(
+      model: _entities[7],
+      toOneRelations: (CategoryMemoryModel object) => [],
+      toManyRelations: (CategoryMemoryModel object) => {},
+      getId: (CategoryMemoryModel object) => object.id,
+      setId: (CategoryMemoryModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (CategoryMemoryModel object, fb.Builder fbb) {
+        final keyOffset = fbb.writeString(object.key);
+        final slugOffset = fbb.writeString(object.slug);
+        fbb.startTable(7);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, keyOffset);
+        fbb.addOffset(2, slugOffset);
+        fbb.addInt64(3, object.corrections);
+        fbb.addBool(4, object.useMemory);
+        fbb.addInt64(5, object.updatedAt.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+
+        final object = CategoryMemoryModel()
+          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+          ..key = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 6, '')
+          ..slug = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGet(buffer, rootOffset, 8, '')
+          ..corrections = const fb.Int64Reader().vTableGet(
+            buffer,
+            rootOffset,
+            10,
+            0,
+          )
+          ..useMemory = const fb.BoolReader().vTableGet(
+            buffer,
+            rootOffset,
+            12,
+            false,
+          )
+          ..updatedAt = DateTime.fromMillisecondsSinceEpoch(
+            const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
+          );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -1000,84 +1139,61 @@ class AccountModel_ {
   );
 }
 
-/// [CategoryModel] entity fields to define ObjectBox queries.
-class CategoryModel_ {
-  /// See [CategoryModel.id].
-  static final id = obx.QueryIntegerProperty<CategoryModel>(
-    _entities[1].properties[0],
-  );
-
-  /// See [CategoryModel.name].
-  static final name = obx.QueryStringProperty<CategoryModel>(
-    _entities[1].properties[1],
-  );
-
-  /// See [CategoryModel.icon].
-  static final icon = obx.QueryStringProperty<CategoryModel>(
-    _entities[1].properties[2],
-  );
-
-  /// See [CategoryModel.color].
-  static final color = obx.QueryIntegerProperty<CategoryModel>(
-    _entities[1].properties[3],
-  );
-}
-
 /// [ExpenseModel] entity fields to define ObjectBox queries.
 class ExpenseModel_ {
   /// See [ExpenseModel.id].
   static final id = obx.QueryIntegerProperty<ExpenseModel>(
-    _entities[2].properties[0],
+    _entities[1].properties[0],
   );
 
   /// See [ExpenseModel.name].
   static final name = obx.QueryStringProperty<ExpenseModel>(
-    _entities[2].properties[1],
+    _entities[1].properties[1],
   );
 
   /// See [ExpenseModel.amount].
   static final amount = obx.QueryDoubleProperty<ExpenseModel>(
-    _entities[2].properties[2],
-  );
-
-  /// See [ExpenseModel.categoryId].
-  static final categoryId = obx.QueryIntegerProperty<ExpenseModel>(
-    _entities[2].properties[3],
+    _entities[1].properties[2],
   );
 
   /// See [ExpenseModel.startDate].
   static final startDate = obx.QueryDateProperty<ExpenseModel>(
-    _entities[2].properties[4],
+    _entities[1].properties[3],
   );
 
   /// See [ExpenseModel.frequency].
   static final frequency = obx.QueryStringProperty<ExpenseModel>(
-    _entities[2].properties[5],
+    _entities[1].properties[4],
   );
 
   /// See [ExpenseModel.accountId].
   static final accountId = obx.QueryIntegerProperty<ExpenseModel>(
-    _entities[2].properties[6],
+    _entities[1].properties[5],
   );
 
   /// See [ExpenseModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<ExpenseModel>(
-    _entities[2].properties[7],
+    _entities[1].properties[6],
   );
 
   /// See [ExpenseModel.endDate].
   static final endDate = obx.QueryDateProperty<ExpenseModel>(
-    _entities[2].properties[8],
+    _entities[1].properties[7],
   );
 
   /// See [ExpenseModel.parentId].
   static final parentId = obx.QueryIntegerProperty<ExpenseModel>(
-    _entities[2].properties[9],
+    _entities[1].properties[8],
   );
 
   /// See [ExpenseModel.receiptPath].
   static final receiptPath = obx.QueryStringProperty<ExpenseModel>(
-    _entities[2].properties[10],
+    _entities[1].properties[9],
+  );
+
+  /// See [ExpenseModel.categorySlug].
+  static final categorySlug = obx.QueryStringProperty<ExpenseModel>(
+    _entities[1].properties[10],
   );
 }
 
@@ -1085,87 +1201,87 @@ class ExpenseModel_ {
 class LoanModel_ {
   /// See [LoanModel.id].
   static final id = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[0],
+    _entities[2].properties[0],
   );
 
   /// See [LoanModel.name].
   static final name = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[1],
+    _entities[2].properties[1],
   );
 
   /// See [LoanModel.amount].
   static final amount = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[2],
+    _entities[2].properties[2],
   );
 
   /// See [LoanModel.lenderName].
   static final lenderName = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[3],
+    _entities[2].properties[3],
   );
 
   /// See [LoanModel.dayOfMonth].
   static final dayOfMonth = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[4],
+    _entities[2].properties[4],
   );
 
   /// See [LoanModel.startDate].
   static final startDate = obx.QueryDateProperty<LoanModel>(
-    _entities[3].properties[5],
+    _entities[2].properties[5],
   );
 
   /// See [LoanModel.endDate].
   static final endDate = obx.QueryDateProperty<LoanModel>(
-    _entities[3].properties[6],
+    _entities[2].properties[6],
   );
 
   /// See [LoanModel.accountId].
   static final accountId = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[7],
+    _entities[2].properties[7],
   );
 
   /// See [LoanModel.notes].
   static final notes = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[8],
+    _entities[2].properties[8],
   );
 
   /// See [LoanModel.interestRate].
   static final interestRate = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[9],
+    _entities[2].properties[9],
   );
 
   /// See [LoanModel.duration].
   static final duration = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[10],
+    _entities[2].properties[10],
   );
 
   /// See [LoanModel.insuranceValue].
   static final insuranceValue = obx.QueryDoubleProperty<LoanModel>(
-    _entities[3].properties[11],
+    _entities[2].properties[11],
   );
 
   /// See [LoanModel.insuranceTypeId].
   static final insuranceTypeId = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[12],
+    _entities[2].properties[12],
   );
 
   /// See [LoanModel.repaymentTypeId].
   static final repaymentTypeId = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[13],
+    _entities[2].properties[13],
   );
 
   /// See [LoanModel.deferredMonths].
   static final deferredMonths = obx.QueryIntegerProperty<LoanModel>(
-    _entities[3].properties[14],
+    _entities[2].properties[14],
   );
 
   /// See [LoanModel.insuranceCalculationModeId].
   static final insuranceCalculationModeId = obx.QueryStringProperty<LoanModel>(
-    _entities[3].properties[15],
+    _entities[2].properties[15],
   );
 
   /// See [LoanModel.immediateFirstPayment].
   static final immediateFirstPayment = obx.QueryBooleanProperty<LoanModel>(
-    _entities[3].properties[16],
+    _entities[2].properties[16],
   );
 }
 
@@ -1173,47 +1289,52 @@ class LoanModel_ {
 class RevenueModel_ {
   /// See [RevenueModel.id].
   static final id = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[0],
+    _entities[3].properties[0],
   );
 
   /// See [RevenueModel.name].
   static final name = obx.QueryStringProperty<RevenueModel>(
-    _entities[4].properties[1],
+    _entities[3].properties[1],
   );
 
   /// See [RevenueModel.accountId].
   static final accountId = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[2],
+    _entities[3].properties[2],
   );
 
   /// See [RevenueModel.amount].
   static final amount = obx.QueryDoubleProperty<RevenueModel>(
-    _entities[4].properties[3],
+    _entities[3].properties[3],
   );
 
   /// See [RevenueModel.startDate].
   static final startDate = obx.QueryDateProperty<RevenueModel>(
-    _entities[4].properties[4],
+    _entities[3].properties[4],
   );
 
   /// See [RevenueModel.beneficiaryId].
   static final beneficiaryId = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[5],
+    _entities[3].properties[5],
   );
 
   /// See [RevenueModel.frequency].
   static final frequency = obx.QueryStringProperty<RevenueModel>(
-    _entities[4].properties[6],
+    _entities[3].properties[6],
   );
 
   /// See [RevenueModel.endDate].
   static final endDate = obx.QueryDateProperty<RevenueModel>(
-    _entities[4].properties[7],
+    _entities[3].properties[7],
   );
 
   /// See [RevenueModel.parentId].
   static final parentId = obx.QueryIntegerProperty<RevenueModel>(
-    _entities[4].properties[8],
+    _entities[3].properties[8],
+  );
+
+  /// See [RevenueModel.categorySlug].
+  static final categorySlug = obx.QueryStringProperty<RevenueModel>(
+    _entities[3].properties[9],
   );
 }
 
@@ -1221,17 +1342,17 @@ class RevenueModel_ {
 class BeneficiaryModel_ {
   /// See [BeneficiaryModel.id].
   static final id = obx.QueryIntegerProperty<BeneficiaryModel>(
-    _entities[5].properties[0],
+    _entities[4].properties[0],
   );
 
   /// See [BeneficiaryModel.name].
   static final name = obx.QueryStringProperty<BeneficiaryModel>(
-    _entities[5].properties[1],
+    _entities[4].properties[1],
   );
 
   /// See [BeneficiaryModel.color].
   static final color = obx.QueryIntegerProperty<BeneficiaryModel>(
-    _entities[5].properties[2],
+    _entities[4].properties[2],
   );
 }
 
@@ -1239,46 +1360,107 @@ class BeneficiaryModel_ {
 class TransferModel_ {
   /// See [TransferModel.id].
   static final id = obx.QueryIntegerProperty<TransferModel>(
-    _entities[6].properties[0],
+    _entities[5].properties[0],
   );
 
   /// See [TransferModel.name].
   static final name = obx.QueryStringProperty<TransferModel>(
-    _entities[6].properties[1],
+    _entities[5].properties[1],
   );
 
   /// See [TransferModel.amount].
   static final amount = obx.QueryDoubleProperty<TransferModel>(
-    _entities[6].properties[2],
+    _entities[5].properties[2],
   );
 
   /// See [TransferModel.fromAccountId].
   static final fromAccountId = obx.QueryIntegerProperty<TransferModel>(
-    _entities[6].properties[3],
+    _entities[5].properties[3],
   );
 
   /// See [TransferModel.toAccountId].
   static final toAccountId = obx.QueryIntegerProperty<TransferModel>(
-    _entities[6].properties[4],
+    _entities[5].properties[4],
   );
 
   /// See [TransferModel.startDate].
   static final startDate = obx.QueryDateProperty<TransferModel>(
-    _entities[6].properties[5],
+    _entities[5].properties[5],
   );
 
   /// See [TransferModel.frequency].
   static final frequency = obx.QueryStringProperty<TransferModel>(
-    _entities[6].properties[6],
+    _entities[5].properties[6],
   );
 
   /// See [TransferModel.endDate].
   static final endDate = obx.QueryDateProperty<TransferModel>(
-    _entities[6].properties[7],
+    _entities[5].properties[7],
   );
 
   /// See [TransferModel.parentId].
   static final parentId = obx.QueryIntegerProperty<TransferModel>(
-    _entities[6].properties[8],
+    _entities[5].properties[8],
+  );
+}
+
+/// [CategoryOverrideModel] entity fields to define ObjectBox queries.
+class CategoryOverrideModel_ {
+  /// See [CategoryOverrideModel.id].
+  static final id = obx.QueryIntegerProperty<CategoryOverrideModel>(
+    _entities[6].properties[0],
+  );
+
+  /// See [CategoryOverrideModel.slug].
+  static final slug = obx.QueryStringProperty<CategoryOverrideModel>(
+    _entities[6].properties[1],
+  );
+
+  /// See [CategoryOverrideModel.name].
+  static final name = obx.QueryStringProperty<CategoryOverrideModel>(
+    _entities[6].properties[2],
+  );
+
+  /// See [CategoryOverrideModel.icon].
+  static final icon = obx.QueryStringProperty<CategoryOverrideModel>(
+    _entities[6].properties[3],
+  );
+
+  /// See [CategoryOverrideModel.color].
+  static final color = obx.QueryIntegerProperty<CategoryOverrideModel>(
+    _entities[6].properties[4],
+  );
+}
+
+/// [CategoryMemoryModel] entity fields to define ObjectBox queries.
+class CategoryMemoryModel_ {
+  /// See [CategoryMemoryModel.id].
+  static final id = obx.QueryIntegerProperty<CategoryMemoryModel>(
+    _entities[7].properties[0],
+  );
+
+  /// See [CategoryMemoryModel.key].
+  static final key = obx.QueryStringProperty<CategoryMemoryModel>(
+    _entities[7].properties[1],
+  );
+
+  /// See [CategoryMemoryModel.slug].
+  static final slug = obx.QueryStringProperty<CategoryMemoryModel>(
+    _entities[7].properties[2],
+  );
+
+  /// See [CategoryMemoryModel.corrections].
+  static final corrections = obx.QueryIntegerProperty<CategoryMemoryModel>(
+    _entities[7].properties[3],
+  );
+
+  /// See [CategoryMemoryModel.useMemory].
+  static final useMemory = obx.QueryBooleanProperty<CategoryMemoryModel>(
+    _entities[7].properties[4],
+  );
+
+  /// See [CategoryMemoryModel.updatedAt].
+  static final updatedAt = obx.QueryDateProperty<CategoryMemoryModel>(
+    _entities[7].properties[5],
   );
 }

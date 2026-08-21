@@ -60,7 +60,8 @@ class DataNotifier extends _$DataNotifier {
     return DataImportService(
       accountRepo: ref.read(accountRepositoryProvider),
       beneficiaryRepo: ref.read(beneficiaryRepositoryProvider),
-      categoryRepo: ref.read(categoryRepositoryProvider),
+      categoryOverrideRepo: ref.read(categoryOverrideRepositoryProvider),
+      categoryMemoryRepo: ref.read(categoryMemoryRepositoryProvider),
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
@@ -72,7 +73,8 @@ class DataNotifier extends _$DataNotifier {
     return DataExportService(
       accountRepo: ref.read(accountRepositoryProvider),
       beneficiaryRepo: ref.read(beneficiaryRepositoryProvider),
-      categoryRepo: ref.read(categoryRepositoryProvider),
+      categoryOverrideRepo: ref.read(categoryOverrideRepositoryProvider),
+      categoryMemoryRepo: ref.read(categoryMemoryRepositoryProvider),
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
@@ -143,9 +145,6 @@ class DataNotifier extends _$DataNotifier {
         },
       );
 
-      if (validated.hasCategories) {
-        await PreferencesService.setCategoriesCreated();
-      }
 
       state = state.copyWith(
         importProgress: 1.0,
@@ -171,7 +170,8 @@ class DataNotifier extends _$DataNotifier {
       ref.read(revenueRepositoryProvider).deleteAll();
       ref.read(loanRepositoryProvider).deleteAll();
       ref.read(transferRepositoryProvider).deleteAll();
-      ref.read(categoryRepositoryProvider).deleteAll();
+      ref.read(categoryOverrideRepositoryProvider).deleteAll();
+      ref.read(categoryMemoryRepositoryProvider).deleteAll();
 
       await PreferencesService.clearAll();
     } catch (e) {

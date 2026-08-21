@@ -21,7 +21,9 @@ import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class QuickAddConfirmationCard extends ConsumerStatefulWidget {
   final QuickAddResultModel result;
@@ -48,39 +50,43 @@ class _QuickAddConfirmationCardState
 
   bool get _isIncome => widget.result.type == TransactionType.income;
 
+  CategoryDisplay? get _category {
+    final slug = widget.result.categorySlug;
+    if (slug == null) return null;
+    return ref.watch(categoryDisplayResolverProvider).value?.resolve(slug);
+  }
+
   String _categoryLabel() {
     if (_isIncome) return 'Revenu';
-    if (widget.result.newCategory != null) {
-      return widget.result.newCategory!;
-    }
-    final categories = ref.read(categoryProvider).value ?? [];
-    final cat = categories.where((c) => c.id == widget.result.categoryId);
-    return cat.isNotEmpty ? cat.first.name : 'Catégorie inconnue';
+    final category = _category;
+    if (category == null) return 'Choisir une catégorie';
+    return '${category.groupLabel} · ${category.label}';
   }
 
   IconData _categoryIcon() {
     if (_isIncome) return Symbols.paid_rounded;
-    if (widget.result.newCategory != null) {
-      return CategoryDefaults.resolveIcon(
-        widget.result.newCategoryIcon ?? CategoryDefaults.defaultIcon,
-      );
-    }
-    final categories = ref.read(categoryProvider).value ?? [];
-    final cat = categories.where((c) => c.id == widget.result.categoryId);
-    return cat.isNotEmpty ? cat.first.getIconData() : Symbols.category_rounded;
+    final category = _category;
+    return category == null
+        ? Symbols.category_rounded
+        : CategoryDefaults.resolveIcon(category.icon);
   }
 
   Color _categoryColor() {
     if (_isIncome) return context.financeColors.income;
-    if (widget.result.newCategoryColor != null) {
-      return Color(widget.result.newCategoryColor!);
-    }
-    if (widget.result.categoryId != null) {
-      final categories = ref.read(categoryProvider).value ?? [];
-      final cat = categories.where((c) => c.id == widget.result.categoryId);
-      if (cat.isNotEmpty) return Color(cat.first.color);
-    }
-    return Theme.of(context).colorScheme.primary;
+    final category = _category;
+    return category == null
+        ? Theme.of(context).colorScheme.primary
+        : Color(category.color);
+  }
+
+  Future<void> _pickCategory() async {
+    final slug = await CategoryPickerSheet.show(
+      context,
+      selectedSlug: widget.result.categorySlug,
+      suggestions: widget.result.categorySuggestions,
+    );
+    if (slug == null) return;
+    ref.read(quickAddProvider.notifier).selectCategory(slug);
   }
 
   void _openFullForm() {
@@ -114,17 +120,14 @@ class _QuickAddConfirmationCardState
       return;
     }
 
-    final categories = ref.read(categoryProvider).value ?? [];
-
     ExpenseBottomSheet.show(
       context: ctx,
       accounts: accounts,
-      categories: categories,
       closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
       expense: ExpenseModel.create(
         name: widget.result.name,
         amount: widget.result.amount,
-        categoryId: widget.result.categoryId ?? 0,
+        categorySlug: widget.result.categorySlug,
         startDate: DateTime.now(),
         frequency: widget.result.frequency,
         accountId: _selectedAccountId ?? accounts.first.id,
@@ -230,7 +233,8 @@ class _QuickAddConfirmationCardState
             amount: widget.result.amount,
             amountColor: _isIncome ? finance.income : finance.expense,
             amountSign: _isIncome ? '+' : '−',
-            isNewCategory: widget.result.newCategory != null,
+            needsConfirmation: widget.result.needsCategoryConfirmation,
+            onCategoryTap: _isIncome ? null : _pickCategory,
           ),
           const SizedBox(height: 12),
           if (accounts.isNotEmpty)
@@ -274,7 +278,8 @@ class _ParsedRow extends StatelessWidget {
   final double amount;
   final Color amountColor;
   final String amountSign;
-  final bool isNewCategory;
+  final bool needsConfirmation;
+  final VoidCallback? onCategoryTap;
 
   const _ParsedRow({
     required this.name,
@@ -285,7 +290,8 @@ class _ParsedRow extends StatelessWidget {
     required this.amount,
     required this.amountColor,
     required this.amountSign,
-    required this.isNewCategory,
+    required this.needsConfirmation,
+    required this.onCategoryTap,
   });
 
   @override
@@ -295,7 +301,10 @@ class _ParsedRow extends StatelessWidget {
 
     return Row(
       children: [
-        CategoryIcon(icon: icon, color: color, size: CategoryIconSize.sm),
+        GestureDetector(
+          onTap: onCategoryTap,
+          child: CategoryIcon(icon: icon, color: color, size: CategoryIconSize.sm),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -317,18 +326,21 @@ class _ParsedRow extends StatelessWidget {
               Row(
                 children: [
                   Flexible(
-                    child: Text(
-                      '$categoryLabel · $frequencyLabel',
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 16 / 12,
-                        color: scheme.onSurfaceVariant,
+                    child: GestureDetector(
+                      onTap: onCategoryTap,
+                      child: Text(
+                        '$categoryLabel · $frequencyLabel',
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 16 / 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (isNewCategory) ...[
+                  if (needsConfirmation) ...[
                     const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -340,7 +352,7 @@ class _ParsedRow extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'nouvelle',
+                        'à confirmer',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w500,

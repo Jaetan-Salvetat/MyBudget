@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
 class ScannedItemEditBottomSheet extends StatefulWidget {
   final ScannedItemModel item;
-  final List<CategoryModel> categories;
-  final void Function(int categoryId, String categoryName) onCategoryChanged;
+  final List<CategoryDisplay> categories;
+  final void Function(String categorySlug, String categoryName)
+      onCategoryChanged;
   final void Function(double amount) onAmountChanged;
   final void Function(double discount) onDiscountChanged;
   final VoidCallback onDelete;
@@ -25,8 +26,9 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
   static void show({
     required BuildContext context,
     required ScannedItemModel item,
-    required List<CategoryModel> categories,
-    required void Function(int categoryId, String categoryName) onCategoryChanged,
+    required List<CategoryDisplay> categories,
+    required void Function(String categorySlug, String categoryName)
+        onCategoryChanged,
     required void Function(double amount) onAmountChanged,
     required void Function(double discount) onDiscountChanged,
     required VoidCallback onDelete,
@@ -54,7 +56,7 @@ class _ScannedItemEditBottomSheetState
     extends State<ScannedItemEditBottomSheet> {
   late final TextEditingController _amountController;
   late final TextEditingController _discountController;
-  int? _selectedCategoryId;
+  String? _selectedCategorySlug;
 
   @override
   void initState() {
@@ -65,7 +67,7 @@ class _ScannedItemEditBottomSheetState
     _discountController = TextEditingController(
       text: widget.item.discount.toStringAsFixed(2),
     );
-    _selectedCategoryId = widget.item.categoryId;
+    _selectedCategorySlug = widget.item.categorySlug;
   }
 
   @override
@@ -109,21 +111,21 @@ class _ScannedItemEditBottomSheetState
             onChanged: (_) => _handleDiscountChanged(),
           ),
           const SizedBox(height: 16),
-          FrostedDropdown<int>(
-            value: _selectedCategoryId,
+          FrostedDropdown<String>(
+            value: _selectedCategorySlug,
             items: widget.categories.map((category) {
-              return DropdownMenuItem<int>(
-                value: category.id,
-                child: Text(category.name),
+              return DropdownMenuItem<String>(
+                value: category.slug,
+                child: Text('${category.groupLabel} · ${category.label}'),
               );
             }).toList(),
             onChanged: (value) {
               if (value != null) {
-                setState(() => _selectedCategoryId = value);
+                setState(() => _selectedCategorySlug = value);
                 final category = widget.categories.firstWhere(
-                  (c) => c.id == value,
+                  (c) => c.slug == value,
                 );
-                widget.onCategoryChanged(value, category.name);
+                widget.onCategoryChanged(value, category.label);
               }
             },
             hint: 'Catégorie',

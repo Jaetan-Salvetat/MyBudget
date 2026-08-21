@@ -227,50 +227,63 @@ final class UpcomingExpensesProvider
 
 String _$upcomingExpensesHash() => r'8908328bd73786860ade4a4427ef726b3d45604b';
 
-@ProviderFor(expensesByCategory)
-final expensesByCategoryProvider = ExpensesByCategoryProvider._();
+/// Monthly totals per taxonomy group key, for the dashboard breakdown.
+///
+/// Aggregation happens at group level: 11 expense groups stay readable where 59
+/// leaves would not.
 
-final class ExpensesByCategoryProvider
+@ProviderFor(expensesByGroup)
+final expensesByGroupProvider = ExpensesByGroupProvider._();
+
+/// Monthly totals per taxonomy group key, for the dashboard breakdown.
+///
+/// Aggregation happens at group level: 11 expense groups stay readable where 59
+/// leaves would not.
+
+final class ExpensesByGroupProvider
     extends
         $FunctionalProvider<
-          Map<CategoryModel, double>,
-          Map<CategoryModel, double>,
-          Map<CategoryModel, double>
+          Map<String, double>,
+          Map<String, double>,
+          Map<String, double>
         >
-    with $Provider<Map<CategoryModel, double>> {
-  ExpensesByCategoryProvider._()
+    with $Provider<Map<String, double>> {
+  /// Monthly totals per taxonomy group key, for the dashboard breakdown.
+  ///
+  /// Aggregation happens at group level: 11 expense groups stay readable where 59
+  /// leaves would not.
+  ExpensesByGroupProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'expensesByCategoryProvider',
+        name: r'expensesByGroupProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$expensesByCategoryHash();
+  String debugGetCreateSourceHash() => _$expensesByGroupHash();
 
   @$internal
   @override
-  $ProviderElement<Map<CategoryModel, double>> $createElement(
+  $ProviderElement<Map<String, double>> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  Map<CategoryModel, double> create(Ref ref) {
-    return expensesByCategory(ref);
+  Map<String, double> create(Ref ref) {
+    return expensesByGroup(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Map<CategoryModel, double> value) {
+  Override overrideWithValue(Map<String, double> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Map<CategoryModel, double>>(value),
+      providerOverride: $SyncValueProvider<Map<String, double>>(value),
     );
   }
 }
 
-String _$expensesByCategoryHash() =>
-    r'7b9a8d4959dce977b753452293b6bcd6f7ea96a8';
+String _$expensesByGroupHash() => r'4dda8c09f8f449a6514f62aad7f9ea1b1ff9621b';

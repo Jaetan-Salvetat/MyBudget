@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:openai_dart/openai_dart.dart';
 
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
@@ -22,9 +22,9 @@ class ReceiptScanService {
 
   Future<ReceiptScanResultModel> extractItems(
     Uint8List imageBytes,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) async {
-    final categoryNames = categories.map((c) => c.name).toList();
+    final categoryNames = categories.map(_qualifiedName).toList();
     final prompt = _buildPrompt(categoryNames);
     final base64Image = base64Encode(imageBytes);
 
@@ -102,7 +102,7 @@ class ReceiptScanService {
 
   ReceiptScanResultModel _parseResponse(
     String jsonText,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
     final Map<String, dynamic> json =
         jsonDecode(jsonText) as Map<String, dynamic>;
@@ -116,14 +116,14 @@ class ReceiptScanService {
     final items = itemsJson.map((item) {
       final Map<String, dynamic> itemMap = item as Map<String, dynamic>;
       final String? categoryName = itemMap['category'] as String?;
-      final int? categoryId = _matchCategory(categoryName, categories);
+      final String? categorySlug = matchCategory(categoryName, categories);
 
       return ScannedItemModel(
         name: itemMap['name'] as String? ?? '',
         amount: (itemMap['amount'] as num?)?.toDouble() ?? 0.0,
         discount: (itemMap['discount'] as num?)?.toDouble() ?? 0.0,
         categoryName: categoryName,
-        categoryId: categoryId,
+        categorySlug: categorySlug,
       );
     }).toList();
 
@@ -134,12 +134,20 @@ class ReceiptScanService {
     );
   }
 
-  int? _matchCategory(String? name, List<CategoryModel> categories) {
+  static String _qualifiedName(CategoryDisplay category) =>
+      '${category.groupLabel} > ${category.label}';
+
+  /// Maps a label produced by the model back to a taxonomy slug.
+  ///
+  /// Accepts both the qualified form sent in the prompt ("Groupe > Feuille")
+  /// and the bare leaf label, since the model drops the prefix at times.
+  static String? matchCategory(String? name, List<CategoryDisplay> categories) {
     if (name == null) return null;
     final lowerName = name.toLowerCase();
     for (final category in categories) {
-      if (category.name.toLowerCase() == lowerName) {
-        return category.id;
+      if (_qualifiedName(category).toLowerCase() == lowerName ||
+          category.label.toLowerCase() == lowerName) {
+        return category.slug;
       }
     }
     return null;

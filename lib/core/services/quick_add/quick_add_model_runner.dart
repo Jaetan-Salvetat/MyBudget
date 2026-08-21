@@ -6,11 +6,21 @@ import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 
 typedef HeadPrediction = ({int index, double confidence});
 
+/// Category prediction with its runners-up, used to seed the picker when
+/// confidence is too low to assign automatically.
+typedef CategoryPrediction = ({
+  int index,
+  double confidence,
+  List<int> topIndices,
+});
+
 typedef QuickAddModelOutput = ({
   HeadPrediction type,
-  HeadPrediction category,
+  CategoryPrediction category,
   HeadPrediction recurrence,
 });
+
+const int kCategorySuggestionCount = 3;
 
 class QuickAddModelRunner {
   static const String assetPath = 'assets/models/model.onnx';
@@ -58,7 +68,7 @@ class QuickAddModelRunner {
 
       return (
         type: _argmaxWithConfidence(typeLogits),
-        category: _argmaxWithConfidence(catLogits),
+        category: _topCategories(catLogits),
         recurrence: _argmaxWithConfidence(recLogits),
       );
     } finally {
@@ -90,6 +100,14 @@ class QuickAddModelRunner {
       }
     }
     return (index: maxIdx, confidence: maxVal);
+  }
+
+  CategoryPrediction _topCategories(List<double> logits) {
+    final probs = _softmax(logits);
+    final ranked = List<int>.generate(probs.length, (i) => i)
+      ..sort((a, b) => probs[b].compareTo(probs[a]));
+    final top = ranked.take(kCategorySuggestionCount).toList();
+    return (index: top.first, confidence: probs[top.first], topIndices: top);
   }
 
   List<double> _softmax(List<double> logits) {

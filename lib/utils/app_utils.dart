@@ -5,7 +5,7 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 
 class AppUtils {
@@ -18,7 +18,7 @@ class AppUtils {
     final container = ProviderScope.containerOf(context);
     container.invalidate(accountProvider);
     container.invalidate(beneficiaryProvider);
-    container.invalidate(categoryProvider);
+    container.invalidate(categoryOverrideProvider);
     container.invalidate(expenseProvider);
     container.invalidate(revenueProvider);
     container.invalidate(loanProvider);

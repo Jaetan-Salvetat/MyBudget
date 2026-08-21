@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_app.dart';
@@ -6,73 +5,55 @@ import '../helpers/test_helpers.dart';
 
 void main() {
   group('Catégories', () {
-    testWidgets('Scenario 15 - Create category appears in list', (tester) async {
+    testWidgets('Scenario 15 - Taxonomy groups are listed', (tester) async {
       await initializeTestApp(tester);
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les catégories');
-      await tapButton(tester, 'Ajouter une catégorie');
-      await enterTextField(tester, 'Nom de la catégorie', 'Transport');
-      await tapButton(tester, 'Ajouter');
 
-      expect(find.text('Transport'), findsOneWidget);
+      expect(find.text('Alimentation'), findsOneWidget);
+      expect(find.text('Restauration'), findsOneWidget);
+      expect(find.text('Voyages'), findsOneWidget);
     });
 
-    testWidgets('Scenario 16 - Edit category', (tester) async {
+    testWidgets('Scenario 16 - A group reveals its subcategories',
+        (tester) async {
       await initializeTestApp(tester);
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les catégories');
-      await tapButton(tester, 'Ajouter une catégorie');
-      await enterTextField(tester, 'Nom de la catégorie', 'Transport');
-      await tapButton(tester, 'Ajouter');
+      await tapButton(tester, 'Restauration');
 
-      await tester.tap(find.text('Transport'));
-      await tester.pumpAndSettle();
+      expect(find.text('Restaurant'), findsOneWidget);
+      expect(find.text('Café'), findsOneWidget);
+      expect(find.text('Livraison'), findsOneWidget);
+    });
 
-      await clearAndEnterTextField(tester, 'Nom de la catégorie', 'Mobilité');
+    testWidgets('Scenario 17 - Renaming a subcategory keeps its slug',
+        (tester) async {
+      await initializeTestApp(tester);
+
+      await navigateToSettings(tester);
+      await tapButton(tester, 'Gérer les catégories');
+      await tapButton(tester, 'Restauration');
+      await tapTooltip(tester, 'Personnaliser', index: 1);
+
+      await clearAndEnterTextField(tester, 'Nom de la catégorie', 'Bistrot');
       await tapButton(tester, 'Enregistrer');
 
-      expect(find.text('Mobilité'), findsOneWidget);
-      expect(find.text('Transport'), findsNothing);
+      expect(find.text('Bistrot'), findsOneWidget);
+      expect(find.text('Restaurant'), findsNothing);
     });
 
-    testWidgets('Scenario 17 - Delete category without linked expenses', (tester) async {
+    testWidgets('Scenario 18 - Categories cannot be created or deleted',
+        (tester) async {
       await initializeTestApp(tester);
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les catégories');
-      await tapButton(tester, 'Ajouter une catégorie');
-      await enterTextField(tester, 'Nom de la catégorie', 'Temporaire');
-      await tapButton(tester, 'Ajouter');
 
-      expect(find.text('Temporaire'), findsOneWidget);
-
-      await tester.tap(find.byIcon(Icons.delete).first);
-      await tester.pumpAndSettle();
-
-      await tapButton(tester, 'Supprimer');
-
-      expect(find.text('Temporaire'), findsNothing);
-    });
-
-    testWidgets('Scenario 18 - Delete category with linked expenses is blocked', (tester) async {
-      await initializeTestApp(tester);
-
-      await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
-      await createExpense(tester, name: 'Loyer', amount: '800');
-
-      await navigateToSettings(tester);
-      await tapButton(tester, 'Gérer les catégories');
-
-      await tester.tap(find.byIcon(Icons.delete).first);
-      await tester.pumpAndSettle();
-
-      expect(find.textContaining('impossible'), findsOneWidget);
-      await tapButton(tester, 'Compris');
-
-      expect(find.text('Logement'), findsOneWidget);
+      expect(find.text('Ajouter une catégorie'), findsNothing);
+      expect(find.text('Supprimer'), findsNothing);
     });
   });
 }

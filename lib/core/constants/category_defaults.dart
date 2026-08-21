@@ -117,26 +117,6 @@ abstract final class CategoryDefaults {
   static const String defaultIcon = 'label';
   static const int defaultColor = 0xFF42A5F5;
 
-  static const List<({String name, String icon, int color})> defaultCategories = [
-    (name: 'Alimentation', icon: 'restaurant', color: 0xFFFFA726),
-    (name: 'Logement', icon: 'home', color: 0xFF42A5F5),
-    (name: 'Transport', icon: 'directions_car', color: 0xFF66BB6A),
-    (name: 'Loisirs', icon: 'sports_esports', color: 0xFFAB47BC),
-    (name: 'Santé', icon: 'medical_services', color: 0xFFEF5350),
-    (name: 'Shopping', icon: 'shopping_bag', color: 0xFFEC407A),
-    (name: 'Abonnements', icon: 'subscriptions', color: 0xFF7E57C2),
-    (name: 'Sport', icon: 'fitness_center', color: 0xFF26A69A),
-    (name: 'Cadeaux', icon: 'card_giftcard', color: 0xFFFF7043),
-    (name: 'Éducation', icon: 'school', color: 0xFF5C6BC0),
-    (name: 'Assurance', icon: 'account_balance', color: 0xFF78909C),
-    (name: 'Animaux', icon: 'pets', color: 0xFF8D6E63),
-    (name: 'Voyages', icon: 'flight_takeoff', color: 0xFF29B6F6),
-    (name: 'Beauté', icon: 'spa', color: 0xFF26C6DA),
-    (name: 'Enfants', icon: 'child_care', color: 0xFFFFCA28),
-    (name: 'Impôts', icon: 'account_balance_wallet', color: 0xFF9CCC65),
-    (name: 'Divers', icon: 'more_horiz', color: 0xFF9E9E9E),
-  ];
-
   static final Map<int, IconData> _iconsByCodePoint = {
     for (final icon in icons.values) icon.codePoint: icon,
   };

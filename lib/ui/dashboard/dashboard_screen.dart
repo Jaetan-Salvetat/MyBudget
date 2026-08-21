@@ -56,12 +56,12 @@ class DashboardScreen extends ConsumerWidget {
             UpcomingMovementsSection(movements: state.upcomingMovements),
             CategoryBreakdownSection(
               categories: state.categorySummaries,
-              onCategoryTap: (categoryId) => Navigator.push(
+              onCategoryTap: (groupKey) => Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => ExpensesScreen(
                     standalone: true,
-                    initialFilter: ExpenseFilterData(categoryIds: [categoryId]),
+                    initialFilter: ExpenseFilterData(groupKeys: [groupKey]),
                   ),
                 ),
               ),

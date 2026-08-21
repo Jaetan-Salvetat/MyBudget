@@ -1,6 +1,7 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/category_memory_model.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -14,7 +15,8 @@ class ObjectBoxService {
   late Store store;
 
   late Box<BeneficiaryModel> beneficiaryBox;
-  late Box<CategoryModel> categoryBox;
+  late Box<CategoryOverrideModel> categoryOverrideBox;
+  late Box<CategoryMemoryModel> categoryMemoryBox;
   late Box<ExpenseModel> expenseBox;
   late Box<RevenueModel> revenueBox;
   late Box<AccountModel> accountBox;
@@ -39,7 +41,8 @@ class ObjectBoxService {
     store = await openStore(directory: storeDir);
 
     beneficiaryBox = Box<BeneficiaryModel>(store);
-    categoryBox = Box<CategoryModel>(store);
+    categoryOverrideBox = Box<CategoryOverrideModel>(store);
+    categoryMemoryBox = Box<CategoryMemoryModel>(store);
     expenseBox = Box<ExpenseModel>(store);
     revenueBox = Box<RevenueModel>(store);
     accountBox = Box<AccountModel>(store);
@@ -62,7 +65,8 @@ class ObjectBoxService {
 
   Future<void> clearAllData() async {
     beneficiaryBox.removeAll();
-    categoryBox.removeAll();
+    categoryOverrideBox.removeAll();
+    categoryMemoryBox.removeAll();
     expenseBox.removeAll();
     revenueBox.removeAll();
     accountBox.removeAll();
