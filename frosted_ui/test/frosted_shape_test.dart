@@ -58,6 +58,26 @@ void main() {
       expect(FrostedShape.rounded.radiusFor(const Size(16, 16)), 8);
     });
 
+    test('rounded takes the radius the component asks for', () {
+      expect(
+        FrostedShape.rounded.radiusFor(
+          const Size(96, 96),
+          roundedRadius: FrostedRadius.xxl,
+        ),
+        FrostedRadius.xxl,
+      );
+    });
+
+    test('pill ignores the rounded radius', () {
+      expect(
+        FrostedShape.pill.radiusFor(
+          const Size(96, 96),
+          roundedRadius: FrostedRadius.xxl,
+        ),
+        48,
+      );
+    });
+
     test('resolve swaps the form while pressed', () {
       expect(
         FrostedShape.pill.resolve(_buttonBox, pressed: false),
@@ -145,6 +165,68 @@ void main() {
       await _press(tester, find.byType(FrostedButton));
 
       expect(_renderedRadius(tester, FrostedButton), BorderRadius.circular(23));
+    });
+  });
+
+  group('FrostedFab shape morphing', () {
+    testWidgets('pill is a circle at rest and rounded on press',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _host(FrostedFab.large(icon: Icons.bolt, onPressed: () {})),
+      );
+
+      expect(_renderedRadius(tester, FrostedFab), BorderRadius.circular(48));
+
+      await _press(tester, find.byType(FrostedFab));
+
+      expect(
+        _renderedRadius(tester, FrostedFab),
+        BorderRadius.circular(FrostedRadius.xxl),
+      );
+    });
+
+    testWidgets('each size carries its own rounded radius',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _host(
+          FrostedFab.small(
+            icon: Icons.add,
+            shape: FrostedShape.rounded,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(
+        _renderedRadius(tester, FrostedFab),
+        BorderRadius.circular(FrostedRadius.md),
+      );
+
+      await _press(tester, find.byType(FrostedFab));
+
+      expect(_renderedRadius(tester, FrostedFab), BorderRadius.circular(20));
+    });
+
+    testWidgets('an extended fab resolves the pill against its height',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _host(
+          FrostedFab.extended(
+            icon: Icons.add,
+            label: 'Compose',
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(_renderedRadius(tester, FrostedFab), BorderRadius.circular(28));
+
+      await _press(tester, find.byType(FrostedFab));
+
+      expect(
+        _renderedRadius(tester, FrostedFab),
+        BorderRadius.circular(FrostedRadius.lg),
+      );
     });
   });
 

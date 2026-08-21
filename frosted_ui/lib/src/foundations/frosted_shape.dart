@@ -27,18 +27,30 @@ enum FrostedShape {
 
   /// The corner radius this form takes on a box of [size].
   ///
+  /// [pill] is always half the shortest side. [rounded] is a component
+  /// decision — a FAB carries a wider corner than a text button — so it is
+  /// passed in as [roundedRadius].
+  ///
   /// Both forms are capped at half the shortest side, the largest radius a box
   /// can carry before the corners overlap.
-  double radiusFor(Size size) {
+  double radiusFor(Size size, {double roundedRadius = FrostedRadius.md}) {
     final double capacity = size.shortestSide / 2;
     return switch (this) {
       FrostedShape.pill => capacity,
-      FrostedShape.rounded => math.min(FrostedRadius.md, capacity),
+      FrostedShape.rounded => math.min(roundedRadius, capacity),
     };
   }
 
   /// The corner radius for a box of [size] in the given interaction state.
-  BorderRadius resolve(Size size, {required bool pressed}) => BorderRadius.all(
-        Radius.circular((pressed ? opposite : this).radiusFor(size)),
+  BorderRadius resolve(
+    Size size, {
+    required bool pressed,
+    double roundedRadius = FrostedRadius.md,
+  }) =>
+      BorderRadius.all(
+        Radius.circular(
+          (pressed ? opposite : this)
+              .radiusFor(size, roundedRadius: roundedRadius),
+        ),
       );
 }

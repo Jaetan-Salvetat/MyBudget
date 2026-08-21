@@ -16,10 +16,6 @@ class ActionsPage extends StatelessWidget {
         FrostedSpacing.sp7,
       ),
       children: const <Widget>[
-        Section(title: 'Buttons', child: _ButtonsDemo()),
-        SizedBox(height: FrostedSpacing.sp6),
-        Section(title: 'Icon buttons', child: _IconButtonsDemo()),
-        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Shape morphing', child: _ShapeMorphingDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'FAB', child: _FabDemo()),
@@ -35,57 +31,6 @@ class ActionsPage extends StatelessWidget {
         Section(title: 'Toggle buttons', child: _ToggleButtonsDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Split button', child: _SplitButtonDemo()),
-      ],
-    );
-  }
-}
-
-class _ButtonsDemo extends StatelessWidget {
-  const _ButtonsDemo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Wrap(
-          spacing: FrostedSpacing.sp2,
-          runSpacing: FrostedSpacing.sp2,
-          children: <Widget>[
-            FrostedButton.filled(label: 'Filled', onPressed: () {}),
-            FrostedButton.tonal(label: 'Tonal', onPressed: () {}),
-            FrostedButton.outlined(label: 'Outlined', onPressed: () {}),
-            FrostedButton.text(label: 'Text', onPressed: () {}),
-          ],
-        ),
-        const SizedBox(height: FrostedSpacing.sp3),
-        Wrap(
-          spacing: FrostedSpacing.sp2,
-          runSpacing: FrostedSpacing.sp2,
-          children: <Widget>[
-            FrostedButton.filled(
-              label: 'Save',
-              icon: Icons.check,
-              onPressed: () {},
-            ),
-            FrostedButton.tonal(
-              label: 'Continue',
-              trailingIcon: Icons.arrow_forward,
-              onPressed: () {},
-            ),
-            FrostedButton.outlined(
-              label: 'Disabled',
-              onPressed: null,
-            ),
-          ],
-        ),
-        const SizedBox(height: FrostedSpacing.sp3),
-        FrostedButton.filled(
-          label: 'Expanded',
-          icon: Icons.bolt,
-          expanded: true,
-          onPressed: () {},
-        ),
       ],
     );
   }
@@ -162,6 +107,41 @@ class _ShapeMorphingDemo extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp3,
+            runSpacing: FrostedSpacing.sp3,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              FrostedFab.small(
+                icon: Icons.add,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.regular(
+                icon: Icons.edit,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.large(
+                icon: Icons.bolt,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.extended(
+                icon: Icons.add,
+                label: 'New task',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.regular(
+                icon: Icons.mic,
+                tonal: true,
+                shape: shape,
+                onPressed: () {},
+              ),
+            ],
+          ),
           const SizedBox(height: FrostedSpacing.sp4),
         ],
       ],
@@ -185,62 +165,6 @@ class _ShapeLabel extends StatelessWidget {
       style: FrostedTypeScale.labelMedium.copyWith(
         color: cs.onSurfaceVariant,
       ),
-    );
-  }
-}
-
-class _IconButtonsDemo extends StatefulWidget {
-  const _IconButtonsDemo();
-
-  @override
-  State<_IconButtonsDemo> createState() => _IconButtonsDemoState();
-}
-
-class _IconButtonsDemoState extends State<_IconButtonsDemo> {
-  bool _standardSel = false;
-  bool _filledSel = true;
-  bool _tonalSel = false;
-  bool _outlinedSel = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: FrostedSpacing.sp2,
-      runSpacing: FrostedSpacing.sp2,
-      children: <Widget>[
-        FrostedIconButton.standard(
-          icon: Icons.favorite_outline,
-          selectedIcon: Icons.favorite,
-          selected: _standardSel,
-          tooltip: 'Like',
-          onPressed: () => setState(() => _standardSel = !_standardSel),
-        ),
-        FrostedIconButton.filled(
-          icon: Icons.bookmark_outline,
-          selectedIcon: Icons.bookmark,
-          selected: _filledSel,
-          tooltip: 'Save',
-          onPressed: () => setState(() => _filledSel = !_filledSel),
-        ),
-        FrostedIconButton.tonal(
-          icon: Icons.notifications_outlined,
-          selectedIcon: Icons.notifications,
-          selected: _tonalSel,
-          tooltip: 'Notify',
-          onPressed: () => setState(() => _tonalSel = !_tonalSel),
-        ),
-        FrostedIconButton.outlined(
-          icon: Icons.share_outlined,
-          selected: _outlinedSel,
-          tooltip: 'Share',
-          onPressed: () => setState(() => _outlinedSel = !_outlinedSel),
-        ),
-        FrostedIconButton.standard(
-          icon: Icons.delete_outline,
-          tooltip: 'Disabled',
-          onPressed: null,
-        ),
-      ],
     );
   }
 }
