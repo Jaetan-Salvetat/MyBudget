@@ -171,6 +171,7 @@ class FrostedScaffoldState extends State<FrostedScaffold>
                     tone: widget.scrimTone,
                     elevation: FrostedGlassElevation.none,
                     borderRadius: BorderRadius.zero,
+                    borderEdges: FrostedGlassEdge.none,
                     animation: _controller,
                   ),
                 ),

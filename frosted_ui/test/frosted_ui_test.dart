@@ -62,4 +62,115 @@ void main() {
       contains('bounded'),
     );
   });
+
+  testWidgets('FrostedGlass strokes every side by default',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+        home: const Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 200,
+              height: 100,
+              child: FrostedGlass(child: SizedBox.expand()),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final Border border = _glassBorder(tester);
+
+    expect(border.isUniform, isTrue);
+    expect(border.top.style, BorderStyle.solid);
+    expect(border.bottom.style, BorderStyle.solid);
+    expect(border.left.style, BorderStyle.solid);
+    expect(border.right.style, BorderStyle.solid);
+  });
+
+  testWidgets('FrostedGlass drops the sides left out of borderEdges',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+        home: const Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 200,
+              height: 100,
+              child: FrostedGlass(
+                borderRadius: BorderRadius.zero,
+                borderEdges: <FrostedGlassEdge>{FrostedGlassEdge.bottom},
+                child: SizedBox.expand(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final Border border = _glassBorder(tester);
+
+    expect(border.bottom.style, BorderStyle.solid);
+    expect(border.top, BorderSide.none);
+    expect(border.left, BorderSide.none);
+    expect(border.right, BorderSide.none);
+  });
+
+  testWidgets('FrostedGlass rejects partial edges under a rounded radius',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 200,
+              height: 100,
+              child: FrostedGlass(
+                borderRadius: BorderRadius.circular(24),
+                borderEdges: const <FrostedGlassEdge>{FrostedGlassEdge.bottom},
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isAssertionError);
+  });
+
+  testWidgets('FrostedTopBar only strokes the edge facing the content',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+        home: const Scaffold(
+          appBar: FrostedTopBar(title: 'Library'),
+          body: SizedBox.expand(),
+        ),
+      ),
+    );
+
+    final Border border = _glassBorder(tester);
+
+    expect(border.bottom.style, BorderStyle.solid);
+    expect(border.top, BorderSide.none);
+    expect(border.left, BorderSide.none);
+    expect(border.right, BorderSide.none);
+  });
+}
+
+Border _glassBorder(WidgetTester tester) {
+  final DecoratedBox decorated = tester.widget<DecoratedBox>(
+    find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is DecoratedBox &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).border != null,
+    ),
+  );
+  return (decorated.decoration as BoxDecoration).border! as Border;
 }

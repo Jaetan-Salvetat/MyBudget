@@ -87,10 +87,11 @@ class _Delegate extends SliverPersistentHeaderDelegate {
     final TextTheme text = Theme.of(context).textTheme;
 
     return FrostedGlass(
-      level: FrostedGlassLevel.ultraThick,
+      level: FrostedGlassLevel.thick,
       tone: FrostedGlassTone.auto,
       elevation: FrostedGlassElevation.none,
       borderRadius: BorderRadius.zero,
+      borderEdges: const <FrostedGlassEdge>{FrostedGlassEdge.bottom},
       padding: EdgeInsets.only(top: topInset),
       child: SizedBox(
         height: maxExtent - topInset - shrinkOffset.clamp(0.0, range),

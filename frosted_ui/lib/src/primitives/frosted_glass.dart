@@ -28,6 +28,7 @@ class FrostedGlass extends StatelessWidget {
     this.level = FrostedGlassLevel.regular,
     this.tone = FrostedGlassTone.auto,
     this.elevation = FrostedGlassElevation.floating,
+    this.borderEdges = FrostedGlassEdge.all,
     this.animation,
   });
 
@@ -37,6 +38,13 @@ class FrostedGlass extends StatelessWidget {
   final FrostedGlassLevel level;
   final FrostedGlassTone tone;
   final FrostedGlassElevation elevation;
+
+  /// Sides that carry the hairline border.
+  ///
+  /// Leave out any side that sits on a screen edge. Subsets other than
+  /// [FrostedGlassEdge.all] or [FrostedGlassEdge.none] require a
+  /// [BorderRadius.zero] radius.
+  final Set<FrostedGlassEdge> borderEdges;
 
   /// Optional 0→1 driver that reveals the material progressively: blur, veil,
   /// border and shadow all scale with the animation value. When null the glass
@@ -80,6 +88,12 @@ class FrostedGlass extends StatelessWidget {
     final BorderRadiusGeometry radius =
         borderRadius ?? BorderRadius.circular(FrostedRadius.xxl);
 
+    assert(
+      _hasUniformBorder || radius == BorderRadius.zero,
+      'Leaving sides out of borderEdges requires BorderRadius.zero: Flutter '
+      'cannot stroke a non-uniform border under a rounded radius.',
+    );
+
     return DecoratedBox(
       decoration: BoxDecoration(borderRadius: radius, boxShadow: shadow),
       child: ClipRRect(
@@ -100,7 +114,7 @@ class FrostedGlass extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: radius,
-                    border: Border.fromBorderSide(border),
+                    border: _buildBorder(border),
                   ),
                 ),
               ),
@@ -112,6 +126,26 @@ class FrostedGlass extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool get _hasUniformBorder =>
+      borderEdges.length == FrostedGlassEdge.all.length || borderEdges.isEmpty;
+
+  Border _buildBorder(BorderSide side) {
+    if (_hasUniformBorder) {
+      return Border.fromBorderSide(
+        borderEdges.isEmpty ? BorderSide.none : side,
+      );
+    }
+    return Border(
+      top: borderEdges.contains(FrostedGlassEdge.top) ? side : BorderSide.none,
+      bottom:
+          borderEdges.contains(FrostedGlassEdge.bottom) ? side : BorderSide.none,
+      left:
+          borderEdges.contains(FrostedGlassEdge.left) ? side : BorderSide.none,
+      right:
+          borderEdges.contains(FrostedGlassEdge.right) ? side : BorderSide.none,
     );
   }
 
