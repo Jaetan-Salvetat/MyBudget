@@ -1,4 +1,5 @@
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/models/category_memory_model.dart';
 
 /// Replays the categories the user picked, so a model mistake is corrected once.
@@ -8,16 +9,6 @@ import 'package:mybudget/models/category_memory_model.dart';
 class CategoryMemoryService {
   /// Upper bound on stored entries; the least recently used are evicted.
   static const int maxEntries = 500;
-
-  static final RegExp _whitespace = RegExp(r'\s+');
-  static const Map<String, String> _diacritics = {
-    'à': 'a', 'â': 'a', 'ä': 'a', 'á': 'a', 'ã': 'a',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-    'î': 'i', 'ï': 'i', 'í': 'i',
-    'ô': 'o', 'ö': 'o', 'ó': 'o', 'õ': 'o',
-    'ù': 'u', 'û': 'u', 'ü': 'u', 'ú': 'u',
-    'ç': 'c', 'ñ': 'n',
-  };
 
   final CategoryMemoryRepository _repository;
   final DateTime Function() _now;
@@ -32,13 +23,7 @@ class CategoryMemoryService {
   /// Matching is exact on the result: "macdo" does not recall "macdo avec Paul".
   /// Token matching would generalise but a silent false positive is worse than
   /// a miss.
-  static String normalizeKey(String text) {
-    var result = text.toLowerCase().trim();
-    for (final entry in _diacritics.entries) {
-      result = result.replaceAll(entry.key, entry.value);
-    }
-    return result.replaceAll(_whitespace, ' ');
-  }
+  static String normalizeKey(String text) => TextNormalizer.normalize(text);
 
   /// The remembered slug for [text], or null when nothing applies.
   String? recall(String text) {

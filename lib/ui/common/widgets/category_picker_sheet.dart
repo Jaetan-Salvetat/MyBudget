@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/common/providers/frequent_categories_provider.dart';
+import 'package:mybudget/ui/common/widgets/category_tile.dart';
+import 'package:mybudget/ui/common/widgets/eyebrow.dart';
+import 'package:mybudget/ui/common/widgets/expandable_group.dart';
+import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 /// Two-level taxonomy picker: pick a group, then one of its subcategories.
 ///
-/// [suggestions] are shown first, above the groups, so a model prediction can
-/// be confirmed in one tap.
+/// Only leaves can be picked: a group slug stored on a transaction would not
+/// resolve and the amount would fall into "Non catégorisé".
 class CategoryPickerSheet extends ConsumerStatefulWidget {
   final TransactionType type;
   final String? selectedSlug;
@@ -28,10 +32,10 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
     String? selectedSlug,
     List<String> suggestions = const [],
   }) {
-    return showModalBottomSheet<String>(
+    return FrostedBottomSheet.show<String>(
       context: context,
-      isScrollControlled: true,
-      builder: (_) => CategoryPickerSheet(
+      title: 'Catégorie',
+      child: CategoryPickerSheet(
         type: type,
         selectedSlug: selectedSlug,
         suggestions: suggestions,
@@ -45,15 +49,15 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
   String? _openGroupKey;
+  bool _didOpenSelectedGroup = false;
 
   @override
-  void initState() {
-    super.initState();
-    final slug = widget.selectedSlug;
-    if (slug != null && slug.contains('.')) {
-      _openGroupKey = slug.split('.').first;
-    }
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,58 +66,151 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     if (resolver == null) {
       return const SizedBox(
         height: 200,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: FrostedCircularProgressIndicator()),
       );
     }
 
+    _openSelectedGroupOnce(resolver);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SearchInput(
+          controller: _searchController,
+          hintText: 'Rechercher une catégorie…',
+          onChanged: (value) => setState(() => _query = value),
+        ),
+        const SizedBox(height: 8),
+        Flexible(
+          child: _query.trim().isEmpty
+              ? _browseList(resolver)
+              : _resultsList(resolver),
+        ),
+      ],
+    );
+  }
+
+  /// The group of the current selection starts open, but only until the user
+  /// touches the tree: reopening it on every rebuild would fight their taps.
+  void _openSelectedGroupOnce(CategoryDisplayResolver resolver) {
+    if (_didOpenSelectedGroup) return;
+    _didOpenSelectedGroup = true;
+
+    final slug = widget.selectedSlug;
+    if (slug != null) _openGroupKey = resolver.groupKeyOf(slug);
+  }
+
+  Widget _resultsList(CategoryDisplayResolver resolver) {
+    final results = resolver.search(_query, widget.type);
+
+    if (results.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Text(
+          'Aucune catégorie',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: results.length,
+      itemBuilder: (context, index) => _leafTile(
+        results[index],
+        subtitle: results[index].groupLabel,
+      ),
+    );
+  }
+
+  Widget _browseList(CategoryDisplayResolver resolver) {
     final suggestions = widget.suggestions
         .map(resolver.resolve)
         .whereType<CategoryDisplay>()
         .toList();
+    final suggested = suggestions.map((leaf) => leaf.slug).toSet();
+    final frequent = ref
+        .watch(frequentCategoriesProvider(widget.type))
+        .where((leaf) => !suggested.contains(leaf.slug))
+        .toList();
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Catégorie',
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  if (suggestions.isNotEmpty) ...[
-                    const _SectionLabel('Suggestions'),
-                    for (final suggestion in suggestions)
-                      _LeafTile(
-                        category: suggestion,
-                        subtitle: suggestion.groupLabel,
-                        selected: suggestion.slug == widget.selectedSlug,
-                        onTap: () => Navigator.pop(context, suggestion.slug),
-                      ),
-                    const Divider(height: 24),
-                  ],
-                  for (final group in resolver.groupsOfType(widget.type))
-                    _GroupTile(
-                      group: group,
-                      children: resolver.childrenOf(group.slug),
-                      expanded: _openGroupKey == group.slug,
-                      selectedSlug: widget.selectedSlug,
-                      onToggle: () => setState(
-                        () => _openGroupKey =
-                            _openGroupKey == group.slug ? null : group.slug,
-                      ),
-                      onPick: (slug) => Navigator.pop(context, slug),
-                    ),
-                ],
-              ),
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        if (suggestions.isNotEmpty) ...[
+          const _SectionLabel('Suggestions'),
+          for (final suggestion in suggestions)
+            _leafTile(suggestion, subtitle: suggestion.groupLabel),
+        ],
+        if (frequent.isNotEmpty) ...[
+          const _SectionLabel('Fréquentes'),
+          for (final leaf in frequent)
+            _leafTile(leaf, subtitle: leaf.groupLabel),
+        ],
+        if (suggestions.isNotEmpty || frequent.isNotEmpty)
+          const _SectionLabel('Toutes les catégories'),
+        for (final group in resolver.groupsOfType(widget.type))
+          _GroupSection(
+            group: group,
+            children: resolver.childrenOf(group.groupKey),
+            expanded: _openGroupKey == group.groupKey,
+            onToggle: () => setState(
+              () => _openGroupKey =
+                  _openGroupKey == group.groupKey ? null : group.groupKey,
             ),
-          ],
-        ),
+            leafBuilder: _leafTile,
+          ),
+      ],
+    );
+  }
+
+  Widget _leafTile(
+    CategoryDisplay leaf, {
+    String? subtitle,
+    bool indented = false,
+  }) {
+    return CategoryTile(
+      category: leaf,
+      subtitle: subtitle,
+      indented: indented,
+      selected: leaf.slug == widget.selectedSlug,
+      onTap: () => Navigator.pop(context, leaf.slug),
+    );
+  }
+}
+
+class _GroupSection extends StatelessWidget {
+  final CategoryDisplay group;
+  final List<CategoryDisplay> children;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final Widget Function(CategoryDisplay leaf, {String? subtitle, bool indented})
+      leafBuilder;
+
+  const _GroupSection({
+    required this.group,
+    required this.children,
+    required this.expanded,
+    required this.onToggle,
+    required this.leafBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableGroup(
+      expanded: expanded,
+      header: CategoryTile(
+        category: group,
+        onTap: onToggle,
+        trailing: ExpandChevron(expanded: expanded),
       ),
+      children: [
+        for (final child in children) leafBuilder(child, indented: true),
+      ],
     );
   }
 }
@@ -126,90 +223,8 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              letterSpacing: 1,
-            ),
-      ),
-    );
-  }
-}
-
-class _GroupTile extends StatelessWidget {
-  final CategoryDisplay group;
-  final List<CategoryDisplay> children;
-  final bool expanded;
-  final String? selectedSlug;
-  final VoidCallback onToggle;
-  final ValueChanged<String> onPick;
-
-  const _GroupTile({
-    required this.group,
-    required this.children,
-    required this.expanded,
-    required this.selectedSlug,
-    required this.onToggle,
-    required this.onPick,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListTile(
-          leading: Icon(CategoryDefaults.resolveIcon(group.icon),
-              color: Color(group.color)),
-          title: Text(group.label),
-          trailing: Icon(
-            expanded ? Symbols.expand_less_rounded : Symbols.expand_more_rounded,
-          ),
-          onTap: onToggle,
-        ),
-        if (expanded)
-          for (final child in children)
-            _LeafTile(
-              category: child,
-              selected: child.slug == selectedSlug,
-              indented: true,
-              onTap: () => onPick(child.slug),
-            ),
-      ],
-    );
-  }
-}
-
-class _LeafTile extends StatelessWidget {
-  final CategoryDisplay category;
-  final String? subtitle;
-  final bool selected;
-  final bool indented;
-  final VoidCallback onTap;
-
-  const _LeafTile({
-    required this.category,
-    required this.selected,
-    required this.onTap,
-    this.subtitle,
-    this.indented = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.only(left: indented ? 32 : 16, right: 16),
-      leading: Icon(CategoryDefaults.resolveIcon(category.icon),
-          color: Color(category.color), size: 20),
-      title: Text(category.label),
-      subtitle: subtitle == null ? null : Text(subtitle!),
-      trailing: selected
-          ? Icon(Symbols.check_rounded,
-              color: Theme.of(context).colorScheme.primary)
-          : null,
-      onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+      child: Eyebrow(label),
     );
   }
 }

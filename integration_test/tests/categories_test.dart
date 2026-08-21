@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_app.dart';
@@ -35,7 +36,8 @@ void main() {
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les catégories');
-      await tapButton(tester, 'Restauration');
+      await tester.enterText(find.byType(TextField).first, 'Restaurant');
+      await tester.pumpAndSettle();
       await tapTooltip(tester, 'Personnaliser', index: 1);
 
       await clearAndEnterTextField(tester, 'Nom de la catégorie', 'Bistrot');

@@ -117,19 +117,27 @@ abstract final class CategoryDefaults {
   static const String defaultIcon = 'label';
   static const int defaultColor = 0xFF42A5F5;
 
-  static final Map<int, IconData> _iconsByCodePoint = {
-    for (final icon in icons.values) icon.codePoint: icon,
+  static final Map<int, String> _keysByCodePoint = {
+    for (final entry in icons.entries) entry.value.codePoint: entry.key,
   };
 
-  static IconData resolveIcon(String iconKey) {
-    final codePoint = int.tryParse(iconKey);
-    if (codePoint != null) {
-      return _iconsByCodePoint[codePoint] ?? Symbols.category_rounded;
-    }
-    return icons[iconKey] ?? Symbols.category_rounded;
+  /// The [icons] key [value] designates, or null when nothing matches.
+  ///
+  /// Accepts the codePoint strings written by the pre-taxonomy categories, so
+  /// legacy overrides heal into keys the first time they are rewritten.
+  /// Codepoints are not unique across the icon set, but colliding entries share
+  /// the same glyph, so the key returned always renders what was stored.
+  static String? canonicalIconKey(String? value) {
+    if (value == null) return null;
+
+    final codePoint = int.tryParse(value);
+    if (codePoint != null) return _keysByCodePoint[codePoint];
+
+    return icons.containsKey(value) ? value : null;
   }
 
-  static List<String> get iconNames => icons.keys.toList();
+  static IconData resolveIcon(String iconKey) =>
+      icons[canonicalIconKey(iconKey)] ?? Symbols.category_rounded;
 
   static String colorToHex(int color) {
     return '#${(color & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';

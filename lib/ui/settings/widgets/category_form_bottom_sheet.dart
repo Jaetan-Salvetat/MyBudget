@@ -1,28 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/common/widgets/category_icon.dart';
+
+sealed class CategoryFormResult {
+  const CategoryFormResult();
+}
+
+/// Drops the customisation and goes back to the taxonomy values.
+final class CategoryReset extends CategoryFormResult {
+  const CategoryReset();
+}
+
+/// Only the fields that differ from the taxonomy are set; the others are null
+/// so the stored override stays as sparse as possible.
+final class CategoryCustomisation extends CategoryFormResult {
+  final String? name;
+  final String? icon;
+  final int? color;
+
+  const CategoryCustomisation({this.name, this.icon, this.color});
+}
 
 class CategoryFormBottomSheet extends StatefulWidget {
   final CategoryDisplay initial;
-  final void Function(String name, int color, String icon) onSubmit;
+  final CategoryDisplay defaults;
 
   const CategoryFormBottomSheet({
-    required this.onSubmit,
     required this.initial,
+    required this.defaults,
     super.key,
   });
 
-  static void show({
+  static Future<CategoryFormResult?> show({
     required BuildContext context,
     required CategoryDisplay initial,
-    required void Function(String name, int color, String icon) onSubmit,
+    required CategoryDisplay defaults,
   }) {
-    FrostedBottomSheet.show(
+    return FrostedBottomSheet.show<CategoryFormResult>(
       context: context,
       title: 'Personnaliser « ${initial.label} »',
-      child: CategoryFormBottomSheet(initial: initial, onSubmit: onSubmit),
+      child: CategoryFormBottomSheet(initial: initial, defaults: defaults),
     );
   }
 
@@ -32,22 +52,17 @@ class CategoryFormBottomSheet extends StatefulWidget {
 }
 
 class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
-  late TextEditingController _nameController;
-  late int _selectedColor;
-  late String _selectedIcon;
+  late final TextEditingController _nameController =
+      TextEditingController(text: widget.initial.label);
+  late int _selectedColor = widget.initial.color;
+  late String _selectedIcon = widget.initial.icon;
 
-  static const List<int> _colors = CategoryDefaults.colors;
+  bool get _isGroup => widget.initial.isGroup;
 
-  static final List<IconData> _icons =
-      CategoryDefaults.icons.values.toList();
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.initial.label);
-    _selectedColor = widget.initial.color;
-    _selectedIcon = widget.initial.icon;
-  }
+  bool get _isCustomised =>
+      widget.initial.label != widget.defaults.label ||
+      widget.initial.icon != widget.defaults.icon ||
+      widget.initial.color != widget.defaults.color;
 
   @override
   void dispose() {
@@ -57,142 +72,168 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Flexible(child: _fields(theme)),
+        const SizedBox(height: 16),
+        FrostedFilledButton(
+          onPressed: _submit,
+          child: const Text('Enregistrer'),
+        ),
+        if (_isCustomised)
+          FrostedTextButton(
+            onPressed: () => Navigator.pop(context, const CategoryReset()),
+            child: const Text('Réinitialiser'),
+          ),
+      ],
+    );
+  }
+
+  Widget _fields(ThemeData theme) {
     return ListView(
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
       children: [
         Center(
-          child: Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: Color(_selectedColor).withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              CategoryDefaults.resolveIcon(_selectedIcon),
-              color: Color(_selectedColor),
-              size: 32,
-            ),
+          child: CategoryIcon(
+            icon: CategoryDefaults.resolveIcon(_selectedIcon),
+            color: Color(_selectedColor),
+            size: CategoryIconSize.md,
           ),
         ),
         const SizedBox(height: 20),
-
         FrostedTextField(
           controller: _nameController,
           labelText: 'Nom de la catégorie',
+          hintText: widget.defaults.label,
           prefixIcon: const Icon(Symbols.label_rounded),
         ),
-        const SizedBox(height: 24),
-
+        const SizedBox(height: 6),
         Text(
-          'Couleur',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: _colors.map((color) {
-            final isSelected = _selectedColor == color;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedColor = color),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(color),
-                  shape: BoxShape.circle,
-                  border: isSelected
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          width: 2.5,
-                        )
-                      : null,
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: Color(color).withValues(alpha: 0.5),
-                            blurRadius: 6,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: isSelected
-                    ? const Icon(Symbols.check_rounded, color: Colors.white, size: 18)
-                    : null,
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 24),
-
-        Text(
-          'Icône',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _icons.map((iconData) {
-            final codePointStr = iconData.codePoint.toString();
-            final isSelected = _selectedIcon == codePointStr;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedIcon = codePointStr),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Color(_selectedColor).withValues(alpha: 0.15)
-                      : Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(10),
-                  border: isSelected
-                      ? Border.all(color: Color(_selectedColor), width: 2)
-                      : null,
-                ),
-                child: Icon(
-                  iconData,
-                  color: isSelected
-                      ? Color(_selectedColor)
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 22,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 28),
-
-        SizedBox(
-          width: double.infinity,
-          child: FrostedFilledButton(
-            onPressed: () {
-              if (_nameController.text.trim().isNotEmpty) {
-                widget.onSubmit(
-                  _nameController.text.trim(),
-                  _selectedColor,
-                  _selectedIcon,
-                );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Enregistrer'),
+          'Laisser vide pour revenir à « ${widget.defaults.label} »',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 24),
+        if (_isGroup) ...[
+          _Label('Couleur'),
+          const SizedBox(height: 10),
+          _colorPicker(theme),
+          const SizedBox(height: 24),
+        ] else ...[
+          Text(
+            'La couleur est celle du groupe « ${widget.initial.groupLabel} ».',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+        _Label('Icône'),
+        const SizedBox(height: 10),
+        _iconPicker(theme),
       ],
+    );
+  }
+
+  Widget _colorPicker(ThemeData theme) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        for (final color in CategoryDefaults.colors)
+          GestureDetector(
+            onTap: () => setState(() => _selectedColor = color),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Color(color),
+                shape: BoxShape.circle,
+                border: _selectedColor == color
+                    ? Border.all(color: theme.colorScheme.onSurface, width: 2.5)
+                    : null,
+              ),
+              child: _selectedColor == color
+                  ? const Icon(Symbols.check_rounded,
+                      color: Colors.white, size: 18)
+                  : null,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _iconPicker(ThemeData theme) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final entry in CategoryDefaults.icons.entries)
+          GestureDetector(
+            onTap: () => setState(() => _selectedIcon = entry.key),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: _selectedIcon == entry.key
+                    ? Color(_selectedColor).withValues(alpha: 0.15)
+                    : theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(10),
+                border: _selectedIcon == entry.key
+                    ? Border.all(color: Color(_selectedColor), width: 2)
+                    : null,
+              ),
+              child: Icon(
+                entry.value,
+                color: _selectedIcon == entry.key
+                    ? Color(_selectedColor)
+                    : theme.colorScheme.onSurfaceVariant,
+                size: 22,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _submit() {
+    final name = _nameController.text.trim();
+
+    Navigator.pop(
+      context,
+      CategoryCustomisation(
+        name: name.isEmpty || name == widget.defaults.label ? null : name,
+        icon: _selectedIcon == widget.defaults.icon ? null : _selectedIcon,
+        color: !_isGroup || _selectedColor == widget.defaults.color
+            ? null
+            : _selectedColor,
+      ),
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  final String text;
+
+  const _Label(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(context)
+          .textTheme
+          .titleSmall
+          ?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }

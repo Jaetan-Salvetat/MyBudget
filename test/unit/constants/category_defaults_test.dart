@@ -63,10 +63,33 @@ void main() {
       expect(CategoryDefaults.colors.length, greaterThanOrEqualTo(14));
     });
 
-    test('iconNames returns all icon keys', () {
-      expect(CategoryDefaults.iconNames.length, CategoryDefaults.icons.length);
-      expect(CategoryDefaults.iconNames, contains('home'));
-      expect(CategoryDefaults.iconNames, contains('label'));
+    test('canonicalIconKey keeps a known key as is', () {
+      expect(CategoryDefaults.canonicalIconKey('restaurant'), 'restaurant');
+    });
+
+    test('canonicalIconKey converts a codePoint string to its key', () {
+      final codePoint = Symbols.savings_rounded.codePoint.toString();
+
+      expect(CategoryDefaults.canonicalIconKey(codePoint), 'savings');
+    });
+
+    test('canonicalIconKey drops unknown keys and codePoints', () {
+      expect(CategoryDefaults.canonicalIconKey('nonexistent'), isNull);
+      expect(
+        CategoryDefaults.canonicalIconKey(Icons.star.codePoint.toString()),
+        isNull,
+      );
+      expect(CategoryDefaults.canonicalIconKey(null), isNull);
+    });
+
+    test('canonicalIconKey resolves to the same glyph it was given', () {
+      for (final entry in CategoryDefaults.icons.entries) {
+        final canonical =
+            CategoryDefaults.canonicalIconKey(entry.value.codePoint.toString());
+
+        expect(canonical, isNotNull);
+        expect(CategoryDefaults.resolveIcon(canonical!), entry.value);
+      }
     });
   });
 }

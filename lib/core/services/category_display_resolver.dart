@@ -1,4 +1,5 @@
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/models/category_override_model.dart';
 
@@ -28,8 +29,9 @@ class CategoryDisplay {
 /// Merges the taxonomy asset with the sparse user overrides.
 ///
 /// Overrides are keyed by slug: a bare `alimentation` targets the group, a
-/// dotted `alimentation.supermarche` targets the leaf. A leaf with no colour
-/// of its own follows its group, so restyling a group restyles its children.
+/// dotted `alimentation.supermarche` targets the leaf. Colour is a group-level
+/// property: a leaf always follows its group, so restyling a group restyles its
+/// children and no leaf can drift out of its group's identity.
 class CategoryDisplayResolver {
   /// Bucket for transactions with no slug, or a slug the taxonomy no longer
   /// knows. Surfaced rather than dropped: a silently missing amount makes the
@@ -60,7 +62,7 @@ class CategoryDisplayResolver {
       slug: node.slug,
       label: override?.name ?? node.label,
       icon: override?.icon ?? node.icon,
-      color: override?.color ?? _groupColor(group),
+      color: _groupColor(group),
       groupKey: group.key,
       groupLabel: _groupLabel(group),
       type: group.type,
@@ -117,6 +119,34 @@ class CategoryDisplayResolver {
       .groupsOfType(type)
       .map((group) => resolveGroup(group.key)!)
       .toList();
+
+  /// The same taxonomy with every customisation dropped.
+  ///
+  /// The single source of "what would this look like by default", so the edit
+  /// form can drop a field that matches instead of storing it again.
+  CategoryDisplayResolver get withoutOverrides =>
+      CategoryDisplayResolver(taxonomy: _taxonomy, overrides: const {});
+
+  CategoryDisplay defaultsOf(CategoryDisplay category) => category.isGroup
+      ? withoutOverrides.resolveGroup(category.groupKey)!
+      : withoutOverrides.resolve(category.slug)!;
+
+  /// Selectable leaves of [type] whose label, or whose group label, matches
+  /// [query]. Empty for a blank query: the caller keeps showing the tree.
+  List<CategoryDisplay> search(String query, TransactionType type) {
+    final needle = TextNormalizer.normalize(query);
+    if (needle.isEmpty) return const [];
+
+    return [
+      for (final group in groupsOfType(type))
+        if (TextNormalizer.normalize(group.label).contains(needle))
+          ...childrenOf(group.groupKey)
+        else
+          ...childrenOf(group.groupKey).where(
+            (leaf) => TextNormalizer.normalize(leaf.label).contains(needle),
+          ),
+    ];
+  }
 
   List<CategoryDisplay> childrenOf(String groupKey) =>
       _taxonomy.group(groupKey)?.selectableChildren

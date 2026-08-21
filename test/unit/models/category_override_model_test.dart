@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/models/category_override_model.dart';
 
 void main() {
@@ -49,18 +50,29 @@ void main() {
       expect(restored.color, isNull);
     });
 
-    test('copyWith replaces only the given fields', () {
+    test('canonicalises a legacy codePoint icon on creation', () {
       final override = CategoryOverrideModel.create(
         slug: 'a.b',
-        name: 'Bistrot',
-        icon: 'local_bar',
+        icon: Symbols.local_bar_rounded.codePoint.toString(),
       );
 
-      final updated = override.copyWith(icon: 'local_cafe');
+      expect(override.icon, 'local_bar');
+    });
 
-      expect(updated.slug, 'a.b');
-      expect(updated.name, 'Bistrot');
-      expect(updated.icon, 'local_cafe');
+    test('canonicalises a legacy codePoint icon coming from json', () {
+      final restored = CategoryOverrideModel.fromJson({
+        'slug': 'a.b',
+        'icon': Symbols.local_bar_rounded.codePoint.toString(),
+      });
+
+      expect(restored.icon, 'local_bar');
+    });
+
+    test('drops an unknown icon rather than storing it', () {
+      expect(CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').icon,
+          isNull);
+      expect(CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').isEmpty,
+          isTrue);
     });
   });
 }

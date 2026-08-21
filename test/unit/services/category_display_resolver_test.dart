@@ -76,13 +76,12 @@ void main() {
   });
 
   group('with overrides', () {
-    test('a leaf override wins on label, icon and colour', () {
+    test('a leaf override wins on label and icon', () {
       final resolver = resolverWith([
         CategoryOverrideModel.create(
           slug: 'restauration.cafe',
           name: 'Bistrot',
           icon: 'local_bar',
-          color: 0xFF112233,
         ),
       ]);
 
@@ -90,7 +89,6 @@ void main() {
 
       expect(display.label, 'Bistrot');
       expect(display.icon, 'local_bar');
-      expect(display.color, 0xFF112233);
     });
 
     test('a partial override falls back to the taxonomy field by field', () {
@@ -114,14 +112,14 @@ void main() {
       expect(resolver.resolveGroup('restauration')!.color, 0xFF00FF00);
     });
 
-    test('a leaf colour override wins over its group', () {
+    test('a leaf always follows its group colour', () {
       final resolver = resolverWith([
         CategoryOverrideModel.create(slug: 'restauration', color: 0xFF00FF00),
         CategoryOverrideModel.create(
             slug: 'restauration.cafe', color: 0xFF0000FF),
       ]);
 
-      expect(resolver.resolve('restauration.cafe')!.color, 0xFF0000FF);
+      expect(resolver.resolve('restauration.cafe')!.color, 0xFF00FF00);
       expect(resolver.resolve('restauration.bar')!.color, 0xFF00FF00);
     });
 
@@ -249,6 +247,77 @@ void main() {
     test('the bucket key is not a resolvable group', () {
       expect(resolver.resolveGroup(CategoryDisplayResolver.uncategorizedKey),
           isNull);
+    });
+  });
+
+  group('search', () {
+    late CategoryDisplayResolver resolver;
+
+    setUp(() => resolver = resolverWith([]));
+
+    List<String> slugs(String query, TransactionType type) =>
+        resolver.search(query, type).map((leaf) => leaf.slug).toList();
+
+    test('returns nothing for a blank query', () {
+      expect(resolver.search('', TransactionType.expense), isEmpty);
+      expect(resolver.search('   ', TransactionType.expense), isEmpty);
+    });
+
+    test('matches a leaf label ignoring case and accents', () {
+      expect(slugs('cafe', TransactionType.expense),
+          contains('restauration.cafe'));
+      expect(slugs('CAFÉ', TransactionType.expense),
+          contains('restauration.cafe'));
+      expect(slugs('péage', TransactionType.expense),
+          contains('transport.peage'));
+    });
+
+    test('matches every leaf of a group when the group label matches', () {
+      expect(
+        slugs('restauration', TransactionType.expense),
+        containsAll(['restauration.restaurant', 'restauration.cafe']),
+      );
+    });
+
+    test('filters by transaction type', () {
+      expect(slugs('salaire', TransactionType.expense), isEmpty);
+      expect(slugs('salaire', TransactionType.income),
+          contains('salaire.salaire_net'));
+    });
+
+    test('searches the customised label, not the taxonomy one', () {
+      final customised = resolverWith([
+        CategoryOverrideModel.create(
+          slug: 'restauration.cafe',
+          name: 'Bistrot',
+        ),
+      ]);
+
+      expect(
+        customised.search('bistrot', TransactionType.expense)
+            .map((leaf) => leaf.slug),
+        contains('restauration.cafe'),
+      );
+      expect(
+        customised.search('café', TransactionType.expense)
+            .map((leaf) => leaf.slug),
+        isNot(contains('restauration.cafe')),
+      );
+    });
+
+    test('only returns selectable leaves', () {
+      for (final leaf in resolver.search('e', TransactionType.expense)) {
+        expect(
+          resolver.childrenOf(leaf.groupKey).map((child) => child.slug),
+          contains(leaf.slug),
+        );
+      }
+    });
+
+    test('returns each leaf once', () {
+      final results = slugs('a', TransactionType.expense);
+
+      expect(results.toSet().length, results.length);
     });
   });
 }

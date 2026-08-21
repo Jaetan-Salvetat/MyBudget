@@ -286,4 +286,4 @@ final class ExpensesByGroupProvider
   }
 }
 
-String _$expensesByGroupHash() => r'4dda8c09f8f449a6514f62aad7f9ea1b1ff9621b';
+String _$expensesByGroupHash() => r'd6e83bb27dcf1127d7e0685dd8287ec04b4e99d7';

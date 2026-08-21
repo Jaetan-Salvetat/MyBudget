@@ -1,3 +1,4 @@
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:objectbox/objectbox.dart';
 
 /// User customisation of a taxonomy node.
@@ -23,15 +24,16 @@ class CategoryOverrideModel {
   CategoryOverrideModel.create({
     required this.slug,
     String? name,
-    this.icon,
+    String? icon,
     this.color,
-  }) : name = _normalizeName(name);
+  })  : name = _normalizeName(name),
+        icon = CategoryDefaults.canonicalIconKey(icon);
 
   factory CategoryOverrideModel.fromJson(Map<String, dynamic> json) {
     final model = CategoryOverrideModel()
       ..slug = json['slug'] as String? ?? ''
       ..name = _normalizeName(json['name'] as String?)
-      ..icon = json['icon'] as String?
+      ..icon = CategoryDefaults.canonicalIconKey(json['icon'] as String?)
       ..color = json['color'] as int?;
 
     final id = json['id'];
@@ -41,15 +43,6 @@ class CategoryOverrideModel {
   }
 
   bool get isEmpty => name == null && icon == null && color == null;
-
-  CategoryOverrideModel copyWith({String? name, String? icon, int? color}) {
-    return CategoryOverrideModel()
-      ..id = id
-      ..slug = slug
-      ..name = _normalizeName(name) ?? this.name
-      ..icon = icon ?? this.icon
-      ..color = color ?? this.color;
-  }
 
   Map<String, dynamic> toJson() => {
         'id': id.toString(),

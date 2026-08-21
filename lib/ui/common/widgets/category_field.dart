@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 /// Read-only field showing the picked category, tapping opens the picker.
@@ -21,20 +22,21 @@ class CategoryField extends ConsumerWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(
           children: [
-            Icon(
-              category == null
+            CategoryIcon(
+              icon: category == null
                   ? Symbols.category_rounded
                   : CategoryDefaults.resolveIcon(category.icon),
-              size: 20,
-              color: category == null ? scheme.onSurfaceVariant
+              color: category == null
+                  ? scheme.onSurfaceVariant
                   : Color(category.color),
+              size: CategoryIconSize.sm,
             ),
             const SizedBox(width: 12),
             Expanded(
