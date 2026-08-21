@@ -7,14 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
@@ -342,7 +344,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     BuildContext context,
     ReceiptScanResultModel result,
   ) {
-    final categories = ref.watch(categoryProvider).value ?? [];
+    final resolver = ref.watch(categoryDisplayResolverProvider).value;
+    final categories = resolver == null
+        ? const <CategoryDisplay>[]
+        : resolver
+            .groupsOfType(TransactionType.expense)
+            .expand((group) => resolver.childrenOf(group.slug))
+            .toList();
     final accounts = ref.watch(accountProvider).value ?? [];
     final formatter = NumberFormat.currency(
       locale: 'fr_FR',
@@ -354,7 +362,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
     final grouped = _groupItemsByCategory(result.items, categories);
     final uncategorized =
-        result.items.where((i) => i.categoryId == null).toList();
+        result.items.where((i) => i.categorySlug == null).toList();
 
     return ListView(
       key: const ValueKey('validation'),
@@ -474,10 +482,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
   Widget _buildCategoryCard(
     BuildContext context,
-    CategoryModel category,
+    CategoryDisplay category,
     List<_IndexedItem> items,
     NumberFormat formatter,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
     final theme = Theme.of(context);
     final total = items.fold(0.0, (sum, i) => sum + i.item.effectiveAmount);
@@ -493,14 +501,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               Row(
                 children: [
                   Icon(
-                    category.getIconData(),
+                    CategoryDefaults.resolveIcon(category.icon),
                     color: Color(category.color),
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      category.name,
+                      category.label,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -534,7 +542,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     BuildContext context,
     List<ScannedItemModel> items,
     NumberFormat formatter,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
     final theme = Theme.of(context);
     final total = items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
@@ -602,7 +610,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     BuildContext context,
     _IndexedItem indexedItem,
     NumberFormat formatter,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
     final theme = Theme.of(context);
 
@@ -672,7 +680,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       decimalDigits: 2,
     );
     final total = result.items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
-    final hasUncategorized = result.items.any((i) => i.categoryId == null);
+    final hasUncategorized =
+        result.items.any((i) => i.categorySlug == null);
     final categoryCount = _countCategories(result.items);
 
     return FrostedContainer(
@@ -717,25 +726,25 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
   }
 
-  Map<CategoryModel, List<_IndexedItem>> _groupItemsByCategory(
+  Map<CategoryDisplay, List<_IndexedItem>> _groupItemsByCategory(
     List<ScannedItemModel> items,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
-    final Map<int, List<_IndexedItem>> grouped = {};
+    final Map<String, List<_IndexedItem>> grouped = {};
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
-      if (item.categoryId != null) {
+      if (item.categorySlug != null) {
         grouped
-            .putIfAbsent(item.categoryId!, () => [])
+            .putIfAbsent(item.categorySlug!, () => [])
             .add(_IndexedItem(index: i, item: item));
       }
     }
 
-    final Map<CategoryModel, List<_IndexedItem>> result = {};
+    final Map<CategoryDisplay, List<_IndexedItem>> result = {};
     for (final entry in grouped.entries) {
       final category = categories.firstWhere(
-        (c) => c.id == entry.key,
-        orElse: () => CategoryModel()..name = 'Inconnu',
+        (c) => c.slug == entry.key,
+        orElse: () => categories.first,
       );
       result[category] = entry.value;
     }
@@ -744,8 +753,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
   int _countCategories(List<ScannedItemModel> items) {
     return items
-        .where((i) => i.categoryId != null)
-        .map((i) => i.categoryId)
+        .where((i) => i.categorySlug != null)
+        .map((i) => i.categorySlug)
         .toSet()
         .length;
   }
@@ -754,16 +763,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     BuildContext context,
     int index,
     ScannedItemModel item,
-    List<CategoryModel> categories,
+    List<CategoryDisplay> categories,
   ) {
     ScannedItemEditBottomSheet.show(
       context: context,
       item: item,
       categories: categories,
-      onCategoryChanged: (categoryId, categoryName) {
+      onCategoryChanged: (categorySlug, categoryName) {
         ref.read(scanProvider.notifier).updateItemCategory(
               index,
-              categoryId,
+              categorySlug,
               categoryName,
             );
       },

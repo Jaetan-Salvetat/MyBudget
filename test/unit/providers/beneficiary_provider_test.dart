@@ -152,7 +152,7 @@ void main() {
         name: 'Netflix',
         amount: 15,
         accountId: 1,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
@@ -199,7 +199,7 @@ void main() {
         name: 'Netflix',
         amount: 15,
         accountId: 1,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
@@ -209,7 +209,7 @@ void main() {
         name: 'Spotify',
         amount: 10,
         accountId: 1,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
       );

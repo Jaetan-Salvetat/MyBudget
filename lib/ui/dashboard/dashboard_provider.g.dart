@@ -41,7 +41,7 @@ final class DashboardNotifierProvider
   }
 }
 
-String _$dashboardNotifierHash() => r'28695bc67fa000ff320fd8f5204048b63b579913';
+String _$dashboardNotifierHash() => r'e6c18b7c1fbf6fa4eef1b1172a6c856c2bdeb6c4';
 
 abstract class _$DashboardNotifier extends $Notifier<DashboardState> {
   DashboardState build();

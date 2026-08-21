@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 
 class ExpensesQuickFilters extends StatelessWidget {
-  final List<CategoryModel> categories;
-  final List<int> selectedCategoryIds;
+  final List<CategoryDisplay> categories;
+  final List<String> selectedGroupKeys;
   final ExpenseSortBy sortBy;
   final VoidCallback onOpenSort;
-  final ValueChanged<int?> onCategoryTap;
+  final ValueChanged<String?> onCategoryTap;
 
   const ExpensesQuickFilters({
     required this.categories,
-    required this.selectedCategoryIds,
+    required this.selectedGroupKeys,
     required this.sortBy,
     required this.onOpenSort,
     required this.onCategoryTap,
@@ -23,7 +23,7 @@ class ExpensesQuickFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final allSelected = selectedCategoryIds.isEmpty;
+    final allSelected = selectedGroupKeys.isEmpty;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -52,8 +52,8 @@ class ExpensesQuickFilters extends StatelessWidget {
           for (final category in categories) ...[
             const SizedBox(width: 6),
             FrostedChip(
-              label: Text(category.name),
-              selected: selectedCategoryIds.contains(category.id),
+              label: Text(category.label),
+              selected: selectedGroupKeys.contains(category.slug),
               selectedColor: Color(category.color),
               avatar: Container(
                 width: 12,
@@ -61,12 +61,12 @@ class ExpensesQuickFilters extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Color(category.color).withValues(
                     alpha:
-                        selectedCategoryIds.contains(category.id) ? 0.9 : 0.6,
+                        selectedGroupKeys.contains(category.slug) ? 0.9 : 0.6,
                   ),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
-              onPressed: () => onCategoryTap(category.id),
+              onPressed: () => onCategoryTap(category.slug),
             ),
           ],
         ],

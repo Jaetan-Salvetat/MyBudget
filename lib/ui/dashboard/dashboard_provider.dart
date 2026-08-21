@@ -3,7 +3,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/account_queries.dart';
@@ -16,7 +15,10 @@ import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -67,22 +69,24 @@ class DashboardNotifier extends _$DashboardNotifier {
 
     final expenses = ref.watch(expenseProvider).value ?? [];
     final revenues = ref.watch(revenueProvider).value ?? [];
-    final categories = ref.watch(categoryProvider).value ?? [];
+    final resolver = ref.watch(categoryDisplayResolverProvider).value;
     final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-    final categoryById = {for (final c in categories) c.id: c};
     final beneficiaryById = {for (final b in beneficiaries) b.id: b};
 
     final flows = _computeFlows(expenses, revenues, selectedMonth);
 
-    final categoryExpensesMap = ref.watch(expensesByCategoryProvider);
-    final summaries = _buildCategorySummaries(categoryExpensesMap, totalExpenses);
+    final summaries = _buildCategorySummaries(
+      ref.watch(expensesByGroupProvider),
+      totalExpenses,
+      resolver,
+    );
 
     final upcoming = _buildUpcomingMovements(
       expenses: expenses,
       revenues: revenues,
       selectedMonth: selectedMonth,
-      categoryById: categoryById,
+      resolver: resolver,
       beneficiaryById: beneficiaryById,
     );
 
@@ -169,20 +173,24 @@ class DashboardNotifier extends _$DashboardNotifier {
   }
 
   List<CategoryExpenseSummary> _buildCategorySummaries(
-    Map<CategoryModel, double> categoryExpensesMap,
+    Map<String, double> totalsByGroup,
     double totalExpenses,
+    CategoryDisplayResolver? resolver,
   ) {
-    if (totalExpenses <= 0) return const [];
+    if (totalExpenses <= 0 || resolver == null) return const [];
+
     final summaries = <CategoryExpenseSummary>[];
-    categoryExpensesMap.forEach((category, amount) {
+    totalsByGroup.forEach((groupKey, amount) {
+      final group = resolver.resolveGroup(groupKey) ??
+          resolver.uncategorized(TransactionType.expense);
       summaries.add(
         CategoryExpenseSummary(
-          categoryName: category.name,
+          categoryName: group.label,
           amount: amount,
           percentage: amount / totalExpenses,
-          color: Color(category.color),
-          icon: category.getIconData(),
-          categoryId: category.id,
+          color: Color(group.color),
+          icon: CategoryDefaults.resolveIcon(group.icon),
+          groupKey: groupKey,
         ),
       );
     });
@@ -194,7 +202,7 @@ class DashboardNotifier extends _$DashboardNotifier {
     required List<ExpenseModel> expenses,
     required List<RevenueModel> revenues,
     required DateTime selectedMonth,
-    required Map<int, CategoryModel> categoryById,
+    required CategoryDisplayResolver? resolver,
     required Map<int, Beneficiary> beneficiaryById,
   }) {
     final now = DateTime.now();
@@ -210,14 +218,17 @@ class DashboardNotifier extends _$DashboardNotifier {
       }
       final day = _movementDay(expense.frequencyEnum, expense.startDate, selectedMonth);
       if (day == null || day <= todayDay) continue;
-      final category = categoryById[expense.categoryId];
+      final slug = expense.categorySlug;
+      final category = slug == null ? null : resolver?.resolve(slug);
       movements.add(UpcomingMovement(
         id: 'e${expense.id}',
         name: expense.name,
         amount: expense.amount,
         date: DateTime(selectedMonth.year, selectedMonth.month, day),
         direction: MovementDirection.outgoing,
-        icon: category?.getIconData() ?? Symbols.category_rounded,
+        icon: category == null
+            ? Symbols.category_rounded
+            : CategoryDefaults.resolveIcon(category.icon),
         color: category != null ? Color(category.color) : Colors.grey,
         payee: _beneficiaryName(beneficiaryById, expense.beneficiaryId),
       ));

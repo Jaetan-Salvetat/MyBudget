@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
@@ -85,18 +86,20 @@ class ImportPreviewScreen extends ConsumerWidget {
                   .map((b) => _ItemTile(title: b.model.name))
                   .toList(),
             ),
-          if (validationResult.categories.isNotEmpty)
+          if (validationResult.categoryOverrides.isNotEmpty)
             _EntitySection(
               title: 'Catégories',
               icon: Symbols.category_rounded,
-              count: validationResult.categories.length,
-              children: validationResult.categories
+              count: validationResult.categoryOverrides.length,
+              children: validationResult.categoryOverrides
                   .map((c) => _ItemTile(
-                        title: c.model.name,
+                        title: c.model.name ?? c.model.slug,
                         leading: Icon(
-                          c.model.getIconData(),
+                          CategoryDefaults.resolveIcon(
+                              c.model.icon ?? CategoryDefaults.defaultIcon),
                           size: 18,
-                          color: Color(c.model.color),
+                          color: Color(
+                              c.model.color ?? CategoryDefaults.defaultColor),
                         ),
                       ))
                   .toList(),
@@ -182,20 +185,15 @@ class ImportPreviewScreen extends ConsumerWidget {
 
 class _ImportAnalysis {
   final Set<int> _accountIds;
-  final Set<int> _categoryIds;
   final Set<int> _beneficiaryIds;
   final ImportValidationResult _result;
 
   _ImportAnalysis(this._result)
       : _accountIds = _result.accounts.map((a) => a.oldId).toSet(),
-        _categoryIds = _result.categories.map((c) => c.oldId).toSet(),
         _beneficiaryIds = _result.beneficiaries.map((b) => b.oldId).toSet();
 
   bool _isMissingAccount(int? oldAccountId) =>
       oldAccountId != null && !_accountIds.contains(oldAccountId);
-
-  bool _isMissingCategory(int? oldCategoryId) =>
-      oldCategoryId != null && !_categoryIds.contains(oldCategoryId);
 
   bool _isMissingBeneficiary(int? oldBeneficiaryId) =>
       oldBeneficiaryId != null && !_beneficiaryIds.contains(oldBeneficiaryId);
@@ -203,7 +201,6 @@ class _ImportAnalysis {
   String? getExpenseWarning(ParsedExpense e) {
     final issues = <String>[];
     if (_isMissingAccount(e.oldAccountId)) issues.add('compte');
-    if (_isMissingCategory(e.oldCategoryId)) issues.add('catégorie');
     if (_isMissingBeneficiary(e.oldBeneficiaryId)) issues.add('bénéficiaire');
     if (issues.isEmpty) return null;
     return 'Sera ignorée : ${issues.join(', ')} introuvable';

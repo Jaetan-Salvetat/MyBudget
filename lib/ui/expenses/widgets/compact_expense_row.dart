@@ -4,12 +4,13 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 class CompactExpenseRow extends StatelessWidget {
   final ExpenseModel expense;
-  final CategoryModel? category;
+  final CategoryDisplay? category;
   final Beneficiary? beneficiary;
   final bool showDivider;
   final bool showDate;
@@ -45,7 +46,7 @@ class CompactExpenseRow extends StatelessWidget {
 
     final metaParts = <String>[
       if (showDate) _dateLabel(),
-      if (category != null) category!.name,
+      if (category != null) category!.label,
       if (beneficiary != null) beneficiary!.name,
     ];
 
@@ -67,7 +68,9 @@ class CompactExpenseRow extends StatelessWidget {
           children: [
             _CategoryDot(
               color: categoryColor,
-              icon: category?.getIconData() ?? Symbols.category_rounded,
+              icon: category == null
+                  ? Symbols.category_rounded
+                  : CategoryDefaults.resolveIcon(category!.icon),
               ringColor: isRecurrent ? badgeColor : null,
               badgeLetter: letter,
               badgeColor: badgeColor,

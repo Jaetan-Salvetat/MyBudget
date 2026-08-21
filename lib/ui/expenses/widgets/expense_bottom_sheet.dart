@@ -4,13 +4,14 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/ui/common/widgets/category_field.dart';
+import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 
-class ExpenseBottomSheet extends StatefulWidget {
+class ExpenseBottomSheet extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
-  final List<CategoryModel> categories;
   final ExpenseModel? expense;
   final List<ExpenseModel> closedExpenses;
   final Function(ExpenseModel) onSubmit;
@@ -18,7 +19,6 @@ class ExpenseBottomSheet extends StatefulWidget {
 
   const ExpenseBottomSheet({
     required this.accounts,
-    required this.categories,
     required this.onSubmit,
     required this.onCancel,
     this.expense,
@@ -29,7 +29,6 @@ class ExpenseBottomSheet extends StatefulWidget {
   static void show({
     required BuildContext context,
     required List<AccountModel> accounts,
-    required List<CategoryModel> categories,
     required Function(ExpenseModel) onSubmit,
     required VoidCallback onCancel,
     ExpenseModel? expense,
@@ -40,7 +39,6 @@ class ExpenseBottomSheet extends StatefulWidget {
       title: expense == null ? 'Ajouter une dépense' : 'Modifier la dépense',
       child: ExpenseBottomSheet(
         accounts: accounts,
-        categories: categories,
         onSubmit: onSubmit,
         onCancel: onCancel,
         expense: expense,
@@ -50,14 +48,15 @@ class ExpenseBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<ExpenseBottomSheet> createState() => _ExpenseBottomSheetState();
+  ConsumerState<ExpenseBottomSheet> createState() =>
+      _ExpenseBottomSheetState();
 }
 
-class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
+class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  int? _selectedCategoryId;
+  String? _selectedCategorySlug;
   DateTime _selectedDate = DateTime.now();
   String _selectedFrequency = 'Mensuel';
   int? _selectedAccountId;
@@ -77,9 +76,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
       text: widget.expense?.amount.toString() ?? '',
     );
 
-    _selectedCategoryId =
-        widget.expense?.categoryId ??
-        (widget.categories.isNotEmpty ? widget.categories.first.id : null);
+    _selectedCategorySlug = widget.expense?.categorySlug;
     _selectedDate = widget.expense?.startDate ?? DateTime.now();
     _selectedFrequency = widget.expense?.frequency ?? 'Mensuel';
     _selectedAccountId =
@@ -99,7 +96,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
   bool _validateDropdowns() {
     bool isValid = true;
     setState(() {
-      if (_selectedCategoryId == null) {
+      if (_selectedCategorySlug == null) {
         _categoryError = 'Veuillez sélectionner une catégorie';
         isValid = false;
       } else {
@@ -140,7 +137,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             ? widget.expense!.copyWith(
               name: _nameController.text.trim(),
               amount: amount,
-              categoryId: _selectedCategoryId!,
+              categorySlug: _selectedCategorySlug,
               startDate: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
@@ -149,7 +146,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
             : ExpenseModel.create(
               name: _nameController.text.trim(),
               amount: amount,
-              categoryId: _selectedCategoryId!,
+              categorySlug: _selectedCategorySlug,
               startDate: _selectedDate,
               frequency: _selectedFrequency,
               accountId: _selectedAccountId!,
@@ -165,7 +162,7 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
     setState(() {
       _nameController.text = closed.name;
       _amountController.text = closed.amount.toString();
-      _selectedCategoryId = closed.categoryId;
+      _selectedCategorySlug = closed.categorySlug;
       _selectedFrequency = closed.frequency;
       _selectedAccountId = closed.accountId;
       _selectedBeneficiaryId = closed.beneficiaryId;
@@ -284,36 +281,11 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                FrostedDropdown<int>(
-                  value: _selectedCategoryId,
-                  items:
-                      widget.categories.map((category) {
-                        return DropdownMenuItem<int>(
-                          value: category.id,
-                          child: Text(category.name),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedCategoryId = value;
-                        _categoryError = null;
-                      });
-                    }
-                  },
+                CategoryField(
+                  slug: _selectedCategorySlug,
+                  onTap: _pickCategory,
                 ),
-                if (widget.categories.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      'Aucune catégorie disponible. Veuillez en créer une dans les paramètres.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  )
-                else if (_categoryError != null)
+                if (_categoryError != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                     child: Text(
@@ -430,5 +402,17 @@ class _ExpenseBottomSheetState extends State<ExpenseBottomSheet> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickCategory() async {
+    final slug = await CategoryPickerSheet.show(
+      context,
+      selectedSlug: _selectedCategorySlug,
+    );
+    if (slug == null || !mounted) return;
+    setState(() {
+      _selectedCategorySlug = slug;
+      _categoryError = null;
+    });
   }
 }

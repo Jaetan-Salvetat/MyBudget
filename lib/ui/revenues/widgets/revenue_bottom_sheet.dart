@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/ui/common/widgets/category_field.dart';
+import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
@@ -8,7 +12,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 
-class RevenueBottomSheet extends StatefulWidget {
+class RevenueBottomSheet extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final RevenueModel? revenue;
   final List<RevenueModel> closedRevenues;
@@ -46,15 +50,18 @@ class RevenueBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<RevenueBottomSheet> createState() => _RevenueBottomSheetState();
+  ConsumerState<RevenueBottomSheet> createState() =>
+      _RevenueBottomSheetState();
 }
 
-class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
+class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   DateTime _selectedDate = DateTime.now();
   late String _selectedFrequency;
   int? _selectedAccountId;
+  String? _selectedCategorySlug;
+  String? _categoryError;
   String? _accountError;
   String? _nameError;
   String? _amountError;
@@ -73,6 +80,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
 
     _selectedDate = widget.revenue?.startDate ?? DateTime.now();
     _selectedFrequency = widget.revenue?.frequency ?? Frequency.monthly.label;
+    _selectedCategorySlug = widget.revenue?.categorySlug;
     _selectedAccountId =
         widget.revenue?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
@@ -93,6 +101,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
       _amountController.text = closed.amount.toString();
       _selectedFrequency = closed.frequency;
       _selectedAccountId = closed.accountId;
+      _selectedCategorySlug = closed.categorySlug;
       _selectedBeneficiaryId = closed.beneficiaryId;
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
@@ -142,9 +151,15 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
           _amountController.text.isEmpty ? 'Veuillez saisir un montant' : null;
       _accountError =
           _selectedAccountId == null ? 'Veuillez sélectionner un compte' : null;
+      _categoryError = _selectedCategorySlug == null
+          ? 'Veuillez sélectionner une catégorie'
+          : null;
     });
 
-    if (_nameError != null || _amountError != null || _accountError != null) {
+    if (_nameError != null ||
+        _amountError != null ||
+        _accountError != null ||
+        _categoryError != null) {
       return;
     }
 
@@ -167,6 +182,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               accountId: _selectedAccountId!,
               frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
+              categorySlug: _selectedCategorySlug,
             )
             : RevenueModel.create(
               name: _nameController.text.trim(),
@@ -176,6 +192,7 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
               frequency: _selectedFrequency,
               beneficiaryId: _selectedBeneficiaryId,
               parentId: _parentId,
+              categorySlug: _selectedCategorySlug,
             );
 
     widget.onSubmit(revenue);
@@ -264,6 +281,30 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
+                'Catégorie',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
+              CategoryField(
+                slug: _selectedCategorySlug,
+                onTap: _pickCategory,
+              ),
+              if (_categoryError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    _categoryError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Text(
                 'Compte associé',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
@@ -349,5 +390,18 @@ class _RevenueBottomSheetState extends State<RevenueBottomSheet> {
         ],
       ),
     );
+  }
+
+  Future<void> _pickCategory() async {
+    final slug = await CategoryPickerSheet.show(
+      context,
+      type: TransactionType.income,
+      selectedSlug: _selectedCategorySlug,
+    );
+    if (slug == null || !mounted) return;
+    setState(() {
+      _selectedCategorySlug = slug;
+      _categoryError = null;
+    });
   }
 }

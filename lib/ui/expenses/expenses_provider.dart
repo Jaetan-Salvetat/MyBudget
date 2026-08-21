@@ -1,8 +1,8 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -49,7 +49,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
 
       final bool isNameOnly = updated.amount == old.amount &&
           updated.frequency == old.frequency &&
-          updated.categoryId == old.categoryId &&
+          updated.categorySlug == old.categorySlug &&
           updated.accountId == old.accountId &&
           updated.beneficiaryId == old.beneficiaryId &&
           updated.name != old.name;
@@ -67,7 +67,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
 
       final bool isStructural = updated.amount != old.amount ||
           updated.frequency != old.frequency ||
-          updated.categoryId != old.categoryId ||
+          updated.categorySlug != old.categorySlug ||
           updated.accountId != old.accountId ||
           updated.beneficiaryId != old.beneficiaryId;
 
@@ -79,7 +79,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         final newExpense = ExpenseModel.create(
           name: updated.name,
           amount: updated.amount,
-          categoryId: updated.categoryId,
+          categorySlug: updated.categorySlug,
           startDate: newStartDate,
           frequency: updated.frequency,
           accountId: updated.accountId,
@@ -146,37 +146,19 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   List<ExpenseModel> getRecentExpenses(int count) =>
       _currentExpenses().take(count).toList();
 
-  Map<CategoryModel, double> getExpensesByCategory() {
-    final categoryRepo = ref.read(categoryRepositoryProvider);
-    final Map<int, double> categoryTotals = {};
-
-    for (final expense in _currentExpenses()) {
-      categoryTotals.update(
-        expense.categoryId,
-        (value) => value + expense.amount,
-        ifAbsent: () => expense.amount,
-      );
-    }
-
-    final Map<CategoryModel, double> result = {};
-    for (final entry in categoryTotals.entries) {
-      final category = categoryRepo.get(entry.key);
-      if (category != null) {
-        result[category] = entry.value;
-      }
-    }
-    return result;
-  }
-
   List<ExpenseModel> getExpensesForAccount(int accountId) =>
       _currentExpenses()
           .where((expense) => expense.accountId == accountId)
           .toList();
 
-  List<ExpenseModel> getExpensesForCategory(int categoryId) =>
-      _currentExpenses()
-          .where((expense) => expense.categoryId == categoryId)
-          .toList();
+  List<ExpenseModel> getExpensesForGroup(String groupKey) {
+    final resolver = ref.read(categoryDisplayResolverProvider).value;
+    if (resolver == null) return const [];
+    return _currentExpenses().where((expense) {
+      final slug = expense.categorySlug;
+      return slug != null && resolver.groupKeyOf(slug) == groupKey;
+    }).toList();
+  }
 
   double getTotalExpensesForAccount(int accountId) =>
       getExpensesForAccount(accountId)

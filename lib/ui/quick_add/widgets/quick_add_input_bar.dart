@@ -10,11 +10,9 @@ const double kQuickAddBlur = 24;
 
 class QuickAddInputBar extends ConsumerStatefulWidget {
   final VoidCallback onNoAccount;
-  final VoidCallback onScanRequested;
 
   const QuickAddInputBar({
     required this.onNoAccount,
-    required this.onScanRequested,
     super.key,
   });
 
@@ -49,7 +47,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
       return;
     }
 
-    ref.read(quickAddProvider.notifier).parseExpense(text);
+    ref.read(quickAddProvider.notifier).parse(text);
     _controller.clear();
     _focusNode.unfocus();
   }
@@ -72,15 +70,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
           height: 48,
           child: Row(
             children: [
-              _CircleButton(
-                onTap: widget.onScanRequested,
-                child: Icon(
-                  Symbols.document_scanner_rounded,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: _controller,
@@ -130,26 +120,6 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CircleButton extends StatelessWidget {
-  final VoidCallback? onTap;
-  final Widget child;
-
-  const _CircleButton({required this.onTap, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox(width: 44, height: 44, child: Center(child: child)),
       ),
     );
   }

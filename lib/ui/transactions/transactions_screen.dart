@@ -15,7 +15,6 @@ import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class TransactionsScreen extends ConsumerWidget {
@@ -138,7 +137,6 @@ class TransactionsScreen extends ConsumerWidget {
     ExpenseBottomSheet.show(
       context: context,
       accounts: accounts,
-      categories: ref.read(categoryProvider).value ?? [],
       closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
       onSubmit: (expense) async {
         try {

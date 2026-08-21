@@ -13,8 +13,6 @@ void main() {
       await navigateToTab(tester, 1);
       expect(find.text('Compte Courant'), findsOneWidget);
 
-      await createCategory(tester, 'Logement');
-
       await createExpense(tester, name: 'Loyer', amount: '800');
       await navigateToTab(tester, 2);
       expect(find.text('Loyer'), findsOneWidget);

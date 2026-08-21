@@ -1,3 +1,6 @@
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,12 +13,10 @@ import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -41,11 +41,18 @@ class FakeExpenseModel extends Fake implements ExpenseModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-class FakeCategoryModel extends Fake implements CategoryModel {}
+class FakeCategoryOverrideModel extends Fake
+    implements CategoryOverrideModel {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
 class FakeLoanModel extends Fake implements LoanModel {}
+
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
+class MockCategoryMemoryRepository extends Mock
+    implements CategoryMemoryRepository {}
 
 void main() {
   late MockAccountRepository mockAccountRepo;
@@ -53,14 +60,15 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
-  late MockCategoryRepository mockCategoryRepo;
   late MockTransferRepository mockTransferRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
+  late MockCategoryMemoryRepository mockCategoryMemoryRepo;
 
   setUpAll(() {
     registerFallbackValue(FakeAccountModel());
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeBeneficiaryModel());
-    registerFallbackValue(FakeCategoryModel());
+    registerFallbackValue(FakeCategoryOverrideModel());
     registerFallbackValue(FakeRevenueModel());
     registerFallbackValue(FakeLoanModel());
   });
@@ -74,8 +82,9 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
-    mockCategoryRepo = MockCategoryRepository();
     mockTransferRepo = MockTransferRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
+    mockCategoryMemoryRepo = MockCategoryMemoryRepository();
   });
 
   ProviderContainer makeContainer() {
@@ -86,8 +95,11 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
+        categoryOverrideRepositoryProvider
+            .overrideWithValue(mockCategoryOverrideRepo),
+        categoryMemoryRepositoryProvider
+            .overrideWithValue(mockCategoryMemoryRepo),
       ],
     );
   }
@@ -98,7 +110,8 @@ void main() {
     when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
     when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
     when(() => mockLoanRepo.deleteAll()).thenReturn(null);
-    when(() => mockCategoryRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
     when(() => mockTransferRepo.deleteAll()).thenReturn(null);
   }
 
@@ -152,37 +165,6 @@ void main() {
 
     expect(container.read(dataProvider).error, isNotEmpty);
     expect(container.read(dataProvider).isImporting, isFalse);
-  });
-
-  test('importUserData ignores expense with orphan categoryId', () async {
-    final jsonContent = jsonEncode({
-      'accounts': [
-        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
-      ],
-      'expenses': [
-        {
-          'id': '1',
-          'name': 'Orphan expense',
-          'amount': 50.0,
-          'accountId': 100,
-          'categoryId': 99,
-          'date': DateTime.now().toIso8601String(),
-          'frequency': 'Mensuel',
-        },
-      ],
-      'revenues': [],
-      'loans': [],
-    });
-
-    stubDeleteAll();
-    when(() => mockAccountRepo.add(any())).thenReturn(200);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(dataProvider.notifier).importUserData(jsonContent);
-
-    verifyNever(() => mockExpenseRepo.add(any()));
   });
 
   test('importUserData correctly remaps beneficiaryId', () async {
@@ -259,7 +241,7 @@ void main() {
     verify(() => mockExpenseRepo.deleteAll()).called(1);
     verify(() => mockRevenueRepo.deleteAll()).called(1);
     verify(() => mockLoanRepo.deleteAll()).called(1);
-    verify(() => mockCategoryRepo.deleteAll()).called(1);
+    verify(() => mockCategoryOverrideRepo.deleteAll()).called(1);
 
     expect(container.read(dataProvider).isDeleting, isFalse);
   });

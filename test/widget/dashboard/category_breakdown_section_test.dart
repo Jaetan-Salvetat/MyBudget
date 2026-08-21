@@ -26,7 +26,7 @@ void main() {
         percentage: 0.5,
         color: Colors.blue,
         icon: Icons.home,
-        categoryId: 1,
+        groupKey: 'restauration',
       ),
       CategoryExpenseSummary(
         categoryName: 'Alimentation',
@@ -34,7 +34,7 @@ void main() {
         percentage: 0.2,
         color: Colors.orange,
         icon: Icons.restaurant,
-        categoryId: 2,
+        groupKey: 'restauration',
       ),
     ];
 
@@ -48,8 +48,8 @@ void main() {
     expect(find.text('20%'), findsOneWidget);
   });
 
-  testWidgets('invokes onCategoryTap with the right id', (tester) async {
-    int? tappedId;
+  testWidgets('invokes onCategoryTap with the group key', (tester) async {
+    String? tappedId;
     final categories = [
       CategoryExpenseSummary(
         categoryName: 'Logement',
@@ -57,7 +57,7 @@ void main() {
         percentage: 0.5,
         color: Colors.blue,
         icon: Icons.home,
-        categoryId: 42,
+        groupKey: 'restauration',
       ),
     ];
 
@@ -73,6 +73,6 @@ void main() {
     await tester.tap(find.text('Logement'));
     await tester.pump();
 
-    expect(tappedId, 42);
+    expect(tappedId, 'restauration');
   });
 }

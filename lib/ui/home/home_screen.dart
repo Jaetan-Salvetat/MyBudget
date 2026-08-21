@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
-import 'package:mybudget/ui/scan/scan_screen.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
@@ -88,10 +86,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            QuickAddSection(
-              onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-              onScanRequested: () => _showImageSourceChoice(context),
-            ),
+            if (ref.watch(quickAddEnabledProvider))
+              QuickAddSection(
+                onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+              ),
             if (!keyboardVisible)
               FrostedBottomNavigationBar(
                 currentIndex: _selectedIndex,
@@ -122,66 +120,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
-  }
-
-  void _showImageSourceChoice(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
-
-    if (accounts.isEmpty) {
-      _showNoAccountDialog(context, 'une dépense');
-      return;
-    }
-
-    FrostedBottomSheet.show(
-      context: context,
-      title: 'Scanner un ticket',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FrostedListTile(
-            leading: const Icon(Symbols.camera_alt_rounded),
-            title: const Text('Prendre une photo'),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImageAndScan(context, ImageSource.camera);
-            },
-          ),
-          FrostedListTile(
-            leading: const Icon(Symbols.photo_library_rounded),
-            title: const Text('Choisir depuis la galerie'),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImageAndScan(context, ImageSource.gallery);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _pickImageAndScan(
-    BuildContext context,
-    ImageSource source,
-  ) async {
-    final picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      imageQuality: 85,
-    );
-
-    if (image == null) return;
-
-    final bytes = await image.readAsBytes();
-
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ScanScreen(imageBytes: bytes),
-        ),
-      );
-    }
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {

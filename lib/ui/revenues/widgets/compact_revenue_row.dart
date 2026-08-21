@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -12,6 +13,7 @@ class CompactRevenueRow extends StatelessWidget {
   final RevenueModel revenue;
   final String accountName;
   final Beneficiary? beneficiary;
+  final CategoryDisplay? category;
   final bool showDivider;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -22,6 +24,7 @@ class CompactRevenueRow extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     this.beneficiary,
+    this.category,
     this.showDivider = true,
     super.key,
   });
@@ -52,6 +55,7 @@ class CompactRevenueRow extends StatelessWidget {
 
     final metaParts = <String>[
       dateLabel,
+      if (category != null) category!.label,
       accountName,
       if (beneficiary != null) beneficiary!.name,
     ];

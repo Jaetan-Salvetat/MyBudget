@@ -10,11 +10,9 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_loading_card.dart';
 
 class QuickAddSection extends ConsumerWidget {
   final VoidCallback onNoAccount;
-  final VoidCallback onScanRequested;
 
   const QuickAddSection({
     required this.onNoAccount,
-    required this.onScanRequested,
     super.key,
   });
 
@@ -28,12 +26,14 @@ class QuickAddSection extends ConsumerWidget {
         return QuickAddConfirmationCard(result: result);
       },
       loading: () => const QuickAddLoadingCard(),
-      error: (error, _) => QuickAddErrorCard(
-        message: error is QuickAddException
-            ? error.message
-            : 'Vérifie le format ou ajoute manuellement',
-        onRetry: () => ref.read(quickAddProvider.notifier).reset(),
-      ),
+      error: (error, _) {
+        return QuickAddErrorCard(
+          message: error is QuickAddException
+              ? error.message
+              : 'Vérifie le format ou ajoute manuellement',
+          onRetry: () => ref.read(quickAddProvider.notifier).reset(),
+        );
+      },
     );
 
     return Column(
@@ -50,10 +50,7 @@ class QuickAddSection extends ConsumerWidget {
                   child: overlay,
                 ),
         ),
-        QuickAddInputBar(
-          onNoAccount: onNoAccount,
-          onScanRequested: onScanRequested,
-        ),
+        QuickAddInputBar(onNoAccount: onNoAccount),
       ],
     );
   }

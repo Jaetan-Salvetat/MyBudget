@@ -1,0 +1,231 @@
+import 'package:flutter/material.dart';
+
+import '../../foundations/frosted_radius.dart';
+import '../../foundations/frosted_spacing.dart';
+import '../../theme/frosted_motion_tokens.dart';
+import '../../theme/frosted_tokens.dart';
+import '_interactive_surface.dart';
+
+enum _IconButtonVariant { standard, filled, tonal, outlined }
+
+/// A circular icon-only button.
+///
+/// When [selected] is true and [selectedIcon] is provided, the filled
+/// variant of the icon is shown.
+class FrostedIconButton extends StatelessWidget {
+  const FrostedIconButton._({
+    super.key,
+    required this.icon,
+    required _IconButtonVariant variant,
+    this.selectedIcon,
+    this.selected = false,
+    this.tooltip,
+    this.onPressed,
+  }) : _variant = variant;
+
+  factory FrostedIconButton.standard({
+    Key? key,
+    required IconData icon,
+    IconData? selectedIcon,
+    bool selected = false,
+    String? tooltip,
+    required VoidCallback? onPressed,
+  }) =>
+      FrostedIconButton._(
+        key: key,
+        icon: icon,
+        variant: _IconButtonVariant.standard,
+        selectedIcon: selectedIcon,
+        selected: selected,
+        tooltip: tooltip,
+        onPressed: onPressed,
+      );
+
+  factory FrostedIconButton.filled({
+    Key? key,
+    required IconData icon,
+    IconData? selectedIcon,
+    bool selected = false,
+    String? tooltip,
+    required VoidCallback? onPressed,
+  }) =>
+      FrostedIconButton._(
+        key: key,
+        icon: icon,
+        variant: _IconButtonVariant.filled,
+        selectedIcon: selectedIcon,
+        selected: selected,
+        tooltip: tooltip,
+        onPressed: onPressed,
+      );
+
+  factory FrostedIconButton.tonal({
+    Key? key,
+    required IconData icon,
+    IconData? selectedIcon,
+    bool selected = false,
+    String? tooltip,
+    required VoidCallback? onPressed,
+  }) =>
+      FrostedIconButton._(
+        key: key,
+        icon: icon,
+        variant: _IconButtonVariant.tonal,
+        selectedIcon: selectedIcon,
+        selected: selected,
+        tooltip: tooltip,
+        onPressed: onPressed,
+      );
+
+  factory FrostedIconButton.outlined({
+    Key? key,
+    required IconData icon,
+    IconData? selectedIcon,
+    bool selected = false,
+    String? tooltip,
+    required VoidCallback? onPressed,
+  }) =>
+      FrostedIconButton._(
+        key: key,
+        icon: icon,
+        variant: _IconButtonVariant.outlined,
+        selectedIcon: selectedIcon,
+        selected: selected,
+        tooltip: tooltip,
+        onPressed: onPressed,
+      );
+
+  final IconData icon;
+  final IconData? selectedIcon;
+  final bool selected;
+  final String? tooltip;
+  final VoidCallback? onPressed;
+  final _IconButtonVariant _variant;
+
+  static const double _size = 40;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final FrostedMotion motion = context.frostedTokens.motion.snappy;
+    final IconData glyph = selected && selectedIcon != null
+        ? selectedIcon!
+        : icon;
+
+    final Widget surface = InteractiveSurface(
+      onTap: onPressed,
+      cursor: SystemMouseCursors.click,
+      semanticsLabel: tooltip,
+      semanticsSelected: selected,
+      shape: _shape,
+      builder: (BuildContext context, InteractionStates s) {
+        final Color bg = _resolveBg(cs, s);
+        final Color fg = _resolveFg(cs, s);
+        final BorderSide? border = _resolveBorder(cs, s);
+
+        return AnimatedContainer(
+          duration: motion.duration,
+          curve: motion.curve,
+          width: _size,
+          height: _size,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: _shape(s),
+            border: border != null ? Border.fromBorderSide(border) : null,
+          ),
+          child: Center(
+            child: Icon(glyph, size: 22, color: fg),
+          ),
+        );
+      },
+    );
+
+    Widget result = Padding(
+      padding: const EdgeInsets.all(FrostedSpacing.sp1),
+      child: surface,
+    );
+
+    if (tooltip != null) {
+      result = Tooltip(message: tooltip!, child: result);
+    }
+    return result;
+  }
+
+  BorderRadius _shape(InteractionStates s) => BorderRadius.circular(
+        s.pressed ? FrostedRadius.xs : FrostedRadius.md,
+      );
+
+  Color _resolveBg(ColorScheme cs, InteractionStates s) {
+    if (!s.enabled) {
+      if (_variant == _IconButtonVariant.filled ||
+          _variant == _IconButtonVariant.tonal) {
+        return cs.onSurface.withValues(alpha: 0.12);
+      }
+      return Colors.transparent;
+    }
+    Color base;
+    switch (_variant) {
+      case _IconButtonVariant.standard:
+        base = selected
+            ? cs.primaryContainer
+            : Colors.transparent;
+        break;
+      case _IconButtonVariant.filled:
+        base = selected ? cs.primary : cs.surfaceContainerHighest;
+        break;
+      case _IconButtonVariant.tonal:
+        base = selected ? cs.secondaryContainer : cs.surfaceContainerHigh;
+        break;
+      case _IconButtonVariant.outlined:
+        base = selected ? cs.inverseSurface : Colors.transparent;
+        break;
+    }
+    final Color overlay = _overlayBase(cs);
+    final double alpha = _overlayAlpha(s);
+    if (alpha == 0) return base;
+    return Color.alphaBlend(overlay.withValues(alpha: alpha), base);
+  }
+
+  Color _resolveFg(ColorScheme cs, InteractionStates s) {
+    if (!s.enabled) return cs.onSurface.withValues(alpha: 0.38);
+    switch (_variant) {
+      case _IconButtonVariant.standard:
+        return selected ? cs.onPrimaryContainer : cs.onSurfaceVariant;
+      case _IconButtonVariant.filled:
+        return selected ? cs.onPrimary : cs.primary;
+      case _IconButtonVariant.tonal:
+        return selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
+      case _IconButtonVariant.outlined:
+        return selected ? cs.onInverseSurface : cs.onSurfaceVariant;
+    }
+  }
+
+  BorderSide? _resolveBorder(ColorScheme cs, InteractionStates s) {
+    if (_variant != _IconButtonVariant.outlined) return null;
+    if (selected) return null;
+    if (!s.enabled) {
+      return BorderSide(color: cs.onSurface.withValues(alpha: 0.12));
+    }
+    return BorderSide(color: cs.outline);
+  }
+
+  Color _overlayBase(ColorScheme cs) {
+    switch (_variant) {
+      case _IconButtonVariant.standard:
+        return selected ? cs.onPrimaryContainer : cs.onSurfaceVariant;
+      case _IconButtonVariant.filled:
+        return selected ? cs.onPrimary : cs.primary;
+      case _IconButtonVariant.tonal:
+        return selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
+      case _IconButtonVariant.outlined:
+        return selected ? cs.onInverseSurface : cs.onSurfaceVariant;
+    }
+  }
+
+  double _overlayAlpha(InteractionStates s) {
+    if (s.pressed) return 0.12;
+    if (s.focused) return 0.10;
+    if (s.hovered) return 0.08;
+    return 0;
+  }
+}

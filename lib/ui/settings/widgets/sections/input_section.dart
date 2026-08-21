@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/ui/settings/widgets/settings_section.dart';
 import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
-import 'package:mybudget/ui/settings/widgets/categories_bottom_sheet.dart';
+import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 import 'package:mybudget/ui/settings/widgets/beneficiaries_bottom_sheet.dart';
 
 class InputSection extends StatelessWidget {
@@ -15,9 +15,12 @@ class InputSection extends StatelessWidget {
       children: [
         SettingsTile(
           title: 'Gérer les catégories',
-          subtitle: 'Ajouter, modifier ou supprimer des catégories',
+          subtitle: 'Renommer, changer icône et couleur',
           leading: const Icon(Symbols.category_rounded),
-          onTap: () => CategoriesBottomSheet.show(context: context),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CategoriesScreen()),
+          ),
         ),
         SettingsTile(
           title: 'Gérer les bénéficiaires',

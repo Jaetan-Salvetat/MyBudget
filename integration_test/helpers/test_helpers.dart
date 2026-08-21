@@ -113,14 +113,25 @@ Future<void> createAccount(
   await tapButton(tester, 'Ajouter');
 }
 
-Future<void> createCategory(WidgetTester tester, String name) async {
-  await navigateToSettings(tester);
-  await tapButton(tester, 'Gérer les catégories');
-  await tapButton(tester, 'Ajouter une catégorie');
-  await enterTextField(tester, 'Nom de la catégorie', name);
-  await tapButton(tester, 'Ajouter');
-  await dismissBottomSheet(tester);
-  await goBack(tester);
+/// Taps the nth widget carrying [tooltip], for icon buttons without a label.
+Future<void> tapTooltip(
+  WidgetTester tester,
+  String tooltip, {
+  int index = 0,
+}) async {
+  await tester.tap(find.byTooltip(tooltip).at(index));
+  await tester.pumpAndSettle();
+}
+
+/// Picks a taxonomy leaf in [CategoryPickerSheet]: open the group, tap the leaf.
+Future<void> pickCategory(
+  WidgetTester tester, {
+  required String group,
+  required String leaf,
+}) async {
+  await tapButton(tester, 'Choisir une catégorie');
+  await tapButton(tester, group);
+  await tapButton(tester, leaf);
 }
 
 Future<void> createExpense(
@@ -128,11 +139,14 @@ Future<void> createExpense(
   required String name,
   required String amount,
   String frequency = 'Mensuel',
+  String categoryGroup = 'Logement',
+  String categoryLeaf = 'Loyer',
 }) async {
   await navigateToTab(tester, 2);
   await tapFab(tester);
   await enterTextField(tester, 'Nom', name);
   await enterTextField(tester, 'Montant', amount);
+  await pickCategory(tester, group: categoryGroup, leaf: categoryLeaf);
   if (frequency != 'Mensuel') {
     await tapButton(tester, frequency);
   }

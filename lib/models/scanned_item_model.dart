@@ -3,14 +3,14 @@ class ScannedItemModel {
   final double amount;
   final double discount;
   final String? categoryName;
-  final int? categoryId;
+  final String? categorySlug;
 
   const ScannedItemModel({
     required this.name,
     required this.amount,
     this.discount = 0,
     this.categoryName,
-    this.categoryId,
+    this.categorySlug,
   });
 
   double get effectiveAmount => amount - discount;
@@ -22,14 +22,14 @@ class ScannedItemModel {
     double? amount,
     double? discount,
     String? categoryName,
-    int? categoryId,
+    String? categorySlug,
   }) {
     return ScannedItemModel(
       name: name ?? this.name,
       amount: amount ?? this.amount,
       discount: discount ?? this.discount,
       categoryName: categoryName ?? this.categoryName,
-      categoryId: categoryId ?? this.categoryId,
+      categorySlug: categorySlug ?? this.categorySlug,
     );
   }
 }

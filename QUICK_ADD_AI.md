@@ -1,80 +1,66 @@
 # Quick-Add AI
 
-Catégorisation intelligente du quick-add via LLM. Stratégie hybride **on-device / cloud** selon les capacités du téléphone.
-
-## Objectif
-
-Transformer un input langage naturel français en transaction structurée :
+Analyse d'une saisie en langage naturel vers une transaction structurée, 100% on-device via un modèle BERT multi-head embarqué (ONNX). Aucun téléchargement, aucun cloud.
 
 ```
-"j'ai filé 20 balles à ma sœur pour le cadeau de maman"
-→ { type: "expense", name: "Cadeau maman", amount: 20.0,
-    category: "Cadeaux", beneficiary: "ma sœur" }
+"resto italien 25" → { type: expense, name: "Resto italien", amount: 25.0,
+                       category: "Restauration", frequency: "Ponctuel" }
+"salaire 2500"     → { type: income, name: "Salaire", amount: 2500.0,
+                       frequency: "Mensuel" }
 ```
 
-## Stratégie : 2 modèles selon config device
-
-### 🥇 On-device : Gemma 4 E2B (~2 GB)
-
-**Cible** : téléphones modernes (Android 12+, ≥ 4 GB RAM libre, GPU Adreno/Mali récent).
-
-- Inférence locale via **MediaPipe LLM Inference** (Google officiel)
-- Format `.task`, téléchargé on-demand au 1er lancement
-- Latence cible : 1-3s sur device récent
-- 100% offline une fois téléchargé
-- Score benchmark : **8.5/10**
-
-### ☁️ Cloud fallback : DeepSeek V4 Flash
-
-**Cible** : téléphones incompatibles (vieux, peu de RAM, pas de GPU), ou échec/timeout du modèle local.
-
-- API via **OpenRouter** (`deepseek/deepseek-v4-flash`)
-- Latence : 3-5s (dépend du réseau)
-- Coût marginal par requête
-- Nécessite connexion internet
-- Score benchmark : **9/10**
-
-## Sélection du modèle au runtime
+## Architecture
 
 ```
-QuickAddInput
+Texte utilisateur
   │
-  ├─ DeviceCapabilityChecker
-  │   ├─ Android ≥ 7.0
-  │   ├─ RAM libre ≥ 3 GB
-  │   └─ GPU disponible
+  ▼ ~0ms
+[PriceParserService]  regex montant (FR/EN, symboles, "balles"/"euros")
   │
-  ├─ [compatible] → Gemma 4 E2B (on-device)
-  │     ├─ Lazy load au focus du champ
-  │     ├─ Unload après inactivité
-  │     └─ Fallback cloud si timeout > 5s
+  ▼ texte nettoyé
+[QuickAddTokenizer]   BPE, max_length=64
   │
-  └─ [incompatible] → DeepSeek V4 Flash (cloud)
+  ▼
+[QuickAddModelRunner] ONNX multi-head (mmBERT-small int8, ~135 MB) — 1 pass :
+  │                     type_logits (expense/income)
+  │                     category_logits (55 classes)
+  │                     recurrence_logits (ponctuel/fixe)
+  ▼
+[CategoryTaxonomyService] classe → groupe (13 groupes, assets/categories.json)
+  │
+  ▼
+[QuickAddNotifier]    matching catégories user (ou création auto icône+couleur)
+                      → carte de confirmation → ExpenseModel / RevenueModel
 ```
 
-## Fichiers concernés (à créer)
+## Fichiers
 
-- `lib/core/services/ai/quick_add_ai_service.dart` — façade publique
-- `lib/core/services/ai/on_device_inference_service.dart` — Gemma 4 E2B via MediaPipe
-- `lib/core/services/ai/cloud_inference_service.dart` — DeepSeek via OpenRouter
-- `lib/core/services/ai/device_capability_checker.dart` — détection device
-- `lib/core/services/ai/model_downloader.dart` — gestion .task download/cache
+- `lib/core/services/quick_add/` — pipeline complet (parser, tokenizer, runner, taxonomie, classifier)
+- `lib/core/constants/quick_add_labels.dart` — labels des 3 têtes (doivent matcher l'ordre du training)
+- `lib/ui/quick_add/` — notifier + widgets (input bar, cartes confirmation/loading/erreur)
+- `assets/models/model.onnx` + `assets/models/tokenizer.json` — modèle et tokenizer
+- `assets/categories.json` — taxonomie 55 sous-catégories / 13 groupes (label, icône, couleur)
 
-## Benchmark complet
+## Modèle
 
-Voir [memory/project_quick_add_model_benchmark.md](.claude/projects/.../memory/project_quick_add_model_benchmark.md) — 10 modèles testés (Phi-3 mini, Qwen3 0.6B/1.7B, Llama 3.2 1B/3B, Gemma 3 1B, Gemma3n e2b, SmolLM3 3B, Gemma 4 E2B, DeepSeek V4 Flash).
+- **Backbone** : `jhu-clsp/mmBERT-small`, 3 têtes, mean pooling, quantization int8
+- **Training** : `~/Documents/dev/projects/mybudget-locale-ai/quick-add-3/` (dataset FR/EN/ES/DE, scripts `generate_dataset.py` / `train.py` / `test_model.py` / `export_onnx.py`)
+- **Scores (2026-07-10)** : easy 100% · medium 100% · hard — type 100%, catégorie 80%, récurrence 96%
+- Après ré-entraînement : copier `output/model.onnx` et `output/best/tokenizer.json` dans `assets/models/`, garder `QuickAddLabels` synchronisé
 
-## Prompt utilisé
+## Règles métier
 
-Voir `/tmp/quick_add_tests/prompt.txt` — JSON strict avec enum de catégories `[Alimentation, Transport, Logement, Loisirs, Santé, Cadeaux, Abonnements, Salaire, Remboursement, Famille, Autre]`.
+- Montant obligatoire : sans montant détecté → `QuickAddNoAmountException` (carte d'erreur)
+- Catégorie = groupe de la taxonomie (ex. `restauration.café` → "Restauration")
+- Income : pas de catégorie (les revenus n'en ont pas), `RevenueModel` créé
+- Récurrence `fixe` → fréquence "Mensuel", `ponctuel` → "Ponctuel" (modifiable via le formulaire complet)
+- Matching catégorie existante : nom normalisé (minuscules, sans accents) ; sinon création avec icône/couleur de la taxonomie
 
 ## Status
 
-- [x] Benchmark modèles
-- [x] Choix des 2 modèles (Gemma 4 E2B + DeepSeek V4 Flash)
-- [ ] Intégration MediaPipe LLM Inference (Android)
-- [ ] Intégration OpenRouter API
-- [ ] Device capability detection
-- [ ] UX quick-add input
-- [ ] Cache `.task` + version checking
-- [ ] Tests unitaires + intégration
+- [x] Benchmark et pivot LLM → BERT multi-head (l'ancienne stack Gemma/LiteRT/OpenRouter a été supprimée)
+- [x] Modèle entraîné, quantizé int8, validé dans `pipeline_app`
+- [x] Pipeline Dart intégré (tokenizer BPE, ONNX runtime, taxonomie)
+- [x] QuickAddNotifier branché (dépenses + revenus, création auto de catégorie)
+- [x] Tests unitaires (parser, tokenizer, taxonomie, classifier, notifier)
+- [ ] Test sur device physique Android

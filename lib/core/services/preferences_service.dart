@@ -10,12 +10,11 @@ class PreferencesService {
 
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyIsCategoriesCreated = 'isCategoriesCreated';
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
-  static const String keyQuickAddCount = 'quickAddCount';
-  static const String keyQuickAddMonth = 'quickAddMonth';
+
+  static const String keyQuickAddEnabled = 'quickAddEnabled';
 
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
@@ -68,14 +67,6 @@ class PreferencesService {
     await _prefs.setBool(keySkipAuth, skip);
   }
 
-  static bool isCategoriesCreated() {
-    return _prefs.getBool(keyIsCategoriesCreated) ?? false;
-  }
-
-  static Future<void> setCategoriesCreated() async {
-    await _prefs.setBool(keyIsCategoriesCreated, true);
-  }
-
   static bool hasSeenUpdateOnboarding() {
     return _prefs.getBool(keyHasSeenUpdateOnboarding) ?? false;
   }
@@ -93,27 +84,12 @@ class PreferencesService {
     await _prefs.setInt(keyLastScanTimestamp, timestamp);
   }
 
-  static int getQuickAddCount() {
-    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
-    final currentMonth =
-        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
-    if (storedMonth != currentMonth) {
-      return 0;
-    }
-    return _prefs.getInt(keyQuickAddCount) ?? 0;
+  static bool isQuickAddEnabled() {
+    return _prefs.getBool(keyQuickAddEnabled) ?? true;
   }
 
-  static Future<void> incrementQuickAddCount() async {
-    final currentMonth =
-        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
-    final storedMonth = _prefs.getString(keyQuickAddMonth) ?? '';
-    if (storedMonth != currentMonth) {
-      await _prefs.setString(keyQuickAddMonth, currentMonth);
-      await _prefs.setInt(keyQuickAddCount, 1);
-    } else {
-      final current = _prefs.getInt(keyQuickAddCount) ?? 0;
-      await _prefs.setInt(keyQuickAddCount, current + 1);
-    }
+  static Future<void> setQuickAddEnabled(bool enabled) async {
+    await _prefs.setBool(keyQuickAddEnabled, enabled);
   }
 
   static String getExpensesGroupBy() {

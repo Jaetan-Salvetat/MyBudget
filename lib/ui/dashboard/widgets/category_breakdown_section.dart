@@ -8,7 +8,7 @@ import 'package:mybudget/ui/dashboard/models/category_expense_summary.dart';
 class CategoryBreakdownSection extends StatelessWidget {
   final List<CategoryExpenseSummary> categories;
   final int maxVisible;
-  final ValueChanged<int>? onCategoryTap;
+  final ValueChanged<String>? onCategoryTap;
 
   const CategoryBreakdownSection({
     super.key,
@@ -60,7 +60,7 @@ class CategoryBreakdownSection extends StatelessWidget {
                   category: category,
                   onTap: onCategoryTap == null
                       ? null
-                      : () => onCategoryTap!(category.categoryId),
+                      : () => onCategoryTap!(category.groupKey),
                 ),
             ],
           ),

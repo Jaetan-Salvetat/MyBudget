@@ -1,8 +1,10 @@
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
@@ -11,7 +13,6 @@ import 'package:mybudget/core/services/data/data_import_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -20,7 +21,6 @@ class MockAccountRepository extends Mock implements AccountRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -32,7 +32,8 @@ class FakeAccountModel extends Fake implements AccountModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-class FakeCategoryModel extends Fake implements CategoryModel {}
+class FakeCategoryOverrideModel extends Fake
+    implements CategoryOverrideModel {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
@@ -44,20 +45,27 @@ class MockTransferRepository extends Mock implements TransferRepository {}
 
 class FakeTransferModel extends Fake implements TransferModel {}
 
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
+class MockCategoryMemoryRepository extends Mock
+    implements CategoryMemoryRepository {}
+
 void main() {
   late MockAccountRepository mockAccountRepo;
   late MockBeneficiaryRepository mockBeneficiaryRepo;
-  late MockCategoryRepository mockCategoryRepo;
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
   late MockTransferRepository mockTransferRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
+  late MockCategoryMemoryRepository mockCategoryMemoryRepo;
   late DataImportService service;
 
   setUpAll(() {
     registerFallbackValue(FakeAccountModel());
     registerFallbackValue(FakeBeneficiaryModel());
-    registerFallbackValue(FakeCategoryModel());
+    registerFallbackValue(FakeCategoryOverrideModel());
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeRevenueModel());
     registerFallbackValue(FakeLoanModel());
@@ -67,16 +75,18 @@ void main() {
   setUp(() {
     mockAccountRepo = MockAccountRepository();
     mockBeneficiaryRepo = MockBeneficiaryRepository();
-    mockCategoryRepo = MockCategoryRepository();
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
     mockTransferRepo = MockTransferRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
+    mockCategoryMemoryRepo = MockCategoryMemoryRepository();
 
     service = DataImportService(
       accountRepo: mockAccountRepo,
       beneficiaryRepo: mockBeneficiaryRepo,
-      categoryRepo: mockCategoryRepo,
+      categoryOverrideRepo: mockCategoryOverrideRepo,
+      categoryMemoryRepo: mockCategoryMemoryRepo,
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
@@ -93,7 +103,7 @@ void main() {
       expect(result.isValid, isTrue);
       expect(result.beneficiaries, hasLength(1));
       expect(result.accounts, hasLength(1));
-      expect(result.categories, hasLength(1));
+      expect(result.categoryOverrides, hasLength(1));
       expect(result.expenses, hasLength(1));
       expect(result.revenues, hasLength(1));
       expect(result.loans, hasLength(1));
@@ -108,7 +118,7 @@ void main() {
       expect(result.isValid, isTrue);
       expect(result.beneficiaries, isEmpty);
       expect(result.accounts, isEmpty);
-      expect(result.categories, isEmpty);
+      expect(result.categoryOverrides, isEmpty);
       expect(result.expenses, isEmpty);
       expect(result.revenues, isEmpty);
       expect(result.loans, isEmpty);
@@ -124,9 +134,9 @@ void main() {
         'accounts': [
           {'id': '20', 'name': 'Compte', 'bank': 'BNP'},
         ],
-        'categories': [
-          {'id': '30', 'name': 'Loisirs', 'icon': 'movie', 'color': 0xFF00FF00},
-        ],
+        'categoryOverrides': [
+          {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
+      ],
       };
 
       final result = service.validate(data);
@@ -135,8 +145,7 @@ void main() {
       expect(result.beneficiaries.first.model.id, 0);
       expect(result.accounts.first.oldId, 20);
       expect(result.accounts.first.model.id, 0);
-      expect(result.categories.first.oldId, 30);
-      expect(result.categories.first.model.id, 0);
+      expect(result.categoryOverrides.first.model.id, 0);
     });
 
     test('preserves old foreign keys in expenses', () {
@@ -147,7 +156,7 @@ void main() {
             'name': 'Loyer',
             'amount': 800.0,
             'accountId': 20,
-            'categoryId': 30,
+            'categorySlug': 'logement.loyer',
             'beneficiaryId': '10',
             'startDate': '2025-01-15T00:00:00.000',
             'frequency': 'Mensuel',
@@ -159,7 +168,7 @@ void main() {
 
       final expense = result.expenses.first;
       expect(expense.oldAccountId, 20);
-      expect(expense.oldCategoryId, 30);
+      expect(expense.model.categorySlug, 'logement.loyer');
       expect(expense.oldBeneficiaryId, 10);
       expect(expense.model.id, 0);
     });
@@ -254,22 +263,57 @@ void main() {
       expect(result.errors, hasLength(2));
     });
 
-    test('hasCategories returns true when categories present', () {
+    test('hasCategoryOverrides returns true when categories present', () {
       final data = {
-        'categories': [
-          {'id': '1', 'name': 'Transport', 'icon': 'directions_car'},
-        ],
+        'categoryOverrides': [
+          {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
+      ],
       };
 
       final result = service.validate(data);
 
-      expect(result.hasCategories, isTrue);
+      expect(result.hasCategoryOverrides, isTrue);
     });
 
-    test('hasCategories returns false when no categories', () {
+    test('hasCategoryOverrides returns false when no categories', () {
       final result = service.validate({});
 
-      expect(result.hasCategories, isFalse);
+      expect(result.hasCategoryOverrides, isFalse);
+    });
+  });
+
+  group('category memory', () {
+    test('validate() parses remembered categories', () {
+      final result = service.validate({
+        'categoryMemory': [
+          {
+            'key': 'macdo',
+            'slug': 'restauration.fast_food',
+            'corrections': 3,
+            'useMemory': true,
+            'updatedAt': '2026-08-21T00:00:00.000',
+          },
+        ],
+      });
+
+      expect(result.categoryMemory, hasLength(1));
+      final entry = result.categoryMemory.first.model;
+      expect(entry.key, 'macdo');
+      expect(entry.slug, 'restauration.fast_food');
+      expect(entry.corrections, 3);
+      expect(entry.useMemory, isTrue);
+    });
+
+    test('validate() defaults a partial entry', () {
+      final result = service.validate({
+        'categoryMemory': [
+          {'key': 'macdo', 'slug': 'restauration.fast_food'},
+        ],
+      });
+
+      final entry = result.categoryMemory.first.model;
+      expect(entry.corrections, 1);
+      expect(entry.useMemory, isTrue);
     });
   });
 
@@ -277,7 +321,9 @@ void main() {
     void stubDeleteAll() {
       when(() => mockBeneficiaryRepo.deleteAll()).thenReturn(null);
       when(() => mockAccountRepo.deleteAll()).thenReturn(null);
-      when(() => mockCategoryRepo.deleteAll()).thenReturn(null);
+      when(() => mockCategoryOverrideRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
+      when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
       when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
       when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
       when(() => mockLoanRepo.deleteAll()).thenReturn(null);
@@ -290,9 +336,11 @@ void main() {
       final validated = service.validate({});
       service.execute(validated);
 
+      verify(() => mockCategoryMemoryRepo.deleteAll()).called(1);
+
       verify(() => mockBeneficiaryRepo.deleteAll()).called(1);
       verify(() => mockAccountRepo.deleteAll()).called(1);
-      verify(() => mockCategoryRepo.deleteAll()).called(1);
+      verify(() => mockCategoryOverrideRepo.deleteAll()).called(1);
       verify(() => mockExpenseRepo.deleteAll()).called(1);
       verify(() => mockRevenueRepo.deleteAll()).called(1);
       verify(() => mockLoanRepo.deleteAll()).called(1);
@@ -326,41 +374,6 @@ void main() {
           verify(() => mockExpenseRepo.add(captureAny())).captured;
       final expense = captured.first as ExpenseModel;
       expect(expense.accountId, 200);
-    });
-
-    test('remaps categoryId in expenses', () {
-      stubDeleteAll();
-      when(() => mockAccountRepo.add(any())).thenReturn(200);
-      when(() => mockCategoryRepo.add(any())).thenReturn(300);
-      when(() => mockExpenseRepo.add(any())).thenReturn(1);
-
-      final data = {
-        'accounts': [
-          {'id': '100', 'name': 'Compte', 'bank': 'BNP'},
-        ],
-        'categories': [
-          {'id': '50', 'name': 'Loisirs', 'icon': 'movie'},
-        ],
-        'expenses': [
-          {
-            'id': '1',
-            'name': 'Netflix',
-            'amount': 15.0,
-            'accountId': 100,
-            'categoryId': 50,
-            'startDate': '2025-01-15T00:00:00.000',
-            'frequency': 'Mensuel',
-          },
-        ],
-      };
-
-      final validated = service.validate(data);
-      service.execute(validated);
-
-      final captured =
-          verify(() => mockExpenseRepo.add(captureAny())).captured;
-      final expense = captured.first as ExpenseModel;
-      expect(expense.categoryId, 300);
     });
 
     test('remaps beneficiaryId in expenses', () {
@@ -420,34 +433,6 @@ void main() {
       verifyNever(() => mockExpenseRepo.add(any()));
       expect(report.expenses.skipped, 1);
       expect(report.expenses.imported, 0);
-    });
-
-    test('skips expenses with orphan categoryId', () {
-      stubDeleteAll();
-      when(() => mockAccountRepo.add(any())).thenReturn(200);
-
-      final data = {
-        'accounts': [
-          {'id': '100', 'name': 'Compte', 'bank': 'BNP'},
-        ],
-        'expenses': [
-          {
-            'id': '1',
-            'name': 'Orphan cat',
-            'amount': 50.0,
-            'accountId': 100,
-            'categoryId': 999,
-            'startDate': '2025-01-15T00:00:00.000',
-            'frequency': 'Mensuel',
-          },
-        ],
-      };
-
-      final validated = service.validate(data);
-      final report = service.execute(validated);
-
-      verifyNever(() => mockExpenseRepo.add(any()));
-      expect(report.expenses.skipped, 1);
     });
 
     test('remaps accountId in revenues', () {
@@ -582,7 +567,7 @@ void main() {
       stubDeleteAll();
       when(() => mockBeneficiaryRepo.add(any())).thenReturn(1);
       when(() => mockAccountRepo.add(any())).thenReturn(200);
-      when(() => mockCategoryRepo.add(any())).thenReturn(300);
+      when(() => mockCategoryOverrideRepo.save(any())).thenReturn(null);
       when(() => mockExpenseRepo.add(any())).thenReturn(1);
       when(() => mockRevenueRepo.add(any())).thenReturn(1);
       when(() => mockLoanRepo.add(any())).thenReturn(1);
@@ -653,9 +638,9 @@ Map<String, dynamic> _buildFullJsonData() {
     'accounts': [
       {'id': '100', 'name': 'Compte Courant', 'bank': 'BNP'},
     ],
-    'categories': [
-      {'id': '50', 'name': 'Loisirs', 'icon': 'movie', 'color': 0xFF2196F3},
-    ],
+    'categoryOverrides': [
+      {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
+      ],
     'expenses': [
       {
         'id': '1',

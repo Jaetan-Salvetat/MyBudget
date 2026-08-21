@@ -10,7 +10,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
       await createExpense(tester, name: 'Loyer', amount: '800');
 
       await navigateToTab(tester, 2);
@@ -25,7 +24,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Assurance');
       await createExpense(tester, name: 'Assurance Auto', amount: '1200', frequency: 'Annuel');
 
       await navigateToTab(tester, 0);
@@ -36,7 +34,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
       await createExpense(tester, name: 'Loyer', amount: '800');
 
       await navigateToTab(tester, 2);
@@ -56,7 +53,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
       await createExpense(tester, name: 'Loyer', amount: '800');
 
       await navigateToTab(tester, 2);
@@ -74,8 +70,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
-      await createCategory(tester, 'Transport');
       await createExpense(tester, name: 'Loyer', amount: '800');
 
       await navigateToTab(tester, 2);
@@ -105,7 +99,6 @@ void main() {
       await initializeTestApp(tester);
 
       await createAccount(tester, 'Compte Test', 'BNP');
-      await createCategory(tester, 'Logement');
 
       await createExpense(tester, name: 'Loyer', amount: '800', frequency: 'Mensuel');
       await createExpense(tester, name: 'Assurance', amount: '1200', frequency: 'Annuel');

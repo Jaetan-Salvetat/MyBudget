@@ -15,6 +15,8 @@ import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 
+
+
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {

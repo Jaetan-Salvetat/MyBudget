@@ -12,14 +12,22 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '3.41.6'
           cache: true
 
       - name: Create .env
-        run: echo "GEMINI_API_KEY=" > .env
+        run: echo "OPENROUTER_API_KEY=" > .env
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Install frosted_ui dependencies
+        run: flutter pub get
+        working-directory: frosted_ui
+
+      - name: Install frosted_ui example dependencies
+        run: flutter pub get
+        working-directory: frosted_ui/example
 
       - name: Run linter
         run: flutter analyze

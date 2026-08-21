@@ -63,19 +63,81 @@ abstract final class CategoryDefaults {
     'self_improvement': Symbols.self_improvement_rounded,
     'label': Symbols.label_rounded,
     'more_horiz': Symbols.more_horiz_rounded,
+    'health_and_safety': Symbols.health_and_safety_rounded,
+    'local_activity': Symbols.local_activity_rounded,
+    'category': Symbols.category_rounded,
+    'paid': Symbols.paid_rounded,
+    'swap_horiz': Symbols.swap_horiz_rounded,
+    'trending_up': Symbols.trending_up_rounded,
+    'local_grocery_store': Symbols.local_grocery_store_rounded,
+    'storefront': Symbols.storefront_rounded,
+    'local_convenience_store': Symbols.local_convenience_store_rounded,
+    'bakery_dining': Symbols.bakery_dining_rounded,
+    'dinner_dining': Symbols.dinner_dining_rounded,
+    'fastfood': Symbols.fastfood_rounded,
+    'delivery_dining': Symbols.delivery_dining_rounded,
+    'local_taxi': Symbols.local_taxi_rounded,
+    'local_parking': Symbols.local_parking_rounded,
+    'toll': Symbols.toll_rounded,
+    'car_repair': Symbols.car_repair_rounded,
+    'apartment': Symbols.apartment_rounded,
+    'receipt_long': Symbols.receipt_long_rounded,
+    'bolt': Symbols.bolt_rounded,
+    'water_drop': Symbols.water_drop_rounded,
+    'stethoscope': Symbols.stethoscope_rounded,
+    'content_cut': Symbols.content_cut_rounded,
+    'devices': Symbols.devices_rounded,
+    'chair': Symbols.chair_rounded,
+    'atm': Symbols.atm_rounded,
+    'request_quote': Symbols.request_quote_rounded,
+    'gavel': Symbols.gavel_rounded,
+    'shield': Symbols.shield_rounded,
+    'car_crash': Symbols.car_crash_rounded,
+    'credit_score': Symbols.credit_score_rounded,
+    'backpack': Symbols.backpack_rounded,
+    'cast_for_education': Symbols.cast_for_education_rounded,
+    'lunch_dining': Symbols.lunch_dining_rounded,
+    'toys': Symbols.toys_rounded,
+    'family_restroom': Symbols.family_restroom_rounded,
+    'flight': Symbols.flight_rounded,
+    'car_rental': Symbols.car_rental_rounded,
+    'museum': Symbols.museum_rounded,
+    'casino': Symbols.casino_rounded,
+    'payments': Symbols.payments_rounded,
+    'workspace_premium': Symbols.workspace_premium_rounded,
+    'work': Symbols.work_rounded,
+    'elderly': Symbols.elderly_rounded,
+    'work_history': Symbols.work_history_rounded,
+    'home_work': Symbols.home_work_rounded,
+    'groups': Symbols.groups_rounded,
+    'sell': Symbols.sell_rounded,
+    'key': Symbols.key_rounded,
   };
 
   static const String defaultIcon = 'label';
   static const int defaultColor = 0xFF42A5F5;
 
-  static IconData resolveIcon(String iconKey) {
-    if (RegExp(r'^\d+$').hasMatch(iconKey)) {
-      return IconData(int.parse(iconKey), fontFamily: 'MaterialIcons');
-    }
-    return icons[iconKey] ?? Symbols.category_rounded;
+  static final Map<int, String> _keysByCodePoint = {
+    for (final entry in icons.entries) entry.value.codePoint: entry.key,
+  };
+
+  /// The [icons] key [value] designates, or null when nothing matches.
+  ///
+  /// Accepts the codePoint strings written by the pre-taxonomy categories, so
+  /// legacy overrides heal into keys the first time they are rewritten.
+  /// Codepoints are not unique across the icon set, but colliding entries share
+  /// the same glyph, so the key returned always renders what was stored.
+  static String? canonicalIconKey(String? value) {
+    if (value == null) return null;
+
+    final codePoint = int.tryParse(value);
+    if (codePoint != null) return _keysByCodePoint[codePoint];
+
+    return icons.containsKey(value) ? value : null;
   }
 
-  static List<String> get iconNames => icons.keys.toList();
+  static IconData resolveIcon(String iconKey) =>
+      icons[canonicalIconKey(iconKey)] ?? Symbols.category_rounded;
 
   static String colorToHex(int color) {
     return '#${(color & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';

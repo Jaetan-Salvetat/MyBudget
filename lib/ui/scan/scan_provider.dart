@@ -1,17 +1,16 @@
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
-import 'package:mybudget/core/services/secure_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
@@ -35,13 +34,13 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
-      final userKey = await SecureStorageService.getGeminiApiKey();
-      final apiKey = userKey ?? dotenv.env['GEMINI_API_KEY'] ?? '';
-      if (apiKey.isEmpty) {
-        throw const ScanGenericException(message: 'Aucune clé API Gemini configurée');
-      }
-      final scanService = ReceiptScanService(apiKey);
-      final categories = ref.read(categoryProvider).value ?? [];
+      final scanService = ReceiptScanService();
+      final resolver =
+          await ref.read(categoryDisplayResolverProvider.future);
+      final categories = resolver
+          .groupsOfType(TransactionType.expense)
+          .expand((group) => resolver.childrenOf(group.slug))
+          .toList();
       final result = await scanService.extractItems(imageBytes, categories);
       await PreferencesService.setLastScanTimestamp(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -49,15 +48,11 @@ class ScanNotifier extends _$ScanNotifier {
       state = AsyncData(result);
     } on ScanException catch (e, st) {
       state = AsyncError(e, st);
-    } on ServerException catch (e, st) {
-      final scanError = ScanException.fromServerMessage(e.message);
-      if (scanError is ScanRateLimitException ||
-          scanError is ScanServiceUnavailableException) {
-        await PreferencesService.setLastScanTimestamp(
-          DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        );
-      }
-      state = AsyncError(scanError, st);
+    } on SocketException catch (_, st) {
+      state = AsyncError(
+        const ScanGenericException(message: 'Pas de connexion internet'),
+        st,
+      );
     } catch (e, st) {
       state = AsyncError(
         const ScanGenericException(message: 'Impossible d\'analyser le ticket'),
@@ -66,12 +61,12 @@ class ScanNotifier extends _$ScanNotifier {
     }
   }
 
-  void updateItemCategory(int index, int categoryId, String categoryName) {
+  void updateItemCategory(int index, String categorySlug, String categoryName) {
     final result = state.value;
     if (result == null) return;
     final updatedItems = [...result.items];
     updatedItems[index] = updatedItems[index].copyWith(
-      categoryId: categoryId,
+      categorySlug: categorySlug,
       categoryName: categoryName,
     );
     state = AsyncData(result.copyWith(items: updatedItems));
@@ -113,13 +108,13 @@ class ScanNotifier extends _$ScanNotifier {
     final receiptPath = await _storageService.saveReceipt(imageBytes);
     final date = result.date ?? DateTime.now();
 
-    final Map<int, List<double>> grouped = {};
-    final Map<int, String> categoryLabels = {};
+    final Map<String, List<double>> grouped = {};
+    final Map<String, String> categoryLabels = {};
 
     for (final item in result.items) {
-      if (item.categoryId == null) continue;
-      grouped.putIfAbsent(item.categoryId!, () => []).add(item.effectiveAmount);
-      categoryLabels.putIfAbsent(item.categoryId!, () => item.categoryName ?? '');
+      if (item.categorySlug == null) continue;
+      grouped.putIfAbsent(item.categorySlug!, () => []).add(item.effectiveAmount);
+      categoryLabels.putIfAbsent(item.categorySlug!, () => item.categoryName ?? '');
     }
 
     int count = 0;
@@ -136,7 +131,7 @@ class ScanNotifier extends _$ScanNotifier {
       final expense = ExpenseModel.create(
         name: name,
         amount: totalAmount,
-        categoryId: entry.key,
+        categorySlug: entry.key,
         startDate: date,
         frequency: Frequency.oneTime.label,
         accountId: accountId,
