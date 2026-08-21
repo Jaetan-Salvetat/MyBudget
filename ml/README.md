@@ -7,6 +7,7 @@ Entraînement du classifieur on-device du quick-add. Les sources vivent ici, les
 ml/
 ├── quick_add/           # Training Python (mmBERT-small multi-head)
 │   ├── generate_dataset.py   # Génération du dataset FR/EN/ES/DE (SEED = 42)
+│   ├── examples.py           # Exemples de base par slug (source de la génération)
 │   ├── train.py              # Entraînement multi-head
 │   ├── test_model.py         # Évaluation du modèle
 │   ├── export_onnx.py        # Export ONNX + quantization int8
@@ -55,7 +56,7 @@ Déploiement dans l'app :
 
 ```bash
 cp output/model.onnx        ../../assets/models/model.onnx
-cp output/best/tokenizer.json ../../assets/tokenizer.json
+cp output/best/tokenizer.json ../../assets/models/tokenizer.json
 ```
 
 `assets/models/` est suivi par git LFS.
@@ -65,9 +66,12 @@ cp output/best/tokenizer.json ../../assets/tokenizer.json
 1. Éditer `assets/categories.json` et bumper `version`
 2. `dart run tool/generate_taxonomy_labels.dart`
 3. Ajuster `CategoryTaxonomyService.expectedVersion`
-4. Ajouter les exemples correspondants dans `generate_dataset.py`
-5. Mettre à jour `NUM_CATEGORIES` dans `train.py`
-6. Relancer la pipeline complète, puis redéployer
+4. Ajouter les exemples correspondants dans `examples.py`, indexés par slug
+5. Relancer la pipeline complète, puis redéployer
+
+`LABELS`, `NUM_EXPENSE` et `NUM_CATEGORIES` sont dérivés de la taxonomie : aucun nombre de
+classes n'est écrit en dur. `generate_dataset.py` échoue si un slug n'a pas d'exemples ou si
+`examples.py` référence un slug inconnu.
 
 Les tests `test/unit/taxonomy/taxonomy_asset_test.dart` vérifient que labels, taxonomie et
 corpus restent alignés.

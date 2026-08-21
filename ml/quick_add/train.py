@@ -17,12 +17,14 @@ from transformers import (
 )
 from transformers.utils import ModelOutput
 
+from generate_dataset import LABELS
+
 MODEL_NAME = "jhu-clsp/mmBERT-small"
 OUTPUT_DIR = Path(__file__).parent / "output"
 DATASET_DIR = Path(__file__).parent / "dataset"
 
 NUM_TYPES = 2
-NUM_CATEGORIES = 55
+NUM_CATEGORIES = len(LABELS)
 NUM_RECURRENCES = 2
 
 
