@@ -88,7 +88,7 @@ class FrostedGlass extends StatelessWidget {
           children: <Widget>[
             Positioned.fill(
               child: BackdropFilter(
-                filter: _saturatingBlur(
+                filterConfig: _saturatingBlur(
                   sigma: spec.blurSigma * t,
                   saturation: lerpDouble(1, glass.saturation, t)!,
                 ),
@@ -135,14 +135,19 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
   ];
 }
 
-ImageFilter _saturatingBlur({
+/// Blurs the backdrop, then desaturates it the way Apple's vibrancy does.
+///
+/// The blur is *bounded*: its kernel only samples pixels that sit inside the
+/// glass bounds, so no surrounding colour bleeds in and no bright halo forms
+/// along the edges.
+ImageFilterConfig _saturatingBlur({
   required double sigma,
   required double saturation,
 }) {
-  final ImageFilter blur = ImageFilter.blur(
+  final ImageFilterConfig blur = ImageFilterConfig.blur(
     sigmaX: sigma,
     sigmaY: sigma,
-    tileMode: TileMode.decal,
+    bounded: true,
   );
   if (saturation == 1.0) return blur;
   final double s = saturation;
@@ -155,5 +160,8 @@ ImageFilter _saturatingBlur({
     r, g, b + s, 0, 0,
     0, 0, 0, 1, 0,
   ]);
-  return ImageFilter.compose(outer: saturate, inner: blur);
+  return ImageFilterConfig.compose(
+    outer: blur,
+    inner: ImageFilterConfig(saturate),
+  );
 }
