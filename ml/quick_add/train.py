@@ -235,6 +235,9 @@ def main() -> None:
         per_device_eval_batch_size=16,
         eval_strategy="epoch",
         save_strategy="epoch",
+        # Sans limite, chaque epoch laisse 1.6 Go de reprise sur le disque.
+        # Seul le meilleur checkpoint sert, il est copie dans output/best.
+        save_total_limit=1,
         load_best_model_at_end=True,
         metric_for_best_model="category_f1",
         logging_steps=10,

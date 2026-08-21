@@ -47,7 +47,7 @@ Voir `docs/taxonomy.md` pour les règles d'évolution.
 ```bash
 cd ml/quick_add
 uv run python generate_dataset.py   # → dataset/train.jsonl + eval.jsonl
-uv run python train.py              # → output/best/  (~40 min sur Apple Silicon MPS)
+uv run python train.py              # → output/best/  (~45 min sur Apple Silicon MPS)
 uv run python test_model.py         # évaluation
 uv run python export_onnx.py        # → output/model.onnx
 ```
@@ -60,6 +60,22 @@ cp output/best/tokenizer.json ../../assets/models/tokenizer.json
 ```
 
 `assets/models/` est suivi par git LFS.
+
+## Artefacts locaux
+
+`output/`, `dataset/` et `.venv/` sont gitignorés. Après un run il ne doit rester que :
+
+```
+output/best/       ~600 Mo   poids PyTorch du modèle retenu
+output/model.onnx  ~135 Mo   export int8 déployé dans assets/
+```
+
+`output/best/` est le seul exemplaire des poids du modèle livré : sans lui, ré-exporter
+l'ONNX impose un ré-entraînement, dont le résultat ne sera pas identique (MPS n'est pas
+déterministe au bit près malgré `SEED = 42`).
+
+Les `checkpoint-*` ne servent qu'à reprendre un entraînement interrompu ; `save_total_limit`
+en borne l'accumulation dans `train.py`.
 
 ## Modifier la taxonomie
 
