@@ -109,9 +109,19 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   ) {
     return Column(
       children: [
+        if (!loan.isCompleted) ...[
+          FrostedButton.filled(
+            label: 'Remboursement anticipé',
+            icon: Symbols.savings_rounded,
+            expanded: true,
+            onPressed: () => _showPayoffBottomSheet(context, loan),
+          ),
+          const SizedBox(height: 10),
+        ],
         FrostedButton.tonal(
           label: 'Tableau d\'amortissement',
           icon: Symbols.table_rows_rounded,
+          expanded: true,
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => LoanScheduleScreen(loan: loan),
@@ -119,14 +129,6 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        if (!loan.isCompleted) ...[
-          FrostedButton.filled(
-            label: 'Remboursement anticipé',
-            icon: Symbols.savings_rounded,
-            onPressed: () => _showPayoffBottomSheet(context, loan),
-          ),
-          const SizedBox(height: 10),
-        ],
         _buildEditAndDeleteRow(context, loan, accounts),
       ],
     );
@@ -140,7 +142,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     return Row(
       children: [
         Expanded(
-          child: FrostedButton.tonal(
+          child: FrostedButton.text(
             label: 'Modifier',
             icon: Symbols.edit_rounded,
             onPressed: () => _showEditLoanBottomSheet(context, loan, accounts),
@@ -148,7 +150,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: FrostedButton.outlined(
+          child: FrostedButton.text(
             label: 'Supprimer',
             icon: Symbols.delete_rounded,
             destructive: true,
