@@ -13,6 +13,7 @@ import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 /// The one place a transaction gets typed. Reads the text as it comes,
 /// creates on submit, and leaves the way back in the snackbar.
@@ -76,6 +77,17 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     _focusNode.unfocus();
   }
 
+  /// Une dégradation ne se signale qu'au moment où elle arrive, et jamais
+  /// pendant une saisie en cours : la transaction, elle, est passée.
+  void _onDegradationChanged(bool? previous, bool degraded) {
+    if (!degraded || previous == true || !mounted) return;
+
+    FrostedSnackbar.show(
+      context,
+      message: 'L\'ajout rapide est repassé sur l\'appareil.',
+    );
+  }
+
   void _onChanged(String value) {
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
@@ -132,8 +144,10 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.listen(quickAddFocusRequestProvider, (_, _) {
       _focusNode.requestFocus();
     });
+    ref.listen(quickAddDegradationProvider, _onDegradationChanged);
 
     final draft = ref.watch(quickAddProvider);
+    final usesRemote = ref.watch(quickAddUsesRemoteProvider);
     final scheme = Theme.of(context).colorScheme;
 
     final motion = context.frostedTokens.motion.snappy;
@@ -159,7 +173,9 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               child: FrostedTextField(
                 controller: _controller,
                 focusNode: _focusNode,
-                leadingIcon: Symbols.auto_awesome_rounded,
+                leadingIcon: usesRemote
+                    ? Symbols.cloud_rounded
+                    : Symbols.auto_awesome_rounded,
                 trailingIcon: showContext ? Symbols.close_rounded : null,
                 onTrailingTap: _cancel,
                 hintText: 'café 3,50 · netflix 13,99 · salaire 2500',

@@ -7,6 +7,8 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
@@ -52,7 +54,10 @@ void main() {
     await taxonomy.load();
   });
 
-  setUp(() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await PreferencesService.init();
+
     classifier = MockClassifierService();
     memory = MockCategoryMemoryService();
     overrides = MockCategoryOverrideRepository();

@@ -10,6 +10,7 @@ import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -149,8 +150,8 @@ class QuickAddNotifier extends _$QuickAddNotifier {
 
   Future<void> _analyze(String input, int seq) async {
     try {
-      final classifier = await ref.read(quickAddClassifierProvider.future);
-      final classification = await classifier.classify(input);
+      final engine = await ref.read(quickAddEngineProvider.future);
+      final classification = await engine.classify(input);
       if (seq != _analysisSeq) return;
       state = _draftFrom(input, classification);
     } on QuickAddException catch (e) {

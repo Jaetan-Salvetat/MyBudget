@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,5 +49,23 @@ void main() {
         expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
       },
     );
+
+    test('getAiModel returns the fallback model by default', () {
+      expect(PreferencesService.getAiModel(), AiModel.fallback);
+    });
+
+    test('setAiModel persists the chosen model', () async {
+      await PreferencesService.setAiModel(AiModel.flash37);
+      expect(PreferencesService.getAiModel(), AiModel.flash37);
+    });
+
+    test('getAiModel falls back when the stored id is unknown', () async {
+      SharedPreferences.setMockInitialValues({
+        PreferencesService.keyAiModel: 'gemini-9-turbo',
+      });
+      await PreferencesService.init();
+
+      expect(PreferencesService.getAiModel(), AiModel.fallback);
+    });
   });
 }

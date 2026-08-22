@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
@@ -10,6 +11,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -35,7 +37,10 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
-      final scanService = ReceiptScanService.fromPreferences();
+      final scanService = await ReceiptScanService.fromStoredKey(
+        ref.read(apiKeyServiceProvider),
+        model: ref.read(selectedAiModelProvider),
+      );
       final resolver = await ref.read(categoryDisplayResolverProvider.future);
       final categories = resolver
           .groupsOfType(TransactionType.expense)

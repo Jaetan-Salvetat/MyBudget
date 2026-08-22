@@ -131,6 +131,136 @@ final class QuickAddClassifierProvider
 String _$quickAddClassifierHash() =>
     r'2236a78741d07fe4d5913ef9c856ad7e53a522a0';
 
+@ProviderFor(apiKeyService)
+final apiKeyServiceProvider = ApiKeyServiceProvider._();
+
+final class ApiKeyServiceProvider
+    extends $FunctionalProvider<ApiKeyService, ApiKeyService, ApiKeyService>
+    with $Provider<ApiKeyService> {
+  ApiKeyServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'apiKeyServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$apiKeyServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<ApiKeyService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ApiKeyService create(Ref ref) {
+    return apiKeyService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ApiKeyService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ApiKeyService>(value),
+    );
+  }
+}
+
+String _$apiKeyServiceHash() => r'9ba2093eba45ddf521302ab3ff8fe5fcd3a22844';
+
+@ProviderFor(apiKeyVerifier)
+final apiKeyVerifierProvider = ApiKeyVerifierProvider._();
+
+final class ApiKeyVerifierProvider
+    extends $FunctionalProvider<ApiKeyVerifier, ApiKeyVerifier, ApiKeyVerifier>
+    with $Provider<ApiKeyVerifier> {
+  ApiKeyVerifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'apiKeyVerifierProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$apiKeyVerifierHash();
+
+  @$internal
+  @override
+  $ProviderElement<ApiKeyVerifier> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ApiKeyVerifier create(Ref ref) {
+    return apiKeyVerifier(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ApiKeyVerifier value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ApiKeyVerifier>(value),
+    );
+  }
+}
+
+String _$apiKeyVerifierHash() => r'7c6d16941eaa49ed2bc82385fe7e51959b005bd7';
+
+@ProviderFor(quickAddEngineHealth)
+final quickAddEngineHealthProvider = QuickAddEngineHealthProvider._();
+
+final class QuickAddEngineHealthProvider
+    extends
+        $FunctionalProvider<
+          QuickAddEngineHealth,
+          QuickAddEngineHealth,
+          QuickAddEngineHealth
+        >
+    with $Provider<QuickAddEngineHealth> {
+  QuickAddEngineHealthProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'quickAddEngineHealthProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$quickAddEngineHealthHash();
+
+  @$internal
+  @override
+  $ProviderElement<QuickAddEngineHealth> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  QuickAddEngineHealth create(Ref ref) {
+    return quickAddEngineHealth(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(QuickAddEngineHealth value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<QuickAddEngineHealth>(value),
+    );
+  }
+}
+
+String _$quickAddEngineHealthHash() =>
+    r'bb601c3615d72ae1d982e9996ff99a42ba12fc1f';
+
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();
 

@@ -71,8 +71,7 @@ final class ScanServiceUnavailableException extends ScanException {
 final class ScanMissingApiKeyException extends ScanException {
   const ScanMissingApiKeyException()
     : super(
-        message:
-            'Ajoutez votre clé API Gemini dans les réglages pour scanner un ticket',
+        message: 'Le scan de ticket demande votre propre clé API',
         retryAfterSeconds: 0,
       );
 }

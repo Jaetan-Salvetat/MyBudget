@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
@@ -26,6 +27,7 @@ void main() {
       };
 
       await PreferencesService.init();
+      await ApiKeyService().migrateLegacyGeminiKey();
       await initializeDateFormatting('fr_FR', null);
 
       final packageInfo = await PackageInfo.fromPlatform();

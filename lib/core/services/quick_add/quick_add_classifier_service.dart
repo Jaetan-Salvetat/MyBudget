@@ -5,10 +5,11 @@ import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 
-class QuickAddClassifierService {
+class QuickAddClassifierService implements QuickAddEngine {
   static const String _recurringLabel = 'fixe';
 
   final QuickAddTokenizer _tokenizer;
@@ -31,6 +32,7 @@ class QuickAddClassifierService {
 
   /// Reads everything the text carries. The amount stays null while the user
   /// has not typed one : classifying is understanding, not validating.
+  @override
   Future<QuickAddClassification> classify(String input) async {
     final priceResult = PriceParserService.parse(input);
 

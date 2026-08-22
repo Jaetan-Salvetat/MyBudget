@@ -4,10 +4,12 @@ import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,23 +29,34 @@ void main() {
         .toList();
   });
 
-  group('ReceiptScanService.fromPreferences', () {
-    setUp(() async {
-      SharedPreferences.setMockInitialValues(<String, Object>{});
-      await PreferencesService.init();
+  group('ReceiptScanService.fromStoredKey', () {
+    late ApiKeyService keyService;
+
+    setUp(() {
+      FlutterSecureStorage.setMockInitialValues(<String, String>{});
+      keyService = ApiKeyService();
     });
 
     test('rejects a scan while the user has not set a key', () {
       expect(
-        ReceiptScanService.fromPreferences,
+        () => ReceiptScanService.fromStoredKey(
+          keyService,
+          model: AiModel.fallback,
+        ),
         throwsA(isA<ScanMissingApiKeyException>()),
       );
     });
 
-    test('builds a service once the user stored a key', () async {
-      await PreferencesService.setGeminiApiKey('user-key');
+    test('builds a service from the key shared with quick add', () async {
+      await keyService.save(AiProvider.gemini, 'user-key');
 
-      expect(ReceiptScanService.fromPreferences(), isA<ReceiptScanService>());
+      expect(
+        await ReceiptScanService.fromStoredKey(
+          keyService,
+          model: AiModel.fallback,
+        ),
+        isA<ReceiptScanService>(),
+      );
     });
   });
 
