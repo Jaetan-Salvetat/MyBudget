@@ -191,12 +191,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
         borderRadius: _shape(
-          const InteractionStates(
-            hovered: false,
-            focused: false,
-            pressed: false,
-            enabled: true,
-          ),
+          InteractionStates.inert,
           header: false,
         ),
       ),

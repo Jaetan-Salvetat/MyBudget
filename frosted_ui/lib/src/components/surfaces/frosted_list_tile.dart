@@ -185,12 +185,7 @@ class FrostedListTile extends StatelessWidget {
 
     if (onTap == null) {
       return content(
-        const InteractionStates(
-          hovered: false,
-          focused: false,
-          pressed: false,
-          enabled: true,
-        ),
+        InteractionStates.inert,
       );
     }
 
