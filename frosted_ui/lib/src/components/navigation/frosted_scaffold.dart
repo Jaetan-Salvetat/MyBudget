@@ -63,8 +63,8 @@ class FrostedScaffold extends StatefulWidget {
   ///
   /// Throws when no [FrostedScaffold] is found in the ancestor chain.
   static FrostedScaffoldState of(BuildContext context) {
-    final FrostedScaffoldState? state =
-        context.findAncestorStateOfType<FrostedScaffoldState>();
+    final FrostedScaffoldState? state = context
+        .findAncestorStateOfType<FrostedScaffoldState>();
     if (state == null) {
       throw FlutterError(
         'FrostedScaffold.of() called with a context that does not contain a FrostedScaffold.',

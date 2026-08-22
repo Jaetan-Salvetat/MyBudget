@@ -9,11 +9,7 @@ import '../../foundations/frosted_type_scale.dart';
 /// Wraps Flutter's [Tooltip] for timing, positioning and dismissal, restyled
 /// as a near-neutral inverse-surface chip.
 class FrostedTooltip extends StatelessWidget {
-  const FrostedTooltip({
-    required this.message,
-    required this.child,
-    super.key,
-  });
+  const FrostedTooltip({required this.message, required this.child, super.key});
 
   final String message;
   final Widget child;
@@ -24,8 +20,9 @@ class FrostedTooltip extends StatelessWidget {
 
     return Tooltip(
       message: message,
-      textStyle: FrostedTypeScale.labelMedium
-          .copyWith(color: cs.onInverseSurface),
+      textStyle: FrostedTypeScale.labelMedium.copyWith(
+        color: cs.onInverseSurface,
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: FrostedSpacing.sp3,
         vertical: FrostedSpacing.sp2,

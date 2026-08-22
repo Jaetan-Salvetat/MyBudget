@@ -5,6 +5,7 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
+import '../actions/_interactive_surface.dart';
 import 'frosted_badge.dart';
 import 'frosted_nav_item.dart';
 
@@ -96,39 +97,42 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color bg =
-        selected ? cs.primaryContainer : Colors.transparent;
+    final Color bg = selected ? cs.primaryContainer : Colors.transparent;
     final Color fg = selected ? cs.onPrimaryContainer : cs.onSurface;
     final IconData icon = selected && item.selectedIcon != null
         ? item.selectedIcon!
         : item.icon;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(FrostedRadius.md),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(FrostedRadius.md),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp3,
-            vertical: FrostedSpacing.sp3,
-          ),
-          child: Row(
-            children: <Widget>[
-              Icon(icon, size: 20, color: fg),
-              const SizedBox(width: FrostedSpacing.sp3),
-              Expanded(
-                child: Text(
-                  item.label,
-                  style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+    return InteractiveSurface(
+      onTap: onTap,
+      semanticsLabel: item.label,
+      semanticsSelected: selected,
+      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(FrostedRadius.md),
+        ),
+        child: s.ink(
+          color: fg,
+          borderRadius: BorderRadius.circular(FrostedRadius.md),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FrostedSpacing.sp3,
+              vertical: FrostedSpacing.sp3,
+            ),
+            child: Row(
+              children: <Widget>[
+                Icon(icon, size: 20, color: fg),
+                const SizedBox(width: FrostedSpacing.sp3),
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                  ),
                 ),
-              ),
-              if (item.badge != null) FrostedBadgeView(badge: item.badge!),
-            ],
+                if (item.badge != null) FrostedBadgeView(badge: item.badge!),
+              ],
+            ),
           ),
         ),
       ),

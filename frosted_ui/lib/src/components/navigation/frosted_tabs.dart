@@ -87,8 +87,8 @@ class _FrostedTabsState extends State<FrostedTabs> {
   }
 
   List<double> _contentWidths(TextScaler scaler) => <double>[
-        for (final FrostedTab tab in widget.tabs) _contentWidth(tab, scaler),
-      ];
+    for (final FrostedTab tab in widget.tabs) _contentWidth(tab, scaler),
+  ];
 
   /// Leading edge of every tab in the scrollable row. A tab box is its content
   /// plus the horizontal padding on both sides.
@@ -106,8 +106,9 @@ class _FrostedTabsState extends State<FrostedTabs> {
   /// from outside the row — a swipe on the paired page view, a deep link.
   void _revealSelected() {
     if (!_scroll.hasClients) return;
-    final List<double> contentWidths =
-        _contentWidths(MediaQuery.textScalerOf(context));
+    final List<double> contentWidths = _contentWidths(
+      MediaQuery.textScalerOf(context),
+    );
     final int index = widget.currentIndex;
     if (index < 0 || index >= contentWidths.length) return;
 
@@ -132,19 +133,16 @@ class _FrostedTabsState extends State<FrostedTabs> {
       mainAxisSize: expandTabs ? MainAxisSize.max : MainAxisSize.min,
       children: <Widget>[
         for (int i = 0; i < widget.tabs.length; i++)
-          if (expandTabs)
-            Expanded(child: _tabAt(i))
-          else
-            _tabAt(i),
+          if (expandTabs) Expanded(child: _tabAt(i)) else _tabAt(i),
       ],
     );
   }
 
   Widget _tabAt(int index) => _Tab(
-        tab: widget.tabs[index],
-        selected: index == widget.currentIndex,
-        onTap: () => widget.onTap(index),
-      );
+    tab: widget.tabs[index],
+    selected: index == widget.currentIndex,
+    onTap: () => widget.onTap(index),
+  );
 
   /// Leading-anchored, horizontally scrollable row — used by the secondary
   /// variant, and by the primary variant when equal-width cells would be too
@@ -165,8 +163,9 @@ class _FrostedTabsState extends State<FrostedTabs> {
         indicatorLeft: indicatorSpansTab
             ? lefts[widget.currentIndex]
             : lefts[widget.currentIndex] + FrostedTabs._hPad,
-        indicatorWidth:
-            indicatorSpansTab ? selected + FrostedTabs._hPad * 2 : selected,
+        indicatorWidth: indicatorSpansTab
+            ? selected + FrostedTabs._hPad * 2
+            : selected,
         slide: slide,
         divider: cs.outlineVariant,
         indicatorColor: cs.primary,
@@ -179,8 +178,9 @@ class _FrostedTabsState extends State<FrostedTabs> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final FrostedMotion slide = context.frostedTokens.motion.fluid;
-    final List<double> contentWidths =
-        _contentWidths(MediaQuery.textScalerOf(context));
+    final List<double> contentWidths = _contentWidths(
+      MediaQuery.textScalerOf(context),
+    );
 
     if (widget.variant == FrostedTabsVariant.secondary) {
       return _scrollableRow(
@@ -193,7 +193,8 @@ class _FrostedTabsState extends State<FrostedTabs> {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double required = contentWidths.fold<double>(0, _sum) +
+        final double required =
+            contentWidths.fold<double>(0, _sum) +
             widget.tabs.length * FrostedTabs._hPad * 2;
         if (required > constraints.maxWidth) {
           return _scrollableRow(
@@ -209,7 +210,8 @@ class _FrostedTabsState extends State<FrostedTabs> {
         return _Stack(
           width: constraints.maxWidth,
           indicatorLeft:
-              cellWidth * widget.currentIndex + (cellWidth - indicatorWidth) / 2,
+              cellWidth * widget.currentIndex +
+              (cellWidth - indicatorWidth) / 2,
           indicatorWidth: indicatorWidth,
           slide: slide,
           divider: cs.outlineVariant,
@@ -279,11 +281,7 @@ class _Stack extends StatelessWidget {
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({
-    required this.tab,
-    required this.selected,
-    required this.onTap,
-  });
+  const _Tab({required this.tab, required this.selected, required this.onTap});
 
   final FrostedTab tab;
   final bool selected;
@@ -306,22 +304,27 @@ class _Tab extends StatelessWidget {
           tween: ColorTween(end: target),
           builder: (BuildContext context, Color? color, Widget? _) {
             final Color fg = color ?? target;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: FrostedTabs._hPad),
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    if (tab.icon != null) ...<Widget>[
-                      Icon(tab.icon, size: FrostedTabs._iconSize, color: fg),
-                      const SizedBox(width: FrostedSpacing.sp2),
+            return s.ink(
+              color: fg,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedTabs._hPad,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (tab.icon != null) ...<Widget>[
+                        Icon(tab.icon, size: FrostedTabs._iconSize, color: fg),
+                        const SizedBox(width: FrostedSpacing.sp2),
+                      ],
+                      Text(
+                        tab.label,
+                        style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                        maxLines: 1,
+                      ),
                     ],
-                    Text(
-                      tab.label,
-                      style: FrostedTypeScale.labelLarge.copyWith(color: fg),
-                      maxLines: 1,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );

@@ -84,7 +84,8 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
 
   List<String> _matches(String query) {
     if (query.isEmpty) return const <String>[];
-    final bool Function(String, String) test = widget.filter ??
+    final bool Function(String, String) test =
+        widget.filter ??
         (String option, String q) =>
             option.toLowerCase().contains(q.toLowerCase());
     final List<String> hits = <String>[];
@@ -124,8 +125,8 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
     final Color accent = !enabled
         ? cs.onSurface.withValues(alpha: 0.38)
         : _focused
-            ? cs.primary
-            : cs.onSurfaceVariant;
+        ? cs.primary
+        : cs.onSurfaceVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,67 +149,65 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
             elevation: WidgetStatePropertyAll<double>(0),
             padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
             shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
-            surfaceTintColor:
-                WidgetStatePropertyAll<Color>(Colors.transparent),
+            surfaceTintColor: WidgetStatePropertyAll<Color>(Colors.transparent),
           ),
           menuChildren: <Widget>[
             FrostedMenuPanel(
               width: _fieldWidth,
               entries: <FrostedMenuEntry>[
                 for (final String match in _matches(_controller.text))
-                  FrostedMenuEntry(
-                    label: match,
-                    onTap: () => _select(match),
-                  ),
+                  FrostedMenuEntry(label: match, onTap: () => _select(match)),
               ],
             ),
           ],
-          builder: (BuildContext context, MenuController controller, Widget? _) {
-            return FrostedFieldSurface(
-              key: _fieldKey,
-              focused: _focused,
-              hasError: false,
-              enabled: enabled,
-              glass: widget.glass,
-              padding: const EdgeInsets.symmetric(
-                horizontal: FrostedSpacing.sp4,
-                vertical: FrostedSpacing.sp3,
-              ),
-              child: Row(
-                children: <Widget>[
-                  if (widget.leadingIcon != null) ...<Widget>[
-                    Icon(widget.leadingIcon, size: 20, color: accent),
-                    const SizedBox(width: FrostedSpacing.sp3),
-                  ],
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      enabled: enabled,
-                      onChanged: _onChanged,
-                      onSubmitted: (String v) {
-                        final List<String> hits = _matches(v);
-                        if (hits.isNotEmpty) _select(hits.first);
-                      },
-                      cursorColor: cs.primary,
-                      cursorWidth: 2,
-                      cursorRadius: const Radius.circular(1),
-                      style: FrostedTypeScale.bodyLarge
-                          .copyWith(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        isCollapsed: true,
-                        border: InputBorder.none,
-                        hintText: widget.hintText,
-                        hintStyle: FrostedTypeScale.bodyLarge.copyWith(
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+          builder:
+              (BuildContext context, MenuController controller, Widget? _) {
+                return FrostedFieldSurface(
+                  key: _fieldKey,
+                  focused: _focused,
+                  hasError: false,
+                  enabled: enabled,
+                  glass: widget.glass,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FrostedSpacing.sp4,
+                    vertical: FrostedSpacing.sp3,
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      if (widget.leadingIcon != null) ...<Widget>[
+                        Icon(widget.leadingIcon, size: 20, color: accent),
+                        const SizedBox(width: FrostedSpacing.sp3),
+                      ],
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          enabled: enabled,
+                          onChanged: _onChanged,
+                          onSubmitted: (String v) {
+                            final List<String> hits = _matches(v);
+                            if (hits.isNotEmpty) _select(hits.first);
+                          },
+                          cursorColor: cs.primary,
+                          cursorWidth: 2,
+                          cursorRadius: const Radius.circular(1),
+                          style: FrostedTypeScale.bodyLarge.copyWith(
+                            color: cs.onSurface,
+                          ),
+                          decoration: InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            hintText: widget.hintText,
+                            hintStyle: FrostedTypeScale.bodyLarge.copyWith(
+                              color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
+                );
+              },
         ),
       ],
     );

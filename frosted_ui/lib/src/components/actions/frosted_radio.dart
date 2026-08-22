@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
@@ -42,26 +43,30 @@ class FrostedRadio<T> extends StatelessWidget {
             ? cs.primary
             : cs.onSurface.withValues(alpha: 0.38);
 
-        return Padding(
-          padding: const EdgeInsets.all(FrostedSpacing.sp3),
-          child: Container(
-            width: _kCircleSize,
-            height: _kCircleSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: ringColor, width: _kBorderWidth),
-            ),
-            child: Center(
-              child: AnimatedScale(
-                duration: motion.duration,
-                curve: motion.curve,
-                scale: _selected ? 1.0 : 0.0,
-                child: Container(
-                  width: _kDotSize,
-                  height: _kDotSize,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
+        return s.ink(
+          color: _selected ? cs.primary : cs.onSurface,
+          borderRadius: BorderRadius.circular(FrostedRadius.full),
+          Padding(
+            padding: const EdgeInsets.all(FrostedSpacing.sp3),
+            child: Container(
+              width: _kCircleSize,
+              height: _kCircleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: ringColor, width: _kBorderWidth),
+              ),
+              child: Center(
+                child: AnimatedScale(
+                  duration: motion.duration,
+                  curve: motion.curve,
+                  scale: _selected ? 1.0 : 0.0,
+                  child: Container(
+                    width: _kDotSize,
+                    height: _kDotSize,
+                    decoration: BoxDecoration(
+                      color: dotColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
               ),

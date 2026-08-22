@@ -61,9 +61,7 @@ class FrostedTopBar extends StatelessWidget implements PreferredSizeWidget {
       child: SizedBox(
         height: toolbarHeight,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp1,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp1),
           child: Row(
             children: <Widget>[
               leading ?? const SizedBox(width: 44),
@@ -72,8 +70,9 @@ class FrostedTopBar extends StatelessWidget implements PreferredSizeWidget {
                   padding: const EdgeInsets.only(left: FrostedSpacing.sp2),
                   child: Text(
                     title,
-                    style: text.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

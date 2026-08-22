@@ -53,8 +53,7 @@ extension BuildContextFrostedTokens on BuildContext {
   /// Throws if no [FrostedTokens] extension was registered — call
   /// `FrostedTheme.light(...)` or `.dark(...)` when building your [ThemeData].
   FrostedTokens get frostedTokens {
-    final FrostedTokens? tokens =
-        Theme.of(this).extension<FrostedTokens>();
+    final FrostedTokens? tokens = Theme.of(this).extension<FrostedTokens>();
     assert(
       tokens != null,
       'FrostedTokens extension missing. Use FrostedTheme.light/.dark to build your ThemeData.',

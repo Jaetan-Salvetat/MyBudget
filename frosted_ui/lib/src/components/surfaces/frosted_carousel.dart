@@ -32,8 +32,9 @@ class FrostedCarousel extends StatefulWidget {
 }
 
 class _FrostedCarouselState extends State<FrostedCarousel> {
-  late final PageController _controller =
-      PageController(viewportFraction: widget.viewportFraction);
+  late final PageController _controller = PageController(
+    viewportFraction: widget.viewportFraction,
+  );
   int _index = 0;
 
   @override

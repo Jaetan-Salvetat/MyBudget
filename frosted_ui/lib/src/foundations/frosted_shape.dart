@@ -46,11 +46,9 @@ enum FrostedShape {
     Size size, {
     required bool pressed,
     double roundedRadius = FrostedRadius.md,
-  }) =>
-      BorderRadius.all(
-        Radius.circular(
-          (pressed ? opposite : this)
-              .radiusFor(size, roundedRadius: roundedRadius),
-        ),
-      );
+  }) => BorderRadius.all(
+    Radius.circular(
+      (pressed ? opposite : this).radiusFor(size, roundedRadius: roundedRadius),
+    ),
+  );
 }

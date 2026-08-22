@@ -5,6 +5,7 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
+import '../actions/_interactive_surface.dart';
 
 const double _kToolbarHeight = 48;
 
@@ -44,17 +45,12 @@ class FrostedToolbar extends StatelessWidget {
           level: level,
           tone: tone,
           borderRadius: BorderRadius.circular(FrostedRadius.lg),
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp3,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp3),
           child: SizedBox(
             height: _kToolbarHeight,
             child: Row(
               children: <Widget>[
-                _Breadcrumbs(
-                  crumbs: breadcrumbs,
-                  onTap: onBreadcrumbTap,
-                ),
+                _Breadcrumbs(crumbs: breadcrumbs, onTap: onBreadcrumbTap),
                 const Spacer(),
                 if (onSearchTap != null)
                   _SearchButton(
@@ -132,15 +128,19 @@ class _Crumb extends StatelessWidget {
     if (onTap == null || active) {
       return Text(label, style: style);
     }
-    return InkWell(
+    return InteractiveSurface(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FrostedRadius.xs),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: FrostedSpacing.sp1,
-          vertical: 2,
+      semanticsLabel: label,
+      builder: (BuildContext context, InteractionStates s) => s.ink(
+        color: cs.onSurface,
+        borderRadius: BorderRadius.circular(FrostedRadius.xs),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: FrostedSpacing.sp1,
+            vertical: 2,
+          ),
+          child: Text(label, style: style),
         ),
-        child: Text(label, style: style),
       ),
     );
   }
@@ -160,45 +160,53 @@ class _SearchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    return InkWell(
+    return InteractiveSurface(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FrostedRadius.md),
-      child: Ink(
+      semanticsLabel: hint,
+      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
         decoration: BoxDecoration(
           color: cs.onSurface.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(FrostedRadius.md),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: FrostedSpacing.sp3,
-          vertical: FrostedSpacing.sp2,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(Icons.search, size: 16, color: cs.onSurfaceVariant),
-            const SizedBox(width: FrostedSpacing.sp2),
-            Text(
-              hint,
-              style: FrostedTypeScale.labelMedium
-                  .copyWith(color: cs.onSurfaceVariant),
+        child: s.ink(
+          color: cs.onSurface,
+          borderRadius: BorderRadius.circular(FrostedRadius.md),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FrostedSpacing.sp3,
+              vertical: FrostedSpacing.sp2,
             ),
-            const SizedBox(width: FrostedSpacing.sp3),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FrostedSpacing.sp1 + 2,
-                vertical: 1,
-              ),
-              decoration: BoxDecoration(
-                color: cs.onSurface.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(FrostedRadius.xs),
-              ),
-              child: Text(
-                shortcut,
-                style: FrostedTypeScale.labelSmall
-                    .copyWith(color: cs.onSurfaceVariant),
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.search, size: 16, color: cs.onSurfaceVariant),
+                const SizedBox(width: FrostedSpacing.sp2),
+                Text(
+                  hint,
+                  style: FrostedTypeScale.labelMedium.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: FrostedSpacing.sp3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FrostedSpacing.sp1 + 2,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.onSurface.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(FrostedRadius.xs),
+                  ),
+                  child: Text(
+                    shortcut,
+                    style: FrostedTypeScale.labelSmall.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

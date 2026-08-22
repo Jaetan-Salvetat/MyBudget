@@ -35,8 +35,9 @@ class FrostedTheme {
     );
     final bool isDark = brightness == Brightness.dark;
 
-    final FrostedStateTokens state =
-        isDark ? FrostedStateTokens.dark() : FrostedStateTokens.light();
+    final FrostedStateTokens state = isDark
+        ? FrostedStateTokens.dark()
+        : FrostedStateTokens.light();
     final FrostedTokens tokens = FrostedTokens(
       glass: FrostedGlassTokens.standard(),
       motion: FrostedMotionTokens.standard(),

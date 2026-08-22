@@ -119,64 +119,71 @@ class FrostedListTile extends StatelessWidget {
         duration: motion.duration,
         curve: motion.curve,
         decoration: BoxDecoration(color: fill, borderRadius: _shape(s)),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: minHeight),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FrostedSpacing.sp4,
-              vertical: FrostedSpacing.sp2,
-            ),
-            child: Row(
-              children: <Widget>[
-                if (leading != null) ...<Widget>[
-                  IconTheme.merge(
-                    data: IconThemeData(color: cs.onSurfaceVariant, size: 24),
-                    child: leading!,
-                  ),
-                  const SizedBox(width: FrostedSpacing.sp4),
-                ],
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        title,
-                        style: FrostedTypeScale.bodyLarge.copyWith(
-                          color: titleColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (twoLine) ...<Widget>[
-                        const SizedBox(height: 2),
+        child: s.ink(
+          color: cs.onSurface,
+          borderRadius: _shape(s),
+          ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FrostedSpacing.sp4,
+                vertical: FrostedSpacing.sp2,
+              ),
+              child: Row(
+                children: <Widget>[
+                  if (leading != null) ...<Widget>[
+                    IconTheme.merge(
+                      data: IconThemeData(color: cs.onSurfaceVariant, size: 24),
+                      child: leading!,
+                    ),
+                    const SizedBox(width: FrostedSpacing.sp4),
+                  ],
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
                         Text(
-                          subtitle!,
-                          style: FrostedTypeScale.bodySmall.copyWith(
-                            color: subtitleColor,
+                          title,
+                          style: FrostedTypeScale.bodyLarge.copyWith(
+                            color: titleColor,
+                            fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (twoLine) ...<Widget>[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle!,
+                            style: FrostedTypeScale.bodySmall.copyWith(
+                              color: subtitleColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ),
-                if (trailing != null) ...<Widget>[
-                  const SizedBox(width: FrostedSpacing.sp4),
-                  DefaultTextStyle.merge(
-                    style: FrostedTypeScale.labelMedium.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                    child: IconTheme.merge(
-                      data: IconThemeData(color: cs.onSurfaceVariant, size: 20),
-                      child: trailing!,
                     ),
                   ),
+                  if (trailing != null) ...<Widget>[
+                    const SizedBox(width: FrostedSpacing.sp4),
+                    DefaultTextStyle.merge(
+                      style: FrostedTypeScale.labelMedium.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                      child: IconTheme.merge(
+                        data: IconThemeData(
+                          color: cs.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        child: trailing!,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -184,9 +191,7 @@ class FrostedListTile extends StatelessWidget {
     }
 
     if (onTap == null) {
-      return content(
-        InteractionStates.inert,
-      );
+      return content(InteractionStates.inert);
     }
 
     return InteractiveSurface(

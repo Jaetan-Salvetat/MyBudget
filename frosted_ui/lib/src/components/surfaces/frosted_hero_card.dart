@@ -65,15 +65,17 @@ class FrostedHeroCard extends StatelessWidget {
                   if (label != null) ...<Widget>[
                     Text(
                       label!.toUpperCase(),
-                      style: FrostedTypeScale.labelSmall
-                          .copyWith(color: cs.onPrimaryContainer),
+                      style: FrostedTypeScale.labelSmall.copyWith(
+                        color: cs.onPrimaryContainer,
+                      ),
                     ),
                     const SizedBox(height: FrostedSpacing.sp2),
                   ],
                   Text(
                     title,
-                    style: FrostedTypeScale.displaySmall
-                        .copyWith(color: cs.onPrimaryContainer),
+                    style: FrostedTypeScale.displaySmall.copyWith(
+                      color: cs.onPrimaryContainer,
+                    ),
                   ),
                   if (subtitle != null) ...<Widget>[
                     const SizedBox(height: FrostedSpacing.sp2),

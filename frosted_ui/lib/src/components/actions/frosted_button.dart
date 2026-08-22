@@ -6,7 +6,6 @@ import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '_interactive_surface.dart';
-import '_ripple.dart';
 
 enum _ButtonVariant { filled, tonal, outlined, text }
 
@@ -189,11 +188,9 @@ class FrostedButton extends StatelessWidget {
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
-          child: PressRipple(
-            origin: s.pressOrigin,
-            progress: s.ripple,
+          child: s.ink(
             color: fg,
-            child: Padding(
+            Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isText
                     ? FrostedSpacing.sp3 + 2

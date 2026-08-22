@@ -46,8 +46,9 @@ class FrostedBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: FrostedTypeScale.bodyMedium
-                  .copyWith(color: cs.onSecondaryContainer),
+              style: FrostedTypeScale.bodyMedium.copyWith(
+                color: cs.onSecondaryContainer,
+              ),
             ),
           ),
           if (actionLabel != null && onAction != null) ...<Widget>[

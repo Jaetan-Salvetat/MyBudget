@@ -66,10 +66,16 @@ class FrostedStateTokens {
       hover: Color.lerp(a.hover, b.hover, t)!,
       focus: Color.lerp(a.focus, b.focus, t)!,
       press: Color.lerp(a.press, b.press, t)!,
-      disabledForeground:
-          Color.lerp(a.disabledForeground, b.disabledForeground, t)!,
-      disabledBackground:
-          Color.lerp(a.disabledBackground, b.disabledBackground, t)!,
+      disabledForeground: Color.lerp(
+        a.disabledForeground,
+        b.disabledForeground,
+        t,
+      )!,
+      disabledBackground: Color.lerp(
+        a.disabledBackground,
+        b.disabledBackground,
+        t,
+      )!,
     );
   }
 }

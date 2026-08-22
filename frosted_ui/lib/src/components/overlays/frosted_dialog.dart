@@ -21,46 +21,47 @@ Future<T?> showFrostedDialog<T>({
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.transparent,
     transitionDuration: const Duration(milliseconds: 260),
-    pageBuilder: (BuildContext context, Animation<double> _,
-            Animation<double> _) =>
-        Theme(data: theme, child: builder(context)),
-    transitionBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondary,
-      Widget child,
-    ) {
-      final CurvedAnimation curve = CurvedAnimation(
-        parent: animation,
-        curve: const Cubic(0.32, 0.72, 0, 1),
-      );
-      return Stack(
-        children: <Widget>[
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: barrierDismissible
-                  ? () => Navigator.of(context).maybePop()
-                  : null,
-              child: FrostedGlass(
-                level: FrostedGlassLevel.regular,
-                tone: FrostedGlassTone.dark,
-                elevation: FrostedGlassElevation.none,
-                borderRadius: BorderRadius.zero,
-                animation: curve,
+    pageBuilder:
+        (BuildContext context, Animation<double> _, Animation<double> _) =>
+            Theme(data: theme, child: builder(context)),
+    transitionBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondary,
+          Widget child,
+        ) {
+          final CurvedAnimation curve = CurvedAnimation(
+            parent: animation,
+            curve: const Cubic(0.32, 0.72, 0, 1),
+          );
+          return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: barrierDismissible
+                      ? () => Navigator.of(context).maybePop()
+                      : null,
+                  child: FrostedGlass(
+                    level: FrostedGlassLevel.regular,
+                    tone: FrostedGlassTone.dark,
+                    elevation: FrostedGlassElevation.none,
+                    borderRadius: BorderRadius.zero,
+                    animation: curve,
+                  ),
+                ),
               ),
-            ),
-          ),
-          FadeTransition(
-            opacity: curve,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.92, end: 1).animate(curve),
-              child: child,
-            ),
-          ),
-        ],
-      );
-    },
+              FadeTransition(
+                opacity: curve,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.92, end: 1).animate(curve),
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        },
   );
 }
 
@@ -97,49 +98,51 @@ class FrostedDialog extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainer.withValues(alpha: 0.72),
-              borderRadius: BorderRadius.circular(FrostedRadius.xl),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainer.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(FrostedRadius.xl),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                boxShadow: context.frostedTokens.glass.liftedShadow,
               ),
-              boxShadow: context.frostedTokens.glass.liftedShadow,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(FrostedSpacing.sp5),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: FrostedTypeScale.titleLarge
-                        .copyWith(color: cs.onSurface),
-                  ),
-                  if (body != null) ...<Widget>[
-                    const SizedBox(height: FrostedSpacing.sp3),
-                    DefaultTextStyle.merge(
-                      style: FrostedTypeScale.bodyMedium
-                          .copyWith(color: cs.onSurfaceVariant),
-                      child: body!,
+              child: Padding(
+                padding: const EdgeInsets.all(FrostedSpacing.sp5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      style: FrostedTypeScale.titleLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
                     ),
-                  ],
-                  if (actions.isNotEmpty || leadingAction != null) ...<Widget>[
-                    const SizedBox(height: FrostedSpacing.sp5),
-                    Row(
-                      children: <Widget>[
-                        ?leadingAction,
-                        const Spacer(),
-                        for (int i = 0; i < actions.length; i++) ...<Widget>[
-                          if (i > 0) const SizedBox(width: FrostedSpacing.sp2),
-                          actions[i],
+                    if (body != null) ...<Widget>[
+                      const SizedBox(height: FrostedSpacing.sp3),
+                      DefaultTextStyle.merge(
+                        style: FrostedTypeScale.bodyMedium.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                        child: body!,
+                      ),
+                    ],
+                    if (actions.isNotEmpty ||
+                        leadingAction != null) ...<Widget>[
+                      const SizedBox(height: FrostedSpacing.sp5),
+                      Row(
+                        children: <Widget>[
+                          ?leadingAction,
+                          const Spacer(),
+                          for (int i = 0; i < actions.length; i++) ...<Widget>[
+                            if (i > 0)
+                              const SizedBox(width: FrostedSpacing.sp2),
+                            actions[i],
+                          ],
                         ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
             ),
           ),
         ),

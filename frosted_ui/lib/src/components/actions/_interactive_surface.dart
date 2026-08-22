@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '_ripple.dart';
+
 class InteractionStates {
   const InteractionStates({
     required this.hovered,
@@ -36,6 +38,21 @@ class InteractionStates {
     enabled: true,
     pressOrigin: null,
     ripple: kAlwaysDismissedAnimation,
+  );
+
+  /// Lays the press ink under [child] — above the surface the builder drew,
+  /// below the label it carries — tinted with the foreground [color]. Pass
+  /// the surface's [borderRadius] so the ink stops at its corners.
+  Widget ink(
+    Widget child, {
+    required Color color,
+    BorderRadius? borderRadius,
+  }) => PressRipple(
+    origin: pressOrigin,
+    progress: ripple,
+    color: color,
+    borderRadius: borderRadius,
+    child: child,
   );
 }
 
@@ -117,6 +134,14 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
     _release();
   }
 
+  /// A press that never became a tap — the pointer scrolled away, or a nested
+  /// target took the gesture — takes its ink with it rather than playing out
+  /// a reaction to something that did not happen.
+  void _abort() {
+    _ripple.reset();
+    _requestRelease();
+  }
+
   void _release() {
     _releasePending = false;
     if (!_pressed) return;
@@ -164,11 +189,11 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
 
     Widget child = widget.builder(context, states);
 
-    // The press reads through the state layer and the shape morph the builder
-    // already draws, so the surface needs no ink of its own. Handling the tap
-    // here — rather than in an overlay stacked above the content — leaves any
-    // interactive child (a trailing icon button, say) free to win the gesture
-    // arena on its own.
+    // The ink itself is the builder's to place — only it knows which layer
+    // sits between its surface and its content — so this level just drives
+    // [InteractionStates.ripple]. Handling the tap here, rather than in an
+    // overlay stacked above the content, leaves any interactive child (a
+    // trailing icon button, say) free to win the gesture arena on its own.
     child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _enabled ? widget.onTap : null,
@@ -176,7 +201,7 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
           ? (TapDownDetails details) => _press(details.localPosition)
           : null,
       onTapUp: _enabled ? (TapUpDetails _) => _requestRelease() : null,
-      onTapCancel: _enabled ? _requestRelease : null,
+      onTapCancel: _enabled ? _abort : null,
       child: child,
     );
 

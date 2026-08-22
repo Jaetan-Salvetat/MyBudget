@@ -3,17 +3,14 @@ import 'package:flutter/material.dart';
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
+import '../actions/_interactive_surface.dart';
 
 /// A standalone breadcrumb trail.
 ///
 /// The last crumb is emphasized and not interactive. Others can be tapped if
 /// [onTap] is provided.
 class FrostedBreadcrumb extends StatelessWidget {
-  const FrostedBreadcrumb({
-    required this.crumbs,
-    this.onTap,
-    super.key,
-  });
+  const FrostedBreadcrumb({required this.crumbs, this.onTap, super.key});
 
   final List<String> crumbs;
   final ValueChanged<int>? onTap;
@@ -74,15 +71,19 @@ class _Crumb extends StatelessWidget {
         child: Text(label, style: style),
       );
     }
-    return InkWell(
+    return InteractiveSurface(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FrostedRadius.xs),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: FrostedSpacing.sp1,
-          vertical: 2,
+      semanticsLabel: label,
+      builder: (BuildContext context, InteractionStates s) => s.ink(
+        color: cs.onSurface,
+        borderRadius: BorderRadius.circular(FrostedRadius.xs),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: FrostedSpacing.sp1,
+            vertical: 2,
+          ),
+          child: Text(label, style: style),
         ),
-        child: Text(label, style: style),
       ),
     );
   }

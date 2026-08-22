@@ -228,10 +228,15 @@ class _Field extends StatelessWidget {
                 : Color.alphaBlend(fg.withValues(alpha: overlay), bg),
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            text,
-            style: FrostedTypeScale.displaySmall.copyWith(color: fg),
+          child: s.ink(
+            color: fg,
+            borderRadius: BorderRadius.circular(FrostedRadius.lg),
+            Center(
+              child: Text(
+                text,
+                style: FrostedTypeScale.displaySmall.copyWith(color: fg),
+              ),
+            ),
           ),
         );
       },

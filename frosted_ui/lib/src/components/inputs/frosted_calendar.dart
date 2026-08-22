@@ -196,30 +196,36 @@ class _MonthLabel extends StatelessWidget {
             ? 0.08
             : 0;
         return Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp3,
-            vertical: FrostedSpacing.sp1,
-          ),
           decoration: BoxDecoration(
             color: overlay == 0
                 ? Colors.transparent
                 : cs.onSurface.withValues(alpha: overlay),
             borderRadius: BorderRadius.circular(FrostedRadius.full),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                label,
-                style: FrostedTypeScale.titleMedium.copyWith(
-                  color: cs.onSurface,
-                ),
+          child: s.ink(
+            color: cs.onSurface,
+            borderRadius: BorderRadius.circular(FrostedRadius.full),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FrostedSpacing.sp3,
+                vertical: FrostedSpacing.sp1,
               ),
-              Icon(
-                expanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                color: cs.onSurfaceVariant,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    label,
+                    style: FrostedTypeScale.titleMedium.copyWith(
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  Icon(
+                    expanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -274,10 +280,15 @@ class _DayCell extends StatelessWidget {
                 );
           return Container(
             decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Text(
-              '$day',
-              style: FrostedTypeScale.bodyMedium.copyWith(color: fg),
+            child: s.ink(
+              color: fg,
+              borderRadius: BorderRadius.circular(FrostedRadius.full),
+              Center(
+                child: Text(
+                  '$day',
+                  style: FrostedTypeScale.bodyMedium.copyWith(color: fg),
+                ),
+              ),
             ),
           );
         },
@@ -330,10 +341,15 @@ class _YearCell extends StatelessWidget {
               color: bg,
               borderRadius: BorderRadius.circular(FrostedRadius.full),
             ),
-            alignment: Alignment.center,
-            child: Text(
-              '$year',
-              style: FrostedTypeScale.bodyLarge.copyWith(color: fg),
+            child: s.ink(
+              color: fg,
+              borderRadius: BorderRadius.circular(FrostedRadius.full),
+              Center(
+                child: Text(
+                  '$year',
+                  style: FrostedTypeScale.bodyLarge.copyWith(color: fg),
+                ),
+              ),
             ),
           );
         },

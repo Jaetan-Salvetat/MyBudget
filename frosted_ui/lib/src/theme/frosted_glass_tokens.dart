@@ -56,10 +56,8 @@ class FrostedGlassTokens {
         lightVeilOpacity: 0.75,
         darkVeilOpacity: 0.50,
       ),
-      lightBorder:
-          BorderSide(color: Color(0x0D000000), width: 0.5),
-      darkBorder:
-          BorderSide(color: Color(0x1FFFFFFF), width: 0.5),
+      lightBorder: BorderSide(color: Color(0x0D000000), width: 0.5),
+      darkBorder: BorderSide(color: Color(0x1FFFFFFF), width: 0.5),
       saturation: 1.4,
       floatingShadow: <BoxShadow>[
         BoxShadow(
@@ -154,10 +152,12 @@ class FrostedGlassTokens {
       lightBorder: BorderSide.lerp(a.lightBorder, b.lightBorder, t),
       darkBorder: BorderSide.lerp(a.darkBorder, b.darkBorder, t),
       saturation: lerpDouble(a.saturation, b.saturation, t)!,
-      floatingShadow:
-          BoxShadow.lerpList(a.floatingShadow, b.floatingShadow, t)!,
-      liftedShadow:
-          BoxShadow.lerpList(a.liftedShadow, b.liftedShadow, t)!,
+      floatingShadow: BoxShadow.lerpList(
+        a.floatingShadow,
+        b.floatingShadow,
+        t,
+      )!,
+      liftedShadow: BoxShadow.lerpList(a.liftedShadow, b.liftedShadow, t)!,
       scrim: Color.lerp(a.scrim, b.scrim, t)!,
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
+import '../actions/_interactive_surface.dart';
 import 'frosted_step.dart';
 
 /// A stepper for multi-step flows (wizards, onboarding).
@@ -67,9 +69,7 @@ class _HorizontalStepper extends StatelessWidget {
                 Expanded(
                   child: Container(
                     height: 2,
-                    color: i < currentStep
-                        ? cs.primary
-                        : cs.outlineVariant,
+                    color: i < currentStep ? cs.primary : cs.outlineVariant,
                   ),
                 ),
             ],
@@ -140,17 +140,13 @@ class _VerticalStepper extends StatelessWidget {
                   _StepCircle(
                     index: i,
                     state: _stateFor(i),
-                    onTap: onStepTapped == null
-                        ? null
-                        : () => onStepTapped!(i),
+                    onTap: onStepTapped == null ? null : () => onStepTapped!(i),
                   ),
                   if (i < steps.length - 1)
                     Container(
                       width: 2,
                       height: FrostedSpacing.sp6,
-                      color: i < currentStep
-                          ? cs.primary
-                          : cs.outlineVariant,
+                      color: i < currentStep ? cs.primary : cs.outlineVariant,
                     ),
                 ],
               ),
@@ -176,8 +172,9 @@ class _VerticalStepper extends StatelessWidget {
                         const SizedBox(height: FrostedSpacing.sp1),
                         Text(
                           steps[i].subtitle!,
-                          style: FrostedTypeScale.bodySmall
-                              .copyWith(color: cs.onSurfaceVariant),
+                          style: FrostedTypeScale.bodySmall.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ],
@@ -198,6 +195,8 @@ class _VerticalStepper extends StatelessWidget {
 }
 
 enum _StepState { completed, active, pending }
+
+const double _kCircleSize = 28;
 
 class _StepCircle extends StatelessWidget {
   const _StepCircle({
@@ -224,21 +223,36 @@ class _StepCircle extends StatelessWidget {
       _StepState.pending => cs.onSurfaceVariant,
     };
 
-    final Widget circle = Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-      alignment: Alignment.center,
+    final Widget glyph = Center(
       child: state == _StepState.completed
           ? Icon(Icons.check, size: 16, color: fg)
           : Text(
               '${index + 1}',
-              style: FrostedTypeScale.labelMedium
-                  .copyWith(color: fg, fontWeight: FontWeight.w600),
+              style: FrostedTypeScale.labelMedium.copyWith(
+                color: fg,
+                fontWeight: FontWeight.w600,
+              ),
             ),
     );
 
-    if (onTap == null) return circle;
-    return GestureDetector(onTap: onTap, child: circle);
+    Widget circle(Widget content) => Container(
+      width: _kCircleSize,
+      height: _kCircleSize,
+      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+      child: content,
+    );
+
+    if (onTap == null) return circle(glyph);
+    return InteractiveSurface(
+      onTap: onTap,
+      semanticsLabel: '${index + 1}',
+      builder: (BuildContext context, InteractionStates s) => circle(
+        s.ink(
+          color: fg,
+          borderRadius: BorderRadius.circular(FrostedRadius.full),
+          glyph,
+        ),
+      ),
+    );
   }
 }

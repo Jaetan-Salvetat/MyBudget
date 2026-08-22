@@ -200,13 +200,16 @@ class _ToggleButton extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: _height,
-          padding: _padding,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _resolveBorderRadius(s),
           ),
-          child: content,
+          child: s.ink(
+            color: fg,
+            borderRadius: _resolveBorderRadius(s),
+            Padding(padding: _padding, child: content),
+          ),
         );
       },
     );

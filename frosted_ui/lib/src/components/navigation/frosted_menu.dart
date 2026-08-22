@@ -35,11 +35,7 @@ class FrostedMenuEntry {
 ///
 /// Internal to the library; not exported.
 class FrostedMenuPanel extends StatelessWidget {
-  const FrostedMenuPanel({
-    required this.entries,
-    this.width,
-    super.key,
-  });
+  const FrostedMenuPanel({required this.entries, this.width, super.key});
 
   final List<FrostedMenuEntry> entries;
   final double? width;
@@ -56,8 +52,7 @@ class FrostedMenuPanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          for (final FrostedMenuEntry entry in entries)
-            _MenuRow(entry: entry),
+          for (final FrostedMenuEntry entry in entries) _MenuRow(entry: entry),
         ],
       ),
     );
@@ -91,8 +86,8 @@ class _MenuRow extends StatelessWidget {
     final Color base = entry.destructive
         ? cs.error
         : entry.selected
-            ? cs.primary
-            : cs.onSurface;
+        ? cs.primary
+        : cs.onSurface;
 
     return InteractiveSurface(
       onTap: entry.onTap,
@@ -102,38 +97,41 @@ class _MenuRow extends StatelessWidget {
         final double overlay = s.pressed
             ? 0.12
             : s.focused
-                ? 0.10
-                : s.hovered
-                    ? 0.08
-                    : 0;
+            ? 0.10
+            : s.hovered
+            ? 0.08
+            : 0;
         return ColoredBox(
           color: overlay == 0
               ? Colors.transparent
               : base.withValues(alpha: overlay),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FrostedSpacing.sp4,
-              vertical: FrostedSpacing.sp3,
-            ),
-            child: Row(
-              children: <Widget>[
-                if (entry.icon != null) ...<Widget>[
-                  Icon(entry.icon, size: 20, color: base),
-                  const SizedBox(width: FrostedSpacing.sp3),
-                ],
-                Expanded(
-                  child: Text(
-                    entry.label,
-                    style: FrostedTypeScale.bodyLarge.copyWith(color: base),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          child: s.ink(
+            color: base,
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FrostedSpacing.sp4,
+                vertical: FrostedSpacing.sp3,
+              ),
+              child: Row(
+                children: <Widget>[
+                  if (entry.icon != null) ...<Widget>[
+                    Icon(entry.icon, size: 20, color: base),
+                    const SizedBox(width: FrostedSpacing.sp3),
+                  ],
+                  Expanded(
+                    child: Text(
+                      entry.label,
+                      style: FrostedTypeScale.bodyLarge.copyWith(color: base),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                if (entry.selected) ...<Widget>[
-                  const SizedBox(width: FrostedSpacing.sp3),
-                  Icon(Icons.check, size: 20, color: cs.primary),
+                  if (entry.selected) ...<Widget>[
+                    const SizedBox(width: FrostedSpacing.sp3),
+                    Icon(Icons.check, size: 20, color: cs.primary),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );

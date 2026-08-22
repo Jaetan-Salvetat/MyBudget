@@ -6,6 +6,7 @@ import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import '../actions/_interactive_surface.dart';
 import 'frosted_badge.dart';
 import 'frosted_nav_action.dart';
 import 'frosted_nav_item.dart';
@@ -100,19 +101,17 @@ class _NavPillAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
 
-    return Semantics(
-      button: true,
-      label: action.label,
-      child: GestureDetector(
-        onTap: action.onPressed,
-        behavior: HitTestBehavior.opaque,
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
-          child: SizedBox.square(
-            dimension: _kMinTapTarget,
-            child: Center(
-              child: Icon(action.icon, size: 22, color: cs.onPrimary),
-            ),
+    return InteractiveSurface(
+      onTap: action.onPressed,
+      semanticsLabel: action.label,
+      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+        decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+        child: SizedBox.square(
+          dimension: _kMinTapTarget,
+          child: s.ink(
+            color: cs.onPrimary,
+            borderRadius: BorderRadius.circular(FrostedRadius.full),
+            Center(child: Icon(action.icon, size: 22, color: cs.onPrimary)),
           ),
         ),
       ),
@@ -147,49 +146,51 @@ class _NavPillDestination extends StatelessWidget {
         ? item.selectedIcon!
         : item.icon;
 
-    return Semantics(
-      button: true,
-      label: item.label,
-      selected: selected,
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: motion.duration,
-          curve: motion.curve,
-          constraints: const BoxConstraints(
-            minWidth: _kMinTapTarget,
-            minHeight: _kMinTapTarget,
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: selected ? FrostedSpacing.sp4 : FrostedSpacing.sp2,
-          ),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
-          ),
-          child: AnimatedSize(
-            duration: motion.duration,
-            curve: motion.curve,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                _IconWithBadge(
-                  icon: icon,
-                  color: foreground,
-                  badge: item.badge,
-                ),
-                if (selected) ...<Widget>[
-                  const SizedBox(width: FrostedSpacing.sp2),
-                  Text(
-                    item.label,
-                    style: text.labelMedium?.copyWith(
-                      color: foreground,
-                      fontWeight: FontWeight.w600,
-                    ),
+    return InteractiveSurface(
+      onTap: onTap,
+      semanticsLabel: item.label,
+      semanticsSelected: selected,
+      builder: (BuildContext context, InteractionStates s) => AnimatedContainer(
+        duration: motion.duration,
+        curve: motion.curve,
+        constraints: const BoxConstraints(
+          minWidth: _kMinTapTarget,
+          minHeight: _kMinTapTarget,
+        ),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(FrostedRadius.full),
+        ),
+        child: s.ink(
+          color: foreground,
+          borderRadius: BorderRadius.circular(FrostedRadius.full),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: selected ? FrostedSpacing.sp4 : FrostedSpacing.sp2,
+            ),
+            child: AnimatedSize(
+              duration: motion.duration,
+              curve: motion.curve,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _IconWithBadge(
+                    icon: icon,
+                    color: foreground,
+                    badge: item.badge,
                   ),
+                  if (selected) ...<Widget>[
+                    const SizedBox(width: FrostedSpacing.sp2),
+                    Text(
+                      item.label,
+                      style: text.labelMedium?.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
