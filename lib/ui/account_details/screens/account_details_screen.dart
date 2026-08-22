@@ -127,6 +127,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
               currentAccountId: account.id,
               accounts: accounts,
               onEditTransfer: (t) => _showEditTransferBottomSheet(context, t),
+              onDeleteTransfer: _deleteTransfer,
             ),
             const SizedBox(height: 16),
             FrostedButton.filled(
@@ -231,6 +232,19 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       },
       onCancel: () {},
     );
+  }
+
+  Future<void> _deleteTransfer(Transfer transfer) async {
+    try {
+      await ref.read(transferProvider.notifier).deleteTransfer(transfer.id);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la suppression du virement: $e',
+        );
+      }
+    }
   }
 
   void _showDeleteConfirmation(BuildContext context) {
@@ -340,12 +354,14 @@ class _TransfersSection extends StatelessWidget {
   final int currentAccountId;
   final List<AccountModel> accounts;
   final ValueChanged<Transfer> onEditTransfer;
+  final ValueChanged<Transfer> onDeleteTransfer;
 
   const _TransfersSection({
     required this.transfers,
     required this.currentAccountId,
     required this.accounts,
     required this.onEditTransfer,
+    required this.onDeleteTransfer,
   });
 
   String _otherName(Transfer transfer) {
@@ -396,7 +412,8 @@ class _TransfersSection extends StatelessWidget {
                   currentAccountId: currentAccountId,
                   otherAccountName: _otherName(transfers[i]),
                   showDivider: i < transfers.length - 1,
-                  onTap: () => onEditTransfer(transfers[i]),
+                  onEdit: () => onEditTransfer(transfers[i]),
+                  onDelete: () => onDeleteTransfer(transfers[i]),
                 ),
             ],
           ),

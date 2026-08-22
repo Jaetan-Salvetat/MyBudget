@@ -6,22 +6,34 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
+import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 
 class TransferRow extends StatelessWidget {
   final Transfer transfer;
   final int currentAccountId;
   final String otherAccountName;
   final bool showDivider;
-  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const TransferRow({
     super.key,
     required this.transfer,
     required this.currentAccountId,
     required this.otherAccountName,
-    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
     this.showDivider = true,
   });
+
+  void _showOptionsBottomSheet(BuildContext context) {
+    TransactionActionsSheet.show(
+      context: context,
+      deleteConfirmationMessage: 'Voulez-vous vraiment supprimer ce virement ?',
+      onEdit: onEdit,
+      onDelete: onDelete,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +60,7 @@ class TransferRow extends StatelessWidget {
     );
 
     return InkWell(
-      onTap: onTap,
+      onTap: onEdit,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -102,6 +114,17 @@ class TransferRow extends StatelessWidget {
             Text(
               '$signPrefix${formatter.format(transfer.amount.abs())}',
               style: AppTextStyles.amount(fontSize: 15, color: amountColor),
+            ),
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                iconSize: 18,
+                icon: const Icon(Symbols.more_vert_rounded),
+                color: scheme.onSurfaceVariant,
+                onPressed: () => _showOptionsBottomSheet(context),
+              ),
             ),
           ],
         ),

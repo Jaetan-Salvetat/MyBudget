@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -8,6 +7,7 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
+import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 
 class CompactRevenueRow extends StatelessWidget {
   final RevenueModel revenue;
@@ -146,59 +146,11 @@ class CompactRevenueRow extends StatelessWidget {
   }
 
   void _showOptionsBottomSheet(BuildContext context) {
-    showFrostedBottomSheet<void>(
+    TransactionActionsSheet.show(
       context: context,
-      builder: (_) => FrostedBottomSheet(
-        title: 'Actions',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FrostedListTile(
-              title: 'Modifier',
-              leading: const Icon(Symbols.edit_rounded),
-              onTap: () {
-                Navigator.pop(context);
-                onEdit();
-              },
-            ),
-            FrostedListTile(
-              title: 'Supprimer',
-              leading: Icon(
-                Symbols.delete_rounded,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmation(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context) {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Confirmer la suppression',
-        body: const Text('Voulez-vous vraiment supprimer ce revenu ?'),
-        actions: [
-          FrostedButton.text(
-            label: 'Annuler',
-            onPressed: () => Navigator.pop(context),
-          ),
-          FrostedButton.text(
-            label: 'Supprimer',
-            destructive: true,
-            onPressed: () {
-              Navigator.pop(context);
-              onDelete();
-            },
-          ),
-        ],
-      ),
+      deleteConfirmationMessage: 'Voulez-vous vraiment supprimer ce revenu ?',
+      onEdit: onEdit,
+      onDelete: onDelete,
     );
   }
 }
