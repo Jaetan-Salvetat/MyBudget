@@ -10,6 +10,8 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
+const double _durationUnitToggleHeight = 50;
+
 class LoanCreationBottomSheet extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final Function(LoanModel) onSubmit;
@@ -242,95 +244,90 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Capital & Compte',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Capital & Compte',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 16),
-          FrostedTextField(
-            label: 'Montant emprunté',
-            hintText: '200000',
-            leadingIcon: Symbols.euro_rounded,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: _amountController,
-          ),
-          const SizedBox(height: 12),
-          FrostedDropdown<int>(
-            value: state.selectedAccountId != -1
-                ? state.selectedAccountId
-                : null,
-            hintText: 'Compte de prélèvement',
-            items: widget.accounts.map((acc) {
-              return FrostedDropdownItem(value: acc.id, label: acc.name);
-            }).toList(),
-            onChanged: (val) {
-              notifier.setAccountId(val);
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: FrostedPickerField(
-                  icon: Symbols.calendar_today_rounded,
-                  onTap: () async {
-                    final date = await showFrostedDatePicker(
-                      context: context,
-                      initialDate: state.startDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2050),
-                    );
-                    if (date != null) notifier.setStartDate(date);
-                  },
-                  label: 'Date de signature',
-                  text: DateFormat('dd/MM/yyyy').format(state.startDate),
-                ),
+        ),
+        const SizedBox(height: 16),
+        FrostedTextField(
+          label: 'Montant emprunté',
+          hintText: '200000',
+          leadingIcon: Symbols.euro_rounded,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          controller: _amountController,
+        ),
+        const SizedBox(height: 12),
+        FrostedDropdown<int>(
+          value: state.selectedAccountId != -1 ? state.selectedAccountId : null,
+          hintText: 'Compte de prélèvement',
+          items: widget.accounts.map((acc) {
+            return FrostedDropdownItem(value: acc.id, label: acc.name);
+          }).toList(),
+          onChanged: (val) {
+            notifier.setAccountId(val);
+          },
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: FrostedPickerField(
+                icon: Symbols.calendar_today_rounded,
+                onTap: () async {
+                  final date = await showFrostedDatePicker(
+                    context: context,
+                    initialDate: state.startDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2050),
+                  );
+                  if (date != null) notifier.setStartDate(date);
+                },
+                label: 'Date de signature',
+                text: DateFormat('dd/MM/yyyy').format(state.startDate),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FrostedPickerField(
-                  icon: Symbols.event_rounded,
-                  onTap: () async {
-                    final selectedDate = await DateSelector.showDayPicker(
-                      context: context,
-                      initialDate: DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        state.dayOfMonth,
-                      ),
-                    );
-                    if (selectedDate != null) {
-                      notifier.setDayOfMonth(selectedDate.day);
-                    }
-                  },
-                  label: 'Jour de prélèvement',
-                  text: state.dayOfMonth.toString(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          CheckboxListTile(
-            value: state.immediateFirstPayment,
-            onChanged: (_) => notifier.toggleImmediateFirstPayment(),
-            title: const Text('Premier paiement immédiat'),
-            subtitle: const Text(
-              'Le premier paiement a lieu le mois de signature',
             ),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            controlAffinity: ListTileControlAffinity.leading,
+            const SizedBox(width: 12),
+            Expanded(
+              child: FrostedPickerField(
+                icon: Symbols.event_rounded,
+                onTap: () async {
+                  final selectedDate = await DateSelector.showDayPicker(
+                    context: context,
+                    initialDate: DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      state.dayOfMonth,
+                    ),
+                  );
+                  if (selectedDate != null) {
+                    notifier.setDayOfMonth(selectedDate.day);
+                  }
+                },
+                label: 'Jour de prélèvement',
+                text: state.dayOfMonth.toString(),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        CheckboxListTile(
+          value: state.immediateFirstPayment,
+          onChanged: (_) => notifier.toggleImmediateFirstPayment(),
+          title: const Text('Premier paiement immédiat'),
+          subtitle: const Text(
+            'Le premier paiement a lieu le mois de signature',
           ),
-        ],
-      ),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+        ),
+      ],
     );
   }
 
@@ -339,57 +336,58 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Conditions',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Conditions',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              flex: 2,
+              child: FrostedTextField(
+                label: 'Durée',
+                hintText: '20',
+                keyboardType: TextInputType.number,
+                controller: _durationController,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: FrostedTextField(
-                  label: 'Durée',
-                  hintText: '20',
-                  keyboardType: TextInputType.number,
-                  controller: _durationController,
-                ),
+            const SizedBox(width: 8),
+            ToggleButtons(
+              isSelected: [
+                state.durationUnit == DurationUnit.years,
+                state.durationUnit == DurationUnit.months,
+              ],
+              onPressed: (index) {
+                notifier.setDurationUnit(
+                  index == 0 ? DurationUnit.years : DurationUnit.months,
+                );
+              },
+              borderRadius: BorderRadius.circular(FrostedRadius.md),
+              constraints: const BoxConstraints(
+                minHeight: _durationUnitToggleHeight,
+                minWidth: 48,
               ),
-              const SizedBox(width: 8),
-              ToggleButtons(
-                isSelected: [
-                  state.durationUnit == DurationUnit.years,
-                  state.durationUnit == DurationUnit.months,
-                ],
-                onPressed: (index) {
-                  notifier.setDurationUnit(
-                    index == 0 ? DurationUnit.years : DurationUnit.months,
-                  );
-                },
-                borderRadius: BorderRadius.circular(8),
-                constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-                children: const [Text('Ans'), Text('Mois')],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          FrostedTextField(
-            label: 'Taux d\'intérêt (Annuel)',
-            hintText: '3.5',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            leadingIcon: Symbols.percent_rounded,
-            controller: _rateController,
-          ),
-        ],
-      ),
+              children: const [Text('Ans'), Text('Mois')],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        FrostedTextField(
+          label: 'Taux d\'intérêt (Annuel)',
+          hintText: '3.5',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          leadingIcon: Symbols.percent_rounded,
+          controller: _rateController,
+        ),
+      ],
     );
   }
 
@@ -398,118 +396,115 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Type de Remboursement',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Type de Remboursement',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(width: 8),
-              FrostedIconButton.standard(
-                icon: Symbols.help_rounded,
-                size: FrostedIconButtonSize.small,
-                onPressed: () => _showRepaymentTypeHelp(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ToggleButtons(
-            isSelected: [
-              state.repaymentType == LoanRepaymentType.amortizable,
-              state.repaymentType == LoanRepaymentType.inFine,
-            ],
-            onPressed: (index) {
-              notifier.setRepaymentType(LoanRepaymentType.values[index]);
-            },
-            borderRadius: BorderRadius.circular(8),
-            children: const [
-              Padding(padding: EdgeInsets.all(12), child: Text('Amortissable')),
-              Padding(padding: EdgeInsets.all(12), child: Text('In Fine')),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Symbols.info_rounded,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    state.repaymentType == LoanRepaymentType.amortizable
-                        ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
-                        : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Text(
-                'Période de Différé',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              FrostedIconButton.standard(
-                icon: Symbols.help_rounded,
-                size: FrostedIconButtonSize.small,
-                onPressed: () => _showDeferredPeriodHelp(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => notifier.toggleDeferredPeriod(),
-            child: Row(
-              children: [
-                FrostedCheckbox(
-                  value: state.hasDeferredPeriod,
-                  onChanged: (_) => notifier.toggleDeferredPeriod(),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text('Ce prêt a une période de différé (ex: PTZ)'),
-                ),
-              ],
-            ),
-          ),
-          if (state.hasDeferredPeriod) ...[
-            const SizedBox(height: 12),
-            FrostedTextField(
-              label: 'Durée du différé (en mois)',
-              hintText: 'Ex: 24',
-              keyboardType: TextInputType.number,
-              controller: _deferredMonthsController,
-              leadingIcon: Symbols.schedule_rounded,
+            const SizedBox(width: 8),
+            FrostedIconButton.standard(
+              icon: Symbols.help_rounded,
+              size: FrostedIconButtonSize.small,
+              onPressed: () => _showRepaymentTypeHelp(context),
             ),
           ],
+        ),
+        const SizedBox(height: 16),
+        ToggleButtons(
+          isSelected: [
+            state.repaymentType == LoanRepaymentType.amortizable,
+            state.repaymentType == LoanRepaymentType.inFine,
+          ],
+          onPressed: (index) {
+            notifier.setRepaymentType(LoanRepaymentType.values[index]);
+          },
+          borderRadius: BorderRadius.circular(8),
+          children: const [
+            Padding(padding: EdgeInsets.all(12), child: Text('Amortissable')),
+            Padding(padding: EdgeInsets.all(12), child: Text('In Fine')),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Symbols.info_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  state.repaymentType == LoanRepaymentType.amortizable
+                      ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
+                      : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Text(
+              'Période de Différé',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 8),
+            FrostedIconButton.standard(
+              icon: Symbols.help_rounded,
+              size: FrostedIconButtonSize.small,
+              onPressed: () => _showDeferredPeriodHelp(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () => notifier.toggleDeferredPeriod(),
+          child: Row(
+            children: [
+              FrostedCheckbox(
+                value: state.hasDeferredPeriod,
+                onChanged: (_) => notifier.toggleDeferredPeriod(),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text('Ce prêt a une période de différé (ex: PTZ)'),
+              ),
+            ],
+          ),
+        ),
+        if (state.hasDeferredPeriod) ...[
+          const SizedBox(height: 12),
+          FrostedTextField(
+            label: 'Durée du différé (en mois)',
+            hintText: 'Ex: 24',
+            keyboardType: TextInputType.number,
+            controller: _deferredMonthsController,
+            leadingIcon: Symbols.schedule_rounded,
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -676,73 +671,68 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Assurance Emprunteur',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Assurance Emprunteur',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return ToggleButtons(
-                isSelected: [
-                  state.insuranceType == LoanInsuranceType.fixed,
-                  state.insuranceType == LoanInsuranceType.percentage,
-                  state.insuranceType == LoanInsuranceType.none,
-                ],
-                onPressed: (index) {
-                  notifier.setInsuranceType(LoanInsuranceType.values[index]);
-                },
-                borderRadius: BorderRadius.circular(8),
-                constraints: BoxConstraints.expand(
-                  width: (constraints.maxWidth - 4) / 3,
-                  height: 40,
-                ),
-                children: const [
-                  Text('Fixe (€)'),
-                  Text('Taux (%)'),
-                  Text('Aucune'),
-                ],
-              );
-            },
-          ),
-          if (state.insuranceType != LoanInsuranceType.none) ...[
-            const SizedBox(height: 12),
-            FrostedTextField(
-              label: state.insuranceType == LoanInsuranceType.fixed
-                  ? 'Montant mensuel'
-                  : 'Taux annuel',
-              hintText: state.insuranceType == LoanInsuranceType.fixed
-                  ? '35.00'
-                  : '0.36',
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return ToggleButtons(
+              isSelected: [
+                state.insuranceType == LoanInsuranceType.fixed,
+                state.insuranceType == LoanInsuranceType.percentage,
+                state.insuranceType == LoanInsuranceType.none,
+              ],
+              onPressed: (index) {
+                notifier.setInsuranceType(LoanInsuranceType.values[index]);
+              },
+              borderRadius: BorderRadius.circular(8),
+              constraints: BoxConstraints.expand(
+                width: (constraints.maxWidth - 4) / 3,
+                height: 40,
               ),
-              controller: _insuranceValueController,
-            ),
-            if (state.insuranceType == LoanInsuranceType.percentage &&
-                state.amount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 4),
-                child: Text(
-                  'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontStyle: FontStyle.italic,
-                  ),
+              children: const [
+                Text('Fixe (€)'),
+                Text('Taux (%)'),
+                Text('Aucune'),
+              ],
+            );
+          },
+        ),
+        if (state.insuranceType != LoanInsuranceType.none) ...[
+          const SizedBox(height: 12),
+          FrostedTextField(
+            label: state.insuranceType == LoanInsuranceType.fixed
+                ? 'Montant mensuel'
+                : 'Taux annuel',
+            hintText: state.insuranceType == LoanInsuranceType.fixed
+                ? '35.00'
+                : '0.36',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            controller: _insuranceValueController,
+          ),
+          if (state.insuranceType == LoanInsuranceType.percentage &&
+              state.amount > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 4),
+              child: Text(
+                'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-          ],
+            ),
         ],
-      ),
+      ],
     );
   }
 
