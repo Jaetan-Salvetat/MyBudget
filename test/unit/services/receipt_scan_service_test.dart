@@ -5,6 +5,7 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
@@ -38,7 +39,10 @@ void main() {
 
     test('rejects a scan while the user has not set a key', () {
       expect(
-        () => ReceiptScanService.fromStoredKey(keyService),
+        () => ReceiptScanService.fromStoredKey(
+          keyService,
+          model: AiModel.fallback,
+        ),
         throwsA(isA<ScanMissingApiKeyException>()),
       );
     });
@@ -47,7 +51,10 @@ void main() {
       await keyService.save(AiProvider.gemini, 'user-key');
 
       expect(
-        await ReceiptScanService.fromStoredKey(keyService),
+        await ReceiptScanService.fromStoredKey(
+          keyService,
+          model: AiModel.fallback,
+        ),
         isA<ReceiptScanService>(),
       );
     });

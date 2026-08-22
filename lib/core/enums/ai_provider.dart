@@ -5,7 +5,6 @@ enum AiProvider {
     id: 'gemini',
     label: 'Google Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    model: 'gemini-3.7-flash',
     keyPattern: r'^AIza[0-9A-Za-z_-]{35}$',
     keyFormatHint: 'Une clé Google AI commence par AIza et fait 39 caractères.',
     keyPlaceholder: 'AIza…',
@@ -17,7 +16,6 @@ enum AiProvider {
     required this.id,
     required this.label,
     required this.baseUrl,
-    required this.model,
     required this.keyPattern,
     required this.keyFormatHint,
     required this.keyPlaceholder,
@@ -28,7 +26,6 @@ enum AiProvider {
   final String id;
   final String label;
   final String baseUrl;
-  final String model;
   final String keyPattern;
   final String keyFormatHint;
   final String keyPlaceholder;

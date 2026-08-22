@@ -179,6 +179,69 @@ abstract class _$SelectedAiProviderNotifier extends $Notifier<AiProvider> {
   }
 }
 
+/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
+/// la clé ni le moteur : seul l'identifiant envoyé au service change.
+
+@ProviderFor(SelectedAiModelNotifier)
+final selectedAiModelProvider = SelectedAiModelNotifierProvider._();
+
+/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
+/// la clé ni le moteur : seul l'identifiant envoyé au service change.
+final class SelectedAiModelNotifierProvider
+    extends $NotifierProvider<SelectedAiModelNotifier, AiModel> {
+  /// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
+  /// la clé ni le moteur : seul l'identifiant envoyé au service change.
+  SelectedAiModelNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'selectedAiModelProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$selectedAiModelNotifierHash();
+
+  @$internal
+  @override
+  SelectedAiModelNotifier create() => SelectedAiModelNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AiModel value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AiModel>(value),
+    );
+  }
+}
+
+String _$selectedAiModelNotifierHash() =>
+    r'b996ee92726a2001f3b0ec29a90b1d8d420ff1e2';
+
+/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
+/// la clé ni le moteur : seul l'identifiant envoyé au service change.
+
+abstract class _$SelectedAiModelNotifier extends $Notifier<AiModel> {
+  AiModel build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AiModel, AiModel>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AiModel, AiModel>,
+              AiModel,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(AiCloudConsentNotifier)
 final aiCloudConsentProvider = AiCloudConsentNotifierProvider._();
 

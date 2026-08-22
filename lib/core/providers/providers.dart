@@ -62,8 +62,11 @@ ApiKeyService apiKeyService(Ref ref) => ApiKeyService();
 @Riverpod(keepAlive: true)
 ApiKeyVerifier apiKeyVerifier(Ref ref) {
   return ApiKeyVerifier(
-    clientFactory: (provider, apiKey) =>
-        OpenAiCompatibleChatClient(provider: provider, apiKey: apiKey),
+    clientFactory: (provider, model, apiKey) => OpenAiCompatibleChatClient(
+      provider: provider,
+      model: model,
+      apiKey: apiKey,
+    ),
   );
 }
 

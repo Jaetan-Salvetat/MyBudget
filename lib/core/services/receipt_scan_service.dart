@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:openai_dart/openai_dart.dart';
 
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
@@ -12,21 +13,23 @@ import 'package:mybudget/models/scanned_item_model.dart';
 
 class ReceiptScanService {
   static const AiProvider _provider = AiProvider.gemini;
-  static final String _model = _provider.model;
 
+  final String _model;
   final OpenAIClient _client;
 
-  ReceiptScanService({required String apiKey})
-    : _client = OpenAIClient.withApiKey(apiKey, baseUrl: _provider.baseUrl);
+  ReceiptScanService({required String apiKey, required AiModel model})
+    : _model = model.id,
+      _client = OpenAIClient.withApiKey(apiKey, baseUrl: _provider.baseUrl);
 
-  /// La clé vient du trousseau, partagée avec l'ajout rapide : une seule clé
-  /// à saisir pour les deux fonctions.
+  /// La clé et le modèle viennent des réglages, partagés avec l'ajout rapide :
+  /// une seule clé et un seul choix de modèle pour les deux fonctions.
   static Future<ReceiptScanService> fromStoredKey(
-    ApiKeyService keyService,
-  ) async {
+    ApiKeyService keyService, {
+    required AiModel model,
+  }) async {
     final apiKey = await keyService.read(_provider);
     if (apiKey == null) throw const ScanMissingApiKeyException();
-    return ReceiptScanService(apiKey: apiKey);
+    return ReceiptScanService(apiKey: apiKey, model: model);
   }
 
   Future<ReceiptScanResultModel> extractItems(

@@ -1,3 +1,4 @@
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/models/api_key_check.dart';
@@ -28,6 +29,7 @@ class ApiKeyVerifier {
 
   Future<ApiKeyCheck> verify({
     required AiProvider provider,
+    required AiModel model,
     required String rawKey,
   }) async {
     final key = ApiKeyService.sanitize(rawKey);
@@ -45,7 +47,7 @@ class ApiKeyVerifier {
       return _deny(ApiKeyDenialReason.invalidFormat, provider);
     }
 
-    final client = _clientFactory(provider, key);
+    final client = _clientFactory(provider, model, key);
     try {
       await client
           .complete(

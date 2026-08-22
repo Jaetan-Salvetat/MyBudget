@@ -56,4 +56,4 @@ final class QuickAddEngineProvider
   }
 }
 
-String _$quickAddEngineHash() => r'b04b93649f6db01f8b455fffa4911f5b361268bd';
+String _$quickAddEngineHash() => r'8f7ca788fcd6d88dd9be6292534704ea7443c88f';

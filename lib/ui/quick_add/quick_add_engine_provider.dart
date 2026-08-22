@@ -26,6 +26,7 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   if (ref.watch(quickAddDegradationProvider)) return local;
 
   final provider = ref.watch(selectedAiProviderProvider);
+  final model = ref.watch(selectedAiModelProvider);
 
   // Un trousseau verrouillé ou indisponible ne doit pas priver l'utilisateur
   // de l'ajout rapide : on retombe sur le moteur embarqué.
@@ -40,6 +41,7 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
 
   final client = OpenAiCompatibleChatClient(
     provider: provider,
+    model: model,
     apiKey: apiKey,
   );
   ref.onDispose(client.close);

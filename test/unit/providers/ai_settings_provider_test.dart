@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -230,6 +231,48 @@ void main() {
           .reportFailure(AiRequestFailure.invalidKey);
 
       expect(container.read(quickAddUsesRemoteProvider), isFalse);
+    });
+  });
+
+  group('SelectedAiModelNotifier', () {
+    test('falls back to the default model when nothing is stored', () async {
+      await initPreferences({});
+      container = ProviderContainer();
+
+      expect(container.read(selectedAiModelProvider), AiModel.fallback);
+    });
+
+    test('reads the stored model', () async {
+      await initPreferences({
+        PreferencesService.keyAiModel: AiModel.flash35.id,
+      });
+      container = ProviderContainer();
+
+      expect(container.read(selectedAiModelProvider), AiModel.flash35);
+    });
+
+    test('select updates the state', () async {
+      await initPreferences({});
+      container = ProviderContainer();
+
+      await container
+          .read(selectedAiModelProvider.notifier)
+          .select(AiModel.flash37);
+
+      expect(container.read(selectedAiModelProvider), AiModel.flash37);
+    });
+
+    test('select persists the model across containers', () async {
+      await initPreferences({});
+      container = ProviderContainer();
+
+      await container
+          .read(selectedAiModelProvider.notifier)
+          .select(AiModel.flash36);
+      container.dispose();
+      container = ProviderContainer();
+
+      expect(container.read(selectedAiModelProvider), AiModel.flash36);
     });
   });
 }

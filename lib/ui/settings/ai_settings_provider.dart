@@ -1,3 +1,4 @@
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -39,6 +40,19 @@ class SelectedAiProviderNotifier extends _$SelectedAiProviderNotifier {
   Future<void> select(AiProvider provider) async {
     await PreferencesService.setAiProvider(provider);
     state = provider;
+  }
+}
+
+/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
+/// la clé ni le moteur : seul l'identifiant envoyé au service change.
+@Riverpod(keepAlive: true)
+class SelectedAiModelNotifier extends _$SelectedAiModelNotifier {
+  @override
+  AiModel build() => PreferencesService.getAiModel();
+
+  Future<void> select(AiModel model) async {
+    await PreferencesService.setAiModel(model);
+    state = model;
   }
 }
 

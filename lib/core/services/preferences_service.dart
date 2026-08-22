@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ class PreferencesService {
   static const String keyQuickAddEnabled = 'quickAddEnabled';
   static const String keyQuickAddEngineMode = 'quickAddEngineMode';
   static const String keyAiProvider = 'aiProvider';
+  static const String keyAiModel = 'aiModel';
   static const String keyAiCloudConsent = 'aiCloudConsent';
   static const String keyAiFailureTimestamps = 'aiFailureTimestamps';
 
@@ -121,6 +123,14 @@ class PreferencesService {
 
   static Future<void> setAiProvider(AiProvider provider) async {
     await _prefs.setString(keyAiProvider, provider.id);
+  }
+
+  static AiModel getAiModel() {
+    return AiModel.fromId(_prefs.getString(keyAiModel));
+  }
+
+  static Future<void> setAiModel(AiModel model) async {
+    await _prefs.setString(keyAiModel, model.id);
   }
 
   static bool hasAcceptedAiCloudConsent() {

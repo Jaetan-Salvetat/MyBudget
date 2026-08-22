@@ -4,6 +4,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/models/api_key_check.dart';
@@ -164,9 +165,10 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
       _noticeMessage = null;
     });
 
+    final AiModel model = ref.read(selectedAiModelProvider);
     final check = await ref
         .read(apiKeyVerifierProvider)
-        .verify(provider: provider, rawKey: rawKey);
+        .verify(provider: provider, model: model, rawKey: rawKey);
 
     if (!mounted) return;
 

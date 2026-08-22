@@ -11,6 +11,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -38,6 +39,7 @@ class ScanNotifier extends _$ScanNotifier {
 
       final scanService = await ReceiptScanService.fromStoredKey(
         ref.read(apiKeyServiceProvider),
+        model: ref.read(selectedAiModelProvider),
       );
       final resolver = await ref.read(categoryDisplayResolverProvider.future);
       final categories = resolver

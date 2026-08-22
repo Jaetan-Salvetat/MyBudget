@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/models/api_key_check.dart';
@@ -40,18 +41,37 @@ void main() {
 
   late _StubChatClient client;
   late ApiKeyVerifier verifier;
+  AiModel? requestedModel;
 
   void useClient(_StubChatClient stub) {
     client = stub;
-    verifier = ApiKeyVerifier(clientFactory: (_, _) => stub);
+    verifier = ApiKeyVerifier(
+      clientFactory: (_, model, _) {
+        requestedModel = model;
+        return stub;
+      },
+    );
   }
 
-  setUp(() => useClient(_StubChatClient()));
+  setUp(() {
+    requestedModel = null;
+    useClient(_StubChatClient());
+  });
 
-  Future<ApiKeyCheck> verify(String key) =>
-      verifier.verify(provider: AiProvider.gemini, rawKey: key);
+  Future<ApiKeyCheck> verify(String key, {AiModel model = AiModel.fallback}) =>
+      verifier.verify(
+        provider: AiProvider.gemini,
+        model: model,
+        rawKey: key,
+      );
 
   group('ApiKeyVerifier local checks', () {
+    test('probes the service with the chosen model', () async {
+      await verify(validKey, model: AiModel.flash37);
+
+      expect(requestedModel, AiModel.flash37);
+    });
+
     test('accepts a key padded with whitespace', () async {
       expect(await verify('  $validKey \n'), isA<ApiKeyAccepted>());
     });

@@ -1,5 +1,6 @@
 import 'package:openai_dart/openai_dart.dart';
 
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 
@@ -17,13 +18,14 @@ abstract interface class AiChatClient {
 }
 
 typedef AiChatClientFactory =
-    AiChatClient Function(AiProvider provider, String apiKey);
+    AiChatClient Function(AiProvider provider, AiModel model, String apiKey);
 
 final class OpenAiCompatibleChatClient implements AiChatClient {
   OpenAiCompatibleChatClient({
     required AiProvider provider,
+    required AiModel model,
     required String apiKey,
-  }) : _model = provider.model,
+  }) : _model = model.id,
        _client = OpenAIClient.withApiKey(apiKey, baseUrl: provider.baseUrl);
 
   /// Assez bas pour que la sortie reste reproductible sur une tâche de
