@@ -20,6 +20,12 @@ class ActionsPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'FAB', child: _FabDemo()),
         SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Expandable FAB', child: _ExpandableFabDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Destructive', child: _DestructiveDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Icon button sizes', child: _IconButtonSizesDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Chips', child: _ChipsDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Switch', child: _SwitchDemo()),
@@ -31,6 +37,98 @@ class ActionsPage extends StatelessWidget {
         Section(title: 'Toggle buttons', child: _ToggleButtonsDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Split button', child: _SplitButtonDemo()),
+      ],
+    );
+  }
+}
+
+/// The fan-out: the trigger holds still while its actions rise behind it,
+/// bottom-up, over a glass scrim.
+class _ExpandableFabDemo extends StatelessWidget {
+  const _ExpandableFabDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: FrostedExpandableFab(
+        tooltip: 'Add',
+        actions: <FrostedFabAction>[
+          FrostedFabAction(
+            icon: Icons.photo_camera_outlined,
+            label: 'Scan',
+            onPressed: () {},
+          ),
+          FrostedFabAction(
+            icon: Icons.north_east,
+            label: 'Income',
+            onPressed: () {},
+          ),
+          FrostedFabAction(
+            icon: Icons.south_west,
+            label: 'Expense',
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The error role, for actions that cannot be taken back.
+class _DestructiveDemo extends StatelessWidget {
+  const _DestructiveDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: FrostedSpacing.sp2,
+      runSpacing: FrostedSpacing.sp2,
+      children: <Widget>[
+        FrostedButton.filled(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
+        ),
+        FrostedButton.tonal(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
+        ),
+        FrostedButton.outlined(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
+        ),
+        FrostedButton.text(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
+        ),
+      ],
+    );
+  }
+}
+
+/// Three footprints: dense rows trail [FrostedIconButtonSize.small], a lone
+/// target takes [FrostedIconButtonSize.large].
+class _IconButtonSizesDemo extends StatelessWidget {
+  const _IconButtonSizesDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: FrostedSpacing.sp3,
+      runSpacing: FrostedSpacing.sp3,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: <Widget>[
+        for (final FrostedIconButtonSize size in FrostedIconButtonSize.values)
+          FrostedIconButton.tonal(
+            icon: Icons.tune,
+            size: size,
+            tooltip: size.name,
+            onPressed: () {},
+          ),
       ],
     );
   }

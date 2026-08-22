@@ -1,6 +1,7 @@
 export 'src/components/actions/frosted_button.dart';
 export 'src/components/actions/frosted_checkbox.dart';
 export 'src/components/actions/frosted_chip.dart';
+export 'src/components/actions/frosted_expandable_fab.dart';
 export 'src/components/actions/frosted_fab.dart';
 export 'src/components/actions/frosted_icon_button.dart';
 export 'src/components/actions/frosted_radio.dart';
@@ -24,6 +25,7 @@ export 'src/components/navigation/frosted_adaptive_navigation.dart';
 export 'src/components/navigation/frosted_badge.dart';
 export 'src/components/navigation/frosted_breadcrumb.dart';
 export 'src/components/navigation/frosted_drawer.dart';
+export 'src/components/navigation/frosted_menu.dart';
 export 'src/components/navigation/frosted_nav_item.dart';
 export 'src/components/navigation/frosted_navigation_rail.dart';
 export 'src/components/navigation/frosted_page_indicator.dart';

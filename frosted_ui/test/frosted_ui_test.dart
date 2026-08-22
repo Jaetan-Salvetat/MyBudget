@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
@@ -61,6 +62,27 @@ void main() {
       backdrop.filterConfig!.debugShortDescription,
       contains('bounded'),
     );
+  });
+
+  testWidgets(
+      'FrostedGlass caps the blur sigma against a short chrome surface',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(_glassSized(const Size(600, 56)));
+
+    expect(_resolvedSigma(tester, const Size(600, 56)), 56 / 3);
+  });
+
+  testWidgets('FrostedGlass keeps the token sigma on a large surface',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(_glassSized(const Size(600, 600)));
+
+    final FrostedGlassTokens glass =
+        FrostedTheme.dark(seedColor: Colors.deepPurple)
+            .extension<FrostedTokens>()!
+            .glass;
+
+    expect(_resolvedSigma(tester, const Size(600, 600)),
+        glass.ultraThick.blurSigma);
   });
 
   testWidgets('FrostedGlass strokes every side by default',
@@ -173,4 +195,33 @@ Border _glassBorder(WidgetTester tester) {
     ),
   );
   return (decorated.decoration as BoxDecoration).border! as Border;
+}
+
+Widget _glassSized(Size size) => MaterialApp(
+      theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: size.width,
+            height: size.height,
+            child: const FrostedGlass(
+              level: FrostedGlassLevel.ultraThick,
+              child: SizedBox.expand(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+double _resolvedSigma(WidgetTester tester, Size size) {
+  final BackdropFilter backdrop = tester.widget<BackdropFilter>(
+    find.descendant(
+      of: find.byType(FrostedGlass),
+      matching: find.byType(BackdropFilter),
+    ),
+  );
+  final String description = backdrop.filterConfig!
+      .resolve(ImageFilterContext(bounds: Offset.zero & size))
+      .debugShortDescription;
+  return double.parse(RegExp(r'blur\(([0-9.]+)').firstMatch(description)!.group(1)!);
 }

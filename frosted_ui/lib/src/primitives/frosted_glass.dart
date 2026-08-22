@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../foundations/frosted_radius.dart';
 import '../theme/frosted_glass_level_spec.dart';
@@ -102,7 +104,7 @@ class FrostedGlass extends StatelessWidget {
           children: <Widget>[
             Positioned.fill(
               child: BackdropFilter(
-                filterConfig: _saturatingBlur(
+                filterConfig: _GlassBlur(
                   sigma: spec.blurSigma * t,
                   saturation: lerpDouble(1, glass.saturation, t)!,
                 ),
@@ -174,28 +176,69 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
 /// The blur is *bounded*: its kernel only samples pixels that sit inside the
 /// glass bounds, so no surrounding colour bleeds in and no bright halo forms
 /// along the edges.
-ImageFilterConfig _saturatingBlur({
-  required double sigma,
-  required double saturation,
-}) {
-  final ImageFilterConfig blur = ImageFilterConfig.blur(
-    sigmaX: sigma,
-    sigmaY: sigma,
-    bounded: true,
-  );
-  if (saturation == 1.0) return blur;
+///
+/// Impeller's bounded blur degenerates once the sigma grows past roughly a
+/// third of the bounded region: it collapses the backdrop into a flat fill
+/// instead of blurring it, so the glass reads as opaque. Skia is unaffected,
+/// which hides the problem in widget tests. The sigma is therefore capped
+/// against the surface itself — see [_maxSigmaForBounds].
+class _GlassBlur implements ImageFilterConfig {
+  const _GlassBlur({required this.sigma, required this.saturation});
+
+  final double sigma;
+  final double saturation;
+
+  @override
+  ImageFilter resolve(ImageFilterContext context) {
+    final double effective = min(sigma, _maxSigmaForBounds(context.bounds));
+    final ImageFilter blur = ImageFilter.blur(
+      sigmaX: effective,
+      sigmaY: effective,
+      tileMode: TileMode.clamp,
+      bounds: context.bounds,
+    );
+    if (saturation == 1) return blur;
+    return ImageFilter.compose(outer: blur, inner: _saturate(saturation));
+  }
+
+  @override
+  ImageFilter? get filter => null;
+
+  @override
+  String get debugShortDescription =>
+      'blur($sigma, saturate($saturation), bounded)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is _GlassBlur &&
+        other.sigma == sigma &&
+        other.saturation == saturation;
+  }
+
+  @override
+  int get hashCode => Object.hash(sigma, saturation);
+
+  @override
+  String toString() => 'ImageFilterConfig.$debugShortDescription';
+}
+
+/// Measured against Impeller: a bounded blur tracks Skia while the sigma stays
+/// at or below a third of the shortest bounded span, and collapses beyond it.
+const double _kSigmaToShortestSide = 3;
+
+double _maxSigmaForBounds(Rect bounds) =>
+    bounds.shortestSide / _kSigmaToShortestSide;
+
+ColorFilter _saturate(double saturation) {
   final double s = saturation;
   final double r = 0.213 * (1 - s);
   final double g = 0.715 * (1 - s);
   final double b = 0.072 * (1 - s);
-  final ColorFilter saturate = ColorFilter.matrix(<double>[
+  return ColorFilter.matrix(<double>[
     r + s, g, b, 0, 0,
     r, g + s, b, 0, 0,
     r, g, b + s, 0, 0,
     0, 0, 0, 1, 0,
   ]);
-  return ImageFilterConfig.compose(
-    outer: blur,
-    inner: ImageFilterConfig(saturate),
-  );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
+import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_tokens.dart';
@@ -71,9 +72,12 @@ Future<T?> showFrostedBottomSheet<T>({
 ///
 /// Present it through [showFrostedBottomSheet].
 class FrostedBottomSheet extends StatelessWidget {
-  const FrostedBottomSheet({required this.child, super.key});
+  const FrostedBottomSheet({required this.child, this.title, super.key});
 
   final Widget child;
+
+  /// Optional heading, rendered between the drag handle and [child].
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +122,14 @@ class FrostedBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
+              if (title != null) ...<Widget>[
+                Text(
+                  title!,
+                  style: FrostedTypeScale.titleLarge
+                      .copyWith(color: cs.onSurface),
+                ),
+                const SizedBox(height: FrostedSpacing.sp3),
+              ],
               child,
             ],
           ),

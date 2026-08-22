@@ -27,6 +27,7 @@ class FrostedButton extends StatelessWidget {
     this.onPressed,
     this.expanded = false,
     this.shape = FrostedShape.rounded,
+    this.destructive = false,
   }) : _variant = variant;
 
   /// Solid filled button — primary action on a page.
@@ -38,6 +39,7 @@ class FrostedButton extends StatelessWidget {
     required VoidCallback? onPressed,
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
+    bool destructive = false,
   }) =>
       FrostedButton._(
         key: key,
@@ -48,6 +50,7 @@ class FrostedButton extends StatelessWidget {
         onPressed: onPressed,
         expanded: expanded,
         shape: shape,
+        destructive: destructive,
       );
 
   /// Tonal button — secondary action, sits next to a filled one.
@@ -59,6 +62,7 @@ class FrostedButton extends StatelessWidget {
     required VoidCallback? onPressed,
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
+    bool destructive = false,
   }) =>
       FrostedButton._(
         key: key,
@@ -69,6 +73,7 @@ class FrostedButton extends StatelessWidget {
         onPressed: onPressed,
         expanded: expanded,
         shape: shape,
+        destructive: destructive,
       );
 
   /// Outlined button — alternative action, low emphasis.
@@ -80,6 +85,7 @@ class FrostedButton extends StatelessWidget {
     required VoidCallback? onPressed,
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
+    bool destructive = false,
   }) =>
       FrostedButton._(
         key: key,
@@ -90,6 +96,7 @@ class FrostedButton extends StatelessWidget {
         onPressed: onPressed,
         expanded: expanded,
         shape: shape,
+        destructive: destructive,
       );
 
   /// Text button — least emphasis. No background or border.
@@ -101,6 +108,7 @@ class FrostedButton extends StatelessWidget {
     required VoidCallback? onPressed,
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
+    bool destructive = false,
   }) =>
       FrostedButton._(
         key: key,
@@ -111,6 +119,7 @@ class FrostedButton extends StatelessWidget {
         onPressed: onPressed,
         expanded: expanded,
         shape: shape,
+        destructive: destructive,
       );
 
   final String label;
@@ -118,6 +127,10 @@ class FrostedButton extends StatelessWidget {
   final IconData? trailingIcon;
   final VoidCallback? onPressed;
   final bool expanded;
+
+  /// Swaps the primary role for the error role, marking the action as
+  /// irreversible. Disabled buttons stay neutral.
+  final bool destructive;
 
   /// The resting form. A press morphs it into [FrostedShape.opposite].
   final FrostedShape shape;
@@ -204,17 +217,13 @@ class FrostedButton extends StatelessWidget {
       return Colors.transparent;
     }
     final Color base = switch (_variant) {
-      _ButtonVariant.filled => cs.primary,
-      _ButtonVariant.tonal => cs.secondaryContainer,
+      _ButtonVariant.filled => destructive ? cs.error : cs.primary,
+      _ButtonVariant.tonal =>
+        destructive ? cs.errorContainer : cs.secondaryContainer,
       _ButtonVariant.outlined => Colors.transparent,
       _ButtonVariant.text => Colors.transparent,
     };
-    final Color overlayBase = switch (_variant) {
-      _ButtonVariant.filled => cs.onPrimary,
-      _ButtonVariant.tonal => cs.onSecondaryContainer,
-      _ButtonVariant.outlined => cs.primary,
-      _ButtonVariant.text => cs.primary,
-    };
+    final Color overlayBase = _resolveFg(cs, s);
     final double alpha = _overlayAlpha(s);
     if (alpha == 0) return base;
     return Color.alphaBlend(overlayBase.withValues(alpha: alpha), base);
@@ -225,10 +234,11 @@ class FrostedButton extends StatelessWidget {
       return cs.onSurface.withValues(alpha: 0.38);
     }
     return switch (_variant) {
-      _ButtonVariant.filled => cs.onPrimary,
-      _ButtonVariant.tonal => cs.onSecondaryContainer,
-      _ButtonVariant.outlined => cs.primary,
-      _ButtonVariant.text => cs.primary,
+      _ButtonVariant.filled => destructive ? cs.onError : cs.onPrimary,
+      _ButtonVariant.tonal =>
+        destructive ? cs.onErrorContainer : cs.onSecondaryContainer,
+      _ButtonVariant.outlined => destructive ? cs.error : cs.primary,
+      _ButtonVariant.text => destructive ? cs.error : cs.primary,
     };
   }
 
@@ -237,6 +247,7 @@ class FrostedButton extends StatelessWidget {
     if (!s.enabled) {
       return BorderSide(color: cs.onSurface.withValues(alpha: 0.12));
     }
+    if (destructive) return BorderSide(color: cs.error);
     final Color color = s.focused ? cs.primary : cs.outline;
     return BorderSide(color: color);
   }
