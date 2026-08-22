@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/loans/widgets/loan_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
-import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_card.dart';
+import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 
 class LoansList extends ConsumerWidget {
   const LoansList({super.key});
@@ -32,7 +33,7 @@ class LoansList extends ConsumerWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 145),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, mainFlowBottomInset(context)),
               children: [
                 _buildSummaryCard(context, ref),
                 if (isEmpty) ...[

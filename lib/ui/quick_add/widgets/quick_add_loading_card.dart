@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frosted_ui/frosted_ui.dart';
+
+import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class QuickAddLoadingCard extends StatelessWidget {
   const QuickAddLoadingCard({super.key});
@@ -8,9 +9,7 @@ class QuickAddLoadingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return FrostedGlass(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-      borderRadius: BorderRadius.circular(FrostedRadius.xl),
+    return SolidCard(
       child: Row(
         children: [
           SizedBox(

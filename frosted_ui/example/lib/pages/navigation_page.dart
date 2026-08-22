@@ -80,10 +80,10 @@ class _TabBarDemoState extends State<_TabBarDemo> {
             const Positioned.fill(child: _MiniFeed()),
             Padding(
               padding: const EdgeInsets.all(FrostedSpacing.sp3),
-              child: FrostedBottomBar(
-                items: _items,
-                currentIndex: _index,
-                onTap: (int i) => setState(() => _index = i),
+              child: FrostedNavPill(
+                destinations: _items,
+                selectedIndex: _index,
+                onDestinationSelected: (int i) => setState(() => _index = i),
               ),
             ),
           ],

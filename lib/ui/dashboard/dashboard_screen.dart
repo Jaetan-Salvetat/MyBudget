@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
@@ -37,7 +38,7 @@ class DashboardScreen extends ConsumerWidget {
       bottom: false,
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 180),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, mainFlowBottomInset(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

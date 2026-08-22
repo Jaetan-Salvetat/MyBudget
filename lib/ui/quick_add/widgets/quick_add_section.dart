@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
@@ -36,18 +37,18 @@ class QuickAddSection extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        QuickAddInputBar(onNoAccount: onNoAccount),
         AnimatedSize(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          alignment: Alignment.bottomCenter,
+          alignment: Alignment.topCenter,
           child: overlay is SizedBox
               ? overlay
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+                  padding: const EdgeInsets.only(top: FrostedSpacing.sp3),
                   child: overlay,
                 ),
         ),
-        QuickAddInputBar(onNoAccount: onNoAccount),
       ],
     );
   }

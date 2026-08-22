@@ -4,7 +4,7 @@ import 'frosted_badge.dart';
 
 /// A single navigation destination.
 ///
-/// Used as input to [FrostedBottomBar], [FrostedNavigationRail], [FrostedDrawer]
+/// Used as input to [FrostedNavPill], [FrostedNavigationRail], [FrostedDrawer]
 /// and [FrostedSidebar]. The widgets that consume this model decide how to
 /// render it — this class only carries data.
 class FrostedNavItem {

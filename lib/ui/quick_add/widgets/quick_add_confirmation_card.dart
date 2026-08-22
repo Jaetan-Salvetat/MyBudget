@@ -14,6 +14,7 @@ import 'package:mybudget/models/quick_add_result_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
+import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
@@ -173,9 +174,7 @@ class _QuickAddConfirmationCardState
     final catColor = _categoryColor();
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    return FrostedGlass(
-      padding: const EdgeInsets.all(FrostedSpacing.sp4),
-      borderRadius: BorderRadius.circular(FrostedRadius.xl),
+    return SolidCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

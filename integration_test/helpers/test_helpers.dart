@@ -4,10 +4,10 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 Future<void> navigateToTab(WidgetTester tester, int index) async {
-  final labels = ['Accueil', 'Comptes', 'Dépenses', 'Revenus', 'Emprunts'];
+  const labels = ['Accueil', 'Transactions', 'Comptes'];
   final navItem = find.descendant(
-    of: find.byType(FrostedBottomBar),
-    matching: find.text(labels[index]),
+    of: find.byType(FrostedNavPill),
+    matching: find.bySemanticsLabel(labels[index]),
   );
   await tester.tap(navItem);
   await tester.pumpAndSettle();

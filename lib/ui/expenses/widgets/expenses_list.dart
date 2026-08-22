@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -317,7 +318,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(top: 16, bottom: 145),
+              padding: EdgeInsets.only(top: 16, bottom: mainFlowBottomInset(context)),
               children: [
                 _hPad(
                   ExpensesSummaryCard(
