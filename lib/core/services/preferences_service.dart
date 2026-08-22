@@ -13,6 +13,7 @@ class PreferencesService {
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
+  static const String keyGeminiApiKey = 'geminiApiKey';
 
   static const String keyQuickAddEnabled = 'quickAddEnabled';
 
@@ -40,6 +41,17 @@ class PreferencesService {
 
   static Future<void> setThemeMode(ThemeMode mode) async {
     await _prefs.setString(keyThemeMode, mode.name);
+  }
+
+  // TODO(scan): l'app n'embarque plus de clé Gemini, l'utilisateur doit saisir
+  // la sienne. Ajouter le champ dans les réglages (section IA) qui appelle
+  // setGeminiApiKey, sans quoi le scan de ticket reste indisponible.
+  static String getGeminiApiKey() {
+    return _prefs.getString(keyGeminiApiKey) ?? '';
+  }
+
+  static Future<void> setGeminiApiKey(String key) async {
+    await _prefs.setString(keyGeminiApiKey, key);
   }
 
   static String getLanguage() {

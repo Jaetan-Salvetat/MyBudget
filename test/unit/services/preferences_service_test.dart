@@ -19,6 +19,15 @@ void main() {
       expect(PreferencesService.isFirstLaunch(), isFalse);
     });
 
+    test('getGeminiApiKey returns an empty key by default', () {
+      expect(PreferencesService.getGeminiApiKey(), isEmpty);
+    });
+
+    test('setGeminiApiKey persists the key', () async {
+      await PreferencesService.setGeminiApiKey('user-key');
+      expect(PreferencesService.getGeminiApiKey(), 'user-key');
+    });
+
     test('getThemeMode returns ThemeMode.system by default', () {
       expect(PreferencesService.getThemeMode(), ThemeMode.system);
     });
