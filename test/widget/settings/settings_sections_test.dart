@@ -95,6 +95,16 @@ void main() {
       );
     });
 
+    testWidgets('help and support only offers the usage guide', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, const HelpAndSupportSection());
+
+      final FrostedListTile tile = sectionOf(tester).tiles.single;
+
+      expect(tile.title, 'Guide d\'utilisation');
+    });
+
     testWidgets('the appearance tile reads the current theme mode', (
       WidgetTester tester,
     ) async {

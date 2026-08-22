@@ -38,7 +38,6 @@ dependencies:
   path: ^1.8.3
   path_provider: ^2.1.5
   flutter_svg: ^2.0.9
-  flutter_dotenv: ^6.0.0
   package_info_plus: ^9.0.1
   cupertino_icons: ^1.0.9
   share_plus: ^12.0.2
@@ -54,8 +53,6 @@ dependencies:
   permission_handler: ^12.0.1
   google_fonts: ^6.2.1
   url_launcher: ^6.3.1
-  webview_flutter: ^4.10.0
-  webview_flutter_android: ^4.10.15
   flutter_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.2
   home_widget: ^0.9.1
@@ -116,7 +113,6 @@ flutter:
     - assets/
     - assets/images/onboarding/
     - assets/models/
-    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_updater/app_updater.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,7 +25,6 @@ void main() {
         FlutterError.presentError(details);
       };
 
-      await dotenv.load();
       await PreferencesService.init();
       await initializeDateFormatting('fr_FR', null);
 

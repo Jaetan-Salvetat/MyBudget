@@ -1,24 +1,29 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:openai_dart/openai_dart.dart';
 
+import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
 class ReceiptScanService {
-  static const String _model = 'google/gemini-2.0-flash-lite-001';
-  static const String _baseUrl = 'https://openrouter.ai/api/v1';
+  static const String _model = 'gemini-2.0-flash-lite';
+  static const String _baseUrl =
+      'https://generativelanguage.googleapis.com/v1beta/openai';
 
   final OpenAIClient _client;
 
-  ReceiptScanService()
-    : _client = OpenAIClient.withApiKey(
-        dotenv.env['OPENROUTER_API_KEY'] ?? '',
-        baseUrl: _baseUrl,
-      );
+  ReceiptScanService({required String apiKey})
+    : _client = OpenAIClient.withApiKey(apiKey, baseUrl: _baseUrl);
+
+  factory ReceiptScanService.fromPreferences() {
+    final apiKey = PreferencesService.getGeminiApiKey();
+    if (apiKey.isEmpty) throw const ScanMissingApiKeyException();
+    return ReceiptScanService(apiKey: apiKey);
+  }
 
   Future<ReceiptScanResultModel> extractItems(
     Uint8List imageBytes,

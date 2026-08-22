@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     branches:
-      - main-disabled
+      - main
 
 jobs:
   create_release:
@@ -52,9 +52,6 @@ jobs:
           echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > android/app/keystore/mybudget_key.jks
 
 
-
-      - name: Create .env
-        run: echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > .env
 
       - name: Flutter pub get
         run: flutter pub get

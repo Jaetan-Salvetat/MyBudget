@@ -137,6 +137,7 @@ void main() {
         const ScanCooldownException(retryAfterSeconds: 10),
         const ScanRateLimitException(),
         const ScanServiceUnavailableException(),
+        const ScanMissingApiKeyException(),
         const ScanGenericException(message: 'test'),
       ];
 
@@ -145,6 +146,7 @@ void main() {
           ScanCooldownException() => 'cooldown',
           ScanRateLimitException() => 'rate_limit',
           ScanServiceUnavailableException() => 'unavailable',
+          ScanMissingApiKeyException() => 'missing_api_key',
           ScanGenericException() => 'generic',
         };
         expect(result, isNotEmpty);

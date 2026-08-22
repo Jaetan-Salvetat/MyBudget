@@ -35,7 +35,7 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
-      final scanService = ReceiptScanService();
+      final scanService = ReceiptScanService.fromPreferences();
       final resolver = await ref.read(categoryDisplayResolverProvider.future);
       final categories = resolver
           .groupsOfType(TransactionType.expense)

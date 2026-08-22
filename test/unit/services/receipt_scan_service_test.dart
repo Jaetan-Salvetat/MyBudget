@@ -1,10 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +25,26 @@ void main() {
         .groupsOfType(TransactionType.expense)
         .expand((group) => resolver.childrenOf(group.slug))
         .toList();
+  });
+
+  group('ReceiptScanService.fromPreferences', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await PreferencesService.init();
+    });
+
+    test('rejects a scan while the user has not set a key', () {
+      expect(
+        ReceiptScanService.fromPreferences,
+        throwsA(isA<ScanMissingApiKeyException>()),
+      );
+    });
+
+    test('builds a service once the user stored a key', () async {
+      await PreferencesService.setGeminiApiKey('user-key');
+
+      expect(ReceiptScanService.fromPreferences(), isA<ReceiptScanService>());
+    });
   });
 
   group('ReceiptScanService.matchCategory', () {
