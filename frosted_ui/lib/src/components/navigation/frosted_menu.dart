@@ -43,6 +43,14 @@ class FrostedMenuPanel extends StatelessWidget {
     super.key,
   });
 
+  /// Gap between the anchor and the panel, fed to `MenuAnchor.alignmentOffset`.
+  ///
+  /// The panel is its own card, with its own corners. Flush against the field
+  /// the two rounded rects meet corner to corner and pinch into one broken
+  /// silhouette.
+  static const double anchorGap = FrostedSpacing.sp2;
+  static const Offset anchorOffset = Offset(0, anchorGap);
+
   final List<FrostedMenuEntry> entries;
   final double? width;
 

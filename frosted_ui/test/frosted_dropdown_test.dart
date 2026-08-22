@@ -66,17 +66,17 @@ void main() {
       expect(fieldRadius(tester), const BorderRadius.all(corner));
     });
 
-    testWidgets('flattens the joined edges while open', (
+    testWidgets('keeps both cards fully rounded while open', (
       WidgetTester tester,
     ) async {
       await pump(tester);
       await open(tester);
 
-      expect(fieldRadius(tester), const BorderRadius.vertical(top: corner));
-      expect(panelRadius(tester), const BorderRadius.vertical(bottom: corner));
+      expect(fieldRadius(tester), const BorderRadius.all(corner));
+      expect(panelRadius(tester), const BorderRadius.all(corner));
     });
 
-    testWidgets('stays below the field when room is short', (
+    testWidgets('unfolds upward when the field sits at the bottom', (
       WidgetTester tester,
     ) async {
       await pump(tester, count: 40, alignment: Alignment.bottomCenter);
@@ -84,9 +84,9 @@ void main() {
       await open(tester);
 
       final Rect panel = tester.getRect(find.byType(FrostedMenuPanel));
-      expect(panel.top, field.bottom);
-      expect(fieldRadius(tester), const BorderRadius.vertical(top: corner));
-      expect(panelRadius(tester), const BorderRadius.vertical(bottom: corner));
+      expect(panel.bottom, lessThanOrEqualTo(field.top));
+      expect(panel.height, greaterThan(0));
+      expect(panelRadius(tester), const BorderRadius.all(corner));
     });
 
     testWidgets('drops the focus ring while open', (WidgetTester tester) async {
@@ -101,13 +101,15 @@ void main() {
       );
     });
 
-    testWidgets('sits flush against the field', (WidgetTester tester) async {
+    testWidgets('clears the field without drifting sideways', (
+      WidgetTester tester,
+    ) async {
       await pump(tester);
       final Rect field = tester.getRect(find.byType(FrostedFieldSurface));
       await open(tester);
 
       final Rect panel = tester.getRect(find.byType(FrostedMenuPanel));
-      expect(panel.top, field.bottom);
+      expect(panel.top, field.bottom + FrostedMenuPanel.anchorGap);
       expect(panel.left, field.left);
       expect(panel.width, field.width);
     });
