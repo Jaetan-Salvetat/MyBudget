@@ -24,36 +24,34 @@ final class CategoryCustomisation extends CategoryFormResult {
   const CategoryCustomisation({this.name, this.icon, this.color});
 }
 
-class CategoryFormBottomSheet extends StatefulWidget {
+class CategoryFormScreen extends StatefulWidget {
   final CategoryDisplay initial;
   final CategoryDisplay defaults;
 
-  const CategoryFormBottomSheet({
+  const CategoryFormScreen({
     required this.initial,
     required this.defaults,
     super.key,
   });
 
-  static Future<CategoryFormResult?> show({
+  static Future<CategoryFormResult?> push({
     required BuildContext context,
     required CategoryDisplay initial,
     required CategoryDisplay defaults,
   }) {
-    return showFrostedBottomSheet<CategoryFormResult>(
-      context: context,
-      builder: (_) => FrostedBottomSheet(
-        title: 'Personnaliser « ${initial.label} »',
-        child: CategoryFormBottomSheet(initial: initial, defaults: defaults),
+    return Navigator.push<CategoryFormResult>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CategoryFormScreen(initial: initial, defaults: defaults),
       ),
     );
   }
 
   @override
-  State<CategoryFormBottomSheet> createState() =>
-      _CategoryFormBottomSheetState();
+  State<CategoryFormScreen> createState() => _CategoryFormScreenState();
 }
 
-class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
+class _CategoryFormScreenState extends State<CategoryFormScreen> {
   late final TextEditingController _nameController = TextEditingController(
     text: widget.initial.label,
   );
@@ -77,26 +75,29 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Flexible(child: _fields(theme)),
-        const SizedBox(height: 16),
-        FrostedButton.filled(label: 'Enregistrer', onPressed: _submit),
-        if (_isCustomised)
-          FrostedButton.text(
-            label: 'Réinitialiser',
-            onPressed: () => Navigator.pop(context, const CategoryReset()),
-          ),
-      ],
+    return FrostedScaffold(
+      appBar: FrostedTopBar(
+        title: widget.defaults.label,
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
+      body: Column(
+        children: [
+          Expanded(child: _fields(theme)),
+          _actions(context),
+        ],
+      ),
     );
   }
 
   Widget _fields(ThemeData theme) {
     return ListView(
-      shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        FrostedSpacing.sp4,
+        FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
+        FrostedSpacing.sp4,
+        FrostedSpacing.sp4,
+      ),
       children: [
         Center(
           child: CategoryIcon(
@@ -138,6 +139,28 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         const SizedBox(height: 10),
         _iconPicker(theme),
       ],
+    );
+  }
+
+  Widget _actions(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        FrostedSpacing.sp4,
+        0,
+        FrostedSpacing.sp4,
+        MediaQuery.of(context).padding.bottom + FrostedSpacing.sp4,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FrostedButton.filled(label: 'Enregistrer', onPressed: _submit),
+          if (_isCustomised)
+            FrostedButton.text(
+              label: 'Réinitialiser',
+              onPressed: () => Navigator.pop(context, const CategoryReset()),
+            ),
+        ],
+      ),
     );
   }
 
