@@ -12,47 +12,33 @@ import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 const double _durationUnitToggleHeight = 50;
 
-class LoanCreationBottomSheet extends ConsumerStatefulWidget {
+/// Full-page loan creation wizard. Returns the loan to persist, or null when
+/// the user backs out.
+class LoanCreationScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
-  final Function(LoanModel) onSubmit;
-  final VoidCallback onCancel;
 
-  const LoanCreationBottomSheet({
-    required this.accounts,
-    required this.onSubmit,
-    required this.onCancel,
-    super.key,
-  });
+  const LoanCreationScreen({required this.accounts, super.key});
 
-  static void show({
+  static Future<LoanModel?> push({
     required BuildContext context,
     required List<AccountModel> accounts,
-    required Function(LoanModel) onSubmit,
-    required VoidCallback onCancel,
   }) {
-    showFrostedBottomSheet<void>(
-      context: context,
-      builder: (_) => FrostedBottomSheet(
-        title: 'Nouvel Emprunt Bancaire',
-        child: ProviderScope(
+    return Navigator.push<LoanModel>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProviderScope(
           overrides: [loanCreationProvider],
-          child: LoanCreationBottomSheet(
-            accounts: accounts,
-            onSubmit: onSubmit,
-            onCancel: onCancel,
-          ),
+          child: LoanCreationScreen(accounts: accounts),
         ),
       ),
     );
   }
 
   @override
-  ConsumerState<LoanCreationBottomSheet> createState() =>
-      _LoanCreationBottomSheetState();
+  ConsumerState<LoanCreationScreen> createState() => _LoanCreationScreenState();
 }
 
-class _LoanCreationBottomSheetState
-    extends ConsumerState<LoanCreationBottomSheet> {
+class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _lenderController;
   late final TextEditingController _amountController;
@@ -131,49 +117,63 @@ class _LoanCreationBottomSheetState
     final state = ref.watch(loanCreationProvider);
     final notifier = ref.read(loanCreationProvider.notifier);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: _buildStepperIndicator(context, state),
-        ),
-
-        Flexible(
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.1, 0),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey(state.currentStep),
-                  child: _buildCurrentStep(context, state, notifier),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              _buildBottomArea(context, state, notifier),
-
-              const SizedBox(height: 20),
-            ],
+    return FrostedScaffold(
+      appBar: FrostedTopBar(
+        title: 'Nouvel emprunt bancaire',
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              0,
+              FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp4,
+              0,
+              FrostedSpacing.sp4,
+            ),
+            child: _buildStepperIndicator(context, state),
           ),
-        ),
-      ],
+
+          Expanded(
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.1, 0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: KeyedSubtree(
+                    key: ValueKey(state.currentStep),
+                    child: _buildCurrentStep(context, state, notifier),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                _buildBottomArea(context, state, notifier),
+
+                SizedBox(
+                  height:
+                      MediaQuery.of(context).padding.bottom +
+                      FrostedSpacing.sp4,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1068,10 +1068,8 @@ class _LoanCreationBottomSheetState
               FrostedButton.filled(
                 label: 'Terminer',
                 onPressed: state.isValid
-                    ? () {
-                        widget.onSubmit(notifier.createLoanModel());
-                        Navigator.pop(context);
-                      }
+                    ? () =>
+                          Navigator.pop(context, notifier.createLoanModel())
                     : null,
               ),
           ],

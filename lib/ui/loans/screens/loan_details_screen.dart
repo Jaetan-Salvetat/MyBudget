@@ -15,7 +15,7 @@ import 'package:mybudget/ui/loans/widgets/loan_detail_kpi_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_row.dart';
 import 'package:mybudget/ui/loans/screens/loan_schedule_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_edit_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/screens/loan_edit_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_payoff_bottom_sheet.dart';
 
 class LoanDetailsScreen extends ConsumerStatefulWidget {
@@ -145,7 +145,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
           child: FrostedButton.text(
             label: 'Modifier',
             icon: Symbols.edit_rounded,
-            onPressed: () => _showEditLoanBottomSheet(context, loan, accounts),
+            onPressed: () => _openLoanEditScreen(context, loan, accounts),
           ),
         ),
         const SizedBox(width: 10),
@@ -321,35 +321,31 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     return (end.year - start.year) * 12 + end.month - start.month;
   }
 
-  void _showEditLoanBottomSheet(
+  Future<void> _openLoanEditScreen(
     BuildContext context,
     Loan loan,
     List<AccountModel> accounts,
-  ) {
-    LoanEditBottomSheet.show(
+  ) async {
+    final updatedLoanModel = await LoanEditScreen.push(
       context: context,
       loan: loan,
       accounts: accounts,
-      onSubmit: (updatedLoanModel) async {
-        try {
-          await ref.read(loanProvider.notifier).updateLoan(updatedLoanModel);
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Emprunt mis à jour avec succès',
-            );
-          }
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de la modification: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
     );
+    if (updatedLoanModel == null) return;
+
+    try {
+      await ref.read(loanProvider.notifier).updateLoan(updatedLoanModel);
+      if (context.mounted) {
+        FrostedSnackbar.show(context, message: 'Emprunt mis à jour avec succès');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la modification: $e',
+        );
+      }
+    }
   }
 
   void _showPayoffBottomSheet(BuildContext context, Loan loan) {

@@ -10,7 +10,7 @@ import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 
 class LoansList extends ConsumerWidget {
@@ -168,18 +168,23 @@ class LoansList extends ConsumerWidget {
           _showNoAccountDialog(context, 'un emprunt');
           return;
         }
-        final loanNotifier = ref.read(loanProvider.notifier);
-
-        LoanCreationBottomSheet.show(
-          context: context,
-          accounts: accounts,
-          onSubmit: (newLoan) {
-            loanNotifier.addLoan(newLoan);
-          },
-          onCancel: () {},
-        );
+        _openLoanForm(context, ref, accounts);
       },
     );
+  }
+
+  Future<void> _openLoanForm(
+    BuildContext context,
+    WidgetRef ref,
+    List<AccountModel> accounts,
+  ) async {
+    final loan = await LoanCreationScreen.push(
+      context: context,
+      accounts: accounts,
+    );
+    if (loan == null) return;
+
+    await ref.read(loanProvider.notifier).addLoan(loan);
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {

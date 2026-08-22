@@ -9,7 +9,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_card.dart';
 import 'package:mybudget/ui/accounts/widgets/add_account_tile.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
@@ -37,7 +37,7 @@ class AccountList extends ConsumerWidget {
                   subMessage: 'Ajoutez un compte pour commencer',
                   icon: Symbols.account_balance_wallet_rounded,
                   buttonText: 'Ajouter un compte',
-                  onPressed: () => _showAddAccountDialog(context, ref),
+                  onPressed: () => _openAccountForm(context, ref),
                 ),
               );
             }
@@ -50,7 +50,7 @@ class AccountList extends ConsumerWidget {
                   const SizedBox(height: 12),
                 ],
                 AddAccountTile(
-                  onTap: () => _showAddAccountDialog(context, ref),
+                  onTap: () => _openAccountForm(context, ref),
                 ),
               ],
             );
@@ -58,26 +58,17 @@ class AccountList extends ConsumerWidget {
         );
   }
 
-  void _showAddAccountDialog(BuildContext context, WidgetRef ref) {
-    AccountBottomSheet.show(
-      context: context,
-      onSubmit: (name, bank) async {
-        if (name.isEmpty || bank.isEmpty) return;
+  Future<void> _openAccountForm(BuildContext context, WidgetRef ref) async {
+    final account = await AccountFormScreen.push(context: context);
+    if (account == null || !context.mounted) return;
 
-        try {
-          final account = AccountModel.create(name: name, bank: bank);
-          await ref.read(accountProvider.notifier).addAccount(account);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de l\'ajout: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
-    );
+    try {
+      await ref.read(accountProvider.notifier).addAccount(account);
+    } catch (e) {
+      if (context.mounted) {
+        FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
+      }
+    }
   }
 }
 

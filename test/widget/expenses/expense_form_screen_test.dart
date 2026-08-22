@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,8 +12,8 @@ import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -50,11 +52,12 @@ void main() {
 
   final account = AccountModel.create(name: 'Courant', bank: 'Banque')..id = 1;
 
-  Future<List<RevenueModel>> pumpSheet(
+  Future<ExpenseModel? Function()> pushForm(
     WidgetTester tester, {
-    RevenueModel? revenue,
+    ExpenseModel? expense,
   }) async {
-    final submitted = <RevenueModel>[];
+    ExpenseModel? submitted;
+    late BuildContext pageContext;
 
     tester.view.physicalSize = const Size(1440, 2400);
     tester.view.devicePixelRatio = 3;
@@ -76,63 +79,103 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.dark(),
-          home: Scaffold(
-            body: RevenueBottomSheet(
-              accounts: [account],
-              revenue: revenue,
-              onSubmit: submitted.add,
-              onCancel: () {},
-            ),
+          home: Builder(
+            builder: (context) {
+              pageContext = context;
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
     );
+
+    unawaited(
+      ExpenseFormScreen.push(
+        context: pageContext,
+        accounts: [account],
+        expense: expense,
+      ).then((value) => submitted = value),
+    );
     await tester.pumpAndSettle();
-    return submitted;
+
+    return () => submitted;
   }
 
-  Future<void> submit(WidgetTester tester) async {
-    await tester.ensureVisible(find.text('Ajouter'));
+  Future<void> submit(WidgetTester tester, String label) async {
+    await tester.ensureVisible(find.text(label));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Ajouter'));
+    await tester.tap(find.text(label));
     await tester.pumpAndSettle();
   }
 
   testWidgets('refuses an empty name', (WidgetTester tester) async {
-    final submitted = await pumpSheet(tester);
+    final submitted = await pushForm(tester);
 
     await tester.enterText(find.byType(TextField).at(1), '12,50');
-    await submit(tester);
+    await submit(tester, 'Ajouter');
 
     expect(find.text('Veuillez saisir un nom'), findsOneWidget);
-    expect(submitted, isEmpty);
+    expect(submitted(), isNull);
   });
 
   testWidgets('refuses a blank name', (WidgetTester tester) async {
-    final submitted = await pumpSheet(tester);
+    final submitted = await pushForm(tester);
 
     await tester.enterText(find.byType(TextField).first, '   ');
     await tester.enterText(find.byType(TextField).at(1), '12,50');
-    await submit(tester);
+    await submit(tester, 'Ajouter');
 
     expect(find.text('Veuillez saisir un nom'), findsOneWidget);
-    expect(submitted, isEmpty);
+    expect(submitted(), isNull);
   });
 
   testWidgets('clears the name error once a name is entered', (
     WidgetTester tester,
   ) async {
-    await pumpSheet(tester);
+    await pushForm(tester);
 
     await tester.enterText(find.byType(TextField).at(1), '12,50');
-    await submit(tester);
+    await submit(tester, 'Ajouter');
     expect(find.text('Veuillez saisir un nom'), findsOneWidget);
 
     await tester.ensureVisible(find.byType(TextField).first);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).first, 'Salaire');
-    await submit(tester);
+    await tester.enterText(find.byType(TextField).first, 'Loyer');
+    await submit(tester, 'Ajouter');
 
     expect(find.text('Veuillez saisir un nom'), findsNothing);
+  });
+
+  testWidgets('pops the edited expense back to the caller', (
+    WidgetTester tester,
+  ) async {
+    final expense = ExpenseModel.create(
+      name: 'Loyer',
+      amount: 800,
+      startDate: DateTime(2026, 1, 1),
+      accountId: account.id,
+      frequency: 'Mensuel',
+      categorySlug: 'logement_loyer',
+    )..id = 7;
+
+    final submitted = await pushForm(tester, expense: expense);
+
+    await tester.enterText(find.byType(TextField).first, 'Charges');
+    await submit(tester, 'Enregistrer');
+
+    expect(submitted()?.name, 'Charges');
+    expect(find.byType(ExpenseFormScreen), findsNothing);
+  });
+
+  testWidgets('pops nothing when the user backs out', (
+    WidgetTester tester,
+  ) async {
+    final submitted = await pushForm(tester);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(submitted(), isNull);
+    expect(find.byType(ExpenseFormScreen), findsNothing);
   });
 }

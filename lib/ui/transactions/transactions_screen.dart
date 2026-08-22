@@ -9,13 +9,13 @@ import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
+import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
-import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
+import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class TransactionsScreen extends ConsumerWidget {
@@ -120,91 +120,84 @@ class TransactionsScreen extends ConsumerWidget {
   void _handleAdd(BuildContext context, WidgetRef ref, TransactionsTab tab) {
     switch (tab) {
       case TransactionsTab.expenses:
-        _showAddExpenseBottomSheet(context, ref);
+        _openExpenseForm(context, ref);
       case TransactionsTab.revenues:
-        _showAddRevenueBottomSheet(context, ref);
+        _openRevenueForm(context, ref);
       case TransactionsTab.loans:
-        _showAddLoanBottomSheet(context, ref);
+        _openLoanForm(context, ref);
     }
   }
 
-  void _showAddExpenseBottomSheet(BuildContext context, WidgetRef ref) {
+  Future<void> _openExpenseForm(BuildContext context, WidgetRef ref) async {
     final accounts = ref.read(accountProvider).value ?? [];
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'une dépense');
       return;
     }
-    ExpenseBottomSheet.show(
+
+    final expense = await ExpenseFormScreen.push(
       context: context,
       accounts: accounts,
       closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
-      onSubmit: (expense) async {
-        try {
-          await ref.read(expenseProvider.notifier).addExpense(expense);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de l\'ajout: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
+    );
+    if (expense == null || !context.mounted) return;
+
+    await _persist(
+      context,
+      () => ref.read(expenseProvider.notifier).addExpense(expense),
     );
   }
 
-  void _showAddRevenueBottomSheet(BuildContext context, WidgetRef ref) {
+  Future<void> _openRevenueForm(BuildContext context, WidgetRef ref) async {
     final accounts = ref.read(accountProvider).value ?? [];
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un revenu');
       return;
     }
 
-    RevenueBottomSheet.show(
+    final revenue = await RevenueFormScreen.push(
       context: context,
       accounts: accounts,
       closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
-      onSubmit: (revenue) async {
-        try {
-          await ref.read(revenueProvider.notifier).addRevenue(revenue);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de l\'ajout: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
+    );
+    if (revenue == null || !context.mounted) return;
+
+    await _persist(
+      context,
+      () => ref.read(revenueProvider.notifier).addRevenue(revenue),
     );
   }
 
-  void _showAddLoanBottomSheet(BuildContext context, WidgetRef ref) {
+  Future<void> _openLoanForm(BuildContext context, WidgetRef ref) async {
     final accounts = ref.read(accountProvider).value ?? [];
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un emprunt');
       return;
     }
 
-    LoanCreationBottomSheet.show(
+    final loan = await LoanCreationScreen.push(
       context: context,
       accounts: accounts,
-      onSubmit: (loan) async {
-        try {
-          await ref.read(loanProvider.notifier).addLoan(loan);
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de l\'ajout: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
     );
+    if (loan == null || !context.mounted) return;
+
+    await _persist(
+      context,
+      () => ref.read(loanProvider.notifier).addLoan(loan),
+    );
+  }
+
+  Future<void> _persist(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e) {
+      if (context.mounted) {
+        FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
+      }
+    }
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {

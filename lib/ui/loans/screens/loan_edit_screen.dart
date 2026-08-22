@@ -11,47 +11,34 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
-class LoanEditBottomSheet extends ConsumerStatefulWidget {
+/// Full-page loan edit form. Returns the updated loan, or null when the user
+/// backs out.
+class LoanEditScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
-  final Function(LoanModel) onSubmit;
-  final VoidCallback onCancel;
 
-  const LoanEditBottomSheet({
-    required this.accounts,
-    required this.onSubmit,
-    required this.onCancel,
-    super.key,
-  });
+  const LoanEditScreen({required this.accounts, super.key});
 
-  static void show({
+  static Future<LoanModel?> push({
     required BuildContext context,
     required Loan loan,
     required List<AccountModel> accounts,
-    required Function(LoanModel) onSubmit,
-    required VoidCallback onCancel,
   }) {
-    showFrostedBottomSheet<void>(
-      context: context,
-      builder: (_) => FrostedBottomSheet(
-        title: 'Modifier l\'emprunt',
-        child: ProviderScope(
+    return Navigator.push<LoanModel>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProviderScope(
           overrides: [loanToEditProvider.overrideWithValue(loan)],
-          child: LoanEditBottomSheet(
-            accounts: accounts,
-            onSubmit: onSubmit,
-            onCancel: onCancel,
-          ),
+          child: LoanEditScreen(accounts: accounts),
         ),
       ),
     );
   }
 
   @override
-  ConsumerState<LoanEditBottomSheet> createState() =>
-      _LoanEditBottomSheetState();
+  ConsumerState<LoanEditScreen> createState() => _LoanEditScreenState();
 }
 
-class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
+class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _lenderController;
   late final TextEditingController _insuranceValueController;
@@ -97,27 +84,39 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
     final state = ref.watch(loanEditProvider);
     final notifier = ref.read(loanEditProvider.notifier);
 
-    return ListView(
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      children: [
-        const SizedBox(height: 16),
+    return FrostedScaffold(
+      appBar: FrostedTopBar(
+        title: 'Modifier l\'emprunt',
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp4,
+                16,
+                FrostedSpacing.sp4,
+              ),
+              children: [
+                _buildEditableIdentitySection(context),
+                const SizedBox(height: 16),
 
-        _buildEditableIdentitySection(context),
-        const SizedBox(height: 16),
+                _buildReadOnlyFinancialSection(context, state),
+                const SizedBox(height: 16),
 
-        _buildReadOnlyFinancialSection(context, state),
-        const SizedBox(height: 16),
+                _buildEditableAccountSection(context, state, notifier),
+                const SizedBox(height: 16),
 
-        _buildEditableAccountSection(context, state, notifier),
-        const SizedBox(height: 16),
-
-        _buildEditableInsuranceSection(context, state, notifier),
-        const SizedBox(height: 24),
-
-        _buildActionButtons(context, state, notifier),
-        const SizedBox(height: 20),
-      ],
+                _buildEditableInsuranceSection(context, state, notifier),
+              ],
+            ),
+          ),
+          _buildActionButtons(context, state, notifier),
+        ],
+      ),
     );
   }
 
@@ -270,15 +269,22 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
 
   Widget _buildReadOnlyField(BuildContext context, String label, String value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(width: FrostedSpacing.sp2),
+        Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -458,26 +464,19 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
     LoanEditState state,
     LoanEditNotifier notifier,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        FrostedButton.text(
-          label: 'Annuler',
-          onPressed: () {
-            widget.onCancel();
-            Navigator.pop(context);
-          },
-        ),
-        FrostedButton.filled(
-          label: 'Enregistrer',
-          onPressed: state.isValid
-              ? () {
-                  widget.onSubmit(notifier.createUpdatedLoanModel());
-                  Navigator.pop(context);
-                }
-              : null,
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        FrostedSpacing.sp4,
+        0,
+        FrostedSpacing.sp4,
+        MediaQuery.of(context).padding.bottom + FrostedSpacing.sp4,
+      ),
+      child: FrostedButton.filled(
+        label: 'Enregistrer',
+        onPressed: state.isValid
+            ? () => Navigator.pop(context, notifier.createUpdatedLoanModel())
+            : null,
+      ),
     );
   }
 }

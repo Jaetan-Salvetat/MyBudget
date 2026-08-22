@@ -10,7 +10,7 @@ import 'package:mybudget/ui/account_details/widgets/account_balance_breakdown.da
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
+import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -142,7 +142,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
                   child: FrostedButton.tonal(
                     label: 'Modifier',
                     icon: Symbols.edit_rounded,
-                    onPressed: () => _showEditAccountBottomSheet(context),
+                    onPressed: () => _openAccountForm(context),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -162,30 +162,24 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     );
   }
 
-  void _showEditAccountBottomSheet(BuildContext context) {
-    AccountBottomSheet.show(
+  Future<void> _openAccountForm(BuildContext context) async {
+    final updatedAccount = await AccountFormScreen.push(
       context: context,
       account: account,
-      onSubmit: (name, bank) async {
-        try {
-          final updatedAccount = account.copyWith(name: name, bank: bank);
-          await ref
-              .read(accountProvider.notifier)
-              .updateAccount(updatedAccount);
-          setState(() {
-            account = updatedAccount;
-          });
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de la modification: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
     );
+    if (updatedAccount == null) return;
+
+    try {
+      await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+      if (mounted) setState(() => account = updatedAccount);
+    } catch (e) {
+      if (context.mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la modification: $e',
+        );
+      }
+    }
   }
 
   void _showAddTransferBottomSheet(BuildContext context) {
