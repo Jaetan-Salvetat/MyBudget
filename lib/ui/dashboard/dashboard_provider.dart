@@ -92,17 +92,27 @@ class DashboardNotifier extends _$DashboardNotifier {
       beneficiaryById: beneficiaryById,
     );
 
+    final activeLoans = ref.watch(activeLoansProvider);
     final loanProgress = LoanProgressSummary(
-      totalBorrowed: ref
-          .watch(activeLoansProvider)
-          .fold(0.0, (s, l) => s + l.amount),
-      totalRepaid: ref
-          .watch(activeLoansProvider)
-          .fold(0.0, (s, l) => s + (l.amount - l.remainingCapital)),
+      totalBorrowed: activeLoans.fold(0.0, (s, l) => s + l.amount),
+      totalRepaid: activeLoans.fold(
+        0.0,
+        (s, l) => s + (l.amount - l.remainingCapital),
+      ),
       totalRemaining: ref.watch(totalRemainingLoanAmountProvider),
       monthlyPayments: totalMonthlyLoanPayments,
-      activeCount: ref.watch(activeLoansProvider).length,
+      activeCount: activeLoans.length,
       progressPercent: ref.watch(overallLoanProgressPercentageProvider),
+      loans: [
+        for (final loan in activeLoans)
+          LoanProgressEntry(
+            id: loan.id,
+            name: loan.name,
+            remainingCapital: loan.remainingCapital,
+            monthlyPayment: loan.currentMonthlyPayment,
+            remainingMonths: loan.remainingMonths,
+          ),
+      ],
     );
 
     return DashboardState(

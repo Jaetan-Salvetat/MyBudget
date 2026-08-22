@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
 import 'package:mybudget/ui/dashboard/widgets/category_breakdown_section.dart';
@@ -10,7 +9,10 @@ import 'package:mybudget/ui/dashboard/widgets/dashboard_greeting.dart';
 import 'package:mybudget/ui/dashboard/widgets/dashboard_header_balance.dart';
 import 'package:mybudget/ui/dashboard/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/dashboard/widgets/upcoming_movements_section.dart';
-import 'package:mybudget/ui/expenses/expenses_screen.dart';
+import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
+import 'package:mybudget/ui/home/home_navigation_provider.dart';
+import 'package:mybudget/ui/loans/loan_queries.dart';
+import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_category_zone.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
@@ -40,6 +42,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return _buildContent(context);
     }
     return FrostedScaffold(body: _buildContent(context));
+  }
+
+  void _openCategoryExpenses(String groupKey) {
+    ref.read(expensesFilterProvider.notifier).showOnlyGroup(groupKey);
+    ref
+        .read(homeNavigationProvider.notifier)
+        .openTransactions(TransactionsTab.expenses);
+  }
+
+  void _openLoans() {
+    ref
+        .read(homeNavigationProvider.notifier)
+        .openTransactions(TransactionsTab.loans);
+  }
+
+  void _openLoanDetails(int loanId) {
+    final loan = ref
+        .read(activeLoansProvider)
+        .where((candidate) => candidate.id == loanId)
+        .firstOrNull;
+    if (loan == null) {
+      _openLoans();
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => LoanDetailsScreen(loan: loan)),
+    );
   }
 
   Widget _buildContent(BuildContext context) {
@@ -82,15 +113,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               typing: _quickAddFocused,
               breakdown: CategoryBreakdownSection(
                 categories: state.categorySummaries,
-                onCategoryTap: (groupKey) => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ExpensesScreen(
-                      standalone: true,
-                      initialFilter: ExpenseFilterData(groupKeys: [groupKey]),
-                    ),
-                  ),
-                ),
+                onCategoryTap: _openCategoryExpenses,
               ),
             ),
             _CollapsedWhileTyping(
@@ -101,7 +124,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   UpcomingMovementsSection(
                     movements: state.upcomingMovements,
                   ),
-                  LoanProgressSection(summary: state.loanProgress),
+                  LoanProgressSection(
+                    summary: state.loanProgress,
+                    onSummaryTap: _openLoans,
+                    onLoanTap: _openLoanDetails,
+                  ),
                 ],
               ),
             ),
