@@ -8,13 +8,21 @@ part of 'quick_add_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Reads the input as it is typed : the amount lands at every keystroke, the
+/// model runs on the pause. Submitting creates the transaction straight away,
+/// the snackbar owns the way back.
 
 @ProviderFor(QuickAddNotifier)
 final quickAddProvider = QuickAddNotifierProvider._();
 
+/// Reads the input as it is typed : the amount lands at every keystroke, the
+/// model runs on the pause. Submitting creates the transaction straight away,
+/// the snackbar owns the way back.
 final class QuickAddNotifierProvider
-    extends
-        $NotifierProvider<QuickAddNotifier, AsyncValue<QuickAddResultModel?>> {
+    extends $NotifierProvider<QuickAddNotifier, QuickAddDraft> {
+  /// Reads the input as it is typed : the amount lands at every keystroke, the
+  /// model runs on the pause. Submitting creates the transaction straight away,
+  /// the snackbar owns the way back.
   QuickAddNotifierProvider._()
     : super(
         from: null,
@@ -34,38 +42,31 @@ final class QuickAddNotifierProvider
   QuickAddNotifier create() => QuickAddNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AsyncValue<QuickAddResultModel?> value) {
+  Override overrideWithValue(QuickAddDraft value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<AsyncValue<QuickAddResultModel?>>(
-        value,
-      ),
+      providerOverride: $SyncValueProvider<QuickAddDraft>(value),
     );
   }
 }
 
-String _$quickAddNotifierHash() => r'd806e0fc5851bf252bc4fc565a37e1f691fd26a5';
+String _$quickAddNotifierHash() => r'8cc085fce3097f179c048cde887ca199864c182b';
 
-abstract class _$QuickAddNotifier
-    extends $Notifier<AsyncValue<QuickAddResultModel?>> {
-  AsyncValue<QuickAddResultModel?> build();
+/// Reads the input as it is typed : the amount lands at every keystroke, the
+/// model runs on the pause. Submitting creates the transaction straight away,
+/// the snackbar owns the way back.
+
+abstract class _$QuickAddNotifier extends $Notifier<QuickAddDraft> {
+  QuickAddDraft build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref =
-        this.ref
-            as $Ref<
-              AsyncValue<QuickAddResultModel?>,
-              AsyncValue<QuickAddResultModel?>
-            >;
+    final ref = this.ref as $Ref<QuickAddDraft, QuickAddDraft>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<QuickAddResultModel?>,
-                AsyncValue<QuickAddResultModel?>
-              >,
-              AsyncValue<QuickAddResultModel?>,
+              AnyNotifier<QuickAddDraft, QuickAddDraft>,
+              QuickAddDraft,
               Object?,
               Object?
             >;

@@ -5,8 +5,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_sheet.dart';
+import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -22,6 +21,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  static const int _dashboardIndex = 0;
+
   late int _selectedIndex;
   int _transactionsSubTab = 0;
 
@@ -97,7 +98,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ? FrostedNavAction(
                           icon: Symbols.auto_awesome_rounded,
                           label: 'Ajout rapide',
-                          onPressed: _openQuickAdd,
+                          onPressed: _focusQuickAdd,
                         )
                       : null,
                   destinations: _items
@@ -118,33 +119,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Future<void> _openQuickAdd() async {
-    await showFrostedBottomSheet<void>(
-      context: context,
-      builder: (_) => QuickAddSheet(
-        onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-      ),
-    );
-    ref.read(quickAddProvider.notifier).reset();
-  }
+  void _focusQuickAdd() {
+    if (_selectedIndex == _dashboardIndex) {
+      ref.read(quickAddFocusRequestProvider.notifier).request();
+      return;
+    }
 
-  void _showNoAccountDialog(BuildContext context, String action) {
-    showFrostedDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => FrostedDialog(
-        title: 'Aucun compte disponible',
-        body: Text(
-          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-        ),
-        actions: [
-          FrostedButton.text(
-            label: 'OK',
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
+    // The dashboard is still the offstage branch of the stack : asking for
+    // focus now would not raise the keyboard.
+    setState(() => _selectedIndex = _dashboardIndex);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(quickAddFocusRequestProvider.notifier).request();
+    });
   }
 }
 

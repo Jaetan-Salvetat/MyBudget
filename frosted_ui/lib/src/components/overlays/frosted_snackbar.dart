@@ -16,12 +16,16 @@ class FrostedSnackbar {
   const FrostedSnackbar._();
 
   /// Shows a snackbar with [message] and an optional action.
+  ///
+  /// [bottomInset] lifts it above anything floating over the bottom edge — a
+  /// navigation pill, a docked bar — which the overlay cannot see on its own.
   static void show(
     BuildContext context, {
     required String message,
     String? actionLabel,
     VoidCallback? onAction,
     Duration duration = const Duration(seconds: 4),
+    double bottomInset = 0,
   }) {
     final OverlayState overlay = Overlay.of(context, rootOverlay: true);
     final ThemeData theme = Theme.of(context);
@@ -34,6 +38,7 @@ class FrostedSnackbar {
           actionLabel: actionLabel,
           onAction: onAction,
           duration: duration,
+          bottomInset: bottomInset,
           onDismissed: () => entry.remove(),
         ),
       ),
@@ -46,6 +51,7 @@ class _SnackbarHost extends StatefulWidget {
   const _SnackbarHost({
     required this.message,
     required this.duration,
+    required this.bottomInset,
     required this.onDismissed,
     this.actionLabel,
     this.onAction,
@@ -55,6 +61,7 @@ class _SnackbarHost extends StatefulWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   final Duration duration;
+  final double bottomInset;
   final VoidCallback onDismissed;
 
   @override
@@ -101,7 +108,7 @@ class _SnackbarHostState extends State<_SnackbarHost>
     return Positioned(
       left: FrostedSpacing.sp4,
       right: FrostedSpacing.sp4,
-      bottom: FrostedSpacing.sp4 + bottomSafe,
+      bottom: FrostedSpacing.sp4 + bottomSafe + widget.bottomInset,
       child: FadeTransition(
         opacity: _curve,
         child: SlideTransition(

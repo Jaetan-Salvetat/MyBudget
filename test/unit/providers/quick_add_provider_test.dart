@@ -13,6 +13,7 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,7 +87,7 @@ final TaxonomyNode salaireNetLeaf = leafOf(
 
 QuickAddClassification expenseClassification({
   TaxonomyNode? category,
-  double amount = 25.0,
+  double? amount = 25.0,
   String name = 'Resto italien',
   double categoryConfidence = 0.95,
 }) {
@@ -118,6 +119,13 @@ QuickAddClassification incomeClassification() {
   );
 }
 
+/// Long enough for the debounced analysis to have fired and settled.
+Future<void> pumpAnalysis() {
+  return Future<void>.delayed(
+    QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 120),
+  );
+}
+
 void main() {
   late MockExpenseRepository expenseRepository;
   late MockRevenueRepository revenueRepository;
@@ -141,9 +149,14 @@ void main() {
     when(() => memory.recall(any())).thenReturn(null);
     when(() => memory.remember(any(), any())).thenAnswer((_) {});
     when(() => expenseRepository.getActive()).thenReturn([]);
-    when(() => expenseRepository.add(any())).thenReturn(1);
+    when(() => expenseRepository.add(any())).thenReturn(7);
+    when(() => expenseRepository.delete(any())).thenReturn(true);
     when(() => revenueRepository.getActive()).thenReturn([]);
-    when(() => revenueRepository.add(any())).thenReturn(1);
+    when(() => revenueRepository.add(any())).thenReturn(9);
+    when(() => revenueRepository.delete(any())).thenReturn(true);
+    when(
+      () => classifier.classify(any()),
+    ).thenAnswer((_) async => expenseClassification());
   });
 
   ProviderContainer makeContainer() {
@@ -156,217 +169,299 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    // The draft is auto-disposed: in the app a widget watches it, here the
+    // subscription plays that role.
+    container.listen(quickAddProvider, (_, _) {}, fireImmediately: true);
     return container;
   }
 
-  group('QuickAddNotifier.parse', () {
-    test('carries the predicted leaf slug', () async {
-      when(
-        () => classifier.classify(any()),
-      ).thenAnswer((_) async => expenseClassification());
-
+  group('QuickAddNotifier.onInputChanged', () {
+    test('extracts the amount before the model has run', () {
       final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('resto 25');
+      container.read(quickAddProvider.notifier).onInputChanged('resto 25');
 
-      final result = container.read(quickAddProvider).value;
-      expect(result, isNotNull);
-      expect(result!.type, TransactionType.expense);
-      expect(result.categorySlug, 'restauration.restaurant');
-      expect(result.name, 'Resto italien');
-      expect(result.amount, 25.0);
-      expect(result.frequency, Frequency.oneTime.label);
+      final draft = container.read(quickAddProvider);
+      expect(draft.amount, 25.0);
+      expect(draft.isAnalyzing, isTrue);
+      verifyNever(() => classifier.classify(any()));
     });
 
-    test('flags a low-confidence category for confirmation', () async {
+    test('fills the category once the analysis lands', () async {
+      final container = makeContainer();
+      container.read(quickAddProvider.notifier).onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'restauration.restaurant');
+      expect(draft.name, 'Resto italien');
+      expect(draft.type, TransactionType.expense);
+      expect(draft.frequency, Frequency.oneTime);
+      expect(draft.isAnalyzing, isFalse);
+      expect(draft.isSubmittable, isTrue);
+    });
+
+    test('runs the model once for a burst of keystrokes', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+
+      notifier.onInputChanged('r');
+      notifier.onInputChanged('re');
+      notifier.onInputChanged('resto');
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      verify(() => classifier.classify('resto 25')).called(1);
+    });
+
+    test('keeps the known category while the next analysis runs', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.onInputChanged('resto 25,50');
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'restauration.restaurant');
+      expect(draft.amount, 25.5);
+      expect(draft.isAnalyzing, isTrue);
+    });
+
+    test('drops an analysis the input has moved past', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+
+      when(() => classifier.classify('resto 25')).thenAnswer((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        return expenseClassification();
+      });
+      when(
+        () => classifier.classify('salaire 2500'),
+      ).thenAnswer((_) async => incomeClassification());
+
+      notifier.onInputChanged('resto 25');
+      await Future<void>.delayed(
+        QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 20),
+      );
+      notifier.onInputChanged('salaire 2500');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'salaire.salaire_net');
+      expect(draft.type, TransactionType.income);
+    });
+
+    test('clears the draft when the input is emptied', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.onInputChanged('');
+
+      expect(container.read(quickAddProvider).isEmpty, isTrue);
+      expect(container.read(quickAddProvider).categorySlug, isNull);
+    });
+
+    test('leaves the draft incomplete while no amount is typed', () async {
       when(
         () => classifier.classify(any()),
-      ).thenAnswer((_) async => expenseClassification(categoryConfidence: 0.3));
+      ).thenAnswer((_) async => expenseClassification(amount: null));
 
       final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('truc 25');
+      container.read(quickAddProvider.notifier).onInputChanged('resto');
+      await pumpAnalysis();
 
-      final result = container.read(quickAddProvider).value!;
-      expect(result.needsCategoryConfirmation, isTrue);
-      expect(result.categorySuggestions, [
-        'restauration.restaurant',
-        'restauration.bar',
-      ]);
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'restauration.restaurant');
+      expect(draft.amount, isNull);
+      expect(draft.isSubmittable, isFalse);
     });
 
     test('a remembered category overrides the prediction', () async {
-      when(
-        () => memory.recall('Resto italien'),
-      ).thenReturn('loisirs.cinema_sortie');
+      when(() => memory.recall('Resto italien')).thenReturn('restauration.bar');
       when(
         () => classifier.classify(any()),
       ).thenAnswer((_) async => expenseClassification(categoryConfidence: 0.3));
 
       final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('resto 25');
+      container.read(quickAddProvider.notifier).onInputChanged('resto 25');
+      await pumpAnalysis();
 
-      final result = container.read(quickAddProvider).value!;
-      expect(result.categorySlug, 'loisirs.cinema_sortie');
-      expect(result.needsCategoryConfirmation, isFalse);
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'restauration.bar');
+      expect(draft.isCategoryUncertain, isFalse);
     });
 
     test('the memory leaves type and recurrence untouched', () async {
-      when(() => memory.recall(any())).thenReturn('loisirs.cinema_sortie');
+      when(() => memory.recall(any())).thenReturn('restauration.bar');
       when(
         () => classifier.classify(any()),
       ).thenAnswer((_) async => incomeClassification());
 
       final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('salaire 2500');
+      container.read(quickAddProvider.notifier).onInputChanged('salaire 2500');
+      await pumpAnalysis();
 
-      final result = container.read(quickAddProvider).value!;
-      expect(result.type, TransactionType.income);
-      expect(result.frequency, Frequency.monthly.label);
-      expect(result.categorySlug, 'loisirs.cinema_sortie');
+      final draft = container.read(quickAddProvider);
+      expect(draft.type, TransactionType.income);
+      expect(draft.frequency, Frequency.monthly);
+      expect(draft.categorySlug, 'restauration.bar');
     });
 
-    test('selectCategory records the pick in the memory', () async {
+    test('surfaces a classification failure on the draft', () async {
       when(
         () => classifier.classify(any()),
-      ).thenAnswer((_) async => expenseClassification());
+      ).thenThrow(StateError('session closed'));
+
+      final container = makeContainer();
+      container.read(quickAddProvider.notifier).onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.analysisError, isNotNull);
+      expect(draft.isAnalyzing, isFalse);
+      expect(draft.amount, 25.0);
+    });
+  });
+
+  group('QuickAddNotifier.selectCategory', () {
+    test('records the pick in the memory and clears the doubt', () async {
+      when(
+        () => classifier.classify(any()),
+      ).thenAnswer((_) async => expenseClassification(categoryConfidence: 0.3));
 
       final container = makeContainer();
       final notifier = container.read(quickAddProvider.notifier);
-      await notifier.parse('resto 25');
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
       notifier.selectCategory('restauration.bar');
 
       verify(
         () => memory.remember('Resto italien', 'restauration.bar'),
       ).called(1);
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'restauration.bar');
+      expect(draft.isCategoryUncertain, isFalse);
     });
-
-    test(
-      'selectCategory overrides the prediction and clears the flag',
-      () async {
-        when(() => classifier.classify(any())).thenAnswer(
-          (_) async => expenseClassification(categoryConfidence: 0.3),
-        );
-
-        final container = makeContainer();
-        final notifier = container.read(quickAddProvider.notifier);
-        await notifier.parse('truc 25');
-        notifier.selectCategory('restauration.bar');
-
-        final result = container.read(quickAddProvider).value!;
-        expect(result.categorySlug, 'restauration.bar');
-        expect(result.needsCategoryConfirmation, isFalse);
-      },
-    );
-
-    test('income results carry their income slug', () async {
-      when(
-        () => classifier.classify(any()),
-      ).thenAnswer((_) async => incomeClassification());
-
-      final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('salaire 2500');
-
-      final result = container.read(quickAddProvider).value;
-      expect(result!.type, TransactionType.income);
-      expect(result.categorySlug, 'salaire.salaire_net');
-      expect(result.frequency, Frequency.monthly.label);
-    });
-
-    test('exposes QuickAddException as error state', () async {
-      when(
-        () => classifier.classify(any()),
-      ).thenThrow(const QuickAddNoAmountException());
-
-      final container = makeContainer();
-      await container.read(quickAddProvider.notifier).parse('carrefour');
-
-      final state = container.read(quickAddProvider);
-      expect(state.hasError, isTrue);
-      expect(state.error, isA<QuickAddNoAmountException>());
-    });
-
-    test(
-      'wraps unexpected errors in QuickAddClassificationException',
-      () async {
-        when(
-          () => classifier.classify(any()),
-        ).thenThrow(StateError('session closed'));
-
-        final container = makeContainer();
-        await container.read(quickAddProvider.notifier).parse('resto 25');
-
-        final state = container.read(quickAddProvider);
-        expect(state.error, isA<QuickAddClassificationException>());
-      },
-    );
   });
 
-  group('QuickAddNotifier.confirm', () {
-    test('adds an expense carrying the leaf slug', () async {
-      when(
-        () => classifier.classify(any()),
-      ).thenAnswer((_) async => expenseClassification());
-
+  group('QuickAddNotifier.submit', () {
+    test('creates the expense and returns what can be undone', () async {
       final container = makeContainer();
       final notifier = container.read(quickAddProvider.notifier);
-      await notifier.parse('resto 25');
-      await notifier.confirm(3);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
 
-      final captured = verify(
-        () => expenseRepository.add(captureAny()),
-      ).captured;
-      final expense = captured.single as ExpenseModel;
+      final submission = await notifier.submit(3);
+
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
       expect(expense.name, 'Resto italien');
       expect(expense.amount, 25.0);
       expect(expense.categorySlug, 'restauration.restaurant');
       expect(expense.accountId, 3);
-      expect(container.read(quickAddProvider).value, isNull);
+      expect(submission.id, 7);
+      expect(submission.type, TransactionType.expense);
+      expect(submission.name, 'Resto italien');
+      expect(container.read(quickAddProvider).isEmpty, isTrue);
     });
 
-    test('adds a revenue for an income result', () async {
+    test('creates a revenue for an income draft', () async {
       when(
         () => classifier.classify(any()),
       ).thenAnswer((_) async => incomeClassification());
 
       final container = makeContainer();
       final notifier = container.read(quickAddProvider.notifier);
-      await notifier.parse('salaire 2500');
-      await notifier.confirm(3);
+      notifier.onInputChanged('salaire 2500');
+      await pumpAnalysis();
 
-      final captured = verify(
-        () => revenueRepository.add(captureAny()),
-      ).captured;
-      final revenue = captured.single as RevenueModel;
+      final submission = await notifier.submit(3);
+
+      final revenue =
+          verify(() => revenueRepository.add(captureAny())).captured.single
+              as RevenueModel;
       expect(revenue.name, 'Salaire');
-      expect(revenue.categorySlug, 'salaire.salaire_net');
       expect(revenue.amount, 2500.0);
-      expect(revenue.accountId, 3);
       expect(revenue.frequency, Frequency.monthly.label);
+      expect(submission.id, 9);
+      expect(submission.type, TransactionType.income);
       verifyNever(() => expenseRepository.add(any()));
-      expect(container.read(quickAddProvider).value, isNull);
     });
 
-    test('does nothing without a pending result', () async {
-      final container = makeContainer();
-      await container.read(quickAddProvider.notifier).confirm(3);
+    test('refuses a draft without an amount', () async {
+      when(
+        () => classifier.classify(any()),
+      ).thenAnswer((_) async => expenseClassification(amount: null));
 
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto');
+      await pumpAnalysis();
+
+      expect(
+        () => notifier.submit(3),
+        throwsA(isA<QuickAddNoAmountException>()),
+      );
       verifyNever(() => expenseRepository.add(any()));
-      verifyNever(() => revenueRepository.add(any()));
+    });
+
+    test('a pending analysis cannot resurrect a submitted draft', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      notifier.onInputChanged('resto 25 bis');
+      await notifier.submit(3);
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider), same(QuickAddDraft.empty));
+    });
+  });
+
+  group('QuickAddNotifier.undo', () {
+    test('removes the expense that was just created', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      await notifier.undo(await notifier.submit(3));
+
+      verify(() => expenseRepository.delete(7)).called(1);
+    });
+
+    test('removes the revenue that was just created', () async {
+      when(
+        () => classifier.classify(any()),
+      ).thenAnswer((_) async => incomeClassification());
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('salaire 2500');
+      await pumpAnalysis();
+
+      await notifier.undo(await notifier.submit(3));
+
+      verify(() => revenueRepository.delete(9)).called(1);
+      verifyNever(() => expenseRepository.delete(any()));
     });
   });
 
   group('QuickAddNotifier.reset', () {
-    test('clears the pending result', () async {
-      when(
-        () => classifier.classify(any()),
-      ).thenAnswer((_) async => expenseClassification());
-
+    test('clears the draft and cancels the pending analysis', () async {
       final container = makeContainer();
       final notifier = container.read(quickAddProvider.notifier);
-      await notifier.parse('resto 25');
-      expect(container.read(quickAddProvider).value, isNotNull);
 
+      notifier.onInputChanged('resto 25');
       notifier.reset();
-      expect(container.read(quickAddProvider).value, isNull);
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).isEmpty, isTrue);
+      verifyNever(() => classifier.classify(any()));
     });
   });
 }

@@ -32,12 +32,14 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     return expenses;
   }
 
-  Future<void> addExpense(ExpenseModel expense) async {
+  /// Returns the id of the created row, so a caller can undo its own add.
+  Future<int> addExpense(ExpenseModel expense) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
-      repo.add(expense);
+      final id = repo.add(expense);
       ref.invalidateSelf();
       await future;
+      return id;
     } catch (e) {
       rethrow;
     }
@@ -101,6 +103,14 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     }
   }
 
+  /// Hard delete, whatever the recurrence : closing a row makes no sense when
+  /// it was created seconds ago.
+  Future<void> deletePermanently(int id) async {
+    ref.read(expenseRepositoryProvider).delete(id);
+    ref.invalidateSelf();
+    await future;
+  }
+
   Future<void> deleteExpense(int id) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
@@ -108,12 +118,13 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       if (expense == null) return;
 
       if (expense.frequencyEnum == Frequency.oneTime) {
-        repo.delete(id);
-      } else {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, expense.startDate.day);
-        repo.update(expense.copyWith(endDate: endDate));
+        await deletePermanently(id);
+        return;
       }
+
+      final now = DateTime.now();
+      final endDate = computeEndDate(now, expense.startDate.day);
+      repo.update(expense.copyWith(endDate: endDate));
       ref.invalidateSelf();
       await future;
     } catch (e) {

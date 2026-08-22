@@ -5,20 +5,47 @@
 Pipeline 100% on-device, déterministe hors modèle : regex + BERT multi-head ONNX. Une seule passe modèle, pas de LLM, pas de réseau.
 
 ```
-User input (texte libre)
+Frappe (chaque caractère)
   │
   ▼ ~0ms
-[REGEX] PriceParserService — extraction montant
+[REGEX] PriceParserService — extraction montant → chip montant
   │
-  ▼ ~100ms
+  ▼ pause 200ms (debounce)
 [BERT multi-head ONNX] type + catégorie (55 classes) + récurrence
   │
   ▼
-[Taxonomie] classe → groupe (13 groupes user-facing)
+[Taxonomie] classe → groupe (13 groupes user-facing) → chips catégorie / récurrence
   │
-  ▼
-UI: carte de confirmation → Confirmer / Modifier (formulaire complet)
+  ▼ Entrée ou bouton
+Transaction créée · snackbar « Annuler » 5s
 ```
+
+## Live preview
+
+`QuickAddNotifier` tient un `QuickAddDraft` : ce que l'app comprend du texte en
+cours. Les champs arrivent en deux temps.
+
+- **Instantané** : le montant, par regex, à chaque frappe.
+- **Après la pause** : le modèle, debouncé de 200ms. Une analyse dont la saisie
+  a bougé est jetée (compteur de séquence), jamais appliquée en retard.
+
+Entre deux analyses la catégorie connue est conservée : les chips se
+rafraîchissent, elles ne clignotent pas.
+
+`classify()` ne valide rien — un texte sans montant est classé quand même,
+`amount` reste `null` et le draft n'est pas soumettable. La validation vit dans
+`submit()`.
+
+## Pas de carte de confirmation
+
+Les chips **sont** la confirmation : la catégorie est lue avant l'envoi et se
+corrige d'un tap. Dès que le modèle a répondu, `QuickAddCategoryZone` remplace
+la répartition du mois par ses candidats (`categorySuggestions`, celui du
+brouillon en tête) — corriger vaut mieux que relire le mois pendant qu'on tape.
+La correction part dans la mémoire.
+Envoyer crée la transaction directement ; `QuickAddSubmission` porte l'id créé
+et la snackbar l'annule pendant 5s (`deletePermanently`, jamais la clôture
+d'une récurrence).
 
 ## Modèle
 
@@ -37,7 +64,7 @@ UI: carte de confirmation → Confirmer / Modifier (formulaire complet)
 - Formats : `12`, `3,50`, `13.99`, `1 200`, `2,500.50`
 - Strip : `€ $ £`, "balles", "euros", "dollars"…
 - Plusieurs nombres → le dernier gagne (`"2 pizzas 24"` → 24)
-- Aucun montant → `QuickAddNoAmountException`, carte d'erreur
+- Aucun montant → `amount` null, bouton d'envoi désactivé
 
 Le texte restant, nettoyé, sert d'input au modèle et de nom à la transaction (première lettre capitalisée).
 
@@ -59,14 +86,34 @@ La classe prédite (`restauration.fast-food/friterie`) est réduite à son group
 | Prédiction | Fréquence |
 |---|---|
 | `ponctuel` | Ponctuel |
-| `fixe` | Mensuel (ajustable en Annuel via "Modifier") |
+| `fixe` | Mensuel |
 
 ## Revenue vs Expense
 
-Même pipeline, même carte. Le type est prédit par le modèle (tête dédiée, 100% sur le jeu de test). La carte adapte libellé ("1 revenu détecté"), signe et couleur du montant, et le formulaire complet ouvert par "Modifier" (`RevenueBottomSheet` vs `ExpenseBottomSheet`).
+Même pipeline, mêmes chips. Le type est prédit par le modèle (tête dédiée, 100%
+sur le jeu de test) et décide du signe affiché comme de l'entité créée
+(`RevenueModel` vs `ExpenseModel`).
+
+## Place à l'écran
+
+Voir `docs/dashboard_flow.md` — le champ vit sous le solde sur l'accueil, et la
+mise en page bascule en mode saisie au focus.
+
+## Sortir de la saisie
+
+- La croix du champ **annule** : texte, brouillon et focus partent ensemble.
+- Le bouton retour Android cache le clavier sans lâcher le focus, ce qui
+  laisserait l'écran en mode saisie sans clavier : `didChangeMetrics` détecte la
+  fermeture et défocalise. Le brouillon, lui, survit.
+- Scroller ferme aussi le clavier (`keyboardDismissBehavior: onDrag`).
+
+## Compte cible
+
+`QuickAddAccountNotifier` : premier compte par défaut, garde le choix de l'user
+tant que ce compte existe. Affiché sous le champ, tapable dès qu'il y a plus
+d'un compte.
 
 ## Pistes futures
 
-- **Correction memory** : mémoriser les corrections user (`"mc do" → Loisirs`) pour court-circuiter le modèle sur les merchants déjà vus.
-- **Seuil de confiance** : sous un seuil de `categoryConfidence`, ouvrir directement le picker de catégorie au lieu de suggérer.
-- **Sous-catégories** : la classe fine (55) est disponible dans `QuickAddClassification.taxonomyCategory`, exploitable pour des stats plus fines.
+- **Sous-catégories** : la classe fine (55) est disponible dans `QuickAddClassification.category`, exploitable pour des stats plus fines.
+- **Date** : le mockup prévoit une chip date (« aujourd'hui », « hier ») — pas encore parsée.
