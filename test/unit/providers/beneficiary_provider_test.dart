@@ -265,6 +265,154 @@ void main() {
     });
   });
 
+  group('renameBeneficiary', () {
+    test('returns error for empty name', () async {
+      when(
+        () => mockBeneficiaryRepo.getAll(),
+      ).thenReturn([_makeBeneficiary(id: 1, name: 'Paul')]);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .renameBeneficiary(1, '  ');
+
+      expect(result, 'Le nom ne peut pas être vide');
+      verifyNever(() => mockBeneficiaryRepo.update(any()));
+    });
+
+    test('returns error when another beneficiary owns the name', () async {
+      when(() => mockBeneficiaryRepo.getAll()).thenReturn([
+        _makeBeneficiary(id: 1, name: 'Paul'),
+        _makeBeneficiary(id: 2, name: 'Alice'),
+      ]);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .renameBeneficiary(1, 'alice');
+
+      expect(result, 'Ce bénéficiaire existe déjà');
+      verifyNever(() => mockBeneficiaryRepo.update(any()));
+    });
+
+    test('returns error when the beneficiary no longer exists', () async {
+      when(() => mockBeneficiaryRepo.get(9)).thenReturn(null);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .renameBeneficiary(9, 'Marie');
+
+      expect(result, 'Ce bénéficiaire n\'existe plus');
+      verifyNever(() => mockBeneficiaryRepo.update(any()));
+    });
+
+    test('renames and keeps the identity of the beneficiary', () async {
+      final model = _makeBeneficiary(id: 1, name: 'Paul');
+      when(() => mockBeneficiaryRepo.getAll()).thenReturn([model]);
+      when(() => mockBeneficiaryRepo.get(1)).thenReturn(model);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .renameBeneficiary(1, '  Paulette  ');
+
+      expect(result, isNull);
+      final updated =
+          verify(() => mockBeneficiaryRepo.update(captureAny())).captured.last
+              as BeneficiaryModel;
+      expect(updated.id, 1);
+      expect(updated.name, 'Paulette');
+      expect(updated.color, model.color);
+    });
+
+    test('accepts renaming a beneficiary to its own name', () async {
+      final model = _makeBeneficiary(id: 1, name: 'Paul');
+      when(() => mockBeneficiaryRepo.getAll()).thenReturn([model]);
+      when(() => mockBeneficiaryRepo.get(1)).thenReturn(model);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .renameBeneficiary(1, 'Paul');
+
+      expect(result, isNull);
+    });
+  });
+
+  group('usageCounts', () {
+    test('counts expenses and revenues per beneficiary', () async {
+      final expense = ExpenseModel.create(
+        name: 'Netflix',
+        amount: 15,
+        accountId: 1,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
+      expense.beneficiaryId = 42;
+
+      final revenue = RevenueModel.create(
+        name: 'Loyer Paul',
+        amount: 500,
+        accountId: 1,
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
+      revenue.beneficiaryId = 7;
+
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      expect(container.read(beneficiaryProvider.notifier).usageCounts(), {
+        42: 1,
+        7: 1,
+      });
+    });
+
+    test('ignores transactions without a beneficiary', () async {
+      final expense = ExpenseModel.create(
+        name: 'Netflix',
+        amount: 15,
+        accountId: 1,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
+
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockRevenueRepo.getAll()).thenReturn([]);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+      await container.read(beneficiaryProvider.future);
+
+      expect(
+        container.read(beneficiaryProvider.notifier).usageCounts(),
+        isEmpty,
+      );
+    });
+  });
+
   group('getBeneficiaryById', () {
     test('returns beneficiary when found', () async {
       final b = _makeBeneficiary(id: 5, name: 'Alice');

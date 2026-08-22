@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../helpers/test_app.dart';
 import '../helpers/test_helpers.dart';
@@ -11,7 +11,7 @@ void main() {
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les bénéficiaires');
-      await tapButton(tester, 'Ajouter un bénéficiaire');
+      await tapButton(tester, 'Bénéficiaire');
       await enterTextField(tester, 'Nom', 'Propriétaire');
       await tapButton(tester, 'Ajouter');
 
@@ -23,13 +23,13 @@ void main() {
 
       await navigateToSettings(tester);
       await tapButton(tester, 'Gérer les bénéficiaires');
-      await tapButton(tester, 'Ajouter un bénéficiaire');
+      await tapButton(tester, 'Bénéficiaire');
       await enterTextField(tester, 'Nom', 'Temporaire');
       await tapButton(tester, 'Ajouter');
 
       expect(find.text('Temporaire'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.delete).first);
+      await tester.tap(find.byIcon(Symbols.delete_rounded).first);
       await tester.pumpAndSettle();
 
       await tapButton(tester, 'Supprimer');
