@@ -1,5 +1,9 @@
 ## 0.4.0
 
+* `FrostedListTile` takes a `variant`: `plain` drops the `surfaceContainer`
+  block for rows that sit on a surface their parent already draws (a taxonomy
+  tree, a picker sheet). Selection and state layers still show; `filled` stays
+  the default.
 * Fix taps on an interactive child inside an interactive surface — a trailing
   icon button in a `FrostedListTile`, say — being swallowed by the parent. The
   surface now handles its tap under the content instead of through an ink layer

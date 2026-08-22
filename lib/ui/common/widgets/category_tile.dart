@@ -40,6 +40,7 @@ class CategoryTile extends StatelessWidget {
           trailing ??
           (selected ? Icon(Symbols.check_rounded, color: color) : null),
       selected: selected,
+      variant: FrostedListTileVariant.plain,
       onTap: onTap,
     );
   }

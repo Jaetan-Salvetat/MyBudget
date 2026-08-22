@@ -10,9 +10,21 @@ import '../actions/_interactive_surface.dart';
 /// Where a tile sits inside a [FrostedListSection], which drives its corners.
 enum FrostedTilePosition { single, first, middle, last }
 
-/// A filled list item following the M3 Expressive segmented-list spec: each
-/// item is its own rounded `surfaceContainer` surface (not a row in a shared
-/// block), with corners that depend on its [position] in the group.
+/// How much surface a [FrostedListTile] paints of its own.
+enum FrostedListTileVariant {
+  /// Opaque `surfaceContainer` block — the M3 Expressive segmented-list item.
+  filled,
+
+  /// No surface at all, for rows that sit on a background their parent owns
+  /// (a tree, a sheet). Selection and state layers still show.
+  plain,
+}
+
+/// A list item following the M3 Expressive segmented-list spec: each item is
+/// its own rounded `surfaceContainer` surface (not a row in a shared block),
+/// with corners that depend on its [position] in the group. Rows that belong
+/// to a surface their parent already draws take [FrostedListTileVariant.plain]
+/// instead.
 ///
 /// Heights follow the spec (56 one-line / 72 two-line), 16dp leading/trailing
 /// space, 8dp vertical padding. Standalone tiles are fully rounded.
@@ -24,6 +36,7 @@ class FrostedListTile extends StatelessWidget {
     this.trailing,
     this.selected = false,
     this.onTap,
+    this.variant = FrostedListTileVariant.filled,
     this.position = FrostedTilePosition.single,
     super.key,
   });
@@ -34,6 +47,7 @@ class FrostedListTile extends StatelessWidget {
   final Widget? trailing;
   final bool selected;
   final VoidCallback? onTap;
+  final FrostedListTileVariant variant;
   final FrostedTilePosition position;
 
   /// Copy with a resolved [position] — used by [FrostedListSection].
@@ -44,6 +58,7 @@ class FrostedListTile extends StatelessWidget {
     trailing: trailing,
     selected: selected,
     onTap: onTap,
+    variant: variant,
     position: value,
     key: key,
   );
@@ -81,7 +96,11 @@ class FrostedListTile extends StatelessWidget {
     final Color subtitleColor = selected
         ? cs.onSecondaryContainer
         : cs.onSurfaceVariant;
-    final Color base = selected ? cs.secondaryContainer : cs.surfaceContainer;
+    final Color base = selected
+        ? cs.secondaryContainer
+        : variant == FrostedListTileVariant.plain
+        ? Colors.transparent
+        : cs.surfaceContainer;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
     Widget content(InteractionStates s) {
