@@ -103,11 +103,9 @@ class FrostedGlass extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Positioned.fill(
-              child: BackdropFilter(
-                filterConfig: _GlassBlur(
-                  sigma: spec.blurSigma * t,
-                  saturation: lerpDouble(1, glass.saturation, t)!,
-                ),
+              child: _GlassBackdrop(
+                sigma: spec.blurSigma * t,
+                saturation: lerpDouble(1, glass.saturation, t)!,
                 child: ColoredBox(color: veilColor),
               ),
             ),
@@ -182,45 +180,101 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
 /// instead of blurring it, so the glass reads as opaque. Skia is unaffected,
 /// which hides the problem in widget tests. The sigma is therefore capped
 /// against the surface itself — see [_maxSigmaForBounds].
-class _GlassBlur implements ImageFilterConfig {
-  const _GlassBlur({required this.sigma, required this.saturation});
+class _GlassBackdrop extends SingleChildRenderObjectWidget {
+  const _GlassBackdrop({
+    required this.sigma,
+    required this.saturation,
+    required Widget super.child,
+  });
 
   final double sigma;
   final double saturation;
 
   @override
-  ImageFilter resolve(ImageFilterContext context) {
-    final double effective = min(sigma, _maxSigmaForBounds(context.bounds));
+  _RenderGlassBackdrop createRenderObject(BuildContext context) {
+    return _RenderGlassBackdrop(sigma: sigma, saturation: saturation);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderGlassBackdrop renderObject,
+  ) {
+    renderObject
+      ..sigma = sigma
+      ..saturation = saturation;
+  }
+}
+
+/// Paints the bounded backdrop blur behind its child.
+///
+/// The bounds a backdrop filter reads are expressed in the coordinate space of
+/// the backdrop it samples — the root of the layer tree — not in the local
+/// paint space the widget sits in. Any compositing layer in between (a repaint
+/// boundary, a transform, the follower layer a [MenuAnchor] overlay hangs
+/// from) resets the local offset to zero, which would aim the bounds at the
+/// top-left of the screen and leave the filter reading nothing at all. The
+/// rect is therefore resolved at paint time through [getTransformTo].
+class _RenderGlassBackdrop extends RenderProxyBox {
+  _RenderGlassBackdrop({required double sigma, required double saturation})
+      : _sigma = sigma,
+        _saturation = saturation;
+
+  double _sigma;
+  double get sigma => _sigma;
+  set sigma(double value) {
+    if (_sigma == value) return;
+    _sigma = value;
+    markNeedsPaint();
+  }
+
+  double _saturation;
+  double get saturation => _saturation;
+  set saturation(double value) {
+    if (_saturation == value) return;
+    _saturation = value;
+    markNeedsPaint();
+  }
+
+  @override
+  BackdropFilterLayer? get layer => super.layer as BackdropFilterLayer?;
+
+  @override
+  bool get alwaysNeedsCompositing => child != null;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child == null) {
+      layer = null;
+      return;
+    }
+    assert(needsCompositing);
+    final BackdropFilterLayer backdrop = layer ?? BackdropFilterLayer();
+    backdrop.filter = _resolveFilter();
+    layer = backdrop;
+    context.pushLayer(backdrop, super.paint, offset);
+  }
+
+  ImageFilter _resolveFilter() {
+    final Rect bounds =
+        MatrixUtils.transformRect(getTransformTo(null), Offset.zero & size);
+    final double effective = min(_sigma, _maxSigmaForBounds(bounds));
     final ImageFilter blur = ImageFilter.blur(
       sigmaX: effective,
       sigmaY: effective,
       tileMode: TileMode.clamp,
-      bounds: context.bounds,
+      bounds: bounds,
     );
-    if (saturation == 1) return blur;
-    return ImageFilter.compose(outer: blur, inner: _saturate(saturation));
+    if (_saturation == 1) return blur;
+    return ImageFilter.compose(outer: blur, inner: _saturate(_saturation));
   }
 
   @override
-  ImageFilter? get filter => null;
-
-  @override
-  String get debugShortDescription =>
-      'blur($sigma, saturate($saturation), bounded)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is _GlassBlur &&
-        other.sigma == sigma &&
-        other.saturation == saturation;
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('sigma', sigma));
+    properties.add(DoubleProperty('saturation', saturation));
   }
-
-  @override
-  int get hashCode => Object.hash(sigma, saturation);
-
-  @override
-  String toString() => 'ImageFilterConfig.$debugShortDescription';
 }
 
 /// Measured against Impeller: a bounded blur tracks Skia while the sigma stays

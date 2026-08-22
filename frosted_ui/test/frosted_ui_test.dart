@@ -50,18 +50,7 @@ void main() {
       ),
     );
 
-    final BackdropFilter backdrop = tester.widget<BackdropFilter>(
-      find.descendant(
-        of: find.byType(FrostedGlass),
-        matching: find.byType(BackdropFilter),
-      ),
-    );
-
-    expect(backdrop.filter, isNull);
-    expect(
-      backdrop.filterConfig!.debugShortDescription,
-      contains('bounded'),
-    );
+    expect(_glassFilter(tester), contains('bounds: Rect.fromLTRB('));
   });
 
   testWidgets(
@@ -69,7 +58,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(_glassSized(const Size(600, 56)));
 
-    expect(_resolvedSigma(tester, const Size(600, 56)), 56 / 3);
+    expect(_resolvedSigma(tester), 56 / 3);
   });
 
   testWidgets('FrostedGlass keeps the token sigma on a large surface',
@@ -81,8 +70,7 @@ void main() {
             .extension<FrostedTokens>()!
             .glass;
 
-    expect(_resolvedSigma(tester, const Size(600, 600)),
-        glass.ultraThick.blurSigma);
+    expect(_resolvedSigma(tester), glass.ultraThick.blurSigma);
   });
 
   testWidgets('FrostedGlass strokes every side by default',
@@ -213,15 +201,11 @@ Widget _glassSized(Size size) => MaterialApp(
       ),
     );
 
-double _resolvedSigma(WidgetTester tester, Size size) {
-  final BackdropFilter backdrop = tester.widget<BackdropFilter>(
-    find.descendant(
-      of: find.byType(FrostedGlass),
-      matching: find.byType(BackdropFilter),
-    ),
-  );
-  final String description = backdrop.filterConfig!
-      .resolve(ImageFilterContext(bounds: Offset.zero & size))
-      .debugShortDescription;
-  return double.parse(RegExp(r'blur\(([0-9.]+)').firstMatch(description)!.group(1)!);
+String _glassFilter(WidgetTester tester) =>
+    tester.layers.whereType<BackdropFilterLayer>().first.filter.toString();
+
+double _resolvedSigma(WidgetTester tester) {
+  final String description = _glassFilter(tester);
+  return double.parse(
+      RegExp(r'blur\(([0-9.]+)').firstMatch(description)!.group(1)!);
 }
