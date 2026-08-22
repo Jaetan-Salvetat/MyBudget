@@ -766,12 +766,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   }
 
   Future<void> _pickDate(BuildContext context, DateTime currentDate) async {
-    final picked = await showDatePicker(
+    final picked = await showFrostedDatePicker(
       context: context,
       initialDate: currentDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      locale: const Locale('fr'),
     );
     if (picked != null) {
       ref.read(scanProvider.notifier).updateDate(picked);

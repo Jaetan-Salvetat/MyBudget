@@ -282,7 +282,7 @@ class _LoanCreationBottomSheetState
                 child: FrostedPickerField(
                   icon: Symbols.calendar_today_rounded,
                   onTap: () async {
-                    final date = await showDatePicker(
+                    final date = await showFrostedDatePicker(
                       context: context,
                       initialDate: state.startDate,
                       firstDate: DateTime(2000),

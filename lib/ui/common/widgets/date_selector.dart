@@ -8,12 +8,11 @@ class DateSelector {
     required BuildContext context,
     required DateTime initialDate,
   }) async {
-    return showDatePicker(
+    return showFrostedDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      locale: const Locale('fr', 'FR'),
     );
   }
 
