@@ -38,7 +38,7 @@ final class CategoryOverrideNotifierProvider
 }
 
 String _$categoryOverrideNotifierHash() =>
-    r'4149552e9ed5da8a8a5bc991a267cfb239b95596';
+    r'5707b94b027d7faff1b4ed545de21f7211ff0000';
 
 abstract class _$CategoryOverrideNotifier
     extends $AsyncNotifier<Map<String, CategoryOverrideModel>> {

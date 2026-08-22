@@ -85,7 +85,7 @@ final class LoanEditNotifierProvider
   }
 }
 
-String _$loanEditNotifierHash() => r'844bc8115193ac6f7acc562eaa85e9e0036fc3db';
+String _$loanEditNotifierHash() => r'cccc074469082f93de1cbeefda281b8f854fc778';
 
 abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
   LoanEditState build();

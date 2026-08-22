@@ -13,7 +13,10 @@ import 'package:mybudget/ui/loans/widgets/loan_detail_hero.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_info_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_kpi_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_row.dart';
+import 'package:mybudget/ui/loans/screens/loan_schedule_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_edit_bottom_sheet.dart';
+import 'package:mybudget/ui/loans/widgets/loan_payoff_bottom_sheet.dart';
 
 class LoanDetailsScreen extends ConsumerStatefulWidget {
   final Loan loan;
@@ -77,6 +80,16 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
               title: 'Assurance',
               rows: _buildInsuranceRows(updatedLoan),
             ),
+            if (updatedLoan.hasEarlyRepayment)
+              LoanEarlyRepaymentsCard(
+                loan: updatedLoan,
+                events: ref
+                    .read(loanProvider.notifier)
+                    .eventsOf(updatedLoan.id),
+                onDelete: (event) => ref
+                    .read(loanProvider.notifier)
+                    .deleteEvent(event),
+              ),
             if (updatedLoan.notes != null && updatedLoan.notes!.isNotEmpty) ...[
               const SizedBox(height: 18),
               _buildNotesCard(context, updatedLoan.notes!),
@@ -90,6 +103,36 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   }
 
   Widget _buildActionButtons(
+    BuildContext context,
+    Loan loan,
+    List<AccountModel> accounts,
+  ) {
+    return Column(
+      children: [
+        FrostedButton.tonal(
+          label: 'Tableau d\'amortissement',
+          icon: Symbols.table_rows_rounded,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => LoanScheduleScreen(loan: loan),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        if (!loan.isCompleted) ...[
+          FrostedButton.filled(
+            label: 'Remboursement anticipé',
+            icon: Symbols.savings_rounded,
+            onPressed: () => _showPayoffBottomSheet(context, loan),
+          ),
+          const SizedBox(height: 10),
+        ],
+        _buildEditAndDeleteRow(context, loan, accounts),
+      ],
+    );
+  }
+
+  Widget _buildEditAndDeleteRow(
     BuildContext context,
     Loan loan,
     List<AccountModel> accounts,
@@ -139,17 +182,27 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         label: 'Taux d\'intérêt',
         value: '${loan.interestRate.toStringAsFixed(2).replaceAll('.', ',')} %',
       ),
-      LoanDetailRow(label: 'Durée', value: '${_durationMonths(loan)} mois'),
+      LoanDetailRow(
+        label: 'Durée',
+        value: loan.hasEarlyRepayment
+            ? '${loan.installments.length} mois (au lieu de ${_durationMonths(loan)})'
+            : '${_durationMonths(loan)} mois',
+      ),
       LoanDetailRow(
         label: 'Type',
         value: loan.repaymentType.label,
         icon: Symbols.trending_down_rounded,
       ),
-      if (loan.deferredMonths > 0)
+      if (loan.deferredMonths > 0) ...[
         LoanDetailRow(
           label: 'Mois de différé',
           value: '${loan.deferredMonths}',
         ),
+        LoanDetailRow(
+          label: 'Type de différé',
+          value: loan.deferralType.label,
+        ),
+      ],
       LoanDetailRow(
         label: 'Date de début',
         value: _dateFormatter.format(loan.startDate),
@@ -162,9 +215,26 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         label: 'Jour de prélèvement',
         value: 'Le ${loan.dayOfMonth}',
       ),
+      if (loan.fees > 0)
+        LoanDetailRow(
+          label: 'Frais de dossier',
+          value: _formatter.format(loan.fees),
+        ),
       LoanDetailRow(
         label: 'Coût total',
         value: _formatter.format(loan.totalCost),
+      ),
+      LoanDetailRow(label: 'Type de prêt', value: loan.purpose.label),
+      if (!loan.hasIndemnityClause)
+        const LoanDetailRow(
+          label: 'Indemnité anticipée',
+          value: 'Non prévue au contrat',
+        ),
+      LoanDetailRow(
+        label: 'TAEG',
+        value:
+            '${loan.annualPercentageRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+        icon: Symbols.percent_rounded,
       ),
       LoanDetailRow(
         label: 'Compte',
@@ -277,6 +347,31 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         }
       },
       onCancel: () {},
+    );
+  }
+
+  void _showPayoffBottomSheet(BuildContext context, Loan loan) {
+    LoanPayoffBottomSheet.show(
+      context: context,
+      loan: loan,
+      onSubmit: (event) async {
+        try {
+          await ref.read(loanProvider.notifier).addEvent(event);
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Remboursement anticipé enregistré',
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de l\'enregistrement: $e',
+            );
+          }
+        }
+      },
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
@@ -129,11 +130,32 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class _AppContent extends ConsumerWidget {
+class _AppContent extends ConsumerStatefulWidget {
   const _AppContent();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends ConsumerState<_AppContent> {
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycleListener = AppLifecycleListener(onResume: _refreshDatedState);
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
+
+  void _refreshDatedState() => ref.invalidate(loanProvider);
+
+  @override
+  Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
     ref.watch(homeWidgetProvider);

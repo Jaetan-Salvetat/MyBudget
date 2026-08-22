@@ -60,6 +60,7 @@ class _LoanCreationBottomSheetState
   late final TextEditingController _rateController;
   late final TextEditingController _insuranceValueController;
   late final TextEditingController _deferredMonthsController;
+  late final TextEditingController _feesController;
 
   @override
   void initState() {
@@ -71,6 +72,7 @@ class _LoanCreationBottomSheetState
     _rateController = TextEditingController();
     _insuranceValueController = TextEditingController();
     _deferredMonthsController = TextEditingController();
+    _feesController = TextEditingController();
 
     _nameController.addListener(
       () =>
@@ -101,6 +103,9 @@ class _LoanCreationBottomSheetState
           .read(loanCreationProvider.notifier)
           .setInsuranceValue(_insuranceValueController.text),
     );
+    _feesController.addListener(
+      () => ref.read(loanCreationProvider.notifier).setFees(_feesController.text),
+    );
     _deferredMonthsController.addListener(
       () => ref
           .read(loanCreationProvider.notifier)
@@ -117,6 +122,7 @@ class _LoanCreationBottomSheetState
     _rateController.dispose();
     _insuranceValueController.dispose();
     _deferredMonthsController.dispose();
+    _feesController.dispose();
     super.dispose();
   }
 
@@ -201,6 +207,7 @@ class _LoanCreationBottomSheetState
       case 0:
         return Column(
           children: [
+            _buildPurposeField(context, state, notifier),
             _buildIdentitySection(context),
             const SizedBox(height: 16),
             _buildCapitalSection(context, state, notifier),
@@ -217,6 +224,30 @@ class _LoanCreationBottomSheetState
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  Widget _buildPurposeField(
+    BuildContext context,
+    LoanCreationState state,
+    LoanCreationNotifier notifier,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FrostedDropdown<LoanPurpose>(
+          value: state.purpose,
+          hintText: 'Type de prêt',
+          items: LoanPurpose.values
+              .map(
+                (purpose) =>
+                    FrostedDropdownItem(value: purpose, label: purpose.label),
+              )
+              .toList(),
+          onChanged: notifier.setPurpose,
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 
   Widget _buildIdentitySection(BuildContext context) {
@@ -387,6 +418,32 @@ class _LoanCreationBottomSheetState
           leadingIcon: Symbols.percent_rounded,
           controller: _rateController,
         ),
+        const SizedBox(height: 12),
+        FrostedTextField(
+          label: 'Frais (dossier, garantie, courtage)',
+          hintText: '0',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          leadingIcon: Symbols.receipt_long_rounded,
+          controller: _feesController,
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: notifier.toggleIndemnityClause,
+          child: Row(
+            children: [
+              FrostedCheckbox(
+                value: !state.hasIndemnityClause,
+                onChanged: (_) => notifier.toggleIndemnityClause(),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Le contrat ne prévoit aucune indemnité de remboursement anticipé',
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -503,6 +560,29 @@ class _LoanCreationBottomSheetState
             controller: _deferredMonthsController,
             leadingIcon: Symbols.schedule_rounded,
           ),
+          const SizedBox(height: 12),
+          ToggleButtons(
+            isSelected: [
+              state.deferralType == LoanDeferralType.partial,
+              state.deferralType == LoanDeferralType.total,
+            ],
+            onPressed: (index) => notifier.setDeferralType(
+              index == 0 ? LoanDeferralType.partial : LoanDeferralType.total,
+            ),
+            borderRadius: BorderRadius.circular(FrostedRadius.md),
+            children: const [
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Différé partiel'),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Différé total'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildHint(context, state.deferralType.description),
         ],
       ],
     );
@@ -718,6 +798,33 @@ class _LoanCreationBottomSheetState
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             controller: _insuranceValueController,
           ),
+          if (state.insuranceType == LoanInsuranceType.percentage) ...[
+            const SizedBox(height: 12),
+            ToggleButtons(
+              isSelected: [
+                state.insuranceCalcMode ==
+                    InsuranceCalculationMode.initialCapital,
+                state.insuranceCalcMode ==
+                    InsuranceCalculationMode.remainingCapital,
+              ],
+              onPressed: (index) => notifier.setInsuranceCalculationMode(
+                InsuranceCalculationMode.values[index],
+              ),
+              borderRadius: BorderRadius.circular(FrostedRadius.md),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Text('Capital initial'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Text('Capital restant dû'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildHint(context, state.insuranceCalcMode.description),
+          ],
           if (state.insuranceType == LoanInsuranceType.percentage &&
               state.amount > 0)
             Padding(
@@ -759,6 +866,13 @@ class _LoanCreationBottomSheetState
                 ),
               ),
               const SizedBox(height: 16),
+              _buildSummaryRow(context, 'Type', state.purpose.label),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(context, 'Nom', state.name),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -819,6 +933,45 @@ class _LoanCreationBottomSheetState
                     ? 'Aucune'
                     : '${state.insuranceValue} ${state.insuranceType == LoanInsuranceType.fixed ? "€" : "%"}',
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
+              _buildSummaryRow(
+                context,
+                'Mensualité',
+                NumberFormat.currency(
+                  symbol: '€',
+                  locale: 'fr_FR',
+                ).format(state.totalMonthlyPayment),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
+              _buildSummaryRow(
+                context,
+                'Coût total du crédit',
+                NumberFormat.currency(
+                  symbol: '€',
+                  locale: 'fr_FR',
+                ).format(state.totalCost),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
+              _buildSummaryRow(
+                context,
+                'TAEG',
+                '${state.annualPercentageRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+              ),
             ],
           ),
         ),
@@ -829,6 +982,35 @@ class _LoanCreationBottomSheetState
           style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
       ],
+    );
+  }
+
+  Widget _buildHint(BuildContext context, String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Symbols.info_rounded,
+            size: 18,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

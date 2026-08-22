@@ -65,6 +65,8 @@ class DataNotifier extends _$DataNotifier {
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      loanEventRepo: ref.read(loanEventRepositoryProvider),
+      loanService: ref.read(loanServiceProvider),
       transferRepo: ref.read(transferRepositoryProvider),
     );
   }
@@ -78,6 +80,7 @@ class DataNotifier extends _$DataNotifier {
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      loanEventRepo: ref.read(loanEventRepositoryProvider),
       transferRepo: ref.read(transferRepositoryProvider),
     );
   }

@@ -3,6 +3,8 @@ import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
+import 'package:mybudget/core/services/loan_service.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
@@ -14,6 +16,7 @@ import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/category_memory_model.dart';
 import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -26,6 +29,8 @@ class DataImportService {
   final ExpenseRepository expenseRepo;
   final RevenueRepository revenueRepo;
   final LoanRepository loanRepo;
+  final LoanEventRepository loanEventRepo;
+  final LoanService loanService;
   final TransferRepository transferRepo;
 
   const DataImportService({
@@ -36,6 +41,8 @@ class DataImportService {
     required this.expenseRepo,
     required this.revenueRepo,
     required this.loanRepo,
+    required this.loanEventRepo,
+    required this.loanService,
     required this.transferRepo,
   });
 
@@ -48,6 +55,7 @@ class DataImportService {
     final expenses = <ParsedExpense>[];
     final revenues = <ParsedRevenue>[];
     final loans = <ParsedLoan>[];
+    final loanEvents = <ParsedLoanEvent>[];
     final transfers = <ParsedTransfer>[];
 
     if (data['beneficiaries'] is List) {
@@ -178,15 +186,39 @@ class DataImportService {
           final oldAccountId = int.tryParse(
             (json['accountId'] ?? json['account_id'] ?? '').toString(),
           );
+          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
           json['id'] = '0';
           loans.add(
             ParsedLoan(
               model: LoanModel.fromJson(json),
+              oldId: oldId,
               oldAccountId: oldAccountId,
             ),
           );
         } catch (e) {
           errors.add('Emprunt invalide : $e');
+        }
+      }
+    }
+
+    if (data['loanEvents'] is List) {
+      for (final item in data['loanEvents'] as List) {
+        try {
+          final json = Map<String, dynamic>.from(item as Map);
+          final oldLoanId =
+              int.tryParse(
+                (json['loanId'] ?? json['loan_id'] ?? '').toString(),
+              ) ??
+              0;
+          json['id'] = '0';
+          loanEvents.add(
+            ParsedLoanEvent(
+              model: LoanEventModel.fromJson(json),
+              oldLoanId: oldLoanId,
+            ),
+          );
+        } catch (e) {
+          errors.add('Événement d\'emprunt invalide : $e');
         }
       }
     }
@@ -229,6 +261,7 @@ class DataImportService {
       expenses: expenses,
       revenues: revenues,
       loans: loans,
+      loanEvents: loanEvents,
       transfers: transfers,
       errors: errors,
     );
@@ -253,6 +286,7 @@ class DataImportService {
     expenseRepo.deleteAll();
     revenueRepo.deleteAll();
     loanRepo.deleteAll();
+    loanEventRepo.deleteAll();
     transferRepo.deleteAll();
     categoryOverrideRepo.deleteAll();
     categoryMemoryRepo.deleteAll();
@@ -312,10 +346,21 @@ class DataImportService {
     );
 
     reportProgress('Importation des emprunts...');
-    final loanReport = _importLoans(validated.loans, accountIdMap, () {
+    final Map<int, int> loanIdMap = {};
+    final loanReport = _importLoans(validated.loans, accountIdMap, loanIdMap, () {
       processedItems++;
       reportProgress('Importation des emprunts...');
     });
+
+    reportProgress('Importation des remboursements anticipés...');
+    final loanEventReport = _importLoanEvents(
+      validated.loanEvents,
+      loanIdMap,
+      () {
+        processedItems++;
+        reportProgress('Importation des remboursements anticipés...');
+      },
+    );
 
     reportProgress('Importation des virements...');
     final transferReport = _importTransfers(
@@ -336,6 +381,7 @@ class DataImportService {
       expenses: expenseReport,
       revenues: revenueReport,
       loans: loanReport,
+      loanEvents: loanEventReport,
       transfers: transferReport,
     );
   }
@@ -536,6 +582,7 @@ class DataImportService {
   ImportEntityReport _importLoans(
     List<ParsedLoan> items,
     Map<int, int> accountIdMap,
+    Map<int, int> loanIdMap,
     void Function() onItemProcessed,
   ) {
     int imported = 0;
@@ -556,7 +603,8 @@ class DataImportService {
           model.accountId = accountIdMap[item.oldAccountId]!;
         }
 
-        loanRepo.add(model);
+        model.endDate = loanService.endDateOf(model);
+        loanIdMap[item.oldId] = loanRepo.add(model);
         imported++;
       } catch (e) {
         errors.add('${item.model.name} : $e');
@@ -566,6 +614,41 @@ class DataImportService {
 
     return ImportEntityReport(
       entityName: 'Emprunts',
+      total: items.length,
+      imported: imported,
+      skipped: skipped,
+      errors: errors,
+    );
+  }
+
+  ImportEntityReport _importLoanEvents(
+    List<ParsedLoanEvent> items,
+    Map<int, int> loanIdMap,
+    void Function() onItemProcessed,
+  ) {
+    int imported = 0;
+    int skipped = 0;
+    final errors = <String>[];
+
+    for (final item in items) {
+      try {
+        final newLoanId = loanIdMap[item.oldLoanId];
+        if (newLoanId == null) {
+          skipped++;
+          onItemProcessed();
+          continue;
+        }
+
+        loanEventRepo.add(item.model.copyWith(loanId: newLoanId));
+        imported++;
+      } catch (e) {
+        errors.add('${item.model.type.label} : $e');
+      }
+      onItemProcessed();
+    }
+
+    return ImportEntityReport(
+      entityName: 'Remboursements anticipés',
       total: items.length,
       imported: imported,
       skipped: skipped,

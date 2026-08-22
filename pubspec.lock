@@ -497,7 +497,7 @@ packages:
       path: frosted_ui
       relative: true
     source: path
-    version: "0.3.0"
+    version: "0.4.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter

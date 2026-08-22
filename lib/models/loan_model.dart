@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:objectbox/objectbox.dart';
@@ -64,6 +65,38 @@ class LoanModel {
 
   bool immediateFirstPayment;
 
+  String deferralTypeId;
+
+  double fees;
+
+  String purposeId;
+
+  bool hasIndemnityClause;
+
+  LoanPurpose get purpose => LoanPurpose.values.firstWhere(
+    (e) => e.name == purposeId,
+    orElse: () => LoanPurpose.other,
+  );
+
+  set purpose(LoanPurpose value) {
+    purposeId = value.name;
+  }
+
+  CreditRegime get regime =>
+      purpose.fixedRegime ?? LoanTerms.defaultRegimeFor(amount);
+
+  LoanDeferralType get deferralType {
+    if (deferredMonths <= 0) return LoanDeferralType.none;
+    return LoanDeferralType.values.firstWhere(
+      (e) => e.name == deferralTypeId,
+      orElse: () => LoanDeferralType.partial,
+    );
+  }
+
+  set deferralType(LoanDeferralType type) {
+    deferralTypeId = type.name;
+  }
+
   LoanRepaymentType get repaymentType {
     return LoanRepaymentType.values.firstWhere(
       (e) => e.name == repaymentTypeId,
@@ -114,6 +147,10 @@ class LoanModel {
     this.insuranceValue = 0.0,
     this.insuranceCalculationModeId = 'initialCapital',
     this.immediateFirstPayment = false,
+    this.deferralTypeId = 'partial',
+    this.fees = 0.0,
+    this.purposeId = 'other',
+    this.hasIndemnityClause = true,
     this.notes,
   });
 
@@ -134,6 +171,10 @@ class LoanModel {
     InsuranceCalculationMode insuranceCalculationMode =
         InsuranceCalculationMode.initialCapital,
     bool immediateFirstPayment = false,
+    LoanDeferralType deferralType = LoanDeferralType.partial,
+    double fees = 0.0,
+    LoanPurpose purpose = LoanPurpose.other,
+    bool hasIndemnityClause = true,
     String? notes,
   }) {
     return LoanModel(
@@ -152,7 +193,31 @@ class LoanModel {
       insuranceValue: insuranceValue,
       insuranceCalculationModeId: insuranceCalculationMode.name,
       immediateFirstPayment: immediateFirstPayment,
+      deferralTypeId: deferralType.name,
+      fees: fees,
+      purposeId: purpose.name,
+      hasIndemnityClause: hasIndemnityClause,
       notes: notes,
+    );
+  }
+
+  LoanTerms toTerms() {
+    return LoanTerms(
+      amount: amount,
+      annualInterestRate: interestRate,
+      durationInMonths: duration,
+      startDate: startDate,
+      dayOfMonth: dayOfMonth,
+      immediateFirstPayment: immediateFirstPayment,
+      repaymentType: repaymentType,
+      deferredMonths: deferredMonths,
+      deferralType: deferralType,
+      insuranceType: insuranceType,
+      insuranceValue: insuranceValue,
+      insuranceCalculationMode: insuranceCalculationMode,
+      fees: fees,
+      regime: regime,
+      hasIndemnityClause: hasIndemnityClause,
     );
   }
 
@@ -174,6 +239,10 @@ class LoanModel {
       'insuranceValue': insuranceValue,
       'insuranceCalculationModeId': insuranceCalculationModeId,
       'immediateFirstPayment': immediateFirstPayment,
+      'deferralTypeId': deferralTypeId,
+      'fees': fees,
+      'purposeId': purposeId,
+      'hasIndemnityClause': hasIndemnityClause,
       'notes': notes,
     };
   }
@@ -230,6 +299,14 @@ class LoanModel {
           (resolve('immediateFirstPayment', 'immediate_first_payment')
               as bool?) ??
           false,
+      deferralTypeId:
+          (resolve('deferralTypeId', 'deferral_type_id') as String?) ??
+          'partial',
+      fees: (resolve('fees', 'fees') as num?)?.toDouble() ?? 0.0,
+      purposeId: (resolve('purposeId', 'purpose_id') as String?) ?? 'other',
+      hasIndemnityClause:
+          (resolve('hasIndemnityClause', 'has_indemnity_clause') as bool?) ??
+          true,
       notes: json['notes'] as String?,
     );
   }
@@ -250,6 +327,10 @@ class LoanModel {
     double? insuranceValue,
     InsuranceCalculationMode? insuranceCalculationMode,
     bool? immediateFirstPayment,
+    LoanDeferralType? deferralType,
+    double? fees,
+    LoanPurpose? purpose,
+    bool? hasIndemnityClause,
     String? notes,
   }) {
     return LoanModel(
@@ -271,6 +352,10 @@ class LoanModel {
           insuranceCalculationMode?.name ?? insuranceCalculationModeId,
       immediateFirstPayment:
           immediateFirstPayment ?? this.immediateFirstPayment,
+      deferralTypeId: deferralType?.name ?? deferralTypeId,
+      fees: fees ?? this.fees,
+      purposeId: purpose?.name ?? purposeId,
+      hasIndemnityClause: hasIndemnityClause ?? this.hasIndemnityClause,
       notes: notes ?? this.notes,
     );
   }

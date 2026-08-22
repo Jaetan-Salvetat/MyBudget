@@ -7,7 +7,13 @@ import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
+import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
+import 'package:mybudget/core/services/loan_payoff_service.dart';
+import 'package:mybudget/core/services/loan_schedule_service.dart';
+import 'package:mybudget/core/services/loan_service.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
@@ -85,6 +91,30 @@ ExpenseRepository expenseRepository(Ref ref) {
 LoanRepository loanRepository(Ref ref) {
   final obs = ref.watch(objectBoxServiceProvider).requireValue;
   return LoanRepository(obs.loanBox);
+}
+
+@Riverpod(keepAlive: true)
+LoanEventRepository loanEventRepository(Ref ref) {
+  final obs = ref.watch(objectBoxServiceProvider).requireValue;
+  return LoanEventRepository(obs.loanEventBox);
+}
+
+@Riverpod(keepAlive: true)
+LoanScheduleService loanScheduleService(Ref ref) {
+  return const LoanScheduleService(EarlyRepaymentIndemnityService());
+}
+
+@Riverpod(keepAlive: true)
+LoanService loanService(Ref ref) {
+  return LoanService(
+    ref.watch(loanScheduleServiceProvider),
+    const AnnualPercentageRateService(),
+  );
+}
+
+@Riverpod(keepAlive: true)
+LoanPayoffService loanPayoffService(Ref ref) {
+  return LoanPayoffService(ref.watch(loanScheduleServiceProvider));
 }
 
 @Riverpod(keepAlive: true)

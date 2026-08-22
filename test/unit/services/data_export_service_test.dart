@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
@@ -14,6 +15,8 @@ import 'package:mybudget/core/services/data/data_export_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -27,6 +30,8 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
+
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -43,6 +48,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
   late MockCategoryOverrideRepository mockCategoryOverrideRepo;
   late MockCategoryMemoryRepository mockCategoryMemoryRepo;
@@ -53,6 +59,9 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
+    when(() => mockLoanEventRepo.deleteAll()).thenReturn(null);
     mockTransferRepo = MockTransferRepository();
     mockCategoryOverrideRepo = MockCategoryOverrideRepository();
     mockCategoryMemoryRepo = MockCategoryMemoryRepository();
@@ -65,6 +74,7 @@ void main() {
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
+      loanEventRepo: mockLoanEventRepo,
       transferRepo: mockTransferRepo,
     );
   });
@@ -77,6 +87,7 @@ void main() {
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
   }
 
@@ -193,6 +204,26 @@ void main() {
     expect(loanJson.containsKey('account_id'), isFalse);
     expect(loanJson.containsKey('lender_name'), isFalse);
     expect(loanJson.containsKey('start_date'), isFalse);
+  });
+
+  test('buildExportData includes loan events in export', () {
+    stubEmptyRepos();
+    final event = LoanEventModel.create(
+      loanId: 3,
+      type: LoanEventType.earlyRepaymentPartial,
+      date: DateTime(2026, 7, 5),
+      amount: 5000,
+      reamortizationMode: ReamortizationMode.reducePayment,
+    );
+    when(() => mockLoanEventRepo.getAll()).thenReturn([event]);
+
+    final data = service.buildExportData();
+    final exported = (data['loanEvents'] as List).first as Map;
+
+    expect(exported['loanId'], '3');
+    expect(exported['typeId'], 'earlyRepaymentPartial');
+    expect(exported['amount'], 5000.0);
+    expect(exported['reamortizationModeId'], 'reducePayment');
   });
 
   test('buildExportData includes transfers in export', () {

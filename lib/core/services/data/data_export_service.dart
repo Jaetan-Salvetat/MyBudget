@@ -3,6 +3,7 @@ import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
@@ -15,6 +16,7 @@ class DataExportService {
   final ExpenseRepository expenseRepo;
   final RevenueRepository revenueRepo;
   final LoanRepository loanRepo;
+  final LoanEventRepository loanEventRepo;
   final TransferRepository transferRepo;
 
   const DataExportService({
@@ -25,6 +27,7 @@ class DataExportService {
     required this.expenseRepo,
     required this.revenueRepo,
     required this.loanRepo,
+    required this.loanEventRepo,
     required this.transferRepo,
   });
 
@@ -51,6 +54,7 @@ class DataExportService {
       'expenses': expenseRepo.getAll().map((e) => e.toJson()).toList(),
       'revenues': revenueRepo.getAll().map((r) => r.toJson()).toList(),
       'loans': loanRepo.getAll().map((l) => l.toJson()).toList(),
+      'loanEvents': loanEventRepo.getAll().map((e) => e.toJson()).toList(),
       'transfers': transferRepo.getAll().map((t) => t.toJson()).toList(),
     };
   }

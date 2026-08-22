@@ -99,7 +99,7 @@
     },
     {
       "id": "4:8471750721460440152",
-      "lastPropertyId": "19:8138263455102980410",
+      "lastPropertyId": "24:7358679212004947045",
       "name": "LoanModel",
       "properties": [
         {
@@ -187,6 +187,26 @@
           "id": "19:8138263455102980410",
           "name": "immediateFirstPayment",
           "type": 1
+        },
+        {
+          "id": "20:7721257363888305302",
+          "name": "deferralTypeId",
+          "type": 9
+        },
+        {
+          "id": "21:4718741685436176634",
+          "name": "fees",
+          "type": 8
+        },
+        {
+          "id": "23:4691006289725929516",
+          "name": "hasIndemnityClause",
+          "type": 1
+        },
+        {
+          "id": "24:7358679212004947045",
+          "name": "purposeId",
+          "type": 9
         }
       ],
       "relations": []
@@ -412,9 +432,53 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "10:5282442622348339601",
+      "lastPropertyId": "7:1934536084928006596",
+      "name": "LoanEventModel",
+      "properties": [
+        {
+          "id": "1:5779609905562893032",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1080423716192276736",
+          "name": "loanId",
+          "type": 6
+        },
+        {
+          "id": "3:7412238931454290300",
+          "name": "typeId",
+          "type": 9
+        },
+        {
+          "id": "4:5726242782845823416",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "5:5704553025308414740",
+          "name": "amount",
+          "type": 8
+        },
+        {
+          "id": "6:3185289945794771063",
+          "name": "reamortizationModeId",
+          "type": 9
+        },
+        {
+          "id": "7:1934536084928006596",
+          "name": "exemptionId",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "9:2229829926542213902",
+  "lastEntityId": "10:5282442622348339601",
   "lastIndexId": "10:8794940862762798163",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
@@ -433,7 +497,8 @@
     4274885399649890297,
     6079627583281643679,
     2964126038854478579,
-    6632633250043774965
+    6632633250043774965,
+    342834846661396669
   ],
   "retiredRelationUids": [],
   "version": 1

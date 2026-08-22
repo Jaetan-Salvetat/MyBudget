@@ -12,6 +12,7 @@ import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -24,6 +25,8 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
+
 class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
 
@@ -34,6 +37,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockCategoryOverrideRepository mockCategoryOverrideRepo;
 
   setUp(() {
@@ -41,6 +45,8 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     mockCategoryOverrideRepo = MockCategoryOverrideRepository();
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
@@ -59,6 +65,7 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
         categoryOverrideRepositoryProvider.overrideWithValue(
           mockCategoryOverrideRepo,
         ),
