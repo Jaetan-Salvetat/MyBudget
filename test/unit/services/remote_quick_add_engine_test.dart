@@ -201,5 +201,42 @@ void main() {
 
       expect((await engine.classify('resto italien 25')).name, 'Resto italien');
     });
+
+    test('closes the prompt with the input, catalogue first', () async {
+      final client = _ScriptedChatClient([answer()]);
+
+      await engineWith(client).classify('resto italien 25');
+
+      final prompt = client.prompts.single;
+      expect(prompt.indexOf('Catalogue :'), lessThan(prompt.indexOf('Saisie')));
+      expect(prompt.trimRight(), endsWith('Saisie : "resto italien"'));
+    });
+
+    test('spells out every category with its label', () async {
+      final client = _ScriptedChatClient([answer()]);
+
+      await engineWith(client).classify('resto italien 25');
+
+      expect(
+        client.prompts.single,
+        contains('restauration.restaurant = Restaurant'),
+      );
+      expect(client.prompts.single, contains('(revenu)'));
+    });
+
+    test('every slug the prompt names exists in the taxonomy', () async {
+      final client = _ScriptedChatClient([answer()]);
+
+      await engineWith(client).classify('resto 25');
+
+      final quoted = RegExp(r'\b([a-z_]+\.[a-z_]+)\b')
+          .allMatches(client.prompts.single)
+          .map((match) => match.group(1)!)
+          .toSet();
+      expect(quoted, isNotEmpty);
+      for (final slug in quoted) {
+        expect(taxonomy.resolve(slug), isNotNull, reason: slug);
+      }
+    });
   });
 }

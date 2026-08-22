@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
@@ -31,8 +32,15 @@ class RemoteQuickAddEngine implements QuickAddEngine {
   static const String _schemaName = 'quick_add';
   static const int _maxAlternatives = 3;
 
+  /// Le refuge quand rien ne colle : mieux vaut « Autre » qu'une catégorie
+  /// voisine qui obligera l'utilisateur à corriger.
+  static const String _fallbackExpenseSlug = 'divers.autre';
+
   final AiChatClient _client;
   final CategoryTaxonomyService _taxonomy;
+
+  List<TaxonomyNode>? _selectableNodes;
+  String? _catalogue;
 
   @override
   Future<QuickAddClassification> classify(String input) async {
@@ -41,7 +49,7 @@ class RemoteQuickAddEngine implements QuickAddEngine {
         ? input
         : priceResult.remaining;
 
-    final slugs = _allowedSlugs();
+    final slugs = _nodes().map((node) => node.slug).toList();
     final schema = _schemaFor(slugs);
 
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -58,10 +66,38 @@ class RemoteQuickAddEngine implements QuickAddEngine {
     throw const AiRequestException(AiRequestFailure.malformedResponse);
   }
 
-  List<String> _allowedSlugs() => _taxonomy.leaves
-      .where((node) => !node.isDeprecated && node.aliasOf == null)
-      .map((node) => node.slug)
-      .toList();
+  /// L'énumération du schéma et le catalogue du prompt sortent de la même
+  /// liste : ils ne peuvent pas diverger.
+  List<TaxonomyNode> _nodes() {
+    return _selectableNodes ??= _taxonomy.leaves
+        .where((node) => !node.isDeprecated && node.aliasOf == null)
+        .toList();
+  }
+
+  /// Les slugs seuls sont ambigus (`divers.tabac_jeux`, `finance.retrait_dab`).
+  /// Le libellé lève le doute, et ce bloc est stable d'un appel à l'autre :
+  /// placé en tête, il se met en cache côté fournisseur.
+  String _catalogueOfCategories() {
+    if (_catalogue != null) return _catalogue!;
+
+    final byGroup = <TaxonomyGroup, List<TaxonomyNode>>{};
+    for (final node in _nodes()) {
+      byGroup.putIfAbsent(node.group, () => []).add(node);
+    }
+
+    final buffer = StringBuffer();
+    for (final entry in byGroup.entries) {
+      final kind = entry.key.type == TransactionType.income
+          ? 'revenu'
+          : 'dépense';
+      final leaves = entry.value
+          .map((node) => '${node.slug} = ${node.label}')
+          .join(' · ');
+      buffer.writeln('${entry.key.label} ($kind) : $leaves');
+    }
+
+    return _catalogue = buffer.toString();
+  }
 
   static String _truncate(String text) => text.length <= maxInputLength
       ? text
@@ -91,36 +127,66 @@ class RemoteQuickAddEngine implements QuickAddEngine {
   String _promptFor(String text, {required bool isRetry}) {
     final buffer = StringBuffer()
       ..writeln(
-        'Tu classes une saisie de dépense ou de revenu dans une taxonomie fermée.',
+        'Tu ranges une saisie de dépense ou de revenu dans une taxonomie '
+        'fermée. Tu réponds uniquement avec le schéma demandé.',
       )
-      ..writeln()
-      ..writeln('Saisie : "$text"')
       ..writeln()
       ..writeln('Règles :')
       ..writeln(
-        '- "category_slug" : la catégorie la plus précise de la liste autorisée.',
+        '- "category_slug" : la feuille la plus précise du catalogue. '
+        'Un revenu se range sous une catégorie de revenu, une dépense sous '
+        'une catégorie de dépense.',
       )
       ..writeln(
-        '- "alternatives" : jusqu\'à $_maxAlternatives autres catégories plausibles, sans répéter la première.',
+        '- Si rien ne correspond vraiment, prends $_fallbackExpenseSlug plutôt '
+        'que de forcer une catégorie voisine.',
       )
       ..writeln(
-        '- "recurrence" : "$_recurringLabel" pour un abonnement ou une charge qui revient chaque mois, sinon "$_oneTimeLabel".',
+        '- "alternatives" : les $_maxAlternatives feuilles les plus proches '
+        'après celle retenue, sans la répéter. Liste vide si le choix est net.',
       )
       ..writeln(
-        '- "name" : le libellé de la transaction, corrigé et capitalisé, sans montant ni devise.',
+        '- "recurrence" : "$_recurringLabel" pour un abonnement, un loyer, une '
+        'assurance, un salaire — ce qui revient chaque mois. Sinon '
+        '"$_oneTimeLabel". Dans le doute, "$_oneTimeLabel".',
       )
       ..writeln(
-        '- La saisie ne contient aucun montant : il a déjà été extrait. N\'en invente pas.',
-      );
+        '- "name" : la saisie remise au propre, capitalisée, dans la langue '
+        'de la saisie. Corrige les fautes et développe une abréviation '
+        'seulement si elle est sans ambiguïté. N\'ajoute rien qui ne soit '
+        'pas dans la saisie.',
+      )
+      ..writeln(
+        '- Le montant a déjà été retiré de la saisie. N\'en invente aucun, '
+        'et n\'en remets pas dans "name".',
+      )
+      ..writeln()
+      ..writeln('Exemples :')
+      ..writeln(
+        'resto italien → restauration.restaurant · $_oneTimeLabel · '
+        '"Resto italien"',
+      )
+      ..writeln('netflix → loisirs.streaming · $_recurringLabel · "Netflix"')
+      ..writeln('virement mamie → transfert.virement_recu · $_oneTimeLabel · '
+          '"Virement mamie"')
+      ..writeln()
+      ..writeln('Catalogue :')
+      ..write(_catalogueOfCategories());
 
     if (isRetry) {
       buffer
         ..writeln()
         ..writeln(
-          'Ta réponse précédente était inexploitable. Reprends en utilisant '
-          'uniquement des valeurs de la liste autorisée.',
+          'Ta réponse précédente était inexploitable. Reprends en n\'utilisant '
+          'que des valeurs du catalogue ci-dessus.',
         );
     }
+
+    // La saisie ferme le prompt : tout ce qui précède est identique d'un
+    // appel à l'autre, donc réutilisable par le cache du fournisseur.
+    buffer
+      ..writeln()
+      ..writeln('Saisie : "$text"');
 
     return buffer.toString();
   }
