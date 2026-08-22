@@ -174,7 +174,6 @@ class FrostedIconButton extends StatelessWidget {
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            color: fg,
             borderRadius: _shape(s),
             Center(
               child: Icon(glyph, size: size.glyph, color: fg),

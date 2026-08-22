@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '_ripple.dart';
+import '_press_ink.dart';
 
 class InteractionStates {
   const InteractionStates({
@@ -11,8 +11,7 @@ class InteractionStates {
     required this.focused,
     required this.pressed,
     required this.enabled,
-    required this.pressOrigin,
-    required this.ripple,
+    required this.pressInk,
   });
 
   final bool hovered;
@@ -20,14 +19,9 @@ class InteractionStates {
   final bool pressed;
   final bool enabled;
 
-  /// Where the last press landed, in the surface's own coordinates. Null
-  /// until the surface has been touched, and for keyboard activation, which
-  /// has no point to spread from.
-  final Offset? pressOrigin;
-
-  /// Drives the ink a press throws off — hand it, with [pressOrigin], to a
-  /// [PressRipple] placed above the surface but below its content.
-  final Animation<double> ripple;
+  /// The press ink of this surface, or null when nothing is interactive
+  /// here. Place it with [ink]; the splash itself comes from the theme.
+  final PressInk? pressInk;
 
   /// The state of a surface that carries no interaction at all, for
   /// components that share one builder between a tappable and a plain form.
@@ -36,24 +30,22 @@ class InteractionStates {
     focused: false,
     pressed: false,
     enabled: true,
-    pressOrigin: null,
-    ripple: kAlwaysDismissedAnimation,
+    pressInk: null,
   );
 
   /// Lays the press ink under [child] — above the surface the builder drew,
-  /// below the label it carries — tinted with the foreground [color]. Pass
-  /// the surface's [borderRadius] so the ink stops at its corners.
-  Widget ink(
-    Widget child, {
-    required Color color,
-    BorderRadius? borderRadius,
-  }) => PressRipple(
-    origin: pressOrigin,
-    progress: ripple,
-    color: color,
-    borderRadius: borderRadius,
-    child: child,
-  );
+  /// below the label it carries. The ink takes its colour from the ambient
+  /// [ThemeData.splashColor]; pass the surface's [borderRadius] so it stops
+  /// at its corners.
+  Widget ink(Widget child, {BorderRadius? borderRadius}) {
+    final PressInk? pressInk = this.pressInk;
+    if (pressInk == null) return child;
+    return PressInkHost(
+      ink: pressInk,
+      borderRadius: borderRadius,
+      child: child,
+    );
+  }
 }
 
 typedef InteractiveSurfaceBuilder =
@@ -83,8 +75,7 @@ class InteractiveSurface extends StatefulWidget {
   State<InteractiveSurface> createState() => _InteractiveSurfaceState();
 }
 
-class _InteractiveSurfaceState extends State<InteractiveSurface>
-    with SingleTickerProviderStateMixin {
+class _InteractiveSurfaceState extends State<InteractiveSurface> {
   /// A tap is routinely shorter than the press transition, so releasing on
   /// tap-up reverses the morph before it has travelled far enough to read —
   /// on a text button, whose resting surface is transparent, that leaves the
@@ -92,33 +83,22 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
   /// transition room to land before it comes back.
   static const Duration _minPressDuration = Duration(milliseconds: 160);
 
-  /// The ripple outlives the press it came from: it keeps spreading after the
-  /// finger is up, which is what reads as a reaction rather than a state.
-  static const Duration _rippleDuration = Duration(milliseconds: 450);
-
   bool _hovered = false;
   bool _focused = false;
   bool _pressed = false;
   bool _releasePending = false;
   Timer? _holdTimer;
-  Offset? _pressOrigin;
 
-  late final AnimationController _ripple = AnimationController(
-    vsync: this,
-    duration: _rippleDuration,
-  );
+  final PressInk _ink = PressInk();
 
   bool get _enabled => widget.onTap != null;
 
-  void _press(Offset origin) {
+  void _press(Offset globalPosition) {
     _holdTimer?.cancel();
     _releasePending = false;
     _holdTimer = Timer(_minPressDuration, _onHoldElapsed);
-    setState(() {
-      _pressed = true;
-      _pressOrigin = origin;
-    });
-    _ripple.forward(from: 0);
+    setState(() => _pressed = true);
+    _ink.start(globalPosition: globalPosition);
   }
 
   void _onHoldElapsed() {
@@ -138,7 +118,7 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
   /// target took the gesture — takes its ink with it rather than playing out
   /// a reaction to something that did not happen.
   void _abort() {
-    _ripple.reset();
+    _ink.cancel();
     _requestRelease();
   }
 
@@ -151,27 +131,30 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
   @override
   void dispose() {
     _holdTimer?.cancel();
-    _ripple.dispose();
     super.dispose();
   }
 
   static final Map<Type, Action<Intent>> _emptyActions =
       <Type, Action<Intent>>{};
 
+  /// Keyboard activation has no point to spread from, so its ink starts at
+  /// the middle of the surface and is confirmed at once — there is no press
+  /// to hold it open.
+  Object? _activate() {
+    _ink.start();
+    _ink.confirm();
+    widget.onTap?.call();
+    return null;
+  }
+
   Map<Type, Action<Intent>> _actions() {
     if (!_enabled) return _emptyActions;
     return <Type, Action<Intent>>{
       ActivateIntent: CallbackAction<ActivateIntent>(
-        onInvoke: (_) {
-          widget.onTap?.call();
-          return null;
-        },
+        onInvoke: (_) => _activate(),
       ),
       ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
-        onInvoke: (_) {
-          widget.onTap?.call();
-          return null;
-        },
+        onInvoke: (_) => _activate(),
       ),
     };
   }
@@ -183,24 +166,28 @@ class _InteractiveSurfaceState extends State<InteractiveSurface>
       focused: _enabled && _focused,
       pressed: _enabled && _pressed,
       enabled: _enabled,
-      pressOrigin: _pressOrigin,
-      ripple: _ripple,
+      pressInk: _ink,
     );
 
     Widget child = widget.builder(context, states);
 
     // The ink itself is the builder's to place — only it knows which layer
-    // sits between its surface and its content — so this level just drives
-    // [InteractionStates.ripple]. Handling the tap here, rather than in an
-    // overlay stacked above the content, leaves any interactive child (a
+    // sits between its surface and its content — so this level only reports
+    // the press to [InteractionStates.pressInk]. Handling the tap here,
+    // rather than in an overlay stacked above the content, leaves any child (a
     // trailing icon button, say) free to win the gesture arena on its own.
     child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _enabled ? widget.onTap : null,
       onTapDown: _enabled
-          ? (TapDownDetails details) => _press(details.localPosition)
+          ? (TapDownDetails details) => _press(details.globalPosition)
           : null,
-      onTapUp: _enabled ? (TapUpDetails _) => _requestRelease() : null,
+      onTapUp: _enabled
+          ? (TapUpDetails _) {
+              _ink.confirm();
+              _requestRelease();
+            }
+          : null,
       onTapCancel: _enabled ? _abort : null,
       child: child,
     );

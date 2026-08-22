@@ -134,7 +134,6 @@ class _MenuRow extends StatelessWidget {
               ? Colors.transparent
               : base.withValues(alpha: overlay),
           child: s.ink(
-            color: base,
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: FrostedSpacing.sp4,

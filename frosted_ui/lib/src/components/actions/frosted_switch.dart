@@ -46,7 +46,6 @@ class FrostedSwitch extends StatelessWidget {
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            color: thumbColor,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             Padding(
               padding: const EdgeInsets.all(_kPadding),

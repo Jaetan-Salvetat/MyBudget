@@ -84,8 +84,7 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
       media.viewInsets.bottom,
     );
     final double fieldTop = box.localToGlobal(Offset.zero).dy;
-    final double margin =
-        _viewportMargin + FrostedMenuPanel.anchorGap;
+    final double margin = _viewportMargin + FrostedMenuPanel.anchorGap;
     final double below =
         media.size.height - obstructed - margin - (fieldTop + box.size.height);
     final double above = fieldTop - media.viewPadding.top - margin;
@@ -135,7 +134,7 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
         MenuAnchor(
           controller: _controller,
           alignmentOffset: FrostedMenuPanel.anchorOffset,
-              style: const MenuStyle(
+          style: const MenuStyle(
             backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
             elevation: WidgetStatePropertyAll<double>(0),
             padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),

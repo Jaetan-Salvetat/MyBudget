@@ -206,7 +206,6 @@ class _ToggleButton extends StatelessWidget {
             borderRadius: _resolveBorderRadius(s),
           ),
           child: s.ink(
-            color: fg,
             borderRadius: _resolveBorderRadius(s),
             Padding(padding: _padding, child: content),
           ),

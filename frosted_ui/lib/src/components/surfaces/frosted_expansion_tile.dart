@@ -124,7 +124,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
             borderRadius: _shape(s, header: true),
           ),
           child: s.ink(
-            color: cs.onSurface,
             borderRadius: _shape(s, header: true),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: _headerHeight),

@@ -189,7 +189,6 @@ class FrostedButton extends StatelessWidget {
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            color: fg,
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isText

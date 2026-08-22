@@ -247,11 +247,7 @@ class _StepCircle extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: '${index + 1}',
       builder: (BuildContext context, InteractionStates s) => circle(
-        s.ink(
-          color: fg,
-          borderRadius: BorderRadius.circular(FrostedRadius.full),
-          glyph,
-        ),
+        s.ink(borderRadius: BorderRadius.circular(FrostedRadius.full), glyph),
       ),
     );
   }

@@ -6,11 +6,16 @@ import 'package:frosted_ui/frosted_ui.dart';
 void main() {
   const Color seed = Color(0xFF7C5CFF);
 
+  /// The press ink is the theme's, not the button's, and the app default —
+  /// the M3 sparkle — paints no circle to measure. These tests pump the
+  /// plain splash so the ink a press produces can be read off the canvas.
   Future<ColorScheme> pump(WidgetTester tester, Widget button) async {
     late ColorScheme scheme;
     await tester.pumpWidget(
       MaterialApp(
-        theme: FrostedTheme.dark(seedColor: seed),
+        theme: FrostedTheme.dark(
+          seedColor: seed,
+        ).copyWith(splashFactory: InkSplash.splashFactory),
         home: Scaffold(
           body: Builder(
             builder: (BuildContext context) {
@@ -66,7 +71,7 @@ void main() {
     return box.decoration as BoxDecoration;
   }
 
-  double rippleRadiusOf(WidgetTester tester) {
+  double splashRadiusOf(WidgetTester tester) {
     double? radius;
     expect(
       tester.renderObject(find.byType(FrostedButton)),
@@ -81,7 +86,7 @@ void main() {
   }
 
   group('FrostedButton press feedback', () {
-    testWidgets('throws a ripple from the point pressed',
+    testWidgets('splashes from the point pressed',
         (WidgetTester tester) async {
       await pump(
         tester,
@@ -108,7 +113,7 @@ void main() {
       expect(tester.renderObject(button), isNot(paints..circle()));
     });
 
-    testWidgets('grows the ripple while it plays', (WidgetTester tester) async {
+    testWidgets('grows the splash while it plays', (WidgetTester tester) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -120,18 +125,18 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 40));
-      final double early = rippleRadiusOf(tester);
+      final double early = splashRadiusOf(tester);
 
       await tester.pump(const Duration(milliseconds: 120));
 
-      expect(rippleRadiusOf(tester), greaterThan(early));
+      expect(splashRadiusOf(tester), greaterThan(early));
       expect(early, greaterThan(0));
 
       await gesture.up();
       await tester.pumpAndSettle();
     });
 
-    testWidgets('a disabled button raises no ripple',
+    testWidgets('a disabled button raises no ink',
         (WidgetTester tester) async {
       await pump(
         tester,

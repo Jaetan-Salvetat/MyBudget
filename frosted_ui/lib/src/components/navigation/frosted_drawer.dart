@@ -113,7 +113,6 @@ class _DrawerItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(FrostedRadius.md),
         ),
         child: s.ink(
-          color: fg,
           borderRadius: BorderRadius.circular(FrostedRadius.md),
           Padding(
             padding: const EdgeInsets.symmetric(

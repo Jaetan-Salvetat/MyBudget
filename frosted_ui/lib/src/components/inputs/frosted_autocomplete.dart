@@ -144,7 +144,7 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
         ],
         MenuAnchor(
           controller: _menu,
-              style: const MenuStyle(
+          style: const MenuStyle(
             backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
             elevation: WidgetStatePropertyAll<double>(0),
             padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),

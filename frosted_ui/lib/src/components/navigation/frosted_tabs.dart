@@ -305,7 +305,6 @@ class _Tab extends StatelessWidget {
           builder: (BuildContext context, Color? color, Widget? _) {
             final Color fg = color ?? target;
             return s.ink(
-              color: fg,
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: FrostedTabs._hPad,

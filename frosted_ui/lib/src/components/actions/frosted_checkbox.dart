@@ -50,7 +50,6 @@ class FrostedCheckbox extends StatelessWidget {
         final Color glyph = enabled ? cs.onPrimary : cs.surface;
 
         return s.ink(
-          color: filled ? cs.primary : cs.onSurface,
           borderRadius: BorderRadius.circular(FrostedRadius.full),
           Padding(
             padding: const EdgeInsets.all(FrostedSpacing.sp3),

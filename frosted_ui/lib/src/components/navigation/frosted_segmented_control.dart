@@ -80,7 +80,6 @@ class FrostedSegmentedControl extends StatelessWidget {
                           builder:
                               (BuildContext context, InteractionStates s) =>
                                   s.ink(
-                                    color: cs.onSurface,
                                     borderRadius: BorderRadius.circular(
                                       FrostedRadius.sm,
                                     ),

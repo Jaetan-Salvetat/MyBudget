@@ -75,7 +75,6 @@ class _Crumb extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: label,
       builder: (BuildContext context, InteractionStates s) => s.ink(
-        color: cs.onSurface,
         borderRadius: BorderRadius.circular(FrostedRadius.xs),
         Padding(
           padding: const EdgeInsets.symmetric(

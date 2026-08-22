@@ -109,7 +109,6 @@ class _NavPillAction extends StatelessWidget {
         child: SizedBox.square(
           dimension: _kMinTapTarget,
           child: s.ink(
-            color: cs.onPrimary,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             Center(child: Icon(action.icon, size: 22, color: cs.onPrimary)),
           ),
@@ -162,7 +161,6 @@ class _NavPillDestination extends StatelessWidget {
           borderRadius: BorderRadius.circular(FrostedRadius.full),
         ),
         child: s.ink(
-          color: foreground,
           borderRadius: BorderRadius.circular(FrostedRadius.full),
           Padding(
             padding: EdgeInsets.symmetric(

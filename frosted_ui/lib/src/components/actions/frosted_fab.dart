@@ -173,7 +173,7 @@ class FrostedFab extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: s.ink(content, color: fg, borderRadius: resolveShape(s)),
+          child: s.ink(content, borderRadius: resolveShape(s)),
         );
       },
     );
