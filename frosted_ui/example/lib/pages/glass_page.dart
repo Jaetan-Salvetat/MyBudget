@@ -89,10 +89,11 @@ class _GlassPageState extends State<GlassPage> {
                     ),
                   ),
                   const SizedBox(height: FrostedSpacing.sp3),
-                  FrostedBottomBar(
-                    items: _tabItems,
-                    currentIndex: _tabIndex,
-                    onTap: (int i) => setState(() => _tabIndex = i),
+                  FrostedNavPill(
+                    destinations: _tabItems,
+                    selectedIndex: _tabIndex,
+                    onDestinationSelected: (int i) =>
+                        setState(() => _tabIndex = i),
                   ),
                 ],
               ),

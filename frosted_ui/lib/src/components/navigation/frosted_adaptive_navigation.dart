@@ -5,14 +5,14 @@ import 'frosted_nav_item.dart';
 import 'frosted_navigation_rail.dart';
 import 'frosted_scaffold.dart';
 import 'frosted_sidebar.dart';
-import 'frosted_bottom_bar.dart';
+import 'frosted_nav_pill.dart';
 
 /// A complete adaptive screen layout that picks the right navigation
 /// component for the current window size:
 ///
 /// | Width            | Navigation                                  |
 /// |------------------|---------------------------------------------|
-/// | < 600            | [FrostedBottomBar] at the bottom               |
+/// | < 600            | [FrostedNavPill] at the bottom                 |
 /// | 600 – 839        | Collapsed [FrostedNavigationRail] on the    |
 /// |                  | leading side                                |
 /// | 840 – 1239       | Extended [FrostedNavigationRail] leading    |
@@ -52,10 +52,10 @@ class FrostedAdaptiveNavigation extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: SafeArea(
                 top: false,
-                child: FrostedBottomBar(
-                  items: items,
-                  currentIndex: currentIndex,
-                  onTap: onTap,
+                child: FrostedNavPill(
+                  destinations: items,
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: onTap,
                 ),
               ),
             ),

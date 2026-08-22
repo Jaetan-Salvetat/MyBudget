@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
@@ -17,6 +17,7 @@ import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class RevenuesList extends ConsumerStatefulWidget {
   const RevenuesList({super.key});
@@ -119,7 +120,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(top: 16, bottom: 145),
+              padding: EdgeInsets.only(top: 16, bottom: mainFlowBottomInset(context)),
               children: [
                 _hPad(
                   RevenuesSummaryCard(

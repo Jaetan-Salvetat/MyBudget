@@ -24,6 +24,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late int _selectedIndex;
   int _transactionsSubTab = 0;
+  bool _quickAddOpen = false;
 
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    final quickAddEnabled = ref.watch(quickAddEnabledProvider);
 
     final screens = [
       const DashboardScreen(isNested: true, fabTag: 'dashboard_fab_nested'),
@@ -86,27 +88,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (ref.watch(quickAddEnabledProvider))
+            if (quickAddEnabled && _quickAddOpen)
               QuickAddSection(
                 onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
               ),
             if (!keyboardVisible)
-              FrostedBottomBar(
-                currentIndex: _selectedIndex,
-                onTap: (index) {
-                  if (_selectedIndex != index) {
-                    setState(() => _selectedIndex = index);
-                  }
-                },
-                items: _items
-                    .map(
-                      (item) => FrostedNavItem(
-                        icon: item.icon,
-                        selectedIcon: item.selectedIcon,
-                        label: item.label,
-                      ),
-                    )
-                    .toList(),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                  child: FrostedNavPill(
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: (index) {
+                      if (_selectedIndex != index) {
+                        setState(() => _selectedIndex = index);
+                      }
+                    },
+                    action: quickAddEnabled
+                        ? FrostedNavAction(
+                            icon: Symbols.auto_awesome_rounded,
+                            activeIcon: Symbols.close_rounded,
+                            label: 'Ajout rapide',
+                            active: _quickAddOpen,
+                            onPressed: () =>
+                                setState(() => _quickAddOpen = !_quickAddOpen),
+                          )
+                        : null,
+                    destinations: _items
+                        .map(
+                          (item) => FrostedNavItem(
+                            icon: item.icon,
+                            selectedIcon: item.selectedIcon,
+                            label: item.label,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
               ),
           ],
         ),

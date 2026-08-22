@@ -1,0 +1,385 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+
+void main() {
+  const Color seed = Color(0xFF2A55D3);
+
+  const List<FrostedNavItem> destinations = <FrostedNavItem>[
+    FrostedNavItem(icon: Icons.dashboard_outlined, label: 'Accueil'),
+    FrostedNavItem(icon: Icons.swap_vert_outlined, label: 'Transactions'),
+    FrostedNavItem(icon: Icons.account_balance_outlined, label: 'Comptes'),
+  ];
+
+  Future<void> pump(
+    WidgetTester tester, {
+    int selectedIndex = 0,
+    ValueChanged<int>? onDestinationSelected,
+    List<FrostedNavItem> items = destinations,
+    FrostedNavAction? action,
+  }) {
+    return tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.light(seedColor: seed),
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: FrostedNavPill(
+              destinations: items,
+              selectedIndex: selectedIndex,
+              onDestinationSelected: onDestinationSelected ?? (int _) {},
+              action: action,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  group('FrostedNavPill labels', () {
+    testWidgets('only the selected destination carries a visible label', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Accueil'), findsOneWidget);
+      expect(find.text('Transactions'), findsNothing);
+      expect(find.text('Comptes'), findsNothing);
+    });
+
+    testWidgets('every destination keeps its icon', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.dashboard_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.swap_vert_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.account_balance_outlined), findsOneWidget);
+    });
+
+    testWidgets('changing the selection moves the label', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      await pump(tester, selectedIndex: 2);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Accueil'), findsNothing);
+      expect(find.text('Comptes'), findsOneWidget);
+    });
+
+    testWidgets('the selected destination prefers its selectedIcon', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        items: const <FrostedNavItem>[
+          FrostedNavItem(
+            icon: Icons.dashboard_outlined,
+            selectedIcon: Icons.dashboard,
+            label: 'Accueil',
+          ),
+          FrostedNavItem(icon: Icons.swap_vert_outlined, label: 'Transactions'),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.dashboard), findsOneWidget);
+      expect(find.byIcon(Icons.dashboard_outlined), findsNothing);
+    });
+  });
+
+  group('FrostedNavPill interaction', () {
+    testWidgets('tapping an unlabelled destination reports its index', (
+      WidgetTester tester,
+    ) async {
+      int? selected;
+      await pump(
+        tester,
+        selectedIndex: 0,
+        onDestinationSelected: (int i) => selected = i,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.account_balance_outlined));
+      await tester.pumpAndSettle();
+
+      expect(selected, 2);
+    });
+
+    testWidgets('tapping the selected destination still reports its index', (
+      WidgetTester tester,
+    ) async {
+      int? selected;
+      await pump(
+        tester,
+        selectedIndex: 1,
+        onDestinationSelected: (int i) => selected = i,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Transactions'));
+      await tester.pumpAndSettle();
+
+      expect(selected, 1);
+    });
+  });
+
+  group('FrostedNavPill accessibility', () {
+    testWidgets('every destination meets the Android tap target guideline', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      handle.dispose();
+    });
+
+    testWidgets('an unlabelled destination keeps its semantics label', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      expect(find.bySemanticsLabel('Comptes'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('FrostedNavPill badges', () {
+    testWidgets('a badge renders on an unlabelled destination', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        items: const <FrostedNavItem>[
+          FrostedNavItem(icon: Icons.dashboard_outlined, label: 'Accueil'),
+          FrostedNavItem(
+            icon: Icons.swap_vert_outlined,
+            label: 'Transactions',
+            badge: FrostedBadge.count(3),
+          ),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Transactions'), findsNothing);
+      expect(find.byType(FrostedBadgeView), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+    });
+  });
+
+  group('FrostedNavPill action', () {
+    testWidgets('renders no action slot when none is given', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.auto_awesome), findsNothing);
+    });
+
+    testWidgets('renders the action alongside the destinations', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
+      expect(find.byIcon(Icons.dashboard_outlined), findsOneWidget);
+    });
+
+    testWidgets('tapping the action fires it without selecting a destination', (
+      WidgetTester tester,
+    ) async {
+      int? selected;
+      int pressed = 0;
+      await pump(
+        tester,
+        selectedIndex: 0,
+        onDestinationSelected: (int i) => selected = i,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () => pressed++,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.auto_awesome));
+      await tester.pumpAndSettle();
+
+      expect(pressed, 1);
+      expect(selected, isNull);
+    });
+
+    testWidgets('the action carries its own semantics label', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.bySemanticsLabel('Ajout rapide'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the action meets the Android tap target guideline', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      handle.dispose();
+    });
+
+    testWidgets('the action fills itself with the accent as the one command', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final ColorScheme cs = FrostedTheme.light(seedColor: seed).colorScheme;
+      final AnimatedContainer box = tester.widget<AnimatedContainer>(
+        find
+            .ancestor(
+              of: find.byIcon(Icons.auto_awesome),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+
+      expect((box.decoration! as BoxDecoration).color, cs.primary);
+    });
+
+    testWidgets('the action softens and swaps its icon once active', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          activeIcon: Icons.close,
+          label: 'Ajout rapide',
+          onPressed: () {},
+          active: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final ColorScheme cs = FrostedTheme.light(seedColor: seed).colorScheme;
+      final AnimatedContainer box = tester.widget<AnimatedContainer>(
+        find
+            .ancestor(
+              of: find.byIcon(Icons.close),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+
+      expect(find.byIcon(Icons.auto_awesome), findsNothing);
+      expect((box.decoration! as BoxDecoration).color, cs.primaryContainer);
+    });
+
+    testWidgets('an active action never labels itself like a destination', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        selectedIndex: 0,
+        action: FrostedNavAction(
+          icon: Icons.auto_awesome,
+          label: 'Ajout rapide',
+          onPressed: () {},
+          active: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ajout rapide'), findsNothing);
+      expect(find.text('Accueil'), findsOneWidget);
+    });
+  });
+
+  group('FrostedNavPill material', () {
+    testWidgets('stays on a glass level its own height can actually blur', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      final FrostedGlass glass = tester.widget<FrostedGlass>(
+        find.descendant(
+          of: find.byType(FrostedNavPill),
+          matching: find.byType(FrostedGlass),
+        ),
+      );
+      final double height = tester.getSize(find.byType(FrostedNavPill)).height;
+      final FrostedGlassLevelSpec spec = FrostedGlassTokens.standard().specFor(
+        glass.level,
+      );
+
+      expect(spec.blurSigma, lessThan(height));
+      expect(spec.lightVeilOpacity, lessThanOrEqualTo(0.25));
+    });
+  });
+
+  group('FrostedNavPill layout', () {
+    testWidgets('the pill hugs its destinations instead of filling the width', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      expect(tester.getSize(find.byType(FrostedNavPill)).width, lessThan(400));
+    });
+  });
+}
