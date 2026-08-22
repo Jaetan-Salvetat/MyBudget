@@ -6,7 +6,9 @@ class QuickAddClassification {
   final TransactionType type;
   final TaxonomyNode category;
   final Frequency frequency;
-  final double amount;
+  /// Null while the text carries no amount yet : the draft stays incomplete
+  /// instead of failing.
+  final double? amount;
   final String name;
   final double typeConfidence;
   final double categoryConfidence;
@@ -20,7 +22,7 @@ class QuickAddClassification {
     required this.type,
     required this.category,
     required this.frequency,
-    required this.amount,
+    this.amount,
     required this.name,
     required this.typeConfidence,
     required this.categoryConfidence,

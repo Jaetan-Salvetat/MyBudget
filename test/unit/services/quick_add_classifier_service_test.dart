@@ -3,7 +3,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/constants/quick_add_labels.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
@@ -62,11 +61,34 @@ void main() {
   });
 
   group('QuickAddClassifierService', () {
-    test('throws QuickAddNoAmountException when no amount is found', () {
-      expect(
-        () => classifier.classify('courses carrefour'),
-        throwsA(isA<QuickAddNoAmountException>()),
+    test('leaves the amount null when the text carries none', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'alimentation.supermarche',
+          recurrenceIndex: 0,
+        ),
       );
+
+      final result = await classifier.classify('courses carrefour');
+
+      expect(result.amount, isNull);
+      expect(result.name, 'Courses carrefour');
+      expect(result.categorySlug, 'alimentation.supermarche');
+    });
+
+    test('sends the raw text to the model when there is no amount', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'alimentation.supermarche',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      await classifier.classify('courses carrefour');
+
+      verify(() => tokenizer.encode('courses carrefour')).called(1);
     });
 
     test('classifies a one-time expense', () async {

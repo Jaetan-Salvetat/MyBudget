@@ -2,7 +2,20 @@
 
 ## Principe
 
-100% auto-computed. Zéro input user sauf la navigation de mois.
+100% auto-computed. Zéro input user sauf la navigation de mois et le champ
+d'ajout rapide.
+
+## Ordre des sections
+
+Salutation · sélecteur de mois · solde · **champ quick-add** · répartition ·
+à venir · emprunts.
+
+Le champ est sous le solde, pas au-dessus : on lit ce qu'il reste avant de
+saisir. Au focus, la hero card cède la place à `CompactBalanceLine` (le solde
+doit rester lisible au-dessus du clavier) et « à venir » / « emprunts » se
+replient. La répartition reste : c'est la section qui bouge visiblement quand
+la transaction est enregistrée — et dès que le modèle a rendu une catégorie,
+elle cède la place aux candidats à corriger (`QuickAddCategoryZone`).
 
 ## Composants
 

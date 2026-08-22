@@ -7,7 +7,7 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '_interactive_surface.dart';
 
-enum _ChipVariant { assist, filter, input, suggestion }
+enum _ChipVariant { assist, filter, input, readOnly, suggestion }
 
 /// A compact, label-driven control used for filtering, tagging, suggesting,
 /// or triggering a contextual action.
@@ -73,6 +73,19 @@ class FrostedChip extends StatelessWidget {
     onDelete: onDelete,
   );
 
+  /// Settled value the user cannot act on — filled, never greyed out. Use it
+  /// to display something the app has resolved, not something to tap.
+  factory FrostedChip.readOnly({
+    Key? key,
+    required String label,
+    IconData? icon,
+  }) => FrostedChip._(
+    key: key,
+    label: label,
+    variant: _ChipVariant.readOnly,
+    icon: icon,
+  );
+
   /// Suggested option — outlined, primary-tinted label.
   factory FrostedChip.suggestion({
     Key? key,
@@ -104,6 +117,7 @@ class FrostedChip extends StatelessWidget {
     final VoidCallback? tapHandler = switch (_variant) {
       _ChipVariant.filter =>
         onSelected == null ? null : () => onSelected!(!selected),
+      _ChipVariant.readOnly => null,
       _ => onTap,
     };
 
@@ -163,6 +177,7 @@ class FrostedChip extends StatelessWidget {
   }
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
+    if (_variant == _ChipVariant.readOnly) return cs.secondaryContainer;
     if (!s.enabled) return Colors.transparent;
     Color base;
     switch (_variant) {
@@ -171,6 +186,9 @@ class FrostedChip extends StatelessWidget {
         break;
       case _ChipVariant.input:
         base = cs.surfaceContainerHighest;
+        break;
+      case _ChipVariant.readOnly:
+        base = cs.secondaryContainer;
         break;
       case _ChipVariant.assist:
       case _ChipVariant.suggestion:
@@ -184,6 +202,7 @@ class FrostedChip extends StatelessWidget {
   }
 
   Color _resolveFg(ColorScheme cs, InteractionStates s) {
+    if (_variant == _ChipVariant.readOnly) return cs.onSecondaryContainer;
     if (!s.enabled) return cs.onSurface.withValues(alpha: 0.38);
     switch (_variant) {
       case _ChipVariant.assist:
@@ -191,6 +210,7 @@ class FrostedChip extends StatelessWidget {
       case _ChipVariant.filter:
         return selected ? cs.onSecondaryContainer : cs.onSurface;
       case _ChipVariant.input:
+      case _ChipVariant.readOnly:
         return cs.onSurface;
       case _ChipVariant.suggestion:
         return cs.primary;
@@ -200,6 +220,7 @@ class FrostedChip extends StatelessWidget {
   BorderSide? _resolveBorder(ColorScheme cs, InteractionStates s) {
     switch (_variant) {
       case _ChipVariant.input:
+      case _ChipVariant.readOnly:
         return null;
       case _ChipVariant.filter:
         if (selected) return null;
@@ -228,6 +249,7 @@ class FrostedChip extends StatelessWidget {
       case _ChipVariant.filter:
         return selected ? cs.onSecondaryContainer : cs.onSurface;
       case _ChipVariant.input:
+      case _ChipVariant.readOnly:
         return cs.onSurface;
       case _ChipVariant.suggestion:
         return cs.primary;

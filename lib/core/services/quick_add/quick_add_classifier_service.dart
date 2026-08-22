@@ -29,13 +29,12 @@ class QuickAddClassifierService {
     await _modelRunner.load();
   }
 
+  /// Reads everything the text carries. The amount stays null while the user
+  /// has not typed one : classifying is understanding, not validating.
   Future<QuickAddClassification> classify(String input) async {
     final priceResult = PriceParserService.parse(input);
-    if (priceResult == null) {
-      throw const QuickAddNoAmountException();
-    }
 
-    final cleanedText = priceResult.remaining.isEmpty
+    final cleanedText = priceResult == null || priceResult.remaining.isEmpty
         ? input
         : priceResult.remaining;
 
@@ -60,8 +59,8 @@ class QuickAddClassifierService {
       type: type,
       category: category,
       frequency: frequency,
-      amount: priceResult.price,
-      name: _buildName(priceResult.remaining, category),
+      amount: priceResult?.price,
+      name: _buildName(priceResult?.remaining ?? input, category),
       typeConfidence: output.type.confidence,
       categoryConfidence: output.category.confidence,
       recurrenceConfidence: output.recurrence.confidence,

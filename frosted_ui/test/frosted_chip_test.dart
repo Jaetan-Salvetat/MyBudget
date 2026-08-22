@@ -68,4 +68,50 @@ void main() {
       expect(log, <bool>[true]);
     });
   });
+
+  group('FrostedChip.readOnly', () {
+    testWidgets('reads as a settled value, never as disabled', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        FrostedChip.readOnly(label: '12,00 €', icon: Icons.euro),
+      );
+
+      final ColorScheme cs = Theme.of(
+        tester.element(find.text('12,00 €')),
+      ).colorScheme;
+      final Text text = tester.widget<Text>(find.text('12,00 €'));
+
+      expect(text.style!.color, cs.onSecondaryContainer);
+    });
+
+    testWidgets('is filled rather than outlined', (WidgetTester tester) async {
+      await pump(
+        tester,
+        FrostedChip.readOnly(label: '12,00 €', icon: Icons.euro),
+      );
+
+      final BoxDecoration decoration =
+          tester
+                  .widget<AnimatedContainer>(find.byType(AnimatedContainer))
+                  .decoration!
+              as BoxDecoration;
+      final ColorScheme cs = Theme.of(
+        tester.element(find.text('12,00 €')),
+      ).colorScheme;
+
+      expect(decoration.color, cs.secondaryContainer);
+      expect(decoration.border, isNull);
+    });
+
+    testWidgets('does not react to a tap', (WidgetTester tester) async {
+      await pump(
+        tester,
+        FrostedChip.readOnly(label: '12,00 €', icon: Icons.euro),
+      );
+
+      expect(find.byType(InkWell), findsNothing);
+    });
+  });
 }

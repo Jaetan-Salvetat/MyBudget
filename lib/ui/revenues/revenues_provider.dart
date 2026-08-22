@@ -31,12 +31,14 @@ class RevenueNotifier extends _$RevenueNotifier {
     return revenues;
   }
 
-  Future<void> addRevenue(RevenueModel revenue) async {
+  /// Returns the id of the created row, so a caller can undo its own add.
+  Future<int> addRevenue(RevenueModel revenue) async {
     try {
       final repo = ref.read(revenueRepositoryProvider);
-      repo.add(revenue);
+      final id = repo.add(revenue);
       ref.invalidateSelf();
       await future;
+      return id;
     } catch (e) {
       rethrow;
     }
@@ -97,6 +99,14 @@ class RevenueNotifier extends _$RevenueNotifier {
     }
   }
 
+  /// Hard delete, whatever the recurrence : closing a row makes no sense when
+  /// it was created seconds ago.
+  Future<void> deletePermanently(int id) async {
+    ref.read(revenueRepositoryProvider).delete(id);
+    ref.invalidateSelf();
+    await future;
+  }
+
   Future<void> deleteRevenue(int id) async {
     try {
       final repo = ref.read(revenueRepositoryProvider);
@@ -104,12 +114,13 @@ class RevenueNotifier extends _$RevenueNotifier {
       if (revenue == null) return;
 
       if (revenue.frequencyEnum == Frequency.oneTime) {
-        repo.delete(id);
-      } else {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, revenue.startDate.day);
-        repo.update(revenue.copyWith(endDate: endDate));
+        await deletePermanently(id);
+        return;
       }
+
+      final now = DateTime.now();
+      final endDate = computeEndDate(now, revenue.startDate.day);
+      repo.update(revenue.copyWith(endDate: endDate));
       ref.invalidateSelf();
       await future;
     } catch (e) {
