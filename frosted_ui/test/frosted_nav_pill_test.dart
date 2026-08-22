@@ -283,65 +283,18 @@ void main() {
       await tester.pumpAndSettle();
 
       final ColorScheme cs = FrostedTheme.light(seedColor: seed).colorScheme;
-      final AnimatedContainer box = tester.widget<AnimatedContainer>(
+      final DecoratedBox box = tester.widget<DecoratedBox>(
         find
             .ancestor(
               of: find.byIcon(Icons.auto_awesome),
-              matching: find.byType(AnimatedContainer),
+              matching: find.byType(DecoratedBox),
             )
             .first,
       );
+      final BoxDecoration decoration = box.decoration as BoxDecoration;
 
-      expect((box.decoration! as BoxDecoration).color, cs.primary);
-    });
-
-    testWidgets('the action softens and swaps its icon once active', (
-      WidgetTester tester,
-    ) async {
-      await pump(
-        tester,
-        selectedIndex: 0,
-        action: FrostedNavAction(
-          icon: Icons.auto_awesome,
-          activeIcon: Icons.close,
-          label: 'Ajout rapide',
-          onPressed: () {},
-          active: true,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final ColorScheme cs = FrostedTheme.light(seedColor: seed).colorScheme;
-      final AnimatedContainer box = tester.widget<AnimatedContainer>(
-        find
-            .ancestor(
-              of: find.byIcon(Icons.close),
-              matching: find.byType(AnimatedContainer),
-            )
-            .first,
-      );
-
-      expect(find.byIcon(Icons.auto_awesome), findsNothing);
-      expect((box.decoration! as BoxDecoration).color, cs.primaryContainer);
-    });
-
-    testWidgets('an active action never labels itself like a destination', (
-      WidgetTester tester,
-    ) async {
-      await pump(
-        tester,
-        selectedIndex: 0,
-        action: FrostedNavAction(
-          icon: Icons.auto_awesome,
-          label: 'Ajout rapide',
-          onPressed: () {},
-          active: true,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Ajout rapide'), findsNothing);
-      expect(find.text('Accueil'), findsOneWidget);
+      expect(decoration.color, cs.primary);
+      expect(decoration.shape, BoxShape.circle);
     });
   });
 
@@ -369,6 +322,30 @@ void main() {
   });
 
   group('FrostedNavPill layout', () {
+    testWidgets('the glass keeps hugging under a tight full-width parent', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FrostedTheme.light(seedColor: seed),
+          home: Scaffold(
+            body: const SizedBox.shrink(),
+            bottomNavigationBar: FrostedNavPill(
+              destinations: destinations,
+              selectedIndex: 0,
+              onDestinationSelected: (int _) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final double screen = tester.getSize(find.byType(Scaffold)).width;
+      final double glass = tester.getSize(find.byType(FrostedGlass)).width;
+
+      expect(glass, lessThan(screen));
+    });
+
     testWidgets('the pill hugs its destinations instead of filling the width', (
       WidgetTester tester,
     ) async {

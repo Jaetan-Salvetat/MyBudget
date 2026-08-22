@@ -54,29 +54,38 @@ class FrostedNavPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FrostedGlass(
-      level: FrostedGlassLevel.thin,
-      tone: FrostedGlassTone.auto,
-      elevation: FrostedGlassElevation.floating,
-      borderRadius: BorderRadius.circular(FrostedRadius.full),
-      padding: const EdgeInsets.all(FrostedSpacing.sp1),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          for (int i = 0; i < destinations.length; i++)
-            Padding(
-              padding: EdgeInsets.only(left: i == 0 ? 0 : FrostedSpacing.sp1),
-              child: _NavPillDestination(
-                item: destinations[i],
-                selected: i == selectedIndex,
-                onTap: () => onDestinationSelected(i),
+    // Hugging is the whole point of this pill, so it must survive a parent
+    // that hands down a tight width — the `bottomNavigationBar` slot of a
+    // Scaffold does exactly that. The Align absorbs the tight box and lets the
+    // glass keep its own size inside it.
+    return Align(
+      alignment: Alignment.center,
+      widthFactor: 1,
+      heightFactor: 1,
+      child: FrostedGlass(
+        level: FrostedGlassLevel.thin,
+        tone: FrostedGlassTone.auto,
+        elevation: FrostedGlassElevation.floating,
+        borderRadius: BorderRadius.circular(FrostedRadius.full),
+        padding: const EdgeInsets.all(FrostedSpacing.sp1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            for (int i = 0; i < destinations.length; i++)
+              Padding(
+                padding: EdgeInsets.only(left: i == 0 ? 0 : FrostedSpacing.sp1),
+                child: _NavPillDestination(
+                  item: destinations[i],
+                  selected: i == selectedIndex,
+                  onTap: () => onDestinationSelected(i),
+                ),
               ),
-            ),
-          if (action != null) ...<Widget>[
-            const SizedBox(width: FrostedSpacing.sp2),
-            _NavPillAction(action: action!),
+            if (action != null) ...<Widget>[
+              const SizedBox(width: FrostedSpacing.sp2),
+              _NavPillAction(action: action!),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -90,35 +99,21 @@ class _NavPillAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final FrostedMotion motion = context.frostedTokens.motion.snappy;
-
-    final Color background = action.active ? cs.primaryContainer : cs.primary;
-    final Color foreground = action.active
-        ? cs.onPrimaryContainer
-        : cs.onPrimary;
-    final IconData icon = action.active && action.activeIcon != null
-        ? action.activeIcon!
-        : action.icon;
 
     return Semantics(
       button: true,
       label: action.label,
-      selected: action.active,
       child: GestureDetector(
         onTap: action.onPressed,
         behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: motion.duration,
-          curve: motion.curve,
-          constraints: const BoxConstraints(
-            minWidth: _kMinTapTarget,
-            minHeight: _kMinTapTarget,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+          child: SizedBox.square(
+            dimension: _kMinTapTarget,
+            child: Center(
+              child: Icon(action.icon, size: 22, color: cs.onPrimary),
+            ),
           ),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
-          ),
-          child: Icon(icon, size: 22, color: foreground),
         ),
       ),
     );

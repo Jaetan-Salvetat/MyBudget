@@ -6,7 +6,7 @@ import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_section.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_sheet.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -24,7 +24,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late int _selectedIndex;
   int _transactionsSubTab = 0;
-  bool _quickAddOpen = false;
 
   @override
   void initState() {
@@ -81,63 +80,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return FrostedScaffold(
       extendBodyBehindAppBar: true,
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (quickAddEnabled && _quickAddOpen)
-              QuickAddSection(
-                onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
-              ),
-            if (!keyboardVisible)
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
-                  child: FrostedNavPill(
-                    selectedIndex: _selectedIndex,
-                    onDestinationSelected: (index) {
-                      if (_selectedIndex != index) {
-                        setState(() => _selectedIndex = index);
-                      }
-                    },
-                    action: quickAddEnabled
-                        ? FrostedNavAction(
-                            icon: Symbols.auto_awesome_rounded,
-                            activeIcon: Symbols.close_rounded,
-                            label: 'Ajout rapide',
-                            active: _quickAddOpen,
-                            onPressed: () =>
-                                setState(() => _quickAddOpen = !_quickAddOpen),
-                          )
-                        : null,
-                    destinations: _items
-                        .map(
-                          (item) => FrostedNavItem(
-                            icon: item.icon,
-                            selectedIcon: item.selectedIcon,
-                            label: item.label,
-                          ),
+      bottomNavigationBar: keyboardVisible
+          ? null
+          : SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                child: FrostedNavPill(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (index) {
+                    if (_selectedIndex != index) {
+                      setState(() => _selectedIndex = index);
+                    }
+                  },
+                  action: quickAddEnabled
+                      ? FrostedNavAction(
+                          icon: Symbols.auto_awesome_rounded,
+                          label: 'Ajout rapide',
+                          onPressed: _openQuickAdd,
                         )
-                        .toList(),
-                  ),
+                      : null,
+                  destinations: _items
+                      .map(
+                        (item) => FrostedNavItem(
+                          icon: item.icon,
+                          selectedIcon: item.selectedIcon,
+                          label: item.label,
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
       body: FrostedBackground(
-        child: Stack(
-          children: [
-            IndexedStack(index: _selectedIndex, children: screens),
-            _QuickAddScrim(),
-          ],
-        ),
+        child: IndexedStack(index: _selectedIndex, children: screens),
       ),
     );
+  }
+
+  Future<void> _openQuickAdd() async {
+    await showFrostedBottomSheet<void>(
+      context: context,
+      builder: (_) => QuickAddSheet(
+        onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
+      ),
+    );
+    ref.read(quickAddProvider.notifier).reset();
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
@@ -166,34 +154,4 @@ class _NavItem {
   final IconData selectedIcon;
 
   const _NavItem(this.label, this.icon, this.selectedIcon);
-}
-
-class _QuickAddScrim extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(quickAddProvider);
-    final hasResult = state.hasValue && state.value != null;
-    final isVisible = hasResult || state.isLoading || state.hasError;
-    final dismissible = hasResult || state.hasError;
-
-    return IgnorePointer(
-      ignoring: !isVisible,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        opacity: isVisible ? 1 : 0,
-        child: GestureDetector(
-          onTap: dismissible
-              ? () => ref.read(quickAddProvider.notifier).reset()
-              : null,
-          child: const FrostedGlass(
-            level: FrostedGlassLevel.regular,
-            tone: FrostedGlassTone.dark,
-            elevation: FrostedGlassElevation.none,
-            borderRadius: BorderRadius.zero,
-          ),
-        ),
-      ),
-    );
-  }
 }
