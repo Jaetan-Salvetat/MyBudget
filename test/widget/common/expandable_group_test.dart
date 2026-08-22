@@ -24,8 +24,9 @@ void main() {
     expect(find.text('Enfant'), findsNothing);
   });
 
-  testWidgets('opening grows the children to their full height',
-      (tester) async {
+  testWidgets('opening grows the children to their full height', (
+    tester,
+  ) async {
     await pumpGroup(tester, expanded: false);
     await pumpGroup(tester, expanded: true);
     await tester.pump();
@@ -39,8 +40,9 @@ void main() {
     expect(find.text('Enfant'), findsOneWidget);
   });
 
-  testWidgets('closing keeps the children until the animation ends',
-      (tester) async {
+  testWidgets('closing keeps the children until the animation ends', (
+    tester,
+  ) async {
     await pumpGroup(tester, expanded: true);
     await tester.pumpAndSettle();
 

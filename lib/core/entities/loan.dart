@@ -10,11 +10,7 @@ class Loan {
   final LoanCalculationService _calculationService;
   final LoanPaymentBreakdownService _breakdownService;
 
-  Loan(
-    this._model,
-    this._calculationService,
-    this._breakdownService,
-  );
+  Loan(this._model, this._calculationService, this._breakdownService);
 
   int get id => _model.id;
   String get name => _model.name;
@@ -31,7 +27,8 @@ class Loan {
   int get deferredMonths => _model.deferredMonths;
   double get insuranceValue => _model.insuranceValue;
   LoanInsuranceType get insuranceType => _model.insuranceType;
-  InsuranceCalculationMode get insuranceCalculationMode => _model.insuranceCalculationMode;
+  InsuranceCalculationMode get insuranceCalculationMode =>
+      _model.insuranceCalculationMode;
   bool get immediateFirstPayment => _model.immediateFirstPayment;
 
   LoanModel get model => _model;
@@ -158,7 +155,8 @@ class Loan {
     final now = DateTime.now();
     if (now.isBefore(_model.startDate)) return false;
 
-    final monthsSinceStart = (now.year - _model.startDate.year) * 12 +
+    final monthsSinceStart =
+        (now.year - _model.startDate.year) * 12 +
         now.month -
         _model.startDate.month;
 

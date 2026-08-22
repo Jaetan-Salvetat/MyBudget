@@ -36,8 +36,8 @@ class AccountBalanceBreakdown extends StatelessWidget {
       final sign = value < 0
           ? '− '
           : forceSign
-              ? '+ '
-              : '';
+          ? '+ '
+          : '';
       return '$sign${formatter.format(value.abs())}';
     }
 
@@ -145,11 +145,7 @@ class _DecompRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(9),
             ),
             alignment: Alignment.center,
-            child: Icon(
-              icon,
-              size: 16,
-              color: scheme.onSurfaceVariant,
-            ),
+            child: Icon(icon, size: 16, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(width: 10),
           Expanded(

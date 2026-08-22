@@ -45,22 +45,25 @@ void main() {
       expect(result, closeTo(856.07, 0.1));
     });
 
-    test('should calculate in fine loan payment correctly (only interests)', () {
-      final result = service.calculateCurrentMonthlyPayment(
-        repaymentType: LoanRepaymentType.inFine,
-        amount: 10000,
-        interestRate: 6,
-        durationInMonths: 12,
-        startDate: DateTime(2024, 1, 1),
-        currentDate: DateTime(2024, 2, 1),
-        deferredMonths: 0,
-        insuranceType: LoanInsuranceType.none,
-        insuranceValue: 0,
-        insuranceCalcMode: InsuranceCalculationMode.initialCapital,
-      );
+    test(
+      'should calculate in fine loan payment correctly (only interests)',
+      () {
+        final result = service.calculateCurrentMonthlyPayment(
+          repaymentType: LoanRepaymentType.inFine,
+          amount: 10000,
+          interestRate: 6,
+          durationInMonths: 12,
+          startDate: DateTime(2024, 1, 1),
+          currentDate: DateTime(2024, 2, 1),
+          deferredMonths: 0,
+          insuranceType: LoanInsuranceType.none,
+          insuranceValue: 0,
+          insuranceCalcMode: InsuranceCalculationMode.initialCapital,
+        );
 
-      expect(result, closeTo(50.0, 0.1));
-    });
+        expect(result, closeTo(50.0, 0.1));
+      },
+    );
 
     test('should add fixed insurance to monthly payment', () {
       final result = service.calculateCurrentMonthlyPayment(
@@ -333,26 +336,29 @@ void main() {
       expect(withImmediate, 2000.0);
     });
 
-    test('remainingMonths uses endDate directly (already adjusted for immediate)', () {
-      final withImmediate = service.calculateRemainingMonths(
-        currentDate: DateTime(2026, 5, 8),
-        endDate: DateTime(2026, 7, 8),
-        startDate: DateTime(2026, 5, 8),
-        durationInMonths: 3,
-        immediateFirstPayment: true,
-      );
+    test(
+      'remainingMonths uses endDate directly (already adjusted for immediate)',
+      () {
+        final withImmediate = service.calculateRemainingMonths(
+          currentDate: DateTime(2026, 5, 8),
+          endDate: DateTime(2026, 7, 8),
+          startDate: DateTime(2026, 5, 8),
+          durationInMonths: 3,
+          immediateFirstPayment: true,
+        );
 
-      final withoutImmediate = service.calculateRemainingMonths(
-        currentDate: DateTime(2026, 5, 8),
-        endDate: DateTime(2026, 8, 8),
-        startDate: DateTime(2026, 5, 8),
-        durationInMonths: 3,
-        immediateFirstPayment: false,
-      );
+        final withoutImmediate = service.calculateRemainingMonths(
+          currentDate: DateTime(2026, 5, 8),
+          endDate: DateTime(2026, 8, 8),
+          startDate: DateTime(2026, 5, 8),
+          durationInMonths: 3,
+          immediateFirstPayment: false,
+        );
 
-      expect(withoutImmediate, 3);
-      expect(withImmediate, 2);
-    });
+        expect(withoutImmediate, 3);
+        expect(withImmediate, 2);
+      },
+    );
 
     test('totalPaidAmount counts start month with immediate payment', () {
       final result = service.calculateTotalPaidAmount(

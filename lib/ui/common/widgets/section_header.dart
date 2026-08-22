@@ -27,10 +27,9 @@ class SectionHeader extends StatelessWidget {
           if (trailing != null)
             Text(
               trailing!,
-              style: AppTextStyles.eyebrowMono(color: color).copyWith(
-                fontSize: 11,
-                height: 14 / 11,
-              ),
+              style: AppTextStyles.eyebrowMono(
+                color: color,
+              ).copyWith(fontSize: 11, height: 14 / 11),
             ),
         ],
       ),

@@ -51,8 +51,11 @@ class CategoryField extends ConsumerWidget {
                 ),
               ),
             ),
-            Icon(Symbols.chevron_right_rounded,
-                size: 20, color: scheme.onSurfaceVariant),
+            Icon(
+              Symbols.chevron_right_rounded,
+              size: 20,
+              color: scheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),

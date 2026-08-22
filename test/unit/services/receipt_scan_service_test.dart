@@ -14,8 +14,10 @@ void main() {
   setUpAll(() async {
     final taxonomy = CategoryTaxonomyService();
     await taxonomy.load();
-    final resolver =
-        CategoryDisplayResolver(taxonomy: taxonomy, overrides: const {});
+    final resolver = CategoryDisplayResolver(
+      taxonomy: taxonomy,
+      overrides: const {},
+    );
     categories = resolver
         .groupsOfType(TransactionType.expense)
         .expand((group) => resolver.childrenOf(group.slug))
@@ -25,7 +27,10 @@ void main() {
   group('ReceiptScanService.matchCategory', () {
     test('matches the qualified name sent in the prompt', () {
       expect(
-        ReceiptScanService.matchCategory('Alimentation > Supermarché', categories),
+        ReceiptScanService.matchCategory(
+          'Alimentation > Supermarché',
+          categories,
+        ),
         'alimentation.supermarche',
       );
     });
@@ -50,7 +55,10 @@ void main() {
 
     test('returns null for an unknown label', () {
       expect(ReceiptScanService.matchCategory('Inconnu', categories), isNull);
-      expect(ReceiptScanService.matchCategory('alimentation', categories), isNull);
+      expect(
+        ReceiptScanService.matchCategory('alimentation', categories),
+        isNull,
+      );
     });
 
     test('returns null for a null label', () {
@@ -104,11 +112,15 @@ void main() {
         date: DateTime(2026, 4, 21),
         items: const [
           ScannedItemModel(
-              name: 'Pâtes',
-              amount: 2.30,
-              categorySlug: 'alimentation.supermarche'),
+            name: 'Pâtes',
+            amount: 2.30,
+            categorySlug: 'alimentation.supermarche',
+          ),
           ScannedItemModel(
-              name: 'Essence', amount: 45.0, categorySlug: 'transport.essence'),
+            name: 'Essence',
+            amount: 45.0,
+            categorySlug: 'transport.essence',
+          ),
         ],
       );
 
@@ -135,10 +147,12 @@ void main() {
     });
 
     test('copyWith updates items', () {
-      final result = ReceiptScanResultModel(items: const [
-        ScannedItemModel(name: 'A', amount: 1.0),
-        ScannedItemModel(name: 'B', amount: 2.0),
-      ]);
+      final result = ReceiptScanResultModel(
+        items: const [
+          ScannedItemModel(name: 'A', amount: 1.0),
+          ScannedItemModel(name: 'B', amount: 2.0),
+        ],
+      );
 
       final updated = result.copyWith(items: [...result.items]..removeAt(0));
 

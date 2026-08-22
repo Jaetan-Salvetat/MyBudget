@@ -19,8 +19,15 @@ class ImportReport {
     this.transfers = const ImportEntityReport(entityName: 'Virements'),
   });
 
-  List<ImportEntityReport> get all =>
-      [beneficiaries, accounts, categories, expenses, revenues, loans, transfers];
+  List<ImportEntityReport> get all => [
+    beneficiaries,
+    accounts,
+    categories,
+    expenses,
+    revenues,
+    loans,
+    transfers,
+  ];
 
   bool get hasWarnings => all.any((r) => r.hasIssues);
 

@@ -10,12 +10,17 @@ void main() {
     test('strips diacritics', () {
       expect(TextNormalizer.normalize('Café Crème'), 'cafe creme');
       expect(TextNormalizer.normalize('PÉAGE'), 'peage');
-      expect(TextNormalizer.normalize('Garçon naïf où ça'), 'garcon naif ou ca');
+      expect(
+        TextNormalizer.normalize('Garçon naïf où ça'),
+        'garcon naif ou ca',
+      );
     });
 
     test('collapses whitespace runs', () {
-      expect(TextNormalizer.normalize('Super\t  Marché\nBio'),
-          'super marche bio');
+      expect(
+        TextNormalizer.normalize('Super\t  Marché\nBio'),
+        'super marche bio',
+      );
     });
 
     test('returns empty for blank input', () {

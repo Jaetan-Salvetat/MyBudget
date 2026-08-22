@@ -72,9 +72,10 @@ class AccountNotifier extends _$AccountNotifier {
         .fold<double>(0.0, (sum, l) => sum + l.currentMonthlyPayment);
 
     final transferNotifier = ref.read(transferProvider.notifier);
-    final transferBalance = transferNotifier.getMonthlyTransferBalance(accountId);
+    final transferBalance = transferNotifier.getMonthlyTransferBalance(
+      accountId,
+    );
 
     return totalRevenues - totalExpenses - totalLoanPayments + transferBalance;
   }
-
 }

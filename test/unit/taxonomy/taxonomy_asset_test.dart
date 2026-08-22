@@ -41,15 +41,21 @@ void main() {
 
     test('exposes both transaction sections', () {
       for (final section in sections) {
-        expect(taxonomy[section], isA<Map<String, dynamic>>(),
-            reason: 'Missing section "$section"');
+        expect(
+          taxonomy[section],
+          isA<Map<String, dynamic>>(),
+          reason: 'Missing section "$section"',
+        );
       }
     });
 
     test('every group key is a slug', () {
       for (final group in groups()) {
-        expect(slugPattern.hasMatch(group.key), isTrue,
-            reason: 'Invalid group slug "${group.key}"');
+        expect(
+          slugPattern.hasMatch(group.key),
+          isTrue,
+          reason: 'Invalid group slug "${group.key}"',
+        );
       }
     });
 
@@ -58,12 +64,21 @@ void main() {
         final value = group.value as Map<String, dynamic>;
         expect(value['label'], isA<String>(), reason: group.key);
         expect(value['icon'], isA<String>(), reason: group.key);
-        expect(CategoryDefaults.hexToColor(value['color'] as String), isNotNull,
-            reason: group.key);
-        expect(value['subcategories'], isA<Map<String, dynamic>>(),
-            reason: group.key);
-        expect((value['subcategories'] as Map<String, dynamic>), isNotEmpty,
-            reason: group.key);
+        expect(
+          CategoryDefaults.hexToColor(value['color'] as String),
+          isNotNull,
+          reason: group.key,
+        );
+        expect(
+          value['subcategories'],
+          isA<Map<String, dynamic>>(),
+          reason: group.key,
+        );
+        expect(
+          (value['subcategories'] as Map<String, dynamic>),
+          isNotEmpty,
+          reason: group.key,
+        );
       }
     });
 
@@ -74,8 +89,11 @@ void main() {
                 as Map<String, dynamic>;
         for (final subcategory in subcategories.entries) {
           final slug = '${group.key}.${subcategory.key}';
-          expect(slugPattern.hasMatch(subcategory.key), isTrue,
-              reason: 'Invalid subcategory slug "$slug"');
+          expect(
+            slugPattern.hasMatch(subcategory.key),
+            isTrue,
+            reason: 'Invalid subcategory slug "$slug"',
+          );
           final value = subcategory.value as Map<String, dynamic>;
           expect(value['label'], isA<String>(), reason: slug);
           expect(value['icon'], isA<String>(), reason: slug);
@@ -88,12 +106,13 @@ void main() {
       for (final group in groups()) {
         final value = group.value as Map<String, dynamic>;
         expect(declared, contains(value['icon']), reason: group.key);
-        final subcategories =
-            value['subcategories'] as Map<String, dynamic>;
+        final subcategories = value['subcategories'] as Map<String, dynamic>;
         for (final subcategory in subcategories.entries) {
-          expect(declared, contains(
-              (subcategory.value as Map<String, dynamic>)['icon']),
-              reason: '${group.key}.${subcategory.key}');
+          expect(
+            declared,
+            contains((subcategory.value as Map<String, dynamic>)['icon']),
+            reason: '${group.key}.${subcategory.key}',
+          );
         }
       }
     });
@@ -125,23 +144,34 @@ void main() {
     test('every case targets a known taxonomy slug', () {
       final slugs = orderedSlugs().toSet();
       for (final testCase in cases.cast<Map<String, dynamic>>()) {
-        expect(slugs, contains(testCase['category']),
-            reason: 'Unknown slug for input "${testCase['input']}"');
+        expect(
+          slugs,
+          contains(testCase['category']),
+          reason: 'Unknown slug for input "${testCase['input']}"',
+        );
       }
     });
 
     test('every case declares a known type and recurrence', () {
       for (final testCase in cases.cast<Map<String, dynamic>>()) {
-        expect(QuickAddLabels.types, contains(testCase['type']),
-            reason: testCase['input'] as String);
-        expect(QuickAddLabels.recurrences, contains(testCase['recurrence']),
-            reason: testCase['input'] as String);
+        expect(
+          QuickAddLabels.types,
+          contains(testCase['type']),
+          reason: testCase['input'] as String,
+        );
+        expect(
+          QuickAddLabels.recurrences,
+          contains(testCase['recurrence']),
+          reason: testCase['input'] as String,
+        );
       }
     });
 
     test('inputs are unique', () {
-      final inputs =
-          cases.cast<Map<String, dynamic>>().map((c) => c['input']).toList();
+      final inputs = cases
+          .cast<Map<String, dynamic>>()
+          .map((c) => c['input'])
+          .toList();
       expect(inputs.toSet().length, inputs.length);
     });
   });

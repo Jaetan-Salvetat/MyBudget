@@ -6,26 +6,44 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 void main() {
   group('CategoryDefaults', () {
     test('resolveIcon returns correct IconData for known keys', () {
-      expect(CategoryDefaults.resolveIcon('restaurant'), Symbols.restaurant_rounded);
+      expect(
+        CategoryDefaults.resolveIcon('restaurant'),
+        Symbols.restaurant_rounded,
+      );
       expect(CategoryDefaults.resolveIcon('home'), Symbols.home_rounded);
-      expect(CategoryDefaults.resolveIcon('local_cafe'), Symbols.local_cafe_rounded);
+      expect(
+        CategoryDefaults.resolveIcon('local_cafe'),
+        Symbols.local_cafe_rounded,
+      );
     });
 
     test('resolveIcon returns category icon for unknown keys', () {
-      expect(CategoryDefaults.resolveIcon('nonexistent'), Symbols.category_rounded);
+      expect(
+        CategoryDefaults.resolveIcon('nonexistent'),
+        Symbols.category_rounded,
+      );
     });
 
     test('resolveIcon maps a known codePoint string to its declared icon', () {
       final codePoint = Symbols.restaurant_rounded.codePoint.toString();
 
-      expect(CategoryDefaults.resolveIcon(codePoint), Symbols.restaurant_rounded);
+      expect(
+        CategoryDefaults.resolveIcon(codePoint),
+        Symbols.restaurant_rounded,
+      );
     });
 
-    test('resolveIcon returns category icon for an unknown codePoint string', () {
-      final codePoint = Icons.star.codePoint.toString();
+    test(
+      'resolveIcon returns category icon for an unknown codePoint string',
+      () {
+        final codePoint = Icons.star.codePoint.toString();
 
-      expect(CategoryDefaults.resolveIcon(codePoint), Symbols.category_rounded);
-    });
+        expect(
+          CategoryDefaults.resolveIcon(codePoint),
+          Symbols.category_rounded,
+        );
+      },
+    );
 
     test('colorToHex converts ARGB int to hex string', () {
       expect(CategoryDefaults.colorToHex(0xFFEF5350), '#EF5350');
@@ -84,8 +102,9 @@ void main() {
 
     test('canonicalIconKey resolves to the same glyph it was given', () {
       for (final entry in CategoryDefaults.icons.entries) {
-        final canonical =
-            CategoryDefaults.canonicalIconKey(entry.value.codePoint.toString());
+        final canonical = CategoryDefaults.canonicalIconKey(
+          entry.value.codePoint.toString(),
+        );
 
         expect(canonical, isNotNull);
         expect(CategoryDefaults.resolveIcon(canonical!), entry.value);

@@ -38,7 +38,8 @@ class TransferNotifier extends _$TransferNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly = updated.amount == old.amount &&
+      final bool isNameOnly =
+          updated.amount == old.amount &&
           updated.frequency == old.frequency &&
           updated.fromAccountId == old.fromAccountId &&
           updated.toAccountId == old.toAccountId &&
@@ -55,7 +56,8 @@ class TransferNotifier extends _$TransferNotifier {
         return;
       }
 
-      final bool isStructural = updated.amount != old.amount ||
+      final bool isStructural =
+          updated.amount != old.amount ||
           updated.frequency != old.frequency ||
           updated.fromAccountId != old.fromAccountId ||
           updated.toAccountId != old.toAccountId;
@@ -110,26 +112,26 @@ class TransferNotifier extends _$TransferNotifier {
     return repo.getClosed();
   }
 
-  List<Transfer> getTransfersForAccount(int accountId) =>
-      _currentTransfers()
-          .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
-          .toList();
+  List<Transfer> getTransfersForAccount(int accountId) => _currentTransfers()
+      .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
+      .toList();
 
   List<Transfer> getActiveTransfersForAccount(int accountId) =>
       _activeTransfers()
-          .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
+          .where(
+            (t) => t.fromAccountId == accountId || t.toAccountId == accountId,
+          )
           .toList();
 
-  double getOutgoingTotalForAccount(int accountId) =>
-      _activeTransfers()
-          .where((t) => t.isOutgoingFrom(accountId))
-          .fold(0.0, (sum, t) => sum + t.monthlyAmount);
+  double getOutgoingTotalForAccount(int accountId) => _activeTransfers()
+      .where((t) => t.isOutgoingFrom(accountId))
+      .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
-  double getIncomingTotalForAccount(int accountId) =>
-      _activeTransfers()
-          .where((t) => t.isIncomingTo(accountId))
-          .fold(0.0, (sum, t) => sum + t.monthlyAmount);
+  double getIncomingTotalForAccount(int accountId) => _activeTransfers()
+      .where((t) => t.isIncomingTo(accountId))
+      .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
   double getMonthlyTransferBalance(int accountId) =>
-      getIncomingTotalForAccount(accountId) - getOutgoingTotalForAccount(accountId);
+      getIncomingTotalForAccount(accountId) -
+      getOutgoingTotalForAccount(accountId);
 }

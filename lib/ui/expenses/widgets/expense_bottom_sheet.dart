@@ -54,13 +54,13 @@ class ExpenseBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   String? _selectedCategorySlug;
   DateTime _selectedDate = DateTime.now();
   String _selectedFrequency = 'Mensuel';
   int? _selectedAccountId;
+  String? _nameError;
   String? _categoryError;
   String? _accountError;
   String? _amountError;
@@ -94,9 +94,26 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
     super.dispose();
   }
 
-  bool _validateDropdowns() {
+  double get _parsedAmount =>
+      double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+
+  bool _validateFields() {
     bool isValid = true;
     setState(() {
+      if (_nameController.text.trim().isEmpty) {
+        _nameError = 'Veuillez saisir un nom';
+        isValid = false;
+      } else {
+        _nameError = null;
+      }
+
+      if (_parsedAmount <= 0) {
+        _amountError = 'Le montant doit être supérieur à 0';
+        isValid = false;
+      } else {
+        _amountError = null;
+      }
+
       if (_selectedCategorySlug == null) {
         _categoryError = 'Veuillez sélectionner une catégorie';
         isValid = false;
@@ -115,23 +132,11 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate() || !_validateDropdowns()) {
+    if (!_validateFields()) {
       return;
     }
 
-    final amount =
-        double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
-
-    if (amount <= 0) {
-      setState(() {
-        _amountError = 'Le montant doit être supérieur à 0';
-      });
-      return;
-    } else {
-      setState(() {
-        _amountError = null;
-      });
-    }
+    final amount = _parsedAmount;
 
     final expense = widget.expense != null
         ? widget.expense!.copyWith(
@@ -218,184 +223,186 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.expense == null && widget.closedExpenses.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: FrostedButton.text(
-                  label: 'Reprendre une ancienne dépense',
-                  icon: Symbols.history_rounded,
-                  onPressed: () => _showClosedExpensePicker(context),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.expense == null && widget.closedExpenses.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FrostedButton.text(
+                label: 'Reprendre une ancienne dépense',
+                icon: Symbols.history_rounded,
+                onPressed: () => _showClosedExpensePicker(context),
+              ),
+            ),
+          Text(
+            'Informations',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FrostedTextField(
+            controller: _nameController,
+            label: 'Nom',
+            hintText: 'Ex: Loyer',
+            leadingIcon: Symbols.edit_rounded,
+          ),
+          if (_nameError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _nameError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
                 ),
               ),
-            Text(
-              'Informations',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
             ),
-            const SizedBox(height: 12),
-            FrostedTextField(
-              controller: _nameController,
-              label: 'Nom',
-              hintText: 'Ex: Loyer',
-              leadingIcon: Symbols.edit_rounded,
-            ),
-            const SizedBox(height: 16),
-            FrostedTextField(
-              controller: _amountController,
-              label: 'Montant',
-              hintText: '0.00',
-              leadingIcon: Symbols.euro_rounded,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            if (_amountError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                child: Text(
-                  _amountError!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontSize: 12,
-                  ),
+          const SizedBox(height: 16),
+          FrostedTextField(
+            controller: _amountController,
+            label: 'Montant',
+            hintText: '0.00',
+            leadingIcon: Symbols.euro_rounded,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          if (_amountError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _amountError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
                 ),
               ),
-            const SizedBox(height: 16),
+            ),
+          const SizedBox(height: 16),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Catégorie',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Catégorie',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 8),
-                CategoryField(
-                  slug: _selectedCategorySlug,
-                  onTap: _pickCategory,
-                ),
-                if (_categoryError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      _categoryError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
+              ),
+              const SizedBox(height: 8),
+              CategoryField(slug: _selectedCategorySlug, onTap: _pickCategory),
+              if (_categoryError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    _categoryError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
                     ),
                   ),
-              ],
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          ExpenseFrequencyDateSection(
+            frequency: _selectedFrequency,
+            date: _selectedDate,
+            onChanged: (freq, date) {
+              setState(() {
+                _selectedFrequency = freq;
+                _selectedDate = date;
+              });
+            },
+          ),
+
+          const SizedBox(height: 24),
+
+          Text(
+            'Compte',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+          const SizedBox(height: 12),
 
-            const SizedBox(height: 24),
-
-            ExpenseFrequencyDateSection(
-              frequency: _selectedFrequency,
-              date: _selectedDate,
-              onChanged: (freq, date) {
-                setState(() {
-                  _selectedFrequency = freq;
-                  _selectedDate = date;
-                });
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            Text(
-              'Compte',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Compte associé',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Compte associé',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FrostedDropdown<int>(
-                  value: _selectedAccountId,
-                  items: widget.accounts.map((account) {
-                    return FrostedDropdownItem<int>(
-                      value: account.id,
-                      label: account.name,
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedAccountId = value;
-                      _accountError = null;
-                    });
-                  },
-                ),
-                if (_accountError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      _accountError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
+              const SizedBox(height: 8),
+              FrostedDropdown<int>(
+                value: _selectedAccountId,
+                items: widget.accounts.map((account) {
+                  return FrostedDropdownItem<int>(
+                    value: account.id,
+                    label: account.name,
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedAccountId = value;
+                    _accountError = null;
+                  });
+                },
+              ),
+              if (_accountError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    _accountError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
                     ),
                   ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            BeneficiarySelector(
-              initialBeneficiaryId: widget.expense?.beneficiaryId,
-              onChanged: (id) => setState(() {
-                _selectedBeneficiaryId = id;
-                _beneficiaryEnabled = id != null;
-              }),
-            ),
-
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FrostedButton.text(
-                  label: 'Annuler',
-                  onPressed: () {
-                    widget.onCancel();
-                    Navigator.pop(context);
-                  },
                 ),
-                const SizedBox(width: 16),
-                FrostedButton.filled(
-                  label: widget.expense == null ? 'Ajouter' : 'Enregistrer',
-                  onPressed:
-                      _beneficiaryEnabled && _selectedBeneficiaryId == null
-                      ? null
-                      : _handleSubmit,
-                ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          BeneficiarySelector(
+            initialBeneficiaryId: widget.expense?.beneficiaryId,
+            onChanged: (id) => setState(() {
+              _selectedBeneficiaryId = id;
+              _beneficiaryEnabled = id != null;
+            }),
+          ),
+
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FrostedButton.text(
+                label: 'Annuler',
+                onPressed: () {
+                  widget.onCancel();
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(width: 16),
+              FrostedButton.filled(
+                label: widget.expense == null ? 'Ajouter' : 'Enregistrer',
+                onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                    ? null
+                    : _handleSubmit,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

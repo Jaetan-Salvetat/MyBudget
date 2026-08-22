@@ -30,8 +30,10 @@ class TransferRepository {
 
   List<TransferModel> getChain(int rootId) {
     final query = _box
-        .query(TransferModel_.parentId.equals(rootId) |
-            TransferModel_.id.equals(rootId))
+        .query(
+          TransferModel_.parentId.equals(rootId) |
+              TransferModel_.id.equals(rootId),
+        )
         .build();
     final results = query.find();
     query.close();

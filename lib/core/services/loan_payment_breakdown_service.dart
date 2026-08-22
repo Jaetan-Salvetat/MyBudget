@@ -188,7 +188,8 @@ class LoanPaymentBreakdownService {
       return insuranceValue;
     }
 
-    final baseCapital = calculationMode == InsuranceCalculationMode.initialCapital
+    final baseCapital =
+        calculationMode == InsuranceCalculationMode.initialCapital
         ? amount
         : remainingCapital;
 
@@ -214,7 +215,9 @@ class LoanPaymentBreakdownService {
 
     final rawMonths = _calculateMonthsSinceStart(startDate, currentDate);
     final monthsSinceStart = immediateFirstPayment ? rawMonths + 1 : rawMonths;
-    final effectiveMonthsPaid = (monthsSinceStart - deferredMonths).clamp(0, double.infinity).toInt();
+    final effectiveMonthsPaid = (monthsSinceStart - deferredMonths)
+        .clamp(0, double.infinity)
+        .toInt();
 
     if (effectiveMonthsPaid <= 0) return 0.0;
 

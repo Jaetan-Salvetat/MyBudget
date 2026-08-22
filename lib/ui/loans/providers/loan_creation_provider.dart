@@ -83,14 +83,17 @@ class LoanCreationState {
       insuranceType: insuranceType ?? this.insuranceType,
       insuranceValue: insuranceValue ?? this.insuranceValue,
       insuranceCalcMode: insuranceCalcMode ?? this.insuranceCalcMode,
-      immediateFirstPayment: immediateFirstPayment ?? this.immediateFirstPayment,
+      immediateFirstPayment:
+          immediateFirstPayment ?? this.immediateFirstPayment,
     );
   }
 
   int get totalSteps => 5;
 
   int get durationInMonths {
-    return durationUnit == DurationUnit.years ? durationValue * 12 : durationValue;
+    return durationUnit == DurationUnit.years
+        ? durationValue * 12
+        : durationValue;
   }
 
   DateTime get calculatedEndDate {
@@ -135,17 +138,22 @@ class LoanCreationState {
     return (amount * (insuranceValue / 100)) / 12;
   }
 
-  double get totalMonthlyPayment => monthlyPrincipalPayment + monthlyInsurancePayment;
+  double get totalMonthlyPayment =>
+      monthlyPrincipalPayment + monthlyInsurancePayment;
 
   bool get isStep1Valid {
-    return name.isNotEmpty && lenderName.isNotEmpty && amount > 0 && selectedAccountId != -1;
+    return name.isNotEmpty &&
+        lenderName.isNotEmpty &&
+        amount > 0 &&
+        selectedAccountId != -1;
   }
 
   bool get isStep2Valid => durationInMonths > 0 && interestRate >= 0;
   bool get isStep3Valid => true;
   bool get isStep4Valid => true;
 
-  bool get isValid => isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid;
+  bool get isValid =>
+      isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid;
 
   bool get canGoNext {
     if (currentStep == 0) return isStep1Valid;
@@ -193,21 +201,24 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
 
   void setStartDate(DateTime date) => state = state.copyWith(startDate: date);
 
-  void setDayOfMonth(int day) => state = state.copyWith(dayOfMonth: day.clamp(1, 31));
+  void setDayOfMonth(int day) =>
+      state = state.copyWith(dayOfMonth: day.clamp(1, 31));
 
   void setDurationValue(String value) {
     final parsed = int.tryParse(value) ?? 0;
     state = state.copyWith(durationValue: parsed);
   }
 
-  void setDurationUnit(DurationUnit unit) => state = state.copyWith(durationUnit: unit);
+  void setDurationUnit(DurationUnit unit) =>
+      state = state.copyWith(durationUnit: unit);
 
   void setInterestRate(String value) {
     final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
     state = state.copyWith(interestRate: parsed);
   }
 
-  void setRepaymentType(LoanRepaymentType type) => state = state.copyWith(repaymentType: type);
+  void setRepaymentType(LoanRepaymentType type) =>
+      state = state.copyWith(repaymentType: type);
 
   void toggleDeferredPeriod() {
     final newValue = !state.hasDeferredPeriod;
@@ -222,7 +233,8 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
     state = state.copyWith(deferredMonths: parsed);
   }
 
-  void setInsuranceType(LoanInsuranceType type) => state = state.copyWith(insuranceType: type);
+  void setInsuranceType(LoanInsuranceType type) =>
+      state = state.copyWith(insuranceType: type);
 
   void setInsuranceValue(String value) {
     final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;

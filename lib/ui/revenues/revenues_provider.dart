@@ -21,7 +21,9 @@ class RevenueNotifier extends _$RevenueNotifier {
         case Frequency.annual:
           return r.startDate.month * 100 + r.startDate.day;
         case Frequency.oneTime:
-          return r.startDate.year * 10000 + r.startDate.month * 100 + r.startDate.day;
+          return r.startDate.year * 10000 +
+              r.startDate.month * 100 +
+              r.startDate.day;
       }
     }
 
@@ -46,7 +48,8 @@ class RevenueNotifier extends _$RevenueNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly = updated.amount == old.amount &&
+      final bool isNameOnly =
+          updated.amount == old.amount &&
           updated.frequency == old.frequency &&
           updated.accountId == old.accountId &&
           updated.beneficiaryId == old.beneficiaryId &&
@@ -63,7 +66,8 @@ class RevenueNotifier extends _$RevenueNotifier {
         return;
       }
 
-      final bool isStructural = updated.amount != old.amount ||
+      final bool isStructural =
+          updated.amount != old.amount ||
           updated.frequency != old.frequency ||
           updated.accountId != old.accountId ||
           updated.beneficiaryId != old.beneficiaryId;
@@ -144,10 +148,9 @@ class RevenueNotifier extends _$RevenueNotifier {
   List<RevenueModel> getRecentRevenues(int count) =>
       _currentRevenues().take(count).toList();
 
-  List<RevenueModel> getRevenuesForAccount(int accountId) =>
-      _currentRevenues()
-          .where((revenue) => revenue.accountId == accountId)
-          .toList();
+  List<RevenueModel> getRevenuesForAccount(int accountId) => _currentRevenues()
+      .where((revenue) => revenue.accountId == accountId)
+      .toList();
 
   double getTotalRevenuesForAccount(int accountId) =>
       getRevenuesForAccount(accountId).fold(0.0, (sum, r) => sum + r.amount);

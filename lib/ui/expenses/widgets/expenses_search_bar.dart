@@ -70,8 +70,10 @@ class ExpensesSearchBar extends StatelessWidget {
                 top: 0,
                 right: 0,
                 child: Container(
-                  constraints:
-                      const BoxConstraints(minWidth: 16, minHeight: 16),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     color: finance.expense,

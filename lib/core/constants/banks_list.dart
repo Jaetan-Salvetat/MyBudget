@@ -1,6 +1,5 @@
 class BanksList {
   static const List<String> frenchBanks = [
-     
     'BNP Paribas',
     'Société Générale',
     'Crédit Agricole',
@@ -16,7 +15,6 @@ class BanksList {
     'Banque Palatine',
     'Arkéa',
 
-     
     'Boursorama Banque (BoursoBank)',
     'Hello Bank!',
     'Fortuneo',
@@ -39,7 +37,6 @@ class BanksList {
     'OnlyOne',
     'Canara',
 
-     
     'AXA Banque',
     'Allianz Banque',
     'Groupama Banque',
@@ -49,7 +46,6 @@ class BanksList {
     'Oney',
     'Floa Bank',
 
-     
     'Banque Courtois',
     'Banque Kolb',
     'Banque Laydernier',

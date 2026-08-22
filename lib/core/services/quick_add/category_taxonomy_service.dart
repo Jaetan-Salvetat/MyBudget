@@ -131,7 +131,8 @@ class CategoryTaxonomyService {
         key: entry.key,
         label: _requireString(body, _labelKey, entry.key),
         icon: _requireString(body, _iconKey, entry.key),
-        color: CategoryDefaults.hexToColor(
+        color:
+            CategoryDefaults.hexToColor(
               _requireString(body, _colorKey, entry.key),
             ) ??
             CategoryDefaults.defaultColor,

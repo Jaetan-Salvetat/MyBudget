@@ -14,7 +14,9 @@ void main() {
   Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
 
   testWidgets('renders empty state when no categories', (tester) async {
-    await tester.pumpWidget(host(const CategoryBreakdownSection(categories: [])));
+    await tester.pumpWidget(
+      host(const CategoryBreakdownSection(categories: [])),
+    );
     expect(find.text('Aucune dépense ce mois-ci'), findsOneWidget);
   });
 

@@ -16,5 +16,5 @@ class ExpensesGroupByNotifier extends Notifier<ExpenseGroupBy> {
 
 final expensesGroupByProvider =
     NotifierProvider<ExpensesGroupByNotifier, ExpenseGroupBy>(
-  ExpensesGroupByNotifier.new,
-);
+      ExpensesGroupByNotifier.new,
+    );

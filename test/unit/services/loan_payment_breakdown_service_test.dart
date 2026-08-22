@@ -60,8 +60,14 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.initialCapital,
       );
 
-      expect(breakdownMonth6.capitalPayment, greaterThan(breakdownMonth1.capitalPayment));
-      expect(breakdownMonth6.interestPayment, lessThan(breakdownMonth1.interestPayment));
+      expect(
+        breakdownMonth6.capitalPayment,
+        greaterThan(breakdownMonth1.capitalPayment),
+      );
+      expect(
+        breakdownMonth6.interestPayment,
+        lessThan(breakdownMonth1.interestPayment),
+      );
     });
 
     test('should return zero breakdown during deferred period', () {
@@ -146,7 +152,10 @@ void main() {
         insuranceCalcMode: InsuranceCalculationMode.remainingCapital,
       );
 
-      expect(breakdownMonth6.insurancePayment, lessThan(breakdownMonth1.insurancePayment));
+      expect(
+        breakdownMonth6.insurancePayment,
+        lessThan(breakdownMonth1.insurancePayment),
+      );
     });
   });
 

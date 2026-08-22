@@ -37,8 +37,14 @@ void main() {
     });
 
     test('keeps the finance colors extension', () {
-      expect(themeFor(Brightness.light).extension<FinanceColors>(), FinanceColors.light);
-      expect(themeFor(Brightness.dark).extension<FinanceColors>(), FinanceColors.dark);
+      expect(
+        themeFor(Brightness.light).extension<FinanceColors>(),
+        FinanceColors.light,
+      );
+      expect(
+        themeFor(Brightness.dark).extension<FinanceColors>(),
+        FinanceColors.dark,
+      );
     });
 
     test('keeps the app typography over the design system default', () {
@@ -48,20 +54,31 @@ void main() {
     });
 
     test('keeps the app secondary color', () {
-      expect(themeFor(Brightness.dark).colorScheme.secondary, AppTheme.secondaryColor);
-      expect(themeFor(Brightness.light).colorScheme.secondary, AppTheme.secondaryColor);
+      expect(
+        themeFor(Brightness.dark).colorScheme.secondary,
+        AppTheme.secondaryColor,
+      );
+      expect(
+        themeFor(Brightness.light).colorScheme.secondary,
+        AppTheme.secondaryColor,
+      );
     });
 
     test('carries each brightness', () {
       expect(themeFor(Brightness.light).brightness, Brightness.light);
       expect(themeFor(Brightness.dark).brightness, Brightness.dark);
-      expect(themeFor(Brightness.light).colorScheme.brightness, Brightness.light);
+      expect(
+        themeFor(Brightness.light).colorScheme.brightness,
+        Brightness.light,
+      );
       expect(themeFor(Brightness.dark).colorScheme.brightness, Brightness.dark);
     });
 
     test('keeps the predictive back transition on Android', () {
       expect(
-        themeFor(Brightness.dark).pageTransitionsTheme.builders[TargetPlatform.android],
+        themeFor(
+          Brightness.dark,
+        ).pageTransitionsTheme.builders[TargetPlatform.android],
         isA<PredictiveBackPageTransitionsBuilder>(),
       );
     });

@@ -13,10 +13,8 @@ class CategoryMemoryService {
   final CategoryMemoryRepository _repository;
   final DateTime Function() _now;
 
-  CategoryMemoryService(
-    this._repository, {
-    DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  CategoryMemoryService(this._repository, {DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   /// Lowercases, strips accents and collapses whitespace.
   ///

@@ -15,10 +15,10 @@ class ReceiptScanService {
   final OpenAIClient _client;
 
   ReceiptScanService()
-      : _client = OpenAIClient.withApiKey(
-          dotenv.env['OPENROUTER_API_KEY'] ?? '',
-          baseUrl: _baseUrl,
-        );
+    : _client = OpenAIClient.withApiKey(
+        dotenv.env['OPENROUTER_API_KEY'] ?? '',
+        baseUrl: _baseUrl,
+      );
 
   Future<ReceiptScanResultModel> extractItems(
     Uint8List imageBytes,
@@ -35,10 +35,7 @@ class ReceiptScanService {
         messages: [
           ChatMessage.user([
             ContentPart.text(prompt),
-            ContentPart.imageBase64(
-              data: base64Image,
-              mediaType: 'image/jpeg',
-            ),
+            ContentPart.imageBase64(data: base64Image, mediaType: 'image/jpeg'),
           ]),
         ],
         responseFormat: ResponseFormat.jsonSchema(
@@ -47,8 +44,12 @@ class ReceiptScanService {
           schema: {
             'type': 'object',
             'properties': {
-              'store_name': {'type': ['string', 'null']},
-              'date': {'type': ['string', 'null']},
+              'store_name': {
+                'type': ['string', 'null'],
+              },
+              'date': {
+                'type': ['string', 'null'],
+              },
               'items': {
                 'type': 'array',
                 'items': {
@@ -57,7 +58,9 @@ class ReceiptScanService {
                     'name': {'type': 'string'},
                     'amount': {'type': 'number'},
                     'discount': {'type': 'number'},
-                    'category': {'type': ['string', 'null']},
+                    'category': {
+                      'type': ['string', 'null'],
+                    },
                   },
                   'required': ['name', 'amount', 'discount'],
                   'additionalProperties': false,

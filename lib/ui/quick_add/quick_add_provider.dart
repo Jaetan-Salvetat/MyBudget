@@ -56,7 +56,9 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     }
 
     if (result.type == TransactionType.income) {
-      await ref.read(revenueProvider.notifier).addRevenue(
+      await ref
+          .read(revenueProvider.notifier)
+          .addRevenue(
             RevenueModel.create(
               name: result.name,
               amount: result.amount,
@@ -67,7 +69,9 @@ class QuickAddNotifier extends _$QuickAddNotifier {
             ),
           );
     } else {
-      await ref.read(expenseProvider.notifier).addExpense(
+      await ref
+          .read(expenseProvider.notifier)
+          .addExpense(
             ExpenseModel.create(
               name: result.name,
               amount: result.amount,
@@ -89,8 +93,9 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   QuickAddResultModel _toResult(QuickAddClassification classification) {
     // La memoire s'applique apres le modele : elle ne porte que la categorie,
     // le type et la recurrence restent ceux qui viennent d'etre predits.
-    final remembered =
-        ref.read(categoryMemoryProvider).recall(classification.cleanedText);
+    final remembered = ref
+        .read(categoryMemoryProvider)
+        .recall(classification.cleanedText);
 
     return QuickAddResultModel(
       type: classification.type,
@@ -98,8 +103,9 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       amount: classification.amount,
       frequency: classification.frequency.label,
       categorySlug: remembered ?? classification.categorySlug,
-      categoryConfidence:
-          remembered == null ? classification.categoryConfidence : 1.0,
+      categoryConfidence: remembered == null
+          ? classification.categoryConfidence
+          : 1.0,
       categorySuggestions: classification.categorySuggestions,
       memoryKey: classification.cleanedText,
     );

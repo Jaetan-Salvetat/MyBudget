@@ -32,7 +32,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-
 class MockTransferRepository extends Mock implements TransferRepository {}
 
 class FakeAccountModel extends Fake implements AccountModel {}
@@ -41,8 +40,7 @@ class FakeExpenseModel extends Fake implements ExpenseModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-class FakeCategoryOverrideModel extends Fake
-    implements CategoryOverrideModel {}
+class FakeCategoryOverrideModel extends Fake implements CategoryOverrideModel {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
@@ -96,10 +94,12 @@ void main() {
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
-        categoryOverrideRepositoryProvider
-            .overrideWithValue(mockCategoryOverrideRepo),
-        categoryMemoryRepositoryProvider
-            .overrideWithValue(mockCategoryMemoryRepo),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          mockCategoryOverrideRepo,
+        ),
+        categoryMemoryRepositoryProvider.overrideWithValue(
+          mockCategoryMemoryRepo,
+        ),
       ],
     );
   }

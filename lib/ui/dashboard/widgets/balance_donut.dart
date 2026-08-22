@@ -34,19 +34,25 @@ class _BalanceDonutState extends State<BalanceDonut>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _animation = Tween<double>(begin: 0, end: widget.progress.clamp(0.0, 1.0))
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _animation = Tween<double>(
+      begin: 0,
+      end: widget.progress.clamp(0.0, 1.0),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 
   @override
   void didUpdateWidget(covariant BalanceDonut oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.progress != widget.progress || oldWidget.arcColor != widget.arcColor) {
-      _animation = Tween<double>(
-        begin: _animation.value,
-        end: widget.progress.clamp(0.0, 1.0),
-      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    if (oldWidget.progress != widget.progress ||
+        oldWidget.arcColor != widget.arcColor) {
+      _animation =
+          Tween<double>(
+            begin: _animation.value,
+            end: widget.progress.clamp(0.0, 1.0),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller
         ..reset()
         ..forward();
@@ -120,7 +126,13 @@ class _DonutPainter extends CustomPainter {
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round
         ..color = arcColor;
-      canvas.drawArc(rect, -math.pi / 2, 2 * math.pi * progress, false, arcPaint);
+      canvas.drawArc(
+        rect,
+        -math.pi / 2,
+        2 * math.pi * progress,
+        false,
+        arcPaint,
+      );
     }
   }
 

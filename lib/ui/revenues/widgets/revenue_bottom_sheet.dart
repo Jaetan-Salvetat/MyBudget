@@ -152,7 +152,7 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
 
   void _handleSubmit() {
     setState(() {
-      _nameError = _nameController.text.isEmpty
+      _nameError = _nameController.text.trim().isEmpty
           ? 'Veuillez saisir un nom'
           : null;
       _amountError = _amountController.text.isEmpty

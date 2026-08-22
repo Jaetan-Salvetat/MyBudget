@@ -46,12 +46,16 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
     final accounts = ref.watch(accountProvider).value ?? [];
     final accountNotifier = ref.read(accountProvider.notifier);
 
-    final balances = accounts.map((account) => AccountBalanceData(
-      id: account.id,
-      name: account.name,
-      bank: account.bank,
-      balance: accountNotifier.getAccountBalance(account.id),
-    )).toList();
+    final balances = accounts
+        .map(
+          (account) => AccountBalanceData(
+            id: account.id,
+            name: account.name,
+            bank: account.bank,
+            balance: accountNotifier.getAccountBalance(account.id),
+          ),
+        )
+        .toList();
 
     await HomeWidgetSyncService.syncAccountBalances(balances);
   }
@@ -62,33 +66,39 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
 
     final expenses = ref.watch(upcomingExpensesProvider);
     for (final expense in expenses) {
-      items.add(UpcomingItemData(
-        name: expense.name,
-        amount: expense.amount,
-        day: expense.startDate.day,
-        type: 'expense',
-      ));
+      items.add(
+        UpcomingItemData(
+          name: expense.name,
+          amount: expense.amount,
+          day: expense.startDate.day,
+          type: 'expense',
+        ),
+      );
     }
 
     final revenues = ref.watch(upcomingRevenuesProvider);
     for (final revenue in revenues) {
-      items.add(UpcomingItemData(
-        name: revenue.name,
-        amount: revenue.amount,
-        day: revenue.startDate.day,
-        type: 'revenue',
-      ));
+      items.add(
+        UpcomingItemData(
+          name: revenue.name,
+          amount: revenue.amount,
+          day: revenue.startDate.day,
+          type: 'revenue',
+        ),
+      );
     }
 
     final activeLoans = ref.watch(activeLoansProvider);
     for (final loan in activeLoans) {
       if (loan.dayOfMonth >= now.day) {
-        items.add(UpcomingItemData(
-          name: loan.name,
-          amount: loan.currentMonthlyPayment,
-          day: loan.dayOfMonth,
-          type: 'loan',
-        ));
+        items.add(
+          UpcomingItemData(
+            name: loan.name,
+            amount: loan.currentMonthlyPayment,
+            day: loan.dayOfMonth,
+            type: 'loan',
+          ),
+        );
       }
     }
 

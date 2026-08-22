@@ -4,10 +4,7 @@ sealed class ScanException implements Exception {
   final String message;
   final int retryAfterSeconds;
 
-  const ScanException({
-    required this.message,
-    required this.retryAfterSeconds,
-  });
+  const ScanException({required this.message, required this.retryAfterSeconds});
 
   static ScanException fromServerMessage(String serverMessage) {
     final upper = serverMessage.toUpperCase();
@@ -52,31 +49,26 @@ sealed class ScanException implements Exception {
 
 final class ScanCooldownException extends ScanException {
   const ScanCooldownException({required super.retryAfterSeconds})
-      : super(
-          message: 'Veuillez patienter avant de relancer un scan',
-        );
+    : super(message: 'Veuillez patienter avant de relancer un scan');
 }
 
 final class ScanRateLimitException extends ScanException {
   const ScanRateLimitException()
-      : super(
-          message: 'Le service d\'analyse est temporairement surchargé',
-          retryAfterSeconds: ScanException.scanCooldownSeconds,
-        );
+    : super(
+        message: 'Le service d\'analyse est temporairement surchargé',
+        retryAfterSeconds: ScanException.scanCooldownSeconds,
+      );
 }
 
 final class ScanServiceUnavailableException extends ScanException {
   const ScanServiceUnavailableException()
-      : super(
-          message: 'Le service d\'analyse est momentanément indisponible',
-          retryAfterSeconds: ScanException.scanCooldownSeconds,
-        );
+    : super(
+        message: 'Le service d\'analyse est momentanément indisponible',
+        retryAfterSeconds: ScanException.scanCooldownSeconds,
+      );
 }
 
 final class ScanGenericException extends ScanException {
-  const ScanGenericException({
-    required super.message,
-  }) : super(
-          retryAfterSeconds: 0,
-        );
+  const ScanGenericException({required super.message})
+    : super(retryAfterSeconds: 0);
 }

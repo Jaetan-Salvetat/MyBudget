@@ -50,7 +50,6 @@ class PreferencesService {
     await _prefs.setString(keyLanguage, language);
   }
 
-
   static int getExportFrequency() {
     return _prefs.getInt(keyExportFrequency) ?? 0;
   }
@@ -74,7 +73,6 @@ class PreferencesService {
   static Future<void> setHasSeenUpdateOnboarding() async {
     await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
   }
-
 
   static int getLastScanTimestamp() {
     return _prefs.getInt(keyLastScanTimestamp) ?? 0;

@@ -25,9 +25,7 @@ void main() {
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
-      overrides: [
-        revenueRepositoryProvider.overrideWithValue(mockRepository),
-      ],
+      overrides: [revenueRepositoryProvider.overrideWithValue(mockRepository)],
     );
   }
 
@@ -79,103 +77,115 @@ void main() {
     expect(container.read(revenueProvider.notifier).getMonthlyRevenues(), 0.0);
   });
 
-  test('getMonthlyRevenues includes annual revenue in matching month', () async {
-    final now = DateTime.now();
-    final rev = RevenueModel.create(
-      name: 'Annual Bonus',
-      amount: 6000,
-      accountId: 1,
-      startDate: DateTime(now.year, now.month, 15),
-      frequency: 'Annuel',
-    );
+  test(
+    'getMonthlyRevenues includes annual revenue in matching month',
+    () async {
+      final now = DateTime.now();
+      final rev = RevenueModel.create(
+        name: 'Annual Bonus',
+        amount: 6000,
+        accountId: 1,
+        startDate: DateTime(now.year, now.month, 15),
+        frequency: 'Annuel',
+      );
 
-    when(() => mockRepository.getAll()).thenReturn([rev]);
-    when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getAll()).thenReturn([rev]);
+      when(() => mockRepository.getActive()).thenReturn([rev]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
-      6000.0,
-    );
-  });
+      expect(
+        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        6000.0,
+      );
+    },
+  );
 
-  test('getMonthlyRevenues excludes annual revenue in non-matching month', () async {
-    final now = DateTime.now();
-    final otherMonth = (now.month % 12) + 1;
-    final rev = RevenueModel.create(
-      name: 'Annual Bonus',
-      amount: 6000,
-      accountId: 1,
-      startDate: DateTime(now.year, otherMonth, 15),
-      frequency: 'Annuel',
-    );
+  test(
+    'getMonthlyRevenues excludes annual revenue in non-matching month',
+    () async {
+      final now = DateTime.now();
+      final otherMonth = (now.month % 12) + 1;
+      final rev = RevenueModel.create(
+        name: 'Annual Bonus',
+        amount: 6000,
+        accountId: 1,
+        startDate: DateTime(now.year, otherMonth, 15),
+        frequency: 'Annuel',
+      );
 
-    when(() => mockRepository.getAll()).thenReturn([rev]);
-    when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getAll()).thenReturn([rev]);
+      when(() => mockRepository.getActive()).thenReturn([rev]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
-      0.0,
-    );
-  });
+      expect(
+        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        0.0,
+      );
+    },
+  );
 
-  test('getMonthlyRevenues includes oneTime revenue in matching month', () async {
-    final now = DateTime.now();
-    final rev = RevenueModel.create(
-      name: 'One-time Gift',
-      amount: 1000,
-      accountId: 1,
-      startDate: DateTime(now.year, now.month, 10),
-      frequency: 'Ponctuel',
-    );
+  test(
+    'getMonthlyRevenues includes oneTime revenue in matching month',
+    () async {
+      final now = DateTime.now();
+      final rev = RevenueModel.create(
+        name: 'One-time Gift',
+        amount: 1000,
+        accountId: 1,
+        startDate: DateTime(now.year, now.month, 10),
+        frequency: 'Ponctuel',
+      );
 
-    when(() => mockRepository.getAll()).thenReturn([rev]);
-    when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getAll()).thenReturn([rev]);
+      when(() => mockRepository.getActive()).thenReturn([rev]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
-      1000.0,
-    );
-  });
+      expect(
+        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        1000.0,
+      );
+    },
+  );
 
-  test('getMonthlyRevenues excludes oneTime revenue in non-matching month', () async {
-    final now = DateTime.now();
-    final otherMonth = (now.month % 12) + 1;
-    final rev = RevenueModel.create(
-      name: 'One-time Gift',
-      amount: 1000,
-      accountId: 1,
-      startDate: DateTime(now.year, otherMonth, 10),
-      frequency: 'Ponctuel',
-    );
+  test(
+    'getMonthlyRevenues excludes oneTime revenue in non-matching month',
+    () async {
+      final now = DateTime.now();
+      final otherMonth = (now.month % 12) + 1;
+      final rev = RevenueModel.create(
+        name: 'One-time Gift',
+        amount: 1000,
+        accountId: 1,
+        startDate: DateTime(now.year, otherMonth, 10),
+        frequency: 'Ponctuel',
+      );
 
-    when(() => mockRepository.getAll()).thenReturn([rev]);
-    when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getAll()).thenReturn([rev]);
+      when(() => mockRepository.getActive()).thenReturn([rev]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
-      0.0,
-    );
-  });
+      expect(
+        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        0.0,
+      );
+    },
+  );
 
   test('getMonthlyRevenues sums all 3 frequencies in matching month', () async {
     final now = DateTime.now();
@@ -202,7 +212,9 @@ void main() {
     );
 
     when(() => mockRepository.getAll()).thenReturn([monthly, annual, oneTime]);
-    when(() => mockRepository.getActive()).thenReturn([monthly, annual, oneTime]);
+    when(
+      () => mockRepository.getActive(),
+    ).thenReturn([monthly, annual, oneTime]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -239,7 +251,9 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    final result = container.read(revenueProvider.notifier).getRevenuesForAccount(1);
+    final result = container
+        .read(revenueProvider.notifier)
+        .getRevenuesForAccount(1);
     expect(result.length, 1);
     expect(result.first.name, 'Acc1 revenue');
   });
@@ -322,54 +336,60 @@ void main() {
     verify(() => mockRepository.update(any())).called(2);
   });
 
-  test('updateRevenue with structural change on recurring closes old and creates new', () async {
-    final existing = RevenueModel.create(
-      name: 'Salaire',
-      amount: 2000,
-      accountId: 1,
-      startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
-    )..id = 1;
+  test(
+    'updateRevenue with structural change on recurring closes old and creates new',
+    () async {
+      final existing = RevenueModel.create(
+        name: 'Salaire',
+        amount: 2000,
+        accountId: 1,
+        startDate: DateTime(2024, 6, 15),
+        frequency: 'Mensuel',
+      )..id = 1;
 
-    when(() => mockRepository.get(1)).thenReturn(existing);
-    when(() => mockRepository.update(any())).thenReturn(1);
-    when(() => mockRepository.add(any())).thenReturn(2);
+      when(() => mockRepository.get(1)).thenReturn(existing);
+      when(() => mockRepository.update(any())).thenReturn(1);
+      when(() => mockRepository.add(any())).thenReturn(2);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    final updated = existing.copyWith(amount: 2500);
-    await container.read(revenueProvider.notifier).updateRevenue(updated);
+      final updated = existing.copyWith(amount: 2500);
+      await container.read(revenueProvider.notifier).updateRevenue(updated);
 
-    verify(() => mockRepository.update(any())).called(1);
-    verify(() => mockRepository.add(any())).called(1);
-  });
+      verify(() => mockRepository.update(any())).called(1);
+      verify(() => mockRepository.add(any())).called(1);
+    },
+  );
 
-  test('updateRevenue with structural change on oneTime does simple update', () async {
-    final existing = RevenueModel.create(
-      name: 'Prime',
-      amount: 500,
-      accountId: 1,
-      startDate: DateTime(2024, 6, 15),
-      frequency: 'Ponctuel',
-    )..id = 1;
+  test(
+    'updateRevenue with structural change on oneTime does simple update',
+    () async {
+      final existing = RevenueModel.create(
+        name: 'Prime',
+        amount: 500,
+        accountId: 1,
+        startDate: DateTime(2024, 6, 15),
+        frequency: 'Ponctuel',
+      )..id = 1;
 
-    when(() => mockRepository.get(1)).thenReturn(existing);
-    when(() => mockRepository.update(any())).thenReturn(1);
+      when(() => mockRepository.get(1)).thenReturn(existing);
+      when(() => mockRepository.update(any())).thenReturn(1);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(revenueProvider.future);
+      await container.read(revenueProvider.future);
 
-    final updated = existing.copyWith(amount: 600);
-    await container.read(revenueProvider.notifier).updateRevenue(updated);
+      final updated = existing.copyWith(amount: 600);
+      await container.read(revenueProvider.notifier).updateRevenue(updated);
 
-    verify(() => mockRepository.update(any())).called(1);
-    verifyNever(() => mockRepository.add(any()));
-  });
+      verify(() => mockRepository.update(any())).called(1);
+      verifyNever(() => mockRepository.add(any()));
+    },
+  );
 
   test('getClosedRevenues returns closed entries', () async {
     final closed = RevenueModel.create(

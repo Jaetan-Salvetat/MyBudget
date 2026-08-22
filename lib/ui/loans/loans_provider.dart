@@ -63,10 +63,9 @@ class LoanNotifier extends _$LoanNotifier {
   List<Loan> getActiveLoans() =>
       _currentLoans().where((loan) => !loan.isCompleted).toList();
 
-  List<Loan> getActiveLoansForAccount(int accountId) =>
-      _currentLoans()
-          .where((loan) => loan.accountId == accountId && !loan.isCompleted)
-          .toList();
+  List<Loan> getActiveLoansForAccount(int accountId) => _currentLoans()
+      .where((loan) => loan.accountId == accountId && !loan.isCompleted)
+      .toList();
 
   List<Loan> getCompletedLoans() =>
       _currentLoans().where((loan) => loan.isCompleted).toList();
@@ -74,13 +73,15 @@ class LoanNotifier extends _$LoanNotifier {
   double getTotalRemainingAmount() =>
       getActiveLoans().fold(0.0, (sum, loan) => sum + loan.remainingCapital);
 
-  double getTotalMonthlyPayments() =>
-      getActiveLoans()
-          .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
+  double getTotalMonthlyPayments() => getActiveLoans().fold(
+    0.0,
+    (sum, loan) => sum + loan.currentMonthlyPayment,
+  );
 
   double getTotalMonthlyPaymentsForAccount(int accountId) =>
-      getActiveLoansForAccount(accountId)
-          .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
+      getActiveLoansForAccount(
+        accountId,
+      ).fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
 
   double getTotalActiveInitialAmount() =>
       getActiveLoans().fold(0.0, (sum, loan) => sum + loan.amount);

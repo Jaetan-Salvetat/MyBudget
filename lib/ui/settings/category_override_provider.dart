@@ -23,7 +23,9 @@ class CategoryOverrideNotifier extends _$CategoryOverrideNotifier {
     String? icon,
     int? color,
   }) async {
-    ref.read(categoryOverrideRepositoryProvider).save(
+    ref
+        .read(categoryOverrideRepositoryProvider)
+        .save(
           CategoryOverrideModel.create(
             slug: slug,
             name: name,

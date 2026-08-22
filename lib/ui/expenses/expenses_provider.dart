@@ -22,7 +22,9 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.annual:
           return e.startDate.month * 100 + e.startDate.day;
         case Frequency.oneTime:
-          return e.startDate.year * 10000 + e.startDate.month * 100 + e.startDate.day;
+          return e.startDate.year * 10000 +
+              e.startDate.month * 100 +
+              e.startDate.day;
       }
     }
 
@@ -47,7 +49,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly = updated.amount == old.amount &&
+      final bool isNameOnly =
+          updated.amount == old.amount &&
           updated.frequency == old.frequency &&
           updated.categorySlug == old.categorySlug &&
           updated.accountId == old.accountId &&
@@ -65,7 +68,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         return;
       }
 
-      final bool isStructural = updated.amount != old.amount ||
+      final bool isStructural =
+          updated.amount != old.amount ||
           updated.frequency != old.frequency ||
           updated.categorySlug != old.categorySlug ||
           updated.accountId != old.accountId ||
@@ -133,7 +137,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.monthly:
           return expense.startDate.day >= now.day;
         case Frequency.annual:
-          return expense.startDate.month == now.month && expense.startDate.day >= now.day;
+          return expense.startDate.month == now.month &&
+              expense.startDate.day >= now.day;
         case Frequency.oneTime:
           return false;
       }
@@ -146,10 +151,9 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   List<ExpenseModel> getRecentExpenses(int count) =>
       _currentExpenses().take(count).toList();
 
-  List<ExpenseModel> getExpensesForAccount(int accountId) =>
-      _currentExpenses()
-          .where((expense) => expense.accountId == accountId)
-          .toList();
+  List<ExpenseModel> getExpensesForAccount(int accountId) => _currentExpenses()
+      .where((expense) => expense.accountId == accountId)
+      .toList();
 
   List<ExpenseModel> getExpensesForGroup(String groupKey) {
     final resolver = ref.read(categoryDisplayResolverProvider).value;
@@ -161,8 +165,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
   }
 
   double getTotalExpensesForAccount(int accountId) =>
-      getExpensesForAccount(accountId)
-          .fold(0.0, (sum, e) => sum + e.amount);
+      getExpensesForAccount(accountId).fold(0.0, (sum, e) => sum + e.amount);
 
   double getTotalExpenses([List<ExpenseModel>? expensesList]) {
     final selectedMonth = ref.read(selectedMonthProvider);

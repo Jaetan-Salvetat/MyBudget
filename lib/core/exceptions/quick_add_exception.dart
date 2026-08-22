@@ -6,7 +6,7 @@ sealed class QuickAddException implements Exception {
 
 final class QuickAddNoAmountException extends QuickAddException {
   const QuickAddNoAmountException()
-      : super(message: 'Aucun montant détecté dans la saisie');
+    : super(message: 'Aucun montant détecté dans la saisie');
 }
 
 final class QuickAddClassificationException extends QuickAddException {

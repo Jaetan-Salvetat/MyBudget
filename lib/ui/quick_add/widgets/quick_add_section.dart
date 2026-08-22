@@ -11,10 +11,7 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_loading_card.dart';
 class QuickAddSection extends ConsumerWidget {
   final VoidCallback onNoAccount;
 
-  const QuickAddSection({
-    required this.onNoAccount,
-    super.key,
-  });
+  const QuickAddSection({required this.onNoAccount, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

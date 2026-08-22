@@ -60,7 +60,8 @@ List<RevenueModel> upcomingRevenues(Ref ref) {
       case Frequency.monthly:
         return revenue.startDate.day >= now.day;
       case Frequency.annual:
-        return revenue.startDate.month == now.month && revenue.startDate.day >= now.day;
+        return revenue.startDate.month == now.month &&
+            revenue.startDate.day >= now.day;
       case Frequency.oneTime:
         final revenueDate = DateTime(
           revenue.startDate.year,
