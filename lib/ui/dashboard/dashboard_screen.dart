@@ -6,9 +6,8 @@ import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
 import 'package:mybudget/ui/dashboard/widgets/category_breakdown_section.dart';
-import 'package:mybudget/ui/dashboard/widgets/compact_balance_line.dart';
 import 'package:mybudget/ui/dashboard/widgets/dashboard_greeting.dart';
-import 'package:mybudget/ui/dashboard/widgets/hero_balance_card.dart';
+import 'package:mybudget/ui/dashboard/widgets/dashboard_header_balance.dart';
 import 'package:mybudget/ui/dashboard/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/dashboard/widgets/upcoming_movements_section.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
@@ -63,14 +62,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const MonthSelector(),
-            _SwappedWhileTyping(
+            DashboardHeaderBalance(
               typing: _quickAddFocused,
-              expanded: HeroBalanceCard(
-                balance: state.netCashFlow,
-                totalIncomes: state.monthlyRevenues,
-                totalExpenses: state.totalExpenses,
-              ),
-              compact: CompactBalanceLine(balance: state.netCashFlow),
+              balance: state.netCashFlow,
+              totalIncomes: state.monthlyRevenues,
+              totalExpenses: state.totalExpenses,
             ),
             if (quickAddEnabled)
               Padding(
@@ -116,39 +112,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// Trades the hero card for its one-line form while the keyboard is up, so
-/// the balance stays above the input instead of scrolling away.
-class _SwappedWhileTyping extends StatelessWidget {
-  final bool typing;
-  final Widget expanded;
-  final Widget compact;
-
-  const _SwappedWhileTyping({
-    required this.typing,
-    required this.expanded,
-    required this.compact,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      duration: _CollapsedWhileTyping._duration,
-      sizeCurve: context.frostedTokens.motion.snappy.curve,
-      alignment: Alignment.topCenter,
-      firstChild: expanded,
-      secondChild: compact,
-      crossFadeState: typing
-          ? CrossFadeState.showSecond
-          : CrossFadeState.showFirst,
-    );
-  }
-}
-
 /// Clears the screen while the user types : the input and what it understood
 /// are the only things that matter then.
 class _CollapsedWhileTyping extends StatelessWidget {
-  static const Duration _duration = Duration(milliseconds: 320);
-
   final bool collapsed;
   final Widget child;
 
@@ -159,7 +125,7 @@ class _CollapsedWhileTyping extends StatelessWidget {
     final curve = context.frostedTokens.motion.snappy.curve;
 
     return AnimatedCrossFade(
-      duration: _duration,
+      duration: DashboardHeaderBalance.duration,
       sizeCurve: curve,
       alignment: Alignment.topCenter,
       firstChild: child,
