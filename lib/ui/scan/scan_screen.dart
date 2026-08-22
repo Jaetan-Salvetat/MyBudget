@@ -6,9 +6,11 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
-import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
@@ -17,6 +19,7 @@ import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
@@ -211,6 +214,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         title = scanError.message;
         subtitle = 'Réessayez dans quelques instants';
         hasCooldown = true;
+      case ScanMissingApiKeyException():
+        icon = Symbols.key_off_rounded;
+        title = scanError.message;
+        subtitle = 'Elle restera sur cet appareil et servira aussi à '
+            'l\'ajout rapide.';
+        hasCooldown = false;
       case ScanGenericException():
         icon = Symbols.error_rounded;
         title = scanError.message;
@@ -224,6 +233,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     }
 
     final canRetry = !hasCooldown || _countdownSeconds <= 0;
+    final isMissingKey = scanError is ScanMissingApiKeyException;
 
     return Center(
       key: const ValueKey('error'),
@@ -264,10 +274,17 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
             ],
             const SizedBox(height: 24),
-            FrostedButton.filled(
-              label: 'Réessayer',
-              onPressed: canRetry ? _retry : null,
-            ),
+            if (isMissingKey)
+              FrostedButton.filled(
+                label: 'Ajouter une clé',
+                icon: Symbols.key_rounded,
+                onPressed: _openApiKeyScreen,
+              )
+            else
+              FrostedButton.filled(
+                label: 'Réessayer',
+                onPressed: canRetry ? _retry : null,
+              ),
           ],
         ),
       ),
@@ -293,6 +310,19 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         }
       });
     });
+  }
+
+  /// La clé se saisit là où elle manque : l'utilisateur n'a pas à deviner
+  /// quel écran de réglages la porte. Le scan repart dès qu'elle est posée.
+  Future<void> _openApiKeyScreen() async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
+    );
+    if (!mounted) return;
+    if (await ref.read(apiKeyServiceProvider).has(AiProvider.gemini)) {
+      _retry();
+    }
   }
 
   void _retry() {

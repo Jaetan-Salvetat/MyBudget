@@ -1,76 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  Future<void> initPreferences(Map<String, Object> values) async {
-    SharedPreferences.setMockInitialValues(values);
-    await PreferencesService.init();
-  }
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  Widget createWidgetUnderTest() {
-    return ProviderScope(
-      child: MaterialApp(
-        theme: AppTheme.dark(),
-        home: const Scaffold(body: AiSection()),
+  Future<void> pumpSection(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: FrostedTheme.light(seedColor: const Color(0xFF2A55D3)),
+          home: const Scaffold(body: AiSection()),
+        ),
       ),
     );
+    await tester.pumpAndSettle();
   }
 
-  testWidgets('renders the section title and the quick add tile', (
-    tester,
-  ) async {
-    await initPreferences({});
-
-    await tester.pumpWidget(createWidgetUnderTest());
-
-    expect(find.text('Intelligence artificielle'), findsOneWidget);
-    expect(find.text('Ajout rapide'), findsOneWidget);
-    expect(find.byType(FrostedSwitch), findsOneWidget);
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
+    await PreferencesService.init();
   });
 
-  testWidgets('switch is on when quick add is enabled', (tester) async {
-    await initPreferences({});
+  group('AiSection', () {
+    testWidgets('hides the key entry while nothing uses a key', (tester) async {
+      await pumpSection(tester);
 
-    await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.text('Ajout rapide'), findsOneWidget);
+      expect(find.text('Moteur d\'analyse'), findsOneWidget);
+      expect(find.text('Clé API'), findsNothing);
+    });
 
-    expect(
-      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-      isTrue,
-    );
-  });
+    testWidgets('shows the key entry once a key is stored', (tester) async {
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
-  testWidgets('switch is off when quick add is disabled', (tester) async {
-    await initPreferences({PreferencesService.keyQuickAddEnabled: false});
+      await pumpSection(tester);
 
-    await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.text('Clé API'), findsOneWidget);
+      expect(find.text('Enregistrée'), findsOneWidget);
+    });
 
-    expect(
-      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-      isFalse,
-    );
-  });
+    testWidgets('hides the engine entry when quick add is off', (tester) async {
+      await PreferencesService.setQuickAddEnabled(false);
 
-  testWidgets('tapping the switch disables quick add', (tester) async {
-    await initPreferences({});
+      await pumpSection(tester);
 
-    await tester.pumpWidget(createWidgetUnderTest());
-    await tester.tap(find.byType(FrostedSwitch));
-    await tester.pumpAndSettle();
+      expect(find.text('Moteur d\'analyse'), findsNothing);
+    });
 
-    final element = tester.element(find.byType(AiSection));
-    final container = ProviderScope.containerOf(element);
+    testWidgets('drops the on-device promise once the engine changed', (
+      tester,
+    ) async {
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
 
-    expect(container.read(quickAddEnabledProvider), isFalse);
-    expect(
-      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-      isFalse,
-    );
+      await pumpSection(tester);
+
+      expect(
+        find.text('Analyse une saisie en langage naturel'),
+        findsOneWidget,
+      );
+      expect(find.text('Clé personnelle'), findsOneWidget);
+    });
   });
 }

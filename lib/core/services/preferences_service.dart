@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -16,6 +18,10 @@ class PreferencesService {
   static const String keyGeminiApiKey = 'geminiApiKey';
 
   static const String keyQuickAddEnabled = 'quickAddEnabled';
+  static const String keyQuickAddEngineMode = 'quickAddEngineMode';
+  static const String keyAiProvider = 'aiProvider';
+  static const String keyAiCloudConsent = 'aiCloudConsent';
+  static const String keyAiFailureTimestamps = 'aiFailureTimestamps';
 
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
@@ -43,9 +49,8 @@ class PreferencesService {
     await _prefs.setString(keyThemeMode, mode.name);
   }
 
-  // TODO(scan): l'app n'embarque plus de clé Gemini, l'utilisateur doit saisir
-  // la sienne. Ajouter le champ dans les réglages (section IA) qui appelle
-  // setGeminiApiKey, sans quoi le scan de ticket reste indisponible.
+  /// Ancien emplacement de la clé, en clair. Conservé le temps que
+  /// [ApiKeyService.migrateLegacyGeminiKey] la déplace dans le trousseau.
   static String getGeminiApiKey() {
     return _prefs.getString(keyGeminiApiKey) ?? '';
   }
@@ -100,6 +105,42 @@ class PreferencesService {
 
   static Future<void> setQuickAddEnabled(bool enabled) async {
     await _prefs.setBool(keyQuickAddEnabled, enabled);
+  }
+
+  static QuickAddEngineMode getQuickAddEngineMode() {
+    return QuickAddEngineMode.fromId(_prefs.getString(keyQuickAddEngineMode));
+  }
+
+  static Future<void> setQuickAddEngineMode(QuickAddEngineMode mode) async {
+    await _prefs.setString(keyQuickAddEngineMode, mode.id);
+  }
+
+  static AiProvider getAiProvider() {
+    return AiProvider.fromId(_prefs.getString(keyAiProvider));
+  }
+
+  static Future<void> setAiProvider(AiProvider provider) async {
+    await _prefs.setString(keyAiProvider, provider.id);
+  }
+
+  static bool hasAcceptedAiCloudConsent() {
+    return _prefs.getBool(keyAiCloudConsent) ?? false;
+  }
+
+  static Future<void> setAiCloudConsent(bool accepted) async {
+    await _prefs.setBool(keyAiCloudConsent, accepted);
+  }
+
+  static List<int> getAiFailureTimestamps() {
+    final stored = _prefs.getStringList(keyAiFailureTimestamps) ?? const [];
+    return stored.map(int.tryParse).nonNulls.toList();
+  }
+
+  static Future<void> setAiFailureTimestamps(List<int> timestamps) async {
+    await _prefs.setStringList(
+      keyAiFailureTimestamps,
+      timestamps.map((timestamp) => timestamp.toString()).toList(),
+    );
   }
 
   static String getExpensesGroupBy() {

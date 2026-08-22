@@ -4,24 +4,28 @@ import 'dart:typed_data';
 import 'package:openai_dart/openai_dart.dart';
 
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
 class ReceiptScanService {
-  static const String _model = 'gemini-2.0-flash-lite';
-  static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/openai';
+  static const AiProvider _provider = AiProvider.gemini;
+  static final String _model = _provider.model;
 
   final OpenAIClient _client;
 
   ReceiptScanService({required String apiKey})
-    : _client = OpenAIClient.withApiKey(apiKey, baseUrl: _baseUrl);
+    : _client = OpenAIClient.withApiKey(apiKey, baseUrl: _provider.baseUrl);
 
-  factory ReceiptScanService.fromPreferences() {
-    final apiKey = PreferencesService.getGeminiApiKey();
-    if (apiKey.isEmpty) throw const ScanMissingApiKeyException();
+  /// La clé vient du trousseau, partagée avec l'ajout rapide : une seule clé
+  /// à saisir pour les deux fonctions.
+  static Future<ReceiptScanService> fromStoredKey(
+    ApiKeyService keyService,
+  ) async {
+    final apiKey = await keyService.read(_provider);
+    if (apiKey == null) throw const ScanMissingApiKeyException();
     return ReceiptScanService(apiKey: apiKey);
   }
 

@@ -17,6 +17,10 @@ import 'package:mybudget/core/services/loan_service.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
+import 'package:mybudget/core/services/ai/api_key_verifier.dart';
+import 'package:mybudget/core/services/ai/quick_add_engine_health.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
@@ -51,6 +55,20 @@ Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
   await service.load();
   return service;
 }
+
+@Riverpod(keepAlive: true)
+ApiKeyService apiKeyService(Ref ref) => ApiKeyService();
+
+@Riverpod(keepAlive: true)
+ApiKeyVerifier apiKeyVerifier(Ref ref) {
+  return ApiKeyVerifier(
+    clientFactory: (provider, apiKey) =>
+        OpenAiCompatibleChatClient(provider: provider, apiKey: apiKey),
+  );
+}
+
+@Riverpod(keepAlive: true)
+QuickAddEngineHealth quickAddEngineHealth(Ref ref) => QuickAddEngineHealth();
 
 @Riverpod(keepAlive: true)
 AccountRepository accountRepository(Ref ref) {
