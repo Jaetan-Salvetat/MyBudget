@@ -8,6 +8,7 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
+import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
@@ -18,19 +19,15 @@ import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
 class TransactionsScreen extends ConsumerWidget {
-  final int selectedTab;
-  final ValueChanged<int> onTabChanged;
-
-  const TransactionsScreen({
-    super.key,
-    required this.selectedTab,
-    required this.onTabChanged,
-  });
+  const TransactionsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final isExpensesTab = selectedTab == 0;
+    final selectedTab = ref.watch(
+      homeNavigationProvider.select((state) => state.transactionsTab),
+    );
+    final isExpensesTab = selectedTab == TransactionsTab.expenses;
 
     return SafeArea(
       bottom: false,
@@ -56,7 +53,7 @@ class TransactionsScreen extends ConsumerWidget {
                   ),
                   FrostedIconButton.tonal(
                     icon: Symbols.add_rounded,
-                    onPressed: () => _handleAdd(context, ref),
+                    onPressed: () => _handleAdd(context, ref, selectedTab),
                   ),
                   const SizedBox(width: 4),
                   FrostedIconButton.tonal(
@@ -99,13 +96,15 @@ class TransactionsScreen extends ConsumerWidget {
                 FrostedTab(label: 'Revenus'),
                 FrostedTab(label: 'Emprunts'),
               ],
-              currentIndex: selectedTab,
-              onTap: onTabChanged,
+              currentIndex: selectedTab.index,
+              onTap: (index) => ref
+                  .read(homeNavigationProvider.notifier)
+                  .selectTransactionsTab(TransactionsTab.values[index]),
             ),
           ),
           Expanded(
             child: IndexedStack(
-              index: selectedTab,
+              index: selectedTab.index,
               children: const [
                 ExpensesScreen(),
                 RevenuesScreen(),
@@ -118,13 +117,13 @@ class TransactionsScreen extends ConsumerWidget {
     );
   }
 
-  void _handleAdd(BuildContext context, WidgetRef ref) {
-    switch (selectedTab) {
-      case 0:
+  void _handleAdd(BuildContext context, WidgetRef ref, TransactionsTab tab) {
+    switch (tab) {
+      case TransactionsTab.expenses:
         _showAddExpenseBottomSheet(context, ref);
-      case 1:
+      case TransactionsTab.revenues:
         _showAddRevenueBottomSheet(context, ref);
-      case 2:
+      case TransactionsTab.loans:
         _showAddLoanBottomSheet(context, ref);
     }
   }

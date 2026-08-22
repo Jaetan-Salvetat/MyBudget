@@ -17,6 +17,7 @@ import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
@@ -32,16 +33,13 @@ import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
-  final ExpenseFilterData? initialFilter;
-
-  const ExpensesList({super.key, this.initialFilter});
+  const ExpensesList({super.key});
 
   @override
   ConsumerState<ExpensesList> createState() => _ExpensesListState();
 }
 
 class _ExpensesListState extends ConsumerState<ExpensesList> {
-  late ExpenseFilterData _filterData;
   late TextEditingController _searchController;
   late ExpenseSortBy _sortBy;
   late bool _recurringExpanded;
@@ -49,9 +47,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   @override
   void initState() {
     super.initState();
-    _filterData = widget.initialFilter ?? ExpenseFilterData();
     _searchController = TextEditingController(
-      text: _filterData.searchQuery ?? '',
+      text: ref.read(expensesFilterProvider).searchQuery ?? '',
     );
     _sortBy = ExpenseSortBy.fromName(PreferencesService.getExpensesSortBy());
     _recurringExpanded = false;
@@ -62,6 +59,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     _searchController.dispose();
     super.dispose();
   }
+
+  ExpensesFilterNotifier get _filterNotifier =>
+      ref.read(expensesFilterProvider.notifier);
 
   String? _groupKeyOf(ExpenseModel expense) {
     return ref
@@ -151,12 +151,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   List<ActiveFilterPill> _activeFilterPills(
+    ExpenseFilterData filter,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
   ) {
     final pills = <ActiveFilterPill>[];
 
-    for (final type in _filterData.types) {
+    for (final type in filter.types) {
       final label = switch (type) {
         Frequency.monthly => 'Mensuel',
         Frequency.annual => 'Annuel',
@@ -166,35 +167,27 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ActiveFilterPill(
           id: 'type-${type.name}',
           label: label,
-          onRemove: () {
-            setState(() {
-              _filterData = _filterData.copyWith(
-                types: _filterData.types.where((t) => t != type).toList(),
-              );
-            });
-          },
+          onRemove: () => _filterNotifier.update(
+            (current) => current.copyWith(
+              types: current.types.where((t) => t != type).toList(),
+            ),
+          ),
         ),
       );
     }
 
-    for (final id in _filterData.groupKeys) {
+    for (final id in filter.groupKeys) {
       final group = categories.where((c) => c.slug == id).firstOrNull;
       pills.add(
         ActiveFilterPill(
           id: 'cat-$id',
           label: group?.label ?? '—',
-          onRemove: () {
-            setState(() {
-              _filterData = _filterData.copyWith(
-                groupKeys: _filterData.groupKeys.where((c) => c != id).toList(),
-              );
-            });
-          },
+          onRemove: () => _filterNotifier.toggleGroup(id),
         ),
       );
     }
 
-    for (final id in _filterData.accountIds) {
+    for (final id in filter.accountIds) {
       final acc = accounts.firstWhere(
         (a) => a.id == id,
         orElse: () => AccountModel.create(name: '—', bank: ''),
@@ -203,22 +196,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ActiveFilterPill(
           id: 'acc-$id',
           label: acc.name,
-          onRemove: () {
-            setState(() {
-              _filterData = _filterData.copyWith(
-                accountIds: _filterData.accountIds
-                    .where((a) => a != id)
-                    .toList(),
-              );
-            });
-          },
+          onRemove: () => _filterNotifier.update(
+            (current) => current.copyWith(
+              accountIds: current.accountIds.where((a) => a != id).toList(),
+            ),
+          ),
         ),
       );
     }
 
-    if (_filterData.minAmount != null || _filterData.maxAmount != null) {
-      final min = _filterData.minAmount?.round();
-      final max = _filterData.maxAmount?.round();
+    if (filter.minAmount != null || filter.maxAmount != null) {
+      final min = filter.minAmount?.round();
+      final max = filter.maxAmount?.round();
       String label;
       if (min != null && max != null) {
         label = '$min – $max €';
@@ -231,14 +220,16 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ActiveFilterPill(
           id: 'amount',
           label: label,
-          onRemove: () {
-            setState(() {
-              _filterData = _filterData.copyWith(
-                minAmount: null,
-                maxAmount: null,
-              );
-            });
-          },
+          onRemove: () => _filterNotifier.update(
+            (current) => ExpenseFilterData(
+              startDay: current.startDay,
+              endDay: current.endDay,
+              searchQuery: current.searchQuery,
+              groupKeys: current.groupKeys,
+              accountIds: current.accountIds,
+              types: current.types,
+            ),
+          ),
         ),
       );
     }
@@ -248,6 +239,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   @override
   Widget build(BuildContext context) {
+    final filter = ref.watch(expensesFilterProvider);
+    ref.listen(expensesFilterProvider, (_, next) {
+      _syncSearchController(next.searchQuery ?? '');
+    });
+
     return ref
         .watch(expenseProvider)
         .when(
@@ -268,10 +264,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 .map((e) => _withEffectiveDate(e, selectedMonth))
                 .toList();
 
-            final filteredExpenses = _filterExpenses(
-              activeExpenses,
-              _filterData,
-            );
+            final filteredExpenses = _filterExpenses(activeExpenses, filter);
 
             final recurring = filteredExpenses
                 .where((e) => e.frequencyEnum != Frequency.oneTime)
@@ -307,14 +300,14 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
               0,
               (s, e) => s + e.amount,
             );
-            final pills = _activeFilterPills(categories, accounts);
+            final pills = _activeFilterPills(filter, categories, accounts);
 
             final today = DateTime.now();
             final isViewingCurrentMonth =
                 today.year == selectedMonth.year &&
                 today.month == selectedMonth.month;
 
-            final isEmpty = filteredExpenses.isEmpty && _filterData.isEmpty;
+            final isEmpty = filteredExpenses.isEmpty && filter.isEmpty;
 
             return ListView(
               physics: const BouncingScrollPhysics(),
@@ -331,12 +324,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 _hPad(
                   ExpensesSearchBar(
                     controller: _searchController,
-                    activeFiltersCount: _filterData.activeCount,
-                    onChanged: (value) {
-                      setState(() {
-                        _filterData = _filterData.copyWith(searchQuery: value);
-                      });
-                    },
+                    activeFiltersCount: filter.activeCount,
+                    onChanged: (value) => _filterNotifier.update(
+                      (current) => current.copyWith(searchQuery: value),
+                    ),
                     onOpenFilters: () =>
                         _showFilterSheet(context, categories, accounts),
                   ),
@@ -344,7 +335,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 const SizedBox(height: 10),
                 ExpensesQuickFilters(
                   categories: categories,
-                  selectedGroupKeys: _filterData.groupKeys,
+                  selectedGroupKeys: filter.groupKeys,
                   sortBy: _sortBy,
                   onOpenSort: _openSortMenu,
                   onCategoryTap: _toggleCategoryFilter,
@@ -552,27 +543,23 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
-  void _toggleCategoryFilter(String? id) {
-    setState(() {
-      if (id == null) {
-        _filterData = _filterData.copyWith(groupKeys: const []);
-      } else {
-        final ids = List<String>.from(_filterData.groupKeys);
-        if (ids.contains(id)) {
-          ids.remove(id);
-        } else {
-          ids.add(id);
-        }
-        _filterData = _filterData.copyWith(groupKeys: ids);
-      }
-    });
+  void _syncSearchController(String searchQuery) {
+    if (_searchController.text == searchQuery) return;
+    _searchController.value = TextEditingValue(
+      text: searchQuery,
+      selection: TextSelection.collapsed(offset: searchQuery.length),
+    );
   }
 
-  void _resetFilters() {
-    setState(() {
-      _filterData = ExpenseFilterData(searchQuery: _filterData.searchQuery);
-    });
+  void _toggleCategoryFilter(String? id) {
+    if (id == null) {
+      _filterNotifier.clearGroups();
+      return;
+    }
+    _filterNotifier.toggleGroup(id);
   }
+
+  void _resetFilters() => _filterNotifier.reset();
 
   void _toggleRecurringExpanded() {
     setState(() => _recurringExpanded = !_recurringExpanded);
@@ -596,7 +583,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   ) {
     ExpenseFilterBottomSheet.show(
       context: context,
-      initialFilterData: _filterData,
+      initialFilterData: ref.read(expensesFilterProvider),
       categories: categories,
       accounts: accounts,
       resultCount: (filter) {
@@ -607,11 +594,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             .toList();
         return _filterExpenses(activeExpenses, filter).length;
       },
-      onApply: (updated) {
-        setState(() {
-          _filterData = updated.copyWith(searchQuery: _filterData.searchQuery);
-        });
-      },
+      onApply: (updated) => _filterNotifier.update(
+        (current) => updated.copyWith(searchQuery: current.searchQuery),
+      ),
       onClear: () {},
       onCancel: () {},
     );
