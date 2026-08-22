@@ -36,16 +36,15 @@ class FrostedFab extends StatelessWidget {
     String? tooltip,
     bool tonal = false,
     FrostedShape shape = FrostedShape.pill,
-  }) =>
-      FrostedFab._(
-        key: key,
-        icon: icon,
-        size: _FabSize.small,
-        onPressed: onPressed,
-        tooltip: tooltip,
-        tonal: tonal,
-        shape: shape,
-      );
+  }) => FrostedFab._(
+    key: key,
+    icon: icon,
+    size: _FabSize.small,
+    onPressed: onPressed,
+    tooltip: tooltip,
+    tonal: tonal,
+    shape: shape,
+  );
 
   factory FrostedFab.regular({
     Key? key,
@@ -54,16 +53,15 @@ class FrostedFab extends StatelessWidget {
     String? tooltip,
     bool tonal = false,
     FrostedShape shape = FrostedShape.pill,
-  }) =>
-      FrostedFab._(
-        key: key,
-        icon: icon,
-        size: _FabSize.regular,
-        onPressed: onPressed,
-        tooltip: tooltip,
-        tonal: tonal,
-        shape: shape,
-      );
+  }) => FrostedFab._(
+    key: key,
+    icon: icon,
+    size: _FabSize.regular,
+    onPressed: onPressed,
+    tooltip: tooltip,
+    tonal: tonal,
+    shape: shape,
+  );
 
   factory FrostedFab.large({
     Key? key,
@@ -72,16 +70,15 @@ class FrostedFab extends StatelessWidget {
     String? tooltip,
     bool tonal = false,
     FrostedShape shape = FrostedShape.pill,
-  }) =>
-      FrostedFab._(
-        key: key,
-        icon: icon,
-        size: _FabSize.large,
-        onPressed: onPressed,
-        tooltip: tooltip,
-        tonal: tonal,
-        shape: shape,
-      );
+  }) => FrostedFab._(
+    key: key,
+    icon: icon,
+    size: _FabSize.large,
+    onPressed: onPressed,
+    tooltip: tooltip,
+    tonal: tonal,
+    shape: shape,
+  );
 
   factory FrostedFab.extended({
     Key? key,
@@ -91,17 +88,16 @@ class FrostedFab extends StatelessWidget {
     String? tooltip,
     bool tonal = false,
     FrostedShape shape = FrostedShape.pill,
-  }) =>
-      FrostedFab._(
-        key: key,
-        icon: icon,
-        size: _FabSize.extended,
-        label: label,
-        onPressed: onPressed,
-        tooltip: tooltip,
-        tonal: tonal,
-        shape: shape,
-      );
+  }) => FrostedFab._(
+    key: key,
+    icon: icon,
+    size: _FabSize.extended,
+    label: label,
+    onPressed: onPressed,
+    tooltip: tooltip,
+    tonal: tonal,
+    shape: shape,
+  );
 
   final IconData icon;
   final String? label;
@@ -121,15 +117,14 @@ class FrostedFab extends StatelessWidget {
     final _FabMetrics m = _metricsFor(_size);
 
     BorderRadius resolveShape(InteractionStates s) => shape.resolve(
-          m.box,
-          pressed: s.pressed,
-          roundedRadius: m.roundedRadius,
-        );
+      m.box,
+      pressed: s.pressed,
+      roundedRadius: m.roundedRadius,
+    );
 
     final Widget surface = InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: tooltip ?? label,
-      shape: resolveShape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -154,7 +149,9 @@ class FrostedFab extends StatelessWidget {
                   ],
                 ),
               )
-            : Center(child: Icon(icon, size: m.iconSize, color: fg));
+            : Center(
+                child: Icon(icon, size: m.iconSize, color: fg),
+              );
 
         return AnimatedContainer(
           duration: motion.duration,
@@ -189,10 +186,10 @@ class FrostedFab extends StatelessWidget {
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) return cs.onSurface.withValues(alpha: 0.12);
-    final Color base =
-        tonal ? cs.secondaryContainer : cs.primaryContainer;
-    final Color overlay =
-        tonal ? cs.onSecondaryContainer : cs.onPrimaryContainer;
+    final Color base = tonal ? cs.secondaryContainer : cs.primaryContainer;
+    final Color overlay = tonal
+        ? cs.onSecondaryContainer
+        : cs.onPrimaryContainer;
     final double alpha = _overlayAlpha(s);
     if (alpha == 0) return base;
     return Color.alphaBlend(overlay.withValues(alpha: alpha), base);

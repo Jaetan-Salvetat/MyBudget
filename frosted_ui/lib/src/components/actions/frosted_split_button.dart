@@ -45,15 +45,14 @@ class FrostedSplitButton extends StatelessWidget {
     IconData? icon,
     required VoidCallback? onPressed,
     required List<FrostedSplitMenuItem> menuItems,
-  }) =>
-      FrostedSplitButton._(
-        key: key,
-        label: label,
-        variant: _SplitVariant.filled,
-        menuItems: menuItems,
-        icon: icon,
-        onPressed: onPressed,
-      );
+  }) => FrostedSplitButton._(
+    key: key,
+    label: label,
+    variant: _SplitVariant.filled,
+    menuItems: menuItems,
+    icon: icon,
+    onPressed: onPressed,
+  );
 
   factory FrostedSplitButton.tonal({
     Key? key,
@@ -61,15 +60,14 @@ class FrostedSplitButton extends StatelessWidget {
     IconData? icon,
     required VoidCallback? onPressed,
     required List<FrostedSplitMenuItem> menuItems,
-  }) =>
-      FrostedSplitButton._(
-        key: key,
-        label: label,
-        variant: _SplitVariant.tonal,
-        menuItems: menuItems,
-        icon: icon,
-        onPressed: onPressed,
-      );
+  }) => FrostedSplitButton._(
+    key: key,
+    label: label,
+    variant: _SplitVariant.tonal,
+    menuItems: menuItems,
+    icon: icon,
+    onPressed: onPressed,
+  );
 
   factory FrostedSplitButton.outlined({
     Key? key,
@@ -77,15 +75,14 @@ class FrostedSplitButton extends StatelessWidget {
     IconData? icon,
     required VoidCallback? onPressed,
     required List<FrostedSplitMenuItem> menuItems,
-  }) =>
-      FrostedSplitButton._(
-        key: key,
-        label: label,
-        variant: _SplitVariant.outlined,
-        menuItems: menuItems,
-        icon: icon,
-        onPressed: onPressed,
-      );
+  }) => FrostedSplitButton._(
+    key: key,
+    label: label,
+    variant: _SplitVariant.outlined,
+    menuItems: menuItems,
+    icon: icon,
+    onPressed: onPressed,
+  );
 
   final String label;
   final IconData? icon;
@@ -166,7 +163,6 @@ class _MainAction extends StatelessWidget {
     return InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: label,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color fg = _resolveFg(cs, s, variant);
         final BorderRadius radius = _shape(s);
@@ -202,13 +198,11 @@ class _MainAction extends StatelessWidget {
   }
 
   BorderRadius _shape(InteractionStates s) => BorderRadius.horizontal(
-        left: const Radius.circular(FrostedSplitButton._pill),
-        right: Radius.circular(
-          s.pressed
-              ? FrostedSplitButton._innerPressed
-              : FrostedSplitButton._inner,
-        ),
-      );
+    left: const Radius.circular(FrostedSplitButton._pill),
+    right: Radius.circular(
+      s.pressed ? FrostedSplitButton._innerPressed : FrostedSplitButton._inner,
+    ),
+  );
 }
 
 class _ChevronAction extends StatelessWidget {
@@ -235,14 +229,8 @@ class _ChevronAction extends StatelessWidget {
         shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
         surfaceTintColor: WidgetStatePropertyAll<Color>(Colors.transparent),
       ),
-      menuChildren: <Widget>[
-        _SplitMenu(items: items),
-      ],
-      builder: (
-        BuildContext context,
-        MenuController controller,
-        Widget? _,
-      ) {
+      menuChildren: <Widget>[_SplitMenu(items: items)],
+      builder: (BuildContext context, MenuController controller, Widget? _) {
         final bool open = controller.isOpen;
         return InteractiveSurface(
           onTap: enabled
@@ -254,16 +242,6 @@ class _ChevronAction extends StatelessWidget {
                   }
                 }
               : null,
-          shape: (InteractionStates s) => open
-              ? BorderRadius.circular(FrostedSplitButton._pill)
-              : BorderRadius.horizontal(
-                  left: Radius.circular(
-                    s.pressed
-                        ? FrostedSplitButton._innerPressed
-                        : FrostedSplitButton._inner,
-                  ),
-                  right: const Radius.circular(FrostedSplitButton._pill),
-                ),
           builder: (BuildContext context, InteractionStates s) {
             final Color fg = _resolveFg(cs, s, variant);
             final BorderRadius radius = open
@@ -327,11 +305,7 @@ class _SplitMenu extends StatelessWidget {
   }
 }
 
-Color _resolveBg(
-  ColorScheme cs,
-  InteractionStates s,
-  _SplitVariant variant,
-) {
+Color _resolveBg(ColorScheme cs, InteractionStates s, _SplitVariant variant) {
   if (!s.enabled) {
     if (variant == _SplitVariant.filled || variant == _SplitVariant.tonal) {
       return cs.onSurface.withValues(alpha: 0.12);
@@ -366,11 +340,7 @@ Color _resolveBg(
   return Color.alphaBlend(overlay.withValues(alpha: alpha), base);
 }
 
-Color _resolveFg(
-  ColorScheme cs,
-  InteractionStates s,
-  _SplitVariant variant,
-) {
+Color _resolveFg(ColorScheme cs, InteractionStates s, _SplitVariant variant) {
   if (!s.enabled) return cs.onSurface.withValues(alpha: 0.38);
   switch (variant) {
     case _SplitVariant.filled:

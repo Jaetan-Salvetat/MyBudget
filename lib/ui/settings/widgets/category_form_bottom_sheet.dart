@@ -39,10 +39,12 @@ class CategoryFormBottomSheet extends StatefulWidget {
     required CategoryDisplay initial,
     required CategoryDisplay defaults,
   }) {
-    return FrostedBottomSheet.show<CategoryFormResult>(
+    return showFrostedBottomSheet<CategoryFormResult>(
       context: context,
-      title: 'Personnaliser « ${initial.label} »',
-      child: CategoryFormBottomSheet(initial: initial, defaults: defaults),
+      builder: (_) => FrostedBottomSheet(
+        title: 'Personnaliser « ${initial.label} »',
+        child: CategoryFormBottomSheet(initial: initial, defaults: defaults),
+      ),
     );
   }
 
@@ -52,8 +54,9 @@ class CategoryFormBottomSheet extends StatefulWidget {
 }
 
 class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
-  late final TextEditingController _nameController =
-      TextEditingController(text: widget.initial.label);
+  late final TextEditingController _nameController = TextEditingController(
+    text: widget.initial.label,
+  );
   late int _selectedColor = widget.initial.color;
   late String _selectedIcon = widget.initial.icon;
 
@@ -80,14 +83,11 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
       children: [
         Flexible(child: _fields(theme)),
         const SizedBox(height: 16),
-        FrostedFilledButton(
-          onPressed: _submit,
-          child: const Text('Enregistrer'),
-        ),
+        FrostedButton.filled(label: 'Enregistrer', onPressed: _submit),
         if (_isCustomised)
-          FrostedTextButton(
+          FrostedButton.text(
+            label: 'Réinitialiser',
             onPressed: () => Navigator.pop(context, const CategoryReset()),
-            child: const Text('Réinitialiser'),
           ),
       ],
     );
@@ -108,9 +108,9 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
         const SizedBox(height: 20),
         FrostedTextField(
           controller: _nameController,
-          labelText: 'Nom de la catégorie',
+          label: 'Nom de la catégorie',
           hintText: widget.defaults.label,
-          prefixIcon: const Icon(Symbols.label_rounded),
+          leadingIcon: Symbols.label_rounded,
         ),
         const SizedBox(height: 6),
         Text(
@@ -161,8 +161,11 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
                     : null,
               ),
               child: _selectedColor == color
-                  ? const Icon(Symbols.check_rounded,
-                      color: Colors.white, size: 18)
+                  ? const Icon(
+                      Symbols.check_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    )
                   : null,
             ),
           ),
@@ -185,8 +188,9 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
               decoration: BoxDecoration(
                 color: _selectedIcon == entry.key
                     ? Color(_selectedColor).withValues(alpha: 0.15)
-                    : theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5),
+                    : theme.colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.5,
+                      ),
                 borderRadius: BorderRadius.circular(10),
                 border: _selectedIcon == entry.key
                     ? Border.all(color: Color(_selectedColor), width: 2)
@@ -230,10 +234,9 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context)
-          .textTheme
-          .titleSmall
-          ?.copyWith(fontWeight: FontWeight.w600),
+      style: Theme.of(
+        context,
+      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }

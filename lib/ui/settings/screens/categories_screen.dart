@@ -5,7 +5,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/category_override_model.dart';
-import 'package:mybudget/ui/common/widgets/app_top_bar.dart';
 import 'package:mybudget/ui/common/widgets/category_tile.dart';
 import 'package:mybudget/ui/common/widgets/expandable_group.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
@@ -39,12 +38,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     final topInset = MediaQuery.of(context).padding.top;
 
     return FrostedScaffold(
-      appBar: const AppTopBar(title: 'Catégories'),
-      child: Padding(
+      appBar: const FrostedTopBar(title: 'Catégories'),
+      body: Padding(
         padding: EdgeInsets.fromLTRB(16, topInset + kToolbarHeight + 12, 16, 0),
-        child: ref.watch(categoryDisplayResolverProvider).when(
-              loading: () =>
-                  const Center(child: FrostedCircularProgressIndicator()),
+        child: ref
+            .watch(categoryDisplayResolverProvider)
+            .when(
+              loading: () => const Center(child: FrostedCircularProgress()),
               error: (error, _) => Center(child: Text('Erreur : $error')),
               data: (resolver) => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -96,7 +96,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             expanded: searching || _openGroupKey == entry.key,
             collapsible: !searching,
             onToggle: () => setState(
-              () => _openGroupKey = _openGroupKey == entry.key ? null : entry.key,
+              () =>
+                  _openGroupKey = _openGroupKey == entry.key ? null : entry.key,
             ),
             onEdit: (category) => _edit(resolver, category),
           ),
@@ -238,11 +239,9 @@ class _Trailing extends StatelessWidget {
           ),
         Tooltip(
           message: 'Personnaliser',
-          child: FrostedIconButton(
+          child: FrostedIconButton.standard(
             icon: Symbols.tune_rounded,
-            iconSize: 18,
-            size: 36,
-            color: scheme.onSurfaceVariant,
+            size: FrostedIconButtonSize.small,
             onPressed: onEdit,
           ),
         ),

@@ -8,7 +8,6 @@ import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/common/widgets/app_top_bar.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_hero.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_info_card.dart';
@@ -50,7 +49,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     final exists = loans.any((l) => l.id == loan.id);
     if (!exists) {
       return const FrostedScaffold(
-        child: Center(child: FrostedCircularProgressIndicator()),
+        body: Center(child: FrostedCircularProgress()),
       );
     }
 
@@ -61,8 +60,8 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     );
 
     return FrostedScaffold(
-      appBar: const AppTopBar(title: 'Détail du prêt'),
-      child: SingleChildScrollView(
+      appBar: const FrostedTopBar(title: 'Détail du prêt'),
+      body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 120, 16, 24),
         child: Column(
@@ -78,8 +77,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
               title: 'Assurance',
               rows: _buildInsuranceRows(updatedLoan),
             ),
-            if (updatedLoan.notes != null &&
-                updatedLoan.notes!.isNotEmpty) ...[
+            if (updatedLoan.notes != null && updatedLoan.notes!.isNotEmpty) ...[
               const SizedBox(height: 18),
               _buildNotesCard(context, updatedLoan.notes!),
             ],
@@ -96,38 +94,22 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     Loan loan,
     List<AccountModel> accounts,
   ) {
-    final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
-          child: FrostedTonalButton(
+          child: FrostedButton.tonal(
+            label: 'Modifier',
+            icon: Symbols.edit_rounded,
             onPressed: () => _showEditLoanBottomSheet(context, loan, accounts),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Symbols.edit_rounded, size: 18),
-                SizedBox(width: 8),
-                Text('Modifier'),
-              ],
-            ),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: FrostedOutlinedButton(
+          child: FrostedButton.outlined(
+            label: 'Supprimer',
+            icon: Symbols.delete_rounded,
+            destructive: true,
             onPressed: () => _showDeleteConfirmation(context, loan),
-            foregroundColor: scheme.error,
-            borderColor: scheme.error.withValues(alpha: 0.5),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Symbols.delete_rounded, size: 18),
-                SizedBox(width: 8),
-                Text('Supprimer'),
-              ],
-            ),
           ),
         ),
       ],
@@ -155,13 +137,9 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
       ),
       LoanDetailRow(
         label: 'Taux d\'intérêt',
-        value:
-            '${loan.interestRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+        value: '${loan.interestRate.toStringAsFixed(2).replaceAll('.', ',')} %',
       ),
-      LoanDetailRow(
-        label: 'Durée',
-        value: '${_durationMonths(loan)} mois',
-      ),
+      LoanDetailRow(label: 'Durée', value: '${_durationMonths(loan)} mois'),
       LoanDetailRow(
         label: 'Type',
         value: loan.repaymentType.label,
@@ -202,11 +180,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   List<LoanDetailRow> _buildInsuranceRows(Loan loan) {
     if (loan.insuranceType == LoanInsuranceType.none) {
       return const [
-        LoanDetailRow(
-          label: 'Type',
-          value: 'Aucune',
-          showDivider: false,
-        ),
+        LoanDetailRow(label: 'Type', value: 'Aucune', showDivider: false),
       ];
     }
 
@@ -228,8 +202,6 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   Widget _buildNotesCard(BuildContext context, String notes) {
     final scheme = Theme.of(context).colorScheme;
     return FrostedCard(
-      margin: EdgeInsets.zero,
-      borderRadius: 16,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,39 +281,41 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context, Loan loan) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Confirmer la suppression'),
-      content: const Text(
-        'Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.',
+      builder: (_) => FrostedDialog(
+        title: 'Confirmer la suppression',
+        body: const Text(
+          'Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.',
+        ),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+          FrostedButton.text(
+            label: 'Supprimer',
+            destructive: true,
+            onPressed: () async {
+              try {
+                await ref.read(loanProvider.notifier).deleteLoan(loan.id);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  FrostedSnackbar.show(
+                    context,
+                    message: 'Erreur lors de la suppression: $e',
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedTextButton(
-          foregroundColor: Theme.of(context).colorScheme.error,
-          onPressed: () async {
-            try {
-              await ref.read(loanProvider.notifier).deleteLoan(loan.id);
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              }
-            } catch (e) {
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                FrostedSnackbar.show(
-                  context,
-                  message: 'Erreur lors de la suppression: $e',
-                );
-              }
-            }
-          },
-          child: const Text('Supprimer'),
-        ),
-      ],
     );
   }
 }

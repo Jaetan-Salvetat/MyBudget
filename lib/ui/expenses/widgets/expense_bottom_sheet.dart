@@ -34,22 +34,23 @@ class ExpenseBottomSheet extends ConsumerStatefulWidget {
     ExpenseModel? expense,
     List<ExpenseModel> closedExpenses = const [],
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: expense == null ? 'Ajouter une dépense' : 'Modifier la dépense',
-      child: ExpenseBottomSheet(
-        accounts: accounts,
-        onSubmit: onSubmit,
-        onCancel: onCancel,
-        expense: expense,
-        closedExpenses: closedExpenses,
+      builder: (_) => FrostedBottomSheet(
+        title: expense == null ? 'Ajouter une dépense' : 'Modifier la dépense',
+        child: ExpenseBottomSheet(
+          accounts: accounts,
+          onSubmit: onSubmit,
+          onCancel: onCancel,
+          expense: expense,
+          closedExpenses: closedExpenses,
+        ),
       ),
     );
   }
 
   @override
-  ConsumerState<ExpenseBottomSheet> createState() =>
-      _ExpenseBottomSheetState();
+  ConsumerState<ExpenseBottomSheet> createState() => _ExpenseBottomSheetState();
 }
 
 class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
@@ -132,27 +133,26 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
       });
     }
 
-    final expense =
-        widget.expense != null
-            ? widget.expense!.copyWith(
-              name: _nameController.text.trim(),
-              amount: amount,
-              categorySlug: _selectedCategorySlug,
-              startDate: _selectedDate,
-              frequency: _selectedFrequency,
-              accountId: _selectedAccountId!,
-              beneficiaryId: _selectedBeneficiaryId,
-            )
-            : ExpenseModel.create(
-              name: _nameController.text.trim(),
-              amount: amount,
-              categorySlug: _selectedCategorySlug,
-              startDate: _selectedDate,
-              frequency: _selectedFrequency,
-              accountId: _selectedAccountId!,
-              beneficiaryId: _selectedBeneficiaryId,
-              parentId: _parentId,
-            );
+    final expense = widget.expense != null
+        ? widget.expense!.copyWith(
+            name: _nameController.text.trim(),
+            amount: amount,
+            categorySlug: _selectedCategorySlug,
+            startDate: _selectedDate,
+            frequency: _selectedFrequency,
+            accountId: _selectedAccountId!,
+            beneficiaryId: _selectedBeneficiaryId,
+          )
+        : ExpenseModel.create(
+            name: _nameController.text.trim(),
+            amount: amount,
+            categorySlug: _selectedCategorySlug,
+            startDate: _selectedDate,
+            frequency: _selectedFrequency,
+            accountId: _selectedAccountId!,
+            beneficiaryId: _selectedBeneficiaryId,
+            parentId: _parentId,
+          );
 
     widget.onSubmit(expense);
     Navigator.pop(context);
@@ -173,36 +173,42 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
   }
 
   void _showClosedExpensePicker(BuildContext context) {
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
-    FrostedDialog.show(
+    final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 2,
+    );
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Reprendre une dépense'),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 300,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.closedExpenses.length,
-          itemBuilder: (context, index) {
-            final expense = widget.closedExpenses[index];
-            return FrostedListTile(
-              title: Text(expense.name),
-              subtitle: Text(formatter.format(expense.amount)),
-              trailing: const Icon(Symbols.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(context);
-                _fillFromClosedExpense(expense);
-              },
-            );
-          },
+      builder: (_) => FrostedDialog(
+        title: 'Reprendre une dépense',
+        body: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.closedExpenses.length,
+            itemBuilder: (context, index) {
+              final expense = widget.closedExpenses[index];
+              return FrostedListTile(
+                title: expense.name,
+                subtitle: formatter.format(expense.amount),
+                trailing: const Icon(Symbols.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(context);
+                  _fillFromClosedExpense(expense);
+                },
+              );
+            },
+          ),
         ),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-      ],
     );
   }
 
@@ -221,16 +227,10 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
             if (widget.expense == null && widget.closedExpenses.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: FrostedTextButton(
+                child: FrostedButton.text(
+                  label: 'Reprendre une ancienne dépense',
+                  icon: Symbols.history_rounded,
                   onPressed: () => _showClosedExpensePicker(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Symbols.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text('Reprendre une ancienne dépense'),
-                    ],
-                  ),
                 ),
               ),
             Text(
@@ -243,16 +243,16 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
             const SizedBox(height: 12),
             FrostedTextField(
               controller: _nameController,
-              labelText: 'Nom',
+              label: 'Nom',
               hintText: 'Ex: Loyer',
-              prefixIcon: const Icon(Symbols.edit_rounded),
+              leadingIcon: Symbols.edit_rounded,
             ),
             const SizedBox(height: 16),
             FrostedTextField(
               controller: _amountController,
-              labelText: 'Montant',
+              label: 'Montant',
               hintText: '0.00',
-              prefixIcon: const Icon(Symbols.euro_rounded),
+              leadingIcon: Symbols.euro_rounded,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -336,20 +336,17 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
                 const SizedBox(height: 8),
                 FrostedDropdown<int>(
                   value: _selectedAccountId,
-                  items:
-                      widget.accounts.map((account) {
-                        return DropdownMenuItem<int>(
-                          value: account.id,
-                          child: Text(account.name),
-                        );
-                      }).toList(),
+                  items: widget.accounts.map((account) {
+                    return FrostedDropdownItem<int>(
+                      value: account.id,
+                      label: account.name,
+                    );
+                  }).toList(),
                   onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedAccountId = value;
-                        _accountError = null;
-                      });
-                    }
+                    setState(() {
+                      _selectedAccountId = value;
+                      _accountError = null;
+                    });
                   },
                 ),
                 if (_accountError != null)
@@ -380,21 +377,20 @@ class _ExpenseBottomSheetState extends ConsumerState<ExpenseBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FrostedTextButton(
+                FrostedButton.text(
+                  label: 'Annuler',
                   onPressed: () {
                     widget.onCancel();
                     Navigator.pop(context);
                   },
-                  child: const Text('Annuler'),
                 ),
                 const SizedBox(width: 16),
-                FrostedFilledButton(
-                  onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
+                FrostedButton.filled(
+                  label: widget.expense == null ? 'Ajouter' : 'Enregistrer',
+                  onPressed:
+                      _beneficiaryEnabled && _selectedBeneficiaryId == null
                       ? null
                       : _handleSubmit,
-                  child: Text(
-                    widget.expense == null ? 'Ajouter' : 'Enregistrer',
-                  ),
                 ),
               ],
             ),

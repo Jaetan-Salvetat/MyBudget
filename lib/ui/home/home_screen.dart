@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,12 +39,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           FrostedSnackbar.show(
             context,
             message: 'Mise à jour v${next.availableUpdate!.version} disponible',
-            action: SnackBarAction(
-              label: 'Voir',
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const UpdateScreen()),
-              ),
+            actionLabel: 'Voir',
+            onAction: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const UpdateScreen()),
             ),
           );
         }
@@ -56,7 +52,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   static const List<_NavItem> _items = [
     _NavItem('Accueil', Symbols.dashboard_rounded, Symbols.dashboard_rounded),
-    _NavItem('Transactions', Symbols.swap_vert_rounded, Symbols.swap_vert_rounded),
+    _NavItem(
+      'Transactions',
+      Symbols.swap_vert_rounded,
+      Symbols.swap_vert_rounded,
+    ),
     _NavItem(
       'Comptes',
       Symbols.account_balance_rounded,
@@ -91,7 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onNoAccount: () => _showNoAccountDialog(context, 'une dépense'),
               ),
             if (!keyboardVisible)
-              FrostedBottomNavigationBar(
+              FrostedBottomBar(
                 currentIndex: _selectedIndex,
                 onTap: (index) {
                   if (_selectedIndex != index) {
@@ -100,9 +100,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
                 items: _items
                     .map(
-                      (item) => BottomNavigationBarItem(
-                        icon: Icon(item.icon),
-                        activeIcon: Icon(item.selectedIcon),
+                      (item) => FrostedNavItem(
+                        icon: item.icon,
+                        selectedIcon: item.selectedIcon,
                         label: item.label,
                       ),
                     )
@@ -111,7 +111,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-      child: FrostedBackground(
+      body: FrostedBackground(
         child: Stack(
           children: [
             IndexedStack(index: _selectedIndex, children: screens),
@@ -123,19 +123,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
       barrierDismissible: false,
-      title: const Text('Aucun compte disponible'),
-      content: Text(
-        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -166,14 +168,11 @@ class _QuickAddScrim extends ConsumerWidget {
           onTap: dismissible
               ? () => ref.read(quickAddProvider.notifier).reset()
               : null,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: FrostedBlur.medium,
-              sigmaY: FrostedBlur.medium,
-            ),
-            child: ColoredBox(
-              color: Colors.black.withValues(alpha: FrostedOpacity.half),
-            ),
+          child: const FrostedGlass(
+            level: FrostedGlassLevel.regular,
+            tone: FrostedGlassTone.dark,
+            elevation: FrostedGlassElevation.none,
+            borderRadius: BorderRadius.zero,
           ),
         ),
       ),

@@ -71,10 +71,9 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
   Widget build(BuildContext context) {
     final currentPage = ref.watch(onboardingProvider);
     final isLast = currentPage == _slideCount - 1;
-    final scheme = Theme.of(context).colorScheme;
 
     return FrostedScaffold(
-      child: SafeArea(
+      body: SafeArea(
         child: Column(
           children: [
             SizedBox(
@@ -85,17 +84,9 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (!isLast)
-                      FrostedTextButton(
+                      FrostedButton.text(
+                        label: 'Passer',
                         onPressed: _finishOnboarding,
-                        foregroundColor: scheme.onSurfaceVariant,
-                        child: const Text(
-                          'Passer',
-                          style: TextStyle(
-                            fontSize: 14,
-                            height: 20 / 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                       ),
                   ],
                 ),
@@ -104,8 +95,9 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                onPageChanged:
-                    ref.read(onboardingProvider.notifier).onPageChanged,
+                onPageChanged: ref
+                    .read(onboardingProvider.notifier)
+                    .onPageChanged,
                 children: const [
                   OnboardingSlide(
                     title: 'Ton argent, sans le flou.',
@@ -134,31 +126,12 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
                 children: [
                   _PagerDots(currentIndex: currentPage, count: _slideCount),
                   const Spacer(),
-                  FrostedFilledButton(
+                  FrostedButton.filled(
+                    label: isLast ? 'Commencer' : 'Suivant',
+                    icon: isLast
+                        ? Symbols.check_rounded
+                        : Symbols.arrow_forward_rounded,
                     onPressed: isLast ? _finishOnboarding : _nextPage,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          isLast ? 'Commencer' : 'Suivant',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          isLast
-                              ? Symbols.check_rounded
-                              : Symbols.arrow_forward_rounded,
-                          size: 18,
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),

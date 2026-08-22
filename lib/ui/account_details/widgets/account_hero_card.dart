@@ -48,11 +48,10 @@ class AccountHeroCard extends StatelessWidget {
           ),
         ],
       ),
-      child: FrostedContainer(
+      child: FrostedGlass(
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
-        borderRadius: BorderRadius.circular(22),
-        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
-        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
+        borderRadius: BorderRadius.circular(FrostedRadius.xl),
+        elevation: FrostedGlassElevation.none,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

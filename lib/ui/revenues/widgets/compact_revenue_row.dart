@@ -47,10 +47,14 @@ class CompactRevenueRow extends StatelessWidget {
 
     final dateLabel = switch (revenue.frequencyEnum) {
       Frequency.monthly => 'Le ${revenue.startDate.day}',
-      Frequency.annual =>
-        DateFormat("'Le' d MMMM", 'fr_FR').format(revenue.startDate),
-      Frequency.oneTime =>
-        DateFormat('d MMMM', 'fr_FR').format(revenue.startDate),
+      Frequency.annual => DateFormat(
+        "'Le' d MMMM",
+        'fr_FR',
+      ).format(revenue.startDate),
+      Frequency.oneTime => DateFormat(
+        'd MMMM',
+        'fr_FR',
+      ).format(revenue.startDate),
     };
 
     final metaParts = <String>[
@@ -142,60 +146,59 @@ class CompactRevenueRow extends StatelessWidget {
   }
 
   void _showOptionsBottomSheet(BuildContext context) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Actions',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FrostedListTile(
-            leading: const Icon(Symbols.edit_rounded),
-            title: const Text('Modifier'),
-            onTap: () {
-              Navigator.pop(context);
-              onEdit();
-            },
-          ),
-          FrostedListTile(
-            leading: Icon(
-              Symbols.delete_rounded,
-              color: Theme.of(context).colorScheme.error,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Actions',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FrostedListTile(
+              title: 'Modifier',
+              leading: const Icon(Symbols.edit_rounded),
+              onTap: () {
+                Navigator.pop(context);
+                onEdit();
+              },
             ),
-            title: Text(
-              'Supprimer',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            FrostedListTile(
+              title: 'Supprimer',
+              leading: Icon(
+                Symbols.delete_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context);
+              },
             ),
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteConfirmation(context);
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Confirmer la suppression'),
-      content: const Text('Voulez-vous vraiment supprimer ce revenu ?'),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedTextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            onDelete();
-          },
-          child: Text(
-            'Supprimer',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+      builder: (_) => FrostedDialog(
+        title: 'Confirmer la suppression',
+        body: const Text('Voulez-vous vraiment supprimer ce revenu ?'),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-      ],
+          FrostedButton.text(
+            label: 'Supprimer',
+            destructive: true,
+            onPressed: () {
+              Navigator.pop(context);
+              onDelete();
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -231,14 +234,8 @@ class _Leading extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: ringColor != null
                   ? [
-                      BoxShadow(
-                        color: scheme.surface,
-                        spreadRadius: 1.5,
-                      ),
-                      BoxShadow(
-                        color: ringColor!,
-                        spreadRadius: 3,
-                      ),
+                      BoxShadow(color: scheme.surface, spreadRadius: 1.5),
+                      BoxShadow(color: ringColor!, spreadRadius: 3),
                     ]
                   : null,
             ),

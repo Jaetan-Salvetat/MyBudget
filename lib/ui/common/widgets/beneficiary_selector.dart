@@ -16,7 +16,8 @@ class BeneficiarySelector extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<BeneficiarySelector> createState() => _BeneficiarySelectorState();
+  ConsumerState<BeneficiarySelector> createState() =>
+      _BeneficiarySelectorState();
 }
 
 class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
@@ -131,9 +132,9 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
           if (_isCreating) ...[
             FrostedTextField(
               controller: _newNameController,
-              labelText: 'Nom du bénéficiaire',
+              label: 'Nom du bénéficiaire',
               hintText: 'Ex: Paul',
-              prefixIcon: const Icon(Symbols.person_rounded),
+              leadingIcon: Symbols.person_rounded,
             ),
             if (_createError != null)
               Padding(
@@ -150,22 +151,22 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
             Row(
               children: [
                 if (beneficiaries.isNotEmpty)
-                  FrostedTextButton(
+                  FrostedButton.text(
+                    label: 'Annuler',
                     onPressed: _isLoading
                         ? null
                         : () => setState(() {
-                              _isCreating = false;
-                              _newNameController.clear();
-                              _createError = null;
-                            }),
-                    child: const Text('Annuler'),
+                            _isCreating = false;
+                            _newNameController.clear();
+                            _createError = null;
+                          }),
                   ),
                 const Spacer(),
                 _isLoading
-                    ? const FrostedCircularProgressIndicator(strokeWidth: 2, size: 24)
-                    : FrostedFilledButton(
+                    ? const FrostedCircularProgress(size: 24)
+                    : FrostedButton.filled(
+                        label: 'Confirmer',
                         onPressed: _confirmCreate,
-                        child: const Text('Confirmer'),
                       ),
               ],
             ),
@@ -177,9 +178,9 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
                     value: _selectedId,
                     items: beneficiaries
                         .map(
-                          (b) => DropdownMenuItem<int>(
+                          (b) => FrostedDropdownItem<int>(
                             value: b.id,
-                            child: Text(b.name),
+                            label: b.name,
                           ),
                         )
                         .toList(),
@@ -187,7 +188,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                FrostedIconButton(
+                FrostedIconButton.standard(
                   icon: Symbols.add_rounded,
                   onPressed: () => setState(() {
                     _isCreating = true;

@@ -30,15 +30,19 @@ class TransferBottomSheet extends StatefulWidget {
     TransferModel? transfer,
     List<TransferModel> closedTransfers = const [],
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: transfer == null ? 'Ajouter un virement' : 'Modifier le virement',
-      child: TransferBottomSheet(
-        accounts: accounts,
-        onSubmit: onSubmit,
-        onCancel: onCancel,
-        transfer: transfer,
-        closedTransfers: closedTransfers,
+      builder: (_) => FrostedBottomSheet(
+        title: transfer == null
+            ? 'Ajouter un virement'
+            : 'Modifier le virement',
+        child: TransferBottomSheet(
+          accounts: accounts,
+          onSubmit: onSubmit,
+          onCancel: onCancel,
+          transfer: transfer,
+          closedTransfers: closedTransfers,
+        ),
       ),
     );
   }
@@ -84,9 +88,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   }
 
   List<AccountModel> get _availableDestinations =>
-      widget.accounts
-          .where((a) => a.id != _selectedFromAccountId)
-          .toList();
+      widget.accounts.where((a) => a.id != _selectedFromAccountId).toList();
 
   bool _validateFields() {
     bool isValid = true;
@@ -144,36 +146,42 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   }
 
   void _showClosedTransferPicker(BuildContext context) {
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
-    FrostedDialog.show(
+    final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 2,
+    );
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Reprendre un virement'),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 300,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.closedTransfers.length,
-          itemBuilder: (context, index) {
-            final transfer = widget.closedTransfers[index];
-            return FrostedListTile(
-              title: Text(transfer.name),
-              subtitle: Text(formatter.format(transfer.amount)),
-              trailing: const Icon(Symbols.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(context);
-                _fillFromClosedTransfer(transfer);
-              },
-            );
-          },
+      builder: (_) => FrostedDialog(
+        title: 'Reprendre un virement',
+        body: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.closedTransfers.length,
+            itemBuilder: (context, index) {
+              final transfer = widget.closedTransfers[index];
+              return FrostedListTile(
+                title: transfer.name,
+                subtitle: formatter.format(transfer.amount),
+                trailing: const Icon(Symbols.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(context);
+                  _fillFromClosedTransfer(transfer);
+                },
+              );
+            },
+          ),
         ),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-      ],
     );
   }
 
@@ -185,25 +193,24 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
 
-    final transfer =
-        widget.transfer != null
-            ? widget.transfer!.copyWith(
-              name: _nameController.text.trim(),
-              amount: amount,
-              fromAccountId: _selectedFromAccountId!,
-              toAccountId: _selectedToAccountId!,
-              startDate: _selectedDate,
-              frequency: _selectedFrequency,
-            )
-            : TransferModel.create(
-              name: _nameController.text.trim(),
-              amount: amount,
-              fromAccountId: _selectedFromAccountId!,
-              toAccountId: _selectedToAccountId!,
-              startDate: _selectedDate,
-              frequency: _selectedFrequency,
-              parentId: _parentId,
-            );
+    final transfer = widget.transfer != null
+        ? widget.transfer!.copyWith(
+            name: _nameController.text.trim(),
+            amount: amount,
+            fromAccountId: _selectedFromAccountId!,
+            toAccountId: _selectedToAccountId!,
+            startDate: _selectedDate,
+            frequency: _selectedFrequency,
+          )
+        : TransferModel.create(
+            name: _nameController.text.trim(),
+            amount: amount,
+            fromAccountId: _selectedFromAccountId!,
+            toAccountId: _selectedToAccountId!,
+            startDate: _selectedDate,
+            frequency: _selectedFrequency,
+            parentId: _parentId,
+          );
 
     widget.onSubmit(transfer);
     Navigator.pop(context);
@@ -216,207 +223,191 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.transfer == null && widget.closedTransfers.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: FrostedTextButton(
-                  onPressed: () => _showClosedTransferPicker(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Symbols.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text('Reprendre un ancien virement'),
-                    ],
-                  ),
-                ),
-              ),
-            Text(
-              'Informations',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.transfer == null && widget.closedTransfers.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FrostedButton.text(
+                label: 'Reprendre un ancien virement',
+                icon: Symbols.history_rounded,
+                onPressed: () => _showClosedTransferPicker(context),
               ),
             ),
-            const SizedBox(height: 12),
-            FrostedTextField(
-              controller: _nameController,
-              labelText: 'Nom',
-              hintText: 'Ex: Épargne mensuelle',
-              prefixIcon: const Icon(Symbols.edit_rounded),
+          Text(
+            'Informations',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
-            if (_nameError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                child: Text(
-                  _nameError!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontSize: 12,
-                  ),
+          ),
+          const SizedBox(height: 12),
+          FrostedTextField(
+            controller: _nameController,
+            label: 'Nom',
+            hintText: 'Ex: Épargne mensuelle',
+            leadingIcon: Symbols.edit_rounded,
+          ),
+          if (_nameError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _nameError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
                 ),
               ),
-            const SizedBox(height: 16),
-            FrostedTextField(
-              controller: _amountController,
-              labelText: 'Montant',
-              hintText: '0.00',
-              prefixIcon: const Icon(Symbols.euro_rounded),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
             ),
-            if (_amountError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                child: Text(
-                  _amountError!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontSize: 12,
-                  ),
+          const SizedBox(height: 16),
+          FrostedTextField(
+            controller: _amountController,
+            label: 'Montant',
+            hintText: '0.00',
+            leadingIcon: Symbols.euro_rounded,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          if (_amountError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+              child: Text(
+                _amountError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
                 ),
               ),
+            ),
 
-            const SizedBox(height: 24),
+          const SizedBox(height: 24),
 
-            Text(
-              'Comptes',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            'Comptes',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 12),
+          ),
+          const SizedBox(height: 12),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Compte source',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Compte source',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 8),
-                FrostedDropdown<int>(
-                  value: _selectedFromAccountId,
-                  items:
-                      widget.accounts.map((account) {
-                        return DropdownMenuItem<int>(
-                          value: account.id,
-                          child: Text(account.name),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedFromAccountId = value;
-                        _fromAccountError = null;
-                        if (_selectedToAccountId == value) {
-                          _selectedToAccountId = null;
-                        }
-                      });
+              ),
+              const SizedBox(height: 8),
+              FrostedDropdown<int>(
+                value: _selectedFromAccountId,
+                items: widget.accounts.map((account) {
+                  return FrostedDropdownItem<int>(
+                    value: account.id,
+                    label: account.name,
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedFromAccountId = value;
+                    _fromAccountError = null;
+                    if (_selectedToAccountId == value) {
+                      _selectedToAccountId = null;
                     }
-                  },
-                ),
-                if (_fromAccountError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      _fromAccountError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Compte destination',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FrostedDropdown<int>(
-                  value: _selectedToAccountId,
-                  items:
-                      _availableDestinations.map((account) {
-                        return DropdownMenuItem<int>(
-                          value: account.id,
-                          child: Text(account.name),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedToAccountId = value;
-                        _toAccountError = null;
-                      });
-                    }
-                  },
-                ),
-                if (_toAccountError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                    child: Text(
-                      _toAccountError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            ExpenseFrequencyDateSection(
-              frequency: _selectedFrequency,
-              date: _selectedDate,
-              onChanged: (freq, date) {
-                setState(() {
-                  _selectedFrequency = freq;
-                  _selectedDate = date;
-                });
-              },
-            ),
-
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FrostedTextButton(
-                  onPressed: () {
-                    widget.onCancel();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Annuler'),
-                ),
-                const SizedBox(width: 16),
-                FrostedFilledButton(
-                  onPressed: _handleSubmit,
+                  });
+                },
+              ),
+              if (_fromAccountError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                   child: Text(
-                    widget.transfer == null ? 'Ajouter' : 'Enregistrer',
+                    _fromAccountError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ],
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Compte destination',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
+              FrostedDropdown<int>(
+                value: _selectedToAccountId,
+                items: _availableDestinations.map((account) {
+                  return FrostedDropdownItem<int>(
+                    value: account.id,
+                    label: account.name,
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedToAccountId = value;
+                    _toAccountError = null;
+                  });
+                },
+              ),
+              if (_toAccountError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    _toAccountError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          ExpenseFrequencyDateSection(
+            frequency: _selectedFrequency,
+            date: _selectedDate,
+            onChanged: (freq, date) {
+              setState(() {
+                _selectedFrequency = freq;
+                _selectedDate = date;
+              });
+            },
+          ),
+
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FrostedButton.text(
+                label: 'Annuler',
+                onPressed: () {
+                  widget.onCancel();
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(width: 16),
+              FrostedButton.filled(
+                label: widget.transfer == null ? 'Ajouter' : 'Enregistrer',
+                onPressed: _handleSubmit,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

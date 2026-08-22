@@ -41,8 +41,9 @@ class CompactExpenseRow extends StatelessWidget {
     final badgeColor = expense.frequencyEnum == Frequency.monthly
         ? scheme.primary
         : scheme.secondary;
-    final categoryColor =
-        category != null ? Color(category!.color) : scheme.primary;
+    final categoryColor = category != null
+        ? Color(category!.color)
+        : scheme.primary;
 
     final metaParts = <String>[
       if (showDate) _dateLabel(),
@@ -138,68 +139,71 @@ class CompactExpenseRow extends StatelessWidget {
   String _dateLabel() {
     return switch (expense.frequencyEnum) {
       Frequency.monthly => 'Le ${expense.startDate.day}',
-      Frequency.annual =>
-        DateFormat("'Le' d MMMM", 'fr_FR').format(expense.startDate),
-      Frequency.oneTime =>
-        DateFormat('d MMMM', 'fr_FR').format(expense.startDate),
+      Frequency.annual => DateFormat(
+        "'Le' d MMMM",
+        'fr_FR',
+      ).format(expense.startDate),
+      Frequency.oneTime => DateFormat(
+        'd MMMM',
+        'fr_FR',
+      ).format(expense.startDate),
     };
   }
 
   void _showOptionsBottomSheet(BuildContext context) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Actions',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FrostedListTile(
-            leading: const Icon(Symbols.edit_rounded),
-            title: const Text('Modifier'),
-            onTap: () {
-              Navigator.pop(context);
-              onEdit();
-            },
-          ),
-          FrostedListTile(
-            leading: Icon(
-              Symbols.delete_rounded,
-              color: Theme.of(context).colorScheme.error,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Actions',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FrostedListTile(
+              title: 'Modifier',
+              leading: const Icon(Symbols.edit_rounded),
+              onTap: () {
+                Navigator.pop(context);
+                onEdit();
+              },
             ),
-            title: Text(
-              'Supprimer',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            FrostedListTile(
+              title: 'Supprimer',
+              leading: Icon(
+                Symbols.delete_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context);
+              },
             ),
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteConfirmation(context);
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Confirmer la suppression'),
-      content: const Text('Voulez-vous vraiment supprimer cette dépense ?'),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedTextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            onDelete();
-          },
-          child: Text(
-            'Supprimer',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+      builder: (_) => FrostedDialog(
+        title: 'Confirmer la suppression',
+        body: const Text('Voulez-vous vraiment supprimer cette dépense ?'),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-      ],
+          FrostedButton.text(
+            label: 'Supprimer',
+            destructive: true,
+            onPressed: () {
+              Navigator.pop(context);
+              onDelete();
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -236,14 +240,8 @@ class _CategoryDot extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               boxShadow: ringColor != null
                   ? [
-                      BoxShadow(
-                        color: scheme.surface,
-                        spreadRadius: 1.5,
-                      ),
-                      BoxShadow(
-                        color: ringColor!,
-                        spreadRadius: 3,
-                      ),
+                      BoxShadow(color: scheme.surface, spreadRadius: 1.5),
+                      BoxShadow(color: ringColor!, spreadRadius: 3),
                     ]
                   : null,
             ),

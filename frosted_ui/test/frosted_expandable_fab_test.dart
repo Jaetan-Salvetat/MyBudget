@@ -39,8 +39,9 @@ void main() {
   }
 
   group('FrostedExpandableFab', () {
-    testWidgets('starts closed, showing only the trigger',
-        (WidgetTester tester) async {
+    testWidgets('starts closed, showing only the trigger', (
+      WidgetTester tester,
+    ) async {
       await pump(tester, actions: actionsRecording(<String>[]));
 
       expect(find.byIcon(Icons.add), findsOneWidget);
@@ -51,7 +52,7 @@ void main() {
     testWidgets('reveals every action on tap', (WidgetTester tester) async {
       await pump(tester, actions: actionsRecording(<String>[]));
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.upload), findsOneWidget);
@@ -60,24 +61,25 @@ void main() {
       expect(find.text('Dépense'), findsOneWidget);
     });
 
-    testWidgets('swaps the trigger glyph while open',
-        (WidgetTester tester) async {
+    testWidgets('swaps the trigger glyph while open', (
+      WidgetTester tester,
+    ) async {
       await pump(tester, actions: actionsRecording(<String>[]));
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.close), findsOneWidget);
       expect(find.byIcon(Icons.add), findsNothing);
     });
 
-    testWidgets('stacks the actions above the trigger',
-        (WidgetTester tester) async {
+    testWidgets('stacks the actions above the trigger', (
+      WidgetTester tester,
+    ) async {
       await pump(tester, actions: actionsRecording(<String>[]));
-      final double triggerTop =
-          tester.getTopLeft(find.byIcon(Icons.add)).dy;
+      final double triggerTop = tester.getTopLeft(find.byIcon(Icons.add)).dy;
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       expect(
@@ -90,19 +92,15 @@ void main() {
       );
     });
 
-    testWidgets('runs the action and closes on tap',
-        (WidgetTester tester) async {
+    testWidgets('runs the action and closes on tap', (
+      WidgetTester tester,
+    ) async {
       final List<String> log = <String>[];
       await pump(tester, actions: actionsRecording(log));
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.ancestor(
-          of: find.byIcon(Icons.download),
-          matching: find.byType(FrostedFab),
-        ),
-      );
+      await tester.tap(find.byIcon(Icons.download));
       await tester.pumpAndSettle();
 
       expect(log, <String>['depense']);
@@ -110,12 +108,13 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('closes on a scrim tap without running an action',
-        (WidgetTester tester) async {
+    testWidgets('closes on a scrim tap without running an action', (
+      WidgetTester tester,
+    ) async {
       final List<String> log = <String>[];
       await pump(tester, actions: actionsRecording(log));
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(20, 20));
       await tester.pumpAndSettle();
@@ -124,8 +123,9 @@ void main() {
       expect(find.byIcon(Icons.upload), findsNothing);
     });
 
-    testWidgets('exposes open, close and toggle through its state',
-        (WidgetTester tester) async {
+    testWidgets('exposes open, close and toggle through its state', (
+      WidgetTester tester,
+    ) async {
       final GlobalKey<FrostedExpandableFabState> key =
           GlobalKey<FrostedExpandableFabState>();
       await pump(tester, actions: actionsRecording(<String>[]), fabKey: key);
@@ -155,17 +155,18 @@ void main() {
         ],
       );
 
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.upload), findsOneWidget);
       expect(find.byType(Text), findsNothing);
     });
 
-    testWidgets('drops its overlay when disposed while open',
-        (WidgetTester tester) async {
+    testWidgets('drops its overlay when disposed while open', (
+      WidgetTester tester,
+    ) async {
       await pump(tester, actions: actionsRecording(<String>[]));
-      await tester.tap(find.byType(FrostedExpandableFab));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       await tester.pumpWidget(

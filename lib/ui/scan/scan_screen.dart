@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
@@ -99,17 +99,17 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final hasData = result != null && result.items.isNotEmpty;
 
     return FrostedScaffold(
-      appBar: FrostedAppBar(title: 'Scanner un ticket'),
+      appBar: FrostedTopBar(title: 'Scanner un ticket'),
       bottomNavigationBar: hasData ? _buildBottomBar(context, result) : null,
-      child: AnimatedSwitcher(
+      body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),
         child: isLoading
             ? _buildLoadingView(context)
             : hasError
-                ? _buildErrorView(context, scanState as AsyncError)
-                : hasData
-                    ? _buildValidationView(context, result)
-                    : _buildEmptyView(context),
+            ? _buildErrorView(context, scanState as AsyncError)
+            : hasData
+            ? _buildValidationView(context, result)
+            : _buildEmptyView(context),
       ),
     );
   }
@@ -148,7 +148,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           ),
         ),
         const SizedBox(height: 24),
-        FrostedLinearProgressIndicator(),
+        FrostedLinearProgress(),
         const SizedBox(height: 24),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
@@ -173,8 +173,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                   height: 60,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: opacity),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: opacity,
+                    ),
                   ),
                 ),
               );
@@ -263,9 +264,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
             ],
             const SizedBox(height: 24),
-            FrostedFilledButton(
+            FrostedButton.filled(
+              label: 'Réessayer',
               onPressed: canRetry ? _retry : null,
-              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -325,14 +326,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Aucun article détecté',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text('Aucun article détecté', style: theme.textTheme.titleMedium),
             const SizedBox(height: 24),
-            FrostedTextButton(
+            FrostedButton.text(
+              label: 'Retour',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Retour'),
             ),
           ],
         ),
@@ -348,9 +346,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final categories = resolver == null
         ? const <CategoryDisplay>[]
         : resolver
-            .groupsOfType(TransactionType.expense)
-            .expand((group) => resolver.childrenOf(group.slug))
-            .toList();
+              .groupsOfType(TransactionType.expense)
+              .expand((group) => resolver.childrenOf(group.slug))
+              .toList();
     final accounts = ref.watch(accountProvider).value ?? [];
     final formatter = NumberFormat.currency(
       locale: 'fr_FR',
@@ -359,36 +357,35 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
     final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
 
-
     final grouped = _groupItemsByCategory(result.items, categories);
-    final uncategorized =
-        result.items.where((i) => i.categorySlug == null).toList();
+    final uncategorized = result.items
+        .where((i) => i.categorySlug == null)
+        .toList();
 
     return ListView(
       key: const ValueKey('validation'),
-      padding: const EdgeInsets.only(top: 120, left: 16, right: 16, bottom: 145),
+      padding: const EdgeInsets.only(
+        top: 120,
+        left: 16,
+        right: 16,
+        bottom: 145,
+      ),
       children: [
-        _buildHeaderCard(
-          context,
-          result,
-          dateFormat,
-        ),
+        _buildHeaderCard(context, result, dateFormat),
         const SizedBox(height: 16),
         if (accounts.isNotEmpty)
           FrostedDropdown<int>(
             value: _selectedAccountId,
             items: accounts.map((account) {
-              return DropdownMenuItem<int>(
+              return FrostedDropdownItem<int>(
                 value: account.id,
-                child: Text(account.name),
+                label: account.name,
               );
             }).toList(),
             onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedAccountId = value);
-              }
+              setState(() => _selectedAccountId = value);
             },
-            hint: 'Compte',
+            hintText: 'Compte',
           ),
         const SizedBox(height: 16),
         ...grouped.entries.map((entry) {
@@ -550,10 +547,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     if (result == null) return const SizedBox.shrink();
 
     final indexedItems = items.map((item) {
-      return _IndexedItem(
-        index: result.items.indexOf(item),
-        item: item,
-      );
+      return _IndexedItem(index: result.items.indexOf(item), item: item);
     }).toList();
 
     return Padding(
@@ -617,12 +611,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final item = indexedItem.item;
 
     return InkWell(
-      onTap: () => _openEditSheet(
-        context,
-        indexedItem.index,
-        item,
-        categories,
-      ),
+      onTap: () => _openEditSheet(context, indexedItem.index, item, categories),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -635,12 +624,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                item.name,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
+            Expanded(child: Text(item.name, style: theme.textTheme.bodyMedium)),
             if (item.hasDiscount)
               Padding(
                 padding: const EdgeInsets.only(right: 6),
@@ -670,18 +654,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
   }
 
-  Widget _buildBottomBar(
-    BuildContext context,
-    ReceiptScanResultModel result,
-  ) {
+  Widget _buildBottomBar(BuildContext context, ReceiptScanResultModel result) {
     final formatter = NumberFormat.currency(
       locale: 'fr_FR',
       symbol: '€',
       decimalDigits: 2,
     );
     final total = result.items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
-    final hasUncategorized =
-        result.items.any((i) => i.categorySlug == null);
+    final hasUncategorized = result.items.any((i) => i.categorySlug == null);
     final categoryCount = _countCategories(result.items);
 
     return FrostedContainer(
@@ -711,13 +691,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: FrostedFilledButton(
+              child: FrostedButton.filled(
+                label:
+                    'Valider $categoryCount dépense${categoryCount > 1 ? 's' : ''}',
                 onPressed: hasUncategorized || _selectedAccountId == null
                     ? null
                     : () => _validateAndCreate(context),
-                child: Text(
-                  'Valider $categoryCount dépense${categoryCount > 1 ? 's' : ''}',
-                ),
               ),
             ),
           ],
@@ -770,11 +749,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       item: item,
       categories: categories,
       onCategoryChanged: (categorySlug, categoryName) {
-        ref.read(scanProvider.notifier).updateItemCategory(
-              index,
-              categorySlug,
-              categoryName,
-            );
+        ref
+            .read(scanProvider.notifier)
+            .updateItemCategory(index, categorySlug, categoryName);
       },
       onAmountChanged: (amount) {
         ref.read(scanProvider.notifier).updateItemAmount(index, amount);
@@ -805,15 +782,15 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     if (_selectedAccountId == null) return;
 
     try {
-      final count = await ref.read(scanProvider.notifier).validateAndCreate(
-            _selectedAccountId!,
-            widget.imageBytes,
-          );
+      final count = await ref
+          .read(scanProvider.notifier)
+          .validateAndCreate(_selectedAccountId!, widget.imageBytes);
 
       if (context.mounted) {
         FrostedSnackbar.show(
           context,
-          message: '$count dépense${count > 1 ? 's' : ''} ajoutée${count > 1 ? 's' : ''}',
+          message:
+              '$count dépense${count > 1 ? 's' : ''} ajoutée${count > 1 ? 's' : ''}',
         );
         Navigator.pop(context);
       }
@@ -853,10 +830,7 @@ class _ScanLinePainter extends CustomPainter {
         ],
       ).createShader(Rect.fromLTWH(0, y - 2, size.width, 4));
 
-    canvas.drawRect(
-      Rect.fromLTWH(0, y - 2, size.width, 4),
-      paint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, y - 2, size.width, 4), paint);
   }
 
   @override

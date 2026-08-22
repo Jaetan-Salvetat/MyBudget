@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../theme/frosted_motion_tokens.dart';
-import '../../theme/frosted_tokens.dart';
-
 class InteractionStates {
   const InteractionStates({
     required this.hovered,
@@ -18,10 +15,8 @@ class InteractionStates {
   final bool enabled;
 }
 
-typedef InteractiveSurfaceBuilder = Widget Function(
-  BuildContext context,
-  InteractionStates states,
-);
+typedef InteractiveSurfaceBuilder =
+    Widget Function(BuildContext context, InteractionStates states);
 
 class InteractiveSurface extends StatefulWidget {
   const InteractiveSurface({
@@ -32,7 +27,6 @@ class InteractiveSurface extends StatefulWidget {
     this.semanticsButton = true,
     this.semanticsLabel,
     this.semanticsSelected,
-    this.shape,
     super.key,
   });
 
@@ -43,12 +37,6 @@ class InteractiveSurface extends StatefulWidget {
   final bool semanticsButton;
   final String? semanticsLabel;
   final bool? semanticsSelected;
-
-  /// Resolves the surface shape for a given interaction state — the single
-  /// source of truth for both the fill (via [builder]) and the ripple clip.
-  /// The clip animates as the resolved radius changes, so the ink always
-  /// tracks the container's shape morph. Null → a rectangular clip.
-  final BorderRadius Function(InteractionStates states)? shape;
 
   @override
   State<InteractiveSurface> createState() => _InteractiveSurfaceState();
@@ -98,50 +86,18 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
 
     Widget child = widget.builder(context, states);
 
-    // Ripple painted above the surface fill, clipped to the shape. State
-    // layers (hover/focus/press tint) stay on the builder; the InkWell only
-    // contributes the ink splash. The clip morphs with the press so the ink
-    // tracks the container's shape change instead of lagging behind it.
-    final FrostedMotion motion = context.frostedTokens.motion.snappy;
-    final BorderRadius targetRadius =
-        widget.shape?.call(states) ?? BorderRadius.zero;
-
-    // The InkWell paints into a Material whose own shape clips the splash to
-    // the rounded corners — so the ink never bleeds into a neighbour. Only
-    // this ink layer is clipped; the builder's content (and any shadow it
-    // draws, e.g. the FAB) stays unclipped. The shape morphs with the press.
-    child = Stack(
-      children: <Widget>[
-        child,
-        Positioned.fill(
-          child: TweenAnimationBuilder<BorderRadius?>(
-            duration: motion.duration,
-            curve: motion.curve,
-            tween: Tween<BorderRadius?>(end: targetRadius),
-            builder: (BuildContext context, BorderRadius? radius, Widget? _) {
-              return Material(
-                type: MaterialType.transparency,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: radius ?? targetRadius,
-                ),
-                child: InkWell(
-                  onTap: _enabled ? widget.onTap : null,
-                  onTapDown: _enabled
-                      ? (TapDownDetails _) => _setPressed(true)
-                      : null,
-                  onTapUp:
-                      _enabled ? (TapUpDetails _) => _setPressed(false) : null,
-                  onTapCancel: _enabled ? () => _setPressed(false) : null,
-                  hoverColor: Colors.transparent,
-                  focusColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+    // The press reads through the state layer and the shape morph the builder
+    // already draws, so the surface needs no ink of its own. Handling the tap
+    // here — rather than in an overlay stacked above the content — leaves any
+    // interactive child (a trailing icon button, say) free to win the gesture
+    // arena on its own.
+    child = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _enabled ? widget.onTap : null,
+      onTapDown: _enabled ? (TapDownDetails _) => _setPressed(true) : null,
+      onTapUp: _enabled ? (TapUpDetails _) => _setPressed(false) : null,
+      onTapCancel: _enabled ? () => _setPressed(false) : null,
+      child: child,
     );
 
     child = FocusableActionDetector(

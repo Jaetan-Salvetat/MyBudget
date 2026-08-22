@@ -3,7 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart' as android_webview;
+import 'package:webview_flutter_android/webview_flutter_android.dart'
+    as android_webview;
 
 class FormWebviewScreen extends StatefulWidget {
   final String title;
@@ -34,7 +35,8 @@ class _FormWebviewScreenState extends State<FormWebviewScreen> {
         NavigationDelegate(
           onNavigationRequest: (request) {
             final uri = Uri.parse(request.url);
-            if (uri.host == widget.allowedHost || uri.host.endsWith('.${widget.allowedHost}')) {
+            if (uri.host == widget.allowedHost ||
+                uri.host.endsWith('.${widget.allowedHost}')) {
               return NavigationDecision.navigate;
             }
             return NavigationDecision.prevent;
@@ -62,9 +64,7 @@ class _FormWebviewScreenState extends State<FormWebviewScreen> {
     try {
       final allowMultiple =
           params.mode == android_webview.FileSelectorMode.openMultiple;
-      final result = await FilePicker.pickFiles(
-        allowMultiple: allowMultiple,
-      );
+      final result = await FilePicker.pickFiles(allowMultiple: allowMultiple);
       if (result == null) return [];
       return result.files
           .where((file) => file.path != null)
@@ -78,11 +78,11 @@ class _FormWebviewScreenState extends State<FormWebviewScreen> {
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
-      appBar: FrostedAppBar(
+      appBar: FrostedTopBar(
         title: widget.title,
         leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
-      child: Stack(
+      body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 100),
@@ -91,7 +91,7 @@ class _FormWebviewScreenState extends State<FormWebviewScreen> {
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.only(top: 100),
-              child: FrostedLinearProgressIndicator(),
+              child: FrostedLinearProgress(),
             ),
         ],
       ),

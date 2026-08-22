@@ -14,9 +14,47 @@ void main() {
     );
   }
 
+  group('FrostedBottomSheet height', () {
+    testWidgets('a taller-than-viewport child is capped, not overflowed', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FrostedTheme.dark(seedColor: seed),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: FrostedBottomSheet(
+                title: 'Catégorie',
+                child: ListView(
+                  shrinkWrap: true,
+                  children: List<Widget>.generate(
+                    40,
+                    (int i) => SizedBox(height: 48, child: Text('row $i')),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byType(FrostedBottomSheet)).height,
+        lessThanOrEqualTo(600),
+      );
+    });
+  });
+
   group('FrostedBottomSheet title', () {
-    testWidgets('renders the title above the content',
-        (WidgetTester tester) async {
+    testWidgets('renders the title above the content', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         const FrostedBottomSheet(
@@ -32,15 +70,17 @@ void main() {
       );
     });
 
-    testWidgets('renders nothing extra without a title',
-        (WidgetTester tester) async {
+    testWidgets('renders nothing extra without a title', (
+      WidgetTester tester,
+    ) async {
       await pump(tester, const FrostedBottomSheet(child: Text('contenu')));
 
       expect(find.byType(Text), findsOneWidget);
     });
 
-    testWidgets('styles the title with the titleLarge role',
-        (WidgetTester tester) async {
+    testWidgets('styles the title with the titleLarge role', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         const FrostedBottomSheet(title: 'Titre', child: SizedBox()),

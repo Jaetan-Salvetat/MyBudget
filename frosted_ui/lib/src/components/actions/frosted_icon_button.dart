@@ -56,18 +56,17 @@ class FrostedIconButton extends StatelessWidget {
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
     FrostedIconButtonSize size = FrostedIconButtonSize.medium,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.standard,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        shape: shape,
-        size: size,
-      );
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.standard,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.filled({
     Key? key,
@@ -78,18 +77,17 @@ class FrostedIconButton extends StatelessWidget {
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
     FrostedIconButtonSize size = FrostedIconButtonSize.medium,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.filled,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        shape: shape,
-        size: size,
-      );
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.filled,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.tonal({
     Key? key,
@@ -100,18 +98,17 @@ class FrostedIconButton extends StatelessWidget {
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
     FrostedIconButtonSize size = FrostedIconButtonSize.medium,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.tonal,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        shape: shape,
-        size: size,
-      );
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.tonal,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.outlined({
     Key? key,
@@ -122,18 +119,17 @@ class FrostedIconButton extends StatelessWidget {
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
     FrostedIconButtonSize size = FrostedIconButtonSize.medium,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.outlined,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        shape: shape,
-        size: size,
-      );
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.outlined,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   final IconData icon;
   final IconData? selectedIcon;
@@ -162,7 +158,6 @@ class FrostedIconButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       semanticsLabel: tooltip,
       semanticsSelected: selected,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -210,9 +205,7 @@ class FrostedIconButton extends StatelessWidget {
     Color base;
     switch (_variant) {
       case _IconButtonVariant.standard:
-        base = selected
-            ? cs.primaryContainer
-            : Colors.transparent;
+        base = selected ? cs.primaryContainer : Colors.transparent;
         break;
       case _IconButtonVariant.filled:
         base = selected ? cs.primary : cs.surfaceContainerHighest;

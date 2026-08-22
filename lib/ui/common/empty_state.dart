@@ -62,10 +62,10 @@ class EmptyState extends StatelessWidget {
             ],
 
             const SizedBox(height: 32),
-            FrostedFilledButton.icon(
+            FrostedButton.filled(
+              label: buttonText,
+              icon: Symbols.add_rounded,
               onPressed: onPressed,
-              icon: const Icon(Symbols.add_rounded),
-              label: Text(buttonText),
             ),
           ],
         ),

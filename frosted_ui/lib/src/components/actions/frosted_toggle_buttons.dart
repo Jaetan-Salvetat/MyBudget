@@ -9,11 +9,7 @@ import '_interactive_surface.dart';
 
 /// A single entry in a [FrostedToggleButtons] group.
 class FrostedToggleItem {
-  const FrostedToggleItem({
-    required this.icon,
-    this.label,
-    this.tooltip,
-  });
+  const FrostedToggleItem({required this.icon, this.label, this.tooltip});
 
   final IconData icon;
   final String? label;
@@ -54,17 +50,16 @@ class FrostedToggleButtons extends StatelessWidget {
     required ValueChanged<Set<int>>? onChanged,
     bool multiSelect = false,
     Axis axis = Axis.horizontal,
-  }) =>
-      FrostedToggleButtons._(
-        key: key,
-        items: items,
-        selected: selected,
-        onChanged: onChanged,
-        variant: _ToggleVariant.connected,
-        spacing: FrostedSpacing.sp05,
-        multiSelect: multiSelect,
-        axis: axis,
-      );
+  }) => FrostedToggleButtons._(
+    key: key,
+    items: items,
+    selected: selected,
+    onChanged: onChanged,
+    variant: _ToggleVariant.connected,
+    spacing: FrostedSpacing.sp05,
+    multiSelect: multiSelect,
+    axis: axis,
+  );
 
   /// Independent spaced buttons that morph shape on selection.
   factory FrostedToggleButtons.standard({
@@ -75,17 +70,16 @@ class FrostedToggleButtons extends StatelessWidget {
     bool multiSelect = false,
     Axis axis = Axis.horizontal,
     double spacing = FrostedSpacing.sp2,
-  }) =>
-      FrostedToggleButtons._(
-        key: key,
-        items: items,
-        selected: selected,
-        onChanged: onChanged,
-        variant: _ToggleVariant.standard,
-        spacing: spacing,
-        multiSelect: multiSelect,
-        axis: axis,
-      );
+  }) => FrostedToggleButtons._(
+    key: key,
+    items: items,
+    selected: selected,
+    onChanged: onChanged,
+    variant: _ToggleVariant.standard,
+    spacing: spacing,
+    multiSelect: multiSelect,
+    axis: axis,
+  );
 
   final List<FrostedToggleItem> items;
   final Set<int> selected;
@@ -179,7 +173,6 @@ class _ToggleButton extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: item.tooltip ?? item.label,
       semanticsSelected: selected,
-      shape: _resolveBorderRadius,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -225,10 +218,8 @@ class _ToggleButton extends StatelessWidget {
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) return cs.onSurface.withValues(alpha: 0.12);
-    final Color base =
-        selected ? cs.secondary : cs.secondaryContainer;
-    final Color overlay =
-        selected ? cs.onSecondary : cs.onSecondaryContainer;
+    final Color base = selected ? cs.secondary : cs.secondaryContainer;
+    final Color overlay = selected ? cs.onSecondary : cs.onSecondaryContainer;
     final double alpha = _overlayAlpha(s);
     if (alpha == 0) return base;
     return Color.alphaBlend(overlay.withValues(alpha: alpha), base);
@@ -250,8 +241,7 @@ class _ToggleButton extends StatelessWidget {
     if (selected) return BorderRadius.circular(_pill);
 
     const double outer = _pill;
-    final double inner =
-        s.pressed ? FrostedRadius.xs : FrostedRadius.sm;
+    final double inner = s.pressed ? FrostedRadius.xs : FrostedRadius.sm;
 
     if (isFirst && isLast) return BorderRadius.circular(outer);
 

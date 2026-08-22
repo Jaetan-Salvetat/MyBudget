@@ -29,23 +29,17 @@ class CategoryTile extends StatelessWidget {
     final color = Color(category.color);
 
     return FrostedListTile(
-      contentPadding: EdgeInsets.only(
-        left: indented ? 28 : 8,
-        right: 8,
-        top: 6,
-        bottom: 6,
-      ),
       leading: CategoryIcon(
         icon: CategoryDefaults.resolveIcon(category.icon),
         color: color,
         size: category.isGroup ? CategoryIconSize.sm : CategoryIconSize.xs,
       ),
-      title: Text(category.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: subtitle == null ? null : Text(subtitle!),
-      trailing: trailing ??
+      title: category.label,
+      subtitle: subtitle,
+      trailing:
+          trailing ??
           (selected ? Icon(Symbols.check_rounded, color: color) : null),
       selected: selected,
-      selectedColor: color,
       onTap: onTap,
     );
   }

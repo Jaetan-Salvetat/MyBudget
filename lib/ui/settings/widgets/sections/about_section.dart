@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
-import 'package:mybudget/ui/settings/widgets/settings_section.dart';
-import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 
 class AboutSection extends ConsumerWidget {
   const AboutSection({super.key});
@@ -14,43 +14,27 @@ class AboutSection extends ConsumerWidget {
     final updateState = ref.watch(updateProvider);
     final hasUpdate = updateState.availableUpdate != null;
 
-    return SettingsSection(
-      title: 'À propos',
-      children: [
-        Stack(
-          children: [
-            SettingsTile(
-              title: 'Version',
-              subtitle: updateState.currentVersion ?? 'Chargement...',
-              leading: const Icon(Symbols.info_rounded),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const UpdateScreen()),
-              ),
-            ),
-            if (hasUpdate)
-              Positioned(
-                right: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'NEW',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+    return FrostedListSection(
+      label: 'À propos',
+      tiles: [
+        FrostedListTile(
+          title: 'Version',
+          subtitle: updateState.currentVersion ?? 'Chargement...',
+          leading: const FrostedListAvatar(icon: Symbols.info_rounded),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasUpdate) ...[
+                const FrostedBadgeView(badge: FrostedBadge.dot()),
+                const SizedBox(width: FrostedSpacing.sp2),
+              ],
+              const Icon(Symbols.chevron_right_rounded),
+            ],
+          ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const UpdateScreen()),
+          ),
         ),
       ],
     );

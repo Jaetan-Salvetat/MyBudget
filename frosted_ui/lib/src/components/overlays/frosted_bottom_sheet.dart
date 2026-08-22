@@ -21,49 +21,50 @@ Future<T?> showFrostedBottomSheet<T>({
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.transparent,
     transitionDuration: const Duration(milliseconds: 260),
-    pageBuilder: (BuildContext context, Animation<double> _,
-            Animation<double> _) =>
-        Theme(data: theme, child: builder(context)),
-    transitionBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondary,
-      Widget child,
-    ) {
-      final CurvedAnimation curve = CurvedAnimation(
-        parent: animation,
-        curve: const Cubic(0.32, 0.72, 0, 1),
-      );
-      return Stack(
-        children: <Widget>[
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: isDismissible
-                  ? () => Navigator.of(context).maybePop()
-                  : null,
-              child: FrostedGlass(
-                level: FrostedGlassLevel.regular,
-                tone: FrostedGlassTone.dark,
-                elevation: FrostedGlassElevation.none,
-                borderRadius: BorderRadius.zero,
-                animation: curve,
+    pageBuilder:
+        (BuildContext context, Animation<double> _, Animation<double> _) =>
+            Theme(data: theme, child: builder(context)),
+    transitionBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondary,
+          Widget child,
+        ) {
+          final CurvedAnimation curve = CurvedAnimation(
+            parent: animation,
+            curve: const Cubic(0.32, 0.72, 0, 1),
+          );
+          return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: isDismissible
+                      ? () => Navigator.of(context).maybePop()
+                      : null,
+                  child: FrostedGlass(
+                    level: FrostedGlassLevel.regular,
+                    tone: FrostedGlassTone.dark,
+                    elevation: FrostedGlassElevation.none,
+                    borderRadius: BorderRadius.zero,
+                    animation: curve,
+                  ),
+                ),
               ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 1),
-                end: Offset.zero,
-              ).animate(curve),
-              child: child,
-            ),
-          ),
-        ],
-      );
-    },
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).animate(curve),
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        },
   );
 }
 
@@ -94,46 +95,47 @@ class FrostedBottomSheet extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: cs.surfaceContainer.withValues(alpha: 0.72),
-          borderRadius: radius,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-          boxShadow: context.frostedTokens.glass.liftedShadow,
-        ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            FrostedSpacing.sp4,
-            FrostedSpacing.sp2,
-            FrostedSpacing.sp4,
-            FrostedSpacing.sp4 + bottomSafe,
+          decoration: BoxDecoration(
+            color: cs.surfaceContainer.withValues(alpha: 0.72),
+            borderRadius: radius,
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            boxShadow: context.frostedTokens.glass.liftedShadow,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
-                  decoration: BoxDecoration(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(FrostedRadius.full),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              FrostedSpacing.sp4,
+              FrostedSpacing.sp2,
+              FrostedSpacing.sp4,
+              FrostedSpacing.sp4 + bottomSafe,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                    decoration: BoxDecoration(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(FrostedRadius.full),
+                    ),
                   ),
                 ),
-              ),
-              if (title != null) ...<Widget>[
-                Text(
-                  title!,
-                  style: FrostedTypeScale.titleLarge
-                      .copyWith(color: cs.onSurface),
-                ),
-                const SizedBox(height: FrostedSpacing.sp3),
+                if (title != null) ...<Widget>[
+                  Text(
+                    title!,
+                    style: FrostedTypeScale.titleLarge.copyWith(
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: FrostedSpacing.sp3),
+                ],
+                Flexible(child: child),
               ],
-              child,
-            ],
+            ),
           ),
-        ),
         ),
       ),
     );

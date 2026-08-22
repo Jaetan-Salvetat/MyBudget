@@ -1,53 +1,46 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
-import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
-import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
-import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
-import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
-import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/data_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
-import 'package:flutter/foundation.dart';
+import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
+import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
-  }
+  static const List<Widget> _sections = [
+    AppearanceSection(),
+    InputSection(),
+    AiSection(),
+    DataSection(),
+    HelpAndSupportSection(),
+    AboutSection(),
+    if (kDebugMode) DebugSection(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
-      appBar: FrostedAppBar(
+      appBar: FrostedTopBar(
         title: 'Paramètres',
         leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
-      child: ListView(
+      body: ListView.separated(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(
-          top: 130,
-          bottom: 16,
-          left: 16,
-          right: 16,
+        padding: EdgeInsets.fromLTRB(
+          FrostedSpacing.sp4,
+          FrostedTopBar.bodyTopPadding(context) + FrostedSpacing.sp2,
+          FrostedSpacing.sp4,
+          FrostedSpacing.sp6,
         ),
-        children: const [
-          AppearanceSection(),
-          InputSection(),
-          AiSection(),
-          DataSection(),
-          HelpAndSupportSection(),
-          AboutSection(),
-          if (kDebugMode) DebugSection(),
-        ],
+        itemCount: _sections.length,
+        itemBuilder: (_, int index) => _sections[index],
+        separatorBuilder: (_, _) => const SizedBox(height: FrostedSpacing.sp6),
       ),
     );
   }

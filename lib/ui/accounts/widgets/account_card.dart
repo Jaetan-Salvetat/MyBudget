@@ -59,11 +59,9 @@ class AccountCard extends StatelessWidget {
           ),
         ],
       ),
-      child: FrostedContainer(
-        borderRadius: BorderRadius.circular(20),
-        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
-        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
-        padding: EdgeInsets.zero,
+      child: FrostedGlass(
+        borderRadius: BorderRadius.circular(FrostedRadius.xl),
+        elevation: FrostedGlassElevation.none,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -72,114 +70,114 @@ class AccountCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CategoryIcon(
-                      icon: Symbols.account_balance_wallet_rounded,
-                      color: scheme.primary,
-                      size: CategoryIconSize.md,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CategoryIcon(
+                        icon: Symbols.account_balance_wallet_rounded,
+                        color: scheme.primary,
+                        size: CategoryIconSize.md,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              account.name,
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 22 / 16,
+                                fontWeight: FontWeight.w600,
+                                color: scheme.onSurface,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              account.bank,
+                              style: TextStyle(
+                                fontSize: 12,
+                                height: 16 / 12,
+                                color: scheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Symbols.chevron_right_rounded,
+                        size: 22,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      const Expanded(child: Eyebrow('Solde du mois')),
+                      Text(
+                        '${isPositive ? '+' : '−'} ${formatter.format(balance.abs())}',
+                        style: GoogleFonts.inter(
+                          fontSize: 24,
+                          height: 28 / 24,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.02 * 24,
+                          color: balanceColor,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.only(top: 10),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: scheme.onSurface.withValues(alpha: 0.07),
+                          width: 0.5,
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            account.name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              height: 22 / 16,
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface,
+                          Expanded(
+                            child: _StatItem(
+                              label: 'Entrées',
+                              value: compactFormatter.format(monthlyIncomes),
+                              color: finance.income,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            account.bank,
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 16 / 12,
-                              color: scheme.onSurfaceVariant,
+                          Container(
+                            width: 1,
+                            color: scheme.onSurface.withValues(alpha: 0.08),
+                          ),
+                          Expanded(
+                            child: _StatItem(
+                              label: 'Charges',
+                              value: compactFormatter.format(monthlyCharges),
+                              color: finance.expense,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Symbols.chevron_right_rounded,
-                      size: 22,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    const Expanded(child: Eyebrow('Solde du mois')),
-                    Text(
-                      '${isPositive ? '+' : '−'} ${formatter.format(balance.abs())}',
-                      style: GoogleFonts.inter(
-                        fontSize: 24,
-                        height: 28 / 24,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.02 * 24,
-                        color: balanceColor,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.only(top: 10),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: scheme.onSurface.withValues(alpha: 0.07),
-                        width: 0.5,
-                      ),
-                    ),
                   ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: _StatItem(
-                            label: 'Entrées',
-                            value: compactFormatter.format(monthlyIncomes),
-                            color: finance.income,
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          color: scheme.onSurface.withValues(alpha: 0.08),
-                        ),
-                        Expanded(
-                          child: _StatItem(
-                            label: 'Charges',
-                            value: compactFormatter.format(monthlyCharges),
-                            color: finance.expense,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
@@ -206,18 +204,12 @@ class _StatItem extends StatelessWidget {
         children: [
           Text(
             label.toUpperCase(),
-            style: AppTextStyles.eyebrowMono(color: scheme.onSurfaceVariant)
-                .copyWith(
-              fontSize: 11,
-              height: 14 / 11,
-              letterSpacing: 0.08 * 11,
-            ),
+            style: AppTextStyles.eyebrowMono(
+              color: scheme.onSurfaceVariant,
+            ).copyWith(fontSize: 11, height: 14 / 11, letterSpacing: 0.08 * 11),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: AppTextStyles.amount(fontSize: 18, color: color),
-          ),
+          Text(value, style: AppTextStyles.amount(fontSize: 18, color: color)),
         ],
       ),
     );

@@ -20,7 +20,7 @@ class LoansList extends ConsumerWidget {
     return ref
         .watch(loanProvider)
         .when(
-          loading: () => const Center(child: FrostedCircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (loans) {
             final loanNotifier = ref.read(loanProvider.notifier);
@@ -47,7 +47,10 @@ class LoansList extends ConsumerWidget {
                 ],
                 if (completedLoans.isNotEmpty) ...[
                   _buildSectionTitle(
-                      context, 'Remboursés', completedLoans.length),
+                    context,
+                    'Remboursés',
+                    completedLoans.length,
+                  ),
                   ...completedLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
@@ -91,22 +94,27 @@ class LoansList extends ConsumerWidget {
   }
 
   Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {
-    final totalActiveInitialAmount =
-        ref.read(loanProvider.notifier).getTotalActiveInitialAmount();
-    final totalRemainingAmount =
-        ref.read(loanProvider.notifier).getTotalRemainingAmount();
-    final totalMonthlyPayment =
-        ref.read(loanProvider.notifier).getTotalMonthlyPayments();
-    final totalRemainingCost =
-        ref.read(loanProvider.notifier).getTotalRemainingCost();
-    final activeLoanCount =
-        ref.read(loanProvider.notifier).getActiveLoans().length;
+    final totalActiveInitialAmount = ref
+        .read(loanProvider.notifier)
+        .getTotalActiveInitialAmount();
+    final totalRemainingAmount = ref
+        .read(loanProvider.notifier)
+        .getTotalRemainingAmount();
+    final totalMonthlyPayment = ref
+        .read(loanProvider.notifier)
+        .getTotalMonthlyPayments();
+    final totalRemainingCost = ref
+        .read(loanProvider.notifier)
+        .getTotalRemainingCost();
+    final activeLoanCount = ref
+        .read(loanProvider.notifier)
+        .getActiveLoans()
+        .length;
 
-    final progress =
-        totalActiveInitialAmount == 0
-            ? 0.0
-            : (totalActiveInitialAmount - totalRemainingAmount) /
-                totalActiveInitialAmount;
+    final progress = totalActiveInitialAmount == 0
+        ? 0.0
+        : (totalActiveInitialAmount - totalRemainingAmount) /
+              totalActiveInitialAmount;
 
     return LoanSummaryCard(
       totalDebt: totalRemainingAmount,
@@ -123,17 +131,15 @@ class LoansList extends ConsumerWidget {
     List<AccountModel> accounts,
     WidgetRef ref,
   ) {
-    final accountName =
-        accounts.isEmpty
-            ? 'Compte inconnu'
-            : accounts
-                .firstWhere(
-                  (a) => a.id == loan.accountId,
-                  orElse:
-                      () =>
-                          AccountModel.create(name: 'Compte inconnu', bank: ''),
-                )
-                .name;
+    final accountName = accounts.isEmpty
+        ? 'Compte inconnu'
+        : accounts
+              .firstWhere(
+                (a) => a.id == loan.accountId,
+                orElse: () =>
+                    AccountModel.create(name: 'Compte inconnu', bank: ''),
+              )
+              .name;
 
     return LoanCard(
       loan: loan,
@@ -176,19 +182,21 @@ class LoansList extends ConsumerWidget {
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
       barrierDismissible: false,
-      title: const Text('Aucun compte disponible'),
-      content: Text(
-        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }

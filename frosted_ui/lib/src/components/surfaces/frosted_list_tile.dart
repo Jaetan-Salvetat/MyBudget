@@ -38,15 +38,15 @@ class FrostedListTile extends StatelessWidget {
 
   /// Copy with a resolved [position] — used by [FrostedListSection].
   FrostedListTile withPosition(FrostedTilePosition value) => FrostedListTile(
-        title: title,
-        subtitle: subtitle,
-        leading: leading,
-        trailing: trailing,
-        selected: selected,
-        onTap: onTap,
-        position: value,
-        key: key,
-      );
+    title: title,
+    subtitle: subtitle,
+    leading: leading,
+    trailing: trailing,
+    selected: selected,
+    onTap: onTap,
+    position: value,
+    key: key,
+  );
 
   static const double _oneLineHeight = 56;
   static const double _twoLineHeight = 72;
@@ -78,8 +78,9 @@ class FrostedListTile extends StatelessWidget {
     final bool twoLine = subtitle != null;
     final double minHeight = twoLine ? _twoLineHeight : _oneLineHeight;
     final Color titleColor = selected ? cs.onSecondaryContainer : cs.onSurface;
-    final Color subtitleColor =
-        selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
+    final Color subtitleColor = selected
+        ? cs.onSecondaryContainer
+        : cs.onSurfaceVariant;
     final Color base = selected ? cs.secondaryContainer : cs.surfaceContainer;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
@@ -87,10 +88,10 @@ class FrostedListTile extends StatelessWidget {
       final double overlay = s.pressed
           ? 0.12
           : s.focused
-              ? 0.10
-              : s.hovered
-                  ? 0.08
-                  : 0;
+          ? 0.10
+          : s.hovered
+          ? 0.08
+          : 0;
       final Color fill = overlay == 0
           ? base
           : Color.alphaBlend(cs.onSurface.withValues(alpha: overlay), base);
@@ -134,8 +135,9 @@ class FrostedListTile extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: FrostedTypeScale.bodySmall
-                              .copyWith(color: subtitleColor),
+                          style: FrostedTypeScale.bodySmall.copyWith(
+                            color: subtitleColor,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -146,11 +148,11 @@ class FrostedListTile extends StatelessWidget {
                 if (trailing != null) ...<Widget>[
                   const SizedBox(width: FrostedSpacing.sp4),
                   DefaultTextStyle.merge(
-                    style: FrostedTypeScale.labelMedium
-                        .copyWith(color: cs.onSurfaceVariant),
+                    style: FrostedTypeScale.labelMedium.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                     child: IconTheme.merge(
-                      data:
-                          IconThemeData(color: cs.onSurfaceVariant, size: 20),
+                      data: IconThemeData(color: cs.onSurfaceVariant, size: 20),
                       child: trailing!,
                     ),
                   ),
@@ -163,19 +165,20 @@ class FrostedListTile extends StatelessWidget {
     }
 
     if (onTap == null) {
-      return content(const InteractionStates(
-        hovered: false,
-        focused: false,
-        pressed: false,
-        enabled: true,
-      ));
+      return content(
+        const InteractionStates(
+          hovered: false,
+          focused: false,
+          pressed: false,
+          enabled: true,
+        ),
+      );
     }
 
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: title,
       semanticsSelected: selected,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) => content(s),
     );
   }

@@ -27,8 +27,7 @@ class AccountList extends ConsumerWidget {
     return ref
         .watch(accountProvider)
         .when(
-          loading: () =>
-              const Center(child: FrostedCircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (accounts) {
             if (accounts.isEmpty) {
@@ -98,10 +97,12 @@ class _AccountCardEntry extends ConsumerWidget {
         .getTotalMonthlyPaymentsForAccount(account.id);
 
     final transferNotifier = ref.watch(transferProvider.notifier);
-    final outgoingTransfers =
-        transferNotifier.getOutgoingTotalForAccount(account.id);
-    final incomingTransfers =
-        transferNotifier.getIncomingTotalForAccount(account.id);
+    final outgoingTransfers = transferNotifier.getOutgoingTotalForAccount(
+      account.id,
+    );
+    final incomingTransfers = transferNotifier.getIncomingTotalForAccount(
+      account.id,
+    );
 
     final totalExpenses = expenses
         .where((e) => e.accountId == account.id)
@@ -111,7 +112,10 @@ class _AccountCardEntry extends ConsumerWidget {
     final totalRevenues = revenues
         .where((r) => r.accountId == account.id)
         .where((r) => isActiveForMonth(r.startDate, r.endDate, selectedMonth))
-        .fold(0.0, (sum, r) => sum + _revenueAmountIfApplicable(r, selectedMonth));
+        .fold(
+          0.0,
+          (sum, r) => sum + _revenueAmountIfApplicable(r, selectedMonth),
+        );
 
     final charges = totalExpenses + monthlyLoanPayments + outgoingTransfers;
     final incomes = totalRevenues + incomingTransfers;

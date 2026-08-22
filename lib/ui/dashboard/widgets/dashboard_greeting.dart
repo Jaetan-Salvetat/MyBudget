@@ -46,7 +46,7 @@ class DashboardGreeting extends StatelessWidget {
               ),
             ),
             if (onSettingsTap != null)
-              FrostedControlButton(
+              FrostedIconButton.tonal(
                 icon: Symbols.settings_rounded,
                 onPressed: onSettingsTap,
               ),

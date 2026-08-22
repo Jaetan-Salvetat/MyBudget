@@ -55,8 +55,6 @@ class FrostedCard extends StatelessWidget {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
     return InteractiveSurface(
       onTap: onTap,
-      shape: (InteractionStates s) =>
-          BorderRadius.circular(_radiusFor(pressed: s.pressed)),
       builder: (BuildContext context, InteractionStates s) {
         return AnimatedContainer(
           duration: motion.duration,

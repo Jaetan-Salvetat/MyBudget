@@ -27,7 +27,7 @@ class DashboardScreen extends ConsumerWidget {
     if (isNested) {
       return _buildContent(context, ref);
     }
-    return FrostedScaffold(child: _buildContent(context, ref));
+    return FrostedScaffold(body: _buildContent(context, ref));
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref) {

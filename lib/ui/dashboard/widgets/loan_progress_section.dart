@@ -35,7 +35,8 @@ class LoanProgressSection extends StatelessWidget {
       children: [
         SectionHeader(
           title: 'Emprunts',
-          trailing: '${summary.activeCount} actif${summary.activeCount > 1 ? 's' : ''}',
+          trailing:
+              '${summary.activeCount} actif${summary.activeCount > 1 ? 's' : ''}',
         ),
         SolidCard(
           padding: const EdgeInsets.all(14),
@@ -86,10 +87,8 @@ class LoanProgressSection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              FrostedLinearProgressIndicator(
+              FrostedLinearProgress(
                 value: summary.progressPercent.clamp(0.0, 1.0),
-                minHeight: 6,
-                color: scheme.primary,
               ),
               const SizedBox(height: 14),
               Container(

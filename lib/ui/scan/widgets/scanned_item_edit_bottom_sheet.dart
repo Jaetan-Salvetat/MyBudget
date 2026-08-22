@@ -8,7 +8,7 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
   final ScannedItemModel item;
   final List<CategoryDisplay> categories;
   final void Function(String categorySlug, String categoryName)
-      onCategoryChanged;
+  onCategoryChanged;
   final void Function(double amount) onAmountChanged;
   final void Function(double discount) onDiscountChanged;
   final VoidCallback onDelete;
@@ -28,21 +28,23 @@ class ScannedItemEditBottomSheet extends StatefulWidget {
     required ScannedItemModel item,
     required List<CategoryDisplay> categories,
     required void Function(String categorySlug, String categoryName)
-        onCategoryChanged,
+    onCategoryChanged,
     required void Function(double amount) onAmountChanged,
     required void Function(double discount) onDiscountChanged,
     required VoidCallback onDelete,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Modifier l\'article',
-      child: ScannedItemEditBottomSheet(
-        item: item,
-        categories: categories,
-        onCategoryChanged: onCategoryChanged,
-        onAmountChanged: onAmountChanged,
-        onDiscountChanged: onDiscountChanged,
-        onDelete: onDelete,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Modifier l\'article',
+        child: ScannedItemEditBottomSheet(
+          item: item,
+          categories: categories,
+          onCategoryChanged: onCategoryChanged,
+          onAmountChanged: onAmountChanged,
+          onDiscountChanged: onDiscountChanged,
+          onDelete: onDelete,
+        ),
       ),
     );
   }
@@ -97,16 +99,16 @@ class _ScannedItemEditBottomSheetState
           const SizedBox(height: 16),
           FrostedTextField(
             controller: _amountController,
-            labelText: 'Montant (€)',
-            prefixIcon: const Icon(Symbols.euro_rounded),
+            label: 'Montant (€)',
+            leadingIcon: Symbols.euro_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => _handleAmountChanged(),
           ),
           const SizedBox(height: 8),
           FrostedTextField(
             controller: _discountController,
-            labelText: 'Remise (€)',
-            prefixIcon: const Icon(Symbols.sell_rounded),
+            label: 'Remise (€)',
+            leadingIcon: Symbols.sell_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => _handleDiscountChanged(),
           ),
@@ -114,41 +116,30 @@ class _ScannedItemEditBottomSheetState
           FrostedDropdown<String>(
             value: _selectedCategorySlug,
             items: widget.categories.map((category) {
-              return DropdownMenuItem<String>(
+              return FrostedDropdownItem<String>(
                 value: category.slug,
-                child: Text('${category.groupLabel} · ${category.label}'),
+                label: '${category.groupLabel} · ${category.label}',
               );
             }).toList(),
             onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedCategorySlug = value);
-                final category = widget.categories.firstWhere(
-                  (c) => c.slug == value,
-                );
-                widget.onCategoryChanged(value, category.label);
-              }
+              setState(() => _selectedCategorySlug = value);
+              final category = widget.categories.firstWhere(
+                (c) => c.slug == value,
+              );
+              widget.onCategoryChanged(value, category.label);
             },
-            hint: 'Catégorie',
+            hintText: 'Catégorie',
           ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: FrostedTextButton(
+            child: FrostedButton.text(
+              label: 'Supprimer cet article',
+              icon: Symbols.delete_rounded,
               onPressed: () {
                 widget.onDelete();
                 Navigator.pop(context);
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Symbols.delete_rounded, color: theme.colorScheme.error),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Supprimer cet article',
-                    style: TextStyle(color: theme.colorScheme.error),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

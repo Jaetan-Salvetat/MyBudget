@@ -11,7 +11,6 @@ import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
-import 'package:mybudget/ui/common/widgets/app_top_bar.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -51,47 +50,48 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
         .where((r) => r.accountId == account.id)
         .where((r) => isActiveForMonth(r.startDate, r.endDate, selectedMonth))
         .fold(0.0, (sum, r) {
-      switch (r.frequencyEnum) {
-        case Frequency.monthly:
-          return sum + r.amount;
-        case Frequency.annual:
-          return r.startDate.month == selectedMonth.month
-              ? sum + r.amount
-              : sum;
-        case Frequency.oneTime:
-          return r.startDate.year == selectedMonth.year &&
-                  r.startDate.month == selectedMonth.month
-              ? sum + r.amount
-              : sum;
-      }
-    });
+          switch (r.frequencyEnum) {
+            case Frequency.monthly:
+              return sum + r.amount;
+            case Frequency.annual:
+              return r.startDate.month == selectedMonth.month
+                  ? sum + r.amount
+                  : sum;
+            case Frequency.oneTime:
+              return r.startDate.year == selectedMonth.year &&
+                      r.startDate.month == selectedMonth.month
+                  ? sum + r.amount
+                  : sum;
+          }
+        });
 
     final totalExpenses = expenses
         .where((e) => e.accountId == account.id)
         .where((e) => isActiveForMonth(e.startDate, e.endDate, selectedMonth))
         .fold(0.0, (sum, e) {
-      switch (e.frequencyEnum) {
-        case Frequency.monthly:
-          return sum + e.amount;
-        case Frequency.annual:
-          return e.startDate.month == selectedMonth.month
-              ? sum + e.amount
-              : sum;
-        case Frequency.oneTime:
-          return e.startDate.year == selectedMonth.year &&
-                  e.startDate.month == selectedMonth.month
-              ? sum + e.amount
-              : sum;
-      }
-    });
+          switch (e.frequencyEnum) {
+            case Frequency.monthly:
+              return sum + e.amount;
+            case Frequency.annual:
+              return e.startDate.month == selectedMonth.month
+                  ? sum + e.amount
+                  : sum;
+            case Frequency.oneTime:
+              return e.startDate.year == selectedMonth.year &&
+                      e.startDate.month == selectedMonth.month
+                  ? sum + e.amount
+                  : sum;
+          }
+        });
 
     final totalLoanPayments = loans
         .where((l) => l.accountId == account.id && !l.isCompleted)
         .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
 
     final transferNotifier = ref.watch(transferProvider.notifier);
-    final totalTransfers =
-        transferNotifier.getMonthlyTransferBalance(account.id);
+    final totalTransfers = transferNotifier.getMonthlyTransferBalance(
+      account.id,
+    );
     final transfers = transferNotifier.getActiveTransfersForAccount(account.id);
     final accounts = ref.watch(accountProvider).value ?? [];
 
@@ -101,17 +101,19 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     final topInset = MediaQuery.of(context).padding.top;
 
     return FrostedScaffold(
-      appBar: AppTopBar(title: account.name),
-      child: SingleChildScrollView(
+      appBar: FrostedTopBar(title: account.name),
+      body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16, topInset + kToolbarHeight + 12, 16, 32),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          topInset + kToolbarHeight + 12,
+          16,
+          32,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AccountHeroCard(
-              account: account,
-              balance: balance,
-            ),
+            AccountHeroCard(account: account, balance: balance),
             const SizedBox(height: 14),
             AccountBalanceBreakdown(
               totalRevenues: totalRevenues,
@@ -127,35 +129,28 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
               onEditTransfer: (t) => _showEditTransferBottomSheet(context, t),
             ),
             const SizedBox(height: 16),
-            FrostedFilledButton.icon(
+            FrostedButton.filled(
+              label: 'Ajouter un virement',
+              icon: Symbols.add_rounded,
               onPressed: () => _showAddTransferBottomSheet(context),
-              icon: const Icon(Symbols.add_rounded, size: 18),
-              label: const Text('Ajouter un virement'),
-              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: FrostedTonalButton.icon(
+                  child: FrostedButton.tonal(
+                    label: 'Modifier',
+                    icon: Symbols.edit_rounded,
                     onPressed: () => _showEditAccountBottomSheet(context),
-                    icon: const Icon(Symbols.edit_rounded, size: 18),
-                    label: const Text('Modifier'),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: FrostedOutlinedButton.icon(
+                  child: FrostedButton.outlined(
+                    label: 'Supprimer',
+                    icon: Symbols.delete_rounded,
+                    destructive: true,
                     onPressed: () => _showDeleteConfirmation(context),
-                    icon: const Icon(Symbols.delete_rounded, size: 18),
-                    label: const Text('Supprimer'),
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                    borderColor: Theme.of(context)
-                        .colorScheme
-                        .error
-                        .withValues(alpha: 0.5),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ],
@@ -173,7 +168,9 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       onSubmit: (name, bank) async {
         try {
           final updatedAccount = account.copyWith(name: name, bank: bank);
-          await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+          await ref
+              .read(accountProvider.notifier)
+              .updateAccount(updatedAccount);
           setState(() {
             account = updatedAccount;
           });
@@ -237,16 +234,21 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final linkedExpenses =
-        ref.read(expenseProvider.notifier).getExpensesForAccount(account.id);
-    final linkedRevenues =
-        ref.read(revenueProvider.notifier).getRevenuesForAccount(account.id);
-    final linkedLoans =
-        ref.read(loanProvider.notifier).getActiveLoansForAccount(account.id);
-    final linkedTransfers =
-        ref.read(transferProvider.notifier).getTransfersForAccount(account.id);
+    final linkedExpenses = ref
+        .read(expenseProvider.notifier)
+        .getExpensesForAccount(account.id);
+    final linkedRevenues = ref
+        .read(revenueProvider.notifier)
+        .getRevenuesForAccount(account.id);
+    final linkedLoans = ref
+        .read(loanProvider.notifier)
+        .getActiveLoansForAccount(account.id);
+    final linkedTransfers = ref
+        .read(transferProvider.notifier)
+        .getTransfersForAccount(account.id);
 
-    final totalLinked = linkedExpenses.length +
+    final totalLinked =
+        linkedExpenses.length +
         linkedRevenues.length +
         linkedLoans.length +
         linkedTransfers.length;
@@ -255,74 +257,80 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       final parts = <String>[];
       if (linkedExpenses.isNotEmpty) {
         parts.add(
-            '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's' : ''}');
+          '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedRevenues.isNotEmpty) {
         parts.add(
-            '${linkedRevenues.length} revenu${linkedRevenues.length > 1 ? 's' : ''}');
+          '${linkedRevenues.length} revenu${linkedRevenues.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedLoans.isNotEmpty) {
         parts.add(
-            '${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}');
+          '${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedTransfers.isNotEmpty) {
         parts.add(
-            '${linkedTransfers.length} virement${linkedTransfers.length > 1 ? 's' : ''}');
+          '${linkedTransfers.length} virement${linkedTransfers.length > 1 ? 's' : ''}',
+        );
       }
 
-      FrostedDialog.show(
+      showFrostedDialog<void>(
         context: context,
-        title: const Text('Suppression impossible'),
-        content: Text(
-          '${parts.join(', ')} ${totalLinked > 1 ? 'sont associés' : 'est associé(e)'} à "${account.name}". Réassignez-les avant de supprimer ce compte.',
-        ),
-        actions: [
-          FrostedFilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Compris'),
+        builder: (_) => FrostedDialog(
+          title: 'Suppression impossible',
+          body: Text(
+            '${parts.join(', ')} ${totalLinked > 1 ? 'sont associés' : 'est associé(e)'} à "${account.name}". Réassignez-les avant de supprimer ce compte.',
           ),
-        ],
+          actions: [
+            FrostedButton.filled(
+              label: 'Compris',
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       );
       return;
     }
 
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Confirmer la suppression'),
-      content: Text(
-        'Voulez-vous vraiment supprimer le compte ${account.name} ?',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+      builder: (_) => FrostedDialog(
+        title: 'Confirmer la suppression',
+        body: Text(
+          'Voulez-vous vraiment supprimer le compte ${account.name} ?',
         ),
-        FrostedTextButton(
-          onPressed: () async {
-            try {
-              await ref
-                  .read(accountProvider.notifier)
-                  .deleteAccount(account.id);
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              }
-            } catch (e) {
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                FrostedSnackbar.show(
-                  context,
-                  message: 'Erreur lors de la suppression: $e',
-                );
-              }
-            }
-          },
-          child: Text(
-            'Supprimer',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.of(context).pop(),
           ),
-        ),
-      ],
+          FrostedButton.text(
+            label: 'Supprimer',
+            destructive: true,
+            onPressed: () async {
+              try {
+                await ref
+                    .read(accountProvider.notifier)
+                    .deleteAccount(account.id);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  FrostedSnackbar.show(
+                    context,
+                    message: 'Erreur lors de la suppression: $e',
+                  );
+                }
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -397,4 +405,3 @@ class _TransfersSection extends StatelessWidget {
     );
   }
 }
-

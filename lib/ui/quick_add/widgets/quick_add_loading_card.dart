@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 
 class QuickAddLoadingCard extends StatelessWidget {
   const QuickAddLoadingCard({super.key});
@@ -9,10 +8,9 @@ class QuickAddLoadingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return FrostedContainer(
+    return FrostedGlass(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-      borderRadius: BorderRadius.circular(22),
-      blurStrength: kQuickAddBlur,
+      borderRadius: BorderRadius.circular(FrostedRadius.xl),
       child: Row(
         children: [
           SizedBox(
@@ -95,13 +93,13 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
             final scale = phase < 0.4
                 ? 0.6 + (phase / 0.4) * 0.4
                 : phase < 0.8
-                    ? 1.0 - ((phase - 0.4) / 0.4) * 0.4
-                    : 0.6;
+                ? 1.0 - ((phase - 0.4) / 0.4) * 0.4
+                : 0.6;
             final opacity = phase < 0.4
                 ? 0.4 + (phase / 0.4) * 0.6
                 : phase < 0.8
-                    ? 1.0 - ((phase - 0.4) / 0.4) * 0.6
-                    : 0.4;
+                ? 1.0 - ((phase - 0.4) / 0.4) * 0.6
+                : 0.4;
             return Padding(
               padding: EdgeInsets.only(left: i == 0 ? 0 : 4),
               child: Transform.scale(

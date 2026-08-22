@@ -36,23 +36,18 @@ class FrostedCheckbox extends StatelessWidget {
       onTap: enabled ? _handleTap : null,
       semanticsButton: false,
       semanticsSelected: value == true,
-      shape: (_) => BorderRadius.circular(FrostedRadius.full),
       builder: (BuildContext context, InteractionStates s) {
         final bool isChecked = value == true;
         final bool isIndeterminate = value == null && tristate;
         final bool filled = isChecked || isIndeterminate;
 
         final Color fill = filled
-            ? (enabled
-                ? cs.primary
-                : cs.onSurface.withValues(alpha: 0.38))
+            ? (enabled ? cs.primary : cs.onSurface.withValues(alpha: 0.38))
             : Colors.transparent;
         final Color borderColor = enabled
             ? cs.outline
             : cs.onSurface.withValues(alpha: 0.38);
-        final Color glyph = enabled
-            ? cs.onPrimary
-            : cs.surface;
+        final Color glyph = enabled ? cs.onPrimary : cs.surface;
 
         return Padding(
           padding: const EdgeInsets.all(FrostedSpacing.sp3),
@@ -69,18 +64,10 @@ class FrostedCheckbox extends StatelessWidget {
                   : Border.all(color: borderColor, width: _kBorderWidth),
             ),
             child: isIndeterminate
-                ? Center(
-                    child: Container(
-                      width: 12,
-                      height: 2,
-                      color: glyph,
-                    ),
-                  )
+                ? Center(child: Container(width: 12, height: 2, color: glyph))
                 : (isChecked
-                    ? CustomPaint(
-                        painter: _CheckmarkPainter(color: glyph),
-                      )
-                    : const SizedBox.shrink()),
+                      ? CustomPaint(painter: _CheckmarkPainter(color: glyph))
+                      : const SizedBox.shrink()),
           ),
         );
       },

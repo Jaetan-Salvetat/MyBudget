@@ -39,34 +39,34 @@ class ExpensesQuickFilters extends StatelessWidget {
             color: scheme.onSurface.withValues(alpha: 0.08),
           ),
           const SizedBox(width: 8),
-          FrostedChip(
-            label: const Text('Toutes'),
+          FrostedChip.filter(
+            label: 'Toutes',
             selected: allSelected,
             avatar: Icon(
               Symbols.tune_rounded,
               size: 14,
               color: allSelected ? scheme.primary : scheme.onSurfaceVariant,
             ),
-            onPressed: () => onCategoryTap(null),
+            onSelected: (_) => onCategoryTap(null),
           ),
           for (final category in categories) ...[
             const SizedBox(width: 6),
-            FrostedChip(
-              label: Text(category.label),
+            FrostedChip.filter(
+              label: category.label,
               selected: selectedGroupKeys.contains(category.slug),
-              selectedColor: Color(category.color),
               avatar: Container(
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
                   color: Color(category.color).withValues(
-                    alpha:
-                        selectedGroupKeys.contains(category.slug) ? 0.9 : 0.6,
+                    alpha: selectedGroupKeys.contains(category.slug)
+                        ? 0.9
+                        : 0.6,
                   ),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
-              onPressed: () => onCategoryTap(category.slug),
+              onSelected: (_) => onCategoryTap(category.slug),
             ),
           ],
         ],

@@ -36,17 +36,19 @@ class ExpenseFilterBottomSheet extends StatefulWidget {
     required VoidCallback onClear,
     required VoidCallback onCancel,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Filtrer les dépenses',
-      child: ExpenseFilterBottomSheet(
-        initialFilterData: initialFilterData,
-        categories: categories,
-        accounts: accounts,
-        resultCount: resultCount,
-        onApply: onApply,
-        onClear: onClear,
-        onCancel: onCancel,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Filtrer les dépenses',
+        child: ExpenseFilterBottomSheet(
+          initialFilterData: initialFilterData,
+          categories: categories,
+          accounts: accounts,
+          resultCount: resultCount,
+          onApply: onApply,
+          onClear: onClear,
+          onCancel: onCancel,
+        ),
       ),
     );
   }
@@ -260,17 +262,17 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           Row(
             children: [
               Expanded(
-                child: FrostedOutlinedButton(
+                child: FrostedButton.outlined(
+                  label: 'Réinitialiser',
                   onPressed: _handleReset,
-                  child: const Text('Réinitialiser'),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 flex: 2,
-                child: FrostedFilledButton(
+                child: FrostedButton.filled(
+                  label: 'Voir $count résultats',
                   onPressed: _handleApply,
-                  child: Text('Voir $count résultats'),
                 ),
               ),
             ],
@@ -339,23 +341,22 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FrostedChip(
-      label: Text(label),
+    return FrostedChip.filter(
+      label: label,
       selected: selected,
-      selectedColor: color,
       avatar: icon != null
           ? Icon(icon, size: 14)
           : color != null
-              ? Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color!.withValues(alpha: selected ? 0.9 : 0.6),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                )
-              : null,
-      onPressed: onTap,
+          ? Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color!.withValues(alpha: selected ? 0.9 : 0.6),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            )
+          : null,
+      onSelected: (_) => onTap(),
     );
   }
 }

@@ -40,18 +40,17 @@ class FrostedButton extends StatelessWidget {
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
     bool destructive = false,
-  }) =>
-      FrostedButton._(
-        key: key,
-        label: label,
-        variant: _ButtonVariant.filled,
-        icon: icon,
-        trailingIcon: trailingIcon,
-        onPressed: onPressed,
-        expanded: expanded,
-        shape: shape,
-        destructive: destructive,
-      );
+  }) => FrostedButton._(
+    key: key,
+    label: label,
+    variant: _ButtonVariant.filled,
+    icon: icon,
+    trailingIcon: trailingIcon,
+    onPressed: onPressed,
+    expanded: expanded,
+    shape: shape,
+    destructive: destructive,
+  );
 
   /// Tonal button — secondary action, sits next to a filled one.
   factory FrostedButton.tonal({
@@ -63,18 +62,17 @@ class FrostedButton extends StatelessWidget {
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
     bool destructive = false,
-  }) =>
-      FrostedButton._(
-        key: key,
-        label: label,
-        variant: _ButtonVariant.tonal,
-        icon: icon,
-        trailingIcon: trailingIcon,
-        onPressed: onPressed,
-        expanded: expanded,
-        shape: shape,
-        destructive: destructive,
-      );
+  }) => FrostedButton._(
+    key: key,
+    label: label,
+    variant: _ButtonVariant.tonal,
+    icon: icon,
+    trailingIcon: trailingIcon,
+    onPressed: onPressed,
+    expanded: expanded,
+    shape: shape,
+    destructive: destructive,
+  );
 
   /// Outlined button — alternative action, low emphasis.
   factory FrostedButton.outlined({
@@ -86,18 +84,17 @@ class FrostedButton extends StatelessWidget {
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
     bool destructive = false,
-  }) =>
-      FrostedButton._(
-        key: key,
-        label: label,
-        variant: _ButtonVariant.outlined,
-        icon: icon,
-        trailingIcon: trailingIcon,
-        onPressed: onPressed,
-        expanded: expanded,
-        shape: shape,
-        destructive: destructive,
-      );
+  }) => FrostedButton._(
+    key: key,
+    label: label,
+    variant: _ButtonVariant.outlined,
+    icon: icon,
+    trailingIcon: trailingIcon,
+    onPressed: onPressed,
+    expanded: expanded,
+    shape: shape,
+    destructive: destructive,
+  );
 
   /// Text button — least emphasis. No background or border.
   factory FrostedButton.text({
@@ -109,18 +106,17 @@ class FrostedButton extends StatelessWidget {
     bool expanded = false,
     FrostedShape shape = FrostedShape.rounded,
     bool destructive = false,
-  }) =>
-      FrostedButton._(
-        key: key,
-        label: label,
-        variant: _ButtonVariant.text,
-        icon: icon,
-        trailingIcon: trailingIcon,
-        onPressed: onPressed,
-        expanded: expanded,
-        shape: shape,
-        destructive: destructive,
-      );
+  }) => FrostedButton._(
+    key: key,
+    label: label,
+    variant: _ButtonVariant.text,
+    icon: icon,
+    trailingIcon: trailingIcon,
+    onPressed: onPressed,
+    expanded: expanded,
+    shape: shape,
+    destructive: destructive,
+  );
 
   final String label;
   final IconData? icon;
@@ -151,7 +147,6 @@ class FrostedButton extends StatelessWidget {
     return InteractiveSurface(
       onTap: onPressed,
       semanticsLabel: label,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -170,8 +165,7 @@ class FrostedButton extends StatelessWidget {
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: Row(
-            mainAxisSize:
-                expanded ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               if (icon != null) ...<Widget>[

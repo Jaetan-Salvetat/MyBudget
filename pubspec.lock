@@ -494,12 +494,10 @@ packages:
   frosted_ui:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v0.2.4"
-      resolved-ref: "3ee8bd9584616a697c5bd9d3ebc4f6a228c749dc"
-      url: "https://github.com/Jaetan-Salvetat/frosted_ui"
-    source: git
-    version: "0.2.4"
+      path: frosted_ui
+      relative: true
+    source: path
+    version: "0.3.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
@@ -1620,5 +1618,5 @@ packages:
     source: hosted
     version: "2.2.4"
 sdks:
-  dart: ">=3.11.1 <4.0.0"
+  dart: ">=3.11.4 <4.0.0"
   flutter: ">=3.38.4"
