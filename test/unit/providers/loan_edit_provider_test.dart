@@ -38,9 +38,7 @@ void main() {
 
     ProviderContainer makeContainer(Loan loan) {
       return ProviderContainer(
-        overrides: [
-          loanToEditProvider.overrideWithValue(loan),
-        ],
+        overrides: [loanToEditProvider.overrideWithValue(loan)],
       );
     }
 
@@ -79,7 +77,11 @@ void main() {
 
       const calculationService = LoanCalculationService();
       const breakdownService = LoanPaymentBreakdownService(calculationService);
-      final loan = Loan(loanWithoutInsurance, calculationService, breakdownService);
+      final loan = Loan(
+        loanWithoutInsurance,
+        calculationService,
+        breakdownService,
+      );
       final container = makeContainer(loan);
       addTearDown(container.dispose);
 
@@ -114,7 +116,9 @@ void main() {
       final container = makeContainer(testLoan);
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setLenderName('Nouvelle Banque');
+      container
+          .read(loanEditProvider.notifier)
+          .setLenderName('Nouvelle Banque');
 
       expect(container.read(loanEditProvider).lenderName, 'Nouvelle Banque');
     });
@@ -164,7 +168,9 @@ void main() {
 
       container
           .read(loanEditProvider.notifier)
-          .setInsuranceCalculationMode(InsuranceCalculationMode.remainingCapital);
+          .setInsuranceCalculationMode(
+            InsuranceCalculationMode.remainingCapital,
+          );
 
       expect(
         container.read(loanEditProvider).insuranceCalcMode,
@@ -370,7 +376,10 @@ void main() {
       final container = makeContainer(loan);
       addTearDown(container.dispose);
 
-      expect(container.read(loanEditProvider).repaymentType, LoanRepaymentType.inFine);
+      expect(
+        container.read(loanEditProvider).repaymentType,
+        LoanRepaymentType.inFine,
+      );
     });
   });
 }

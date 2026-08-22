@@ -39,30 +39,31 @@ void main() {
   });
 
   ExpenseModel expense(String? slug, {int day = 1}) => ExpenseModel.create(
-        name: 'x',
-        amount: 10,
-        categorySlug: slug,
-        accountId: 1,
-        startDate: DateTime(2026, 1, day),
-        frequency: 'Mensuel',
-      );
+    name: 'x',
+    amount: 10,
+    categorySlug: slug,
+    accountId: 1,
+    startDate: DateTime(2026, 1, day),
+    frequency: 'Mensuel',
+  );
 
   RevenueModel revenue(String? slug) => RevenueModel.create(
-        name: 'x',
-        amount: 10,
-        categorySlug: slug,
-        accountId: 1,
-        startDate: DateTime(2026, 1, 1),
-        frequency: 'Mensuel',
-      );
+    name: 'x',
+    amount: 10,
+    categorySlug: slug,
+    accountId: 1,
+    startDate: DateTime(2026, 1, 1),
+    frequency: 'Mensuel',
+  );
 
   Future<List<String>> slugsFor(TransactionType type) async {
     final container = ProviderContainer(
       overrides: [
         expenseRepositoryProvider.overrideWithValue(expenseRepository),
         revenueRepositoryProvider.overrideWithValue(revenueRepository),
-        categoryOverrideRepositoryProvider
-            .overrideWithValue(overrideRepository),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          overrideRepository,
+        ),
       ],
     );
     addTearDown(container.dispose);
@@ -87,10 +88,11 @@ void main() {
       expense('alimentation.marche'),
     ]);
 
-    expect(
-      await slugsFor(TransactionType.expense),
-      ['restauration.cafe', 'alimentation.marche', 'transport.essence'],
-    );
+    expect(await slugsFor(TransactionType.expense), [
+      'restauration.cafe',
+      'alimentation.marche',
+      'transport.essence',
+    ]);
   });
 
   test('breaks ties with the most recent start date', () async {
@@ -99,10 +101,10 @@ void main() {
       expense('restauration.cafe', day: 5),
     ]);
 
-    expect(
-      await slugsFor(TransactionType.expense),
-      ['transport.essence', 'restauration.cafe'],
-    );
+    expect(await slugsFor(TransactionType.expense), [
+      'transport.essence',
+      'restauration.cafe',
+    ]);
   });
 
   test('ignores entries without a category or with an unknown slug', () async {
@@ -112,10 +114,7 @@ void main() {
       expense('transport.essence'),
     ]);
 
-    expect(
-      await slugsFor(TransactionType.expense),
-      ['transport.essence'],
-    );
+    expect(await slugsFor(TransactionType.expense), ['transport.essence']);
   });
 
   test('caps the result at maxFrequentCategories', () async {
@@ -138,10 +137,12 @@ void main() {
   });
 
   test('reads revenues for the income type', () async {
-    when(() => expenseRepository.getActive())
-        .thenReturn([expense('transport.essence')]);
-    when(() => revenueRepository.getActive())
-        .thenReturn([revenue('salaire.prime')]);
+    when(
+      () => expenseRepository.getActive(),
+    ).thenReturn([expense('transport.essence')]);
+    when(
+      () => revenueRepository.getActive(),
+    ).thenReturn([revenue('salaire.prime')]);
 
     expect(await slugsFor(TransactionType.income), ['salaire.prime']);
   });
@@ -153,15 +154,17 @@ void main() {
         name: 'Carburant',
       ),
     });
-    when(() => expenseRepository.getActive())
-        .thenReturn([expense('transport.essence')]);
+    when(
+      () => expenseRepository.getActive(),
+    ).thenReturn([expense('transport.essence')]);
 
     final container = ProviderContainer(
       overrides: [
         expenseRepositoryProvider.overrideWithValue(expenseRepository),
         revenueRepositoryProvider.overrideWithValue(revenueRepository),
-        categoryOverrideRepositoryProvider
-            .overrideWithValue(overrideRepository),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          overrideRepository,
+        ),
       ],
     );
     addTearDown(container.dispose);

@@ -31,8 +31,10 @@ class FrostedCalendar extends StatefulWidget {
 }
 
 class _FrostedCalendarState extends State<FrostedCalendar> {
-  late DateTime _visibleMonth =
-      DateTime(widget.selected.year, widget.selected.month);
+  late DateTime _visibleMonth = DateTime(
+    widget.selected.year,
+    widget.selected.month,
+  );
   bool _yearMode = false;
 
   static DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -45,9 +47,11 @@ class _FrostedCalendarState extends State<FrostedCalendar> {
       !d.isAfter(_dateOnly(widget.lastDate));
 
   void _step(int months) => setState(
-        () => _visibleMonth =
-            DateTime(_visibleMonth.year, _visibleMonth.month + months),
-      );
+    () => _visibleMonth = DateTime(
+      _visibleMonth.year,
+      _visibleMonth.month + months,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -104,8 +108,9 @@ class _FrostedCalendarState extends State<FrostedCalendar> {
                 child: Center(
                   child: Text(
                     d,
-                    style: FrostedTypeScale.labelMedium
-                        .copyWith(color: cs.onSurfaceVariant),
+                    style: FrostedTypeScale.labelMedium.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -122,8 +127,10 @@ class _FrostedCalendarState extends State<FrostedCalendar> {
               for (int day = 1; day <= daysInMonth; day++)
                 _DayCell(
                   day: day,
-                  selected:
-                      _sameDay(widget.selected, DateTime(year, month, day)),
+                  selected: _sameDay(
+                    widget.selected,
+                    DateTime(year, month, day),
+                  ),
                   enabled: _inRange(DateTime(year, month, day)),
                   onTap: () => widget.onChanged(DateTime(year, month, day)),
                 ),
@@ -180,15 +187,14 @@ class _MonthLabel extends StatelessWidget {
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: label,
-      shape: (_) => BorderRadius.circular(FrostedRadius.full),
       builder: (BuildContext context, InteractionStates s) {
         final double overlay = s.pressed
             ? 0.12
             : s.focused
-                ? 0.10
-                : s.hovered
-                    ? 0.08
-                    : 0;
+            ? 0.10
+            : s.hovered
+            ? 0.08
+            : 0;
         return Container(
           padding: const EdgeInsets.symmetric(
             horizontal: FrostedSpacing.sp3,
@@ -205,8 +211,9 @@ class _MonthLabel extends StatelessWidget {
             children: <Widget>[
               Text(
                 label,
-                style: FrostedTypeScale.titleMedium
-                    .copyWith(color: cs.onSurface),
+                style: FrostedTypeScale.titleMedium.copyWith(
+                  color: cs.onSurface,
+                ),
               ),
               Icon(
                 expanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
@@ -239,8 +246,8 @@ class _DayCell extends StatelessWidget {
     final Color fg = !enabled
         ? cs.onSurface.withValues(alpha: 0.38)
         : selected
-            ? cs.onPrimary
-            : cs.onSurface;
+        ? cs.onPrimary
+        : cs.onSurface;
 
     return Padding(
       padding: const EdgeInsets.all(2),
@@ -248,21 +255,21 @@ class _DayCell extends StatelessWidget {
         onTap: enabled ? onTap : null,
         semanticsLabel: '$day',
         semanticsSelected: selected,
-        shape: (_) => BorderRadius.circular(FrostedRadius.full),
         builder: (BuildContext context, InteractionStates s) {
           final double overlay = s.pressed
               ? 0.12
               : s.focused
-                  ? 0.10
-                  : s.hovered
-                      ? 0.08
-                      : 0;
+              ? 0.10
+              : s.hovered
+              ? 0.08
+              : 0;
           final Color base = selected ? cs.primary : Colors.transparent;
           final Color bg = overlay == 0
               ? base
               : Color.alphaBlend(
-                  (selected ? cs.onPrimary : cs.onSurface)
-                      .withValues(alpha: overlay),
+                  (selected ? cs.onPrimary : cs.onSurface).withValues(
+                    alpha: overlay,
+                  ),
                   base,
                 );
           return Container(
@@ -301,21 +308,21 @@ class _YearCell extends StatelessWidget {
         onTap: onTap,
         semanticsLabel: '$year',
         semanticsSelected: selected,
-        shape: (_) => BorderRadius.circular(FrostedRadius.full),
         builder: (BuildContext context, InteractionStates s) {
           final double overlay = s.pressed
               ? 0.12
               : s.focused
-                  ? 0.10
-                  : s.hovered
-                      ? 0.08
-                      : 0;
+              ? 0.10
+              : s.hovered
+              ? 0.08
+              : 0;
           final Color base = selected ? cs.primary : Colors.transparent;
           final Color bg = overlay == 0
               ? base
               : Color.alphaBlend(
-                  (selected ? cs.onPrimary : cs.onSurface)
-                      .withValues(alpha: overlay),
+                  (selected ? cs.onPrimary : cs.onSurface).withValues(
+                    alpha: overlay,
+                  ),
                   base,
                 );
           return Container(

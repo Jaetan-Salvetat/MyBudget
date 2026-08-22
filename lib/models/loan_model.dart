@@ -187,42 +187,49 @@ class LoanModel {
       id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
       name: (resolve('name', 'name') as String?) ?? '',
       amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
-      accountId: int.tryParse(
+      accountId:
+          int.tryParse(
             (resolve('accountId', 'account_id') ?? '0').toString(),
           ) ??
           0,
       lenderName:
           (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
       dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,
-      startDate: DateTime.tryParse(
+      startDate:
+          DateTime.tryParse(
             (resolve('startDate', 'start_date') ?? '').toString(),
           ) ??
           DateTime.now(),
-      endDate: DateTime.tryParse(
+      endDate:
+          DateTime.tryParse(
             (resolve('endDate', 'end_date') ?? '').toString(),
           ) ??
           DateTime.now().add(const Duration(days: 365)),
       interestRate:
           (resolve('interestRate', 'interest_rate') as num?)?.toDouble() ?? 0.0,
       duration: (resolve('duration', 'duration') as int?) ?? 0,
-      repaymentTypeId: (resolve('repaymentTypeId', 'repayment_type_id')
-              as String?) ??
+      repaymentTypeId:
+          (resolve('repaymentTypeId', 'repayment_type_id') as String?) ??
           'amortizable',
       deferredMonths:
           (resolve('deferredMonths', 'deferred_months') as int?) ?? 0,
       insuranceTypeId:
           (resolve('insuranceTypeId', 'insurance_type_id') as String?) ??
-              'none',
+          'none',
       insuranceValue:
           (resolve('insuranceValue', 'insurance_value') as num?)?.toDouble() ??
-              0.0,
-      insuranceCalculationModeId: (resolve('insuranceCalculationModeId',
-              'insurance_calculation_mode_id') as String?) ??
+          0.0,
+      insuranceCalculationModeId:
+          (resolve(
+                'insuranceCalculationModeId',
+                'insurance_calculation_mode_id',
+              )
+              as String?) ??
           'initialCapital',
       immediateFirstPayment:
           (resolve('immediateFirstPayment', 'immediate_first_payment')
-                  as bool?) ??
-              false,
+              as bool?) ??
+          false,
       notes: json['notes'] as String?,
     );
   }

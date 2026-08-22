@@ -47,11 +47,10 @@ class HeroBalanceCard extends StatelessWidget {
           ),
         ],
       ),
-      child: FrostedContainer(
+      child: FrostedGlass(
         padding: const EdgeInsets.fromLTRB(18, 24, 18, 22),
-        borderRadius: BorderRadius.circular(28),
-        backgroundColor: scheme.surface.withValues(alpha: isDark ? 0.55 : 0.88),
-        borderColor: scheme.onSurface.withValues(alpha: isDark ? 0.16 : 0.10),
+        borderRadius: BorderRadius.circular(FrostedRadius.xl),
+        elevation: FrostedGlassElevation.none,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -126,7 +125,9 @@ class _TopRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isPositive ? Symbols.trending_up_rounded : Symbols.trending_down_rounded,
+              isPositive
+                  ? Symbols.trending_up_rounded
+                  : Symbols.trending_down_rounded,
               size: 14,
               color: accentColor,
               fill: 1,
@@ -134,10 +135,9 @@ class _TopRow extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               isPositive ? 'on track' : 'attention',
-              style: AppTextStyles.eyebrowMono(color: accentColor).copyWith(
-                fontSize: 11,
-                height: 14 / 11,
-              ),
+              style: AppTextStyles.eyebrowMono(
+                color: accentColor,
+              ).copyWith(fontSize: 11, height: 14 / 11),
             ),
           ],
         ),
@@ -263,10 +263,7 @@ class _DirectionChip extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   formatted,
-                  style: AppTextStyles.amount(
-                    fontSize: 15,
-                    color: foreground,
-                  ),
+                  style: AppTextStyles.amount(fontSize: 15, color: foreground),
                 ),
               ],
             ),

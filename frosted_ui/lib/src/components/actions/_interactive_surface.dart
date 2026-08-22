@@ -1,8 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import '../../theme/frosted_motion_tokens.dart';
-import '../../theme/frosted_tokens.dart';
 
 class InteractionStates {
   const InteractionStates({
@@ -10,18 +9,38 @@ class InteractionStates {
     required this.focused,
     required this.pressed,
     required this.enabled,
+    required this.pressOrigin,
+    required this.ripple,
   });
 
   final bool hovered;
   final bool focused;
   final bool pressed;
   final bool enabled;
+
+  /// Where the last press landed, in the surface's own coordinates. Null
+  /// until the surface has been touched, and for keyboard activation, which
+  /// has no point to spread from.
+  final Offset? pressOrigin;
+
+  /// Drives the ink a press throws off — hand it, with [pressOrigin], to a
+  /// [PressRipple] placed above the surface but below its content.
+  final Animation<double> ripple;
+
+  /// The state of a surface that carries no interaction at all, for
+  /// components that share one builder between a tappable and a plain form.
+  static const InteractionStates inert = InteractionStates(
+    hovered: false,
+    focused: false,
+    pressed: false,
+    enabled: true,
+    pressOrigin: null,
+    ripple: kAlwaysDismissedAnimation,
+  );
 }
 
-typedef InteractiveSurfaceBuilder = Widget Function(
-  BuildContext context,
-  InteractionStates states,
-);
+typedef InteractiveSurfaceBuilder =
+    Widget Function(BuildContext context, InteractionStates states);
 
 class InteractiveSurface extends StatefulWidget {
   const InteractiveSurface({
@@ -32,7 +51,6 @@ class InteractiveSurface extends StatefulWidget {
     this.semanticsButton = true,
     this.semanticsLabel,
     this.semanticsSelected,
-    this.shape,
     super.key,
   });
 
@@ -44,26 +62,72 @@ class InteractiveSurface extends StatefulWidget {
   final String? semanticsLabel;
   final bool? semanticsSelected;
 
-  /// Resolves the surface shape for a given interaction state — the single
-  /// source of truth for both the fill (via [builder]) and the ripple clip.
-  /// The clip animates as the resolved radius changes, so the ink always
-  /// tracks the container's shape morph. Null → a rectangular clip.
-  final BorderRadius Function(InteractionStates states)? shape;
-
   @override
   State<InteractiveSurface> createState() => _InteractiveSurfaceState();
 }
 
-class _InteractiveSurfaceState extends State<InteractiveSurface> {
+class _InteractiveSurfaceState extends State<InteractiveSurface>
+    with SingleTickerProviderStateMixin {
+  /// A tap is routinely shorter than the press transition, so releasing on
+  /// tap-up reverses the morph before it has travelled far enough to read —
+  /// on a text button, whose resting surface is transparent, that leaves the
+  /// press invisible altogether. Holding the state for this long gives the
+  /// transition room to land before it comes back.
+  static const Duration _minPressDuration = Duration(milliseconds: 160);
+
+  /// The ripple outlives the press it came from: it keeps spreading after the
+  /// finger is up, which is what reads as a reaction rather than a state.
+  static const Duration _rippleDuration = Duration(milliseconds: 450);
+
   bool _hovered = false;
   bool _focused = false;
   bool _pressed = false;
+  bool _releasePending = false;
+  Timer? _holdTimer;
+  Offset? _pressOrigin;
+
+  late final AnimationController _ripple = AnimationController(
+    vsync: this,
+    duration: _rippleDuration,
+  );
 
   bool get _enabled => widget.onTap != null;
 
-  void _setPressed(bool value) {
-    if (_pressed == value) return;
-    setState(() => _pressed = value);
+  void _press(Offset origin) {
+    _holdTimer?.cancel();
+    _releasePending = false;
+    _holdTimer = Timer(_minPressDuration, _onHoldElapsed);
+    setState(() {
+      _pressed = true;
+      _pressOrigin = origin;
+    });
+    _ripple.forward(from: 0);
+  }
+
+  void _onHoldElapsed() {
+    _holdTimer = null;
+    if (_releasePending) _release();
+  }
+
+  void _requestRelease() {
+    if (_holdTimer != null) {
+      _releasePending = true;
+      return;
+    }
+    _release();
+  }
+
+  void _release() {
+    _releasePending = false;
+    if (!_pressed) return;
+    setState(() => _pressed = false);
+  }
+
+  @override
+  void dispose() {
+    _holdTimer?.cancel();
+    _ripple.dispose();
+    super.dispose();
   }
 
   static final Map<Type, Action<Intent>> _emptyActions =
@@ -94,54 +158,26 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
       focused: _enabled && _focused,
       pressed: _enabled && _pressed,
       enabled: _enabled,
+      pressOrigin: _pressOrigin,
+      ripple: _ripple,
     );
 
     Widget child = widget.builder(context, states);
 
-    // Ripple painted above the surface fill, clipped to the shape. State
-    // layers (hover/focus/press tint) stay on the builder; the InkWell only
-    // contributes the ink splash. The clip morphs with the press so the ink
-    // tracks the container's shape change instead of lagging behind it.
-    final FrostedMotion motion = context.frostedTokens.motion.snappy;
-    final BorderRadius targetRadius =
-        widget.shape?.call(states) ?? BorderRadius.zero;
-
-    // The InkWell paints into a Material whose own shape clips the splash to
-    // the rounded corners — so the ink never bleeds into a neighbour. Only
-    // this ink layer is clipped; the builder's content (and any shadow it
-    // draws, e.g. the FAB) stays unclipped. The shape morphs with the press.
-    child = Stack(
-      children: <Widget>[
-        child,
-        Positioned.fill(
-          child: TweenAnimationBuilder<BorderRadius?>(
-            duration: motion.duration,
-            curve: motion.curve,
-            tween: Tween<BorderRadius?>(end: targetRadius),
-            builder: (BuildContext context, BorderRadius? radius, Widget? _) {
-              return Material(
-                type: MaterialType.transparency,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: radius ?? targetRadius,
-                ),
-                child: InkWell(
-                  onTap: _enabled ? widget.onTap : null,
-                  onTapDown: _enabled
-                      ? (TapDownDetails _) => _setPressed(true)
-                      : null,
-                  onTapUp:
-                      _enabled ? (TapUpDetails _) => _setPressed(false) : null,
-                  onTapCancel: _enabled ? () => _setPressed(false) : null,
-                  hoverColor: Colors.transparent,
-                  focusColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+    // The press reads through the state layer and the shape morph the builder
+    // already draws, so the surface needs no ink of its own. Handling the tap
+    // here — rather than in an overlay stacked above the content — leaves any
+    // interactive child (a trailing icon button, say) free to win the gesture
+    // arena on its own.
+    child = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _enabled ? widget.onTap : null,
+      onTapDown: _enabled
+          ? (TapDownDetails details) => _press(details.localPosition)
+          : null,
+      onTapUp: _enabled ? (TapUpDetails _) => _requestRelease() : null,
+      onTapCancel: _enabled ? _requestRelease : null,
+      child: child,
     );
 
     child = FocusableActionDetector(

@@ -11,15 +11,17 @@ void main() {
   late MockAppUpdater mockUpdater;
 
   setUpAll(() {
-    registerFallbackValue(ReleaseInfo(
-      version: '0.0.0',
-      tagName: 'v0.0.0',
-      title: '',
-      notes: '',
-      publishedAt: DateTime(2020),
-      isPrerelease: false,
-      assets: const [],
-    ));
+    registerFallbackValue(
+      ReleaseInfo(
+        version: '0.0.0',
+        tagName: 'v0.0.0',
+        title: '',
+        notes: '',
+        publishedAt: DateTime(2020),
+        isPrerelease: false,
+        assets: const [],
+      ),
+    );
   });
 
   setUp(() {
@@ -29,9 +31,7 @@ void main() {
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
-      overrides: [
-        appUpdaterProvider.overrideWithValue(mockUpdater),
-      ],
+      overrides: [appUpdaterProvider.overrideWithValue(mockUpdater)],
     );
   }
 
@@ -54,8 +54,9 @@ void main() {
 
   group('UpdateNotifier - checkForUpdates', () {
     test('Should detect update when newer release exists', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenAnswer((_) async => testRelease);
+      when(
+        () => mockUpdater.checkForUpdates(),
+      ).thenAnswer((_) async => testRelease);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -70,8 +71,7 @@ void main() {
     });
 
     test('Should set null when no update available', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenAnswer((_) async => null);
+      when(() => mockUpdater.checkForUpdates()).thenAnswer((_) async => null);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -85,8 +85,9 @@ void main() {
     });
 
     test('Should handle network error', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenThrow(const NetworkException());
+      when(
+        () => mockUpdater.checkForUpdates(),
+      ).thenThrow(const NetworkException());
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -100,8 +101,9 @@ void main() {
     });
 
     test('Should handle GitHub API error', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenThrow(const GitHubApiException(statusCode: 403));
+      when(
+        () => mockUpdater.checkForUpdates(),
+      ).thenThrow(const GitHubApiException(statusCode: 403));
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -114,8 +116,7 @@ void main() {
     });
 
     test('Should handle generic error', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenThrow(Exception('Unknown'));
+      when(() => mockUpdater.checkForUpdates()).thenThrow(Exception('Unknown'));
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -128,8 +129,7 @@ void main() {
     });
 
     test('Should not check if already checking', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenAnswer((_) async {
+      when(() => mockUpdater.checkForUpdates()).thenAnswer((_) async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
         return testRelease;
       });
@@ -168,15 +168,17 @@ void main() {
     });
 
     test('Should handle download error', () async {
-      when(() => mockUpdater.checkForUpdates())
-          .thenAnswer((_) async => testRelease);
-      when(() => mockUpdater.downloadUpdate(any()))
-          .thenAnswer((_) => Stream.error(
-        const DownloadException(
-          url: 'https://example.com/app.apk',
-          attempts: 3,
+      when(
+        () => mockUpdater.checkForUpdates(),
+      ).thenAnswer((_) async => testRelease);
+      when(() => mockUpdater.downloadUpdate(any())).thenAnswer(
+        (_) => Stream.error(
+          const DownloadException(
+            url: 'https://example.com/app.apk',
+            attempts: 3,
+          ),
         ),
-      ));
+      );
 
       final container = makeContainer();
       addTearDown(container.dispose);

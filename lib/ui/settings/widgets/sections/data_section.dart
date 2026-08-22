@@ -1,42 +1,49 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:share_plus/share_plus.dart';
+
 import 'package:mybudget/ui/settings/data_provider.dart';
-import 'package:mybudget/ui/settings/widgets/settings_section.dart';
-import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/ui/settings/screens/import_preview_screen.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
-import 'package:share_plus/share_plus.dart';
 
 class DataSection extends ConsumerWidget {
   const DataSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SettingsSection(
-      title: 'Données',
-      children: [
-        SettingsTile(
+    return FrostedListSection(
+      label: 'Données',
+      tiles: [
+        FrostedListTile(
           title: 'Exporter mes données',
           subtitle: 'Sauvegardez vos données financières',
-          leading: const Icon(Symbols.upload_file_rounded),
+          leading: const FrostedListAvatar(icon: Symbols.upload_file_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => _exportUserData(context, ref),
         ),
-        SettingsTile(
+        FrostedListTile(
           title: 'Importer mes données',
           subtitle: 'Restaurez vos données depuis une sauvegarde',
-          leading: const Icon(Symbols.download_rounded),
+          leading: const FrostedListAvatar(icon: Symbols.download_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => _importUserData(context, ref),
         ),
-        SettingsTile(
+        FrostedListTile(
           title: 'Supprimer toutes mes données',
           subtitle: 'Cette action est irréversible',
-          leading: const Icon(Symbols.delete_forever_rounded),
+          leading: const FrostedListAvatar(
+            icon: Symbols.delete_forever_rounded,
+          ),
+          trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => DataManagementDialogs.showDeleteDataConfirmationDialog(
-              context, ref),
+            context,
+            ref,
+          ),
         ),
       ],
     );
@@ -44,8 +51,7 @@ class DataSection extends ConsumerWidget {
 
   Future<void> _exportUserData(BuildContext context, WidgetRef ref) async {
     try {
-      final filePath =
-          await ref.read(dataProvider.notifier).exportUserData();
+      final filePath = await ref.read(dataProvider.notifier).exportUserData();
 
       await SharePlus.instance.share(
         ShareParams(
@@ -89,8 +95,9 @@ class DataSection extends ConsumerWidget {
 
       if (context.mounted) {
         try {
-          final validationResult =
-              ref.read(dataProvider.notifier).validateImportData(jsonContent);
+          final validationResult = ref
+              .read(dataProvider.notifier)
+              .validateImportData(jsonContent);
 
           if (context.mounted) {
             Navigator.of(context).push(
@@ -104,15 +111,19 @@ class DataSection extends ConsumerWidget {
           }
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context,
-                message: 'Erreur lors de la lecture du fichier: $e');
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la lecture du fichier: $e',
+            );
           }
         }
       }
     } catch (e) {
       if (context.mounted) {
-        FrostedSnackbar.show(context,
-            message: 'Erreur lors de la sélection du fichier: $e');
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la sélection du fichier: $e',
+        );
       }
     }
   }

@@ -23,17 +23,21 @@ void main() {
       expect(PreferencesService.getThemeMode(), ThemeMode.system);
     });
 
-    test('setThemeMode persists and getThemeMode returns the set value', () async {
-      await PreferencesService.setThemeMode(ThemeMode.dark);
-      expect(PreferencesService.getThemeMode(), ThemeMode.dark);
-    });
+    test(
+      'setThemeMode persists and getThemeMode returns the set value',
+      () async {
+        await PreferencesService.setThemeMode(ThemeMode.dark);
+        expect(PreferencesService.getThemeMode(), ThemeMode.dark);
+      },
+    );
 
-    test('hasSeenUpdateOnboarding is false by default and true after set', () async {
-      expect(PreferencesService.hasSeenUpdateOnboarding(), isFalse);
-      await PreferencesService.setHasSeenUpdateOnboarding();
-      expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
-    });
-
-
+    test(
+      'hasSeenUpdateOnboarding is false by default and true after set',
+      () async {
+        expect(PreferencesService.hasSeenUpdateOnboarding(), isFalse);
+        await PreferencesService.setHasSeenUpdateOnboarding();
+        expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
+      },
+    );
   });
 }

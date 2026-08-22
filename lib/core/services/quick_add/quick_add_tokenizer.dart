@@ -61,10 +61,7 @@ class QuickAddTokenizer {
 
     if (ids.length > _maxLength) {
       final truncated = ids.sublist(0, _maxLength - 1)..add(_eosId);
-      return (
-        inputIds: truncated,
-        attentionMask: List.filled(_maxLength, 1),
-      );
+      return (inputIds: truncated, attentionMask: List.filled(_maxLength, 1));
     }
 
     final padLength = _maxLength - ids.length;

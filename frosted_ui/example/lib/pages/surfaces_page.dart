@@ -129,6 +129,7 @@ class _ListDemoState extends State<_ListDemo> {
   bool _wifi = true;
   bool _bluetooth = false;
   int _selectedAccount = 0;
+  int _selectedCategory = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -220,6 +221,26 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
+        // Plain rows: no surface of their own, for a tree or a sheet whose
+        // parent already owns the background.
+        FrostedListSection(
+          label: 'Catégories',
+          tiles: <FrostedListTile>[
+            for (int i = 0; i < _categories.length; i++)
+              FrostedListTile(
+                leading: const Icon(Icons.sell_outlined),
+                title: _categories[i],
+                variant: FrostedListTileVariant.plain,
+                trailing: _selectedCategory == i
+                    ? const Icon(Icons.check)
+                    : null,
+                selected: _selectedCategory == i,
+                onTap: () => setState(() => _selectedCategory = i),
+              ),
+          ],
+        ),
+        const SizedBox(height: FrostedSpacing.sp5),
+
         // Read-only group (no onTap → no ripple, static).
         FrostedListSection(
           label: 'Informations',
@@ -244,6 +265,12 @@ class _ListDemoState extends State<_ListDemo> {
     'Compte courant',
     'Livret A',
     'Épargne',
+  ];
+
+  static const List<String> _categories = <String>[
+    'Alimentation',
+    'Transports',
+    'Loisirs',
   ];
 }
 

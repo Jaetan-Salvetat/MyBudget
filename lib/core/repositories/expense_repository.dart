@@ -30,8 +30,10 @@ class ExpenseRepository {
 
   List<ExpenseModel> getChain(int rootId) {
     final query = _box
-        .query(ExpenseModel_.parentId.equals(rootId) |
-            ExpenseModel_.id.equals(rootId))
+        .query(
+          ExpenseModel_.parentId.equals(rootId) |
+              ExpenseModel_.id.equals(rootId),
+        )
         .build();
     final results = query.find();
     query.close();

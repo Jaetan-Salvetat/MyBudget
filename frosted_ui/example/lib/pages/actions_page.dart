@@ -16,11 +16,15 @@ class ActionsPage extends StatelessWidget {
         FrostedSpacing.sp7,
       ),
       children: const <Widget>[
-        Section(title: 'Buttons', child: _ButtonsDemo()),
-        SizedBox(height: FrostedSpacing.sp6),
-        Section(title: 'Icon buttons', child: _IconButtonsDemo()),
+        Section(title: 'Shape morphing', child: _ShapeMorphingDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'FAB', child: _FabDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Expandable FAB', child: _ExpandableFabDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Destructive', child: _DestructiveDemo()),
+        SizedBox(height: FrostedSpacing.sp6),
+        Section(title: 'Icon button sizes', child: _IconButtonSizesDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Chips', child: _ChipsDemo()),
         SizedBox(height: FrostedSpacing.sp6),
@@ -38,69 +42,42 @@ class ActionsPage extends StatelessWidget {
   }
 }
 
-class _ButtonsDemo extends StatelessWidget {
-  const _ButtonsDemo();
+/// The fan-out: the trigger holds still while its actions rise behind it,
+/// bottom-up, over a glass scrim.
+class _ExpandableFabDemo extends StatelessWidget {
+  const _ExpandableFabDemo();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Wrap(
-          spacing: FrostedSpacing.sp2,
-          runSpacing: FrostedSpacing.sp2,
-          children: <Widget>[
-            FrostedButton.filled(label: 'Filled', onPressed: () {}),
-            FrostedButton.tonal(label: 'Tonal', onPressed: () {}),
-            FrostedButton.outlined(label: 'Outlined', onPressed: () {}),
-            FrostedButton.text(label: 'Text', onPressed: () {}),
-          ],
-        ),
-        const SizedBox(height: FrostedSpacing.sp3),
-        Wrap(
-          spacing: FrostedSpacing.sp2,
-          runSpacing: FrostedSpacing.sp2,
-          children: <Widget>[
-            FrostedButton.filled(
-              label: 'Save',
-              icon: Icons.check,
-              onPressed: () {},
-            ),
-            FrostedButton.tonal(
-              label: 'Continue',
-              trailingIcon: Icons.arrow_forward,
-              onPressed: () {},
-            ),
-            FrostedButton.outlined(
-              label: 'Disabled',
-              onPressed: null,
-            ),
-          ],
-        ),
-        const SizedBox(height: FrostedSpacing.sp3),
-        FrostedButton.filled(
-          label: 'Expanded',
-          icon: Icons.bolt,
-          expanded: true,
-          onPressed: () {},
-        ),
-      ],
+    return Align(
+      alignment: Alignment.centerRight,
+      child: FrostedExpandableFab(
+        tooltip: 'Add',
+        actions: <FrostedFabAction>[
+          FrostedFabAction(
+            icon: Icons.photo_camera_outlined,
+            label: 'Scan',
+            onPressed: () {},
+          ),
+          FrostedFabAction(
+            icon: Icons.north_east,
+            label: 'Income',
+            onPressed: () {},
+          ),
+          FrostedFabAction(
+            icon: Icons.south_west,
+            label: 'Expense',
+            onPressed: () {},
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _IconButtonsDemo extends StatefulWidget {
-  const _IconButtonsDemo();
-
-  @override
-  State<_IconButtonsDemo> createState() => _IconButtonsDemoState();
-}
-
-class _IconButtonsDemoState extends State<_IconButtonsDemo> {
-  bool _standardSel = false;
-  bool _filledSel = true;
-  bool _tonalSel = false;
-  bool _outlinedSel = false;
+/// The error role, for actions that cannot be taken back.
+class _DestructiveDemo extends StatelessWidget {
+  const _DestructiveDemo();
 
   @override
   Widget build(BuildContext context) {
@@ -108,39 +85,184 @@ class _IconButtonsDemoState extends State<_IconButtonsDemo> {
       spacing: FrostedSpacing.sp2,
       runSpacing: FrostedSpacing.sp2,
       children: <Widget>[
-        FrostedIconButton.standard(
-          icon: Icons.favorite_outline,
-          selectedIcon: Icons.favorite,
-          selected: _standardSel,
-          tooltip: 'Like',
-          onPressed: () => setState(() => _standardSel = !_standardSel),
+        FrostedButton.filled(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
         ),
-        FrostedIconButton.filled(
-          icon: Icons.bookmark_outline,
-          selectedIcon: Icons.bookmark,
-          selected: _filledSel,
-          tooltip: 'Save',
-          onPressed: () => setState(() => _filledSel = !_filledSel),
+        FrostedButton.tonal(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
         ),
-        FrostedIconButton.tonal(
-          icon: Icons.notifications_outlined,
-          selectedIcon: Icons.notifications,
-          selected: _tonalSel,
-          tooltip: 'Notify',
-          onPressed: () => setState(() => _tonalSel = !_tonalSel),
+        FrostedButton.outlined(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
         ),
-        FrostedIconButton.outlined(
-          icon: Icons.share_outlined,
-          selected: _outlinedSel,
-          tooltip: 'Share',
-          onPressed: () => setState(() => _outlinedSel = !_outlinedSel),
-        ),
-        FrostedIconButton.standard(
-          icon: Icons.delete_outline,
-          tooltip: 'Disabled',
-          onPressed: null,
+        FrostedButton.text(
+          label: 'Delete',
+          destructive: true,
+          onPressed: () {},
         ),
       ],
+    );
+  }
+}
+
+/// Three footprints: dense rows trail [FrostedIconButtonSize.small], a lone
+/// target takes [FrostedIconButtonSize.large].
+class _IconButtonSizesDemo extends StatelessWidget {
+  const _IconButtonSizesDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: FrostedSpacing.sp3,
+      runSpacing: FrostedSpacing.sp3,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: <Widget>[
+        for (final FrostedIconButtonSize size in FrostedIconButtonSize.values)
+          FrostedIconButton.tonal(
+            icon: Icons.tune,
+            size: size,
+            tooltip: size.name,
+            onPressed: () {},
+          ),
+      ],
+    );
+  }
+}
+
+/// Every variant in both resting forms. Press one and it morphs into the
+/// other form for as long as it is held — pill flattens, rounded rounds out.
+class _ShapeMorphingDemo extends StatelessWidget {
+  const _ShapeMorphingDemo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (final FrostedShape shape in FrostedShape.values) ...<Widget>[
+          _ShapeLabel(shape: shape),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp2,
+            runSpacing: FrostedSpacing.sp2,
+            children: <Widget>[
+              FrostedButton.filled(
+                label: 'Filled',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.tonal(
+                label: 'Tonal',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.outlined(
+                label: 'Outlined',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedButton.text(
+                label: 'Text',
+                shape: shape,
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp2,
+            runSpacing: FrostedSpacing.sp2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              FrostedIconButton.standard(
+                icon: Icons.favorite_outline,
+                shape: shape,
+                tooltip: 'Standard',
+                onPressed: () {},
+              ),
+              FrostedIconButton.filled(
+                icon: Icons.bookmark_outline,
+                shape: shape,
+                tooltip: 'Filled',
+                onPressed: () {},
+              ),
+              FrostedIconButton.tonal(
+                icon: Icons.notifications_outlined,
+                shape: shape,
+                tooltip: 'Tonal',
+                onPressed: () {},
+              ),
+              FrostedIconButton.outlined(
+                icon: Icons.share_outlined,
+                shape: shape,
+                tooltip: 'Outlined',
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp2),
+          Wrap(
+            spacing: FrostedSpacing.sp3,
+            runSpacing: FrostedSpacing.sp3,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              FrostedFab.small(
+                icon: Icons.add,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.regular(
+                icon: Icons.edit,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.large(
+                icon: Icons.bolt,
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.extended(
+                icon: Icons.add,
+                label: 'New task',
+                shape: shape,
+                onPressed: () {},
+              ),
+              FrostedFab.regular(
+                icon: Icons.mic,
+                tonal: true,
+                shape: shape,
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: FrostedSpacing.sp4),
+        ],
+      ],
+    );
+  }
+}
+
+class _ShapeLabel extends StatelessWidget {
+  const _ShapeLabel({required this.shape});
+
+  final FrostedShape shape;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Text(
+      switch (shape) {
+        FrostedShape.pill => 'pill — presses into rounded',
+        FrostedShape.rounded => 'rounded — presses into pill',
+      },
+      style: FrostedTypeScale.labelMedium.copyWith(
+        color: cs.onSurfaceVariant,
+      ),
     );
   }
 }

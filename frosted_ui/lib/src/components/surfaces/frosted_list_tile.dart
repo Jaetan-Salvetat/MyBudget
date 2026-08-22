@@ -10,9 +10,21 @@ import '../actions/_interactive_surface.dart';
 /// Where a tile sits inside a [FrostedListSection], which drives its corners.
 enum FrostedTilePosition { single, first, middle, last }
 
-/// A filled list item following the M3 Expressive segmented-list spec: each
-/// item is its own rounded `surfaceContainer` surface (not a row in a shared
-/// block), with corners that depend on its [position] in the group.
+/// How much surface a [FrostedListTile] paints of its own.
+enum FrostedListTileVariant {
+  /// Opaque `surfaceContainer` block — the M3 Expressive segmented-list item.
+  filled,
+
+  /// No surface at all, for rows that sit on a background their parent owns
+  /// (a tree, a sheet). Selection and state layers still show.
+  plain,
+}
+
+/// A list item following the M3 Expressive segmented-list spec: each item is
+/// its own rounded `surfaceContainer` surface (not a row in a shared block),
+/// with corners that depend on its [position] in the group. Rows that belong
+/// to a surface their parent already draws take [FrostedListTileVariant.plain]
+/// instead.
 ///
 /// Heights follow the spec (56 one-line / 72 two-line), 16dp leading/trailing
 /// space, 8dp vertical padding. Standalone tiles are fully rounded.
@@ -24,6 +36,7 @@ class FrostedListTile extends StatelessWidget {
     this.trailing,
     this.selected = false,
     this.onTap,
+    this.variant = FrostedListTileVariant.filled,
     this.position = FrostedTilePosition.single,
     super.key,
   });
@@ -34,19 +47,21 @@ class FrostedListTile extends StatelessWidget {
   final Widget? trailing;
   final bool selected;
   final VoidCallback? onTap;
+  final FrostedListTileVariant variant;
   final FrostedTilePosition position;
 
   /// Copy with a resolved [position] — used by [FrostedListSection].
   FrostedListTile withPosition(FrostedTilePosition value) => FrostedListTile(
-        title: title,
-        subtitle: subtitle,
-        leading: leading,
-        trailing: trailing,
-        selected: selected,
-        onTap: onTap,
-        position: value,
-        key: key,
-      );
+    title: title,
+    subtitle: subtitle,
+    leading: leading,
+    trailing: trailing,
+    selected: selected,
+    onTap: onTap,
+    variant: variant,
+    position: value,
+    key: key,
+  );
 
   static const double _oneLineHeight = 56;
   static const double _twoLineHeight = 72;
@@ -78,19 +93,24 @@ class FrostedListTile extends StatelessWidget {
     final bool twoLine = subtitle != null;
     final double minHeight = twoLine ? _twoLineHeight : _oneLineHeight;
     final Color titleColor = selected ? cs.onSecondaryContainer : cs.onSurface;
-    final Color subtitleColor =
-        selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
-    final Color base = selected ? cs.secondaryContainer : cs.surfaceContainer;
+    final Color subtitleColor = selected
+        ? cs.onSecondaryContainer
+        : cs.onSurfaceVariant;
+    final Color base = selected
+        ? cs.secondaryContainer
+        : variant == FrostedListTileVariant.plain
+        ? Colors.transparent
+        : cs.surfaceContainer;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
     Widget content(InteractionStates s) {
       final double overlay = s.pressed
           ? 0.12
           : s.focused
-              ? 0.10
-              : s.hovered
-                  ? 0.08
-                  : 0;
+          ? 0.10
+          : s.hovered
+          ? 0.08
+          : 0;
       final Color fill = overlay == 0
           ? base
           : Color.alphaBlend(cs.onSurface.withValues(alpha: overlay), base);
@@ -134,8 +154,9 @@ class FrostedListTile extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: FrostedTypeScale.bodySmall
-                              .copyWith(color: subtitleColor),
+                          style: FrostedTypeScale.bodySmall.copyWith(
+                            color: subtitleColor,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -146,11 +167,11 @@ class FrostedListTile extends StatelessWidget {
                 if (trailing != null) ...<Widget>[
                   const SizedBox(width: FrostedSpacing.sp4),
                   DefaultTextStyle.merge(
-                    style: FrostedTypeScale.labelMedium
-                        .copyWith(color: cs.onSurfaceVariant),
+                    style: FrostedTypeScale.labelMedium.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                     child: IconTheme.merge(
-                      data:
-                          IconThemeData(color: cs.onSurfaceVariant, size: 20),
+                      data: IconThemeData(color: cs.onSurfaceVariant, size: 20),
                       child: trailing!,
                     ),
                   ),
@@ -163,19 +184,15 @@ class FrostedListTile extends StatelessWidget {
     }
 
     if (onTap == null) {
-      return content(const InteractionStates(
-        hovered: false,
-        focused: false,
-        pressed: false,
-        enabled: true,
-      ));
+      return content(
+        InteractionStates.inert,
+      );
     }
 
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: title,
       semanticsSelected: selected,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) => content(s),
     );
   }

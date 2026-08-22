@@ -23,26 +23,34 @@ class LoanDetailKpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 14),
-      borderRadius: 16,
-      padding: const EdgeInsets.all(14),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Expanded(
-              child: _Stat(label: leftLabel, value: leftValue, hint: leftHint),
-            ),
-            VerticalDivider(
-              width: 28,
-              thickness: 1,
-              color: scheme.onSurface.withValues(alpha: 0.08),
-            ),
-            Expanded(
-              child:
-                  _Stat(label: rightLabel, value: rightValue, hint: rightHint),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: FrostedCard(
+        padding: const EdgeInsets.all(14),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Expanded(
+                child: _Stat(
+                  label: leftLabel,
+                  value: leftValue,
+                  hint: leftHint,
+                ),
+              ),
+              VerticalDivider(
+                width: 28,
+                thickness: 1,
+                color: scheme.onSurface.withValues(alpha: 0.08),
+              ),
+              Expanded(
+                child: _Stat(
+                  label: rightLabel,
+                  value: rightValue,
+                  hint: rightHint,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

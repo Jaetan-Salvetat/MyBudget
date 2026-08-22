@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -41,13 +42,13 @@ void main() {
   });
 
   ExpenseModel expense(String slug) => ExpenseModel.create(
-        name: 'x',
-        amount: 10,
-        categorySlug: slug,
-        accountId: 1,
-        startDate: DateTime(2026, 1, 1),
-        frequency: 'Mensuel',
-      );
+    name: 'x',
+    amount: 10,
+    categorySlug: slug,
+    accountId: 1,
+    startDate: DateTime(2026, 1, 1),
+    frequency: 'Mensuel',
+  );
 
   Future<String? Function()> openPicker(
     WidgetTester tester, {
@@ -62,11 +63,13 @@ void main() {
         overrides: [
           expenseRepositoryProvider.overrideWithValue(expenseRepository),
           revenueRepositoryProvider.overrideWithValue(revenueRepository),
-          categoryOverrideRepositoryProvider
-              .overrideWithValue(overrideRepository),
+          categoryOverrideRepositoryProvider.overrideWithValue(
+            overrideRepository,
+          ),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],
         child: MaterialApp(
+          theme: AppTheme.dark(),
           home: Scaffold(
             body: Builder(
               builder: (context) => ElevatedButton(
@@ -131,8 +134,9 @@ void main() {
   });
 
   testWidgets('lists the most used categories first', (tester) async {
-    when(() => expenseRepository.getActive())
-        .thenReturn([expense('logement.loyer')]);
+    when(
+      () => expenseRepository.getActive(),
+    ).thenReturn([expense('logement.loyer')]);
 
     await openPicker(tester);
 
@@ -140,10 +144,12 @@ void main() {
     expect(find.text('Loyer'), findsOneWidget);
   });
 
-  testWidgets('a suggested category is not repeated in the frequent list',
-      (tester) async {
-    when(() => expenseRepository.getActive())
-        .thenReturn([expense('logement.loyer')]);
+  testWidgets('a suggested category is not repeated in the frequent list', (
+    tester,
+  ) async {
+    when(
+      () => expenseRepository.getActive(),
+    ).thenReturn([expense('logement.loyer')]);
 
     await openPicker(tester, suggestions: const ['logement.loyer']);
 

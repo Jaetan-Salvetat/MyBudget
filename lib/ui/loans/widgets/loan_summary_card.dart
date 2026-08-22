@@ -30,112 +30,109 @@ class LoanSummaryCard extends StatelessWidget {
     );
     final progressPct = (progress * 100).clamp(0, 100).round();
 
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 14),
-      borderRadius: 20,
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'MENSUALITÉS DU MOIS',
-            style: AppTextStyles.mono(
-              fontSize: 10,
-              letterSpacingEm: 0.10,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                formatter.format(monthlyPayment),
-                style: TextStyle(
-                  fontSize: 32,
-                  height: 36 / 32,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.022 * 32,
-                  color: scheme.onSurface,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '· $activeLoanCount actif${activeLoanCount > 1 ? 's' : ''}',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 16 / 13,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Text(
-                'Capital amorti',
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 16 / 12,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '$progressPct%',
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 18 / 14,
-                  fontWeight: FontWeight.w600,
-                  color: scheme.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(9999),
-            child: FrostedLinearProgressIndicator(
-              value: progress.clamp(0.0, 1.0),
-              minHeight: 6,
-              backgroundColor: scheme.onSurface.withValues(alpha: 0.08),
-              color: scheme.primary,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.only(top: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  width: 0.5,
-                  color: scheme.onSurface.withValues(alpha: 0.07),
-                ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: FrostedCard(
+        radius: FrostedRadius.xl,
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'MENSUALITÉS DU MOIS',
+              style: AppTextStyles.mono(
+                fontSize: 10,
+                letterSpacingEm: 0.10,
+                color: scheme.onSurfaceVariant,
               ),
             ),
-            child: Row(
+            const SizedBox(height: 2),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
-                Expanded(
-                  child: _Stat(
-                    label: 'Capital restant',
-                    value: compactFormatter.format(totalDebt),
+                Text(
+                  formatter.format(monthlyPayment),
+                  style: TextStyle(
+                    fontSize: 32,
+                    height: 36 / 32,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.022 * 32,
+                    color: scheme.onSurface,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
-                Expanded(
-                  child: _Stat(
-                    label: 'Coût restant',
-                    value: compactFormatter.format(remainingCost),
-                    hint: 'Intérêts + assurance',
+                const SizedBox(width: 8),
+                Text(
+                  '· $activeLoanCount actif${activeLoanCount > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 16 / 13,
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Text(
+                  'Capital amorti',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 16 / 12,
+                    fontWeight: FontWeight.w500,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$progressPct%',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 18 / 14,
+                    fontWeight: FontWeight.w600,
+                    color: scheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(9999),
+              child: FrostedLinearProgress(value: progress.clamp(0.0, 1.0)),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    width: 0.5,
+                    color: scheme.onSurface.withValues(alpha: 0.07),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _Stat(
+                      label: 'Capital restant',
+                      value: compactFormatter.format(totalDebt),
+                    ),
+                  ),
+                  Expanded(
+                    child: _Stat(
+                      label: 'Coût restant',
+                      value: compactFormatter.format(remainingCost),
+                      hint: 'Intérêts + assurance',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

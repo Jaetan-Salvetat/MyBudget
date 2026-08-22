@@ -8,12 +8,12 @@ enum ExpenseSortBy {
   name;
 
   String get label => switch (this) {
-        ExpenseSortBy.dateDesc => 'Plus récent',
-        ExpenseSortBy.dateAsc => 'Plus ancien',
-        ExpenseSortBy.amountDesc => 'Montant décroissant',
-        ExpenseSortBy.amountAsc => 'Montant croissant',
-        ExpenseSortBy.name => 'Nom (A-Z)',
-      };
+    ExpenseSortBy.dateDesc => 'Plus récent',
+    ExpenseSortBy.dateAsc => 'Plus ancien',
+    ExpenseSortBy.amountDesc => 'Montant décroissant',
+    ExpenseSortBy.amountAsc => 'Montant croissant',
+    ExpenseSortBy.name => 'Nom (A-Z)',
+  };
 
   static ExpenseSortBy fromName(String? value) {
     return ExpenseSortBy.values.firstWhere(

@@ -15,10 +15,9 @@ class AccountModel {
   AccountModel.create({required this.name, required this.bank});
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
-    final model =
-        AccountModel()
-          ..name = json['name'] ?? ''
-          ..bank = json['bank'] ?? '';
+    final model = AccountModel()
+      ..name = json['name'] ?? ''
+      ..bank = json['bank'] ?? '';
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;
@@ -28,11 +27,10 @@ class AccountModel {
   }
 
   AccountModel copyWith({String? name, String? bank}) {
-    final model =
-        AccountModel()
-          ..id = id
-          ..name = name ?? this.name
-          ..bank = bank ?? this.bank;
+    final model = AccountModel()
+      ..id = id
+      ..name = name ?? this.name
+      ..bank = bank ?? this.bank;
     return model;
   }
 

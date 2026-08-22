@@ -81,7 +81,8 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
       case Frequency.monthly:
         return expense.startDate.day >= now.day;
       case Frequency.annual:
-        return expense.startDate.month == now.month && expense.startDate.day >= now.day;
+        return expense.startDate.month == now.month &&
+            expense.startDate.day >= now.day;
       case Frequency.oneTime:
         final expenseDate = DateTime(
           expense.startDate.year,
@@ -111,8 +112,7 @@ Map<String, double> expensesByGroup(Ref ref) {
   for (final expense in expenses) {
     final amount = _expenseAmountForMonth(expense, selectedMonth);
     if (amount <= 0) continue;
-    final groupKey =
-        resolver.groupKeyOrUncategorized(expense.categorySlug);
+    final groupKey = resolver.groupKeyOrUncategorized(expense.categorySlug);
     totals.update(groupKey, (value) => value + amount, ifAbsent: () => amount);
   }
   return totals;

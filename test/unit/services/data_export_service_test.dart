@@ -22,7 +22,6 @@ class MockAccountRepository extends Mock implements AccountRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
-
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class MockRevenueRepository extends Mock implements RevenueRepository {}
@@ -140,8 +139,9 @@ void main() {
 
     when(() => mockAccountRepo.getAll()).thenReturn([account]);
     when(() => mockBeneficiaryRepo.getAll()).thenReturn([beneficiary]);
-    when(() => mockCategoryOverrideRepo.getAll())
-        .thenReturn({override.slug: override});
+    when(
+      () => mockCategoryOverrideRepo.getAll(),
+    ).thenReturn({override.slug: override});
     when(() => mockCategoryMemoryRepo.getAll()).thenReturn([
       CategoryMemoryModel.create(
         key: 'macdo',
@@ -159,8 +159,10 @@ void main() {
     expect((result['accounts'] as List), hasLength(1));
     expect((result['accounts'] as List).first['name'], 'Compte');
     expect((result['beneficiaries'] as List).first['name'], 'Alice');
-    expect((result['categoryOverrides'] as List).first['slug'],
-        'loisirs.cinema_sortie');
+    expect(
+      (result['categoryOverrides'] as List).first['slug'],
+      'loisirs.cinema_sortie',
+    );
     expect((result['categoryMemory'] as List).first['key'], 'macdo');
     expect((result['expenses'] as List).first['name'], 'Netflix');
     expect((result['revenues'] as List).first['name'], 'Salaire');

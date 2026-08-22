@@ -41,25 +41,33 @@ void main() {
     });
 
     test('monthlyAmount returns amount directly for monthly frequency', () {
-      final transfer = Transfer.fromModel(makeModel(amount: 500, frequency: 'Mensuel'));
+      final transfer = Transfer.fromModel(
+        makeModel(amount: 500, frequency: 'Mensuel'),
+      );
 
       expect(transfer.monthlyAmount, 500);
     });
 
     test('monthlyAmount divides by 12 for annual frequency', () {
-      final transfer = Transfer.fromModel(makeModel(amount: 1200, frequency: 'Annuel'));
+      final transfer = Transfer.fromModel(
+        makeModel(amount: 1200, frequency: 'Annuel'),
+      );
 
       expect(transfer.monthlyAmount, 100);
     });
 
     test('monthlyAmount returns 0 for oneTime frequency', () {
-      final transfer = Transfer.fromModel(makeModel(amount: 500, frequency: 'Ponctuel'));
+      final transfer = Transfer.fromModel(
+        makeModel(amount: 500, frequency: 'Ponctuel'),
+      );
 
       expect(transfer.monthlyAmount, 0);
     });
 
     test('isOutgoingFrom returns true when account is source', () {
-      final transfer = Transfer.fromModel(makeModel(fromAccountId: 3, toAccountId: 5));
+      final transfer = Transfer.fromModel(
+        makeModel(fromAccountId: 3, toAccountId: 5),
+      );
 
       expect(transfer.isOutgoingFrom(3), isTrue);
       expect(transfer.isOutgoingFrom(5), isFalse);
@@ -67,7 +75,9 @@ void main() {
     });
 
     test('isIncomingTo returns true when account is destination', () {
-      final transfer = Transfer.fromModel(makeModel(fromAccountId: 3, toAccountId: 5));
+      final transfer = Transfer.fromModel(
+        makeModel(fromAccountId: 3, toAccountId: 5),
+      );
 
       expect(transfer.isIncomingTo(5), isTrue);
       expect(transfer.isIncomingTo(3), isFalse);

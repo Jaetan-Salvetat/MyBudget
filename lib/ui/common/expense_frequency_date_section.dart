@@ -38,29 +38,28 @@ class _ExpenseFrequencyDateSectionState
         ),
         const SizedBox(height: 12),
         Row(
-          children:
-              Frequency.values.map((freq) {
-                final isSelected = widget.frequency == freq.label;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: FrostedChip(
-                    label: Text(freq.label),
-                    selected: isSelected,
-                    onPressed: () {
-                      if (!isSelected) {
-                        widget.onChanged(freq.label, widget.date);
-                      }
-                    },
-                  ),
-                );
-              }).toList(),
+          children: Frequency.values.map((freq) {
+            final isSelected = widget.frequency == freq.label;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FrostedChip.filter(
+                label: freq.label,
+                selected: isSelected,
+                onSelected: (_) {
+                  if (!isSelected) {
+                    widget.onChanged(freq.label, widget.date);
+                  }
+                },
+              ),
+            );
+          }).toList(),
         ),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => _selectDate(context),
           borderRadius: BorderRadius.circular(12),
           child: FrostedCard(
-            borderRadius: 12,
+            radius: FrostedRadius.md,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [

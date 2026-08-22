@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,14 +14,17 @@ void main() {
   });
 
   Widget createWidgetUnderTest() {
-    return const ProviderScope(
+    return ProviderScope(
       child: MaterialApp(
-        home: Scaffold(body: AppearanceSection()),
+        theme: AppTheme.dark(),
+        home: const Scaffold(body: AppearanceSection()),
       ),
     );
   }
 
-  testWidgets('renders title, theme tile and default mode label', (tester) async {
+  testWidgets('renders title, theme tile and default mode label', (
+    tester,
+  ) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
     expect(find.text('Apparence'), findsOneWidget);

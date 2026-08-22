@@ -8,12 +8,11 @@ class DateSelector {
     required BuildContext context,
     required DateTime initialDate,
   }) async {
-    return showDatePicker(
+    return showFrostedDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      locale: const Locale('fr', 'FR'),
     );
   }
 
@@ -23,43 +22,45 @@ class DateSelector {
   }) async {
     FocusScope.of(context).requestFocus(FocusNode());
     DateTime? selectedDate;
-    await FrostedDialog.show(
+    await showFrostedDialog<void>(
       context: context,
-      title: const Text('Choisir le jour du mois'),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 300,
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+      builder: (_) => FrostedDialog(
+        title: 'Choisir le jour du mois',
+        body: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            itemCount: 31,
+            itemBuilder: (context, index) {
+              final day = index + 1;
+              final isSelected = initialDate.day == day;
+              return _DateSelectionItem(
+                label: '$day',
+                isSelected: isSelected,
+                onTap: () {
+                  selectedDate = DateTime(
+                    initialDate.year,
+                    initialDate.month,
+                    day,
+                  );
+                  Navigator.pop(context);
+                },
+              );
+            },
           ),
-          itemCount: 31,
-          itemBuilder: (context, index) {
-            final day = index + 1;
-            final isSelected = initialDate.day == day;
-            return _DateSelectionItem(
-              label: '$day',
-              isSelected: isSelected,
-              onTap: () {
-                selectedDate = DateTime(
-                  initialDate.year,
-                  initialDate.month,
-                  day,
-                );
-                Navigator.pop(context);
-              },
-            );
-          },
         ),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-      ],
     );
     return selectedDate;
   }
@@ -73,101 +74,107 @@ class DateSelector {
     int tempMonth = initialDate.month;
     int tempDay = initialDate.day;
 
-    await FrostedDialog.show(
+    await showFrostedDialog<void>(
       context: context,
-      title: const Text('Choisir la date'),
-      content: StatefulBuilder(
-        builder: (context, setStateDialog) {
-          final daysInMonth = DateTime(initialDate.year, tempMonth + 1, 0).day;
-          if (tempDay > daysInMonth) tempDay = daysInMonth;
+      builder: (_) => FrostedDialog(
+        title: 'Choisir la date',
+        body: StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final daysInMonth = DateTime(
+              initialDate.year,
+              tempMonth + 1,
+              0,
+            ).day;
+            if (tempDay > daysInMonth) tempDay = daysInMonth;
 
-          return SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Mois',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 2.5,
-                        ),
-                    itemCount: 12,
-                    itemBuilder: (context, index) {
-                      final month = index + 1;
-                      final isSelected = tempMonth == month;
-                      final monthName = DateFormat(
-                        'MMM',
-                        'fr_FR',
-                      ).format(DateTime(initialDate.year, month));
-                      final label = monthName.replaceFirst(
-                        monthName[0],
-                        monthName[0].toUpperCase(),
-                      );
-                      return _DateSelectionItem(
-                        label: label,
-                        isSelected: isSelected,
-                        onTap: () => setStateDialog(() => tempMonth = month),
-                        fontSize: 12,
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Jour',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                        ),
-                    itemCount: daysInMonth,
-                    itemBuilder: (context, index) {
-                      final day = index + 1;
-                      final isSelected = tempDay == day;
-                      return _DateSelectionItem(
-                        label: '$day',
-                        isSelected: isSelected,
-                        onTap: () => setStateDialog(() => tempDay = day),
-                      );
-                    },
-                  ),
-                ],
+            return SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Mois',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 2.5,
+                          ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final month = index + 1;
+                        final isSelected = tempMonth == month;
+                        final monthName = DateFormat(
+                          'MMM',
+                          'fr_FR',
+                        ).format(DateTime(initialDate.year, month));
+                        final label = monthName.replaceFirst(
+                          monthName[0],
+                          monthName[0].toUpperCase(),
+                        );
+                        return _DateSelectionItem(
+                          label: label,
+                          isSelected: isSelected,
+                          onTap: () => setStateDialog(() => tempMonth = month),
+                          fontSize: 12,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Jour',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 7,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
+                      itemCount: daysInMonth,
+                      itemBuilder: (context, index) {
+                        final day = index + 1;
+                        final isSelected = tempDay == day;
+                        return _DateSelectionItem(
+                          label: '$day',
+                          isSelected: isSelected,
+                          onTap: () => setStateDialog(() => tempDay = day),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            selectedDate = DateTime(initialDate.year, tempMonth, tempDay);
-            Navigator.pop(context);
+            );
           },
-          child: const Text('Valider'),
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+          FrostedButton.filled(
+            label: 'Valider',
+            onPressed: () {
+              selectedDate = DateTime(initialDate.year, tempMonth, tempDay);
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
     return selectedDate;
   }
@@ -183,102 +190,104 @@ class DateSelector {
     final int firstYear = 2020;
     final int lastYear = 2100;
 
-    await FrostedDialog.show(
+    await showFrostedDialog<void>(
       context: context,
-      title: const Text('Choisir le mois'),
-      content: StatefulBuilder(
-        builder: (context, setStateDialog) {
-          return SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Année',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FrostedIconButton(
-                        icon: Symbols.chevron_left_rounded,
-                        onPressed: tempYear > firstYear
-                            ? () => setStateDialog(() => tempYear--)
-                            : null,
-                      ),
-                      Text(
-                        '$tempYear',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+      builder: (_) => FrostedDialog(
+        title: 'Choisir le mois',
+        body: StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Année',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FrostedIconButton.standard(
+                          icon: Symbols.chevron_left_rounded,
+                          onPressed: tempYear > firstYear
+                              ? () => setStateDialog(() => tempYear--)
+                              : null,
                         ),
-                      ),
-                      FrostedIconButton(
-                        icon: Symbols.chevron_right_rounded,
-                        onPressed: tempYear < lastYear
-                            ? () => setStateDialog(() => tempYear++)
-                            : null,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Mois',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 2.5,
+                        Text(
+                          '$tempYear',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                    itemCount: 12,
-                    itemBuilder: (context, index) {
-                      final month = index + 1;
-                      final isSelected = tempMonth == month;
-                      final monthName = DateFormat(
-                        'MMM',
-                        'fr_FR',
-                      ).format(DateTime(tempYear, month));
-                      final label = monthName.replaceFirst(
-                        monthName[0],
-                        monthName[0].toUpperCase(),
-                      );
-                      return _DateSelectionItem(
-                        label: label,
-                        isSelected: isSelected,
-                        onTap: () => setStateDialog(() => tempMonth = month),
-                        fontSize: 12,
-                      );
-                    },
-                  ),
-                ],
+                        FrostedIconButton.standard(
+                          icon: Symbols.chevron_right_rounded,
+                          onPressed: tempYear < lastYear
+                              ? () => setStateDialog(() => tempYear++)
+                              : null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Mois',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 2.5,
+                          ),
+                      itemCount: 12,
+                      itemBuilder: (context, index) {
+                        final month = index + 1;
+                        final isSelected = tempMonth == month;
+                        final monthName = DateFormat(
+                          'MMM',
+                          'fr_FR',
+                        ).format(DateTime(tempYear, month));
+                        final label = monthName.replaceFirst(
+                          monthName[0],
+                          monthName[0].toUpperCase(),
+                        );
+                        return _DateSelectionItem(
+                          label: label,
+                          isSelected: isSelected,
+                          onTap: () => setStateDialog(() => tempMonth = month),
+                          fontSize: 12,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-        FrostedFilledButton(
-          onPressed: () {
-            selectedDate = DateTime(tempYear, tempMonth);
-            Navigator.pop(context);
+            );
           },
-          child: const Text('Valider'),
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+          FrostedButton.filled(
+            label: 'Valider',
+            onPressed: () {
+              selectedDate = DateTime(tempYear, tempMonth);
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
     return selectedDate;
   }
@@ -306,7 +315,9 @@ class _DateSelectionItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              : Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,

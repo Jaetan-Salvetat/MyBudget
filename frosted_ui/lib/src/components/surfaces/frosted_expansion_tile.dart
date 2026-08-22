@@ -74,7 +74,8 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
         topTrailing = innerR;
         break;
     }
-    final bool roundBottom = widget.position == FrostedTilePosition.single ||
+    final bool roundBottom =
+        widget.position == FrostedTilePosition.single ||
         widget.position == FrostedTilePosition.last;
     final Radius bottom = roundBottom ? outerR : innerR;
 
@@ -100,25 +101,28 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
       onTap: () => setState(() => _expanded = !_expanded),
       semanticsLabel: widget.title,
       semanticsSelected: _expanded,
-      shape: (InteractionStates s) => _shape(s, header: true),
       builder: (BuildContext context, InteractionStates s) {
         final double overlay = s.pressed
             ? 0.12
             : s.focused
-                ? 0.10
-                : s.hovered
-                    ? 0.08
-                    : 0;
+            ? 0.10
+            : s.hovered
+            ? 0.08
+            : 0;
         final Color fill = overlay == 0
             ? cs.surfaceContainer
             : Color.alphaBlend(
-                cs.onSurface.withValues(alpha: overlay), cs.surfaceContainer);
+                cs.onSurface.withValues(alpha: overlay),
+                cs.surfaceContainer,
+              );
 
         return AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
-          decoration:
-              BoxDecoration(color: fill, borderRadius: _shape(s, header: true)),
+          decoration: BoxDecoration(
+            color: fill,
+            borderRadius: _shape(s, header: true),
+          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: _headerHeight),
             child: Padding(
@@ -130,8 +134,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
                 children: <Widget>[
                   if (widget.leading != null) ...<Widget>[
                     IconTheme.merge(
-                      data:
-                          IconThemeData(color: cs.onSurfaceVariant, size: 24),
+                      data: IconThemeData(color: cs.onSurfaceVariant, size: 24),
                       child: widget.leading!,
                     ),
                     const SizedBox(width: FrostedSpacing.sp4),
@@ -155,8 +158,9 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
                           const SizedBox(height: 2),
                           Text(
                             widget.subtitle!,
-                            style: FrostedTypeScale.bodySmall
-                                .copyWith(color: cs.onSurfaceVariant),
+                            style: FrostedTypeScale.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -187,12 +191,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
         borderRadius: _shape(
-          const InteractionStates(
-            hovered: false,
-            focused: false,
-            pressed: false,
-            enabled: true,
-          ),
+          InteractionStates.inert,
           header: false,
         ),
       ),

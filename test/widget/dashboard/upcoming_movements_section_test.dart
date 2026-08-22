@@ -14,7 +14,9 @@ void main() {
   Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
 
   testWidgets('renders empty state when no movements', (tester) async {
-    await tester.pumpWidget(host(const UpcomingMovementsSection(movements: [])));
+    await tester.pumpWidget(
+      host(const UpcomingMovementsSection(movements: [])),
+    );
     expect(find.text('Aucun mouvement à venir ce mois-ci'), findsOneWidget);
   });
 
@@ -40,7 +42,9 @@ void main() {
       ),
     ];
 
-    await tester.pumpWidget(host(UpcomingMovementsSection(movements: movements)));
+    await tester.pumpWidget(
+      host(UpcomingMovementsSection(movements: movements)),
+    );
 
     expect(find.text('Loyer'), findsOneWidget);
     expect(find.text('Salaire'), findsOneWidget);

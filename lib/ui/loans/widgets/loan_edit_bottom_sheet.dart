@@ -30,17 +30,17 @@ class LoanEditBottomSheet extends ConsumerStatefulWidget {
     required Function(LoanModel) onSubmit,
     required VoidCallback onCancel,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Modifier l\'emprunt',
-      child: ProviderScope(
-        overrides: [
-          loanToEditProvider.overrideWithValue(loan),
-        ],
-        child: LoanEditBottomSheet(
-          accounts: accounts,
-          onSubmit: onSubmit,
-          onCancel: onCancel,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Modifier l\'emprunt',
+        child: ProviderScope(
+          overrides: [loanToEditProvider.overrideWithValue(loan)],
+          child: LoanEditBottomSheet(
+            accounts: accounts,
+            onSubmit: onSubmit,
+            onCancel: onCancel,
+          ),
         ),
       ),
     );
@@ -106,35 +106,35 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
         _buildEditableIdentitySection(context),
         const SizedBox(height: 16),
 
-          _buildReadOnlyFinancialSection(context, state),
-          const SizedBox(height: 16),
+        _buildReadOnlyFinancialSection(context, state),
+        const SizedBox(height: 16),
 
-          _buildEditableAccountSection(context, state, notifier),
-          const SizedBox(height: 16),
+        _buildEditableAccountSection(context, state, notifier),
+        const SizedBox(height: 16),
 
-          _buildEditableInsuranceSection(context, state, notifier),
-          const SizedBox(height: 24),
+        _buildEditableInsuranceSection(context, state, notifier),
+        const SizedBox(height: 24),
 
-          _buildActionButtons(context, state, notifier),
-          const SizedBox(height: 20),
-        ],
-      );
+        _buildActionButtons(context, state, notifier),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   Widget _buildEditableIdentitySection(BuildContext context) {
     return Column(
       children: [
         FrostedTextField(
-          labelText: 'Nom du prêt',
+          label: 'Nom du prêt',
           hintText: 'Ex: Prêt Immo Résidence',
-          prefixIcon: const Icon(Symbols.description_rounded),
+          leadingIcon: Symbols.description_rounded,
           controller: _nameController,
         ),
         const SizedBox(height: 12),
         FrostedTextField(
-          labelText: 'Prêteur (Banque)',
+          label: 'Prêteur (Banque)',
           hintText: 'Ex: Banque Populaire',
-          prefixIcon: const Icon(Symbols.account_balance_rounded),
+          leadingIcon: Symbols.account_balance_rounded,
           controller: _lenderController,
         ),
       ],
@@ -205,24 +205,36 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               locale: 'fr_FR',
             ).format(state.capital),
           ),
-          const FrostedDivider(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+            child: FrostedDivider(),
+          ),
 
           _buildReadOnlyField(
             context,
             'Date de signature',
             DateFormat('dd/MM/yyyy').format(state.signatureDate),
           ),
-          const FrostedDivider(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+            child: FrostedDivider(),
+          ),
 
           _buildReadOnlyField(context, 'Durée', '${state.duration} mois'),
-          const FrostedDivider(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+            child: FrostedDivider(),
+          ),
 
           _buildReadOnlyField(
             context,
             'Taux d\'intérêt',
             '${state.interestRate} %',
           ),
-          const FrostedDivider(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+            child: FrostedDivider(),
+          ),
 
           _buildReadOnlyField(
             context,
@@ -233,7 +245,10 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           ),
 
           if (state.deferredMonths > 0) ...[
-            const FrostedDivider(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+              child: FrostedDivider(),
+            ),
             _buildReadOnlyField(
               context,
               'Différé',
@@ -242,23 +257,18 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           ],
 
           if (state.immediateFirstPayment) ...[
-            const FrostedDivider(height: 24),
-            _buildReadOnlyField(
-              context,
-              'Premier paiement',
-              'Immédiat',
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
+              child: FrostedDivider(),
             ),
+            _buildReadOnlyField(context, 'Premier paiement', 'Immédiat'),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildReadOnlyField(
-    BuildContext context,
-    String label,
-    String value,
-  ) {
+  Widget _buildReadOnlyField(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -293,26 +303,21 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           const SizedBox(height: 16),
 
           FrostedDropdown<int>(
-            value:
-                state.selectedAccountId != -1 ? state.selectedAccountId : null,
-            hint: 'Compte de prélèvement',
-            items:
-                widget.accounts.map((acc) {
-                  return DropdownMenuItem(value: acc.id, child: Text(acc.name));
-                }).toList(),
+            value: state.selectedAccountId != -1
+                ? state.selectedAccountId
+                : null,
+            hintText: 'Compte de prélèvement',
+            items: widget.accounts.map((acc) {
+              return FrostedDropdownItem(value: acc.id, label: acc.name);
+            }).toList(),
             onChanged: (val) {
-              if (val != null) notifier.setAccountId(val);
+              notifier.setAccountId(val);
             },
           ),
           const SizedBox(height: 12),
 
-          FrostedTextField(
-            labelText: 'Jour de prélèvement',
-            readOnly: true,
-            controller: TextEditingController(
-              text: state.dayOfMonth.toString(),
-            ),
-            prefixIcon: const Icon(Symbols.event_rounded),
+          FrostedPickerField(
+            icon: Symbols.event_rounded,
             onTap: () async {
               final selectedDate = await DateSelector.showDayPicker(
                 context: context,
@@ -326,6 +331,8 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
                 notifier.setDayOfMonth(selectedDate.day);
               }
             },
+            label: 'Jour de prélèvement',
+            text: state.dayOfMonth.toString(),
           ),
         ],
       ),
@@ -379,14 +386,12 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
           if (state.insuranceType != LoanInsuranceType.none) ...[
             const SizedBox(height: 12),
             FrostedTextField(
-              labelText:
-                  state.insuranceType == LoanInsuranceType.fixed
-                      ? 'Montant mensuel'
-                      : 'Taux annuel',
-              hintText:
-                  state.insuranceType == LoanInsuranceType.fixed
-                      ? '35.00'
-                      : '0.36',
+              label: state.insuranceType == LoanInsuranceType.fixed
+                  ? 'Montant mensuel'
+                  : 'Taux annuel',
+              hintText: state.insuranceType == LoanInsuranceType.fixed
+                  ? '35.00'
+                  : '0.36',
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -397,9 +402,9 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
               const SizedBox(height: 16),
               Text(
                 'Mode de calcul',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
               ToggleButtons(
@@ -456,22 +461,21 @@ class _LoanEditBottomSheetState extends ConsumerState<LoanEditBottomSheet> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FrostedTextButton(
+        FrostedButton.text(
+          label: 'Annuler',
           onPressed: () {
             widget.onCancel();
             Navigator.pop(context);
           },
-          child: const Text('Annuler'),
         ),
-        FrostedFilledButton(
-          onPressed:
-              state.isValid
-                  ? () {
-                    widget.onSubmit(notifier.createUpdatedLoanModel());
-                    Navigator.pop(context);
-                  }
-                  : null,
-          child: const Text('Enregistrer'),
+        FrostedButton.filled(
+          label: 'Enregistrer',
+          onPressed: state.isValid
+              ? () {
+                  widget.onSubmit(notifier.createUpdatedLoanModel());
+                  Navigator.pop(context);
+                }
+              : null,
         ),
       ],
     );

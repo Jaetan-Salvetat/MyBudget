@@ -76,44 +76,42 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return ref
         .watch(revenueProvider)
         .when(
-          loading:
-              () => const Center(child: FrostedCircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
             final selectedMonth = ref.watch(selectedMonthProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            final activeRevenues =
-                revenues.where((r) => r.endDate == null).toList();
+            final activeRevenues = revenues
+                .where((r) => r.endDate == null)
+                .toList();
 
-            final filteredRevenues =
-                _filterData.isEmpty
-                    ? activeRevenues
-                    : revenues
-                        .where((r) => _matchesFilter(r, _filterData))
-                        .toList();
+            final filteredRevenues = _filterData.isEmpty
+                ? activeRevenues
+                : revenues
+                      .where((r) => _matchesFilter(r, _filterData))
+                      .toList();
 
-            final recurringRevenues =
-                filteredRevenues.where((r) {
-                  if (r.frequencyEnum == Frequency.oneTime) return false;
-                  if (r.frequencyEnum == Frequency.annual) {
-                    return r.startDate.month == selectedMonth.month;
-                  }
-                  return true;
-                }).toList();
-            final oneTimeRevenues =
-                filteredRevenues
-                    .where(
-                      (r) =>
-                          r.frequencyEnum == Frequency.oneTime &&
-                          r.startDate.year == selectedMonth.year &&
-                          r.startDate.month == selectedMonth.month,
-                    )
-                    .toList();
+            final recurringRevenues = filteredRevenues.where((r) {
+              if (r.frequencyEnum == Frequency.oneTime) return false;
+              if (r.frequencyEnum == Frequency.annual) {
+                return r.startDate.month == selectedMonth.month;
+              }
+              return true;
+            }).toList();
+            final oneTimeRevenues = filteredRevenues
+                .where(
+                  (r) =>
+                      r.frequencyEnum == Frequency.oneTime &&
+                      r.startDate.year == selectedMonth.year &&
+                      r.startDate.month == selectedMonth.month,
+                )
+                .toList();
 
-            final monthlyRevenues =
-                ref.read(revenueProvider.notifier).getMonthlyRevenues();
+            final monthlyRevenues = ref
+                .read(revenueProvider.notifier)
+                .getMonthlyRevenues();
             final displayedCount =
                 recurringRevenues.length + oneTimeRevenues.length;
             final isEmpty =
@@ -186,8 +184,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     List beneficiaries,
   ) {
     return FrostedCard(
-      margin: EdgeInsets.zero,
-      borderRadius: 16,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       child: Column(
         children: [
@@ -213,12 +209,9 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       (a) => a.id == revenue.accountId,
       orElse: () => AccountModel.create(name: 'Compte inconnu', bank: ''),
     );
-    final beneficiary =
-        revenue.beneficiaryId != null
-            ? beneficiaries
-                .where((b) => b.id == revenue.beneficiaryId)
-                .firstOrNull
-            : null;
+    final beneficiary = revenue.beneficiaryId != null
+        ? beneficiaries.where((b) => b.id == revenue.beneficiaryId).firstOrNull
+        : null;
 
     final slug = revenue.categorySlug;
     final category = slug == null
@@ -283,8 +276,9 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         RevenueBottomSheet.show(
           context: context,
           accounts: accounts,
-          closedRevenues:
-              ref.read(revenueProvider.notifier).getClosedRevenues(),
+          closedRevenues: ref
+              .read(revenueProvider.notifier)
+              .getClosedRevenues(),
           onSubmit: (newRevenue) async {
             try {
               await ref.read(revenueProvider.notifier).addRevenue(newRevenue);
@@ -304,19 +298,21 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
       barrierDismissible: false,
-      title: const Text('Aucun compte disponible'),
-      content: Text(
-        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 

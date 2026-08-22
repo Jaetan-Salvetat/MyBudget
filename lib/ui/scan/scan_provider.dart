@@ -28,15 +28,15 @@ class ScanNotifier extends _$ScanNotifier {
     state = const AsyncLoading();
     try {
       final lastTimestamp = PreferencesService.getLastScanTimestamp();
-      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - lastTimestamp;
+      final elapsed =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 - lastTimestamp;
       final remaining = ScanException.scanCooldownSeconds - elapsed;
       if (remaining > 0) {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
       final scanService = ReceiptScanService();
-      final resolver =
-          await ref.read(categoryDisplayResolverProvider.future);
+      final resolver = await ref.read(categoryDisplayResolverProvider.future);
       final categories = resolver
           .groupsOfType(TransactionType.expense)
           .expand((group) => resolver.childrenOf(group.slug))
@@ -113,8 +113,13 @@ class ScanNotifier extends _$ScanNotifier {
 
     for (final item in result.items) {
       if (item.categorySlug == null) continue;
-      grouped.putIfAbsent(item.categorySlug!, () => []).add(item.effectiveAmount);
-      categoryLabels.putIfAbsent(item.categorySlug!, () => item.categoryName ?? '');
+      grouped
+          .putIfAbsent(item.categorySlug!, () => [])
+          .add(item.effectiveAmount);
+      categoryLabels.putIfAbsent(
+        item.categorySlug!,
+        () => item.categoryName ?? '',
+      );
     }
 
     int count = 0;

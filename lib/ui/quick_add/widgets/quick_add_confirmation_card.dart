@@ -18,7 +18,6 @@ import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_input_bar.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
@@ -174,10 +173,9 @@ class _QuickAddConfirmationCardState
     final catColor = _categoryColor();
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    return FrostedContainer(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(22),
-      blurStrength: kQuickAddBlur,
+    return FrostedGlass(
+      padding: const EdgeInsets.all(FrostedSpacing.sp4),
+      borderRadius: BorderRadius.circular(FrostedRadius.xl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -247,18 +245,18 @@ class _QuickAddConfirmationCardState
           Row(
             children: [
               Expanded(
-                child: FrostedOutlinedButton.icon(
+                child: FrostedButton.outlined(
+                  label: 'Modifier',
+                  icon: Symbols.edit_rounded,
                   onPressed: _openFullForm,
-                  icon: const Icon(Symbols.edit_rounded, size: 16),
-                  label: const Text('Modifier'),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: FrostedFilledButton.icon(
+                child: FrostedButton.filled(
+                  label: 'Confirmer',
+                  icon: Symbols.check_rounded,
                   onPressed: _selectedAccountId != null ? _confirm : null,
-                  icon: const Icon(Symbols.check_rounded, size: 16),
-                  label: const Text('Confirmer'),
                 ),
               ),
             ],
@@ -303,7 +301,11 @@ class _ParsedRow extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: onCategoryTap,
-          child: CategoryIcon(icon: icon, color: color, size: CategoryIconSize.sm),
+          child: CategoryIcon(
+            icon: icon,
+            color: color,
+            size: CategoryIconSize.sm,
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -397,9 +399,7 @@ class _AccountSelector extends StatelessWidget {
     );
 
     return InkWell(
-      onTap: accounts.length > 1
-          ? () => _showPicker(context)
-          : null,
+      onTap: accounts.length > 1 ? () => _showPicker(context) : null,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -451,30 +451,32 @@ class _AccountSelector extends StatelessWidget {
   }
 
   void _showPicker(BuildContext context) {
-    FrostedBottomSheet.show<void>(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Vers quel compte ?',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: accounts
-            .map(
-              (a) => FrostedListTile(
-                leading: const Icon(Symbols.account_balance_wallet_rounded),
-                title: Text(a.name),
-                subtitle: Text(a.bank),
-                trailing: a.id == selectedId
-                    ? Icon(
-                        Symbols.check_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    : null,
-                onTap: () {
-                  onChanged(a.id);
-                  Navigator.of(context).pop();
-                },
-              ),
-            )
-            .toList(),
+      builder: (_) => FrostedBottomSheet(
+        title: 'Vers quel compte ?',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: accounts
+              .map(
+                (a) => FrostedListTile(
+                  title: a.name,
+                  subtitle: a.bank,
+                  leading: const Icon(Symbols.account_balance_wallet_rounded),
+                  trailing: a.id == selectedId
+                      ? Icon(
+                          Symbols.check_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : null,
+                  onTap: () {
+                    onChanged(a.id);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

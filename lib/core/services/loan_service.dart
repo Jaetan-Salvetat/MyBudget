@@ -8,16 +8,13 @@ class LoanService {
   factory LoanService() => _instance;
   LoanService._internal();
 
-  final LoanCalculationService _calculationService = const LoanCalculationService();
+  final LoanCalculationService _calculationService =
+      const LoanCalculationService();
   late final LoanPaymentBreakdownService _breakdownService =
       LoanPaymentBreakdownService(_calculationService);
 
   Loan createLoan(LoanModel model) {
-    return Loan.fromModel(
-      model,
-      _calculationService,
-      _breakdownService,
-    );
+    return Loan.fromModel(model, _calculationService, _breakdownService);
   }
 
   List<Loan> createLoans(List<LoanModel> models) {

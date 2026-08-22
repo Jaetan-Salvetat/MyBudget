@@ -32,13 +32,15 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
     String? selectedSlug,
     List<String> suggestions = const [],
   }) {
-    return FrostedBottomSheet.show<String>(
+    return showFrostedBottomSheet<String>(
       context: context,
-      title: 'Catégorie',
-      child: CategoryPickerSheet(
-        type: type,
-        selectedSlug: selectedSlug,
-        suggestions: suggestions,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Catégorie',
+        child: CategoryPickerSheet(
+          type: type,
+          selectedSlug: selectedSlug,
+          suggestions: suggestions,
+        ),
       ),
     );
   }
@@ -66,7 +68,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     if (resolver == null) {
       return const SizedBox(
         height: 200,
-        child: Center(child: FrostedCircularProgressIndicator()),
+        child: Center(child: FrostedCircularProgress()),
       );
     }
 
@@ -120,10 +122,8 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     return ListView.builder(
       shrinkWrap: true,
       itemCount: results.length,
-      itemBuilder: (context, index) => _leafTile(
-        results[index],
-        subtitle: results[index].groupLabel,
-      ),
+      itemBuilder: (context, index) =>
+          _leafTile(results[index], subtitle: results[index].groupLabel),
     );
   }
 
@@ -159,8 +159,9 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
             children: resolver.childrenOf(group.groupKey),
             expanded: _openGroupKey == group.groupKey,
             onToggle: () => setState(
-              () => _openGroupKey =
-                  _openGroupKey == group.groupKey ? null : group.groupKey,
+              () => _openGroupKey = _openGroupKey == group.groupKey
+                  ? null
+                  : group.groupKey,
             ),
             leafBuilder: _leafTile,
           ),
@@ -189,7 +190,7 @@ class _GroupSection extends StatelessWidget {
   final bool expanded;
   final VoidCallback onToggle;
   final Widget Function(CategoryDisplay leaf, {String? subtitle, bool indented})
-      leafBuilder;
+  leafBuilder;
 
   const _GroupSection({
     required this.group,

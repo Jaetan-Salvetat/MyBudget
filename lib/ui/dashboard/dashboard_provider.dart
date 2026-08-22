@@ -63,7 +63,9 @@ class DashboardNotifier extends _$DashboardNotifier {
   @override
   DashboardState build() {
     final monthlyExpenses = ref.watch(monthlyExpensesProvider);
-    final totalMonthlyLoanPayments = ref.watch(totalMonthlyLoanPaymentsProvider);
+    final totalMonthlyLoanPayments = ref.watch(
+      totalMonthlyLoanPaymentsProvider,
+    );
     final totalExpenses = monthlyExpenses + totalMonthlyLoanPayments;
     final selectedMonth = ref.watch(selectedMonthProvider);
 
@@ -91,8 +93,12 @@ class DashboardNotifier extends _$DashboardNotifier {
     );
 
     final loanProgress = LoanProgressSummary(
-      totalBorrowed: ref.watch(activeLoansProvider).fold(0.0, (s, l) => s + l.amount),
-      totalRepaid: ref.watch(activeLoansProvider).fold(0.0, (s, l) => s + (l.amount - l.remainingCapital)),
+      totalBorrowed: ref
+          .watch(activeLoansProvider)
+          .fold(0.0, (s, l) => s + l.amount),
+      totalRepaid: ref
+          .watch(activeLoansProvider)
+          .fold(0.0, (s, l) => s + (l.amount - l.remainingCapital)),
       totalRemaining: ref.watch(totalRemainingLoanAmountProvider),
       monthlyPayments: totalMonthlyLoanPayments,
       activeCount: ref.watch(activeLoansProvider).length,
@@ -125,7 +131,11 @@ class DashboardNotifier extends _$DashboardNotifier {
     double recurringExp = 0;
     double oneTimeExp = 0;
     for (final expense in expenses) {
-      if (!isActiveForMonth(expense.startDate, expense.endDate, selectedMonth)) {
+      if (!isActiveForMonth(
+        expense.startDate,
+        expense.endDate,
+        selectedMonth,
+      )) {
         continue;
       }
       switch (expense.frequencyEnum) {
@@ -146,7 +156,11 @@ class DashboardNotifier extends _$DashboardNotifier {
     double recurringRev = 0;
     double oneTimeRev = 0;
     for (final revenue in revenues) {
-      if (!isActiveForMonth(revenue.startDate, revenue.endDate, selectedMonth)) {
+      if (!isActiveForMonth(
+        revenue.startDate,
+        revenue.endDate,
+        selectedMonth,
+      )) {
         continue;
       }
       switch (revenue.frequencyEnum) {
@@ -181,7 +195,8 @@ class DashboardNotifier extends _$DashboardNotifier {
 
     final summaries = <CategoryExpenseSummary>[];
     totalsByGroup.forEach((groupKey, amount) {
-      final group = resolver.resolveGroup(groupKey) ??
+      final group =
+          resolver.resolveGroup(groupKey) ??
           resolver.uncategorized(TransactionType.expense);
       summaries.add(
         CategoryExpenseSummary(
@@ -213,50 +228,74 @@ class DashboardNotifier extends _$DashboardNotifier {
     final movements = <UpcomingMovement>[];
 
     for (final expense in expenses) {
-      if (!isActiveForMonth(expense.startDate, expense.endDate, selectedMonth)) {
+      if (!isActiveForMonth(
+        expense.startDate,
+        expense.endDate,
+        selectedMonth,
+      )) {
         continue;
       }
-      final day = _movementDay(expense.frequencyEnum, expense.startDate, selectedMonth);
+      final day = _movementDay(
+        expense.frequencyEnum,
+        expense.startDate,
+        selectedMonth,
+      );
       if (day == null || day <= todayDay) continue;
       final slug = expense.categorySlug;
       final category = slug == null ? null : resolver?.resolve(slug);
-      movements.add(UpcomingMovement(
-        id: 'e${expense.id}',
-        name: expense.name,
-        amount: expense.amount,
-        date: DateTime(selectedMonth.year, selectedMonth.month, day),
-        direction: MovementDirection.outgoing,
-        icon: category == null
-            ? Symbols.category_rounded
-            : CategoryDefaults.resolveIcon(category.icon),
-        color: category != null ? Color(category.color) : Colors.grey,
-        payee: _beneficiaryName(beneficiaryById, expense.beneficiaryId),
-      ));
+      movements.add(
+        UpcomingMovement(
+          id: 'e${expense.id}',
+          name: expense.name,
+          amount: expense.amount,
+          date: DateTime(selectedMonth.year, selectedMonth.month, day),
+          direction: MovementDirection.outgoing,
+          icon: category == null
+              ? Symbols.category_rounded
+              : CategoryDefaults.resolveIcon(category.icon),
+          color: category != null ? Color(category.color) : Colors.grey,
+          payee: _beneficiaryName(beneficiaryById, expense.beneficiaryId),
+        ),
+      );
     }
 
     for (final revenue in revenues) {
-      if (!isActiveForMonth(revenue.startDate, revenue.endDate, selectedMonth)) {
+      if (!isActiveForMonth(
+        revenue.startDate,
+        revenue.endDate,
+        selectedMonth,
+      )) {
         continue;
       }
-      final day = _movementDay(revenue.frequencyEnum, revenue.startDate, selectedMonth);
+      final day = _movementDay(
+        revenue.frequencyEnum,
+        revenue.startDate,
+        selectedMonth,
+      );
       if (day == null || day <= todayDay) continue;
-      movements.add(UpcomingMovement(
-        id: 'r${revenue.id}',
-        name: revenue.name,
-        amount: revenue.amount,
-        date: DateTime(selectedMonth.year, selectedMonth.month, day),
-        direction: MovementDirection.incoming,
-        icon: Symbols.savings_rounded,
-        color: Colors.green,
-        payee: _beneficiaryName(beneficiaryById, revenue.beneficiaryId),
-      ));
+      movements.add(
+        UpcomingMovement(
+          id: 'r${revenue.id}',
+          name: revenue.name,
+          amount: revenue.amount,
+          date: DateTime(selectedMonth.year, selectedMonth.month, day),
+          direction: MovementDirection.incoming,
+          icon: Symbols.savings_rounded,
+          color: Colors.green,
+          payee: _beneficiaryName(beneficiaryById, revenue.beneficiaryId),
+        ),
+      );
     }
 
     movements.sort((a, b) => a.date.compareTo(b.date));
     return movements;
   }
 
-  int? _movementDay(Frequency frequency, DateTime startDate, DateTime selectedMonth) {
+  int? _movementDay(
+    Frequency frequency,
+    DateTime startDate,
+    DateTime selectedMonth,
+  ) {
     switch (frequency) {
       case Frequency.monthly:
         return startDate.day;

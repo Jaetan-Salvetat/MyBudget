@@ -34,7 +34,6 @@ class FrostedRadio<T> extends StatelessWidget {
       onTap: enabled ? () => onChanged!(value) : null,
       semanticsButton: false,
       semanticsSelected: _selected,
-      shape: (_) => BorderRadius.circular(_kCircleSize),
       builder: (BuildContext context, InteractionStates s) {
         final Color ringColor = enabled
             ? (_selected ? cs.primary : cs.outline)

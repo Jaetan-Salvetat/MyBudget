@@ -21,7 +21,6 @@ class MockAccountRepository extends Mock implements AccountRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
-
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class MockRevenueRepository extends Mock implements RevenueRepository {}
@@ -32,8 +31,7 @@ class FakeAccountModel extends Fake implements AccountModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-class FakeCategoryOverrideModel extends Fake
-    implements CategoryOverrideModel {}
+class FakeCategoryOverrideModel extends Fake implements CategoryOverrideModel {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
@@ -136,7 +134,7 @@ void main() {
         ],
         'categoryOverrides': [
           {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
-      ],
+        ],
       };
 
       final result = service.validate(data);
@@ -220,9 +218,7 @@ void main() {
 
     test('preserves old accountId in loans (camelCase)', () {
       final data = {
-        'loans': [
-          _buildLoanJson(accountId: '50'),
-        ],
+        'loans': [_buildLoanJson(accountId: '50')],
       };
 
       final result = service.validate(data);
@@ -236,7 +232,9 @@ void main() {
       json.remove('accountId');
       json['account_id'] = '75';
 
-      final data = {'loans': [json]};
+      final data = {
+        'loans': [json],
+      };
 
       final result = service.validate(data);
 
@@ -267,7 +265,7 @@ void main() {
       final data = {
         'categoryOverrides': [
           {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
-      ],
+        ],
       };
 
       final result = service.validate(data);
@@ -322,7 +320,7 @@ void main() {
       when(() => mockBeneficiaryRepo.deleteAll()).thenReturn(null);
       when(() => mockAccountRepo.deleteAll()).thenReturn(null);
       when(() => mockCategoryOverrideRepo.deleteAll()).thenReturn(null);
-    when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
+      when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
       when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
       when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
       when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
@@ -370,8 +368,7 @@ void main() {
       final validated = service.validate(data);
       service.execute(validated);
 
-      final captured =
-          verify(() => mockExpenseRepo.add(captureAny())).captured;
+      final captured = verify(() => mockExpenseRepo.add(captureAny())).captured;
       final expense = captured.first as ExpenseModel;
       expect(expense.accountId, 200);
     });
@@ -405,8 +402,7 @@ void main() {
       final validated = service.validate(data);
       service.execute(validated);
 
-      final captured =
-          verify(() => mockExpenseRepo.add(captureAny())).captured;
+      final captured = verify(() => mockExpenseRepo.add(captureAny())).captured;
       final expense = captured.first as ExpenseModel;
       expect(expense.beneficiaryId, 55);
     });
@@ -459,8 +455,7 @@ void main() {
       final validated = service.validate(data);
       service.execute(validated);
 
-      final captured =
-          verify(() => mockRevenueRepo.add(captureAny())).captured;
+      final captured = verify(() => mockRevenueRepo.add(captureAny())).captured;
       final revenue = captured.first as RevenueModel;
       expect(revenue.accountId, 200);
     });
@@ -474,9 +469,7 @@ void main() {
         'accounts': [
           {'id': '100', 'name': 'Compte', 'bank': 'BNP'},
         ],
-        'loans': [
-          _buildLoanJson(accountId: '100'),
-        ],
+        'loans': [_buildLoanJson(accountId: '100')],
       };
 
       final validated = service.validate(data);
@@ -516,7 +509,9 @@ void main() {
       final validated = service.validate(data);
       service.execute(validated);
 
-      final captured = verify(() => mockTransferRepo.add(captureAny())).captured;
+      final captured = verify(
+        () => mockTransferRepo.add(captureAny()),
+      ).captured;
       final transfer = captured.first as TransferModel;
       expect(transfer.fromAccountId, 200);
       expect(transfer.toAccountId, 300);
@@ -551,9 +546,7 @@ void main() {
       stubDeleteAll();
 
       final data = {
-        'loans': [
-          _buildLoanJson(accountId: '999'),
-        ],
+        'loans': [_buildLoanJson(accountId: '999')],
       };
 
       final validated = service.validate(data);
@@ -640,7 +633,7 @@ Map<String, dynamic> _buildFullJsonData() {
     ],
     'categoryOverrides': [
       {'slug': 'loisirs.cinema_sortie', 'name': 'Sorties ciné'},
-      ],
+    ],
     'expenses': [
       {
         'id': '1',
@@ -663,9 +656,7 @@ Map<String, dynamic> _buildFullJsonData() {
         'startDate': '2025-01-01T00:00:00.000',
       },
     ],
-    'loans': [
-      _buildLoanJson(accountId: '100'),
-    ],
+    'loans': [_buildLoanJson(accountId: '100')],
     'transfers': [
       {
         'id': '1',

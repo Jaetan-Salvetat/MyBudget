@@ -14,44 +14,44 @@ import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-
-
-
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-    };
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+      };
 
-    await dotenv.load();
-    await PreferencesService.init();
-    await initializeDateFormatting('fr_FR', null);
+      await dotenv.load();
+      await PreferencesService.init();
+      await initializeDateFormatting('fr_FR', null);
 
-    final packageInfo = await PackageInfo.fromPlatform();
-    final isBeta = packageInfo.packageName.endsWith('.beta');
+      final packageInfo = await PackageInfo.fromPlatform();
+      final isBeta = packageInfo.packageName.endsWith('.beta');
 
-    final appUpdater = await AppUpdater.initialize(UpdateConfig(
-      githubOwner: 'Jaetan-Salvetat',
-      githubRepo: 'MyBudget',
-      channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
-      versionComparator: _isNewerVersion,
-    ));
+      final appUpdater = await AppUpdater.initialize(
+        UpdateConfig(
+          githubOwner: 'Jaetan-Salvetat',
+          githubRepo: 'MyBudget',
+          channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
+          versionComparator: _isNewerVersion,
+        ),
+      );
 
-    runApp(
-      ProviderScope(
-        overrides: [
-          appUpdaterProvider.overrideWithValue(appUpdater),
-        ],
-        child: const MyApp(),
-      ),
-    );
-  }, (error, stack) {
-    debugPrint('Uncaught error: $error\n$stack');
-  });
+      runApp(
+        ProviderScope(
+          overrides: [appUpdaterProvider.overrideWithValue(appUpdater)],
+          child: const MyApp(),
+        ),
+      );
+    },
+    (error, stack) {
+      debugPrint('Uncaught error: $error\n$stack');
+    },
+  );
 }
 
 bool _isNewerVersion(String current, String candidate) {

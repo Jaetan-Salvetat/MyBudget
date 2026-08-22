@@ -24,9 +24,7 @@ class CategoryMemoryRepository {
   /// Removes the [count] least recently updated entries.
   void evictOldest(int count) {
     if (count <= 0) return;
-    final query = (_box.query()
-          ..order(CategoryMemoryModel_.updatedAt))
-        .build();
+    final query = (_box.query()..order(CategoryMemoryModel_.updatedAt)).build();
     try {
       final ids = query.find().take(count).map((entry) => entry.id).toList();
       _box.removeMany(ids);

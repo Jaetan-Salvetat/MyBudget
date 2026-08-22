@@ -30,143 +30,139 @@ class LoanCard extends StatelessWidget {
     final progress = loan.progressPercentage.clamp(0.0, 1.0);
     final progressPct = (progress * 100).round();
 
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 10),
-      borderRadius: 16,
-      padding: const EdgeInsets.all(16),
-      onClick: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: scheme.primary,
-                  borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: FrostedCard(
+        padding: const EdgeInsets.all(16),
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Symbols.account_balance_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Symbols.account_balance_rounded,
-                  color: Colors.white,
-                  size: 22,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loan.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 22 / 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${loan.lenderName} · Le ${loan.dayOfMonth} du mois',
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 16 / 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      loan.name,
-                      style: const TextStyle(
+                      formatter.format(loan.currentMonthlyPayment),
+                      style: TextStyle(
                         fontSize: 16,
-                        height: 22 / 16,
+                        height: 20 / 16,
                         fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      '${loan.lenderName} · Le ${loan.dayOfMonth} du mois',
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 16 / 12,
+                      '/ mois',
+                      style: AppTextStyles.mono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
                         color: scheme.onSurfaceVariant,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    formatter.format(loan.currentMonthlyPayment),
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 20 / 16,
-                      fontWeight: FontWeight.w600,
-                      color: scheme.onSurface,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(9999),
+              child: FrostedLinearProgress(value: progress),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  '$progressPct% remboursé',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 16 / 12,
+                    fontWeight: FontWeight.w500,
+                    color: scheme.primary,
                   ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '·',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    '${compactFormatter.format(loan.remainingCapital)} restants',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 16 / 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Spacer(),
+                if (!loan.isCompleted)
                   Text(
-                    '/ mois',
-                    style: AppTextStyles.mono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
+                    '${loan.remainingMonths} mois',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 16 / 12,
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(9999),
-            child: FrostedLinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: scheme.onSurface.withValues(alpha: 0.08),
-              color: scheme.primary,
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '$progressPct% remboursé',
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 16 / 12,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.primary,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '·',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  '${compactFormatter.format(loan.remainingCapital)} restants',
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 16 / 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const Spacer(),
-              if (!loan.isCompleted)
-                Text(
-                  '${loan.remainingMonths} mois',
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 16 / 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -11,9 +11,7 @@ class CategoryOverrideRepository {
   }
 
   CategoryOverrideModel? get(String slug) {
-    final query = _box
-        .query(CategoryOverrideModel_.slug.equals(slug))
-        .build();
+    final query = _box.query(CategoryOverrideModel_.slug.equals(slug)).build();
     try {
       return query.findFirst();
     } finally {

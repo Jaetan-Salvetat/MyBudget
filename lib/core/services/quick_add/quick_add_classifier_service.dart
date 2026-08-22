@@ -19,9 +19,9 @@ class QuickAddClassifierService {
     required QuickAddTokenizer tokenizer,
     required QuickAddModelRunner modelRunner,
     required CategoryTaxonomyService taxonomy,
-  })  : _tokenizer = tokenizer,
-        _modelRunner = modelRunner,
-        _taxonomy = taxonomy;
+  }) : _tokenizer = tokenizer,
+       _modelRunner = modelRunner,
+       _taxonomy = taxonomy;
 
   Future<void> load() async {
     await _tokenizer.load();
@@ -35,8 +35,9 @@ class QuickAddClassifierService {
       throw const QuickAddNoAmountException();
     }
 
-    final cleanedText =
-        priceResult.remaining.isEmpty ? input : priceResult.remaining;
+    final cleanedText = priceResult.remaining.isEmpty
+        ? input
+        : priceResult.remaining;
 
     final tokens = _tokenizer.encode(cleanedText);
     final output = await _modelRunner.run(tokens);

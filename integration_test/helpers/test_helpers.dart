@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 Future<void> navigateToTab(WidgetTester tester, int index) async {
   final labels = ['Accueil', 'Comptes', 'Dépenses', 'Revenus', 'Emprunts'];
   final navItem = find.descendant(
-    of: find.byType(FrostedBottomNavigationBar),
+    of: find.byType(FrostedBottomBar),
     matching: find.text(labels[index]),
   );
   await tester.tap(navItem);
@@ -27,8 +28,15 @@ Future<void> dismissBottomSheet(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// The add affordance moved from a floating action button to a compact icon
+/// button in each screen header.
+final Finder addButton = find.ancestor(
+  of: find.byIcon(Symbols.add_rounded),
+  matching: find.byType(FrostedIconButton),
+);
+
 Future<void> tapFab(WidgetTester tester) async {
-  await tester.tap(find.byType(FrostedFloatingActionButton));
+  await tester.tap(addButton);
   await tester.pumpAndSettle();
 }
 
@@ -73,7 +81,7 @@ Future<void> enterAutocompleteField(
   String label,
   String text,
 ) async {
-  final finder = find.widgetWithText(FrostedAutocomplete<String>, label);
+  final finder = find.widgetWithText(FrostedAutocomplete, label);
   await tester.ensureVisible(finder);
   final textFieldFinder = find.descendant(
     of: finder,

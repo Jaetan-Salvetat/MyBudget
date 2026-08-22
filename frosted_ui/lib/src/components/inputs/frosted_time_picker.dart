@@ -90,9 +90,9 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
         ),
         FrostedButton.filled(
           label: 'OK',
-          onPressed: () => Navigator.of(context).pop(
-            TimeOfDay(hour: _hour, minute: _minute),
-          ),
+          onPressed: () => Navigator.of(
+            context,
+          ).pop(TimeOfDay(hour: _hour, minute: _minute)),
         ),
       ],
     );
@@ -197,8 +197,9 @@ class _Field extends StatelessWidget {
             filled: true,
             fillColor: bg,
             hintText: text,
-            hintStyle: FrostedTypeScale.displaySmall
-                .copyWith(color: fg.withValues(alpha: 0.5)),
+            hintStyle: FrostedTypeScale.displaySmall.copyWith(
+              color: fg.withValues(alpha: 0.5),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FrostedRadius.lg),
               borderSide: BorderSide.none,
@@ -212,13 +213,12 @@ class _Field extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: text,
       semanticsSelected: active,
-      shape: (_) => BorderRadius.circular(FrostedRadius.lg),
       builder: (BuildContext context, InteractionStates s) {
         final double overlay = s.pressed
             ? 0.12
             : s.hovered
-                ? 0.08
-                : 0;
+            ? 0.08
+            : 0;
         return Container(
           width: _w,
           height: _h,

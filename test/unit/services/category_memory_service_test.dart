@@ -125,8 +125,7 @@ void main() {
 
       expect(entry.slug, 'shopping.vetements');
       expect(entry.useMemory, isFalse);
-      expect(entry.corrections,
-          CategoryMemoryModel.freezeAfterCorrections + 1);
+      expect(entry.corrections, CategoryMemoryModel.freezeAfterCorrections + 1);
     });
 
     test('leaves useMemory on below the threshold', () {
@@ -145,8 +144,9 @@ void main() {
     });
 
     test('evicts the oldest entries when the cap is reached', () {
-      when(() => repository.count())
-          .thenReturn(CategoryMemoryService.maxEntries);
+      when(
+        () => repository.count(),
+      ).thenReturn(CategoryMemoryService.maxEntries);
 
       service.remember('nouveau', 'divers.autre');
 

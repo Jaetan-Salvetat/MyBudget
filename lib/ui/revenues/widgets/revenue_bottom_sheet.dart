@@ -36,22 +36,23 @@ class RevenueBottomSheet extends ConsumerStatefulWidget {
     RevenueModel? revenue,
     List<RevenueModel> closedRevenues = const [],
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: revenue == null ? 'Ajouter un revenu' : 'Modifier le revenu',
-      child: RevenueBottomSheet(
-        accounts: accounts,
-        onSubmit: onSubmit,
-        onCancel: onCancel,
-        revenue: revenue,
-        closedRevenues: closedRevenues,
+      builder: (_) => FrostedBottomSheet(
+        title: revenue == null ? 'Ajouter un revenu' : 'Modifier le revenu',
+        child: RevenueBottomSheet(
+          accounts: accounts,
+          onSubmit: onSubmit,
+          onCancel: onCancel,
+          revenue: revenue,
+          closedRevenues: closedRevenues,
+        ),
       ),
     );
   }
 
   @override
-  ConsumerState<RevenueBottomSheet> createState() =>
-      _RevenueBottomSheetState();
+  ConsumerState<RevenueBottomSheet> createState() => _RevenueBottomSheetState();
 }
 
 class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
@@ -110,47 +111,56 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
   }
 
   void _showClosedRevenuePicker(BuildContext context) {
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€', decimalDigits: 2);
-    FrostedDialog.show(
+    final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 2,
+    );
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Reprendre un revenu'),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 300,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.closedRevenues.length,
-          itemBuilder: (context, index) {
-            final revenue = widget.closedRevenues[index];
-            return FrostedListTile(
-              title: Text(revenue.name),
-              subtitle: Text(formatter.format(revenue.amount)),
-              trailing: const Icon(Symbols.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(context);
-                _fillFromClosedRevenue(revenue);
-              },
-            );
-          },
+      builder: (_) => FrostedDialog(
+        title: 'Reprendre un revenu',
+        body: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.closedRevenues.length,
+            itemBuilder: (context, index) {
+              final revenue = widget.closedRevenues[index];
+              return FrostedListTile(
+                title: revenue.name,
+                subtitle: formatter.format(revenue.amount),
+                trailing: const Icon(Symbols.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(context);
+                  _fillFromClosedRevenue(revenue);
+                },
+              );
+            },
+          ),
         ),
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
-        ),
-      ],
     );
   }
 
   void _handleSubmit() {
     setState(() {
-      _nameError =
-          _nameController.text.isEmpty ? 'Veuillez saisir un nom' : null;
-      _amountError =
-          _amountController.text.isEmpty ? 'Veuillez saisir un montant' : null;
-      _accountError =
-          _selectedAccountId == null ? 'Veuillez sélectionner un compte' : null;
+      _nameError = _nameController.text.trim().isEmpty
+          ? 'Veuillez saisir un nom'
+          : null;
+      _amountError = _amountController.text.isEmpty
+          ? 'Veuillez saisir un montant'
+          : null;
+      _accountError = _selectedAccountId == null
+          ? 'Veuillez sélectionner un compte'
+          : null;
       _categoryError = _selectedCategorySlug == null
           ? 'Veuillez sélectionner une catégorie'
           : null;
@@ -173,27 +183,26 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
       return;
     }
 
-    final revenue =
-        widget.revenue != null
-            ? widget.revenue!.copyWith(
-              name: _nameController.text.trim(),
-              amount: amount,
-              startDate: _selectedDate,
-              accountId: _selectedAccountId!,
-              frequency: _selectedFrequency,
-              beneficiaryId: _selectedBeneficiaryId,
-              categorySlug: _selectedCategorySlug,
-            )
-            : RevenueModel.create(
-              name: _nameController.text.trim(),
-              amount: amount,
-              startDate: _selectedDate,
-              accountId: _selectedAccountId!,
-              frequency: _selectedFrequency,
-              beneficiaryId: _selectedBeneficiaryId,
-              parentId: _parentId,
-              categorySlug: _selectedCategorySlug,
-            );
+    final revenue = widget.revenue != null
+        ? widget.revenue!.copyWith(
+            name: _nameController.text.trim(),
+            amount: amount,
+            startDate: _selectedDate,
+            accountId: _selectedAccountId!,
+            frequency: _selectedFrequency,
+            beneficiaryId: _selectedBeneficiaryId,
+            categorySlug: _selectedCategorySlug,
+          )
+        : RevenueModel.create(
+            name: _nameController.text.trim(),
+            amount: amount,
+            startDate: _selectedDate,
+            accountId: _selectedAccountId!,
+            frequency: _selectedFrequency,
+            beneficiaryId: _selectedBeneficiaryId,
+            parentId: _parentId,
+            categorySlug: _selectedCategorySlug,
+          );
 
     widget.onSubmit(revenue);
     Navigator.pop(context);
@@ -209,16 +218,10 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
           if (widget.revenue == null && widget.closedRevenues.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: FrostedTextButton(
+              child: FrostedButton.text(
+                label: 'Reprendre un ancien revenu',
+                icon: Symbols.history_rounded,
                 onPressed: () => _showClosedRevenuePicker(context),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Symbols.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text('Reprendre un ancien revenu'),
-                  ],
-                ),
               ),
             ),
           Text(
@@ -231,9 +234,9 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
           const SizedBox(height: 12),
           FrostedTextField(
             controller: _nameController,
-            labelText: 'Nom',
+            label: 'Nom',
             hintText: 'Ex: Salaire',
-            prefixIcon: const Icon(Symbols.edit_rounded),
+            leadingIcon: Symbols.edit_rounded,
           ),
           if (_nameError != null)
             Padding(
@@ -249,9 +252,9 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
           const SizedBox(height: 16),
           FrostedTextField(
             controller: _amountController,
-            labelText: 'Montant',
+            label: 'Montant',
             hintText: '0.00',
-            prefixIcon: const Icon(Symbols.euro_rounded),
+            leadingIcon: Symbols.euro_rounded,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           if (_amountError != null)
@@ -288,10 +291,7 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
                 ),
               ),
               const SizedBox(height: 8),
-              CategoryField(
-                slug: _selectedCategorySlug,
-                onTap: _pickCategory,
-              ),
+              CategoryField(slug: _selectedCategorySlug, onTap: _pickCategory),
               if (_categoryError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, left: 12.0),
@@ -314,20 +314,17 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
               const SizedBox(height: 8),
               FrostedDropdown<int>(
                 value: _selectedAccountId,
-                items:
-                    widget.accounts.map((account) {
-                      return DropdownMenuItem<int>(
-                        value: account.id,
-                        child: Text(account.name),
-                      );
-                    }).toList(),
+                items: widget.accounts.map((account) {
+                  return FrostedDropdownItem<int>(
+                    value: account.id,
+                    label: account.name,
+                  );
+                }).toList(),
                 onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedAccountId = value;
-                      _accountError = null;
-                    });
-                  }
+                  setState(() {
+                    _selectedAccountId = value;
+                    _accountError = null;
+                  });
                 },
               ),
               if (_accountError != null)
@@ -371,19 +368,19 @@ class _RevenueBottomSheetState extends ConsumerState<RevenueBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              FrostedTextButton(
+              FrostedButton.text(
+                label: 'Annuler',
                 onPressed: () {
                   widget.onCancel();
                   Navigator.pop(context);
                 },
-                child: const Text('Annuler'),
               ),
               const SizedBox(width: 16),
-              FrostedFilledButton(
+              FrostedButton.filled(
+                label: widget.revenue == null ? 'Ajouter' : 'Enregistrer',
                 onPressed: _beneficiaryEnabled && _selectedBeneficiaryId == null
                     ? null
                     : _handleSubmit,
-                child: Text(widget.revenue == null ? 'Ajouter' : 'Enregistrer'),
               ),
             ],
           ),

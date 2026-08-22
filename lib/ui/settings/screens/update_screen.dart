@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -32,18 +32,22 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final theme = Theme.of(context);
 
     return FrostedScaffold(
-      appBar: const FrostedAppBar(title: 'Mise à jour'),
+      appBar: const FrostedTopBar(title: 'Mise à jour'),
       bottomNavigationBar: state.availableUpdate != null
           ? _buildBottomBar(state, theme)
           : null,
-      child: Padding(
+      body: Padding(
         padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
         child: _buildContent(context, state, theme),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, UpdateState state, ThemeData theme) {
+  Widget _buildContent(
+    BuildContext context,
+    UpdateState state,
+    ThemeData theme,
+  ) {
     if (state.isChecking) {
       return _buildChecking(theme);
     }
@@ -73,7 +77,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         children: [
           _buildLogo(),
           const SizedBox(height: 24),
-          const FrostedCircularProgressIndicator(),
+          const FrostedCircularProgress(),
           const SizedBox(height: 12),
           Text(
             'Recherche de mises à jour...',
@@ -107,9 +111,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          FrostedTonalButton(
-            onPressed: () => ref.read(updateProvider.notifier).checkForUpdates(),
-            child: const Text('Vérifier à nouveau'),
+          FrostedButton.tonal(
+            label: 'Vérifier à nouveau',
+            onPressed: () =>
+                ref.read(updateProvider.notifier).checkForUpdates(),
           ),
         ],
       ),
@@ -121,7 +126,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final asset = release.defaultApkAsset;
     final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
 
-    final metaInfo = StringBuffer('Publiée le ${dateFormat.format(release.publishedAt)}');
+    final metaInfo = StringBuffer(
+      'Publiée le ${dateFormat.format(release.publishedAt)}',
+    );
     if (asset != null) {
       metaInfo.write(' · ${_formatFileSize(asset.size)}');
     }
@@ -154,9 +161,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           const SizedBox(height: 16),
           MarkdownBody(
             data: release.notes,
-            styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-              p: theme.textTheme.bodyMedium,
-            ),
+            styleSheet: MarkdownStyleSheet.fromTheme(
+              theme,
+            ).copyWith(p: theme.textTheme.bodyMedium),
           ),
         ],
         const SizedBox(height: 24),
@@ -173,7 +180,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           if (state.error != null) ...[
             Row(
               children: [
-                Icon(Symbols.error_rounded, color: theme.colorScheme.error, size: 20),
+                Icon(
+                  Symbols.error_rounded,
+                  color: theme.colorScheme.error,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -188,9 +199,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             const SizedBox(height: 12),
           ],
           if (state.isDownloading) ...[
-            FrostedLinearProgressIndicator(
-              value: state.downloadProgress,
-            ),
+            FrostedLinearProgress(value: state.downloadProgress),
             const SizedBox(height: 8),
             Text(
               'Téléchargement... ${(state.downloadProgress * 100).toStringAsFixed(0)}%',
@@ -199,9 +208,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           ] else ...[
             SizedBox(
               width: double.infinity,
-              child: FrostedFilledButton(
-                onPressed: () => ref.read(updateProvider.notifier).downloadUpdate(),
-                child: const Text('Télécharger et installer'),
+              child: FrostedButton.filled(
+                label: 'Télécharger et installer',
+                onPressed: () =>
+                    ref.read(updateProvider.notifier).downloadUpdate(),
               ),
             ),
           ],
@@ -239,9 +249,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          FrostedTonalButton(
-            onPressed: () => ref.read(updateProvider.notifier).checkForUpdates(),
-            child: const Text('Réessayer'),
+          FrostedButton.tonal(
+            label: 'Réessayer',
+            onPressed: () =>
+                ref.read(updateProvider.notifier).checkForUpdates(),
           ),
         ],
       ),

@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.8.0+33
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.11.4
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -33,9 +33,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   frosted_ui:
-    git:
-      url: https://github.com/Jaetan-Salvetat/frosted_ui
-      ref: v0.2.4
+    path: ./frosted_ui
   intl: ^0.20.2
   path: ^1.8.3
   path_provider: ^2.1.5

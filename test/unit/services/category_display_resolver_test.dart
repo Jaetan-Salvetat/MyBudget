@@ -47,8 +47,10 @@ void main() {
     });
 
     test('resolves the group of a leaf slug', () {
-      expect(resolver.resolveGroupOfSlug('voyage.hebergement')!.label,
-          'Voyages');
+      expect(
+        resolver.resolveGroupOfSlug('voyage.hebergement')!.label,
+        'Voyages',
+      );
     });
 
     test('returns null for unknown slugs', () {
@@ -63,11 +65,12 @@ void main() {
     });
 
     test('lists the children of a group', () {
-      expect(
-        resolver.childrenOf('voyage').map((child) => child.label),
-        ['Avion & train', 'Hébergement', 'Location de véhicule',
-          'Activités & visites'],
-      );
+      expect(resolver.childrenOf('voyage').map((child) => child.label), [
+        'Avion & train',
+        'Hébergement',
+        'Location de véhicule',
+        'Activités & visites',
+      ]);
     });
 
     test('returns no children for an unknown group', () {
@@ -93,7 +96,10 @@ void main() {
 
     test('a partial override falls back to the taxonomy field by field', () {
       final resolver = resolverWith([
-        CategoryOverrideModel.create(slug: 'restauration.cafe', name: 'Bistrot'),
+        CategoryOverrideModel.create(
+          slug: 'restauration.cafe',
+          name: 'Bistrot',
+        ),
       ]);
 
       final display = resolver.resolve('restauration.cafe')!;
@@ -116,7 +122,9 @@ void main() {
       final resolver = resolverWith([
         CategoryOverrideModel.create(slug: 'restauration', color: 0xFF00FF00),
         CategoryOverrideModel.create(
-            slug: 'restauration.cafe', color: 0xFF0000FF),
+          slug: 'restauration.cafe',
+          color: 0xFF0000FF,
+        ),
       ]);
 
       expect(resolver.resolve('restauration.cafe')!.color, 0xFF00FF00);
@@ -198,17 +206,21 @@ void main() {
     });
 
     test('resolveGroupOfSlug follows the alias too', () {
-      expect(resolver.resolveGroupOfSlug('logement.assurance')!.label,
-          'Finance & Assurances');
+      expect(
+        resolver.resolveGroupOfSlug('logement.assurance')!.label,
+        'Finance & Assurances',
+      );
     });
 
-    test('deprecated leaves are hidden from the picker but stay resolvable',
-        () {
-      expect(resolver.childrenOf('logement').map((c) => c.slug), [
-        'logement.loyer',
-      ]);
-      expect(resolver.resolve('logement.assurance'), isNotNull);
-    });
+    test(
+      'deprecated leaves are hidden from the picker but stay resolvable',
+      () {
+        expect(resolver.childrenOf('logement').map((c) => c.slug), [
+          'logement.loyer',
+        ]);
+        expect(resolver.resolve('logement.assurance'), isNotNull);
+      },
+    );
 
     test('groupKeyOf returns null for an unknown slug', () {
       expect(resolver.groupKeyOf('inconnu.autre'), isNull);
@@ -221,18 +233,24 @@ void main() {
     setUp(() => resolver = resolverWith([]));
 
     test('a null slug lands in the bucket', () {
-      expect(resolver.groupKeyOrUncategorized(null),
-          CategoryDisplayResolver.uncategorizedKey);
+      expect(
+        resolver.groupKeyOrUncategorized(null),
+        CategoryDisplayResolver.uncategorizedKey,
+      );
     });
 
     test('an unknown slug lands in the bucket rather than vanishing', () {
-      expect(resolver.groupKeyOrUncategorized('inconnu.autre'),
-          CategoryDisplayResolver.uncategorizedKey);
+      expect(
+        resolver.groupKeyOrUncategorized('inconnu.autre'),
+        CategoryDisplayResolver.uncategorizedKey,
+      );
     });
 
     test('a known slug keeps its group', () {
-      expect(resolver.groupKeyOrUncategorized('restauration.cafe'),
-          'restauration');
+      expect(
+        resolver.groupKeyOrUncategorized('restauration.cafe'),
+        'restauration',
+      );
     });
 
     test('renders as a grey catch-all', () {
@@ -245,8 +263,10 @@ void main() {
     });
 
     test('the bucket key is not a resolvable group', () {
-      expect(resolver.resolveGroup(CategoryDisplayResolver.uncategorizedKey),
-          isNull);
+      expect(
+        resolver.resolveGroup(CategoryDisplayResolver.uncategorizedKey),
+        isNull,
+      );
     });
   });
 
@@ -264,12 +284,18 @@ void main() {
     });
 
     test('matches a leaf label ignoring case and accents', () {
-      expect(slugs('cafe', TransactionType.expense),
-          contains('restauration.cafe'));
-      expect(slugs('CAFÉ', TransactionType.expense),
-          contains('restauration.cafe'));
-      expect(slugs('péage', TransactionType.expense),
-          contains('transport.peage'));
+      expect(
+        slugs('cafe', TransactionType.expense),
+        contains('restauration.cafe'),
+      );
+      expect(
+        slugs('CAFÉ', TransactionType.expense),
+        contains('restauration.cafe'),
+      );
+      expect(
+        slugs('péage', TransactionType.expense),
+        contains('transport.peage'),
+      );
     });
 
     test('matches every leaf of a group when the group label matches', () {
@@ -281,8 +307,10 @@ void main() {
 
     test('filters by transaction type', () {
       expect(slugs('salaire', TransactionType.expense), isEmpty);
-      expect(slugs('salaire', TransactionType.income),
-          contains('salaire.salaire_net'));
+      expect(
+        slugs('salaire', TransactionType.income),
+        contains('salaire.salaire_net'),
+      );
     });
 
     test('searches the customised label, not the taxonomy one', () {
@@ -294,12 +322,14 @@ void main() {
       ]);
 
       expect(
-        customised.search('bistrot', TransactionType.expense)
+        customised
+            .search('bistrot', TransactionType.expense)
             .map((leaf) => leaf.slug),
         contains('restauration.cafe'),
       );
       expect(
-        customised.search('café', TransactionType.expense)
+        customised
+            .search('café', TransactionType.expense)
             .map((leaf) => leaf.slug),
         isNot(contains('restauration.cafe')),
       );

@@ -15,11 +15,10 @@ class BeneficiaryModel {
   BeneficiaryModel.create({required this.name, this.color = 0});
 
   BeneficiaryModel copyWith({String? name, int? color}) {
-    final model =
-        BeneficiaryModel()
-          ..id = id
-          ..name = name ?? this.name
-          ..color = color ?? this.color;
+    final model = BeneficiaryModel()
+      ..id = id
+      ..name = name ?? this.name
+      ..color = color ?? this.color;
     return model;
   }
 
@@ -28,10 +27,9 @@ class BeneficiaryModel {
   }
 
   factory BeneficiaryModel.fromJson(Map<String, dynamic> json) {
-    final model =
-        BeneficiaryModel()
-          ..name = json['name'] ?? ''
-          ..color = json['color'] as int? ?? 0;
+    final model = BeneficiaryModel()
+      ..name = json['name'] ?? ''
+      ..color = json['color'] as int? ?? 0;
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;

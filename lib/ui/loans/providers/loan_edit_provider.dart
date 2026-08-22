@@ -103,7 +103,8 @@ class LoanEditNotifier extends _$LoanEditNotifier {
   void setName(String value) => state = state.copyWith(name: value);
   void setLenderName(String value) => state = state.copyWith(lenderName: value);
   void setAccountId(int id) => state = state.copyWith(selectedAccountId: id);
-  void setDayOfMonth(int day) => state = state.copyWith(dayOfMonth: day.clamp(1, 31));
+  void setDayOfMonth(int day) =>
+      state = state.copyWith(dayOfMonth: day.clamp(1, 31));
 
   void setInsuranceType(LoanInsuranceType type) {
     state = state.copyWith(insuranceType: type);

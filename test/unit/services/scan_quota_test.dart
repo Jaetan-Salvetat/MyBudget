@@ -24,7 +24,9 @@ void main() {
       final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       await PreferencesService.setLastScanTimestamp(now);
 
-      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - PreferencesService.getLastScanTimestamp();
+      final elapsed =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+          PreferencesService.getLastScanTimestamp();
       final remaining = ScanException.scanCooldownSeconds - elapsed;
 
       expect(remaining, greaterThan(0));
@@ -32,17 +34,22 @@ void main() {
 
     test('cooldown allows scan after 2 minutes', () async {
       final twoMinutesAgo =
-          DateTime.now().millisecondsSinceEpoch ~/ 1000 - ScanException.scanCooldownSeconds;
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+          ScanException.scanCooldownSeconds;
       await PreferencesService.setLastScanTimestamp(twoMinutesAgo);
 
-      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - PreferencesService.getLastScanTimestamp();
+      final elapsed =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+          PreferencesService.getLastScanTimestamp();
       final remaining = ScanException.scanCooldownSeconds - elapsed;
 
       expect(remaining, lessThanOrEqualTo(0));
     });
 
     test('cooldown allows scan when never scanned (timestamp 0)', () {
-      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - PreferencesService.getLastScanTimestamp();
+      final elapsed =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+          PreferencesService.getLastScanTimestamp();
       final remaining = ScanException.scanCooldownSeconds - elapsed;
 
       expect(remaining, lessThan(0));
@@ -54,7 +61,9 @@ void main() {
           DateTime.now().millisecondsSinceEpoch ~/ 1000 - secondsAgo;
       await PreferencesService.setLastScanTimestamp(timestamp);
 
-      final elapsed = DateTime.now().millisecondsSinceEpoch ~/ 1000 - PreferencesService.getLastScanTimestamp();
+      final elapsed =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 -
+          PreferencesService.getLastScanTimestamp();
       final remaining = ScanException.scanCooldownSeconds - elapsed;
 
       expect(remaining, closeTo(30, 2));

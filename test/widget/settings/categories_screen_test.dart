@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -44,7 +45,10 @@ void main() {
           categoryOverrideRepositoryProvider.overrideWithValue(repository),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],
-        child: const MaterialApp(home: CategoriesScreen()),
+        child: MaterialApp(
+          theme: AppTheme.dark(),
+          home: const CategoriesScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -76,8 +80,9 @@ void main() {
     expect(find.text('Supermarché'), findsOneWidget);
   });
 
-  testWidgets('search keeps only the matching leaves, group included',
-      (tester) async {
+  testWidgets('search keeps only the matching leaves, group included', (
+    tester,
+  ) async {
     await pumpScreen(tester);
 
     await tester.enterText(find.byType(TextField), 'cafe');
@@ -88,8 +93,9 @@ void main() {
     expect(find.text('Alimentation'), findsNothing);
   });
 
-  testWidgets('search matches a group label and shows all its leaves',
-      (tester) async {
+  testWidgets('search matches a group label and shows all its leaves', (
+    tester,
+  ) async {
     await pumpScreen(tester);
 
     await tester.enterText(find.byType(TextField), 'alimentation');
@@ -113,8 +119,9 @@ void main() {
     expect(find.byIcon(Symbols.edit_rounded), findsOneWidget);
   });
 
-  testWidgets('saving the form closes it without closing the list',
-      (tester) async {
+  testWidgets('saving the form closes it without closing the list', (
+    tester,
+  ) async {
     await pumpScreen(tester);
 
     await openForm(tester);
@@ -134,8 +141,9 @@ void main() {
     await tester.tap(find.text('Enregistrer'));
     await tester.pumpAndSettle();
 
-    final saved = verify(() => repository.save(captureAny())).captured
-        .cast<CategoryOverrideModel>();
+    final saved = verify(
+      () => repository.save(captureAny()),
+    ).captured.cast<CategoryOverrideModel>();
 
     expect(saved.single.isEmpty, isTrue);
   });

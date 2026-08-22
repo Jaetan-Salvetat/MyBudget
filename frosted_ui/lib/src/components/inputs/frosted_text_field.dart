@@ -32,6 +32,7 @@ class FrostedTextField extends StatefulWidget {
     this.textInputAction,
     this.inputFormatters,
     this.focusNode,
+    this.autofocus = false,
     this.onChanged,
     this.onSubmitted,
     this.glass = false,
@@ -54,6 +55,9 @@ class FrostedTextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
   final FocusNode? focusNode;
+
+  /// Requests focus as soon as the field is mounted.
+  final bool autofocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
@@ -170,6 +174,7 @@ class _FrostedTextFieldState extends State<FrostedTextField> {
     return TextField(
       controller: widget.controller,
       focusNode: _focusNode,
+      autofocus: widget.autofocus,
       enabled: widget.enabled,
       obscureText: widget.obscureText,
       maxLines: widget.obscureText ? 1 : widget.maxLines,

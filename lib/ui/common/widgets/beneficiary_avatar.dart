@@ -16,7 +16,8 @@ class BeneficiaryAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayInitials = initials ?? name.trim().substring(0, 1).toUpperCase();
+    final displayInitials =
+        initials ?? name.trim().substring(0, 1).toUpperCase();
     final hasColor = avatarColor != null && avatarColor != 0;
 
     final bgColor = hasColor

@@ -22,13 +22,15 @@ class AccountBottomSheet extends StatefulWidget {
     required Function(String name, String bank) onSubmit,
     required VoidCallback onCancel,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: account == null ? 'Ajouter un compte' : 'Modifier le compte',
-      child: AccountBottomSheet(
-        account: account,
-        onSubmit: onSubmit,
-        onCancel: onCancel,
+      builder: (_) => FrostedBottomSheet(
+        title: account == null ? 'Ajouter un compte' : 'Modifier le compte',
+        child: AccountBottomSheet(
+          account: account,
+          onSubmit: onSubmit,
+          onCancel: onCancel,
+        ),
       ),
     );
   }
@@ -90,47 +92,36 @@ class _AccountBottomSheetState extends State<AccountBottomSheet> {
       children: [
         FrostedTextField(
           controller: _nameController,
-          labelText: 'Nom du compte',
+          label: 'Nom du compte',
           hintText: 'Ex: Compte Courant',
-          prefixIcon: const Icon(Symbols.account_balance_wallet_rounded),
+          leadingIcon: Symbols.account_balance_wallet_rounded,
           autofocus: widget.account == null,
         ),
         const SizedBox(height: 16),
-        FrostedAutocomplete<String>(
-          optionsBuilder: (TextEditingValue textEditingValue) {
-            if (textEditingValue.text == '') {
-              return BanksList.frenchBanks.take(5);
-            }
-            return BanksList.frenchBanks.where((String option) {
-              return option.toLowerCase().contains(
-                textEditingValue.text.toLowerCase(),
-              );
-            });
-          },
-          onSelected: (String selection) {
-            _validateForm();
-          },
-          textEditingController: _bankController,
+        FrostedAutocomplete(
+          options: BanksList.frenchBanks,
+          onSelected: (String selection) => _validateForm(),
+          controller: _bankController,
           focusNode: _bankFocusNode,
-          labelText: 'Nom de la banque',
+          label: 'Nom de la banque',
           hintText: 'Ex: Crédit Agricole',
-          prefixIcon: const Icon(Symbols.account_balance_rounded),
+          leadingIcon: Symbols.account_balance_rounded,
         ),
         const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FrostedTextButton(
+            FrostedButton.text(
+              label: 'Annuler',
               onPressed: () {
                 widget.onCancel();
                 Navigator.pop(context);
               },
-              child: const Text('Annuler'),
             ),
             const SizedBox(width: 16),
-            FrostedFilledButton(
+            FrostedButton.filled(
+              label: widget.account == null ? 'Ajouter' : 'Enregistrer',
               onPressed: _isFormValid ? _handleSubmit : null,
-              child: Text(widget.account == null ? 'Ajouter' : 'Enregistrer'),
             ),
           ],
         ),

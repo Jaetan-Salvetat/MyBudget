@@ -11,22 +11,24 @@ class ExpenseSortMenu {
     required ExpenseSortBy current,
     required ValueChanged<ExpenseSortBy> onSelect,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Trier par',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final option in ExpenseSortBy.values)
-            _SortMenuTile(
-              option: option,
-              selected: option == current,
-              onTap: () {
-                Navigator.pop(context);
-                onSelect(option);
-              },
-            ),
-        ],
+      builder: (_) => FrostedBottomSheet(
+        title: 'Trier par',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final option in ExpenseSortBy.values)
+              _SortMenuTile(
+                option: option,
+                selected: option == current,
+                onTap: () {
+                  Navigator.pop(context);
+                  onSelect(option);
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -47,18 +49,14 @@ class _SortMenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return FrostedListTile(
+      title: option.label,
       leading: Icon(
         _iconFor(option),
         color: selected ? scheme.primary : scheme.onSurfaceVariant,
       ),
-      title: Text(
-        option.label,
-        style: TextStyle(
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          color: selected ? scheme.primary : scheme.onSurface,
-        ),
-      ),
-      trailing: selected ? Icon(Symbols.check_rounded, color: scheme.primary) : null,
+      trailing: selected
+          ? Icon(Symbols.check_rounded, color: scheme.primary)
+          : null,
       onTap: onTap,
     );
   }

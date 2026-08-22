@@ -64,8 +64,8 @@ class AmountText extends StatelessWidget {
     final prefix = direction == AmountDirection.income
         ? '+ '
         : direction == AmountDirection.expense
-            ? '− '
-            : '';
+        ? '− '
+        : '';
     return '$prefix$formatted';
   }
 }

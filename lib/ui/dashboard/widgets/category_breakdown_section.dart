@@ -78,9 +78,7 @@ class _StackedBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final segments = categories
-        .where((c) => c.percentage > 0)
-        .toList();
+    final segments = categories.where((c) => c.percentage > 0).toList();
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(9999),
@@ -90,7 +88,10 @@ class _StackedBar extends StatelessWidget {
           children: [
             for (var i = 0; i < segments.length; i++)
               Expanded(
-                flex: (segments[i].percentage * 10000).round().clamp(1, 1000000),
+                flex: (segments[i].percentage * 10000).round().clamp(
+                  1,
+                  1000000,
+                ),
                 child: Container(
                   decoration: BoxDecoration(
                     color: segments[i].color,
@@ -160,8 +161,9 @@ class _CategoryRow extends StatelessWidget {
             ),
             Text(
               '$pct%',
-              style: AppTextStyles.eyebrowMono(color: scheme.onSurfaceVariant)
-                  .copyWith(fontSize: 12, height: 16 / 12, letterSpacing: 0),
+              style: AppTextStyles.eyebrowMono(
+                color: scheme.onSurfaceVariant,
+              ).copyWith(fontSize: 12, height: 16 / 12, letterSpacing: 0),
             ),
             const SizedBox(width: 12),
             SizedBox(

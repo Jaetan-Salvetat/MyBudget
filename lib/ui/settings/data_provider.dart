@@ -145,7 +145,6 @@ class DataNotifier extends _$DataNotifier {
         },
       );
 
-
       state = state.copyWith(
         importProgress: 1.0,
         importStatus: 'Importation terminée',

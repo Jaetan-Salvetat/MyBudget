@@ -42,17 +42,18 @@ class CategoryMemoryModel {
       ..slug = json['slug'] as String? ?? ''
       ..corrections = json['corrections'] as int? ?? 1
       ..useMemory = json['useMemory'] as bool? ?? true
-      ..updatedAt = DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      ..updatedAt =
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.now();
   }
 
   Map<String, dynamic> toJson() => {
-        'key': key,
-        'slug': slug,
-        'corrections': corrections,
-        'useMemory': useMemory,
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'key': key,
+    'slug': slug,
+    'corrections': corrections,
+    'useMemory': useMemory,
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   /// True once the user has edited this key enough times that it is no longer
   /// trusted: the slug stops being updated and the memory stops answering.

@@ -185,8 +185,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           onRemove: () {
             setState(() {
               _filterData = _filterData.copyWith(
-                groupKeys:
-                    _filterData.groupKeys.where((c) => c != id).toList(),
+                groupKeys: _filterData.groupKeys.where((c) => c != id).toList(),
               );
             });
           },
@@ -206,8 +205,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           onRemove: () {
             setState(() {
               _filterData = _filterData.copyWith(
-                accountIds:
-                    _filterData.accountIds.where((a) => a != id).toList(),
+                accountIds: _filterData.accountIds
+                    .where((a) => a != id)
+                    .toList(),
               );
             });
           },
@@ -250,8 +250,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     return ref
         .watch(expenseProvider)
         .when(
-          loading:
-              () => const Center(child: FrostedCircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (expensesRaw) {
             final selectedMonth = ref.watch(selectedMonthProvider);
@@ -262,46 +261,41 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 resolver?.groupsOfType(TransactionType.expense) ?? const [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            final activeExpenses =
-                expensesRaw
-                    .where((e) => e.endDate == null)
-                    .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-                    .map((e) => _withEffectiveDate(e, selectedMonth))
-                    .toList();
+            final activeExpenses = expensesRaw
+                .where((e) => e.endDate == null)
+                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+                .map((e) => _withEffectiveDate(e, selectedMonth))
+                .toList();
 
             final filteredExpenses = _filterExpenses(
               activeExpenses,
               _filterData,
             );
 
-            final recurring =
-                filteredExpenses
-                    .where((e) => e.frequencyEnum != Frequency.oneTime)
-                    .toList();
-            final oneTime =
-                filteredExpenses
-                    .where((e) => e.frequencyEnum == Frequency.oneTime)
-                    .toList();
+            final recurring = filteredExpenses
+                .where((e) => e.frequencyEnum != Frequency.oneTime)
+                .toList();
+            final oneTime = filteredExpenses
+                .where((e) => e.frequencyEnum == Frequency.oneTime)
+                .toList();
 
             final sortedOneTime = _sortBy.apply(oneTime);
             final sortedRecurring = _sortBy.apply(recurring);
 
             final descending = _sortBy != ExpenseSortBy.dateAsc;
-            final dayGroups =
-                groupBy == ExpenseGroupBy.day
-                    ? ExpenseGroupingService.groupByDay(
-                      sortedOneTime,
-                      descending: descending,
-                    )
-                    : null;
-            final weekGroups =
-                groupBy == ExpenseGroupBy.week
-                    ? ExpenseGroupingService.groupByWeek(
-                      sortedOneTime,
-                      selectedMonth,
-                      descending: descending,
-                    )
-                    : null;
+            final dayGroups = groupBy == ExpenseGroupBy.day
+                ? ExpenseGroupingService.groupByDay(
+                    sortedOneTime,
+                    descending: descending,
+                  )
+                : null;
+            final weekGroups = groupBy == ExpenseGroupBy.week
+                ? ExpenseGroupingService.groupByWeek(
+                    sortedOneTime,
+                    selectedMonth,
+                    descending: descending,
+                  )
+                : null;
 
             final weeklyBars = ExpenseGroupingService.weeklyTotals(
               filteredExpenses,
@@ -342,8 +336,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                         _filterData = _filterData.copyWith(searchQuery: value);
                       });
                     },
-                    onOpenFilters:
-                        () => _showFilterSheet(context, categories, accounts),
+                    onOpenFilters: () =>
+                        _showFilterSheet(context, categories, accounts),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -396,8 +390,6 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     ),
                     _hPad(
                       FrostedCard(
-                        margin: EdgeInsets.zero,
-                        borderRadius: 16,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 2,
@@ -429,8 +421,6 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                     ),
                     _hPad(
                       FrostedCard(
-                        margin: EdgeInsets.zero,
-                        borderRadius: 16,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 2,
@@ -491,12 +481,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }) {
     final slug = expense.categorySlug;
     final category = slug == null ? null : resolver?.resolve(slug);
-    final beneficiary =
-        expense.beneficiaryId != null
-            ? beneficiaries
-                .where((b) => b.id == expense.beneficiaryId)
-                .firstOrNull
-            : null;
+    final beneficiary = expense.beneficiaryId != null
+        ? beneficiaries.where((b) => b.id == expense.beneficiaryId).firstOrNull
+        : null;
 
     return CompactExpenseRow(
       expense: expense,
@@ -524,8 +511,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ExpenseBottomSheet.show(
           context: context,
           accounts: accounts,
-              closedExpenses:
-              ref.read(expenseProvider.notifier).getClosedExpenses(),
+          closedExpenses: ref
+              .read(expenseProvider.notifier)
+              .getClosedExpenses(),
           onSubmit: (newExpense) async {
             try {
               await ref.read(expenseProvider.notifier).addExpense(newExpense);
@@ -545,19 +533,21 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
       barrierDismissible: false,
-      title: const Text('Aucun compte disponible'),
-      content: Text(
-        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 
@@ -610,11 +600,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       accounts: accounts,
       resultCount: (filter) {
         final selectedMonth = ref.read(selectedMonthProvider);
-        final activeExpenses =
-            (ref.read(expenseProvider).value ?? [])
-                .where((e) => e.endDate == null)
-                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-                .toList();
+        final activeExpenses = (ref.read(expenseProvider).value ?? [])
+            .where((e) => e.endDate == null)
+            .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+            .toList();
         return _filterExpenses(activeExpenses, filter).length;
       },
       onApply: (updated) {

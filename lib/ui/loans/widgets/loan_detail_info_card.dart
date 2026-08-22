@@ -32,8 +32,6 @@ class LoanDetailInfoCard extends StatelessWidget {
           ),
         ),
         FrostedCard(
-          margin: EdgeInsets.zero,
-          borderRadius: 16,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           child: Column(children: rows),
         ),

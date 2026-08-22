@@ -25,7 +25,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-
 class MockTransferRepository extends Mock implements TransferRepository {}
 
 void main() {
@@ -112,7 +111,9 @@ void main() {
       await container.read(transferProvider.future);
       await container.read(accountProvider.future);
 
-      final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+      final balance = container
+          .read(accountProvider.notifier)
+          .getAccountBalance(accountId);
 
       expect(balance, closeTo(1071.96, 0.01));
     },
@@ -134,46 +135,54 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    expect(container.read(accountProvider.notifier).getAccountBalance(accountId), 0.0);
+    expect(
+      container.read(accountProvider.notifier).getAccountBalance(accountId),
+      0.0,
+    );
   });
 
-  test('getAccountBalance returns negative value when expenses exceed revenues', () async {
-    const int accountId = 1;
+  test(
+    'getAccountBalance returns negative value when expenses exceed revenues',
+    () async {
+      const int accountId = 1;
 
-    final revenue = RevenueModel.create(
-      name: 'Small income',
-      amount: 100,
-      accountId: accountId,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-    );
-    final expense = ExpenseModel.create(
-      name: 'Big expense',
-      amount: 800,
-      accountId: accountId,
-      categorySlug: 'restauration.cafe',
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-    );
+      final revenue = RevenueModel.create(
+        name: 'Small income',
+        amount: 100,
+        accountId: accountId,
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
+      final expense = ExpenseModel.create(
+        name: 'Big expense',
+        amount: 800,
+        accountId: accountId,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
 
-    when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
-    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
-    when(() => mockLoanRepo.getAll()).thenReturn([]);
+      when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockLoanRepo.getAll()).thenReturn([]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
-    await container.read(revenueProvider.future);
-    await container.read(loanProvider.future);
-    await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+      await container.read(expenseProvider.future);
+      await container.read(revenueProvider.future);
+      await container.read(loanProvider.future);
+      await container.read(transferProvider.future);
+      await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
-    expect(balance, -700.0);
-  });
+      final balance = container
+          .read(accountProvider.notifier)
+          .getAccountBalance(accountId);
+      expect(balance, -700.0);
+    },
+  );
 
   test('getAccountBalance includes outgoing transfer in balance', () async {
     const int accountId = 1;
@@ -210,7 +219,9 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    final balance = container
+        .read(accountProvider.notifier)
+        .getAccountBalance(accountId);
     expect(balance, 1500.0);
   });
 
@@ -249,7 +260,9 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    final balance = container
+        .read(accountProvider.notifier)
+        .getAccountBalance(accountId);
     expect(balance, 2300.0);
   });
 }

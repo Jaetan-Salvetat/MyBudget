@@ -29,3 +29,30 @@ enum FrostedGlassTone { auto, light, dark }
 /// - [lifted]: stronger shadow. Use for modals or sheets that hover above
 ///   a dimmed scrim.
 enum FrostedGlassElevation { none, floating, lifted }
+
+/// Which sides of the glass carry the hairline border.
+///
+/// A surface flush against a screen edge must leave that side out: the
+/// hairline would sit on the device border and read as a bright halo rather
+/// than as the lip of the material.
+///
+/// Flutter cannot stroke a non-uniform border under a rounded radius, so any
+/// subset other than [all] or [none] requires [BorderRadius.zero].
+enum FrostedGlassEdge {
+  top,
+  bottom,
+  left,
+  right;
+
+  /// Every side. The default, for free-standing glass.
+  static const Set<FrostedGlassEdge> all = <FrostedGlassEdge>{
+    top,
+    bottom,
+    left,
+    right,
+  };
+
+  /// No side at all, for glass that covers the whole viewport.
+  static const Set<FrostedGlassEdge> none = <FrostedGlassEdge>{};
+}
+

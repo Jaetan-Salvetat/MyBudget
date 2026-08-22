@@ -14,7 +14,9 @@ class FrequencyBadge extends StatelessWidget {
     }
     final theme = Theme.of(context);
     final isMonthly = frequency == Frequency.monthly;
-    final color = isMonthly ? theme.colorScheme.primary : theme.colorScheme.secondary;
+    final color = isMonthly
+        ? theme.colorScheme.primary
+        : theme.colorScheme.secondary;
     final label = isMonthly ? 'M' : 'A';
 
     return Container(
@@ -25,11 +27,9 @@ class FrequencyBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTextStyles.eyebrowMono(color: color).copyWith(
-          fontSize: 10,
-          height: 13 / 10,
-          letterSpacing: 0,
-        ),
+        style: AppTextStyles.eyebrowMono(
+          color: color,
+        ).copyWith(fontSize: 10, height: 13 / 10, letterSpacing: 0),
       ),
     );
   }

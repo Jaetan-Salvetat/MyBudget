@@ -30,14 +30,13 @@ class FrostedChip extends StatelessWidget {
     required String label,
     IconData? icon,
     required VoidCallback? onTap,
-  }) =>
-      FrostedChip._(
-        key: key,
-        label: label,
-        variant: _ChipVariant.assist,
-        icon: icon,
-        onTap: onTap,
-      );
+  }) => FrostedChip._(
+    key: key,
+    label: label,
+    variant: _ChipVariant.assist,
+    icon: icon,
+    onTap: onTap,
+  );
 
   /// On/off filter — shape morphs from rounded-rect to stadium when
   /// selected.
@@ -45,17 +44,18 @@ class FrostedChip extends StatelessWidget {
     Key? key,
     required String label,
     IconData? icon,
+    Widget? avatar,
     required bool selected,
     required ValueChanged<bool>? onSelected,
-  }) =>
-      FrostedChip._(
-        key: key,
-        label: label,
-        variant: _ChipVariant.filter,
-        icon: icon,
-        selected: selected,
-        onSelected: onSelected,
-      );
+  }) => FrostedChip._(
+    key: key,
+    label: label,
+    variant: _ChipVariant.filter,
+    icon: icon,
+    avatar: avatar,
+    selected: selected,
+    onSelected: onSelected,
+  );
 
   /// Input tag with optional avatar and a trailing close affordance.
   factory FrostedChip.input({
@@ -64,28 +64,26 @@ class FrostedChip extends StatelessWidget {
     Widget? avatar,
     VoidCallback? onTap,
     VoidCallback? onDelete,
-  }) =>
-      FrostedChip._(
-        key: key,
-        label: label,
-        variant: _ChipVariant.input,
-        avatar: avatar,
-        onTap: onTap,
-        onDelete: onDelete,
-      );
+  }) => FrostedChip._(
+    key: key,
+    label: label,
+    variant: _ChipVariant.input,
+    avatar: avatar,
+    onTap: onTap,
+    onDelete: onDelete,
+  );
 
   /// Suggested option — outlined, primary-tinted label.
   factory FrostedChip.suggestion({
     Key? key,
     required String label,
     required VoidCallback? onTap,
-  }) =>
-      FrostedChip._(
-        key: key,
-        label: label,
-        variant: _ChipVariant.suggestion,
-        onTap: onTap,
-      );
+  }) => FrostedChip._(
+    key: key,
+    label: label,
+    variant: _ChipVariant.suggestion,
+    onTap: onTap,
+  );
 
   final String label;
   final IconData? icon;
@@ -105,16 +103,14 @@ class FrostedChip extends StatelessWidget {
 
     final VoidCallback? tapHandler = switch (_variant) {
       _ChipVariant.filter =>
-          onSelected == null ? null : () => onSelected!(!selected),
+        onSelected == null ? null : () => onSelected!(!selected),
       _ => onTap,
     };
 
     return InteractiveSurface(
       onTap: tapHandler,
       semanticsLabel: label,
-      semanticsSelected:
-          _variant == _ChipVariant.filter ? selected : null,
-      shape: _shape,
+      semanticsSelected: _variant == _ChipVariant.filter ? selected : null,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -124,9 +120,7 @@ class FrostedChip extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: _height,
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp3,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp3),
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
@@ -143,7 +137,8 @@ class FrostedChip extends StatelessWidget {
                 label,
                 style: FrostedTypeScale.labelLarge.copyWith(color: fg),
               ),
-              if (_variant == _ChipVariant.input && onDelete != null) ...<Widget>[
+              if (_variant == _ChipVariant.input &&
+                  onDelete != null) ...<Widget>[
                 const SizedBox(width: FrostedSpacing.sp2),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -209,16 +204,12 @@ class FrostedChip extends StatelessWidget {
       case _ChipVariant.filter:
         if (selected) return null;
         return BorderSide(
-          color: s.enabled
-              ? cs.outline
-              : cs.onSurface.withValues(alpha: 0.12),
+          color: s.enabled ? cs.outline : cs.onSurface.withValues(alpha: 0.12),
         );
       case _ChipVariant.assist:
       case _ChipVariant.suggestion:
         return BorderSide(
-          color: s.enabled
-              ? cs.outline
-              : cs.onSurface.withValues(alpha: 0.12),
+          color: s.enabled ? cs.outline : cs.onSurface.withValues(alpha: 0.12),
         );
     }
   }

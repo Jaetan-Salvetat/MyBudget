@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
@@ -14,8 +15,11 @@ void main() {
   }
 
   Widget createWidgetUnderTest() {
-    return const ProviderScope(
-      child: MaterialApp(home: Scaffold(body: AiSection())),
+    return ProviderScope(
+      child: MaterialApp(
+        theme: AppTheme.dark(),
+        home: const Scaffold(body: AiSection()),
+      ),
     );
   }
 
@@ -36,8 +40,10 @@ void main() {
 
     await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-        isTrue);
+    expect(
+      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
+      isTrue,
+    );
   });
 
   testWidgets('switch is off when quick add is disabled', (tester) async {
@@ -45,8 +51,10 @@ void main() {
 
     await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-        isFalse);
+    expect(
+      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
+      isFalse,
+    );
   });
 
   testWidgets('tapping the switch disables quick add', (tester) async {
@@ -60,7 +68,9 @@ void main() {
     final container = ProviderScope.containerOf(element);
 
     expect(container.read(quickAddEnabledProvider), isFalse);
-    expect(tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
-        isFalse);
+    expect(
+      tester.widget<FrostedSwitch>(find.byType(FrostedSwitch)).value,
+      isFalse,
+    );
   });
 }

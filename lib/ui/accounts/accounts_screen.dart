@@ -38,7 +38,7 @@ class AccountsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    FrostedControlButton(
+                    FrostedIconButton.tonal(
                       icon: Symbols.settings_rounded,
                       onPressed: () => Navigator.push(
                         context,

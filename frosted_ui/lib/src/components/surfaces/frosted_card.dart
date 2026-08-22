@@ -28,6 +28,7 @@ class FrostedCard extends StatelessWidget {
     this.variant = FrostedCardVariant.filled,
     this.padding = const EdgeInsets.all(FrostedSpacing.sp4 + 2),
     this.onTap,
+    this.radius = FrostedRadius.lg,
     super.key,
   });
 
@@ -36,7 +37,9 @@ class FrostedCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
 
-  static const double _radius = FrostedRadius.lg;
+  /// Resting corner radius. Pass a [FrostedRadius] token — a card nested in
+  /// another surface steps down to stay concentric with it.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +55,6 @@ class FrostedCard extends StatelessWidget {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
     return InteractiveSurface(
       onTap: onTap,
-      shape: (InteractionStates s) => BorderRadius.circular(
-        s.pressed ? FrostedRadius.md : _radius,
-      ),
       builder: (BuildContext context, InteractionStates s) {
         return AnimatedContainer(
           duration: motion.duration,
@@ -66,8 +66,11 @@ class FrostedCard extends StatelessWidget {
     );
   }
 
+  double _radiusFor({required bool pressed}) =>
+      pressed ? FrostedRadius.stepDown(radius) : radius;
+
   BoxDecoration _decoration(ColorScheme cs, {required bool pressed}) {
-    final double radius = pressed ? FrostedRadius.md : _radius;
+    final double radius = _radiusFor(pressed: pressed);
     switch (variant) {
       case FrostedCardVariant.filled:
         return BoxDecoration(

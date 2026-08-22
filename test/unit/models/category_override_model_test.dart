@@ -5,8 +5,10 @@ import 'package:mybudget/models/category_override_model.dart';
 void main() {
   group('CategoryOverrideModel', () {
     test('is empty when no field is customised', () {
-      expect(CategoryOverrideModel.create(slug: 'restauration.cafe').isEmpty,
-          isTrue);
+      expect(
+        CategoryOverrideModel.create(slug: 'restauration.cafe').isEmpty,
+        isTrue,
+      );
     });
 
     test('is not empty as soon as one field is set', () {
@@ -20,8 +22,10 @@ void main() {
     });
 
     test('treats a blank name as not customised', () {
-      expect(CategoryOverrideModel.create(slug: 'a.b', name: '   ').isEmpty,
-          isTrue);
+      expect(
+        CategoryOverrideModel.create(slug: 'a.b', name: '   ').isEmpty,
+        isTrue,
+      );
     });
 
     test('round-trips through json', () {
@@ -69,10 +73,14 @@ void main() {
     });
 
     test('drops an unknown icon rather than storing it', () {
-      expect(CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').icon,
-          isNull);
-      expect(CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').isEmpty,
-          isTrue);
+      expect(
+        CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').icon,
+        isNull,
+      );
+      expect(
+        CategoryOverrideModel.create(slug: 'a.b', icon: 'nope').isEmpty,
+        isTrue,
+      );
     });
   });
 }

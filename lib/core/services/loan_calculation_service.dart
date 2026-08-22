@@ -121,24 +121,26 @@ class LoanCalculationService {
       return 0.0;
     }
 
-    final effectiveEndDate = currentDate.isAfter(endDate) ? endDate : currentDate;
+    final effectiveEndDate = currentDate.isAfter(endDate)
+        ? endDate
+        : currentDate;
 
     final startYearMonth = startDate.year * 12 + startDate.month - 1;
-    final endYearMonth = effectiveEndDate.year * 12 + effectiveEndDate.month - 1;
+    final endYearMonth =
+        effectiveEndDate.year * 12 + effectiveEndDate.month - 1;
     final daysPassed = effectiveEndDate.day >= dayOfMonth ? 1 : 0;
 
     final totalMonthsPassed = immediateFirstPayment
         ? (endYearMonth - startYearMonth) + 1
         : (endYearMonth - startYearMonth) + daysPassed;
-    final effectiveMonthsPaid = (totalMonthsPassed - deferredMonths).clamp(0, double.infinity).toInt();
+    final effectiveMonthsPaid = (totalMonthsPassed - deferredMonths)
+        .clamp(0, double.infinity)
+        .toInt();
 
     return effectiveMonthsPaid * monthlyPayment;
   }
 
-  double _calculateInFineMonthlyPayment(
-    double amount,
-    double interestRate,
-  ) {
+  double _calculateInFineMonthlyPayment(double amount, double interestRate) {
     if (amount <= 0 || interestRate <= 0) return 0.0;
     return (amount * interestRate / 100) / 12;
   }
@@ -174,7 +176,8 @@ class LoanCalculationService {
     }
 
     final monthlyRate = interestRate / 100 / 12;
-    final numerator = pow(1 + monthlyRate, durationInMonths) -
+    final numerator =
+        pow(1 + monthlyRate, durationInMonths) -
         pow(1 + monthlyRate, monthsPassed);
     final denominator = pow(1 + monthlyRate, durationInMonths) - 1;
 
@@ -200,7 +203,8 @@ class LoanCalculationService {
       return insuranceValue;
     }
 
-    final baseCapital = calculationMode == InsuranceCalculationMode.initialCapital
+    final baseCapital =
+        calculationMode == InsuranceCalculationMode.initialCapital
         ? amount
         : remainingCapital;
 

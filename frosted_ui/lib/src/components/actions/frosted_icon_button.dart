@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../foundations/frosted_radius.dart';
+import '../../foundations/frosted_shape.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
@@ -8,10 +8,32 @@ import '_interactive_surface.dart';
 
 enum _IconButtonVariant { standard, filled, tonal, outlined }
 
-/// A circular icon-only button.
+/// The three footprints an icon button can take.
+///
+/// [medium] is the default; [small] is for dense rows where the button trails
+/// content, [large] for a lone target that has to carry a screen.
+enum FrostedIconButtonSize {
+  small(box: 32, glyph: 18),
+  medium(box: 40, glyph: 22),
+  large(box: 56, glyph: 24);
+
+  const FrostedIconButtonSize({required this.box, required this.glyph});
+
+  /// Side of the square touch target.
+  final double box;
+
+  /// Side of the icon inside it.
+  final double glyph;
+}
+
+/// An icon-only button.
 ///
 /// When [selected] is true and [selectedIcon] is provided, the filled
 /// variant of the icon is shown.
+///
+/// [shape] picks the resting form — [FrostedShape.rounded] by default, or
+/// [FrostedShape.pill], which on this square box is a circle. A press morphs
+/// it into the other one and back.
 class FrostedIconButton extends StatelessWidget {
   const FrostedIconButton._({
     super.key,
@@ -21,6 +43,8 @@ class FrostedIconButton extends StatelessWidget {
     this.selected = false,
     this.tooltip,
     this.onPressed,
+    this.shape = FrostedShape.rounded,
+    this.size = FrostedIconButtonSize.medium,
   }) : _variant = variant;
 
   factory FrostedIconButton.standard({
@@ -30,16 +54,19 @@ class FrostedIconButton extends StatelessWidget {
     bool selected = false,
     String? tooltip,
     required VoidCallback? onPressed,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.standard,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-      );
+    FrostedShape shape = FrostedShape.rounded,
+    FrostedIconButtonSize size = FrostedIconButtonSize.medium,
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.standard,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.filled({
     Key? key,
@@ -48,16 +75,19 @@ class FrostedIconButton extends StatelessWidget {
     bool selected = false,
     String? tooltip,
     required VoidCallback? onPressed,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.filled,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-      );
+    FrostedShape shape = FrostedShape.rounded,
+    FrostedIconButtonSize size = FrostedIconButtonSize.medium,
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.filled,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.tonal({
     Key? key,
@@ -66,16 +96,19 @@ class FrostedIconButton extends StatelessWidget {
     bool selected = false,
     String? tooltip,
     required VoidCallback? onPressed,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.tonal,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-      );
+    FrostedShape shape = FrostedShape.rounded,
+    FrostedIconButtonSize size = FrostedIconButtonSize.medium,
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.tonal,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   factory FrostedIconButton.outlined({
     Key? key,
@@ -84,25 +117,33 @@ class FrostedIconButton extends StatelessWidget {
     bool selected = false,
     String? tooltip,
     required VoidCallback? onPressed,
-  }) =>
-      FrostedIconButton._(
-        key: key,
-        icon: icon,
-        variant: _IconButtonVariant.outlined,
-        selectedIcon: selectedIcon,
-        selected: selected,
-        tooltip: tooltip,
-        onPressed: onPressed,
-      );
+    FrostedShape shape = FrostedShape.rounded,
+    FrostedIconButtonSize size = FrostedIconButtonSize.medium,
+  }) => FrostedIconButton._(
+    key: key,
+    icon: icon,
+    variant: _IconButtonVariant.outlined,
+    selectedIcon: selectedIcon,
+    selected: selected,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    shape: shape,
+    size: size,
+  );
 
   final IconData icon;
   final IconData? selectedIcon;
   final bool selected;
   final String? tooltip;
   final VoidCallback? onPressed;
-  final _IconButtonVariant _variant;
 
-  static const double _size = 40;
+  /// The resting form. A press morphs it into [FrostedShape.opposite].
+  final FrostedShape shape;
+
+  /// The footprint of the touch target and the glyph it holds.
+  final FrostedIconButtonSize size;
+
+  final _IconButtonVariant _variant;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +158,6 @@ class FrostedIconButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       semanticsLabel: tooltip,
       semanticsSelected: selected,
-      shape: _shape,
       builder: (BuildContext context, InteractionStates s) {
         final Color bg = _resolveBg(cs, s);
         final Color fg = _resolveFg(cs, s);
@@ -126,15 +166,15 @@ class FrostedIconButton extends StatelessWidget {
         return AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
-          width: _size,
-          height: _size,
+          width: size.box,
+          height: size.box,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: Center(
-            child: Icon(glyph, size: 22, color: fg),
+            child: Icon(glyph, size: size.glyph, color: fg),
           ),
         );
       },
@@ -151,9 +191,8 @@ class FrostedIconButton extends StatelessWidget {
     return result;
   }
 
-  BorderRadius _shape(InteractionStates s) => BorderRadius.circular(
-        s.pressed ? FrostedRadius.xs : FrostedRadius.md,
-      );
+  BorderRadius _shape(InteractionStates s) =>
+      shape.resolve(Size(size.box, size.box), pressed: s.pressed);
 
   Color _resolveBg(ColorScheme cs, InteractionStates s) {
     if (!s.enabled) {
@@ -166,9 +205,7 @@ class FrostedIconButton extends StatelessWidget {
     Color base;
     switch (_variant) {
       case _IconButtonVariant.standard:
-        base = selected
-            ? cs.primaryContainer
-            : Colors.transparent;
+        base = selected ? cs.primaryContainer : Colors.transparent;
         break;
       case _IconButtonVariant.filled:
         base = selected ? cs.primary : cs.surfaceContainerHighest;

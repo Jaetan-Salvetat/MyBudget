@@ -52,10 +52,11 @@ class FrostedTopBar extends StatelessWidget implements PreferredSizeWidget {
     final double topInset = MediaQuery.of(context).padding.top;
 
     return FrostedGlass(
-      level: FrostedGlassLevel.ultraThick,
+      level: FrostedGlassLevel.thick,
       tone: FrostedGlassTone.auto,
       elevation: FrostedGlassElevation.none,
       borderRadius: BorderRadius.zero,
+      borderEdges: const <FrostedGlassEdge>{FrostedGlassEdge.bottom},
       padding: EdgeInsets.only(top: topInset),
       child: SizedBox(
         height: toolbarHeight,

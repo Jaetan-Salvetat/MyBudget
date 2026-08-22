@@ -49,16 +49,25 @@ void main() {
 
     test('frequencyEnum getter returns correct enum', () {
       final monthly = RevenueModel.create(
-        name: 'M', amount: 100, accountId: 1,
-        startDate: DateTime(2024, 1, 1), frequency: 'Mensuel',
+        name: 'M',
+        amount: 100,
+        accountId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Mensuel',
       );
       final annual = RevenueModel.create(
-        name: 'A', amount: 100, accountId: 1,
-        startDate: DateTime(2024, 1, 1), frequency: 'Annuel',
+        name: 'A',
+        amount: 100,
+        accountId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Annuel',
       );
       final oneTime = RevenueModel.create(
-        name: 'O', amount: 100, accountId: 1,
-        startDate: DateTime(2024, 1, 1), frequency: 'Ponctuel',
+        name: 'O',
+        amount: 100,
+        accountId: 1,
+        startDate: DateTime(2024, 1, 1),
+        frequency: 'Ponctuel',
       );
 
       expect(monthly.frequency, 'Mensuel');

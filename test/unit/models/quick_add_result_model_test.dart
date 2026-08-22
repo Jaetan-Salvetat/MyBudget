@@ -15,8 +15,10 @@ void main() {
       );
 
       expect(low.needsCategoryConfirmation, isTrue);
-      expect(low.copyWith(categoryConfidence: 0.9).needsCategoryConfirmation,
-          isFalse);
+      expect(
+        low.copyWith(categoryConfidence: 0.9).needsCategoryConfirmation,
+        isFalse,
+      );
     });
 
     test('the threshold applies to income too', () {
@@ -30,8 +32,10 @@ void main() {
       );
 
       expect(income.needsCategoryConfirmation, isTrue);
-      expect(income.copyWith(categoryConfidence: 0.9).needsCategoryConfirmation,
-          isFalse);
+      expect(
+        income.copyWith(categoryConfidence: 0.9).needsCategoryConfirmation,
+        isFalse,
+      );
     });
 
     test('copyWith replaces specified fields', () {

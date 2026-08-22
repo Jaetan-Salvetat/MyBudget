@@ -10,6 +10,8 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
+const double _durationUnitToggleHeight = 50;
+
 class LoanCreationBottomSheet extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final Function(LoanModel) onSubmit;
@@ -28,15 +30,17 @@ class LoanCreationBottomSheet extends ConsumerStatefulWidget {
     required Function(LoanModel) onSubmit,
     required VoidCallback onCancel,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Nouvel Emprunt Bancaire',
-      child: ProviderScope(
-        overrides: [loanCreationProvider],
-        child: LoanCreationBottomSheet(
-          accounts: accounts,
-          onSubmit: onSubmit,
-          onCancel: onCancel,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Nouvel Emprunt Bancaire',
+        child: ProviderScope(
+          overrides: [loanCreationProvider],
+          child: LoanCreationBottomSheet(
+            accounts: accounts,
+            onSubmit: onSubmit,
+            onCancel: onCancel,
+          ),
         ),
       ),
     );
@@ -69,9 +73,8 @@ class _LoanCreationBottomSheetState
     _deferredMonthsController = TextEditingController();
 
     _nameController.addListener(
-      () => ref
-          .read(loanCreationProvider.notifier)
-          .setName(_nameController.text),
+      () =>
+          ref.read(loanCreationProvider.notifier).setName(_nameController.text),
     );
     _lenderController.addListener(
       () => ref
@@ -179,10 +182,9 @@ class _LoanCreationBottomSheetState
           height: 4,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color:
-                isActive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: isActive
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(2),
           ),
         );
@@ -221,16 +223,16 @@ class _LoanCreationBottomSheetState
     return Column(
       children: [
         FrostedTextField(
-          labelText: 'Nom du prêt',
+          label: 'Nom du prêt',
           hintText: 'Ex: Prêt Immo Résidence',
-          prefixIcon: const Icon(Symbols.description_rounded),
+          leadingIcon: Symbols.description_rounded,
           controller: _nameController,
         ),
         const SizedBox(height: 12),
         FrostedTextField(
-          labelText: 'Prêteur (Banque)',
+          label: 'Prêteur (Banque)',
           hintText: 'Ex: Banque Populaire',
-          prefixIcon: const Icon(Symbols.account_balance_rounded),
+          leadingIcon: Symbols.account_balance_rounded,
           controller: _lenderController,
         ),
       ],
@@ -242,99 +244,90 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Capital & Compte',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Capital & Compte',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        FrostedTextField(
+          label: 'Montant emprunté',
+          hintText: '200000',
+          leadingIcon: Symbols.euro_rounded,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          controller: _amountController,
+        ),
+        const SizedBox(height: 12),
+        FrostedDropdown<int>(
+          value: state.selectedAccountId != -1 ? state.selectedAccountId : null,
+          hintText: 'Compte de prélèvement',
+          items: widget.accounts.map((acc) {
+            return FrostedDropdownItem(value: acc.id, label: acc.name);
+          }).toList(),
+          onChanged: (val) {
+            notifier.setAccountId(val);
+          },
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: FrostedPickerField(
+                icon: Symbols.calendar_today_rounded,
+                onTap: () async {
+                  final date = await showFrostedDatePicker(
+                    context: context,
+                    initialDate: state.startDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2050),
+                  );
+                  if (date != null) notifier.setStartDate(date);
+                },
+                label: 'Date de signature',
+                text: DateFormat('dd/MM/yyyy').format(state.startDate),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          FrostedTextField(
-            labelText: 'Montant emprunté',
-            hintText: '200000',
-            prefixIcon: const Icon(Symbols.euro_rounded),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: _amountController,
-          ),
-          const SizedBox(height: 12),
-          FrostedDropdown<int>(
-            value:
-                state.selectedAccountId != -1 ? state.selectedAccountId : null,
-            hint: 'Compte de prélèvement',
-            items:
-                widget.accounts.map((acc) {
-                  return DropdownMenuItem(value: acc.id, child: Text(acc.name));
-                }).toList(),
-            onChanged: (val) {
-              if (val != null) notifier.setAccountId(val);
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: FrostedTextField(
-                  labelText: 'Date de signature',
-                  readOnly: true,
-                  controller: TextEditingController(
-                    text: DateFormat('dd/MM/yyyy').format(state.startDate),
-                  ),
-                  prefixIcon: const Icon(Symbols.calendar_today_rounded),
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: state.startDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2050),
-                    );
-                    if (date != null) notifier.setStartDate(date);
-                  },
-                ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FrostedPickerField(
+                icon: Symbols.event_rounded,
+                onTap: () async {
+                  final selectedDate = await DateSelector.showDayPicker(
+                    context: context,
+                    initialDate: DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      state.dayOfMonth,
+                    ),
+                  );
+                  if (selectedDate != null) {
+                    notifier.setDayOfMonth(selectedDate.day);
+                  }
+                },
+                label: 'Jour de prélèvement',
+                text: state.dayOfMonth.toString(),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FrostedTextField(
-                  labelText: 'Jour de prélèvement',
-                  readOnly: true,
-                  controller: TextEditingController(
-                    text: state.dayOfMonth.toString(),
-                  ),
-                  prefixIcon: const Icon(Symbols.event_rounded),
-                  onTap: () async {
-                    final selectedDate = await DateSelector.showDayPicker(
-                      context: context,
-                      initialDate: DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        state.dayOfMonth,
-                      ),
-                    );
-                    if (selectedDate != null) {
-                      notifier.setDayOfMonth(selectedDate.day);
-                    }
-                  },
-                ),
-              ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        CheckboxListTile(
+          value: state.immediateFirstPayment,
+          onChanged: (_) => notifier.toggleImmediateFirstPayment(),
+          title: const Text('Premier paiement immédiat'),
+          subtitle: const Text(
+            'Le premier paiement a lieu le mois de signature',
           ),
-          const SizedBox(height: 12),
-          CheckboxListTile(
-            value: state.immediateFirstPayment,
-            onChanged: (_) => notifier.toggleImmediateFirstPayment(),
-            title: const Text('Premier paiement immédiat'),
-            subtitle: const Text('Le premier paiement a lieu le mois de signature'),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-        ],
-      ),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+        ),
+      ],
     );
   }
 
@@ -343,57 +336,58 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Conditions',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Conditions',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              flex: 2,
+              child: FrostedTextField(
+                label: 'Durée',
+                hintText: '20',
+                keyboardType: TextInputType.number,
+                controller: _durationController,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: FrostedTextField(
-                  labelText: 'Durée',
-                  hintText: '20',
-                  keyboardType: TextInputType.number,
-                  controller: _durationController,
-                ),
+            const SizedBox(width: 8),
+            ToggleButtons(
+              isSelected: [
+                state.durationUnit == DurationUnit.years,
+                state.durationUnit == DurationUnit.months,
+              ],
+              onPressed: (index) {
+                notifier.setDurationUnit(
+                  index == 0 ? DurationUnit.years : DurationUnit.months,
+                );
+              },
+              borderRadius: BorderRadius.circular(FrostedRadius.md),
+              constraints: const BoxConstraints(
+                minHeight: _durationUnitToggleHeight,
+                minWidth: 48,
               ),
-              const SizedBox(width: 8),
-              ToggleButtons(
-                isSelected: [
-                  state.durationUnit == DurationUnit.years,
-                  state.durationUnit == DurationUnit.months,
-                ],
-                onPressed: (index) {
-                  notifier.setDurationUnit(
-                    index == 0 ? DurationUnit.years : DurationUnit.months,
-                  );
-                },
-                borderRadius: BorderRadius.circular(8),
-                constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-                children: const [Text('Ans'), Text('Mois')],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          FrostedTextField(
-            labelText: 'Taux d\'intérêt (Annuel)',
-            hintText: '3.5',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            prefixIcon: const Icon(Symbols.percent_rounded),
-            controller: _rateController,
-          ),
-        ],
-      ),
+              children: const [Text('Ans'), Text('Mois')],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        FrostedTextField(
+          label: 'Taux d\'intérêt (Annuel)',
+          hintText: '3.5',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          leadingIcon: Symbols.percent_rounded,
+          controller: _rateController,
+        ),
+      ],
     );
   }
 
@@ -402,278 +396,273 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Type de Remboursement',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              FrostedIconButton(
-                icon: Symbols.help_rounded,
-                iconSize: 20,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Type de Remboursement',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
-                onPressed: () => _showRepaymentTypeHelp(context),
-                size: 24,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ToggleButtons(
-            isSelected: [
-              state.repaymentType == LoanRepaymentType.amortizable,
-              state.repaymentType == LoanRepaymentType.inFine,
-            ],
-            onPressed: (index) {
-              notifier.setRepaymentType(LoanRepaymentType.values[index]);
-            },
-            borderRadius: BorderRadius.circular(8),
-            children: const [
-              Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('Amortissable'),
-              ),
-              Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('In Fine'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Symbols.info_rounded,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    state.repaymentType == LoanRepaymentType.amortizable
-                        ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
-                        : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Text(
-                'Période de Différé',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              FrostedIconButton(
-                icon: Symbols.help_rounded,
-                iconSize: 20,
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: () => _showDeferredPeriodHelp(context),
-                size: 24,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => notifier.toggleDeferredPeriod(),
-            child: Row(
-              children: [
-                FrostedCheckbox(
-                  value: state.hasDeferredPeriod,
-                  onChanged: (_) => notifier.toggleDeferredPeriod(),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text('Ce prêt a une période de différé (ex: PTZ)'),
-                ),
-              ],
-            ),
-          ),
-          if (state.hasDeferredPeriod) ...[
-            const SizedBox(height: 12),
-            FrostedTextField(
-              labelText: 'Durée du différé (en mois)',
-              hintText: 'Ex: 24',
-              keyboardType: TextInputType.number,
-              controller: _deferredMonthsController,
-              prefixIcon: const Icon(Symbols.schedule_rounded),
+            const SizedBox(width: 8),
+            FrostedIconButton.standard(
+              icon: Symbols.help_rounded,
+              size: FrostedIconButtonSize.small,
+              onPressed: () => _showRepaymentTypeHelp(context),
             ),
           ],
+        ),
+        const SizedBox(height: 16),
+        ToggleButtons(
+          isSelected: [
+            state.repaymentType == LoanRepaymentType.amortizable,
+            state.repaymentType == LoanRepaymentType.inFine,
+          ],
+          onPressed: (index) {
+            notifier.setRepaymentType(LoanRepaymentType.values[index]);
+          },
+          borderRadius: BorderRadius.circular(8),
+          children: const [
+            Padding(padding: EdgeInsets.all(12), child: Text('Amortissable')),
+            Padding(padding: EdgeInsets.all(12), child: Text('In Fine')),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Symbols.info_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  state.repaymentType == LoanRepaymentType.amortizable
+                      ? 'Vous remboursez capital + intérêts chaque mois (le plus courant)'
+                      : 'Vous ne payez que les intérêts chaque mois, le capital est remboursé à la fin',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Text(
+              'Période de Différé',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 8),
+            FrostedIconButton.standard(
+              icon: Symbols.help_rounded,
+              size: FrostedIconButtonSize.small,
+              onPressed: () => _showDeferredPeriodHelp(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () => notifier.toggleDeferredPeriod(),
+          child: Row(
+            children: [
+              FrostedCheckbox(
+                value: state.hasDeferredPeriod,
+                onChanged: (_) => notifier.toggleDeferredPeriod(),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text('Ce prêt a une période de différé (ex: PTZ)'),
+              ),
+            ],
+          ),
+        ),
+        if (state.hasDeferredPeriod) ...[
+          const SizedBox(height: 12),
+          FrostedTextField(
+            label: 'Durée du différé (en mois)',
+            hintText: 'Ex: 24',
+            keyboardType: TextInputType.number,
+            controller: _deferredMonthsController,
+            leadingIcon: Symbols.schedule_rounded,
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showRepaymentTypeHelp(BuildContext context) {
+    showFrostedDialog<void>(
+      context: context,
+      builder: (_) => FrostedDialog(
+        title: 'Types de Remboursement',
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Prêt Amortissable',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '• Type le plus courant (99% des prêts immobiliers)\n'
+                '• Vous remboursez capital + intérêts chaque mois\n'
+                '• Mensualité constante pendant toute la durée\n'
+                '• La part de capital augmente progressivement\n'
+                '• La part d\'intérêts diminue progressivement',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Prêt In Fine',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '• Type rare, réservé aux investissements locatifs\n'
+                '• Vous ne payez QUE les intérêts chaque mois\n'
+                '• Le capital est remboursé en une seule fois à la fin\n'
+                '• Mensualités plus faibles mais coût total plus élevé\n'
+                '• Permet de défiscaliser les intérêts',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Symbols.lightbulb_rounded,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Pour un prêt immobilier classique, choisissez "Amortissable"',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          FrostedButton.text(
+            label: 'Compris',
+            onPressed: () => Navigator.pop(context),
+          ),
         ],
       ),
     );
   }
 
-  void _showRepaymentTypeHelp(BuildContext context) {
-    FrostedDialog.show(
-      context: context,
-      title: const Text('Types de Remboursement'),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Prêt Amortissable',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '• Type le plus courant (99% des prêts immobiliers)\n'
-              '• Vous remboursez capital + intérêts chaque mois\n'
-              '• Mensualité constante pendant toute la durée\n'
-              '• La part de capital augmente progressivement\n'
-              '• La part d\'intérêts diminue progressivement',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Prêt In Fine',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '• Type rare, réservé aux investissements locatifs\n'
-              '• Vous ne payez QUE les intérêts chaque mois\n'
-              '• Le capital est remboursé en une seule fois à la fin\n'
-              '• Mensualités plus faibles mais coût total plus élevé\n'
-              '• Permet de défiscaliser les intérêts',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Symbols.lightbulb_rounded,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Pour un prêt immobilier classique, choisissez "Amortissable"',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Compris'),
-        ),
-      ],
-    );
-  }
-
   void _showDeferredPeriodHelp(BuildContext context) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Période de Différé'),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Une période de différé vous permet de ne rien payer pendant les premiers mois du prêt.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Exemple : Prêt à Taux Zéro (PTZ)',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+      builder: (_) => FrostedDialog(
+        title: 'Période de Différé',
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Une période de différé vous permet de ne rien payer pendant les premiers mois du prêt.',
+                style: TextStyle(fontSize: 13),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '• Vous pouvez avoir 5, 10 ou 15 ans de différé\n'
-              '• Pendant cette période, vous ne payez rien du tout\n'
-              '• Les remboursements commencent après le différé\n'
-              '• La durée totale du prêt inclut le différé',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 16),
+              Text(
+                'Exemple : Prêt à Taux Zéro (PTZ)',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Symbols.calculate_rounded,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.onTertiaryContainer,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Exemple : PTZ de 120 mois avec 60 mois de différé = 5 ans sans payer, puis 5 ans de remboursements',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+              const SizedBox(height: 8),
+              const Text(
+                '• Vous pouvez avoir 5, 10 ou 15 ans de différé\n'
+                '• Pendant cette période, vous ne payez rien du tout\n'
+                '• Les remboursements commencent après le différé\n'
+                '• La durée totale du prêt inclut le différé',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Symbols.calculate_rounded,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Exemple : PTZ de 120 mois avec 60 mois de différé = 5 ans sans payer, puis 5 ans de remboursements',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onTertiaryContainer,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        actions: [
+          FrostedButton.text(
+            label: 'Compris',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Compris'),
-        ),
-      ],
     );
   }
 
@@ -682,86 +671,78 @@ class _LoanCreationBottomSheetState
     LoanCreationState state,
     LoanCreationNotifier notifier,
   ) {
-    return FrostedCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Assurance Emprunteur',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Assurance Emprunteur',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return ToggleButtons(
-                isSelected: [
-                  state.insuranceType == LoanInsuranceType.fixed,
-                  state.insuranceType == LoanInsuranceType.percentage,
-                  state.insuranceType == LoanInsuranceType.none,
-                ],
-                onPressed: (index) {
-                  notifier.setInsuranceType(LoanInsuranceType.values[index]);
-                },
-                borderRadius: BorderRadius.circular(8),
-                constraints: BoxConstraints.expand(
-                  width: (constraints.maxWidth - 4) / 3,
-                  height: 40,
-                ),
-                children: const [
-                  Text('Fixe (€)'),
-                  Text('Taux (%)'),
-                  Text('Aucune'),
-                ],
-              );
-            },
-          ),
-          if (state.insuranceType != LoanInsuranceType.none) ...[
-            const SizedBox(height: 12),
-            FrostedTextField(
-              labelText:
-                  state.insuranceType == LoanInsuranceType.fixed
-                      ? 'Montant mensuel'
-                      : 'Taux annuel',
-              hintText:
-                  state.insuranceType == LoanInsuranceType.fixed
-                      ? '35.00'
-                      : '0.36',
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return ToggleButtons(
+              isSelected: [
+                state.insuranceType == LoanInsuranceType.fixed,
+                state.insuranceType == LoanInsuranceType.percentage,
+                state.insuranceType == LoanInsuranceType.none,
+              ],
+              onPressed: (index) {
+                notifier.setInsuranceType(LoanInsuranceType.values[index]);
+              },
+              borderRadius: BorderRadius.circular(8),
+              constraints: BoxConstraints.expand(
+                width: (constraints.maxWidth - 4) / 3,
+                height: 40,
               ),
-              controller: _insuranceValueController,
-            ),
-            if (state.insuranceType == LoanInsuranceType.percentage &&
-                state.amount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 4),
-                child: Text(
-                  'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontStyle: FontStyle.italic,
-                  ),
+              children: const [
+                Text('Fixe (€)'),
+                Text('Taux (%)'),
+                Text('Aucune'),
+              ],
+            );
+          },
+        ),
+        if (state.insuranceType != LoanInsuranceType.none) ...[
+          const SizedBox(height: 12),
+          FrostedTextField(
+            label: state.insuranceType == LoanInsuranceType.fixed
+                ? 'Montant mensuel'
+                : 'Taux annuel',
+            hintText: state.insuranceType == LoanInsuranceType.fixed
+                ? '35.00'
+                : '0.36',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            controller: _insuranceValueController,
+          ),
+          if (state.insuranceType == LoanInsuranceType.percentage &&
+              state.amount > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 4),
+              child: Text(
+                'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-          ],
+            ),
         ],
-      ),
+      ],
     );
   }
 
   Widget _buildReviewSection(BuildContext context, LoanCreationState state) {
-    final accountName =
-        widget.accounts
-            .firstWhere(
-              (a) => a.id == state.selectedAccountId,
-              orElse: () => AccountModel.create(name: 'Inconnu', bank: ''),
-            )
-            .name;
+    final accountName = widget.accounts
+        .firstWhere(
+          (a) => a.id == state.selectedAccountId,
+          orElse: () => AccountModel.create(name: 'Inconnu', bank: ''),
+        )
+        .name;
 
     return Column(
       children: [
@@ -779,9 +760,19 @@ class _LoanCreationBottomSheetState
               ),
               const SizedBox(height: 16),
               _buildSummaryRow(context, 'Nom', state.name),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(context, 'Banque', state.lenderName),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(
                 context,
                 'Capital',
@@ -790,17 +781,37 @@ class _LoanCreationBottomSheetState
                   locale: 'fr_FR',
                 ).format(state.amount),
               ),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(context, 'Compte', accountName),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(
                 context,
                 'Durée',
                 '${state.durationValue} ${state.durationUnit == DurationUnit.years ? "Ans" : "Mois"}',
               ),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(context, 'Taux', '${state.interestRate} %'),
-              const FrostedDivider(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp3,
+                ),
+                child: FrostedDivider(),
+              ),
               _buildSummaryRow(
                 context,
                 'Assurance',
@@ -843,10 +854,9 @@ class _LoanCreationBottomSheetState
   ) {
     final isLastStep = state.currentStep == state.totalSteps - 1;
 
-    final bool showMagicCard =
-        state.currentStep == 0
-            ? state.totalMonthlyPayment > 0
-            : state.amount > 0;
+    final bool showMagicCard = state.currentStep == 0
+        ? state.totalMonthlyPayment > 0
+        : state.amount > 0;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -860,28 +870,27 @@ class _LoanCreationBottomSheetState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (state.currentStep > 0)
-              FrostedTextButton(
+              FrostedButton.text(
+                label: 'Précédent',
                 onPressed: notifier.previousStep,
-                child: const Text('Précédent'),
               )
             else
               const SizedBox(width: 80),
 
             if (!isLastStep)
-              FrostedFilledButton(
+              FrostedButton.filled(
+                label: 'Suivant',
                 onPressed: state.canGoNext ? notifier.nextStep : null,
-                child: const Text('Suivant'),
               )
             else
-              FrostedFilledButton(
-                onPressed:
-                    state.isValid
-                        ? () {
-                          widget.onSubmit(notifier.createLoanModel());
-                          Navigator.pop(context);
-                        }
-                        : null,
-                child: const Text('Terminer'),
+              FrostedButton.filled(
+                label: 'Terminer',
+                onPressed: state.isValid
+                    ? () {
+                        widget.onSubmit(notifier.createLoanModel());
+                        Navigator.pop(context);
+                      }
+                    : null,
               ),
           ],
         ),

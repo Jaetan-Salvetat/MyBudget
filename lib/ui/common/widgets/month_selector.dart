@@ -15,7 +15,10 @@ class MonthSelector extends ConsumerWidget {
     final theme = Theme.of(context);
     final selectedMonth = ref.watch(selectedMonthProvider);
     final label = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
-    final capitalizedLabel = label.replaceFirst(label[0], label[0].toUpperCase());
+    final capitalizedLabel = label.replaceFirst(
+      label[0],
+      label[0].toUpperCase(),
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -42,7 +45,9 @@ class MonthSelector extends ConsumerWidget {
                 children: [
                   _ChevronButton(
                     icon: Symbols.chevron_left_rounded,
-                    onPressed: () => ref.read(selectedMonthProvider.notifier).previousMonth(),
+                    onPressed: () => ref
+                        .read(selectedMonthProvider.notifier)
+                        .previousMonth(),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -58,7 +63,8 @@ class MonthSelector extends ConsumerWidget {
                   ),
                   _ChevronButton(
                     icon: Symbols.chevron_right_rounded,
-                    onPressed: () => ref.read(selectedMonthProvider.notifier).nextMonth(),
+                    onPressed: () =>
+                        ref.read(selectedMonthProvider.notifier).nextMonth(),
                   ),
                 ],
               ),
@@ -85,11 +91,7 @@ class _ChevronButton extends StatelessWidget {
       child: SizedBox(
         width: 26,
         height: 26,
-        child: Icon(
-          icon,
-          size: 18,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+        child: Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }

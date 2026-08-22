@@ -59,31 +59,22 @@ class ExpenseModel {
     Object? beneficiaryId = _sentinel,
     Object? receiptPath = _sentinel,
   }) {
-    final model =
-        ExpenseModel()
-          ..id = id
-          ..name = name ?? this.name
-          ..amount = amount ?? this.amount
-          ..categorySlug = categorySlug ?? this.categorySlug
-          ..startDate = startDate ?? this.startDate
-          ..frequency = frequency ?? this.frequency
-          ..accountId = accountId ?? this.accountId
-          ..endDate =
-              endDate == _sentinel
-                  ? this.endDate
-                  : endDate as DateTime?
-          ..parentId =
-              parentId == _sentinel
-                  ? this.parentId
-                  : parentId as int?
-          ..beneficiaryId =
-              beneficiaryId == _sentinel
-                  ? this.beneficiaryId
-                  : beneficiaryId as int?
-          ..receiptPath =
-              receiptPath == _sentinel
-                  ? this.receiptPath
-                  : receiptPath as String?;
+    final model = ExpenseModel()
+      ..id = id
+      ..name = name ?? this.name
+      ..amount = amount ?? this.amount
+      ..categorySlug = categorySlug ?? this.categorySlug
+      ..startDate = startDate ?? this.startDate
+      ..frequency = frequency ?? this.frequency
+      ..accountId = accountId ?? this.accountId
+      ..endDate = endDate == _sentinel ? this.endDate : endDate as DateTime?
+      ..parentId = parentId == _sentinel ? this.parentId : parentId as int?
+      ..beneficiaryId = beneficiaryId == _sentinel
+          ? this.beneficiaryId
+          : beneficiaryId as int?
+      ..receiptPath = receiptPath == _sentinel
+          ? this.receiptPath
+          : receiptPath as String?;
     return model;
   }
 
@@ -105,33 +96,27 @@ class ExpenseModel {
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
     final dateStr = json['startDate'] ?? json['date'];
-    final model =
-        ExpenseModel()
-          ..name = json['name'] ?? ''
-          ..amount = (json['amount'] ?? 0.0).toDouble()
-          ..startDate =
-              dateStr != null
-                  ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
-                  : DateTime.now()
-          ..endDate =
-              json['endDate'] != null
-                  ? DateTime.tryParse(json['endDate'].toString())
-                  : null
-          ..parentId =
-              json['parentId'] != null
-                  ? int.tryParse(json['parentId'].toString())
-                  : null
-          ..frequency = json['frequency'] ?? ''
-          ..categorySlug = json['categorySlug'] as String?
-          ..accountId =
-              json['accountId'] != null
-                  ? (int.tryParse(json['accountId'].toString()) ?? 0)
-                  : 0
-          ..beneficiaryId =
-              json['beneficiaryId'] != null
-                  ? int.tryParse(json['beneficiaryId'].toString())
-                  : null
-          ..receiptPath = json['receiptPath'] as String?;
+    final model = ExpenseModel()
+      ..name = json['name'] ?? ''
+      ..amount = (json['amount'] ?? 0.0).toDouble()
+      ..startDate = dateStr != null
+          ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
+          : DateTime.now()
+      ..endDate = json['endDate'] != null
+          ? DateTime.tryParse(json['endDate'].toString())
+          : null
+      ..parentId = json['parentId'] != null
+          ? int.tryParse(json['parentId'].toString())
+          : null
+      ..frequency = json['frequency'] ?? ''
+      ..categorySlug = json['categorySlug'] as String?
+      ..accountId = json['accountId'] != null
+          ? (int.tryParse(json['accountId'].toString()) ?? 0)
+          : 0
+      ..beneficiaryId = json['beneficiaryId'] != null
+          ? int.tryParse(json['beneficiaryId'].toString())
+          : null
+      ..receiptPath = json['receiptPath'] as String?;
 
     if (json['id'] != null) {
       model.id = int.tryParse(json['id'].toString()) ?? 0;

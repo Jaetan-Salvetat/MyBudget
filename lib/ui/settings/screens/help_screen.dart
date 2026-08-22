@@ -8,8 +8,8 @@ class HelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FrostedScaffold(
-      appBar: const FrostedAppBar(title: 'Aide et Guide'),
-      child: ListView(
+      appBar: const FrostedTopBar(title: 'Aide et Guide'),
+      body: ListView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 120, 16, 16),
         children: [
@@ -66,7 +66,6 @@ class HelpScreen extends StatelessWidget {
     IconData icon,
   ) {
     return FrostedCard(
-      borderRadius: 16,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

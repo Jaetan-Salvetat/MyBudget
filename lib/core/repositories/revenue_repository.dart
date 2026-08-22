@@ -30,8 +30,10 @@ class RevenueRepository {
 
   List<RevenueModel> getChain(int rootId) {
     final query = _box
-        .query(RevenueModel_.parentId.equals(rootId) |
-            RevenueModel_.id.equals(rootId))
+        .query(
+          RevenueModel_.parentId.equals(rootId) |
+              RevenueModel_.id.equals(rootId),
+        )
         .build();
     final results = query.find();
     query.close();

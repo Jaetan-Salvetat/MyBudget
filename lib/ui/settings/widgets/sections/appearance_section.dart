@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:mybudget/core/theme/theme_provider.dart';
-import 'package:mybudget/ui/settings/widgets/settings_section.dart';
-import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
 import 'package:mybudget/ui/settings/widgets/theme_bottom_sheet.dart';
 
 class AppearanceSection extends ConsumerWidget {
@@ -14,20 +13,21 @@ class AppearanceSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
 
-    return SettingsSection(
-      title: 'Apparence',
-      children: [
-        SettingsTile(
+    return FrostedListSection(
+      label: 'Apparence',
+      tiles: [
+        FrostedListTile(
           title: 'Thème',
-          subtitle: _getThemeNameFromMode(themeState.themeMode),
-          leading: const Icon(Symbols.brightness_6_rounded),
-          onTap: () => _showThemeSelectionDialog(context, ref, themeState.themeMode),
+          subtitle: _themeName(themeState.themeMode),
+          leading: const FrostedListAvatar(icon: Symbols.brightness_6_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
+          onTap: () => _selectTheme(context, ref, themeState.themeMode),
         ),
       ],
     );
   }
 
-  String _getThemeNameFromMode(ThemeMode mode) {
+  String _themeName(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
         return 'Automatique';
@@ -38,12 +38,12 @@ class AppearanceSection extends ConsumerWidget {
     }
   }
 
-  Future<void> _showThemeSelectionDialog(
+  void _selectTheme(
     BuildContext context,
     WidgetRef ref,
     ThemeMode currentMode,
-  ) async {
-    return ThemeBottomSheet.show(
+  ) {
+    ThemeBottomSheet.show(
       context: context,
       currentMode: currentMode,
       onThemeSelected: (ThemeMode mode) {

@@ -18,7 +18,11 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-BeneficiaryModel _makeBeneficiary({int id = 1, String name = 'Paul', int color = 0xFF42A5F5}) {
+BeneficiaryModel _makeBeneficiary({
+  int id = 1,
+  String name = 'Paul',
+  int color = 0xFF42A5F5,
+}) {
   final b = BeneficiaryModel.create(name: name, color: color);
   b.id = id;
   return b;
@@ -66,11 +70,10 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      expect(container.read(beneficiaryProvider).value!.map((b) => b.name).toList(), [
-        'Alice',
-        'Marc',
-        'Zoé',
-      ]);
+      expect(
+        container.read(beneficiaryProvider).value!.map((b) => b.name).toList(),
+        ['Alice', 'Marc', 'Zoé'],
+      );
     });
 
     test('provider resolves after load', () async {
@@ -87,7 +90,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).addBeneficiary('');
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .addBeneficiary('');
       expect(result, 'Le nom ne peut pas être vide');
       verifyNever(() => mockBeneficiaryRepo.add(any()));
     });
@@ -97,21 +102,25 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).addBeneficiary('   ');
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .addBeneficiary('   ');
       expect(result, 'Le nom ne peut pas être vide');
       verifyNever(() => mockBeneficiaryRepo.add(any()));
     });
 
     test('returns error for duplicate name (case-insensitive)', () async {
-      when(() => mockBeneficiaryRepo.getAll()).thenReturn([
-        _makeBeneficiary(id: 1, name: 'Paul'),
-      ]);
+      when(
+        () => mockBeneficiaryRepo.getAll(),
+      ).thenReturn([_makeBeneficiary(id: 1, name: 'Paul')]);
 
       final container = makeContainer();
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).addBeneficiary('paul');
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .addBeneficiary('paul');
       expect(result, 'Ce bénéficiaire existe déjà');
       verifyNever(() => mockBeneficiaryRepo.add(any()));
     });
@@ -123,7 +132,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).addBeneficiary('Marie');
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .addBeneficiary('Marie');
 
       expect(result, isNull);
       verify(() => mockBeneficiaryRepo.add(any())).called(1);
@@ -136,11 +147,14 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).addBeneficiary('  Marie  ');
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .addBeneficiary('  Marie  ');
 
       expect(result, isNull);
-      final captured =
-          verify(() => mockBeneficiaryRepo.add(captureAny())).captured;
+      final captured = verify(
+        () => mockBeneficiaryRepo.add(captureAny()),
+      ).captured;
       final added = captured.first as BeneficiaryModel;
       expect(added.name, 'Marie');
     });
@@ -165,7 +179,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).deleteBeneficiary(42);
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .deleteBeneficiary(42);
 
       expect(result, contains('1 transaction'));
       verifyNever(() => mockBeneficiaryRepo.delete(any()));
@@ -188,7 +204,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).deleteBeneficiary(42);
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .deleteBeneficiary(42);
 
       expect(result, contains('1 transaction'));
       verifyNever(() => mockBeneficiaryRepo.delete(any()));
@@ -222,7 +240,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).deleteBeneficiary(42);
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .deleteBeneficiary(42);
 
       expect(result, contains('2 transactions'));
     });
@@ -236,7 +256,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = await container.read(beneficiaryProvider.notifier).deleteBeneficiary(42);
+      final result = await container
+          .read(beneficiaryProvider.notifier)
+          .deleteBeneficiary(42);
 
       expect(result, isNull);
       verify(() => mockBeneficiaryRepo.delete(42)).called(1);
@@ -252,7 +274,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = container.read(beneficiaryProvider.notifier).getBeneficiaryById(5);
+      final result = container
+          .read(beneficiaryProvider.notifier)
+          .getBeneficiaryById(5);
 
       expect(result, isNotNull);
       expect(result!.name, 'Alice');
@@ -265,7 +289,9 @@ void main() {
       addTearDown(container.dispose);
       await container.read(beneficiaryProvider.future);
 
-      final result = container.read(beneficiaryProvider.notifier).getBeneficiaryById(99);
+      final result = container
+          .read(beneficiaryProvider.notifier)
+          .getBeneficiaryById(99);
 
       expect(result, isNull);
     });

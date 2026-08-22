@@ -21,8 +21,8 @@ class ExpensesScreen extends StatelessWidget {
 
     if (standalone) {
       return FrostedScaffold(
-        appBar: const FrostedAppBar(title: 'Dépenses'),
-        child: content,
+        appBar: const FrostedTopBar(title: 'Dépenses'),
+        body: content,
       );
     }
 

@@ -17,12 +17,14 @@ class ThemeBottomSheet extends StatelessWidget {
     required ThemeMode currentMode,
     required Function(ThemeMode) onThemeSelected,
   }) {
-    FrostedBottomSheet.show(
+    showFrostedBottomSheet<void>(
       context: context,
-      title: 'Choisir un thème',
-      child: ThemeBottomSheet(
-        currentMode: currentMode,
-        onThemeSelected: onThemeSelected,
+      builder: (_) => FrostedBottomSheet(
+        title: 'Choisir un thème',
+        child: ThemeBottomSheet(
+          currentMode: currentMode,
+          onThemeSelected: onThemeSelected,
+        ),
       ),
     );
   }
@@ -66,31 +68,23 @@ class ThemeBottomSheet extends StatelessWidget {
     final isSelected = currentMode == mode;
 
     return FrostedListTile(
+      title: label,
+      leading: Icon(
+        icon,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+      trailing: isSelected
+          ? Icon(
+              Symbols.check_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            )
+          : null,
       onTap: () {
         onThemeSelected(mode);
         Navigator.pop(context);
       },
-      leading: Icon(
-        icon,
-        color:
-            isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color:
-              isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-      trailing:
-          isSelected
-              ? Icon(Symbols.check_rounded, color: Theme.of(context).colorScheme.primary)
-              : null,
     );
   }
 }

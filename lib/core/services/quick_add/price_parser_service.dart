@@ -39,8 +39,9 @@ abstract final class PriceParserService {
       final value = decPart != null
           ? double.parse('$intPart.$decPart')
           : double.parse(intPart);
-      candidates
-          .add(_PriceMatch(value: value, start: match.start, end: match.end));
+      candidates.add(
+        _PriceMatch(value: value, start: match.start, end: match.end),
+      );
     }
 
     for (final match in _thousandsSepEn.allMatches(input)) {
@@ -50,22 +51,25 @@ abstract final class PriceParserService {
       final value = decPart != null
           ? double.parse('$intPart.$decPart')
           : double.parse(intPart);
-      candidates
-          .add(_PriceMatch(value: value, start: match.start, end: match.end));
+      candidates.add(
+        _PriceMatch(value: value, start: match.start, end: match.end),
+      );
     }
 
     for (final match in _decimalAmount.allMatches(input)) {
       if (_isAlreadyCovered(candidates, match.start, match.end)) continue;
       final value = double.parse('${match.group(1)!}.${match.group(2)!}');
-      candidates
-          .add(_PriceMatch(value: value, start: match.start, end: match.end));
+      candidates.add(
+        _PriceMatch(value: value, start: match.start, end: match.end),
+      );
     }
 
     for (final match in _integerAmount.allMatches(input)) {
       if (_isAlreadyCovered(candidates, match.start, match.end)) continue;
       final value = double.parse(match.group(0)!);
-      candidates
-          .add(_PriceMatch(value: value, start: match.start, end: match.end));
+      candidates.add(
+        _PriceMatch(value: value, start: match.start, end: match.end),
+      );
     }
 
     if (candidates.isEmpty) return null;
@@ -75,7 +79,11 @@ abstract final class PriceParserService {
     return candidates.last;
   }
 
-  static bool _isAlreadyCovered(List<_PriceMatch> existing, int start, int end) {
+  static bool _isAlreadyCovered(
+    List<_PriceMatch> existing,
+    int start,
+    int end,
+  ) {
     return existing.any((m) => start >= m.start && end <= m.end);
   }
 

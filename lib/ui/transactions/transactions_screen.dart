@@ -54,18 +54,16 @@ class TransactionsScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  FrostedControlButton(
+                  FrostedIconButton.tonal(
                     icon: Symbols.add_rounded,
                     onPressed: () => _handleAdd(context, ref),
                   ),
                   const SizedBox(width: 4),
-                  FrostedControlButton(
+                  FrostedIconButton.tonal(
                     icon: Symbols.settings_rounded,
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     ),
                   ),
                 ],
@@ -85,9 +83,8 @@ class TransactionsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _GroupByToggle(
                       value: ref.watch(expensesGroupByProvider),
-                      onChanged: (value) => ref
-                          .read(expensesGroupByProvider.notifier)
-                          .set(value),
+                      onChanged: (value) =>
+                          ref.read(expensesGroupByProvider.notifier).set(value),
                     ),
                   ),
                 ],
@@ -97,9 +94,13 @@ class TransactionsScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: FrostedTabs(
-              tabs: const ['Dépenses', 'Revenus', 'Emprunts'],
-              selectedIndex: selectedTab,
-              onTabSelected: onTabChanged,
+              tabs: const <FrostedTab>[
+                FrostedTab(label: 'Dépenses'),
+                FrostedTab(label: 'Revenus'),
+                FrostedTab(label: 'Emprunts'),
+              ],
+              currentIndex: selectedTab,
+              onTap: onTabChanged,
             ),
           ),
           Expanded(
@@ -208,23 +209,24 @@ class TransactionsScreen extends ConsumerWidget {
   }
 
   void _showNoAccountDialog(BuildContext context, String action) {
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
       barrierDismissible: false,
-      title: const Text('Aucun compte disponible'),
-      content: Text(
-        'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
         ),
-      ],
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }
-
 
 class _GroupByToggle extends StatelessWidget {
   final ExpenseGroupBy value;

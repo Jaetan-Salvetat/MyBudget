@@ -35,9 +35,7 @@ void main() {
       await initPreferences({});
       container = ProviderContainer();
 
-      await container
-          .read(quickAddEnabledProvider.notifier)
-          .setEnabled(false);
+      await container.read(quickAddEnabledProvider.notifier).setEnabled(false);
 
       expect(container.read(quickAddEnabledProvider), isFalse);
     });
@@ -46,9 +44,7 @@ void main() {
       await initPreferences({});
       container = ProviderContainer();
 
-      await container
-          .read(quickAddEnabledProvider.notifier)
-          .setEnabled(false);
+      await container.read(quickAddEnabledProvider.notifier).setEnabled(false);
       container.dispose();
       container = ProviderContainer();
 
@@ -59,9 +55,7 @@ void main() {
       await initPreferences({PreferencesService.keyQuickAddEnabled: false});
       container = ProviderContainer();
 
-      await container
-          .read(quickAddEnabledProvider.notifier)
-          .setEnabled(true);
+      await container.read(quickAddEnabledProvider.notifier).setEnabled(true);
 
       expect(container.read(quickAddEnabledProvider), isTrue);
       expect(PreferencesService.isQuickAddEnabled(), isTrue);

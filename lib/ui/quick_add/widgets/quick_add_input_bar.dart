@@ -11,10 +11,7 @@ const double kQuickAddBlur = 24;
 class QuickAddInputBar extends ConsumerStatefulWidget {
   final VoidCallback onNoAccount;
 
-  const QuickAddInputBar({
-    required this.onNoAccount,
-    super.key,
-  });
+  const QuickAddInputBar({required this.onNoAccount, super.key});
 
   @override
   ConsumerState<QuickAddInputBar> createState() => _QuickAddInputBarState();
@@ -33,7 +30,8 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
 
   void _submit() {
     final state = ref.read(quickAddProvider);
-    final isLocked = state.isLoading ||
+    final isLocked =
+        state.isLoading ||
         state.hasError ||
         (state.hasValue && state.value != null);
     if (isLocked) return;
@@ -62,9 +60,8 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      child: FrostedContainer(
-        borderRadius: BorderRadius.circular(9999),
-        blurStrength: kQuickAddBlur,
+      child: FrostedGlass(
+        borderRadius: BorderRadius.circular(FrostedRadius.full),
         padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
         child: SizedBox(
           height: 48,
@@ -84,8 +81,7 @@ class _QuickAddInputBarState extends ConsumerState<QuickAddInputBar> {
                   decoration: InputDecoration(
                     isCollapsed: true,
                     border: InputBorder.none,
-                    hintText:
-                        'Saisir : « café 3,50 », « netflix 13,99 » …',
+                    hintText: 'Saisir : « café 3,50 », « netflix 13,99 » …',
                     hintStyle: TextStyle(
                       fontSize: 14,
                       height: 20 / 14,

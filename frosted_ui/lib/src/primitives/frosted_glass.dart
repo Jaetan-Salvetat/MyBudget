@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../foundations/frosted_radius.dart';
 import '../theme/frosted_glass_level_spec.dart';
@@ -28,6 +30,7 @@ class FrostedGlass extends StatelessWidget {
     this.level = FrostedGlassLevel.regular,
     this.tone = FrostedGlassTone.auto,
     this.elevation = FrostedGlassElevation.floating,
+    this.borderEdges = FrostedGlassEdge.all,
     this.animation,
   });
 
@@ -37,6 +40,13 @@ class FrostedGlass extends StatelessWidget {
   final FrostedGlassLevel level;
   final FrostedGlassTone tone;
   final FrostedGlassElevation elevation;
+
+  /// Sides that carry the hairline border.
+  ///
+  /// Leave out any side that sits on a screen edge. Subsets other than
+  /// [FrostedGlassEdge.all] or [FrostedGlassEdge.none] require a
+  /// [BorderRadius.zero] radius.
+  final Set<FrostedGlassEdge> borderEdges;
 
   /// Optional 0→1 driver that reveals the material progressively: blur, veil,
   /// border and shadow all scale with the animation value. When null the glass
@@ -80,6 +90,12 @@ class FrostedGlass extends StatelessWidget {
     final BorderRadiusGeometry radius =
         borderRadius ?? BorderRadius.circular(FrostedRadius.xxl);
 
+    assert(
+      _hasUniformBorder || radius == BorderRadius.zero,
+      'Leaving sides out of borderEdges requires BorderRadius.zero: Flutter '
+      'cannot stroke a non-uniform border under a rounded radius.',
+    );
+
     return DecoratedBox(
       decoration: BoxDecoration(borderRadius: radius, boxShadow: shadow),
       child: ClipRRect(
@@ -87,11 +103,9 @@ class FrostedGlass extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Positioned.fill(
-              child: BackdropFilter(
-                filter: _saturatingBlur(
-                  sigma: spec.blurSigma * t,
-                  saturation: lerpDouble(1, glass.saturation, t)!,
-                ),
+              child: _GlassBackdrop(
+                sigma: spec.blurSigma * t,
+                saturation: lerpDouble(1, glass.saturation, t)!,
                 child: ColoredBox(color: veilColor),
               ),
             ),
@@ -100,7 +114,7 @@ class FrostedGlass extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: radius,
-                    border: Border.fromBorderSide(border),
+                    border: _buildBorder(border),
                   ),
                 ),
               ),
@@ -112,6 +126,26 @@ class FrostedGlass extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool get _hasUniformBorder =>
+      borderEdges.length == FrostedGlassEdge.all.length || borderEdges.isEmpty;
+
+  Border _buildBorder(BorderSide side) {
+    if (_hasUniformBorder) {
+      return Border.fromBorderSide(
+        borderEdges.isEmpty ? BorderSide.none : side,
+      );
+    }
+    return Border(
+      top: borderEdges.contains(FrostedGlassEdge.top) ? side : BorderSide.none,
+      bottom:
+          borderEdges.contains(FrostedGlassEdge.bottom) ? side : BorderSide.none,
+      left:
+          borderEdges.contains(FrostedGlassEdge.left) ? side : BorderSide.none,
+      right:
+          borderEdges.contains(FrostedGlassEdge.right) ? side : BorderSide.none,
     );
   }
 
@@ -135,25 +169,130 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
   ];
 }
 
-ImageFilter _saturatingBlur({
-  required double sigma,
-  required double saturation,
-}) {
-  final ImageFilter blur = ImageFilter.blur(
-    sigmaX: sigma,
-    sigmaY: sigma,
-    tileMode: TileMode.decal,
-  );
-  if (saturation == 1.0) return blur;
+/// Blurs the backdrop, then desaturates it the way Apple's vibrancy does.
+///
+/// The blur is *bounded*: its kernel only samples pixels that sit inside the
+/// glass bounds, so no surrounding colour bleeds in and no bright halo forms
+/// along the edges.
+///
+/// Impeller's bounded blur degenerates once the sigma grows past roughly a
+/// third of the bounded region: it collapses the backdrop into a flat fill
+/// instead of blurring it, so the glass reads as opaque. Skia is unaffected,
+/// which hides the problem in widget tests. The sigma is therefore capped
+/// against the surface itself — see [_maxSigmaForBounds].
+class _GlassBackdrop extends SingleChildRenderObjectWidget {
+  const _GlassBackdrop({
+    required this.sigma,
+    required this.saturation,
+    required Widget super.child,
+  });
+
+  final double sigma;
+  final double saturation;
+
+  @override
+  _RenderGlassBackdrop createRenderObject(BuildContext context) {
+    return _RenderGlassBackdrop(sigma: sigma, saturation: saturation);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderGlassBackdrop renderObject,
+  ) {
+    renderObject
+      ..sigma = sigma
+      ..saturation = saturation;
+  }
+}
+
+/// Paints the bounded backdrop blur behind its child.
+///
+/// The bounds a backdrop filter reads are expressed in the coordinate space of
+/// the backdrop it samples — the root of the layer tree — not in the local
+/// paint space the widget sits in. Any compositing layer in between (a repaint
+/// boundary, a transform, the follower layer a [MenuAnchor] overlay hangs
+/// from) resets the local offset to zero, which would aim the bounds at the
+/// top-left of the screen and leave the filter reading nothing at all. The
+/// rect is therefore resolved at paint time through [getTransformTo].
+class _RenderGlassBackdrop extends RenderProxyBox {
+  _RenderGlassBackdrop({required double sigma, required double saturation})
+      : _sigma = sigma,
+        _saturation = saturation;
+
+  double _sigma;
+  double get sigma => _sigma;
+  set sigma(double value) {
+    if (_sigma == value) return;
+    _sigma = value;
+    markNeedsPaint();
+  }
+
+  double _saturation;
+  double get saturation => _saturation;
+  set saturation(double value) {
+    if (_saturation == value) return;
+    _saturation = value;
+    markNeedsPaint();
+  }
+
+  @override
+  BackdropFilterLayer? get layer => super.layer as BackdropFilterLayer?;
+
+  @override
+  bool get alwaysNeedsCompositing => child != null;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child == null) {
+      layer = null;
+      return;
+    }
+    assert(needsCompositing);
+    final BackdropFilterLayer backdrop = layer ?? BackdropFilterLayer();
+    backdrop.filter = _resolveFilter();
+    layer = backdrop;
+    context.pushLayer(backdrop, super.paint, offset);
+  }
+
+  ImageFilter _resolveFilter() {
+    final Rect bounds =
+        MatrixUtils.transformRect(getTransformTo(null), Offset.zero & size);
+    final double effective = min(_sigma, _maxSigmaForBounds(bounds));
+    final ImageFilter blur = ImageFilter.blur(
+      sigmaX: effective,
+      sigmaY: effective,
+      tileMode: TileMode.clamp,
+      bounds: bounds,
+    );
+    if (_saturation == 1) return blur;
+    return ImageFilter.compose(outer: blur, inner: _saturate(_saturation));
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('sigma', sigma));
+    properties.add(DoubleProperty('saturation', saturation));
+  }
+}
+
+/// Measured against Impeller: a bounded blur tracks Skia while the sigma stays
+/// at or below a third of the shortest bounded span, and collapses beyond it.
+const double _kSigmaToShortestSide = 3;
+
+double _maxSigmaForBounds(Rect bounds) =>
+    bounds.shortestSide / _kSigmaToShortestSide;
+
+ColorFilter _saturate(double saturation) {
   final double s = saturation;
   final double r = 0.213 * (1 - s);
   final double g = 0.715 * (1 - s);
   final double b = 0.072 * (1 - s);
-  final ColorFilter saturate = ColorFilter.matrix(<double>[
+  return ColorFilter.matrix(<double>[
     r + s, g, b, 0, 0,
     r, g + s, b, 0, 0,
     r, g, b + s, 0, 0,
     0, 0, 0, 1, 0,
   ]);
-  return ImageFilter.compose(outer: saturate, inner: blur);
 }

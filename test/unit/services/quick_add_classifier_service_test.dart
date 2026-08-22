@@ -119,20 +119,22 @@ void main() {
       verify(() => tokenizer.encode('netflix')).called(1);
     });
 
-    test('falls back to the subcategory label when text is only an amount',
-        () async {
-      when(() => runner.run(any())).thenAnswer(
-        (_) async => outputFor(
-          typeIndex: 0,
-          category: 'restauration.cafe',
-          recurrenceIndex: 0,
-        ),
-      );
+    test(
+      'falls back to the subcategory label when text is only an amount',
+      () async {
+        when(() => runner.run(any())).thenAnswer(
+          (_) async => outputFor(
+            typeIndex: 0,
+            category: 'restauration.cafe',
+            recurrenceIndex: 0,
+          ),
+        );
 
-      final result = await classifier.classify('20€');
+        final result = await classifier.classify('20€');
 
-      expect(result.name, 'Café');
-    });
+        expect(result.name, 'Café');
+      },
+    );
 
     test('exposes the runner-up categories as suggestions', () async {
       when(() => runner.run(any())).thenAnswer(
@@ -145,8 +147,10 @@ void main() {
 
       final result = await classifier.classify('resto 25');
 
-      expect(result.categorySuggestions,
-          ['restauration.restaurant', 'restauration.bar']);
+      expect(result.categorySuggestions, [
+        'restauration.restaurant',
+        'restauration.bar',
+      ]);
     });
 
     test('reports model confidences', () async {

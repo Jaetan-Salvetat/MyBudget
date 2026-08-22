@@ -47,8 +47,8 @@ class CategoryDisplayResolver {
   const CategoryDisplayResolver({
     required CategoryTaxonomyService taxonomy,
     required Map<String, CategoryOverrideModel> overrides,
-  })  : _taxonomy = taxonomy,
-        _overrides = overrides;
+  }) : _taxonomy = taxonomy,
+       _overrides = overrides;
 
   /// Resolves a leaf slug, or null when it is unknown.
   CategoryDisplay? resolve(String slug) {
@@ -100,14 +100,14 @@ class CategoryDisplayResolver {
       (slug == null ? null : groupKeyOf(slug)) ?? uncategorizedKey;
 
   CategoryDisplay uncategorized(TransactionType type) => CategoryDisplay(
-        slug: uncategorizedKey,
-        label: uncategorizedLabel,
-        icon: uncategorizedIcon,
-        color: uncategorizedColor,
-        groupKey: uncategorizedKey,
-        groupLabel: uncategorizedLabel,
-        type: type,
-      );
+    slug: uncategorizedKey,
+    label: uncategorizedLabel,
+    icon: uncategorizedIcon,
+    color: uncategorizedColor,
+    groupKey: uncategorizedKey,
+    groupLabel: uncategorizedLabel,
+    type: type,
+  );
 
   /// Group key owning [slug], or null when the slug is unknown.
   ///
@@ -149,7 +149,9 @@ class CategoryDisplayResolver {
   }
 
   List<CategoryDisplay> childrenOf(String groupKey) =>
-      _taxonomy.group(groupKey)?.selectableChildren
+      _taxonomy
+          .group(groupKey)
+          ?.selectableChildren
           .map((child) => resolve(child.slug)!)
           .toList() ??
       const [];

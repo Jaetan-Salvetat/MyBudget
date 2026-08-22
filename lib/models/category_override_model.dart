@@ -26,8 +26,8 @@ class CategoryOverrideModel {
     String? name,
     String? icon,
     this.color,
-  })  : name = _normalizeName(name),
-        icon = CategoryDefaults.canonicalIconKey(icon);
+  }) : name = _normalizeName(name),
+       icon = CategoryDefaults.canonicalIconKey(icon);
 
   factory CategoryOverrideModel.fromJson(Map<String, dynamic> json) {
     final model = CategoryOverrideModel()
@@ -45,12 +45,12 @@ class CategoryOverrideModel {
   bool get isEmpty => name == null && icon == null && color == null;
 
   Map<String, dynamic> toJson() => {
-        'id': id.toString(),
-        'slug': slug,
-        'name': name,
-        'icon': icon,
-        'color': color,
-      };
+    'id': id.toString(),
+    'slug': slug,
+    'name': name,
+    'icon': icon,
+    'color': color,
+  };
 
   static String? _normalizeName(String? value) {
     final trimmed = value?.trim();

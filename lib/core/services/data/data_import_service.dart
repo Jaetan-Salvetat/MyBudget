@@ -56,10 +56,12 @@ class DataImportService {
           final json = Map<String, dynamic>.from(item as Map);
           final oldId = int.tryParse(json['id'].toString()) ?? 0;
           json['id'] = '0';
-          beneficiaries.add(ParsedBeneficiary(
-            oldId: oldId,
-            model: BeneficiaryModel.fromJson(json),
-          ));
+          beneficiaries.add(
+            ParsedBeneficiary(
+              oldId: oldId,
+              model: BeneficiaryModel.fromJson(json),
+            ),
+          );
         } catch (e) {
           errors.add('Bénéficiaire invalide : $e');
         }
@@ -72,10 +74,9 @@ class DataImportService {
           final json = Map<String, dynamic>.from(item as Map);
           final oldId = int.tryParse(json['id'].toString()) ?? 0;
           json['id'] = '0';
-          accounts.add(ParsedAccount(
-            oldId: oldId,
-            model: AccountModel.fromJson(json),
-          ));
+          accounts.add(
+            ParsedAccount(oldId: oldId, model: AccountModel.fromJson(json)),
+          );
         } catch (e) {
           errors.add('Compte invalide : $e');
         }
@@ -87,9 +88,9 @@ class DataImportService {
         try {
           final json = Map<String, dynamic>.from(item as Map);
           json['id'] = '0';
-          categoryOverrides.add(ParsedCategoryOverride(
-            model: CategoryOverrideModel.fromJson(json),
-          ));
+          categoryOverrides.add(
+            ParsedCategoryOverride(model: CategoryOverrideModel.fromJson(json)),
+          );
         } catch (e) {
           errors.add('Personnalisation de catégorie invalide : $e');
         }
@@ -99,11 +100,13 @@ class DataImportService {
     if (data['categoryMemory'] is List) {
       for (final item in data['categoryMemory'] as List) {
         try {
-          categoryMemory.add(ParsedCategoryMemory(
-            model: CategoryMemoryModel.fromJson(
-              Map<String, dynamic>.from(item as Map),
+          categoryMemory.add(
+            ParsedCategoryMemory(
+              model: CategoryMemoryModel.fromJson(
+                Map<String, dynamic>.from(item as Map),
+              ),
             ),
-          ));
+          );
         } catch (e) {
           errors.add('Mémoire de catégorie invalide : $e');
         }
@@ -115,21 +118,24 @@ class DataImportService {
         try {
           final json = Map<String, dynamic>.from(item as Map);
           final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldAccountId =
-              int.tryParse(json['accountId']?.toString() ?? '');
-          final oldBeneficiaryId =
-              int.tryParse(json['beneficiaryId']?.toString() ?? '');
-          final oldParentId =
-              int.tryParse(json['parentId']?.toString() ?? '');
+          final oldAccountId = int.tryParse(
+            json['accountId']?.toString() ?? '',
+          );
+          final oldBeneficiaryId = int.tryParse(
+            json['beneficiaryId']?.toString() ?? '',
+          );
+          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
           json['parentId'] = null;
-          expenses.add(ParsedExpense(
-            oldId: oldId,
-            model: ExpenseModel.fromJson(json),
-            oldAccountId: oldAccountId,
-            oldBeneficiaryId: oldBeneficiaryId,
-            oldParentId: oldParentId,
-          ));
+          expenses.add(
+            ParsedExpense(
+              oldId: oldId,
+              model: ExpenseModel.fromJson(json),
+              oldAccountId: oldAccountId,
+              oldBeneficiaryId: oldBeneficiaryId,
+              oldParentId: oldParentId,
+            ),
+          );
         } catch (e) {
           errors.add('Dépense invalide : $e');
         }
@@ -141,21 +147,24 @@ class DataImportService {
         try {
           final json = Map<String, dynamic>.from(item as Map);
           final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldAccountId =
-              int.tryParse(json['accountId']?.toString() ?? '');
-          final oldBeneficiaryId =
-              int.tryParse(json['beneficiaryId']?.toString() ?? '');
-          final oldParentId =
-              int.tryParse(json['parentId']?.toString() ?? '');
+          final oldAccountId = int.tryParse(
+            json['accountId']?.toString() ?? '',
+          );
+          final oldBeneficiaryId = int.tryParse(
+            json['beneficiaryId']?.toString() ?? '',
+          );
+          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
           json['parentId'] = null;
-          revenues.add(ParsedRevenue(
-            oldId: oldId,
-            model: RevenueModel.fromJson(json),
-            oldAccountId: oldAccountId,
-            oldBeneficiaryId: oldBeneficiaryId,
-            oldParentId: oldParentId,
-          ));
+          revenues.add(
+            ParsedRevenue(
+              oldId: oldId,
+              model: RevenueModel.fromJson(json),
+              oldAccountId: oldAccountId,
+              oldBeneficiaryId: oldBeneficiaryId,
+              oldParentId: oldParentId,
+            ),
+          );
         } catch (e) {
           errors.add('Revenu invalide : $e');
         }
@@ -170,10 +179,12 @@ class DataImportService {
             (json['accountId'] ?? json['account_id'] ?? '').toString(),
           );
           json['id'] = '0';
-          loans.add(ParsedLoan(
-            model: LoanModel.fromJson(json),
-            oldAccountId: oldAccountId,
-          ));
+          loans.add(
+            ParsedLoan(
+              model: LoanModel.fromJson(json),
+              oldAccountId: oldAccountId,
+            ),
+          );
         } catch (e) {
           errors.add('Emprunt invalide : $e');
         }
@@ -185,21 +196,24 @@ class DataImportService {
         try {
           final json = Map<String, dynamic>.from(item as Map);
           final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldFromAccountId =
-              int.tryParse(json['fromAccountId']?.toString() ?? '');
-          final oldToAccountId =
-              int.tryParse(json['toAccountId']?.toString() ?? '');
-          final oldParentId =
-              int.tryParse(json['parentId']?.toString() ?? '');
+          final oldFromAccountId = int.tryParse(
+            json['fromAccountId']?.toString() ?? '',
+          );
+          final oldToAccountId = int.tryParse(
+            json['toAccountId']?.toString() ?? '',
+          );
+          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
           json['id'] = '0';
           json['parentId'] = null;
-          transfers.add(ParsedTransfer(
-            oldId: oldId,
-            model: TransferModel.fromJson(json),
-            oldFromAccountId: oldFromAccountId,
-            oldToAccountId: oldToAccountId,
-            oldParentId: oldParentId,
-          ));
+          transfers.add(
+            ParsedTransfer(
+              oldId: oldId,
+              model: TransferModel.fromJson(json),
+              oldFromAccountId: oldFromAccountId,
+              oldToAccountId: oldToAccountId,
+              oldParentId: oldParentId,
+            ),
+          );
         } catch (e) {
           errors.add('Virement invalide : $e');
         }
@@ -257,14 +271,10 @@ class DataImportService {
     );
 
     reportProgress('Importation des comptes...');
-    final accountReport = _importAccounts(
-      validated.accounts,
-      accountIdMap,
-      () {
-        processedItems++;
-        reportProgress('Importation des comptes...');
-      },
-    );
+    final accountReport = _importAccounts(validated.accounts, accountIdMap, () {
+      processedItems++;
+      reportProgress('Importation des comptes...');
+    });
 
     reportProgress('Importation des catégories...');
     final categoryReport = _importCategoryOverrides(
@@ -302,14 +312,10 @@ class DataImportService {
     );
 
     reportProgress('Importation des emprunts...');
-    final loanReport = _importLoans(
-      validated.loans,
-      accountIdMap,
-      () {
-        processedItems++;
-        reportProgress('Importation des emprunts...');
-      },
-    );
+    final loanReport = _importLoans(validated.loans, accountIdMap, () {
+      processedItems++;
+      reportProgress('Importation des emprunts...');
+    });
 
     reportProgress('Importation des virements...');
     final transferReport = _importTransfers(
