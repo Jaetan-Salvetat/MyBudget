@@ -35,26 +35,46 @@ class FrostedMenuEntry {
 ///
 /// Internal to the library; not exported.
 class FrostedMenuPanel extends StatelessWidget {
-  const FrostedMenuPanel({required this.entries, this.width, super.key});
+  const FrostedMenuPanel({
+    required this.entries,
+    this.width,
+    this.maxHeight,
+    this.borderRadius,
+    super.key,
+  });
 
   final List<FrostedMenuEntry> entries;
   final double? width;
+
+  /// Ceiling on the panel height. Past it the rows scroll.
+  final double? maxHeight;
+
+  /// Corner shape. Anchored menus flatten the edge they share with their
+  /// field so the pair reads as one surface instead of two stacked cards.
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
+    final Widget rows = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (final FrostedMenuEntry entry in entries) _MenuRow(entry: entry),
+      ],
+    );
+
     final Widget panel = FrostedGlass(
       level: FrostedGlassLevel.regular,
-      elevation: FrostedGlassElevation.lifted,
-      borderRadius: BorderRadius.circular(FrostedRadius.md),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          for (final FrostedMenuEntry entry in entries) _MenuRow(entry: entry),
-        ],
-      ),
+      elevation: FrostedGlassElevation.none,
+      borderRadius: borderRadius ?? BorderRadius.circular(FrostedRadius.md),
+      child: maxHeight == null
+          ? rows
+          : ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight!),
+              child: SingleChildScrollView(primary: false, child: rows),
+            ),
     );
 
     return TweenAnimationBuilder<double>(

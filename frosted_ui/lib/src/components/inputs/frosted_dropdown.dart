@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
@@ -49,14 +52,49 @@ class FrostedDropdown<T> extends StatefulWidget {
 }
 
 class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
+  static const Radius _corner = Radius.circular(FrostedRadius.md);
+  static const double _viewportMargin = FrostedSpacing.sp4;
+
   final MenuController _controller = MenuController();
   final GlobalKey _fieldKey = GlobalKey();
   bool _open = false;
+  double? _menuMaxHeight;
 
   double? get _fieldWidth {
     final RenderBox? box =
         _fieldKey.currentContext?.findRenderObject() as RenderBox?;
     return box?.size.width;
+  }
+
+  static const BorderRadius _closedRadius = BorderRadius.all(_corner);
+  static const BorderRadius _fieldOpenRadius = BorderRadius.vertical(
+    top: _corner,
+  );
+  static const BorderRadius _panelRadius = BorderRadius.vertical(
+    bottom: _corner,
+  );
+
+  /// Caps the menu at the room left under the field.
+  ///
+  /// [MenuAnchor] flips the menu above its anchor as soon as it overflows the
+  /// viewport, which would leave the flattened corners on the wrong sides.
+  /// A menu that always fits below never flips.
+  void _measureRoomBelow() {
+    final RenderBox? box =
+        _fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+
+    final MediaQueryData media = MediaQuery.of(context);
+    final double obstructed = math.max(
+      media.viewPadding.bottom,
+      media.viewInsets.bottom,
+    );
+    final double fieldBottom = box.localToGlobal(Offset.zero).dy + box.size.height;
+
+    _menuMaxHeight = math.max(
+      0,
+      media.size.height - obstructed - _viewportMargin - fieldBottom,
+    );
   }
 
   FrostedDropdownItem<T>? get _selected {
@@ -70,6 +108,7 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
     if (_controller.isOpen) {
       _controller.close();
     } else {
+      _measureRoomBelow();
       _controller.open();
     }
     setState(() => _open = _controller.isOpen);
@@ -99,7 +138,7 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
         ],
         MenuAnchor(
           controller: _controller,
-          style: const MenuStyle(
+              style: const MenuStyle(
             backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
             elevation: WidgetStatePropertyAll<double>(0),
             padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
@@ -110,6 +149,8 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
           menuChildren: <Widget>[
             FrostedMenuPanel(
               width: _fieldWidth,
+              maxHeight: _menuMaxHeight,
+              borderRadius: _panelRadius,
               entries: <FrostedMenuEntry>[
                 for (final FrostedDropdownItem<T> item in widget.items)
                   FrostedMenuEntry(
@@ -131,10 +172,11 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
                   onTap: enabled ? _toggle : null,
                   behavior: HitTestBehavior.opaque,
                   child: FrostedFieldSurface(
-                    focused: _open,
+                    focused: false,
                     hasError: false,
                     enabled: enabled,
                     glass: widget.glass,
+                    borderRadius: _open ? _fieldOpenRadius : _closedRadius,
                     padding: const EdgeInsets.symmetric(
                       horizontal: FrostedSpacing.sp4,
                       vertical: FrostedSpacing.sp3,
