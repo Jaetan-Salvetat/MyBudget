@@ -44,7 +44,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'b846fbaaf87d48dafe5cd8acaad0e603dec46a50';
+String _$scanNotifierHash() => r'6cbf734dd28230682ff05bc67cea9bb08d9a84d9';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {

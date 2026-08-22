@@ -273,6 +273,59 @@ final class HasStoredApiKeyProvider
 
 String _$hasStoredApiKeyHash() => r'c3bd7ffc5feaf55cb2c745b2952d6dfde4661659';
 
+/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
+/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
+/// sans avoir à ouvrir les réglages.
+
+@ProviderFor(quickAddUsesRemote)
+final quickAddUsesRemoteProvider = QuickAddUsesRemoteProvider._();
+
+/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
+/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
+/// sans avoir à ouvrir les réglages.
+
+final class QuickAddUsesRemoteProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  /// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
+  /// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
+  /// sans avoir à ouvrir les réglages.
+  QuickAddUsesRemoteProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'quickAddUsesRemoteProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$quickAddUsesRemoteHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return quickAddUsesRemote(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$quickAddUsesRemoteHash() =>
+    r'bfd386d9c34851a3785caf377a19e143af04607e';
+
 /// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
 /// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 

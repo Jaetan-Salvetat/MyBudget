@@ -183,4 +183,53 @@ void main() {
       expect(container.read(apiKeyServiceProvider), isA<ApiKeyService>());
     });
   });
+
+  group('quickAddUsesRemote', () {
+    setUp(() => FlutterSecureStorage.setMockInitialValues(<String, String>{}));
+
+    test('is false while the engine stays on device', () async {
+      await initPreferences({});
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
+      container = ProviderContainer();
+      await container.read(hasStoredApiKeyProvider.future);
+
+      expect(container.read(quickAddUsesRemoteProvider), isFalse);
+    });
+
+    test('is false when the mode is set but no key is stored', () async {
+      await initPreferences({
+        PreferencesService.keyQuickAddEngineMode: QuickAddEngineMode.apiKey.id,
+      });
+      container = ProviderContainer();
+      await container.read(hasStoredApiKeyProvider.future);
+
+      expect(container.read(quickAddUsesRemoteProvider), isFalse);
+    });
+
+    test('is true once the mode and the key are both in place', () async {
+      await initPreferences({
+        PreferencesService.keyQuickAddEngineMode: QuickAddEngineMode.apiKey.id,
+      });
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
+      container = ProviderContainer();
+      await container.read(hasStoredApiKeyProvider.future);
+
+      expect(container.read(quickAddUsesRemoteProvider), isTrue);
+    });
+
+    test('falls back to false as soon as the engine degrades', () async {
+      await initPreferences({
+        PreferencesService.keyQuickAddEngineMode: QuickAddEngineMode.apiKey.id,
+      });
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
+      container = ProviderContainer();
+      await container.read(hasStoredApiKeyProvider.future);
+
+      await container
+          .read(quickAddDegradationProvider.notifier)
+          .reportFailure(AiRequestFailure.invalidKey);
+
+      expect(container.read(quickAddUsesRemoteProvider), isFalse);
+    });
+  });
 }

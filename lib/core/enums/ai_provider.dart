@@ -5,7 +5,7 @@ enum AiProvider {
     id: 'gemini',
     label: 'Google Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    model: 'gemini-2.0-flash-lite',
+    model: 'gemini-3.7-flash',
     keyPattern: r'^AIza[0-9A-Za-z_-]{35}$',
     keyFormatHint: 'Une clé Google AI commence par AIza et fait 39 caractères.',
     keyPlaceholder: 'AIza…',

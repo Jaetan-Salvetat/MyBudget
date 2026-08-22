@@ -61,6 +61,18 @@ Future<bool> hasStoredApiKey(Ref ref) {
   return ref.watch(apiKeyServiceProvider).has(provider);
 }
 
+/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
+/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
+/// sans avoir à ouvrir les réglages.
+@Riverpod(keepAlive: true)
+bool quickAddUsesRemote(Ref ref) {
+  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
+    return false;
+  }
+  if (ref.watch(quickAddDegradationProvider)) return false;
+  return ref.watch(hasStoredApiKeyProvider).value ?? false;
+}
+
 /// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
 /// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 @Riverpod(keepAlive: true)
