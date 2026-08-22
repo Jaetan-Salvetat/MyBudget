@@ -123,63 +123,70 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
             color: fill,
             borderRadius: _shape(s, header: true),
           ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: _headerHeight),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FrostedSpacing.sp4,
-                vertical: FrostedSpacing.sp2,
-              ),
-              child: Row(
-                children: <Widget>[
-                  if (widget.leading != null) ...<Widget>[
-                    IconTheme.merge(
-                      data: IconThemeData(color: cs.onSurfaceVariant, size: 24),
-                      child: widget.leading!,
-                    ),
-                    const SizedBox(width: FrostedSpacing.sp4),
-                  ],
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          widget.title,
-                          style: FrostedTypeScale.bodyLarge.copyWith(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+          child: s.ink(
+            color: cs.onSurface,
+            borderRadius: _shape(s, header: true),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: _headerHeight),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp4,
+                  vertical: FrostedSpacing.sp2,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    if (widget.leading != null) ...<Widget>[
+                      IconTheme.merge(
+                        data: IconThemeData(
+                          color: cs.onSurfaceVariant,
+                          size: 24,
                         ),
-                        if (widget.subtitle != null) ...<Widget>[
-                          const SizedBox(height: 2),
+                        child: widget.leading!,
+                      ),
+                      const SizedBox(width: FrostedSpacing.sp4),
+                    ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
                           Text(
-                            widget.subtitle!,
-                            style: FrostedTypeScale.bodySmall.copyWith(
-                              color: cs.onSurfaceVariant,
+                            widget.title,
+                            style: FrostedTypeScale.bodyLarge.copyWith(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (widget.subtitle != null) ...<Widget>[
+                            const SizedBox(height: 2),
+                            Text(
+                              widget.subtitle!,
+                              style: FrostedTypeScale.bodySmall.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: FrostedSpacing.sp4),
-                  AnimatedRotation(
-                    duration: motion.duration,
-                    curve: motion.curve,
-                    turns: _expanded ? 0.5 : 0,
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 24,
-                      color: cs.onSurfaceVariant,
+                    const SizedBox(width: FrostedSpacing.sp4),
+                    AnimatedRotation(
+                      duration: motion.duration,
+                      curve: motion.curve,
+                      turns: _expanded ? 0.5 : 0,
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 24,
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -190,10 +197,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
     final Widget body = DecoratedBox(
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
-        borderRadius: _shape(
-          InteractionStates.inert,
-          header: false,
-        ),
+        borderRadius: _shape(InteractionStates.inert, header: false),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(

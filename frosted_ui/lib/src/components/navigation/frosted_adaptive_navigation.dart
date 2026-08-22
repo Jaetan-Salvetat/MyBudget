@@ -62,8 +62,8 @@ class FrostedAdaptiveNavigation extends StatelessWidget {
           );
         }
 
-        final Widget leading = width >= FrostedBreakpoints.expanded &&
-                sidebar != null
+        final Widget leading =
+            width >= FrostedBreakpoints.expanded && sidebar != null
             ? sidebar!
             : FrostedNavigationRail(
                 items: items,

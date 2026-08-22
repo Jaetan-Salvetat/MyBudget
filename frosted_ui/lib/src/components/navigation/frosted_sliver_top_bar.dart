@@ -82,8 +82,9 @@ class _Delegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final double range = maxExtent - minExtent;
-    final double progress =
-        range <= 0 ? 1.0 : (shrinkOffset / range).clamp(0.0, 1.0);
+    final double progress = range <= 0
+        ? 1.0
+        : (shrinkOffset / range).clamp(0.0, 1.0);
     final TextTheme text = Theme.of(context).textTheme;
 
     return FrostedGlass(
@@ -108,14 +109,16 @@ class _Delegate extends SliverPersistentHeaderDelegate {
                     leading ?? const SizedBox(width: 44),
                     Expanded(
                       child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: FrostedSpacing.sp2),
+                        padding: const EdgeInsets.only(
+                          left: FrostedSpacing.sp2,
+                        ),
                         child: Opacity(
                           opacity: progress,
                           child: Text(
                             title,
-                            style: text.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
+                            style: text.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -130,8 +133,10 @@ class _Delegate extends SliverPersistentHeaderDelegate {
             ),
             if (progress < 1.0)
               SizedBox(
-                height:
-                    (largeTitleHeight - shrinkOffset).clamp(0.0, largeTitleHeight),
+                height: (largeTitleHeight - shrinkOffset).clamp(
+                  0.0,
+                  largeTitleHeight,
+                ),
                 child: ClipRect(
                   child: OverflowBox(
                     minHeight: 0,

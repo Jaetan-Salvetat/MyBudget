@@ -75,8 +75,9 @@ class FrostedGlass extends StatelessWidget {
 
     final double veilAlpha =
         (isDark ? spec.darkVeilOpacity : spec.lightVeilOpacity) * t;
-    final Color veilColor =
-        (isDark ? Colors.black : Colors.white).withValues(alpha: veilAlpha);
+    final Color veilColor = (isDark ? Colors.black : Colors.white).withValues(
+      alpha: veilAlpha,
+    );
     final BorderSide base = isDark ? glass.darkBorder : glass.lightBorder;
     final BorderSide border = base.copyWith(
       color: base.color.withValues(alpha: base.color.a * t),
@@ -140,12 +141,15 @@ class FrostedGlass extends StatelessWidget {
     }
     return Border(
       top: borderEdges.contains(FrostedGlassEdge.top) ? side : BorderSide.none,
-      bottom:
-          borderEdges.contains(FrostedGlassEdge.bottom) ? side : BorderSide.none,
-      left:
-          borderEdges.contains(FrostedGlassEdge.left) ? side : BorderSide.none,
-      right:
-          borderEdges.contains(FrostedGlassEdge.right) ? side : BorderSide.none,
+      bottom: borderEdges.contains(FrostedGlassEdge.bottom)
+          ? side
+          : BorderSide.none,
+      left: borderEdges.contains(FrostedGlassEdge.left)
+          ? side
+          : BorderSide.none,
+      right: borderEdges.contains(FrostedGlassEdge.right)
+          ? side
+          : BorderSide.none,
     );
   }
 
@@ -165,7 +169,9 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
   if (t >= 1) return shadows;
   return <BoxShadow>[
     for (final BoxShadow shadow in shadows)
-      shadow.copyWith(color: shadow.color.withValues(alpha: shadow.color.a * t)),
+      shadow.copyWith(
+        color: shadow.color.withValues(alpha: shadow.color.a * t),
+      ),
   ];
 }
 
@@ -217,8 +223,8 @@ class _GlassBackdrop extends SingleChildRenderObjectWidget {
 /// rect is therefore resolved at paint time through [getTransformTo].
 class _RenderGlassBackdrop extends RenderProxyBox {
   _RenderGlassBackdrop({required double sigma, required double saturation})
-      : _sigma = sigma,
-        _saturation = saturation;
+    : _sigma = sigma,
+      _saturation = saturation;
 
   double _sigma;
   double get sigma => _sigma;
@@ -256,8 +262,10 @@ class _RenderGlassBackdrop extends RenderProxyBox {
   }
 
   ImageFilter _resolveFilter() {
-    final Rect bounds =
-        MatrixUtils.transformRect(getTransformTo(null), Offset.zero & size);
+    final Rect bounds = MatrixUtils.transformRect(
+      getTransformTo(null),
+      Offset.zero & size,
+    );
     final double effective = min(_sigma, _maxSigmaForBounds(bounds));
     final ImageFilter blur = ImageFilter.blur(
       sigmaX: effective,
@@ -290,9 +298,25 @@ ColorFilter _saturate(double saturation) {
   final double g = 0.715 * (1 - s);
   final double b = 0.072 * (1 - s);
   return ColorFilter.matrix(<double>[
-    r + s, g, b, 0, 0,
-    r, g + s, b, 0, 0,
-    r, g, b + s, 0, 0,
-    0, 0, 0, 1, 0,
+    r + s,
+    g,
+    b,
+    0,
+    0,
+    r,
+    g + s,
+    b,
+    0,
+    0,
+    r,
+    g,
+    b + s,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
   ]);
 }

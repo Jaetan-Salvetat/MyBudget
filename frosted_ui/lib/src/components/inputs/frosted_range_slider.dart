@@ -38,14 +38,15 @@ class FrostedRangeSlider extends StatelessWidget {
         inactiveTrackColor: cs.surfaceContainerHighest,
         thumbColor: cs.primary,
         rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
-        rangeThumbShape:
-            const RoundRangeSliderThumbShape(enabledThumbRadius: _knobRadius),
+        rangeThumbShape: const RoundRangeSliderThumbShape(
+          enabledThumbRadius: _knobRadius,
+        ),
         overlayColor: cs.primary.withValues(alpha: 0.12),
         valueIndicatorColor: cs.inverseSurface,
-        valueIndicatorTextStyle: FrostedTypeScale.labelMedium
-            .copyWith(color: cs.onInverseSurface),
-        rangeValueIndicatorShape:
-            const PaddleRangeSliderValueIndicatorShape(),
+        valueIndicatorTextStyle: FrostedTypeScale.labelMedium.copyWith(
+          color: cs.onInverseSurface,
+        ),
+        rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
         showValueIndicator: ShowValueIndicator.onlyForDiscrete,
       ),
       child: RangeSlider(

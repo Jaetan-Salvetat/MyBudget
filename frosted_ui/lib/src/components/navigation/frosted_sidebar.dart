@@ -5,6 +5,7 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
+import '../actions/_interactive_surface.dart';
 import 'frosted_badge.dart';
 import 'frosted_sidebar_section.dart';
 
@@ -116,8 +117,9 @@ class _Section extends StatelessWidget {
             ),
             child: Text(
               section.title!.toUpperCase(),
-              style: FrostedTypeScale.labelSmall
-                  .copyWith(color: cs.onSurfaceVariant),
+              style: FrostedTypeScale.labelSmall.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -154,34 +156,38 @@ class _Item extends StatelessWidget {
           )
         : Icon(item.icon, size: 18, color: fg);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: item.onTap,
-        borderRadius: BorderRadius.circular(FrostedRadius.sm),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(FrostedRadius.sm),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp2,
-            vertical: FrostedSpacing.sp2,
-          ),
-          child: Row(
-            children: <Widget>[
-              leading,
-              const SizedBox(width: FrostedSpacing.sp2),
-              Expanded(
-                child: Text(
-                  item.label,
-                  style: FrostedTypeScale.labelLarge.copyWith(color: fg),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+    return InteractiveSurface(
+      onTap: item.onTap,
+      semanticsLabel: item.label,
+      semanticsSelected: selected,
+      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(FrostedRadius.sm),
+        ),
+        child: s.ink(
+          color: fg,
+          borderRadius: BorderRadius.circular(FrostedRadius.sm),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FrostedSpacing.sp2,
+              vertical: FrostedSpacing.sp2,
+            ),
+            child: Row(
+              children: <Widget>[
+                leading,
+                const SizedBox(width: FrostedSpacing.sp2),
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              if (item.badge != null) FrostedBadgeView(badge: item.badge!),
-            ],
+                if (item.badge != null) FrostedBadgeView(badge: item.badge!),
+              ],
+            ),
           ),
         ),
       ),

@@ -104,8 +104,7 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
             elevation: WidgetStatePropertyAll<double>(0),
             padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.zero),
             shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
-            surfaceTintColor:
-                WidgetStatePropertyAll<Color>(Colors.transparent),
+            surfaceTintColor: WidgetStatePropertyAll<Color>(Colors.transparent),
           ),
           onClose: () => setState(() => _open = false),
           menuChildren: <Widget>[
@@ -125,49 +124,50 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
               ],
             ),
           ],
-          builder: (BuildContext context, MenuController controller, Widget? _) {
-            return GestureDetector(
-              key: _fieldKey,
-              onTap: enabled ? _toggle : null,
-              behavior: HitTestBehavior.opaque,
-              child: FrostedFieldSurface(
-                focused: _open,
-                hasError: false,
-                enabled: enabled,
-                glass: widget.glass,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: FrostedSpacing.sp4,
-                  vertical: FrostedSpacing.sp3,
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        selected?.label ?? widget.hintText ?? '',
-                        style: FrostedTypeScale.bodyLarge.copyWith(
-                          color: selected == null
-                              ? cs.onSurfaceVariant
-                              : cs.onSurface,
+          builder:
+              (BuildContext context, MenuController controller, Widget? _) {
+                return GestureDetector(
+                  key: _fieldKey,
+                  onTap: enabled ? _toggle : null,
+                  behavior: HitTestBehavior.opaque,
+                  child: FrostedFieldSurface(
+                    focused: _open,
+                    hasError: false,
+                    enabled: enabled,
+                    glass: widget.glass,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: FrostedSpacing.sp4,
+                      vertical: FrostedSpacing.sp3,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            selected?.label ?? widget.hintText ?? '',
+                            style: FrostedTypeScale.bodyLarge.copyWith(
+                              color: selected == null
+                                  ? cs.onSurfaceVariant
+                                  : cs.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        AnimatedRotation(
+                          duration: motion.duration,
+                          curve: motion.curve,
+                          turns: _open ? 0.5 : 0,
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 22,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    AnimatedRotation(
-                      duration: motion.duration,
-                      curve: motion.curve,
-                      turns: _open ? 0.5 : 0,
-                      child: Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 22,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+                  ),
+                );
+              },
         ),
       ],
     );

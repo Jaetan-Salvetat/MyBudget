@@ -121,44 +121,45 @@ class _SnackbarHostState extends State<_SnackbarHost>
             child: Material(
               type: MaterialType.transparency,
               child: FrostedGlass(
-              level: FrostedGlassLevel.thick,
-              elevation: FrostedGlassElevation.lifted,
-              borderRadius: BorderRadius.circular(FrostedRadius.md),
-              padding: EdgeInsets.only(
-                left: FrostedSpacing.sp4,
-                right: widget.actionLabel != null
-                    ? FrostedSpacing.sp2
-                    : FrostedSpacing.sp4,
-                top: FrostedSpacing.sp2,
-                bottom: FrostedSpacing.sp2,
-              ),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: FrostedSpacing.sp2,
-                      ),
-                      child: Text(
-                        widget.message,
-                        style: FrostedTypeScale.bodyMedium
-                            .copyWith(color: cs.onSurface),
+                level: FrostedGlassLevel.thick,
+                elevation: FrostedGlassElevation.lifted,
+                borderRadius: BorderRadius.circular(FrostedRadius.md),
+                padding: EdgeInsets.only(
+                  left: FrostedSpacing.sp4,
+                  right: widget.actionLabel != null
+                      ? FrostedSpacing.sp2
+                      : FrostedSpacing.sp4,
+                  top: FrostedSpacing.sp2,
+                  bottom: FrostedSpacing.sp2,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: FrostedSpacing.sp2,
+                        ),
+                        child: Text(
+                          widget.message,
+                          style: FrostedTypeScale.bodyMedium.copyWith(
+                            color: cs.onSurface,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  if (widget.actionLabel != null) ...<Widget>[
-                    const SizedBox(width: FrostedSpacing.sp2),
-                    FrostedButton.text(
-                      label: widget.actionLabel!,
-                      onPressed: () {
-                        widget.onAction?.call();
-                        _dismiss();
-                      },
-                    ),
+                    if (widget.actionLabel != null) ...<Widget>[
+                      const SizedBox(width: FrostedSpacing.sp2),
+                      FrostedButton.text(
+                        label: widget.actionLabel!,
+                        onPressed: () {
+                          widget.onAction?.call();
+                          _dismiss();
+                        },
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
             ),
           ),
         ),

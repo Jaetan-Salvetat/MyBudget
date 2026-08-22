@@ -40,22 +40,28 @@ class FrostedSwitch extends StatelessWidget {
           curve: motion.curve,
           width: _kTrackWidth,
           height: _kTrackHeight,
-          padding: const EdgeInsets.all(_kPadding),
           decoration: BoxDecoration(
             color: trackColor,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
-          child: AnimatedAlign(
-            duration: motion.duration,
-            curve: motion.curve,
-            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: _kThumbSize,
-              height: _kThumbSize,
-              decoration: BoxDecoration(
-                color: thumbColor,
-                shape: BoxShape.circle,
+          child: s.ink(
+            color: thumbColor,
+            borderRadius: BorderRadius.circular(FrostedRadius.full),
+            Padding(
+              padding: const EdgeInsets.all(_kPadding),
+              child: AnimatedAlign(
+                duration: motion.duration,
+                curve: motion.curve,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: _kThumbSize,
+                  height: _kThumbSize,
+                  decoration: BoxDecoration(
+                    color: thumbColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
             ),
           ),

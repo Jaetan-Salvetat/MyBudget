@@ -121,10 +121,10 @@ class _DialPainter extends CustomPainter {
     canvas.drawCircle(center, r, Paint()..color = faceColor);
 
     // Selector geometry.
-    final double selectorR =
-        isHour && innerRing ? innerR : outerR;
+    final double selectorR = isHour && innerRing ? innerR : outerR;
     final double angle = _angleFor(value);
-    final Offset handleCenter = center +
+    final Offset handleCenter =
+        center +
         Offset(math.sin(angle) * selectorR, -math.cos(angle) * selectorR);
 
     // Track line + center dot + handle.
@@ -154,8 +154,7 @@ class _DialPainter extends CustomPainter {
     }
   }
 
-  double _angleFor(int v) =>
-      (isHour ? (v % 12) / 12 : v / 60) * 2 * math.pi;
+  double _angleFor(int v) => (isHour ? (v % 12) / 12 : v / 60) * 2 * math.pi;
 
   void _drawLabel(
     Canvas canvas,

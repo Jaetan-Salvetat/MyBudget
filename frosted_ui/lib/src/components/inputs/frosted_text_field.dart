@@ -102,10 +102,10 @@ class _FrostedTextFieldState extends State<FrostedTextField> {
     final Color accent = !enabled
         ? cs.onSurface.withValues(alpha: 0.38)
         : _hasError
-            ? cs.error
-            : _focused
-                ? cs.primary
-                : cs.onSurfaceVariant;
+        ? cs.error
+        : _focused
+        ? cs.primary
+        : cs.onSurfaceVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,8 +192,9 @@ class _FrostedTextFieldState extends State<FrostedTextField> {
         isCollapsed: true,
         border: InputBorder.none,
         hintText: widget.hintText,
-        hintStyle: FrostedTypeScale.bodyLarge
-            .copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+        hintStyle: FrostedTypeScale.bodyLarge.copyWith(
+          color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+        ),
       ),
     );
   }

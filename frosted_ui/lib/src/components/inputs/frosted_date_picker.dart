@@ -59,8 +59,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         children: <Widget>[
           Text(
             l10n.formatMediumDate(_selected),
-            style:
-                FrostedTypeScale.headlineSmall.copyWith(color: cs.onSurface),
+            style: FrostedTypeScale.headlineSmall.copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: FrostedSpacing.sp4),
           FrostedCalendar(

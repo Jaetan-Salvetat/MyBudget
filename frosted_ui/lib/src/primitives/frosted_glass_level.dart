@@ -55,4 +55,3 @@ enum FrostedGlassEdge {
   /// No side at all, for glass that covers the whole viewport.
   static const Set<FrostedGlassEdge> none = <FrostedGlassEdge>{};
 }
-

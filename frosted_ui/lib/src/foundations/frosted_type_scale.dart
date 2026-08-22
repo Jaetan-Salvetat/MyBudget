@@ -70,12 +70,24 @@ class FrostedTypeScale {
     );
   }
 
-  static final TextStyle displayLarge =
-      _display(fontSize: 64, height: 1.04, letterSpacing: -1.6, opticalSize: 96);
-  static final TextStyle displayMedium =
-      _display(fontSize: 48, height: 1.08, letterSpacing: -0.96, opticalSize: 72);
-  static final TextStyle displaySmall =
-      _display(fontSize: 36, height: 1.12, letterSpacing: -0.72, opticalSize: 48);
+  static final TextStyle displayLarge = _display(
+    fontSize: 64,
+    height: 1.04,
+    letterSpacing: -1.6,
+    opticalSize: 96,
+  );
+  static final TextStyle displayMedium = _display(
+    fontSize: 48,
+    height: 1.08,
+    letterSpacing: -0.96,
+    opticalSize: 72,
+  );
+  static final TextStyle displaySmall = _display(
+    fontSize: 36,
+    height: 1.12,
+    letterSpacing: -0.72,
+    opticalSize: 48,
+  );
 
   static final TextStyle displayLargeEmphasized = displayLarge.copyWith(
     fontWeight: FontWeight.w700,
@@ -99,12 +111,24 @@ class FrostedTypeScale {
     ],
   );
 
-  static final TextStyle headlineLarge =
-      _display(fontSize: 32, height: 1.18, letterSpacing: -0.48, opticalSize: 36);
-  static final TextStyle headlineMedium =
-      _display(fontSize: 28, height: 1.22, letterSpacing: -0.42, opticalSize: 28);
-  static final TextStyle headlineSmall =
-      _display(fontSize: 24, height: 1.28, letterSpacing: -0.36, opticalSize: 24);
+  static final TextStyle headlineLarge = _display(
+    fontSize: 32,
+    height: 1.18,
+    letterSpacing: -0.48,
+    opticalSize: 36,
+  );
+  static final TextStyle headlineMedium = _display(
+    fontSize: 28,
+    height: 1.22,
+    letterSpacing: -0.42,
+    opticalSize: 28,
+  );
+  static final TextStyle headlineSmall = _display(
+    fontSize: 24,
+    height: 1.28,
+    letterSpacing: -0.36,
+    opticalSize: 24,
+  );
 
   static final TextStyle titleLarge = _body(
     fontSize: 22,

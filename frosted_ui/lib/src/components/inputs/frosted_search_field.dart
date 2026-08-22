@@ -97,8 +97,9 @@ class _FrostedSearchFieldState extends State<FrostedSearchField> {
                 isDense: true,
                 border: InputBorder.none,
                 hintText: widget.hintText,
-                hintStyle: FrostedTypeScale.bodyLarge
-                    .copyWith(color: cs.onSurfaceVariant),
+                hintStyle: FrostedTypeScale.bodyLarge.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
                 contentPadding: EdgeInsets.zero,
               ),
             ),

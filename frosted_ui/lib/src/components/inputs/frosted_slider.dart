@@ -41,10 +41,13 @@ class FrostedSlider extends StatelessWidget {
         thumbColor: cs.primary,
         overlayColor: cs.primary.withValues(alpha: 0.12),
         valueIndicatorColor: cs.inverseSurface,
-        valueIndicatorTextStyle: FrostedTypeScale.labelMedium
-            .copyWith(color: cs.onInverseSurface),
+        valueIndicatorTextStyle: FrostedTypeScale.labelMedium.copyWith(
+          color: cs.onInverseSurface,
+        ),
         trackShape: const RoundedRectSliderTrackShape(),
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: _knobRadius),
+        thumbShape: const RoundSliderThumbShape(
+          enabledThumbRadius: _knobRadius,
+        ),
         overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
         showValueIndicator: ShowValueIndicator.onlyForDiscrete,
       ),

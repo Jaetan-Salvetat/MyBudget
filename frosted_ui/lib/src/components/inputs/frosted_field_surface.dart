@@ -50,8 +50,10 @@ class FrostedFieldSurface extends StatelessWidget {
       return AnimatedContainer(
         duration: motion.duration,
         curve: motion.curve,
-        foregroundDecoration:
-            BoxDecoration(borderRadius: radius, border: border),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: radius,
+          border: border,
+        ),
         child: FrostedGlass(
           level: FrostedGlassLevel.ultraThick,
           tone: FrostedGlassTone.auto,

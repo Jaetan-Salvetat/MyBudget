@@ -63,8 +63,9 @@ class FrostedMultiBrowseCarousel extends StatelessWidget {
   /// visible item, in size order (large… medium, small).
   List<int> _flexWeights(double width) {
     final double targetLarge = preferredItemWidth.clamp(0, width);
-    final double targetSmall =
-        (targetLarge / 3).clamp(_minSmall, _maxSmall).toDouble();
+    final double targetSmall = (targetLarge / 3)
+        .clamp(_minSmall, _maxSmall)
+        .toDouble();
     final double targetMedium = (targetLarge + targetSmall) / 2;
 
     final double minLargeSpace = width - targetMedium - _maxSmall;

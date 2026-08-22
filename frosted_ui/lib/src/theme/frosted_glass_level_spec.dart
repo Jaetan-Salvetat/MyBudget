@@ -41,10 +41,8 @@ class FrostedGlassLevelSpec {
   ) {
     return FrostedGlassLevelSpec(
       blurSigma: lerpDouble(a.blurSigma, b.blurSigma, t)!,
-      lightVeilOpacity:
-          lerpDouble(a.lightVeilOpacity, b.lightVeilOpacity, t)!,
-      darkVeilOpacity:
-          lerpDouble(a.darkVeilOpacity, b.darkVeilOpacity, t)!,
+      lightVeilOpacity: lerpDouble(a.lightVeilOpacity, b.lightVeilOpacity, t)!,
+      darkVeilOpacity: lerpDouble(a.darkVeilOpacity, b.darkVeilOpacity, t)!,
     );
   }
 }

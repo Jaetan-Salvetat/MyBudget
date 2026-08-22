@@ -4,6 +4,7 @@ import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import '../actions/_interactive_surface.dart';
 
 /// iOS-style segmented control.
 ///
@@ -56,8 +57,7 @@ class FrostedSegmentedControl extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: cs.surface,
-                        borderRadius:
-                            BorderRadius.circular(FrostedRadius.sm),
+                        borderRadius: BorderRadius.circular(FrostedRadius.sm),
                         boxShadow: <BoxShadow>[
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.08),
@@ -73,22 +73,32 @@ class FrostedSegmentedControl extends StatelessWidget {
                   children: <Widget>[
                     for (int i = 0; i < segments.length; i++)
                       Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
+                        child: InteractiveSurface(
                           onTap: () => onTap(i),
-                          child: Center(
-                            child: Text(
-                              segments[i],
-                              style: FrostedTypeScale.labelMedium.copyWith(
-                                color: i == currentIndex
-                                    ? cs.onSurface
-                                    : cs.onSurfaceVariant,
-                                fontWeight: i == currentIndex
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                          semanticsLabel: segments[i],
+                          semanticsSelected: i == currentIndex,
+                          builder:
+                              (BuildContext context, InteractionStates s) =>
+                                  s.ink(
+                                    color: cs.onSurface,
+                                    borderRadius: BorderRadius.circular(
+                                      FrostedRadius.sm,
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        segments[i],
+                                        style: FrostedTypeScale.labelMedium
+                                            .copyWith(
+                                              color: i == currentIndex
+                                                  ? cs.onSurface
+                                                  : cs.onSurfaceVariant,
+                                              fontWeight: i == currentIndex
+                                                  ? FontWeight.w600
+                                                  : FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
                         ),
                       ),
                   ],

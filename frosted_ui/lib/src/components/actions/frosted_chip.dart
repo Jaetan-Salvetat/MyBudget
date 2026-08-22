@@ -134,33 +134,37 @@ class FrostedChip extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: _height,
-          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp3),
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (_leading(fg) != null) ...<Widget>[
-                _leading(fg)!,
-                const SizedBox(width: FrostedSpacing.sp2),
-              ],
-              Text(
-                label,
-                style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+          child: s.ink(
+            color: fg,
+            borderRadius: _shape(s),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FrostedSpacing.sp3,
               ),
-              if (_variant == _ChipVariant.input &&
-                  onDelete != null) ...<Widget>[
-                const SizedBox(width: FrostedSpacing.sp2),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: onDelete,
-                  child: Icon(Icons.close, size: 16, color: fg),
-                ),
-              ],
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (_leading(fg) != null) ...<Widget>[
+                    _leading(fg)!,
+                    const SizedBox(width: FrostedSpacing.sp2),
+                  ],
+                  Text(
+                    label,
+                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                  ),
+                  if (_variant == _ChipVariant.input &&
+                      onDelete != null) ...<Widget>[
+                    const SizedBox(width: FrostedSpacing.sp2),
+                    _DeleteAffordance(onDelete: onDelete!, color: fg),
+                  ],
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -261,5 +265,28 @@ class FrostedChip extends StatelessWidget {
     if (s.focused) return 0.10;
     if (s.hovered) return 0.08;
     return 0;
+  }
+}
+
+/// The close target on an input chip. It carries its own surface so the ink
+/// stays on the icon rather than washing the whole chip behind it.
+class _DeleteAffordance extends StatelessWidget {
+  const _DeleteAffordance({required this.onDelete, required this.color});
+
+  final VoidCallback onDelete;
+  final Color color;
+
+  static const double _glyphSize = 16;
+
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveSurface(
+      onTap: onDelete,
+      builder: (BuildContext context, InteractionStates s) => s.ink(
+        color: color,
+        borderRadius: BorderRadius.circular(FrostedRadius.full),
+        Icon(Icons.close, size: _glyphSize, color: color),
+      ),
+    );
   }
 }

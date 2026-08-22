@@ -7,6 +7,7 @@ import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
+import '../actions/_interactive_surface.dart';
 import 'frosted_badge.dart';
 import 'frosted_nav_item.dart';
 
@@ -63,8 +64,7 @@ class FrostedNavigationRail extends StatelessWidget {
               children: <Widget>[
                 if (header != null) ...<Widget>[
                   Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                    padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
                     child: header!,
                   ),
                 ],
@@ -140,16 +140,10 @@ class _RailItem extends StatelessWidget {
             ),
           )
         : Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: FrostedSpacing.sp3,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
             child: Column(
               children: <Widget>[
-                _IconWithCornerBadge(
-                  icon: icon,
-                  color: fg,
-                  badge: item.badge,
-                ),
+                _IconWithCornerBadge(icon: icon, color: fg, badge: item.badge),
                 const SizedBox(height: 2),
                 Text(
                   item.label,
@@ -161,29 +155,24 @@ class _RailItem extends StatelessWidget {
             ),
           );
 
-    final Widget interactive = Tooltip(
+    return Tooltip(
       message: extended ? '' : (item.tooltip ?? item.label),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(FrostedRadius.lg),
-          child: Ink(
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(FrostedRadius.lg),
-            ),
-            child: content,
+      child: InteractiveSurface(
+        onTap: onTap,
+        semanticsLabel: item.label,
+        semanticsSelected: selected,
+        builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(FrostedRadius.lg),
+          ),
+          child: s.ink(
+            color: fg,
+            borderRadius: BorderRadius.circular(FrostedRadius.lg),
+            content,
           ),
         ),
       ),
-    );
-
-    return Semantics(
-      button: true,
-      label: item.label,
-      selected: selected,
-      child: interactive,
     );
   }
 }
@@ -207,11 +196,7 @@ class _IconWithCornerBadge extends StatelessWidget {
       clipBehavior: Clip.none,
       children: <Widget>[
         iconWidget,
-        Positioned(
-          top: -2,
-          right: -8,
-          child: FrostedBadgeView(badge: badge!),
-        ),
+        Positioned(top: -2, right: -8, child: FrostedBadgeView(badge: badge!)),
       ],
     );
   }

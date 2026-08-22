@@ -122,10 +122,8 @@ class CarouselArrangement {
 
     if (mediumCount > 0 && large != largeSize) {
       final double targetAdjustment = (largeSize - large) * largeCount;
-      final double availableFlex =
-          medium * _mediumFlexPercentage * mediumCount;
-      final double distribute =
-          math.min(targetAdjustment.abs(), availableFlex);
+      final double availableFlex = medium * _mediumFlexPercentage * mediumCount;
+      final double distribute = math.min(targetAdjustment.abs(), availableFlex);
       if (targetAdjustment > 0) {
         medium -= distribute / mediumCount;
         large += distribute / largeCount;

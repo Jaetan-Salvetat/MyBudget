@@ -14,6 +14,7 @@ class PressRipple extends StatelessWidget {
     required this.progress,
     required this.color,
     required this.child,
+    this.borderRadius,
     super.key,
   });
 
@@ -23,6 +24,11 @@ class PressRipple extends StatelessWidget {
 
   final Animation<double> progress;
   final Color color;
+
+  /// The corners the ink is confined to. Null keeps it to the plain
+  /// rectangle the surface occupies.
+  final BorderRadius? borderRadius;
+
   final Widget child;
 
   @override
@@ -34,6 +40,7 @@ class PressRipple extends StatelessWidget {
         origin: origin,
         progress: progress,
         color: color,
+        borderRadius: borderRadius,
       ),
       child: child,
     );
@@ -45,11 +52,13 @@ class _RipplePainter extends CustomPainter {
     required this.origin,
     required this.progress,
     required this.color,
+    required this.borderRadius,
   }) : super(repaint: progress);
 
   final Offset origin;
   final Animation<double> progress;
   final Color color;
+  final BorderRadius? borderRadius;
 
   static const double _peakAlpha = 0.18;
   static const Curve _growth = Curves.easeOutCubic;
@@ -62,11 +71,22 @@ class _RipplePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double t = progress.value;
     if (t <= 0 || t >= 1) return;
+    // The ink is painted, not layered, so nothing else keeps it inside the
+    // surface — it clips itself to the shape it was handed.
+    final Rect bounds = Offset.zero & size;
+    canvas.save();
+    final BorderRadius? borderRadius = this.borderRadius;
+    if (borderRadius == null) {
+      canvas.clipRect(bounds);
+    } else {
+      canvas.clipRRect(borderRadius.toRRect(bounds));
+    }
     canvas.drawCircle(
       origin,
       _growth.transform(t) * _radiusToFarthestCorner(size),
       Paint()..color = color.withValues(alpha: _alphaAt(t)),
     );
+    canvas.restore();
   }
 
   double _alphaAt(double t) {
@@ -84,5 +104,6 @@ class _RipplePainter extends CustomPainter {
   bool shouldRepaint(_RipplePainter oldDelegate) =>
       oldDelegate.origin != origin ||
       oldDelegate.color != color ||
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress ||
+      oldDelegate.borderRadius != borderRadius;
 }

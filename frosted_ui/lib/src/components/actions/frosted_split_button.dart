@@ -171,7 +171,6 @@ class _MainAction extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: FrostedSplitButton._height,
-          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp5),
           alignment: Alignment.center,
           decoration: _decoration(
             cs: cs,
@@ -179,18 +178,27 @@ class _MainAction extends StatelessWidget {
             variant: variant,
             borderRadius: radius,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (icon != null) ...<Widget>[
-                Icon(icon, size: 18, color: fg),
-                const SizedBox(width: FrostedSpacing.sp2),
-              ],
-              Text(
-                label,
-                style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+          child: s.ink(
+            color: fg,
+            borderRadius: radius,
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FrostedSpacing.sp5,
               ),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (icon != null) ...<Widget>[
+                    Icon(icon, size: 18, color: fg),
+                    const SizedBox(width: FrostedSpacing.sp2),
+                  ],
+                  Text(
+                    label,
+                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -267,11 +275,15 @@ class _ChevronAction extends StatelessWidget {
                 variant: variant,
                 borderRadius: radius,
               ),
-              child: AnimatedRotation(
-                duration: motion.duration,
-                curve: motion.curve,
-                turns: open ? 0.5 : 0,
-                child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+              child: s.ink(
+                color: fg,
+                borderRadius: radius,
+                AnimatedRotation(
+                  duration: motion.duration,
+                  curve: motion.curve,
+                  turns: open ? 0.5 : 0,
+                  child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+                ),
               ),
             );
           },
