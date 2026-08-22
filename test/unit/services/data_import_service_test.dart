@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
@@ -14,7 +15,11 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+
+import '../../helpers/loan_test_factory.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -27,6 +32,8 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
+
 class FakeAccountModel extends Fake implements AccountModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
@@ -38,6 +45,8 @@ class FakeExpenseModel extends Fake implements ExpenseModel {}
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
 class FakeLoanModel extends Fake implements LoanModel {}
+
+class FakeLoanEventModel extends Fake implements LoanEventModel {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -55,6 +64,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
   late MockCategoryOverrideRepository mockCategoryOverrideRepo;
   late MockCategoryMemoryRepository mockCategoryMemoryRepo;
@@ -67,6 +77,7 @@ void main() {
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeRevenueModel());
     registerFallbackValue(FakeLoanModel());
+    registerFallbackValue(FakeLoanEventModel());
     registerFallbackValue(FakeTransferModel());
   });
 
@@ -76,6 +87,9 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
+    when(() => mockLoanEventRepo.deleteAll()).thenReturn(null);
     mockTransferRepo = MockTransferRepository();
     mockCategoryOverrideRepo = MockCategoryOverrideRepository();
     mockCategoryMemoryRepo = MockCategoryMemoryRepository();
@@ -88,6 +102,8 @@ void main() {
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
+      loanEventRepo: mockLoanEventRepo,
+      loanService: testLoanService,
       transferRepo: mockTransferRepo,
     );
   });
@@ -325,6 +341,7 @@ void main() {
       when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
       when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
       when(() => mockLoanRepo.deleteAll()).thenReturn(null);
+      when(() => mockLoanEventRepo.deleteAll()).thenReturn(null);
       when(() => mockTransferRepo.deleteAll()).thenReturn(null);
     }
 
@@ -478,6 +495,63 @@ void main() {
       final captured = verify(() => mockLoanRepo.add(captureAny())).captured;
       final loan = captured.first as LoanModel;
       expect(loan.accountId, 200);
+    });
+
+    test('remaps the loan id of early repayment events', () {
+      stubDeleteAll();
+      when(() => mockAccountRepo.add(any())).thenReturn(200);
+      when(() => mockLoanRepo.add(any())).thenReturn(42);
+      when(() => mockLoanEventRepo.add(any())).thenReturn(1);
+
+      final data = {
+        'accounts': [
+          {'id': '100', 'name': 'Compte', 'bank': 'BNP'},
+        ],
+        'loans': [_buildLoanJson(accountId: '100')],
+        'loanEvents': [
+          {
+            'id': '9',
+            'loanId': '1',
+            'typeId': 'earlyRepaymentPartial',
+            'date': '2026-07-05T00:00:00.000',
+            'amount': 5000.0,
+            'reamortizationModeId': 'reducePayment',
+            'exemptionId': 'none',
+          },
+        ],
+      };
+
+      final validated = service.validate(data);
+      final report = service.execute(validated);
+
+      final captured = verify(() => mockLoanEventRepo.add(captureAny()))
+          .captured;
+      final event = captured.first as LoanEventModel;
+
+      expect(event.loanId, 42);
+      expect(event.amount, 5000.0);
+      expect(event.reamortizationMode, ReamortizationMode.reducePayment);
+      expect(report.loanEvents.imported, 1);
+    });
+
+    test('skips early repayment events whose loan was not imported', () {
+      stubDeleteAll();
+
+      final data = {
+        'loanEvents': [
+          {
+            'id': '9',
+            'loanId': '404',
+            'typeId': 'earlyRepaymentTotal',
+            'date': '2026-07-05T00:00:00.000',
+          },
+        ],
+      };
+
+      final report = service.execute(service.validate(data));
+
+      expect(report.loanEvents.skipped, 1);
+      verifyNever(() => mockLoanEventRepo.add(any()));
     });
 
     test('remaps both account IDs in transfers', () {

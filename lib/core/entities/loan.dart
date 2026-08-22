@@ -1,179 +1,113 @@
+import 'dart:math';
+
+import 'package:mybudget/core/entities/loan_event.dart';
+import 'package:mybudget/core/entities/loan_installment.dart';
 import 'package:mybudget/core/entities/loan_payment_breakdown.dart';
+import 'package:mybudget/core/entities/loan_schedule.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/services/loan_calculation_service.dart';
-import 'package:mybudget/core/services/loan_payment_breakdown_service.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class Loan {
-  final LoanModel _model;
-  final LoanCalculationService _calculationService;
-  final LoanPaymentBreakdownService _breakdownService;
+  final LoanModel model;
+  final LoanSchedule schedule;
+  final LoanSchedule contractualSchedule;
+  final List<LoanEvent> events;
+  final double annualPercentageRate;
+  final DateTime asOf;
 
-  Loan(this._model, this._calculationService, this._breakdownService);
+  const Loan({
+    required this.model,
+    required this.schedule,
+    required this.contractualSchedule,
+    required this.events,
+    required this.annualPercentageRate,
+    required this.asOf,
+  });
 
-  int get id => _model.id;
-  String get name => _model.name;
-  double get amount => _model.amount;
-  String get lenderName => _model.lenderName;
-  int get accountId => _model.accountId;
-  String? get notes => _model.notes;
-  int get dayOfMonth => _model.dayOfMonth;
-  DateTime get startDate => _model.startDate;
-  DateTime get endDate => _model.endDate;
-  double get interestRate => _model.interestRate;
-  int get duration => _model.duration;
-  LoanRepaymentType get repaymentType => _model.repaymentType;
-  int get deferredMonths => _model.deferredMonths;
-  double get insuranceValue => _model.insuranceValue;
-  LoanInsuranceType get insuranceType => _model.insuranceType;
+  int get id => model.id;
+  String get name => model.name;
+  double get amount => model.amount;
+  String get lenderName => model.lenderName;
+  int get accountId => model.accountId;
+  String? get notes => model.notes;
+  int get dayOfMonth => model.dayOfMonth;
+  DateTime get startDate => model.startDate;
+  double get interestRate => model.interestRate;
+  int get duration => model.duration;
+  double get fees => model.fees;
+  LoanPurpose get purpose => model.purpose;
+  CreditRegime get regime => model.regime;
+  bool get hasIndemnityClause => model.hasIndemnityClause;
+  LoanRepaymentType get repaymentType => model.repaymentType;
+  int get deferredMonths => model.deferredMonths;
+  LoanDeferralType get deferralType => model.deferralType;
+  double get insuranceValue => model.insuranceValue;
+  LoanInsuranceType get insuranceType => model.insuranceType;
   InsuranceCalculationMode get insuranceCalculationMode =>
-      _model.insuranceCalculationMode;
-  bool get immediateFirstPayment => _model.immediateFirstPayment;
+      model.insuranceCalculationMode;
+  bool get immediateFirstPayment => model.immediateFirstPayment;
 
-  LoanModel get model => _model;
+  List<LoanInstallment> get installments => schedule.installments;
 
-  double get currentMonthlyPayment {
-    return _calculationService.calculateCurrentMonthlyPayment(
-      repaymentType: _model.repaymentType,
-      amount: _model.amount,
-      interestRate: _model.interestRate,
-      durationInMonths: _model.duration,
-      startDate: _model.startDate,
-      currentDate: DateTime.now(),
-      deferredMonths: _model.deferredMonths,
-      insuranceType: _model.insuranceType,
-      insuranceValue: _model.insuranceValue,
-      insuranceCalcMode: _model.insuranceCalculationMode,
-      immediateFirstPayment: _model.immediateFirstPayment,
-    );
-  }
+  DateTime get endDate => schedule.endDate ?? model.startDate;
 
-  double get remainingCapital {
-    return _calculationService.calculateRemainingCapital(
-      repaymentType: _model.repaymentType,
-      amount: _model.amount,
-      interestRate: _model.interestRate,
-      durationInMonths: _model.duration,
-      startDate: _model.startDate,
-      currentDate: DateTime.now(),
-      deferredMonths: _model.deferredMonths,
-      immediateFirstPayment: _model.immediateFirstPayment,
-    );
-  }
+  double get currentMonthlyPayment => schedule.currentPaymentAt(asOf);
 
-  int get remainingMonths {
-    return _calculationService.calculateRemainingMonths(
-      currentDate: DateTime.now(),
-      endDate: _model.endDate,
-      startDate: _model.startDate,
-      durationInMonths: _model.duration,
-      immediateFirstPayment: _model.immediateFirstPayment,
-    );
-  }
+  double get remainingCapital => schedule.remainingCapitalAt(asOf);
 
-  double get totalPaidAmount {
-    return _calculationService.calculateTotalPaidAmount(
-      startDate: _model.startDate,
-      currentDate: DateTime.now(),
-      endDate: _model.endDate,
-      dayOfMonth: _model.dayOfMonth,
-      deferredMonths: _model.deferredMonths,
-      monthlyPayment: currentMonthlyPayment,
-      immediateFirstPayment: _model.immediateFirstPayment,
-    );
-  }
+  int get remainingMonths => schedule.remainingInstallmentsAt(asOf);
+
+  int get paidMonths => schedule.settledAt(asOf).length;
+
+  double get totalPaidAmount => schedule.cumulativeAt(asOf).totalPayment;
+
+  LoanPaymentBreakdown get cumulativePaymentBreakdown =>
+      schedule.cumulativeAt(asOf);
 
   LoanPaymentBreakdown get currentPaymentBreakdown {
-    return _breakdownService.calculateCurrentBreakdown(
-      repaymentType: _model.repaymentType,
-      amount: _model.amount,
-      interestRate: _model.interestRate,
-      durationInMonths: _model.duration,
-      startDate: _model.startDate,
-      currentDate: DateTime.now(),
-      deferredMonths: _model.deferredMonths,
-      insuranceType: _model.insuranceType,
-      insuranceValue: _model.insuranceValue,
-      insuranceCalcMode: _model.insuranceCalculationMode,
-      immediateFirstPayment: _model.immediateFirstPayment,
+    final installment = schedule.currentInstallmentAt(asOf);
+    if (installment == null) return const LoanPaymentBreakdown.zero();
+
+    return LoanPaymentBreakdown(
+      capitalPayment: installment.principal,
+      interestPayment: installment.interest,
+      insurancePayment: installment.insurance,
+      totalPayment: installment.scheduledPayment,
     );
   }
 
-  LoanPaymentBreakdown get cumulativePaymentBreakdown {
-    return _breakdownService.calculateCumulativeBreakdown(
-      repaymentType: _model.repaymentType,
-      amount: _model.amount,
-      interestRate: _model.interestRate,
-      durationInMonths: _model.duration,
-      startDate: _model.startDate,
-      currentDate: DateTime.now(),
-      endDate: _model.endDate,
-      dayOfMonth: _model.dayOfMonth,
-      deferredMonths: _model.deferredMonths,
-      insuranceType: _model.insuranceType,
-      insuranceValue: _model.insuranceValue,
-      insuranceCalcMode: _model.insuranceCalculationMode,
-      immediateFirstPayment: _model.immediateFirstPayment,
-    );
-  }
+  double get progressPercentage => schedule.progressAt(asOf);
 
-  double get progressPercentage {
-    if (_model.amount == 0) return 0.0;
-    final paid = _model.amount - remainingCapital;
-    return (paid / _model.amount).clamp(0.0, 1.0);
-  }
+  double get totalCost => schedule.totalCost;
 
-  double get totalCost {
-    final totalPayments = currentMonthlyPayment * _model.duration;
-    return (totalPayments - _model.amount).clamp(0.0, double.infinity);
-  }
+  double get contractualCost => contractualSchedule.totalCost;
 
-  double get remainingCost {
-    final totalFuturePayments = remainingMonths * currentMonthlyPayment;
-    final remainingPrincipal = remainingCapital;
-    final cost = totalFuturePayments - remainingPrincipal;
-    return cost > 0 ? cost : 0.0;
-  }
+  double get remainingCost => schedule.remainingCostAt(asOf);
 
-  bool get isCompleted {
-    final now = DateTime.now();
-    return now.isAfter(_model.endDate) || remainingCapital <= 0;
-  }
+  double get totalIndemnity => schedule.totalIndemnity;
 
-  bool get isPending {
-    return DateTime.now().isBefore(_model.startDate);
-  }
+  bool get hasEarlyRepayment => events.isNotEmpty;
 
-  bool get isActive {
-    return !isCompleted && !isPending;
-  }
+  double get costSaved => max(0.0, contractualCost - totalCost);
 
-  bool get isInDeferredPeriod {
-    if (_model.deferredMonths == 0) return false;
+  int get monthsSaved => max(
+    0,
+    contractualSchedule.installmentCount - schedule.installmentCount,
+  );
 
-    final now = DateTime.now();
-    if (now.isBefore(_model.startDate)) return false;
+  bool get isCompleted => schedule.isCompletedAt(asOf);
 
-    final monthsSinceStart =
-        (now.year - _model.startDate.year) * 12 +
-        now.month -
-        _model.startDate.month;
+  bool get isPending => !isCompleted && asOf.isBefore(startDate);
 
-    return monthsSinceStart < _model.deferredMonths;
-  }
+  bool get isActive => !isCompleted && !isPending;
+
+  bool get isInDeferredPeriod =>
+      schedule.currentInstallmentAt(asOf)?.isDeferred ?? false;
 
   LoanStatus getStatus() {
     if (isCompleted) return LoanStatus.completed;
     if (isPending) return LoanStatus.pending;
     return LoanStatus.partiallyPaid;
-  }
-
-  static Loan fromModel(
-    LoanModel model,
-    LoanCalculationService calculationService,
-    LoanPaymentBreakdownService breakdownService,
-  ) {
-    return Loan(model, calculationService, breakdownService);
   }
 }

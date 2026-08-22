@@ -6,22 +6,31 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/entities/loan.dart';
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
+
 void main() {
   late MockLoanRepository mockRepository;
+  late MockLoanEventRepository mockLoanEventRepo;
 
   setUp(() {
     mockRepository = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     when(() => mockRepository.getAll()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
-      overrides: [loanRepositoryProvider.overrideWithValue(mockRepository)],
+      overrides: [
+        loanRepositoryProvider.overrideWithValue(mockRepository),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
+      ],
     );
   }
 

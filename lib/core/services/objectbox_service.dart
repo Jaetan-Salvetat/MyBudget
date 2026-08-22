@@ -5,6 +5,7 @@ import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:path/path.dart' as p;
@@ -21,6 +22,7 @@ class ObjectBoxService {
   late Box<RevenueModel> revenueBox;
   late Box<AccountModel> accountBox;
   late Box<LoanModel> loanBox;
+  late Box<LoanEventModel> loanEventBox;
   late Box<TransferModel> transferBox;
 
   static ObjectBoxService? _instance;
@@ -47,6 +49,7 @@ class ObjectBoxService {
     revenueBox = Box<RevenueModel>(store);
     accountBox = Box<AccountModel>(store);
     loanBox = Box<LoanModel>(store);
+    loanEventBox = Box<LoanEventModel>(store);
     transferBox = Box<TransferModel>(store);
   }
 
@@ -71,6 +74,7 @@ class ObjectBoxService {
     revenueBox.removeAll();
     accountBox.removeAll();
     loanBox.removeAll();
+    loanEventBox.removeAll();
     transferBox.removeAll();
   }
 }

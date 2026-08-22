@@ -19,6 +19,7 @@ import 'models/beneficiary_model.dart';
 import 'models/category_memory_model.dart';
 import 'models/category_override_model.dart';
 import 'models/expense_model.dart';
+import 'models/loan_event_model.dart';
 import 'models/loan_model.dart';
 import 'models/revenue_model.dart';
 import 'models/transfer_model.dart';
@@ -136,7 +137,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 8471750721460440152),
     name: 'LoanModel',
-    lastPropertyId: const obx_int.IdUid(19, 8138263455102980410),
+    lastPropertyId: const obx_int.IdUid(24, 7358679212004947045),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -239,6 +240,30 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(19, 8138263455102980410),
         name: 'immediateFirstPayment',
         type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(20, 7721257363888305302),
+        name: 'deferralTypeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(21, 4718741685436176634),
+        name: 'fees',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(23, 4691006289725929516),
+        name: 'hasIndemnityClause',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(24, 7358679212004947045),
+        name: 'purposeId',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -499,6 +524,58 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(10, 5282442622348339601),
+    name: 'LoanEventModel',
+    lastPropertyId: const obx_int.IdUid(7, 1934536084928006596),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5779609905562893032),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 1080423716192276736),
+        name: 'loanId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 7412238931454290300),
+        name: 'typeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 5726242782845823416),
+        name: 'date',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 5704553025308414740),
+        name: 'amount',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 3185289945794771063),
+        name: 'reamortizationModeId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 1934536084928006596),
+        name: 'exemptionId',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -544,7 +621,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(9, 2229829926542213902),
+    lastEntityId: const obx_int.IdUid(10, 5282442622348339601),
     lastIndexId: const obx_int.IdUid(10, 8794940862762798163),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -560,6 +637,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
       6079627583281643679,
       2964126038854478579,
       6632633250043774965,
+      342834846661396669,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -707,7 +785,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final insuranceCalculationModeIdOffset = fbb.writeString(
           object.insuranceCalculationModeId,
         );
-        fbb.startTable(20);
+        final deferralTypeIdOffset = fbb.writeString(object.deferralTypeId);
+        final purposeIdOffset = fbb.writeString(object.purposeId);
+        fbb.startTable(25);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addFloat64(2, object.amount);
@@ -725,6 +805,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(16, object.deferredMonths);
         fbb.addOffset(17, insuranceCalculationModeIdOffset);
         fbb.addBool(18, object.immediateFirstPayment);
+        fbb.addOffset(19, deferralTypeIdOffset);
+        fbb.addFloat64(20, object.fees);
+        fbb.addBool(22, object.hasIndemnityClause);
+        fbb.addOffset(23, purposeIdOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -806,6 +890,24 @@ obx_int.ModelDefinition getObjectBoxModel() {
           40,
           false,
         );
+        final deferralTypeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 42, '');
+        final feesParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          44,
+          0,
+        );
+        final purposeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 50, '');
+        final hasIndemnityClauseParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          48,
+          false,
+        );
         final notesParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 22);
@@ -826,6 +928,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           insuranceValue: insuranceValueParam,
           insuranceCalculationModeId: insuranceCalculationModeIdParam,
           immediateFirstPayment: immediateFirstPaymentParam,
+          deferralTypeId: deferralTypeIdParam,
+          fees: feesParam,
+          purposeId: purposeIdParam,
+          hasIndemnityClause: hasIndemnityClauseParam,
           notes: notesParam,
         );
 
@@ -1116,6 +1222,77 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    LoanEventModel: obx_int.EntityDefinition<LoanEventModel>(
+      model: _entities[8],
+      toOneRelations: (LoanEventModel object) => [],
+      toManyRelations: (LoanEventModel object) => {},
+      getId: (LoanEventModel object) => object.id,
+      setId: (LoanEventModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (LoanEventModel object, fb.Builder fbb) {
+        final typeIdOffset = fbb.writeString(object.typeId);
+        final reamortizationModeIdOffset = fbb.writeString(
+          object.reamortizationModeId,
+        );
+        final exemptionIdOffset = fbb.writeString(object.exemptionId);
+        fbb.startTable(8);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.loanId);
+        fbb.addOffset(2, typeIdOffset);
+        fbb.addInt64(3, object.date.millisecondsSinceEpoch);
+        fbb.addFloat64(4, object.amount);
+        fbb.addOffset(5, reamortizationModeIdOffset);
+        fbb.addOffset(6, exemptionIdOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final loanIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final dateParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0),
+        );
+        final typeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final amountParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          12,
+          0,
+        );
+        final reamortizationModeIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 14, '');
+        final exemptionIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 16, '');
+        final object = LoanEventModel(
+          id: idParam,
+          loanId: loanIdParam,
+          date: dateParam,
+          typeId: typeIdParam,
+          amount: amountParam,
+          reamortizationModeId: reamortizationModeIdParam,
+          exemptionId: exemptionIdParam,
+        );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -1282,6 +1459,26 @@ class LoanModel_ {
   /// See [LoanModel.immediateFirstPayment].
   static final immediateFirstPayment = obx.QueryBooleanProperty<LoanModel>(
     _entities[2].properties[16],
+  );
+
+  /// See [LoanModel.deferralTypeId].
+  static final deferralTypeId = obx.QueryStringProperty<LoanModel>(
+    _entities[2].properties[17],
+  );
+
+  /// See [LoanModel.fees].
+  static final fees = obx.QueryDoubleProperty<LoanModel>(
+    _entities[2].properties[18],
+  );
+
+  /// See [LoanModel.hasIndemnityClause].
+  static final hasIndemnityClause = obx.QueryBooleanProperty<LoanModel>(
+    _entities[2].properties[19],
+  );
+
+  /// See [LoanModel.purposeId].
+  static final purposeId = obx.QueryStringProperty<LoanModel>(
+    _entities[2].properties[20],
   );
 }
 
@@ -1462,5 +1659,43 @@ class CategoryMemoryModel_ {
   /// See [CategoryMemoryModel.updatedAt].
   static final updatedAt = obx.QueryDateProperty<CategoryMemoryModel>(
     _entities[7].properties[5],
+  );
+}
+
+/// [LoanEventModel] entity fields to define ObjectBox queries.
+class LoanEventModel_ {
+  /// See [LoanEventModel.id].
+  static final id = obx.QueryIntegerProperty<LoanEventModel>(
+    _entities[8].properties[0],
+  );
+
+  /// See [LoanEventModel.loanId].
+  static final loanId = obx.QueryIntegerProperty<LoanEventModel>(
+    _entities[8].properties[1],
+  );
+
+  /// See [LoanEventModel.typeId].
+  static final typeId = obx.QueryStringProperty<LoanEventModel>(
+    _entities[8].properties[2],
+  );
+
+  /// See [LoanEventModel.date].
+  static final date = obx.QueryDateProperty<LoanEventModel>(
+    _entities[8].properties[3],
+  );
+
+  /// See [LoanEventModel.amount].
+  static final amount = obx.QueryDoubleProperty<LoanEventModel>(
+    _entities[8].properties[4],
+  );
+
+  /// See [LoanEventModel.reamortizationModeId].
+  static final reamortizationModeId = obx.QueryStringProperty<LoanEventModel>(
+    _entities[8].properties[5],
+  );
+
+  /// See [LoanEventModel.exemptionId].
+  static final exemptionId = obx.QueryStringProperty<LoanEventModel>(
+    _entities[8].properties[6],
   );
 }

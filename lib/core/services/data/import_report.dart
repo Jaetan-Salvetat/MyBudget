@@ -7,6 +7,7 @@ class ImportReport {
   final ImportEntityReport expenses;
   final ImportEntityReport revenues;
   final ImportEntityReport loans;
+  final ImportEntityReport loanEvents;
   final ImportEntityReport transfers;
 
   const ImportReport({
@@ -16,6 +17,9 @@ class ImportReport {
     this.expenses = const ImportEntityReport(entityName: 'Dépenses'),
     this.revenues = const ImportEntityReport(entityName: 'Revenus'),
     this.loans = const ImportEntityReport(entityName: 'Emprunts'),
+    this.loanEvents = const ImportEntityReport(
+      entityName: 'Remboursements anticipés',
+    ),
     this.transfers = const ImportEntityReport(entityName: 'Virements'),
   });
 
@@ -26,6 +30,7 @@ class ImportReport {
     expenses,
     revenues,
     loans,
+    loanEvents,
     transfers,
   ];
 

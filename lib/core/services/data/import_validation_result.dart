@@ -3,6 +3,7 @@ import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/category_memory_model.dart';
 import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -60,9 +61,20 @@ class ParsedRevenue {
 }
 
 class ParsedLoan {
+  final int oldId;
   final int? oldAccountId;
   final LoanModel model;
-  const ParsedLoan({required this.model, this.oldAccountId});
+  const ParsedLoan({
+    required this.model,
+    required this.oldId,
+    this.oldAccountId,
+  });
+}
+
+class ParsedLoanEvent {
+  final int oldLoanId;
+  final LoanEventModel model;
+  const ParsedLoanEvent({required this.model, required this.oldLoanId});
 }
 
 class ParsedTransfer {
@@ -89,6 +101,7 @@ class ImportValidationResult {
   final List<ParsedExpense> expenses;
   final List<ParsedRevenue> revenues;
   final List<ParsedLoan> loans;
+  final List<ParsedLoanEvent> loanEvents;
   final List<ParsedTransfer> transfers;
   final List<String> errors;
 
@@ -101,6 +114,7 @@ class ImportValidationResult {
     this.expenses = const [],
     this.revenues = const [],
     this.loans = const [],
+    this.loanEvents = const [],
     this.transfers = const [],
     this.errors = const [],
   });
@@ -114,5 +128,6 @@ class ImportValidationResult {
       expenses.length +
       revenues.length +
       loans.length +
+      loanEvents.length +
       transfers.length;
 }

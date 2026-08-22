@@ -12,6 +12,7 @@ import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -31,6 +32,8 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
+
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -58,6 +61,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
   late MockCategoryOverrideRepository mockCategoryOverrideRepo;
   late MockCategoryMemoryRepository mockCategoryMemoryRepo;
@@ -80,6 +84,8 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     mockTransferRepo = MockTransferRepository();
     mockCategoryOverrideRepo = MockCategoryOverrideRepository();
     mockCategoryMemoryRepo = MockCategoryMemoryRepository();
@@ -93,6 +99,7 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
         categoryOverrideRepositoryProvider.overrideWithValue(
           mockCategoryOverrideRepo,
