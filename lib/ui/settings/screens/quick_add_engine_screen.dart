@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
-import 'package:mybudget/ui/settings/screens/ai_model_screen.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
 /// Choisir « clé personnelle » ne change rien tant qu'aucune clé n'a été
@@ -24,7 +22,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
     final bool hasKey =
         ref.watch(hasStoredApiKeyProvider).value ?? false;
     final bool isDegraded = ref.watch(quickAddDegradationProvider);
-    final AiModel model = ref.watch(selectedAiModelProvider);
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return FrostedScaffold(
@@ -68,28 +65,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: FrostedSpacing.sp4),
-          if (mode == QuickAddEngineMode.apiKey)
-            FrostedListSection(
-              tiles: [
-                FrostedListTile(
-                  title: 'Clé API',
-                  subtitle: hasKey ? 'Enregistrée' : 'Aucune clé enregistrée',
-                  leading: const FrostedListAvatar(icon: Symbols.key_rounded),
-                  trailing: const Icon(Symbols.chevron_right_rounded),
-                  onTap: () => _openKeyScreen(context),
-                ),
-                FrostedListTile(
-                  title: 'Modèle',
-                  subtitle: model.label,
-                  leading: const FrostedListAvatar(
-                    icon: Symbols.auto_awesome_rounded,
-                  ),
-                  trailing: const Icon(Symbols.chevron_right_rounded),
-                  onTap: () => _openModelScreen(context),
-                ),
-              ],
-            ),
           if (isDegraded) ...[
             const SizedBox(height: FrostedSpacing.sp4),
             _Note(
@@ -128,13 +103,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
       return;
     }
     await _openKeyScreen(context);
-  }
-
-  Future<void> _openModelScreen(BuildContext context) {
-    return Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const AiModelScreen()),
-    );
   }
 
   Future<void> _openKeyScreen(BuildContext context) {

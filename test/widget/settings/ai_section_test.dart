@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
@@ -38,15 +39,61 @@ void main() {
       expect(find.text('Ajout rapide'), findsOneWidget);
       expect(find.text('Moteur d\'analyse'), findsOneWidget);
       expect(find.text('Clé API'), findsNothing);
+      expect(find.text('Modèle'), findsNothing);
     });
 
-    testWidgets('shows the key entry once a key is stored', (tester) async {
+    testWidgets('keeps the key entry hidden while the engine is local', (
+      tester,
+    ) async {
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
+
+      await pumpSection(tester);
+
+      expect(find.text('Clé API'), findsNothing);
+      expect(find.text('Modèle'), findsNothing);
+    });
+
+    testWidgets('shows the key and the model once the engine is remote', (
+      tester,
+    ) async {
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
       await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
 
       expect(find.text('Clé API'), findsOneWidget);
       expect(find.text('Enregistrée'), findsOneWidget);
+      expect(find.text('Modèle'), findsOneWidget);
+      expect(find.text(AiModel.fallback.label), findsOneWidget);
+    });
+
+    testWidgets('names the selected model under the model entry', (
+      tester,
+    ) async {
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
+      await PreferencesService.setAiModel(AiModel.flash37);
+
+      await pumpSection(tester);
+
+      expect(find.text(AiModel.flash37.label), findsOneWidget);
+    });
+
+    testWidgets('hides the key and the model when quick add is off', (
+      tester,
+    ) async {
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
+      await PreferencesService.setQuickAddEnabled(false);
+
+      await pumpSection(tester);
+
+      expect(find.text('Clé API'), findsNothing);
+      expect(find.text('Modèle'), findsNothing);
     });
 
     testWidgets('hides the engine entry when quick add is off', (tester) async {

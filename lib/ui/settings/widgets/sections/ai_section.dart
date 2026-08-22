@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/ui/settings/screens/ai_model_screen.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 
@@ -16,6 +18,9 @@ class AiSection extends ConsumerWidget {
     final bool quickAddEnabled = ref.watch(quickAddEnabledProvider);
     final bool hasKey =
         ref.watch(hasStoredApiKeyProvider).value ?? false;
+    final bool usesRemoteEngine =
+        ref.watch(quickAddEngineModeProvider) == QuickAddEngineMode.apiKey;
+    final AiModel model = ref.watch(selectedAiModelProvider);
 
     void setEnabled(bool enabled) =>
         ref.read(quickAddEnabledProvider.notifier).setEnabled(enabled);
@@ -44,13 +49,12 @@ class AiSection extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const QuickAddEngineScreen()),
             ),
           ),
-        // Rien n'annonce la clé : la tuile n'apparaît qu'une fois qu'il y en a
-        // une, pour la revoir ou la supprimer. On y arrive par le moteur
-        // d'analyse ou par le scan de ticket, là où elle sert.
-        if (hasKey)
+        // La clé et le modèle ne concernent que le moteur distant : ils
+        // n'apparaissent qu'une fois celui-ci choisi.
+        if (quickAddEnabled && usesRemoteEngine) ...[
           FrostedListTile(
             title: 'Clé API',
-            subtitle: 'Enregistrée',
+            subtitle: hasKey ? 'Enregistrée' : 'Aucune clé enregistrée',
             leading: const FrostedListAvatar(icon: Symbols.key_rounded),
             trailing: const Icon(Symbols.chevron_right_rounded),
             onTap: () => Navigator.push(
@@ -58,6 +62,19 @@ class AiSection extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
             ),
           ),
+          FrostedListTile(
+            title: 'Modèle',
+            subtitle: model.label,
+            leading: const FrostedListAvatar(
+              icon: Symbols.auto_awesome_rounded,
+            ),
+            trailing: const Icon(Symbols.chevron_right_rounded),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AiModelScreen()),
+            ),
+          ),
+        ],
       ],
     );
   }
