@@ -6,7 +6,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
-import '../../theme/frosted_tokens.dart';
 import '../actions/frosted_icon_button.dart';
 
 const AnimationStyle _kSheetAnimation = AnimationStyle(
@@ -78,10 +77,7 @@ class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
             tone: FrostedGlassTone.dark,
             elevation: FrostedGlassElevation.none,
             borderRadius: BorderRadius.zero,
-            animation: CurvedAnimation(
-              parent: animation!,
-              curve: _kSheetAnimation.curve!,
-            ),
+            animation: animation,
           ),
         ),
         super.buildModalBarrier(),
@@ -121,7 +117,6 @@ class FrostedBottomSheet extends StatelessWidget {
             color: cs.surfaceContainer.withValues(alpha: 0.72),
             borderRadius: radius,
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            boxShadow: context.frostedTokens.glass.liftedShadow,
           ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(

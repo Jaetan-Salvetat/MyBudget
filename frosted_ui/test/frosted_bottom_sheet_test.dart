@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
@@ -121,6 +122,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  group('FrostedBottomSheet surface', () {
+    testWidgets('it paints no drop shadow, which the route would clip', (
+      WidgetTester tester,
+    ) async {
+      await openSheet(tester);
+
+      final BoxDecoration decoration =
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .descendant(
+                          of: find.byType(FrostedBottomSheet),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+
+      expect(decoration.boxShadow, isNull);
+    });
+  });
+
   group('FrostedBottomSheet close button', () {
     testWidgets('a titled sheet gets a close button', (
       WidgetTester tester,
@@ -152,6 +176,26 @@ void main() {
   });
 
   group('FrostedBottomSheet drag to dismiss', () {
+    testWidgets('the backdrop blur fades in step with the finger', (
+      WidgetTester tester,
+    ) async {
+      await openSheet(tester);
+
+      final double opened = _barrierSigma(tester);
+      final double height = tester.getSize(find.byType(FrostedBottomSheet)).height;
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(FrostedBottomSheet)),
+      );
+      await gesture.moveBy(const Offset(0, kDragSlopDefault));
+      await gesture.moveBy(Offset(0, height / 2));
+      await tester.pump();
+
+      expect(_barrierSigma(tester), closeTo(opened / 2, 1));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('a downward drag past the midpoint closes the sheet', (
       WidgetTester tester,
     ) async {
@@ -286,4 +330,12 @@ void main() {
       );
     });
   });
+}
+
+double _barrierSigma(WidgetTester tester) {
+  final String filter =
+      tester.layers.whereType<BackdropFilterLayer>().first.filter.toString();
+  return double.parse(
+    RegExp(r'blur\(([0-9.]+)').firstMatch(filter)!.group(1)!,
+  );
 }
