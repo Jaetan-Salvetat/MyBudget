@@ -69,13 +69,13 @@ class DataSection extends ConsumerWidget {
 
   Future<void> _importUserData(BuildContext context, WidgetRef ref) async {
     try {
-      final result = await FilePicker.pickFiles(type: FileType.any);
+      final files = await FilePicker.pickFiles(type: FileType.any);
 
-      if (result == null || result.files.isEmpty) {
+      if (files.isEmpty) {
         return;
       }
 
-      final path = result.files.single.path;
+      final path = files.single.path;
       if (path == null) {
         if (context.mounted) {
           FrostedSnackbar.show(context, message: 'Chemin du fichier invalide');
