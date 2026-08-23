@@ -8,8 +8,7 @@ import 'package:mybudget/core/services/ai/api_key_service.dart';
 /// Vérifie une clé avant de la laisser devenir le moteur. Un refus de format
 /// ne coûte aucun appel réseau ; un appel abouti est la seule preuve acceptée.
 class ApiKeyVerifier {
-  const ApiKeyVerifier({required AiChatClientFactory clientFactory})
-    : _clientFactory = clientFactory;
+  const ApiKeyVerifier({required this._clientFactory});
 
   /// Plus long que le délai d'usage : ici l'utilisateur attend et regarde.
   static const Duration timeout = Duration(seconds: 10);

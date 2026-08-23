@@ -7,15 +7,12 @@ import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 /// non-événement au lieu d'une attente puis d'une erreur.
 class RacingQuickAddEngine implements QuickAddEngine {
   RacingQuickAddEngine({
-    required QuickAddEngine local,
-    required QuickAddEngine remote,
+    required this._local,
+    required this._remote,
     this.timeout = defaultTimeout,
-    void Function(AiRequestFailure failure)? onRemoteFailure,
-    void Function()? onRemoteSuccess,
-  }) : _local = local,
-       _remote = remote,
-       _onRemoteFailure = onRemoteFailure,
-       _onRemoteSuccess = onRemoteSuccess;
+    this._onRemoteFailure,
+    this._onRemoteSuccess,
+  });
 
   /// Au-delà, la saisie traîne. Le filet local est déjà là, on le prend.
   static const Duration defaultTimeout = Duration(seconds: 3);

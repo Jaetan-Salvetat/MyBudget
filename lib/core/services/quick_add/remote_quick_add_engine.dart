@@ -13,11 +13,7 @@ import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 /// localement et retiré du texte avant l'envoi, ce qui supprime d'un coup les
 /// montants hallucinés et les séparateurs décimaux inversés.
 class RemoteQuickAddEngine implements QuickAddEngine {
-  RemoteQuickAddEngine({
-    required AiChatClient client,
-    required CategoryTaxonomyService taxonomy,
-  }) : _client = client,
-       _taxonomy = taxonomy;
+  RemoteQuickAddEngine({required this._client, required this._taxonomy});
 
   /// Une saisie d'ajout rapide tient en une ligne. Au-delà c'est un collage :
   /// on borne le coût et ce qui sort du téléphone.

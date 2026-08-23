@@ -45,10 +45,9 @@ class CategoryDisplayResolver {
   final Map<String, CategoryOverrideModel> _overrides;
 
   const CategoryDisplayResolver({
-    required CategoryTaxonomyService taxonomy,
-    required Map<String, CategoryOverrideModel> overrides,
-  }) : _taxonomy = taxonomy,
-       _overrides = overrides;
+    required this._taxonomy,
+    required this._overrides,
+  });
 
   /// Resolves a leaf slug, or null when it is unknown.
   CategoryDisplay? resolve(String slug) {
