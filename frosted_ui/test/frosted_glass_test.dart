@@ -30,6 +30,52 @@ void main() {
     );
   }
 
+  group('FrostedGlass suspension', () {
+    Future<void> pumpSuspended(WidgetTester tester, bool suspended) {
+      return tester.pumpWidget(
+        MaterialApp(
+          theme: FrostedTheme.dark(seedColor: seed),
+          home: FrostedGlassSuspension(
+            suspended: suspended,
+            child: const Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 100,
+                height: 80,
+                child: FrostedGlass(child: SizedBox.expand()),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('glass blurs the page when nothing rasterizes it', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, false);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isNotEmpty);
+    });
+
+    testWidgets('glass drops its backdrop while an ancestor rasterizes it', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, true);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isEmpty);
+    });
+
+    testWidgets('glass takes its backdrop back once the ancestor lets go', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, true);
+      await pumpSuspended(tester, false);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isNotEmpty);
+    });
+  });
+
   group('FrostedGlass edge', () {
     Future<void> pumpElevated(
       WidgetTester tester, {

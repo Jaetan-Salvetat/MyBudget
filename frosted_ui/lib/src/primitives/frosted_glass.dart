@@ -9,6 +9,7 @@ import '../theme/frosted_glass_level_spec.dart';
 import '../theme/frosted_glass_tokens.dart';
 import '../theme/frosted_tokens.dart';
 import 'frosted_glass_level.dart';
+import 'frosted_glass_suspension.dart';
 
 /// The Liquid Glass primitive used by every chrome surface (tab bar,
 /// toolbar, sheet, modal shell).
@@ -110,11 +111,13 @@ class FrostedGlass extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Positioned.fill(
-              child: _GlassBackdrop(
-                sigma: spec.blurSigma * t,
-                saturation: lerpDouble(1, glass.saturation, t)!,
-                child: ColoredBox(color: veilColor),
-              ),
+              child: FrostedGlassSuspension.of(context)
+                  ? ColoredBox(color: veilColor)
+                  : _GlassBackdrop(
+                      sigma: spec.blurSigma * t,
+                      saturation: lerpDouble(1, glass.saturation, t)!,
+                      child: ColoredBox(color: veilColor),
+                    ),
             ),
             Positioned.fill(
               child: IgnorePointer(

@@ -72,40 +72,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       AccountsScreen(),
     ];
 
-    return FrostedScaffold(
-      extendBodyBehindAppBar: true,
-      bottomNavigationBar: keyboardVisible
-          ? null
-          : SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
-                child: FrostedNavPill(
-                  selectedIndex: selectedTab.index,
-                  onDestinationSelected: (index) => ref
-                      .read(homeNavigationProvider.notifier)
-                      .selectTab(HomeTab.values[index]),
-                  action: quickAddEnabled
-                      ? FrostedNavAction(
-                          icon: Symbols.auto_awesome_rounded,
-                          label: 'Ajout rapide',
-                          onPressed: _focusQuickAdd,
+    return PopScope(
+      canPop: selectedTab == HomeTab.dashboard,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (didPop) return;
+        ref.read(homeNavigationProvider.notifier).handleBack();
+      },
+      child: FrostedScaffold(
+        extendBodyBehindAppBar: true,
+        bottomNavigationBar: keyboardVisible
+            ? null
+            : SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                  child: FrostedNavPill(
+                    selectedIndex: selectedTab.index,
+                    onDestinationSelected: (index) => ref
+                        .read(homeNavigationProvider.notifier)
+                        .selectTab(HomeTab.values[index]),
+                    action: quickAddEnabled
+                        ? FrostedNavAction(
+                            icon: Symbols.auto_awesome_rounded,
+                            label: 'Ajout rapide',
+                            onPressed: _focusQuickAdd,
+                          )
+                        : null,
+                    destinations: _items
+                        .map(
+                          (item) => FrostedNavItem(
+                            icon: item.icon,
+                            selectedIcon: item.selectedIcon,
+                            label: item.label,
+                          ),
                         )
-                      : null,
-                  destinations: _items
-                      .map(
-                        (item) => FrostedNavItem(
-                          icon: item.icon,
-                          selectedIcon: item.selectedIcon,
-                          label: item.label,
-                        ),
-                      )
-                      .toList(),
+                        .toList(),
+                  ),
                 ),
               ),
-            ),
-      body: FrostedBackground(
-        child: IndexedStack(index: selectedTab.index, children: screens),
+        body: FrostedBackground(
+          child: FrostedFadeThroughView(
+            index: selectedTab.index,
+            children: screens,
+          ),
+        ),
       ),
     );
   }
