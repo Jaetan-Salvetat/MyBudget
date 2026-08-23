@@ -183,6 +183,7 @@ class _NavPillDestination extends StatelessWidget {
               curve: motion.curve,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   _IconWithBadge(
                     icon: icon,

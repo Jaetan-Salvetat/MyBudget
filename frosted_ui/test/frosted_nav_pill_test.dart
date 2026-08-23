@@ -139,6 +139,46 @@ void main() {
     });
   });
 
+  group('FrostedNavPill destination centring', () {
+    testWidgets('an unlabelled icon sits at the centre of its tap target', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      final Finder icon = find.byIcon(Icons.account_balance_outlined);
+      final Finder target = find
+          .ancestor(of: icon, matching: find.byType(AnimatedContainer))
+          .first;
+
+      expect(
+        tester.getCenter(icon).dx,
+        moreOrLessEquals(tester.getCenter(target).dx, epsilon: 0.01),
+      );
+    });
+
+    testWidgets('the selected icon and label stay centred together', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, selectedIndex: 0);
+      await tester.pumpAndSettle();
+
+      final Finder target = find
+          .ancestor(
+            of: find.text('Accueil'),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first;
+      final Rect icon = tester.getRect(find.byIcon(Icons.dashboard_outlined));
+      final Rect label = tester.getRect(find.text('Accueil'));
+
+      expect(
+        (icon.left + label.right) / 2,
+        moreOrLessEquals(tester.getCenter(target).dx, epsilon: 0.01),
+      );
+    });
+  });
+
   group('FrostedNavPill labels', () {
     testWidgets('only the selected destination carries a visible label', (
       WidgetTester tester,
