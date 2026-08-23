@@ -31,35 +31,86 @@ jour. L'asset porte donc sa version (`model_v2.onnx`, à incrémenter à chaque 
 `QuickAddModelRunner.load()` supprime les extractions des versions précédentes, qui pèsent 142 Mo
 chacune.
 
-## 3. Tokenizer : format binaire + hors isolate UI — à faire
+## 3. Tokenizer : format binaire — fait
 
-`QuickAddTokenizer.load()` fait aujourd'hui, sur l'isolate qui dessine :
+`QuickAddTokenizer.load()` faisait, sur l'isolate qui dessine : décodage UTF-8 de 33 MB,
+`json.decode`, puis construction de deux tables de hachage de 256 000 et 580 604 entrées. Mesuré à
+**561 ms à froid** (host Dart) — dont 211 ms de `json.decode` et 167 ms de construction des clefs
+de merges. L'encodage, lui, ne coûtait rien : 0,05 ms.
 
-```dart
-rootBundle.loadString(assetPath)   // décodage UTF-8 de 33 MB
-json.decode(jsonStr)               // arbre JSON complet en mémoire
-rawVocab.map(...)                  // 256 000 entrées, recopiées dans une 2e map
-for (i in 580 604 merges)          // 580k concaténations '${pair[0]} ${pair[1]}'
-```
+Le coût étant entièrement dans la construction des tables, elles ont disparu. Le format binaire
+(`assets/models/tokenizer.bin`, `QuickAddTokenizerFormat`) stocke le vocabulaire trié par octets et
+les fusions triées par paire d'identifiants ; `encode()` fait des recherches dichotomiques
+directement dans le `Uint8List`, sans jamais matérialiser une entrée.
 
-Deux leviers cumulables :
+| | avant | après |
+|---|---|---|
+| `load()` | 561 ms | **8,7 ms** |
+| `encode()` | 0,05 ms | 0,09 ms |
+| asset | 33 MB | **10,4 MB** |
 
-- **Format binaire pré-calculé** (script de build dans `tool/`, régénéré depuis `tokenizer.json` à
-  chaque ré-entraînement) : lecture d'un `Uint8List` + balayage linéaire. Pas de parseur JSON, pas
-  d'arbre intermédiaire, les paires de merges deviennent des paires d'entiers. Fichier attendu :
-  33 MB → 5-8 MB.
-- **Déport sur un isolate** : à ne faire qu'en renvoyant un buffer compact. Renvoyer les deux maps
-  (256k et 580k entrées) coûterait une copie du même ordre de grandeur que le parsing économisé.
+Les fusions désignent leurs deux moitiés par identifiant plutôt que par texte — un BPE entraîné ne
+fusionne que des tokens du vocabulaire, ce que la génération confirme (0 fusion écartée sur
+580 604). Comparer deux entiers évite de reconstruire une clef texte à chaque comparaison.
 
-Le premier suffit probablement à rendre le second inutile. Mesurer `load()` en Dart sur device
-avant de choisir — les 287 ms Python sont un plancher qui ne dit rien du coût réel.
+Le déport sur un isolate devient inutile : 8,7 ms sur le thread UI ne se voient pas.
 
-## 4. Warm-up — à faire
+Régénération après ré-entraînement :
+`dart run tool/build_tokenizer_asset.dart <tokenizer.json> assets/models/tokenizer.bin`.
 
-Le modèle se charge au premier caractère tapé : `quick_add_bar.dart` → `onInputChanged` → debounce
-200 ms → `_analyze` → `quickAddEngineProvider`. Rien ne le précharge. Déclencher
-`ref.read(quickAddEngineProvider.future)` en fire-and-forget au splash ou au montage du dashboard
-sort le chargement du chemin critique.
+Validation : `test/fixtures/tokenizer_golden.json` capture l'encodage de 168 entrées avec
+l'implémentation JSON d'origine (corpus complet + cas limites : chaînes vides, non-ASCII, CJK,
+troncature). Le test golden échoue à la moindre divergence — le modèle doit recevoir exactement ce
+qu'il recevait à l'entraînement.
+
+## 3 bis. Modèle hors dépôt — fait
+
+Les deux workflows faisaient `lfs: true` : chaque run de CI tirait 176 MB d'objets LFS, dont
+`ci.yml` cinq fois (matrice de 5 jobs). La bande passante LFS consommée depuis Actions compte dans
+le quota, 1 Go/mois en gratuit.
+
+Le modèle vit maintenant dans les release assets, qui ne sont pas facturés :
+
+- `tool/model.lock` — dépôt, release, nom de l'asset, SHA-256. Versionné, donc un vieux commit
+  récupère le modèle qu'il attend.
+- `tool/fetch_model.sh` — télécharge si absent ou non conforme, vérifie l'empreinte, sort en erreur
+  sinon. Appelé par les deux workflows de release avant `flutter build`, avec un `actions/cache`
+  clé sur `tool/model.lock`.
+- `tool/publish_model.sh` — régénère le tokenizer, dépose le modèle sous la version suivante, crée
+  la release, réécrit le lock. Refuse un tag existant.
+- `QuickAddModelRunner` lit le nom du modèle dans le manifeste des assets plutôt que dans une
+  constante : publier n'a qu'un endroit à mettre à jour, et un modèle absent — `fetch_model.sh`
+  oublié — échoue avec un message explicite au lieu de casser chez l'utilisateur.
+- `assets/models/*.onnx` et `assets/models/tokenizer.json` passent dans `.gitignore`.
+- `ci.yml` n'a besoin de rien : aucun test ne charge le vrai ONNX,
+  `quick_add_model_runner_test.dart` mocke `OnnxRuntime`.
+
+LFS ne porte plus que `tokenizer.bin`, 11 MB. Les ~440 MB déjà dans l'historique LFS y restent :
+seuls les futurs modèles échappent au quota.
+
+Piège à connaître : `pubspec.yaml` déclare `assets/models/` comme dossier, pas fichier par fichier.
+Un modèle absent ne casse donc pas le build — l'APK part sans modèle et l'app échoue au premier
+ajout rapide. D'où la vérification d'empreinte qui fait échouer le job.
+
+## 4. Warm-up — fait
+
+Le moteur se chargeait au premier caractère tapé : `quick_add_bar.dart` → `onInputChanged` →
+debounce 200 ms → `_analyze` → `quickAddEngineProvider`. Rien ne le préchargeait.
+
+`quickAddWarmUpProvider` est lu dans `SplashScreen.initState()`. Le splash dure 2 200 ms, le
+chargement complet en prend ~810 ms sur host : il tient largement, et l'ajout rapide est prêt avant
+que l'utilisateur atteigne le dashboard.
+
+Deux garde-fous :
+
+- il respecte `quickAddEnabledProvider` — charger 142 Mo pour une fonctionnalité coupée serait du
+  gâchis ;
+- il n'expose pas son échec. L'ajout rapide n'est pas ce qui doit empêcher l'app de démarrer, et
+  l'erreur se représente d'elle-même au premier usage, avec son message.
+
+Le point 3 devait précéder celui-ci : sans lui, précharger au splash aurait déplacé le gel de
+560 ms du tokenizer sur l'animation du splash au lieu de le supprimer. La session ONNX, elle, part
+sur un thread natif — visible dans la stack trace du plugin — et ne gèle rien.
 
 ## 5. Ne pas invalider le moteur local quand seul le distant change — à faire
 

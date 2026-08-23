@@ -16,14 +16,27 @@ void main() {
   late Directory tempDirectory;
   late QuickAddModelRunner runner;
 
+  const currentAsset = 'assets/models/model_v2.onnx';
+
   String cachedName(String version) => 'model_$version.onnx';
 
   File cachedFile(String name) => File('${tempDirectory.path}/$name');
 
+  QuickAddModelRunner runnerWith({
+    ModelAssetResolver? modelAsset,
+    TempDirectoryResolver? tempDirectoryResolver,
+  }) {
+    return QuickAddModelRunner(
+      ort,
+      tempDirectory: tempDirectoryResolver ?? () async => tempDirectory,
+      modelAsset: modelAsset ?? () async => currentAsset,
+    );
+  }
+
   setUp(() async {
     ort = MockOnnxRuntime();
     tempDirectory = await Directory.systemTemp.createTemp('quick_add_runner');
-    runner = QuickAddModelRunner(ort, tempDirectory: () async => tempDirectory);
+    runner = runnerWith();
 
     when(
       () => ort.createSessionFromAsset(any()),
@@ -35,13 +48,36 @@ void main() {
   });
 
   group('QuickAddModelRunner', () {
-    test('loads the versioned asset', () async {
+    test('loads the versioned asset found in the bundle', () async {
       await runner.load();
 
       expect(runner.isLoaded, isTrue);
+      verify(() => ort.createSessionFromAsset(currentAsset)).called(1);
+    });
+
+    test('accepts any version the bundle carries', () async {
+      runner = runnerWith(modelAsset: () async => 'assets/models/model_v7.onnx');
+
+      await runner.load();
+
       verify(
-        () => ort.createSessionFromAsset(QuickAddModelRunner.assetPath),
+        () => ort.createSessionFromAsset('assets/models/model_v7.onnx'),
       ).called(1);
+    });
+
+    test('recognises a versioned model asset, and only that', () {
+      expect(
+        QuickAddModelRunner.assetPattern.hasMatch('assets/models/model_v2.onnx'),
+        isTrue,
+      );
+      expect(
+        QuickAddModelRunner.assetPattern.hasMatch('assets/models/model.onnx'),
+        isFalse,
+      );
+      expect(
+        QuickAddModelRunner.assetPattern.hasMatch('assets/models/tokenizer.bin'),
+        isFalse,
+      );
     });
 
     test('deletes model extractions left by a previous version', () async {
@@ -56,9 +92,8 @@ void main() {
     });
 
     test('keeps the extraction of the version in use', () async {
-      final current = cachedFile(
-        QuickAddModelRunner.assetPath.split('/').last,
-      )..writeAsStringSync('courant');
+      final current = cachedFile(currentAsset.split('/').last)
+        ..writeAsStringSync('courant');
 
       await runner.load();
 
@@ -75,14 +110,24 @@ void main() {
     });
 
     test('loads even when the temporary directory is unreachable', () async {
-      runner = QuickAddModelRunner(
-        ort,
-        tempDirectory: () async => throw const FileSystemException('no temp'),
+      runner = runnerWith(
+        tempDirectoryResolver: () async =>
+            throw const FileSystemException('no temp'),
       );
 
       await runner.load();
 
       expect(runner.isLoaded, isTrue);
+    });
+
+    test('fails explicitly when the bundle carries no model', () async {
+      runner = runnerWith(
+        modelAsset: () async =>
+            throw StateError('Aucun modele dans assets/models/'),
+      );
+
+      await expectLater(runner.load(), throwsStateError);
+      expect(runner.isLoaded, isFalse);
     });
 
     test('does not recreate a session already loaded', () async {

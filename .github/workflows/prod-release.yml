@@ -56,6 +56,15 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      - name: Cache quick-add model
+        uses: actions/cache@v4
+        with:
+          path: assets/models/*.onnx
+          key: quick-add-model-${{ hashFiles('tool/model.lock') }}
+
+      - name: Fetch quick-add model
+        run: ./tool/fetch_model.sh
+
       - name: Build apk
         run: flutter build apk --flavor prod --release --no-tree-shake-icons
 

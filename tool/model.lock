@@ -1,0 +1,10 @@
+# Modele quick-add publie hors du depot : LFS facture le stockage et la bande
+# passante a chaque run de CI, les release assets non. Fichier lu par
+# tool/fetch_model.sh et par le cache de la CI — versionne dans git, il rend
+# chaque commit reproductible : un vieux commit recupere le modele qu'il attend.
+#
+# Genere par tool/publish_model.sh, a ne pas editer a la main.
+MODEL_REPOSITORY=Jaetan-Salvetat/MyBudget
+MODEL_RELEASE=model-v2
+MODEL_ASSET=model_v2.onnx
+MODEL_SHA256=c78f5ac0b148b743ceaa3876f1fd57f3ca44e4d14f28e8bd4a8b137b22229955

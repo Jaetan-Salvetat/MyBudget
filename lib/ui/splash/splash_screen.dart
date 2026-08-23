@@ -4,6 +4,7 @@ import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
+import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -42,6 +43,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
 
     _controller.forward();
+    // Le splash dure plus longtemps que le chargement du moteur d'ajout
+    // rapide : autant le faire ici plutot qu'a la premiere frappe.
+    ref.read(quickAddWarmUpProvider);
     _navigate();
   }
 
