@@ -55,3 +55,8 @@ ml/**/output/
 ml/**/dataset/
 ml/**/.dart_tool/
 ml/**/__pycache__/
+
+# Modèle quick-add : hors dépôt, récupéré via ./tool/fetch_model.sh
+assets/models/*.onnx
+# Source du tokenizer : sert seulement à régénérer tokenizer.bin
+assets/models/tokenizer.json

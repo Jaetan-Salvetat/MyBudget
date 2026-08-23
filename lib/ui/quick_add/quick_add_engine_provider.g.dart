@@ -57,3 +57,59 @@ final class QuickAddEngineProvider
 }
 
 String _$quickAddEngineHash() => r'8f7ca788fcd6d88dd9be6292534704ea7443c88f';
+
+/// Le moteur se chargeait au premier caractere tape : le modele et le
+/// tokenizer arrivaient pendant que l'utilisateur attendait sa categorie.
+/// Le declencher au splash sort ce cout du chemin critique — l'ecran dure
+/// deja plus longtemps que le chargement.
+///
+/// Un echec ne remonte pas : l'ajout rapide n'est pas ce qui doit empecher
+/// l'app de demarrer, et l'erreur se represente d'elle-meme au premier usage.
+
+@ProviderFor(quickAddWarmUp)
+final quickAddWarmUpProvider = QuickAddWarmUpProvider._();
+
+/// Le moteur se chargeait au premier caractere tape : le modele et le
+/// tokenizer arrivaient pendant que l'utilisateur attendait sa categorie.
+/// Le declencher au splash sort ce cout du chemin critique — l'ecran dure
+/// deja plus longtemps que le chargement.
+///
+/// Un echec ne remonte pas : l'ajout rapide n'est pas ce qui doit empecher
+/// l'app de demarrer, et l'erreur se represente d'elle-meme au premier usage.
+
+final class QuickAddWarmUpProvider
+    extends $FunctionalProvider<AsyncValue<void>, void, FutureOr<void>>
+    with $FutureModifier<void>, $FutureProvider<void> {
+  /// Le moteur se chargeait au premier caractere tape : le modele et le
+  /// tokenizer arrivaient pendant que l'utilisateur attendait sa categorie.
+  /// Le declencher au splash sort ce cout du chemin critique — l'ecran dure
+  /// deja plus longtemps que le chargement.
+  ///
+  /// Un echec ne remonte pas : l'ajout rapide n'est pas ce qui doit empecher
+  /// l'app de demarrer, et l'erreur se represente d'elle-meme au premier usage.
+  QuickAddWarmUpProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'quickAddWarmUpProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$quickAddWarmUpHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<void> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<void> create(Ref ref) {
+    return quickAddWarmUp(ref);
+  }
+}
+
+String _$quickAddWarmUpHash() => r'5605a998379aea0cf1d19d6f2ae25631db388c19';

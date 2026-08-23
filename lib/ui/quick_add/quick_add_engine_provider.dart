@@ -58,3 +58,22 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
     onRemoteSuccess: degradation.reportSuccess,
   );
 }
+
+/// Le moteur se chargeait au premier caractere tape : le modele et le
+/// tokenizer arrivaient pendant que l'utilisateur attendait sa categorie.
+/// Le declencher au splash sort ce cout du chemin critique — l'ecran dure
+/// deja plus longtemps que le chargement.
+///
+/// Un echec ne remonte pas : l'ajout rapide n'est pas ce qui doit empecher
+/// l'app de demarrer, et l'erreur se represente d'elle-meme au premier usage.
+@Riverpod(keepAlive: true)
+Future<void> quickAddWarmUp(Ref ref) async {
+  if (!ref.read(quickAddEnabledProvider)) return;
+
+  try {
+    await ref.read(quickAddEngineProvider.future);
+  } catch (error, stackTrace) {
+    debugPrint('Prechargement de l\'ajout rapide impossible : '
+        '$error\n$stackTrace');
+  }
+}
