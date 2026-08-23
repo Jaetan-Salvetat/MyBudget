@@ -7,6 +7,7 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
+import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
 class CompactExpenseRow extends StatelessWidget {
   final ExpenseModel expense;
@@ -32,15 +33,6 @@ class CompactExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final isRecurrent = expense.frequencyEnum != Frequency.oneTime;
-    final letter = switch (expense.frequencyEnum) {
-      Frequency.monthly => 'M',
-      Frequency.annual => 'A',
-      Frequency.oneTime => null,
-    };
-    final badgeColor = expense.frequencyEnum == Frequency.monthly
-        ? scheme.primary
-        : scheme.secondary;
     final categoryColor = category != null
         ? Color(category!.color)
         : scheme.primary;
@@ -67,14 +59,12 @@ class CompactExpenseRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _CategoryDot(
+            TransactionAvatar(
               color: categoryColor,
               icon: category == null
                   ? Symbols.category_rounded
                   : CategoryDefaults.resolveIcon(category!.icon),
-              ringColor: isRecurrent ? badgeColor : null,
-              badgeLetter: letter,
-              badgeColor: badgeColor,
+              beneficiary: beneficiary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -156,76 +146,6 @@ class CompactExpenseRow extends StatelessWidget {
       deleteConfirmationMessage: 'Voulez-vous vraiment supprimer cette dépense ?',
       onEdit: onEdit,
       onDelete: onDelete,
-    );
-  }
-}
-
-class _CategoryDot extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final Color? ringColor;
-  final String? badgeLetter;
-  final Color badgeColor;
-
-  const _CategoryDot({
-    required this.color,
-    required this.icon,
-    required this.badgeColor,
-    this.ringColor,
-    this.badgeLetter,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: ringColor != null
-                  ? [
-                      BoxShadow(color: scheme.surface, spreadRadius: 1.5),
-                      BoxShadow(color: ringColor!, spreadRadius: 3),
-                    ]
-                  : null,
-            ),
-            alignment: Alignment.center,
-            child: Icon(icon, color: Colors.white, size: 17),
-          ),
-          if (badgeLetter != null)
-            Positioned(
-              bottom: -2,
-              right: -2,
-              child: Container(
-                width: 15,
-                height: 15,
-                decoration: BoxDecoration(
-                  color: badgeColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: scheme.surface, width: 1.5),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  badgeLetter!,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    height: 1,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
