@@ -39,7 +39,7 @@ abstract class _$AccountNotifier extends $AsyncNotifier<List<AccountModel>> {
   FutureOr<List<AccountModel>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<List<AccountModel>>, List<AccountModel>>;
     final element =
@@ -50,6 +50,6 @@ abstract class _$AccountNotifier extends $AsyncNotifier<List<AccountModel>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

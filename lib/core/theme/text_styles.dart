@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mybudget/core/theme/flutter_material_mapper.dart';
 
 class AppTextStyles {
   AppTextStyles._();
@@ -8,7 +9,9 @@ class AppTextStyles {
     final base = brightness == Brightness.dark
         ? Typography.whiteMountainView
         : Typography.blackMountainView;
-    return GoogleFonts.interTextTheme(base).apply(
+    return FlutterMaterialMapper.toTextTheme(
+      GoogleFonts.interTextTheme(FlutterMaterialMapper.toLegacyTextTheme(base)),
+    ).apply(
       bodyColor: brightness == Brightness.dark
           ? const Color(0xFFE5E1E6)
           : const Color(0xFF1C1B1F),

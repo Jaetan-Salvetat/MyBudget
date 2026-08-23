@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SeedOption {
   const SeedOption({required this.label, required this.color});

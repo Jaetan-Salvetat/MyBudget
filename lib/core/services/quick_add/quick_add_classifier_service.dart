@@ -17,12 +17,10 @@ class QuickAddClassifierService implements QuickAddEngine {
   final CategoryTaxonomyService _taxonomy;
 
   QuickAddClassifierService({
-    required QuickAddTokenizer tokenizer,
-    required QuickAddModelRunner modelRunner,
-    required CategoryTaxonomyService taxonomy,
-  }) : _tokenizer = tokenizer,
-       _modelRunner = modelRunner,
-       _taxonomy = taxonomy;
+    required this._tokenizer,
+    required this._modelRunner,
+    required this._taxonomy,
+  });
 
   Future<void> load() async {
     await _tokenizer.load();

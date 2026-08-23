@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 extension ThemeModeDisplay on ThemeMode {
   String get label => switch (this) {

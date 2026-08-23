@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';

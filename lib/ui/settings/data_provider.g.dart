@@ -47,7 +47,7 @@ abstract class _$DataNotifier extends $Notifier<DataState> {
   DataState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DataState, DataState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$DataNotifier extends $Notifier<DataState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

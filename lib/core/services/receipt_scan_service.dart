@@ -8,7 +8,7 @@ import 'package:mybudget/models/scanned_item_model.dart';
 /// Lit un ticket de caisse. La clé, le fournisseur et le modèle sont ceux de
 /// l'ajout rapide : une seule configuration pour les deux fonctions.
 class ReceiptScanService {
-  ReceiptScanService({required AiChatClient client}) : _client = client;
+  ReceiptScanService({required this._client});
 
   static const String _schemaName = 'receipt';
 

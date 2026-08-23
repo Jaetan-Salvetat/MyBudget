@@ -23,8 +23,12 @@ kotlin {
 
 android {
     namespace = "fr.jaetan.mybudget"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = "28.2.13676358"
+
+    buildFeatures {
+        resValues = true
+    }
 
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
@@ -55,6 +59,7 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
+            applicationIdSuffix = ".dev"
             resValue("string", "app_name", "MyBudget Debug")
         }
         create("prod") {
@@ -73,10 +78,13 @@ android {
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
         }
+        getByName("profile") {
+            applicationIdSuffix = ".debug"
+        }
         release {
             signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }

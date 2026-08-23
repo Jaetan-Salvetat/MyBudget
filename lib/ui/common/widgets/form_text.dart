@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Heading that opens a group of related fields inside a form.
 class FormSectionTitle extends StatelessWidget {

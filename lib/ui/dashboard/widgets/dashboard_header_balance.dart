@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/dashboard/widgets/compact_balance_line.dart';
 import 'package:mybudget/ui/dashboard/widgets/hero_balance_card.dart';

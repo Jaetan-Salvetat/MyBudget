@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/theme/flutter_material_mapper.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
 
@@ -162,7 +163,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           MarkdownBody(
             data: release.notes,
             styleSheet: MarkdownStyleSheet.fromTheme(
-              theme,
+              FlutterMaterialMapper.toLegacyThemeData(theme),
             ).copyWith(p: theme.textTheme.bodyMedium),
           ),
         ],

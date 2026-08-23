@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_list.dart';
 
 class ExpensesScreen extends StatelessWidget {
