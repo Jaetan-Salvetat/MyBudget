@@ -3,19 +3,21 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 
-class ExpensesSearchBar extends StatelessWidget {
+class TransactionSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final int activeFiltersCount;
   final ValueChanged<String> onChanged;
   final VoidCallback onOpenFilters;
   final String hintText;
+  final Color? badgeColor;
 
-  const ExpensesSearchBar({
+  const TransactionSearchBar({
     required this.controller,
     required this.activeFiltersCount,
     required this.onChanged,
     required this.onOpenFilters,
     this.hintText = 'Rechercher un nom, un bénéficiaire…',
+    this.badgeColor,
     super.key,
   });
 
@@ -76,7 +78,7 @@ class ExpensesSearchBar extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
-                    color: finance.expense,
+                    color: badgeColor ?? finance.expense,
                     borderRadius: BorderRadius.circular(9999),
                     border: Border.all(width: 1.5, color: scheme.surface),
                   ),

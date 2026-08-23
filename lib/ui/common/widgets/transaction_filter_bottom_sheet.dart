@@ -1,132 +1,145 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/core/services/amount_slider_scale.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/expense_filter_data.dart';
+import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/transaction_filter_data.dart';
 
-class ExpenseFilterBottomSheet extends StatefulWidget {
-  final ExpenseFilterData initialFilterData;
+class TransactionFilterBottomSheet extends StatefulWidget {
+  final TransactionFilterData initialFilterData;
   final List<CategoryDisplay> categories;
   final List<AccountModel> accounts;
-  final int Function(ExpenseFilterData) resultCount;
-  final Function(ExpenseFilterData) onApply;
-  final VoidCallback onClear;
-  final VoidCallback onCancel;
+  final List<Beneficiary> beneficiaries;
+  final double highestAmount;
+  final int Function(TransactionFilterData filter) resultCount;
+  final void Function(TransactionFilterData filter) onApply;
 
-  const ExpenseFilterBottomSheet({
+  const TransactionFilterBottomSheet({
     required this.initialFilterData,
     required this.categories,
     required this.accounts,
+    required this.beneficiaries,
+    required this.highestAmount,
     required this.resultCount,
     required this.onApply,
-    required this.onClear,
-    required this.onCancel,
     super.key,
   });
 
   static void show({
     required BuildContext context,
-    required ExpenseFilterData initialFilterData,
+    required String title,
+    required TransactionFilterData initialFilterData,
     required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
-    required int Function(ExpenseFilterData) resultCount,
-    required Function(ExpenseFilterData) onApply,
-    required VoidCallback onClear,
-    required VoidCallback onCancel,
+    required List<Beneficiary> beneficiaries,
+    required double highestAmount,
+    required int Function(TransactionFilterData filter) resultCount,
+    required void Function(TransactionFilterData filter) onApply,
   }) {
     showFrostedBottomSheet<void>(
       context: context,
       builder: (_) => FrostedBottomSheet(
-        title: 'Filtrer les dépenses',
-        child: ExpenseFilterBottomSheet(
+        title: title,
+        child: TransactionFilterBottomSheet(
           initialFilterData: initialFilterData,
           categories: categories,
           accounts: accounts,
+          beneficiaries: beneficiaries,
+          highestAmount: highestAmount,
           resultCount: resultCount,
           onApply: onApply,
-          onClear: onClear,
-          onCancel: onCancel,
         ),
       ),
     );
   }
 
   @override
-  State<ExpenseFilterBottomSheet> createState() =>
-      _ExpenseFilterBottomSheetState();
+  State<TransactionFilterBottomSheet> createState() =>
+      _TransactionFilterBottomSheetState();
 }
 
-class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
-  static const double _maxAmountSliderValue = 1000;
+class _TransactionFilterBottomSheetState
+    extends State<TransactionFilterBottomSheet> {
+  late final AmountSliderScale _amountScale;
 
   List<String> _selectedGroupKeys = [];
   List<int> _selectedAccountIds = [];
+  List<int> _selectedBeneficiaryIds = [];
   List<Frequency> _selectedTypes = [];
-  RangeValues _amountRange = const RangeValues(0, _maxAmountSliderValue);
+  late RangeValues _amountRange;
 
   @override
   void initState() {
     super.initState();
+    _amountScale = AmountSliderScale.forHighest(widget.highestAmount);
     _selectedGroupKeys = List.from(widget.initialFilterData.groupKeys);
     _selectedAccountIds = List.from(widget.initialFilterData.accountIds);
-    _selectedTypes = List.from(widget.initialFilterData.types);
-    _amountRange = RangeValues(
-      widget.initialFilterData.minAmount ?? 0,
-      widget.initialFilterData.maxAmount ?? _maxAmountSliderValue,
+    _selectedBeneficiaryIds = List.from(
+      widget.initialFilterData.beneficiaryIds,
     );
+    _selectedTypes = List.from(widget.initialFilterData.types);
+    final (minAmount, maxAmount) = _amountScale.clamp(
+      widget.initialFilterData.minAmount,
+      widget.initialFilterData.maxAmount,
+    );
+    _amountRange = RangeValues(minAmount, maxAmount);
   }
 
-  ExpenseFilterData _buildFilterData() {
+  TransactionFilterData _buildFilterData() {
     final hasMin = _amountRange.start > 0;
-    final hasMax = _amountRange.end < _maxAmountSliderValue;
-    return ExpenseFilterData(
+    final hasMax = _amountRange.end < _amountScale.ceiling;
+    return TransactionFilterData(
       searchQuery: widget.initialFilterData.searchQuery,
       minAmount: hasMin ? _amountRange.start : null,
       maxAmount: hasMax ? _amountRange.end : null,
       groupKeys: _selectedGroupKeys,
       accountIds: _selectedAccountIds,
+      beneficiaryIds: _selectedBeneficiaryIds,
       types: _selectedTypes,
     );
   }
 
   void _toggleCategory(String key) {
     setState(() {
-      if (_selectedGroupKeys.contains(key)) {
-        _selectedGroupKeys.remove(key);
-      } else {
-        _selectedGroupKeys = [..._selectedGroupKeys, key];
-      }
+      _selectedGroupKeys = _toggled(_selectedGroupKeys, key);
     });
   }
 
   void _toggleAccount(int id) {
     setState(() {
-      if (_selectedAccountIds.contains(id)) {
-        _selectedAccountIds.remove(id);
-      } else {
-        _selectedAccountIds = [..._selectedAccountIds, id];
-      }
+      _selectedAccountIds = _toggled(_selectedAccountIds, id);
+    });
+  }
+
+  void _toggleBeneficiary(int id) {
+    setState(() {
+      _selectedBeneficiaryIds = _toggled(_selectedBeneficiaryIds, id);
     });
   }
 
   void _toggleType(Frequency type) {
     setState(() {
-      if (_selectedTypes.contains(type)) {
-        _selectedTypes.remove(type);
-      } else {
-        _selectedTypes = [..._selectedTypes, type];
-      }
+      _selectedTypes = _toggled(_selectedTypes, type);
     });
+  }
+
+  List<T> _toggled<T>(List<T> values, T value) {
+    if (values.contains(value)) {
+      return values.where((current) => current != value).toList();
+    }
+    return [...values, value];
   }
 
   void _handleReset() {
     setState(() {
       _selectedGroupKeys = [];
       _selectedAccountIds = [];
+      _selectedBeneficiaryIds = [];
       _selectedTypes = [];
-      _amountRange = const RangeValues(0, _maxAmountSliderValue);
+      _amountRange = RangeValues(0, _amountScale.ceiling);
     });
   }
 
@@ -137,39 +150,26 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final currentFilter = _buildFilterData();
-    final count = widget.resultCount(currentFilter);
+    final count = widget.resultCount(_buildFilterData());
 
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _GroupLabel(text: 'Type'),
+          const _GroupLabel(text: 'Type'),
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: [
-              _Chip(
-                label: 'Mensuel',
-                icon: Symbols.event_repeat_rounded,
-                selected: _selectedTypes.contains(Frequency.monthly),
-                onTap: () => _toggleType(Frequency.monthly),
-              ),
-              _Chip(
-                label: 'Annuel',
-                icon: Symbols.calendar_month_rounded,
-                selected: _selectedTypes.contains(Frequency.annual),
-                onTap: () => _toggleType(Frequency.annual),
-              ),
-              _Chip(
-                label: 'Ponctuel',
-                icon: Symbols.circle_rounded,
-                selected: _selectedTypes.contains(Frequency.oneTime),
-                onTap: () => _toggleType(Frequency.oneTime),
-              ),
+              for (final type in Frequency.values)
+                _Chip(
+                  label: type.label,
+                  icon: _typeIcon(type),
+                  selected: _selectedTypes.contains(type),
+                  onTap: () => _toggleType(type),
+                ),
             ],
           ),
           const SizedBox(height: 20),
@@ -177,20 +177,17 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           if (widget.categories.isNotEmpty) ...[
             _GroupLabel(
               text: 'Catégories',
-              hint: _selectedGroupKeys.isNotEmpty
-                  ? '${_selectedGroupKeys.length} sélectionnée${_selectedGroupKeys.length > 1 ? 's' : ''}'
-                  : null,
+              hint: _selectionHint(_selectedGroupKeys.length),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: widget.categories.map((category) {
-                final selected = _selectedGroupKeys.contains(category.slug);
                 return _Chip(
                   label: category.label,
                   color: Color(category.color),
-                  selected: selected,
+                  selected: _selectedGroupKeys.contains(category.slug),
                   onTap: () => _toggleCategory(category.slug),
                 );
               }).toList(),
@@ -207,8 +204,8 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           FrostedRangeSlider(
             values: _amountRange,
             min: 0,
-            max: _maxAmountSliderValue,
-            divisions: 100,
+            max: _amountScale.ceiling,
+            divisions: _amountScale.divisions,
             onChanged: (values) {
               setState(() => _amountRange = values);
             },
@@ -216,49 +213,52 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '0 €',
-                style: TextStyle(
-                  fontSize: 11,
-                  height: 14 / 11,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              Text(
-                '${_maxAmountSliderValue.round()} €',
-                style: TextStyle(
-                  fontSize: 11,
-                  height: 14 / 11,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurfaceVariant,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
+              _AmountBound(label: '0 €'),
+              _AmountBound(label: '${_amountScale.ceiling.round()} €'),
             ],
           ),
           const SizedBox(height: 20),
 
           if (widget.accounts.isNotEmpty) ...[
-            _GroupLabel(text: 'Compte'),
+            const _GroupLabel(text: 'Compte'),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: widget.accounts.map((account) {
-                final selected = _selectedAccountIds.contains(account.id);
                 return _Chip(
                   label: account.name,
                   icon: Symbols.account_balance_wallet_rounded,
-                  selected: selected,
+                  selected: _selectedAccountIds.contains(account.id),
                   onTap: () => _toggleAccount(account.id),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
           ],
 
+          if (widget.beneficiaries.isNotEmpty) ...[
+            _GroupLabel(
+              text: 'Bénéficiaire',
+              hint: _selectionHint(_selectedBeneficiaryIds.length),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: widget.beneficiaries.map((beneficiary) {
+                return _Chip(
+                  label: beneficiary.name,
+                  color: Color(beneficiary.color),
+                  selected: _selectedBeneficiaryIds.contains(beneficiary.id),
+                  onTap: () => _toggleBeneficiary(beneficiary.id),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+          ],
+
+          const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
@@ -279,6 +279,40 @@ class _ExpenseFilterBottomSheetState extends State<ExpenseFilterBottomSheet> {
           ),
           const SizedBox(height: 8),
         ],
+      ),
+    );
+  }
+
+  static IconData _typeIcon(Frequency type) {
+    return switch (type) {
+      Frequency.monthly => Symbols.event_repeat_rounded,
+      Frequency.annual => Symbols.calendar_month_rounded,
+      Frequency.oneTime => Symbols.circle_rounded,
+    };
+  }
+
+  static String? _selectionHint(int count) {
+    if (count == 0) return null;
+    return '$count sélectionné${count > 1 ? 's' : ''}';
+  }
+}
+
+class _AmountBound extends StatelessWidget {
+  final String label;
+
+  const _AmountBound({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 11,
+        height: 14 / 11,
+        fontWeight: FontWeight.w500,
+        color: scheme.onSurfaceVariant,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );
   }

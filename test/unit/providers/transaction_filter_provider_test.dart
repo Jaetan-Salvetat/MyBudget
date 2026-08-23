@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
+import 'package:mybudget/core/providers/transaction_filter_provider.dart';
 
 void main() {
-  group('ExpensesFilterNotifier', () {
-    ProviderContainer makeContainer() {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      return container;
-    }
+  ProviderContainer makeContainer() {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    return container;
+  }
 
+  group('TransactionFilterNotifier', () {
     test('starts empty', () {
       final container = makeContainer();
 
@@ -85,6 +85,27 @@ void main() {
       final filter = container.read(expensesFilterProvider);
       expect(filter.searchQuery, 'loyer');
       expect(filter.minAmount, isNull);
+    });
+
+    test('clearAll drops the search query too', () {
+      final container = makeContainer();
+      final notifier = container.read(expensesFilterProvider.notifier);
+
+      notifier.update(
+        (filter) => filter.copyWith(searchQuery: 'loyer', minAmount: 10),
+      );
+      notifier.clearAll();
+
+      expect(container.read(expensesFilterProvider).isEmpty, isTrue);
+    });
+
+    test('revenues and expenses hold independent filters', () {
+      final container = makeContainer();
+
+      container.read(expensesFilterProvider.notifier).toggleGroup('logement');
+
+      expect(container.read(revenuesFilterProvider).groupKeys, isEmpty);
+      expect(container.read(expensesFilterProvider).groupKeys, ['logement']);
     });
   });
 }

@@ -13,40 +13,29 @@ class ExpenseSortMenu {
   }) {
     showFrostedBottomSheet<void>(
       context: context,
-      builder: (_) => FrostedBottomSheet(
+      builder: (sheetContext) => FrostedBottomSheet(
         title: 'Trier par',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child: FrostedListSection(
+          tiles: [
             for (final option in ExpenseSortBy.values)
-              _SortMenuTile(
+              _tile(
+                sheetContext,
                 option: option,
                 selected: option == current,
-                onTap: () {
-                  Navigator.pop(context);
-                  onSelect(option);
-                },
+                onSelect: onSelect,
               ),
           ],
         ),
       ),
     );
   }
-}
 
-class _SortMenuTile extends StatelessWidget {
-  final ExpenseSortBy option;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _SortMenuTile({
-    required this.option,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  static FrostedListTile _tile(
+    BuildContext context, {
+    required ExpenseSortBy option,
+    required bool selected,
+    required ValueChanged<ExpenseSortBy> onSelect,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     return FrostedListTile(
       title: option.label,
@@ -57,11 +46,14 @@ class _SortMenuTile extends StatelessWidget {
       trailing: selected
           ? Icon(Symbols.check_rounded, color: scheme.primary)
           : null,
-      onTap: onTap,
+      onTap: () {
+        Navigator.pop(context);
+        onSelect(option);
+      },
     );
   }
 
-  IconData _iconFor(ExpenseSortBy option) {
+  static IconData _iconFor(ExpenseSortBy option) {
     return switch (option) {
       ExpenseSortBy.dateDesc => Symbols.arrow_downward_rounded,
       ExpenseSortBy.dateAsc => Symbols.arrow_upward_rounded,

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -9,18 +11,23 @@ import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/revenues_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
+import 'package:mybudget/core/providers/transaction_filter_provider.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
+import 'package:mybudget/core/services/transaction_filter_service.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transaction_filter_data.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
+import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
+import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
+import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
@@ -35,14 +42,13 @@ class RevenuesList extends ConsumerStatefulWidget {
 }
 
 class _RevenuesListState extends ConsumerState<RevenuesList> {
-  RevenueFilterData _filterData = RevenueFilterData();
   late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(
-      text: _filterData.searchQuery ?? '',
+      text: ref.read(revenuesFilterProvider).searchQuery ?? '',
     );
   }
 
@@ -52,44 +58,25 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     super.dispose();
   }
 
-  bool _matchesFilter(RevenueModel revenue, RevenueFilterData filter) {
-    if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-      if (!revenue.name.toLowerCase().contains(
-        filter.searchQuery!.toLowerCase(),
-      )) {
-        return false;
-      }
-    }
-    if (filter.minAmount != null && revenue.amount < filter.minAmount!) {
-      return false;
-    }
-    if (filter.maxAmount != null && revenue.amount > filter.maxAmount!) {
-      return false;
-    }
-    if (filter.accountIds.isNotEmpty &&
-        !filter.accountIds.contains(revenue.accountId)) {
-      return false;
-    }
-    if (filter.beneficiaryIds.isNotEmpty &&
-        !filter.beneficiaryIds.contains(revenue.beneficiaryId)) {
-      return false;
-    }
-    if (filter.frequencies.isNotEmpty &&
-        !filter.frequencies.contains(revenue.frequency)) {
-      return false;
-    }
-    if (filter.categoryGroupKeys.isNotEmpty &&
-        !filter.categoryGroupKeys.contains(_groupKeyOf(revenue))) {
-      return false;
-    }
-    return true;
-  }
+  TransactionFilterNotifier get _filterNotifier =>
+      ref.read(revenuesFilterProvider.notifier);
 
   String? _groupKeyOf(RevenueModel revenue) {
     return ref
         .read(categoryDisplayResolverProvider)
         .value
         ?.groupKeyOrUncategorized(revenue.categorySlug);
+  }
+
+  List<RevenueModel> _filterRevenues(
+    List<RevenueModel> revenues,
+    TransactionFilterData filter,
+  ) {
+    return TransactionFilterService.apply(
+      revenues,
+      filter,
+      groupKeyOf: _groupKeyOf,
+    );
   }
 
   bool _belongsToSelectedMonth(RevenueModel revenue, DateTime selectedMonth) {
@@ -104,8 +91,50 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     }
   }
 
+  List<RevenueModel> _activeRevenues(
+    List<RevenueModel> revenues,
+    DateTime selectedMonth,
+  ) {
+    return revenues
+        .where((r) => r.endDate == null)
+        .where((r) => _belongsToSelectedMonth(r, selectedMonth))
+        .toList();
+  }
+
+  List<RevenueModel> _monthRevenues() {
+    final selectedMonth = ref.read(selectedMonthProvider);
+    return _activeRevenues(
+      ref.read(revenueProvider).value ?? [],
+      selectedMonth,
+    );
+  }
+
+  double _highestAmount(List<RevenueModel> revenues) {
+    return revenues.fold<double>(0, (highest, r) => max(highest, r.amount));
+  }
+
+  List<ActiveFilterPill> _activeFilterPills(
+    TransactionFilterData filter,
+    List<CategoryDisplay> categories,
+    List<AccountModel> accounts,
+    List<Beneficiary> beneficiaries,
+  ) {
+    return ActiveFilterPillsBuilder.build(
+      filter: filter,
+      categories: categories,
+      accounts: accounts,
+      beneficiaries: beneficiaries,
+      onChanged: (updated) => _filterNotifier.update((_) => updated),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filter = ref.watch(revenuesFilterProvider);
+    ref.listen(revenuesFilterProvider, (_, next) {
+      _syncSearchController(next.searchQuery ?? '');
+    });
+
     return ref
         .watch(revenueProvider)
         .when(
@@ -120,11 +149,10 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
             final categories =
                 resolver?.groupsOfType(TransactionType.income) ?? const [];
 
-            final visibleRevenues = revenues
-                .where((r) => r.endDate == null)
-                .where((r) => _belongsToSelectedMonth(r, selectedMonth))
-                .where((r) => _matchesFilter(r, _filterData))
-                .toList();
+            final visibleRevenues = _filterRevenues(
+              _activeRevenues(revenues, selectedMonth),
+              filter,
+            );
 
             final groups = RevenueGroupingService.group(
               visibleRevenues,
@@ -140,6 +168,13 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 .read(revenueProvider.notifier)
                 .getMonthlyRevenues();
 
+            final pills = _activeFilterPills(
+              filter,
+              categories,
+              accounts,
+              beneficiaries,
+            );
+
             return ListView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(
@@ -154,30 +189,40 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                   ),
                 ),
                 _hPad(
-                  ExpensesSearchBar(
+                  TransactionSearchBar(
                     controller: _searchController,
-                    activeFiltersCount: _filterData.activeCount,
+                    activeFiltersCount: filter.activeCount,
+                    badgeColor: context.financeColors.income,
                     hintText: 'Rechercher un revenu, un bénéficiaire…',
-                    onChanged: (value) {
-                      setState(() {
-                        _filterData.searchQuery = value;
-                      });
-                    },
-                    onOpenFilters: () => _showFilterBottomSheet(context),
+                    onChanged: (value) => _filterNotifier.update(
+                      (current) => current.copyWith(searchQuery: value),
+                    ),
+                    onOpenFilters: () => _showFilterBottomSheet(
+                      context,
+                      categories,
+                      accounts,
+                      beneficiaries,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 RevenuesQuickFilters(
                   axis: axis,
                   categories: categories,
-                  selectedGroupKeys: _filterData.categoryGroupKeys,
+                  selectedGroupKeys: filter.groupKeys,
                   onOpenGroupBy: () => _openGroupByMenu(axis),
-                  onCategoryTap: _toggleCategoryFilter,
-                  onClear: _clearCategoryFilter,
+                  onCategoryTap: _filterNotifier.toggleGroup,
+                  onClear: _filterNotifier.clearGroups,
                 ),
+                if (pills.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _hPad(
+                    ActiveFilterPills(pills: pills, onReset: _resetFilters),
+                  ),
+                ],
                 if (groups.isEmpty) ...[
                   const SizedBox(height: 24),
-                  _hPad(_buildEmptyState(context)),
+                  _hPad(_buildEmptyState(context, filter)),
                 ],
                 for (final group in groups) ...[
                   if (axis == RevenueGroupBy.none)
@@ -254,8 +299,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final filtered = !_filterData.isEmpty;
+  Widget _buildEmptyState(BuildContext context, TransactionFilterData filter) {
+    final filtered = !filter.isEmpty;
     return EmptyState(
       message: filtered
           ? 'Aucun revenu ne correspond'
@@ -267,10 +312,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       buttonText: filtered ? 'Réinitialiser les filtres' : 'Ajouter un revenu',
       onPressed: () {
         if (filtered) {
-          setState(() {
-            _filterData = RevenueFilterData();
-            _searchController.clear();
-          });
+          _filterNotifier.clearAll();
           return;
         }
         final accounts = ref.read(accountProvider).value ?? [];
@@ -302,19 +344,15 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  void _toggleCategoryFilter(String groupKey) {
-    final groupKeys = List<String>.from(_filterData.categoryGroupKeys);
-    if (!groupKeys.remove(groupKey)) groupKeys.add(groupKey);
-    setState(() {
-      _filterData.categoryGroupKeys = groupKeys;
-    });
+  void _syncSearchController(String searchQuery) {
+    if (_searchController.text == searchQuery) return;
+    _searchController.value = TextEditingValue(
+      text: searchQuery,
+      selection: TextSelection.collapsed(offset: searchQuery.length),
+    );
   }
 
-  void _clearCategoryFilter() {
-    setState(() {
-      _filterData.categoryGroupKeys = const [];
-    });
-  }
+  void _resetFilters() => _filterNotifier.reset();
 
   void _openGroupByMenu(RevenueGroupBy current) {
     RevenueGroupByMenu.show(
@@ -324,25 +362,25 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  void _showFilterBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
-    final beneficiaries = ref.read(beneficiaryProvider).value ?? [];
-    RevenueFilterBottomSheet.show(
+  void _showFilterBottomSheet(
+    BuildContext context,
+    List<CategoryDisplay> categories,
+    List<AccountModel> accounts,
+    List<Beneficiary> beneficiaries,
+  ) {
+    TransactionFilterBottomSheet.show(
       context: context,
-      initialFilterData: _filterData,
+      title: 'Filtrer les revenus',
+      initialFilterData: ref.read(revenuesFilterProvider),
+      categories: categories,
       accounts: accounts,
       beneficiaries: beneficiaries,
-      onApply: (updatedFilterData) {
-        setState(() {
-          _filterData = updatedFilterData;
-        });
-      },
-      onClear: () {
-        setState(() {
-          _filterData = RevenueFilterData();
-        });
-      },
-      onCancel: () {},
+      highestAmount: _highestAmount(_monthRevenues()),
+      resultCount: (filter) =>
+          _filterRevenues(_monthRevenues(), filter).length,
+      onApply: (updated) => _filterNotifier.update(
+        (current) => updated.copyWith(searchQuery: current.searchQuery),
+      ),
     );
   }
 
