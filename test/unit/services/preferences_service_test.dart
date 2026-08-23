@@ -67,5 +67,14 @@ void main() {
 
       expect(PreferencesService.getAiModel(), AiModel.fallback);
     });
+
+    test('getRevenuesGroupBy returns nothing by default', () {
+      expect(PreferencesService.getRevenuesGroupBy(), isNull);
+    });
+
+    test('setRevenuesGroupBy persists the axis', () async {
+      await PreferencesService.setRevenuesGroupBy('beneficiary');
+      expect(PreferencesService.getRevenuesGroupBy(), 'beneficiary');
+    });
   });
 }

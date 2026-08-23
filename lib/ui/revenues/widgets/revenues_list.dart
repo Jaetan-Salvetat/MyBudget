@@ -3,8 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/revenue_group_by.dart';
+import 'package:mybudget/core/providers/revenues_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_filter_data.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -15,6 +20,9 @@ import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
+import 'package:mybudget/ui/revenues/widgets/revenue_group_by_chip.dart';
+import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
+import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
@@ -72,6 +80,18 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return true;
   }
 
+  bool _belongsToSelectedMonth(RevenueModel revenue, DateTime selectedMonth) {
+    switch (revenue.frequencyEnum) {
+      case Frequency.monthly:
+        return true;
+      case Frequency.annual:
+        return revenue.startDate.month == selectedMonth.month;
+      case Frequency.oneTime:
+        return revenue.startDate.year == selectedMonth.year &&
+            revenue.startDate.month == selectedMonth.month;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ref
@@ -81,50 +101,41 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
             final selectedMonth = ref.watch(selectedMonthProvider);
+            final axis = ref.watch(revenuesGroupByProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
+            final resolver = ref.watch(categoryDisplayResolverProvider).value;
 
-            final activeRevenues = revenues
+            final visibleRevenues = revenues
                 .where((r) => r.endDate == null)
+                .where((r) => _belongsToSelectedMonth(r, selectedMonth))
+                .where((r) => _matchesFilter(r, _filterData))
                 .toList();
 
-            final filteredRevenues = _filterData.isEmpty
-                ? activeRevenues
-                : revenues
-                      .where((r) => _matchesFilter(r, _filterData))
-                      .toList();
-
-            final recurringRevenues = filteredRevenues.where((r) {
-              if (r.frequencyEnum == Frequency.oneTime) return false;
-              if (r.frequencyEnum == Frequency.annual) {
-                return r.startDate.month == selectedMonth.month;
-              }
-              return true;
-            }).toList();
-            final oneTimeRevenues = filteredRevenues
-                .where(
-                  (r) =>
-                      r.frequencyEnum == Frequency.oneTime &&
-                      r.startDate.year == selectedMonth.year &&
-                      r.startDate.month == selectedMonth.month,
-                )
-                .toList();
+            final groups = RevenueGroupingService.group(
+              visibleRevenues,
+              RevenueGroupingService.grouperFor(
+                axis,
+                categoryResolver: resolver,
+                beneficiaries: beneficiaries,
+                accounts: accounts,
+              ),
+            );
 
             final monthlyRevenues = ref
                 .read(revenueProvider.notifier)
                 .getMonthlyRevenues();
-            final displayedCount =
-                recurringRevenues.length + oneTimeRevenues.length;
-            final isEmpty =
-                recurringRevenues.isEmpty && oneTimeRevenues.isEmpty;
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(top: 16, bottom: mainFlowBottomInset(context)),
+              padding: EdgeInsets.only(
+                top: 16,
+                bottom: mainFlowBottomInset(context),
+              ),
               children: [
                 _hPad(
                   RevenuesSummaryCard(
-                    transactionCount: displayedCount,
+                    transactionCount: visibleRevenues.length,
                     monthlyRevenues: monthlyRevenues,
                   ),
                 ),
@@ -141,29 +152,28 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                     onOpenFilters: () => _showFilterBottomSheet(context),
                   ),
                 ),
-                const SizedBox(height: 12),
-                if (isEmpty) _hPad(_buildEmptyState(context)),
-                if (recurringRevenues.isNotEmpty) ...[
-                  _hPad(
-                    _buildSectionTitle(
-                      context,
-                      'Récurrents',
-                      recurringRevenues.length,
+                const SizedBox(height: 10),
+                _hPad(
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: RevenueGroupByChip(
+                      axis: axis,
+                      onTap: () => _openGroupByMenu(axis),
                     ),
                   ),
-                  _hPad(
-                    _buildGroup(recurringRevenues, accounts, beneficiaries),
-                  ),
+                ),
+                if (groups.isEmpty) ...[
+                  const SizedBox(height: 24),
+                  _hPad(_buildEmptyState(context)),
                 ],
-                if (oneTimeRevenues.isNotEmpty) ...[
+                for (final group in groups) ...[
+                  if (axis == RevenueGroupBy.none)
+                    const SizedBox(height: 12)
+                  else
+                    _hPad(RevenueGroupHeader(group: group, axis: axis)),
                   _hPad(
-                    _buildSectionTitle(
-                      context,
-                      'Ponctuels',
-                      oneTimeRevenues.length,
-                    ),
+                    _buildGroup(group.items, accounts, beneficiaries, resolver),
                   ),
-                  _hPad(_buildGroup(oneTimeRevenues, accounts, beneficiaries)),
                 ],
                 const SizedBox(height: 12),
               ],
@@ -182,7 +192,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   Widget _buildGroup(
     List<RevenueModel> rows,
     List<AccountModel> accounts,
-    List beneficiaries,
+    List<Beneficiary> beneficiaries,
+    CategoryDisplayResolver? resolver,
   ) {
     return FrostedCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
@@ -193,6 +204,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
               rows[i],
               accounts,
               beneficiaries,
+              resolver,
               showDivider: i < rows.length - 1,
             ),
         ],
@@ -203,7 +215,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   Widget _buildRow(
     RevenueModel revenue,
     List<AccountModel> accounts,
-    List beneficiaries, {
+    List<Beneficiary> beneficiaries,
+    CategoryDisplayResolver? resolver, {
     required bool showDivider,
   }) {
     final account = accounts.firstWhere(
@@ -215,9 +228,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         : null;
 
     final slug = revenue.categorySlug;
-    final category = slug == null
-        ? null
-        : ref.read(categoryDisplayResolverProvider).value?.resolve(slug);
+    final category = slug == null ? null : resolver?.resolve(slug);
 
     return CompactRevenueRow(
       revenue: revenue,
@@ -230,45 +241,25 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title, int count) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              height: 14 / 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.09 * 11,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 11,
-              height: 14 / 11,
-              fontWeight: FontWeight.w500,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEmptyState(BuildContext context) {
+    final filtered = !_filterData.isEmpty;
     return EmptyState(
-      message: 'Aucun revenu enregistré',
-      subMessage: 'Ajoutez vos revenus pour commencer à gérer vos finances',
+      message: filtered
+          ? 'Aucun revenu ne correspond'
+          : 'Aucun revenu enregistré',
+      subMessage: filtered
+          ? 'Ajustez vos filtres pour élargir la recherche'
+          : 'Ajoutez vos revenus pour commencer à gérer vos finances',
       icon: Symbols.trending_up_rounded,
-      buttonText: 'Ajouter un revenu',
+      buttonText: filtered ? 'Réinitialiser les filtres' : 'Ajouter un revenu',
       onPressed: () {
+        if (filtered) {
+          setState(() {
+            _filterData = RevenueFilterData();
+            _searchController.clear();
+          });
+          return;
+        }
         final accounts = ref.read(accountProvider).value ?? [];
         if (accounts.isEmpty) {
           _showNoAccountDialog(context, 'un revenu');
@@ -295,6 +286,14 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           ),
         ],
       ),
+    );
+  }
+
+  void _openGroupByMenu(RevenueGroupBy current) {
+    RevenueGroupByMenu.show(
+      context: context,
+      current: current,
+      onSelect: (axis) => ref.read(revenuesGroupByProvider.notifier).set(axis),
     );
   }
 
