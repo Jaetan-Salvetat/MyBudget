@@ -48,7 +48,7 @@ dependencies:
   flutter_markdown_plus: ^1.0.12
   app_updater:
     path: ./app_updater
-  permission_handler: ^13.0.1
+  permission_handler: ^12.0.3
   google_fonts: ^8.2.1
   url_launcher: ^6.3.1
   flutter_riverpod: ^3.3.1
@@ -58,7 +58,7 @@ dependencies:
   openai_dart: ^8.0.0
   material_symbols_icons: ^4.2960.0
   flutter_onnxruntime: ^1.8.3
-  flutter_secure_storage: ^11.0.0
+  flutter_secure_storage: ^10.3.1
 
 dev_dependencies:
   flutter_test:
