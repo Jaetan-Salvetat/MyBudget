@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';

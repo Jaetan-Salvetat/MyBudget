@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_breakpoints.dart';
 import 'frosted_nav_item.dart';

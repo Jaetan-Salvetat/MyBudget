@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';

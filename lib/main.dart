@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:app_updater/app_updater.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
@@ -164,11 +163,7 @@ class _AppContentState extends ConsumerState<_AppContent> {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'My Budget',
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('fr')],
       theme: themeNotifier.lightTheme,
       darkTheme: themeNotifier.darkTheme,

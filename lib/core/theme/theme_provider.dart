@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'app_theme.dart';
