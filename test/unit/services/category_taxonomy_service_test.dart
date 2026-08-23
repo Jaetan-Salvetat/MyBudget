@@ -83,6 +83,34 @@ void main() {
       ]);
     });
 
+    test('exposes the numerique children in declaration order', () {
+      final slugs = taxonomy.group('numerique')!.children.map((c) => c.slug);
+
+      expect(slugs, [
+        'numerique.logiciel_service',
+        'numerique.ia',
+        'numerique.hebergement_domaine',
+        'numerique.stockage_cloud',
+        'numerique.telecom',
+      ]);
+    });
+
+    test('drops the moved telecom leaf from the logement picker', () {
+      final slugs = taxonomy
+          .group('logement')!
+          .selectableChildren
+          .map((c) => c.slug);
+
+      expect(slugs, isNot(contains('logement.telecom')));
+      expect(slugs, [
+        'logement.loyer',
+        'logement.charges',
+        'logement.energie',
+        'logement.eau',
+        'logement.travaux',
+      ]);
+    });
+
     test('every child points back to its group', () {
       for (final group in taxonomy.groups) {
         for (final child in group.children) {
@@ -94,25 +122,45 @@ void main() {
 
   group('groups', () {
     test('lists every group across both sections', () {
-      expect(taxonomy.groups.length, 15);
+      expect(taxonomy.groups.length, 16);
     });
 
     test('filters by transaction type', () {
-      expect(taxonomy.groupsOfType(TransactionType.expense).length, 11);
+      expect(taxonomy.groupsOfType(TransactionType.expense).length, 12);
       expect(taxonomy.groupsOfType(TransactionType.income).length, 4);
     });
 
-    test('leaves cover every model label', () {
+    test('live leaves cover every model label', () {
       expect(
-        taxonomy.leaves.map((leaf) => leaf.slug),
+        taxonomy.leaves
+            .where((leaf) => !leaf.isDeprecated)
+            .map((leaf) => leaf.slug),
         QuickAddLabels.categories,
       );
     });
   });
 
   group('deprecation', () {
-    test('none of the shipped nodes are deprecated', () {
-      expect(taxonomy.leaves.where((leaf) => leaf.isDeprecated), isEmpty);
+    test('a deprecated leaf resolves to the node it aliases', () {
+      final node = taxonomy.resolve('logement.telecom');
+
+      expect(node, isNotNull);
+      expect(node!.slug, 'numerique.telecom');
+      expect(node.group.key, 'numerique');
+      expect(node.isDeprecated, isFalse);
+    });
+
+    test('groupOfSlug follows the alias to the new group', () {
+      expect(taxonomy.groupOfSlug('logement.telecom')!.key, 'numerique');
+    });
+
+    test('every deprecated leaf aliases a live leaf', () {
+      for (final leaf in taxonomy.leaves.where((leaf) => leaf.isDeprecated)) {
+        expect(leaf.aliasOf, isNotNull, reason: leaf.slug);
+        final target = taxonomy.resolve(leaf.aliasOf!);
+        expect(target, isNotNull, reason: leaf.slug);
+        expect(target!.isDeprecated, isFalse, reason: leaf.slug);
+      }
     });
 
     test('selectable leaves exclude deprecated ones', () {
@@ -128,7 +176,10 @@ void main() {
   group('load', () {
     test('is idempotent', () async {
       await taxonomy.load();
-      expect(taxonomy.leaves.length, QuickAddLabels.categories.length);
+      expect(
+        taxonomy.leaves.where((leaf) => !leaf.isDeprecated).length,
+        QuickAddLabels.categories.length,
+      );
     });
   });
 

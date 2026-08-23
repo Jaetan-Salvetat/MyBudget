@@ -136,7 +136,7 @@
     {
       "input": "forfait Free 20",
       "type": "expense",
-      "category": "logement.telecom",
+      "category": "numerique.telecom",
       "recurrence": "fixe",
       "level": "app"
     },
@@ -696,7 +696,7 @@
     {
       "input": "internet",
       "type": "expense",
-      "category": "logement.telecom",
+      "category": "numerique.telecom",
       "recurrence": "fixe",
       "level": "easy"
     },
@@ -1067,7 +1067,7 @@
     {
       "input": "forfait free",
       "type": "expense",
-      "category": "logement.telecom",
+      "category": "numerique.telecom",
       "recurrence": "fixe",
       "level": "hard"
     },

@@ -60,7 +60,7 @@ void main() {
     });
 
     test('lists groups by type', () {
-      expect(resolver.groupsOfType(TransactionType.expense).length, 11);
+      expect(resolver.groupsOfType(TransactionType.expense).length, 12);
       expect(resolver.groupsOfType(TransactionType.income).length, 4);
     });
 
