@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 
 const double _slotSize = 36;
 const double _avatarSize = 32;
 const double _iconSize = 17;
 const BorderRadius _avatarRadius = BorderRadius.all(Radius.circular(10));
-const double _badgeSize = 15;
+const double _badgeHeight = 18;
 const double _badgeOffset = -2;
 const double _badgeBorderWidth = 1.5;
-const double _badgeFontSize = 9;
+const double _badgeFontSize = 10;
+const EdgeInsets _badgePadding = EdgeInsets.symmetric(horizontal: 4);
 
 class TransactionAvatar extends StatelessWidget {
   final Color color;
   final IconData icon;
-  final Color badgeColor;
   final Beneficiary? beneficiary;
-  final String? badgeLetter;
 
   const TransactionAvatar({
     required this.color,
     required this.icon,
-    required this.badgeColor,
     this.beneficiary,
-    this.badgeLetter,
     super.key,
   });
 
@@ -35,29 +31,18 @@ class TransactionAvatar extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          beneficiary != null
-              ? BeneficiaryAvatar(
-                  name: beneficiary!.name,
-                  initials: beneficiary!.initials,
-                  avatarColor: beneficiary!.color,
-                  radius: _avatarSize / 2,
-                  borderRadius: _avatarRadius,
-                )
-              : Container(
-                  width: _avatarSize,
-                  height: _avatarSize,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: _avatarRadius,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(icon, color: Colors.white, size: _iconSize),
-                ),
-          if (badgeLetter != null)
+          Container(
+            width: _avatarSize,
+            height: _avatarSize,
+            decoration: BoxDecoration(color: color, borderRadius: _avatarRadius),
+            alignment: Alignment.center,
+            child: Icon(icon, color: Colors.white, size: _iconSize),
+          ),
+          if (beneficiary != null)
             Positioned(
               bottom: _badgeOffset,
               right: _badgeOffset,
-              child: _Badge(letter: badgeLetter!, color: badgeColor),
+              child: _BeneficiaryBadge(beneficiary: beneficiary!),
             ),
         ],
       ),
@@ -65,28 +50,28 @@ class TransactionAvatar extends StatelessWidget {
   }
 }
 
-class _Badge extends StatelessWidget {
-  final String letter;
-  final Color color;
+class _BeneficiaryBadge extends StatelessWidget {
+  final Beneficiary beneficiary;
 
-  const _Badge({required this.letter, required this.color});
+  const _BeneficiaryBadge({required this.beneficiary});
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final hasOwnColor = beneficiary.color != 0;
     return Container(
-      width: _badgeSize,
-      height: _badgeSize,
+      height: _badgeHeight,
+      padding: _badgePadding,
       decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.surface,
-          width: _badgeBorderWidth,
+        color: hasOwnColor ? Color(beneficiary.color) : scheme.primary,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(_badgeHeight / 2),
         ),
+        border: Border.all(color: scheme.surface, width: _badgeBorderWidth),
       ),
       alignment: Alignment.center,
       child: Text(
-        letter,
+        beneficiary.initials,
         style: const TextStyle(
           fontSize: _badgeFontSize,
           height: 1,

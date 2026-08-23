@@ -36,14 +36,6 @@ class CompactRevenueRow extends StatelessWidget {
     final finance = context.financeColors;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    final letter = switch (revenue.frequencyEnum) {
-      Frequency.monthly => 'M',
-      Frequency.annual => 'A',
-      Frequency.oneTime => null,
-    };
-    final badgeColor = revenue.frequencyEnum == Frequency.monthly
-        ? scheme.primary
-        : scheme.secondary;
     final categoryColor = category != null
         ? Color(category!.color)
         : finance.income;
@@ -89,8 +81,6 @@ class CompactRevenueRow extends StatelessWidget {
                   ? Symbols.savings_rounded
                   : CategoryDefaults.resolveIcon(category!.icon),
               beneficiary: beneficiary,
-              badgeLetter: letter,
-              badgeColor: badgeColor,
             ),
             const SizedBox(width: 12),
             Expanded(

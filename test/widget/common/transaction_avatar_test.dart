@@ -4,137 +4,87 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
 void main() {
   const categoryColor = Color(0xFF4CAF50);
-  const badgeColor = Color(0xFF2196F3);
+  const beneficiaryColor = 0xFFE91E63;
 
   final beneficiary = Beneficiary.fromModel(
-    BeneficiaryModel.create(name: 'Jean Dupont', color: 0xFFE91E63),
+    BeneficiaryModel.create(name: 'Jean Dupont', color: beneficiaryColor),
+  );
+  final colorlessBeneficiary = Beneficiary.fromModel(
+    BeneficiaryModel.create(name: 'Erwin'),
   );
 
-  Future<void> pump(WidgetTester tester, Widget child) => tester.pumpWidget(
-    MaterialApp(theme: AppTheme.dark(), home: Scaffold(body: child)),
-  );
+  Future<void> pump(WidgetTester tester, Beneficiary? beneficiary) =>
+      tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark(),
+          home: Scaffold(
+            body: TransactionAvatar(
+              color: categoryColor,
+              icon: Symbols.restaurant_rounded,
+              beneficiary: beneficiary,
+            ),
+          ),
+        ),
+      );
 
-  BoxDecoration avatarDecoration(WidgetTester tester) =>
-      tester
-              .widget<Container>(
-                find
-                    .descendant(
-                      of: find.byType(TransactionAvatar),
-                      matching: find.byType(Container),
-                    )
-                    .first,
-              )
-              .decoration!
-          as BoxDecoration;
+  List<Container> containersOf(WidgetTester tester) => tester
+      .widgetList<Container>(
+        find.descendant(
+          of: find.byType(TransactionAvatar),
+          matching: find.byType(Container),
+        ),
+      )
+      .toList();
 
-  testWidgets('paints the category color and its icon without a beneficiary', (
+  BoxDecoration decorationOf(Container container) =>
+      container.decoration! as BoxDecoration;
+
+  testWidgets('always shows the category icon over the category color', (
     tester,
   ) async {
-    await pump(
-      tester,
-      const TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-      ),
-    );
+    await pump(tester, beneficiary);
 
-    expect(avatarDecoration(tester).color, categoryColor);
+    expect(decorationOf(containersOf(tester).first).color, categoryColor);
     expect(
       tester.widget<Icon>(find.byIcon(Symbols.restaurant_rounded)).color,
       Colors.white,
     );
-    expect(find.byType(BeneficiaryAvatar), findsNothing);
   });
 
-  testWidgets('shows the beneficiary initials instead of the icon', (
+  testWidgets('badges the avatar with the beneficiary initials', (
     tester,
   ) async {
-    await pump(
-      tester,
-      TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-        beneficiary: beneficiary,
-      ),
-    );
+    await pump(tester, beneficiary);
 
     expect(find.text('JD'), findsOneWidget);
-    expect(find.byIcon(Symbols.restaurant_rounded), findsNothing);
   });
 
-  testWidgets('keeps the same rounded square shape in both cases', (
+  testWidgets('tints the badge with the beneficiary color', (tester) async {
+    await pump(tester, beneficiary);
+
+    expect(
+      decorationOf(containersOf(tester).last).color,
+      const Color(beneficiaryColor),
+    );
+  });
+
+  testWidgets('falls back to the theme color for a colorless beneficiary', (
     tester,
   ) async {
-    const expected = BorderRadius.all(Radius.circular(10));
+    await pump(tester, colorlessBeneficiary);
 
-    await pump(
-      tester,
-      const TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-      ),
-    );
-    expect(avatarDecoration(tester).borderRadius, expected);
-
-    await pump(
-      tester,
-      TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-        beneficiary: beneficiary,
-      ),
-    );
-    expect(avatarDecoration(tester).borderRadius, expected);
+    expect(find.text('Er'), findsOneWidget);
+    expect(decorationOf(containersOf(tester).last).color, isNot(const Color(0x00000000)));
   });
 
-  testWidgets('never paints a shadow behind the avatar', (tester) async {
-    await pump(
-      tester,
-      TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-        beneficiary: beneficiary,
-        badgeLetter: 'M',
-      ),
-    );
-
-    expect(avatarDecoration(tester).boxShadow, isNull);
-  });
-
-  testWidgets('renders the badge letter when one is given', (tester) async {
-    await pump(
-      tester,
-      const TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-        badgeLetter: 'M',
-      ),
-    );
-
-    expect(find.text('M'), findsOneWidget);
-  });
-
-  testWidgets('renders no badge without a letter', (tester) async {
-    await pump(
-      tester,
-      const TransactionAvatar(
-        color: categoryColor,
-        icon: Symbols.restaurant_rounded,
-        badgeColor: badgeColor,
-      ),
-    );
+  testWidgets('shows no badge without a beneficiary', (tester) async {
+    await pump(tester, null);
 
     expect(find.byType(Text), findsNothing);
+    expect(containersOf(tester), hasLength(1));
   });
 }

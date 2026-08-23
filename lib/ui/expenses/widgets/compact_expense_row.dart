@@ -33,14 +33,6 @@ class CompactExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final letter = switch (expense.frequencyEnum) {
-      Frequency.monthly => 'M',
-      Frequency.annual => 'A',
-      Frequency.oneTime => null,
-    };
-    final badgeColor = expense.frequencyEnum == Frequency.monthly
-        ? scheme.primary
-        : scheme.secondary;
     final categoryColor = category != null
         ? Color(category!.color)
         : scheme.primary;
@@ -72,8 +64,7 @@ class CompactExpenseRow extends StatelessWidget {
               icon: category == null
                   ? Symbols.category_rounded
                   : CategoryDefaults.resolveIcon(category!.icon),
-              badgeLetter: letter,
-              badgeColor: badgeColor,
+              beneficiary: beneficiary,
             ),
             const SizedBox(width: 12),
             Expanded(
