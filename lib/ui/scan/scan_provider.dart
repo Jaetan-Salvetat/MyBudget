@@ -1,9 +1,11 @@
-import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
+import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/receipt_scan_service.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
@@ -17,6 +19,36 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
 
+/// Le service de scan, ou rien quand aucune clé ne peut le servir. Il partage
+/// le fournisseur, le modèle et la clé de l'ajout rapide. Gardé en vie le
+/// temps d'un scan : le client HTTP se fermerait sous la requête en cours.
+@Riverpod(keepAlive: true)
+Future<ReceiptScanService?> receiptScanService(Ref ref) async {
+  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
+    return null;
+  }
+
+  final provider = ref.watch(selectedAiProviderProvider);
+
+  final String? apiKey;
+  try {
+    apiKey = await ref.watch(apiKeyServiceProvider).read(provider);
+  } catch (error, stackTrace) {
+    debugPrint('Lecture de la clé API impossible : $error\n$stackTrace');
+    return null;
+  }
+  if (apiKey == null) return null;
+
+  final client = OpenAiCompatibleChatClient(
+    provider: provider,
+    model: ref.watch(selectedAiModelProvider),
+    apiKey: apiKey,
+  );
+  ref.onDispose(client.close);
+
+  return ReceiptScanService(client: client);
+}
+
 @riverpod
 class ScanNotifier extends _$ScanNotifier {
   final ReceiptStorageService _storageService = ReceiptStorageService();
@@ -26,7 +58,7 @@ class ScanNotifier extends _$ScanNotifier {
     return const AsyncData(null);
   }
 
-  Future<void> scanReceipt(Uint8List imageBytes) async {
+  Future<void> scanReceipt(AiImageAttachment image) async {
     state = const AsyncLoading();
     try {
       final lastTimestamp = PreferencesService.getLastScanTimestamp();
@@ -37,32 +69,31 @@ class ScanNotifier extends _$ScanNotifier {
         throw ScanCooldownException(retryAfterSeconds: remaining);
       }
 
-      final scanService = await ReceiptScanService.fromStoredKey(
-        ref.read(apiKeyServiceProvider),
-        model: ref.read(selectedAiModelProvider),
-      );
+      final scanService = await ref.read(receiptScanServiceProvider.future);
+      if (scanService == null) throw const ScanMissingApiKeyException();
+
       final resolver = await ref.read(categoryDisplayResolverProvider.future);
       final categories = resolver
           .groupsOfType(TransactionType.expense)
           .expand((group) => resolver.childrenOf(group.slug))
           .toList();
-      final result = await scanService.extractItems(imageBytes, categories);
+      final result = await scanService.extractItems(image, categories);
       await PreferencesService.setLastScanTimestamp(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
       );
+      await ref.read(quickAddDegradationProvider.notifier).reportSuccess();
       state = AsyncData(result);
     } on ScanException catch (e, st) {
       state = AsyncError(e, st);
-    } on SocketException catch (_, st) {
-      state = AsyncError(
-        const ScanGenericException(message: 'Pas de connexion internet'),
-        st,
-      );
     } catch (e, st) {
-      state = AsyncError(
-        const ScanGenericException(message: 'Impossible d\'analyser le ticket'),
-        st,
-      );
+      // La clé est la même que celle de l'ajout rapide : un refus constaté
+      // ici doit compter dans sa santé, sinon l'ajout rapide continuera de
+      // tenter le distant avec une clé qu'on sait morte.
+      final failure = AiRequestFailure.from(e);
+      await ref
+          .read(quickAddDegradationProvider.notifier)
+          .reportFailure(failure);
+      state = AsyncError(ScanException.fromFailure(failure), st);
     }
   }
 
@@ -148,12 +179,8 @@ class ScanNotifier extends _$ScanNotifier {
         receiptPath: receiptPath,
       );
 
-      try {
-        await expenseNotifier.addExpense(expense);
-        count++;
-      } catch (e) {
-        rethrow;
-      }
+      await expenseNotifier.addExpense(expense);
+      count++;
     }
 
     return count;

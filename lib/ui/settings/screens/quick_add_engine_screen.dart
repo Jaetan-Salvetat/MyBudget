@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
+import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
@@ -91,6 +92,7 @@ class QuickAddEngineScreen extends ConsumerWidget {
   Future<void> _select(WidgetRef ref, QuickAddEngineMode mode) async {
     await ref.read(quickAddEngineModeProvider.notifier).setMode(mode);
     ref.invalidate(quickAddEngineProvider);
+    ref.invalidate(receiptScanServiceProvider);
   }
 
   Future<void> _selectApiKey(

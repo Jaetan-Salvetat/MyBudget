@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:openai_dart/openai_dart.dart';
 
 import 'package:mybudget/core/enums/ai_model.dart';
@@ -12,9 +15,23 @@ abstract interface class AiChatClient {
     required String prompt,
     required String schemaName,
     required Map<String, dynamic> schema,
+    AiImageAttachment? image,
   });
 
   void close();
+}
+
+/// Une image jointe à la requête. Le type MIME voyage avec les octets : le
+/// fournisseur le réclame et il ne se déduit pas d'un [Uint8List].
+final class AiImageAttachment {
+  const AiImageAttachment._(this.bytes, this.mediaType);
+
+  /// Le seul format que l'app produit : le sélecteur d'image ré-encode en
+  /// JPEG dès qu'une qualité de compression lui est donnée.
+  const AiImageAttachment.jpeg(Uint8List bytes) : this._(bytes, 'image/jpeg');
+
+  final Uint8List bytes;
+  final String mediaType;
 }
 
 typedef AiChatClientFactory =
@@ -40,6 +57,7 @@ final class OpenAiCompatibleChatClient implements AiChatClient {
     required String prompt,
     required String schemaName,
     required Map<String, dynamic> schema,
+    AiImageAttachment? image,
   }) async {
     try {
       final response = await _client.chat.completions.create(
@@ -47,7 +65,14 @@ final class OpenAiCompatibleChatClient implements AiChatClient {
           model: _model,
           temperature: _temperature,
           messages: [
-            ChatMessage.user([ContentPart.text(prompt)]),
+            ChatMessage.user([
+              ContentPart.text(prompt),
+              if (image != null)
+                ContentPart.imageBase64(
+                  data: base64Encode(image.bytes),
+                  mediaType: image.mediaType,
+                ),
+            ]),
           ],
           responseFormat: ResponseFormat.jsonSchema(
             name: schemaName,

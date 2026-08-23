@@ -87,6 +87,17 @@ bool quickAddUsesRemote(Ref ref) {
   return ref.watch(hasStoredApiKeyProvider).value ?? false;
 }
 
+/// Le scan de ticket demande un modèle qui voit : il n'existe qu'avec une clé
+/// et le moteur distant. Une dégradation ne le masque pas — sans repli local,
+/// mieux vaut montrer l'erreur que faire disparaître la fonction.
+@Riverpod(keepAlive: true)
+bool receiptScanAvailable(Ref ref) {
+  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
+    return false;
+  }
+  return ref.watch(hasStoredApiKeyProvider).value ?? false;
+}
+
 /// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
 /// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 @Riverpod(keepAlive: true)
