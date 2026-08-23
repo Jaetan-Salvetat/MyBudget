@@ -19,6 +19,9 @@ const double _kMinTapTarget = 48;
 /// denser tint than dark ones: on a pale pill an M3 container tone lands
 /// within a hair of the glass it sits on, so the selection disappears.
 const double _kSelectedTintLight = 0.18;
+
+/// Icon size shared by the destinations and the docked action.
+const double _kIconSize = 24;
 const double _kSelectedTintDark = 0.30;
 
 /// A compact Liquid Glass pill holding a handful of navigation destinations.
@@ -116,7 +119,7 @@ class _NavPillAction extends StatelessWidget {
           dimension: _kMinTapTarget,
           child: s.ink(
             borderRadius: BorderRadius.circular(FrostedRadius.full),
-            Center(child: Icon(action.icon, size: 22, color: cs.onPrimary)),
+            Center(child: Icon(action.icon, size: _kIconSize, color: cs.onPrimary)),
           ),
         ),
       ),
@@ -219,7 +222,7 @@ class _IconWithBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget iconWidget = Icon(icon, size: 22, color: color);
+    final Widget iconWidget = Icon(icon, size: _kIconSize, color: color);
     if (badge == null) return iconWidget;
     return Stack(
       clipBehavior: Clip.none,
