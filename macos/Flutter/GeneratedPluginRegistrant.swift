@@ -5,7 +5,6 @@
 import FlutterMacOS
 import Foundation
 
-import app_installer
 import file_picker_darwin
 import file_selector_macos
 import flutter_onnxruntime
@@ -17,7 +16,6 @@ import shared_preferences_foundation
 import url_launcher_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  AppInstallerPlugin.register(with: registry.registrar(forPlugin: "AppInstallerPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FlutterOnnxruntimePlugin.register(with: registry.registrar(forPlugin: "FlutterOnnxruntimePlugin"))

@@ -39,7 +39,7 @@ abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
   FutureOr<List<RevenueModel>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<List<RevenueModel>>, List<RevenueModel>>;
     final element =
@@ -50,6 +50,6 @@ abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

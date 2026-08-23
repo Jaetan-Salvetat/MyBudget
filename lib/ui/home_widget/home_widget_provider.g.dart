@@ -48,7 +48,7 @@ abstract class _$HomeWidgetNotifier extends $Notifier<DateTime> {
   DateTime build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DateTime, DateTime>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$HomeWidgetNotifier extends $Notifier<DateTime> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

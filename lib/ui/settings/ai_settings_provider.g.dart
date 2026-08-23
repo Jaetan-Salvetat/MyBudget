@@ -48,7 +48,7 @@ abstract class _$QuickAddEnabledNotifier extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -58,7 +58,7 @@ abstract class _$QuickAddEnabledNotifier extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -112,7 +112,7 @@ abstract class _$QuickAddEngineModeNotifier
   QuickAddEngineMode build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<QuickAddEngineMode, QuickAddEngineMode>;
     final element =
         ref.element
@@ -122,7 +122,7 @@ abstract class _$QuickAddEngineModeNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -165,7 +165,7 @@ abstract class _$SelectedAiProviderNotifier extends $Notifier<AiProvider> {
   AiProvider build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AiProvider, AiProvider>;
     final element =
         ref.element
@@ -175,7 +175,7 @@ abstract class _$SelectedAiProviderNotifier extends $Notifier<AiProvider> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -228,7 +228,7 @@ abstract class _$SelectedAiModelNotifier extends $Notifier<AiModel> {
   AiModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AiModel, AiModel>;
     final element =
         ref.element
@@ -238,7 +238,7 @@ abstract class _$SelectedAiModelNotifier extends $Notifier<AiModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -281,7 +281,7 @@ abstract class _$AiCloudConsentNotifier extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -291,7 +291,7 @@ abstract class _$AiCloudConsentNotifier extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -491,7 +491,7 @@ abstract class _$QuickAddDegradationNotifier extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -501,6 +501,6 @@ abstract class _$QuickAddDegradationNotifier extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

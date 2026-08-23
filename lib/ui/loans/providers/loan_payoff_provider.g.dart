@@ -92,7 +92,7 @@ abstract class _$LoanPayoffNotifier extends $Notifier<LoanPayoffState> {
   LoanPayoffState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<LoanPayoffState, LoanPayoffState>;
     final element =
         ref.element
@@ -102,6 +102,6 @@ abstract class _$LoanPayoffNotifier extends $Notifier<LoanPayoffState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
