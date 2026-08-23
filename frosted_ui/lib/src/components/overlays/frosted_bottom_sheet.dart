@@ -74,7 +74,7 @@ class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
       children: <Widget>[
         IgnorePointer(
           child: FrostedGlass(
-            level: FrostedGlassLevel.regular,
+            level: FrostedGlassLevel.thin,
             tone: FrostedGlassTone.dark,
             elevation: FrostedGlassElevation.none,
             borderRadius: BorderRadius.zero,
