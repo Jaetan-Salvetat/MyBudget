@@ -6,8 +6,8 @@ import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
+import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
 class CompactRevenueRow extends StatelessWidget {
   final RevenueModel revenue;
@@ -80,9 +80,10 @@ class CompactRevenueRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _Leading(
+            TransactionAvatar.beneficiary(
               beneficiary: beneficiary,
               fallbackColor: finance.income,
+              fallbackIcon: Symbols.savings_rounded,
               ringColor: isRecurrent ? badgeColor : null,
               badgeLetter: letter,
               badgeColor: badgeColor,
@@ -151,92 +152,6 @@ class CompactRevenueRow extends StatelessWidget {
       deleteConfirmationMessage: 'Voulez-vous vraiment supprimer ce revenu ?',
       onEdit: onEdit,
       onDelete: onDelete,
-    );
-  }
-}
-
-class _Leading extends StatelessWidget {
-  final Beneficiary? beneficiary;
-  final Color fallbackColor;
-  final Color? ringColor;
-  final String? badgeLetter;
-  final Color badgeColor;
-
-  const _Leading({
-    required this.fallbackColor,
-    required this.badgeColor,
-    this.beneficiary,
-    this.ringColor,
-    this.badgeLetter,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: ringColor != null
-                  ? [
-                      BoxShadow(color: scheme.surface, spreadRadius: 1.5),
-                      BoxShadow(color: ringColor!, spreadRadius: 3),
-                    ]
-                  : null,
-            ),
-            child: beneficiary != null
-                ? BeneficiaryAvatar(
-                    name: beneficiary!.name,
-                    initials: beneficiary!.initials,
-                    avatarColor: beneficiary!.color,
-                    radius: 16,
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: fallbackColor.withValues(alpha: 0.18),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Symbols.savings_rounded,
-                      color: fallbackColor,
-                      size: 17,
-                    ),
-                  ),
-          ),
-          if (badgeLetter != null)
-            Positioned(
-              bottom: -2,
-              right: -2,
-              child: Container(
-                width: 15,
-                height: 15,
-                decoration: BoxDecoration(
-                  color: badgeColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: scheme.surface, width: 1.5),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  badgeLetter!,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    height: 1,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
