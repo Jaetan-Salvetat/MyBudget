@@ -6,6 +6,7 @@ import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/revenues_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
@@ -20,9 +21,9 @@ import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_group_by_chip.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
+import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
@@ -77,7 +78,18 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         !filter.frequencies.contains(revenue.frequency)) {
       return false;
     }
+    if (filter.categoryGroupKeys.isNotEmpty &&
+        !filter.categoryGroupKeys.contains(_groupKeyOf(revenue))) {
+      return false;
+    }
     return true;
+  }
+
+  String? _groupKeyOf(RevenueModel revenue) {
+    return ref
+        .read(categoryDisplayResolverProvider)
+        .value
+        ?.groupKeyOrUncategorized(revenue.categorySlug);
   }
 
   bool _belongsToSelectedMonth(RevenueModel revenue, DateTime selectedMonth) {
@@ -105,6 +117,8 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
             final resolver = ref.watch(categoryDisplayResolverProvider).value;
+            final categories =
+                resolver?.groupsOfType(TransactionType.income) ?? const [];
 
             final visibleRevenues = revenues
                 .where((r) => r.endDate == null)
@@ -153,14 +167,13 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _hPad(
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: RevenueGroupByChip(
-                      axis: axis,
-                      onTap: () => _openGroupByMenu(axis),
-                    ),
-                  ),
+                RevenuesQuickFilters(
+                  axis: axis,
+                  categories: categories,
+                  selectedGroupKeys: _filterData.categoryGroupKeys,
+                  onOpenGroupBy: () => _openGroupByMenu(axis),
+                  onCategoryTap: _toggleCategoryFilter,
+                  onClear: _clearCategoryFilter,
                 ),
                 if (groups.isEmpty) ...[
                   const SizedBox(height: 24),
@@ -287,6 +300,20 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
         ],
       ),
     );
+  }
+
+  void _toggleCategoryFilter(String groupKey) {
+    final groupKeys = List<String>.from(_filterData.categoryGroupKeys);
+    if (!groupKeys.remove(groupKey)) groupKeys.add(groupKey);
+    setState(() {
+      _filterData.categoryGroupKeys = groupKeys;
+    });
+  }
+
+  void _clearCategoryFilter() {
+    setState(() {
+      _filterData.categoryGroupKeys = const [];
+    });
   }
 
   void _openGroupByMenu(RevenueGroupBy current) {

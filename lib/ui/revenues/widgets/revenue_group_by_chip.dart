@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 
+/// Chip opening the grouping menu.
+///
+/// Its leading icon is the grouping action, never the axis icon: next to the
+/// filter chips, an axis icon reads as one more filter.
 class RevenueGroupByChip extends StatelessWidget {
   final RevenueGroupBy axis;
   final VoidCallback onTap;
@@ -32,7 +35,7 @@ class RevenueGroupByChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(revenueGroupByIcon(axis), size: 14, color: scheme.onSurface),
+            Icon(Symbols.workspaces_rounded, size: 14, color: scheme.onSurface),
             const SizedBox(width: 5),
             Text(
               axis.label,

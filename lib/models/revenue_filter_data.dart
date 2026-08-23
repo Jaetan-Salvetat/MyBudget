@@ -5,6 +5,7 @@ class RevenueFilterData {
   List<int> accountIds;
   List<int> beneficiaryIds;
   List<String> frequencies;
+  List<String> categoryGroupKeys;
 
   RevenueFilterData({
     this.minAmount,
@@ -13,6 +14,7 @@ class RevenueFilterData {
     this.accountIds = const [],
     this.beneficiaryIds = const [],
     this.frequencies = const [],
+    this.categoryGroupKeys = const [],
   });
 
   bool get isEmpty {
@@ -21,7 +23,8 @@ class RevenueFilterData {
         (searchQuery == null || searchQuery!.isEmpty) &&
         accountIds.isEmpty &&
         beneficiaryIds.isEmpty &&
-        frequencies.isEmpty;
+        frequencies.isEmpty &&
+        categoryGroupKeys.isEmpty;
   }
 
   int get activeCount {
@@ -30,6 +33,7 @@ class RevenueFilterData {
     if (accountIds.isNotEmpty) count++;
     if (beneficiaryIds.isNotEmpty) count++;
     if (frequencies.isNotEmpty) count++;
+    if (categoryGroupKeys.isNotEmpty) count++;
     return count;
   }
 }
