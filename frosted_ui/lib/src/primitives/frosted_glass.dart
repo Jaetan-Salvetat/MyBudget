@@ -78,7 +78,13 @@ class FrostedGlass extends StatelessWidget {
     final Color veilColor = (isDark ? Colors.black : Colors.white).withValues(
       alpha: veilAlpha,
     );
-    final BorderSide base = isDark ? glass.darkBorder : glass.lightBorder;
+    final bool detached = elevation != FrostedGlassElevation.none;
+    final BorderSide base = switch ((isDark, detached)) {
+      (true, true) => glass.darkDetachedBorder,
+      (true, false) => glass.darkBorder,
+      (false, true) => glass.lightDetachedBorder,
+      (false, false) => glass.lightBorder,
+    };
     final BorderSide border = base.copyWith(
       color: base.color.withValues(alpha: base.color.a * t),
     );
