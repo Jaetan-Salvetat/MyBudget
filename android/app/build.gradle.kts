@@ -59,6 +59,7 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
+            applicationIdSuffix = ".dev"
             resValue("string", "app_name", "MyBudget Debug")
         }
         create("prod") {
@@ -76,6 +77,9 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
+        }
+        getByName("profile") {
+            applicationIdSuffix = ".debug"
         }
         release {
             signingConfig = signingConfigs.findByName("release")
