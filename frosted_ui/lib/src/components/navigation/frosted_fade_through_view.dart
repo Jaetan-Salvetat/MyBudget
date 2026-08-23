@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../primitives/frosted_glass_suspension.dart';
 
-/// Fade-through timings, from the Material motion spec: the outgoing view
-/// fades out over 100ms, then the incoming one fades in over the remaining
-/// 200ms.
-const Duration _kFadeThroughDuration = Duration(milliseconds: 300);
+/// Share of the swap the outgoing view spends fading out, from the Material
+/// motion spec: it clears in the first 100ms, the incoming one fades in over
+/// the remaining 200ms.
 const double _kFadeOutFraction = 1 / 3;
 
 /// Swaps between sibling top-level views with the Material fade-through, the
@@ -25,6 +24,11 @@ class FrostedFadeThroughView extends StatefulWidget {
     super.key,
   });
 
+  /// How long a swap takes, from the Material motion spec. A view being
+  /// swapped in is off screen until the fade lands, so anything that needs it
+  /// there — taking focus, raising the keyboard — has to wait this long.
+  static const Duration transitionDuration = Duration(milliseconds: 300);
+
   /// Index of the view to show, into [children].
   final int index;
 
@@ -39,7 +43,7 @@ class _FrostedFadeThroughViewState extends State<FrostedFadeThroughView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: _kFadeThroughDuration,
+    duration: FrostedFadeThroughView.transitionDuration,
     value: 1,
   );
 

@@ -154,6 +154,47 @@ void main() {
       expect(opacityOf(tester), 1);
     });
 
+    testWidgets('takes focus on the view it swaps in only once settled', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode node = FocusNode();
+      addTearDown(node.dispose);
+
+      Future<void> pumpFocusView(int index) {
+        return tester.pumpWidget(
+          MaterialApp(
+            home: Material(
+              child: FrostedFadeThroughView(
+                index: index,
+                children: <Widget>[
+                  TextField(focusNode: node),
+                  const SizedBox.expand(),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      await pumpFocusView(0);
+      await tester.pumpAndSettle();
+      await pumpFocusView(1);
+      await tester.pumpAndSettle();
+
+      await pumpFocusView(0);
+      await tester.pump();
+      node.requestFocus();
+      await tester.pump();
+
+      expect(node.hasFocus, isFalse);
+
+      await tester.pump(FrostedFadeThroughView.transitionDuration);
+      node.requestFocus();
+      await tester.pump();
+
+      expect(node.hasFocus, isTrue);
+    });
+
     testWidgets('a mid-flight change fades out whatever is on screen', (
       WidgetTester tester,
     ) async {

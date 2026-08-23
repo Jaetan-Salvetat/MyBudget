@@ -128,9 +128,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     // The dashboard is still the offstage branch of the stack : asking for
-    // focus now would not raise the keyboard.
+    // focus before the swap lands would leave the keyboard down.
     navigation.selectTab(HomeTab.dashboard);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future<void>.delayed(FrostedFadeThroughView.transitionDuration, () {
+      if (!mounted) return;
       ref.read(quickAddFocusRequestProvider.notifier).request();
     });
   }
