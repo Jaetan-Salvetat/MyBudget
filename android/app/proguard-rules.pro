@@ -6,3 +6,6 @@
 
 -keep class com.google.ai.edge.litert.** { *; }
 -dontwarn com.google.ai.edge.litert.**
+
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**
