@@ -18,6 +18,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
@@ -79,10 +80,15 @@ void main() {
     );
   });
 
-  Future<void> pumpBar(WidgetTester tester, {bool focused = true}) {
+  Future<void> pumpBar(
+    WidgetTester tester, {
+    bool focused = true,
+    bool scanAvailable = false,
+  }) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
+          receiptScanAvailableProvider.overrideWithValue(scanAvailable),
           accountProvider.overrideWith(
             () => FakeAccountNotifier([accountOf(1, 'Courant')]),
           ),
@@ -120,6 +126,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
+  });
+
+  testWidgets('keeps the send button when no key can read a receipt', (
+    tester,
+  ) async {
+    await pumpBar(tester, focused: false);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
+  });
+
+  testWidgets('offers the scan while there is nothing to send', (tester) async {
+    await pumpBar(tester, focused: false, scanAvailable: true);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
+  });
+
+  testWidgets('gives the send button back as soon as a draft exists', (
+    tester,
+  ) async {
+    await pumpBar(tester, scanAvailable: true);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'mc do 12');
+    await tester.pump(
+      QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 50),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
   });
 
   testWidgets('cancelling empties the field and the draft', (tester) async {

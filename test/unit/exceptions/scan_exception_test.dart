@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 
 void main() {
@@ -63,71 +64,68 @@ void main() {
     });
   });
 
-  group('fromServerMessage', () {
-    test('429 returns ScanRateLimitException', () {
-      final result = ScanException.fromServerMessage('429 RESOURCE_EXHAUSTED');
-      expect(result, isA<ScanRateLimitException>());
+  group('fromFailure', () {
+    test('a revoked key asks for a new one instead of a retry', () {
+      final result = ScanException.fromFailure(AiRequestFailure.invalidKey);
+      expect(result, isA<ScanInvalidApiKeyException>());
+      expect(result.retryAfterSeconds, 0);
     });
 
-    test('RESOURCE_EXHAUSTED returns ScanRateLimitException', () {
-      final result = ScanException.fromServerMessage(
-        'You\'ve exceeded the rate limit',
-      );
-      expect(result, isA<ScanGenericException>());
-
-      final result2 = ScanException.fromServerMessage('RESOURCE_EXHAUSTED');
-      expect(result2, isA<ScanRateLimitException>());
-    });
-
-    test('503 returns ScanServiceUnavailableException', () {
-      final result = ScanException.fromServerMessage('503 UNAVAILABLE');
-      expect(result, isA<ScanServiceUnavailableException>());
-    });
-
-    test('UNAVAILABLE returns ScanServiceUnavailableException', () {
-      final result = ScanException.fromServerMessage(
-        'The service may be temporarily unavailable',
-      );
-      expect(result, isA<ScanServiceUnavailableException>());
-    });
-
-    test('500 returns ScanGenericException with server error message', () {
-      final result = ScanException.fromServerMessage('500 INTERNAL');
-      expect(result, isA<ScanGenericException>());
-      expect(result.message, 'Une erreur interne est survenue côté serveur');
-    });
-
-    test('504 returns ScanGenericException with timeout message', () {
-      final result = ScanException.fromServerMessage('DEADLINE_EXCEEDED');
-      expect(result, isA<ScanGenericException>());
+    test('a denied permission is a key problem too', () {
       expect(
-        result.message,
-        'L\'analyse a pris trop de temps, veuillez réessayer',
+        ScanException.fromFailure(AiRequestFailure.permissionDenied),
+        isA<ScanInvalidApiKeyException>(),
       );
     });
 
-    test('403 returns ScanGenericException with permission message', () {
-      final result = ScanException.fromServerMessage('PERMISSION_DENIED');
-      expect(result, isA<ScanGenericException>());
-      expect(result.message, 'Accès refusé au service d\'analyse');
+    test('an unknown model is a key problem too', () {
+      expect(
+        ScanException.fromFailure(AiRequestFailure.modelNotFound),
+        isA<ScanInvalidApiKeyException>(),
+      );
     });
 
-    test('404 returns ScanGenericException with unavailable message', () {
-      final result = ScanException.fromServerMessage('NOT_FOUND');
-      expect(result, isA<ScanGenericException>());
-      expect(result.message, 'Le service d\'analyse est indisponible');
+    test('an exhausted quota waits for the cooldown', () {
+      final result = ScanException.fromFailure(AiRequestFailure.quotaExceeded);
+      expect(result, isA<ScanRateLimitException>());
+      expect(result.retryAfterSeconds, ScanException.scanCooldownSeconds);
     });
 
-    test('400 returns ScanGenericException with image error message', () {
-      final result = ScanException.fromServerMessage('INVALID_ARGUMENT');
-      expect(result, isA<ScanGenericException>());
-      expect(result.message, 'L\'image envoyée n\'a pas pu être traitée');
+    test('an unavailable service waits for the cooldown', () {
+      expect(
+        ScanException.fromFailure(AiRequestFailure.serviceUnavailable),
+        isA<ScanServiceUnavailableException>(),
+      );
     });
 
-    test('unknown error returns generic fallback', () {
-      final result = ScanException.fromServerMessage('something unexpected');
+    test('a lost connection is retryable right away', () {
+      final result = ScanException.fromFailure(AiRequestFailure.offline);
+      expect(result, isA<ScanOfflineException>());
+      expect(result.retryAfterSeconds, 0);
+    });
+
+    test('a timeout is retryable right away', () {
+      final result = ScanException.fromFailure(AiRequestFailure.timeout);
       expect(result, isA<ScanGenericException>());
+      expect(result.retryAfterSeconds, 0);
+    });
+
+    test('a malformed answer never surfaces the parsing detail', () {
+      expect(
+        ScanException.fromFailure(AiRequestFailure.malformedResponse),
+        isA<ScanGenericException>(),
+      );
+    });
+
+    test('an unknown failure falls back to the generic message', () {
+      final result = ScanException.fromFailure(AiRequestFailure.unknown);
       expect(result.message, 'Impossible d\'analyser le ticket');
+    });
+
+    test('covers every failure the client can report', () {
+      for (final failure in AiRequestFailure.values) {
+        expect(ScanException.fromFailure(failure), isA<ScanException>());
+      }
     });
   });
 
@@ -138,6 +136,8 @@ void main() {
         const ScanRateLimitException(),
         const ScanServiceUnavailableException(),
         const ScanMissingApiKeyException(),
+        const ScanInvalidApiKeyException(),
+        const ScanOfflineException(),
         const ScanGenericException(message: 'test'),
       ];
 
@@ -147,6 +147,8 @@ void main() {
           ScanRateLimitException() => 'rate_limit',
           ScanServiceUnavailableException() => 'unavailable',
           ScanMissingApiKeyException() => 'missing_api_key',
+          ScanInvalidApiKeyException() => 'invalid_api_key',
+          ScanOfflineException() => 'offline',
           ScanGenericException() => 'generic',
         };
         expect(result, isNotEmpty);

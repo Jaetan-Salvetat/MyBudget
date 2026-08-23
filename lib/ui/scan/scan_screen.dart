@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -7,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
@@ -18,13 +17,14 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
-  final Uint8List imageBytes;
+  final AiImageAttachment image;
 
-  const ScanScreen({required this.imageBytes, super.key});
+  const ScanScreen({required this.image, super.key});
 
   @override
   ConsumerState<ScanScreen> createState() => _ScanScreenState();
@@ -71,7 +71,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           _initSelectedAccount();
         }
       });
-      ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
+      ref.read(scanProvider.notifier).scanReceipt(widget.image);
       _startStatusRotation();
     });
   }
@@ -129,7 +129,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           child: Stack(
             children: [
               Image.memory(
-                widget.imageBytes,
+                widget.image.bytes,
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -220,6 +220,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         subtitle = 'Elle restera sur cet appareil et servira aussi à '
             'l\'ajout rapide.';
         hasCooldown = false;
+      case ScanInvalidApiKeyException():
+        icon = Symbols.key_off_rounded;
+        title = scanError.message;
+        subtitle = 'Vérifiez la clé enregistrée, ou posez-en une autre.';
+        hasCooldown = false;
+      case ScanOfflineException():
+        icon = Symbols.wifi_off_rounded;
+        title = scanError.message;
+        subtitle = 'Le scan a besoin du réseau pour lire le ticket';
+        hasCooldown = false;
       case ScanGenericException():
         icon = Symbols.error_rounded;
         title = scanError.message;
@@ -233,7 +243,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     }
 
     final canRetry = !hasCooldown || _countdownSeconds <= 0;
-    final isMissingKey = scanError is ScanMissingApiKeyException;
+    final needsKey =
+        scanError is ScanMissingApiKeyException ||
+        scanError is ScanInvalidApiKeyException;
 
     return Center(
       key: const ValueKey('error'),
@@ -274,7 +286,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
             ],
             const SizedBox(height: 24),
-            if (isMissingKey)
+            if (needsKey)
               FrostedButton.filled(
                 label: 'Ajouter une clé',
                 icon: Symbols.key_rounded,
@@ -320,7 +332,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
     );
     if (!mounted) return;
-    if (await ref.read(apiKeyServiceProvider).has(AiProvider.gemini)) {
+    final provider = ref.read(selectedAiProviderProvider);
+    if (await ref.read(apiKeyServiceProvider).has(provider)) {
       _retry();
     }
   }
@@ -331,7 +344,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     setState(() => _statusMessageIndex = 0);
     _statusTimer?.cancel();
     _startStatusRotation();
-    ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
+    ref.read(scanProvider.notifier).scanReceipt(widget.image);
   }
 
   String _formatCountdown(int seconds) {
@@ -454,7 +467,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.memory(
-                widget.imageBytes,
+                widget.image.bytes,
                 height: 60,
                 width: 60,
                 fit: BoxFit.cover,
@@ -813,7 +826,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     try {
       final count = await ref
           .read(scanProvider.notifier)
-          .validateAndCreate(_selectedAccountId!, widget.imageBytes);
+          .validateAndCreate(_selectedAccountId!, widget.image.bytes);
 
       if (context.mounted) {
         FrostedSnackbar.show(

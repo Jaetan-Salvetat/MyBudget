@@ -46,7 +46,7 @@ final class ObjectBoxServiceProvider
   }
 }
 
-String _$objectBoxServiceHash() => r'c5aa6b0e7ffaa5a0b541517dd1f7dc134abb9dd1';
+String _$objectBoxServiceHash() => r'e42613ff6ec1c3db3a4d73d3243d646e1971a00b';
 
 @ProviderFor(categoryTaxonomy)
 final categoryTaxonomyProvider = CategoryTaxonomyProvider._();

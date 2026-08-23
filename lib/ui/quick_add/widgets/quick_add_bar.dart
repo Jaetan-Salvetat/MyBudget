@@ -13,6 +13,7 @@ import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
+import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 /// The one place a transaction gets typed. Reads the text as it comes,
@@ -134,6 +135,18 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     );
   }
 
+  /// Tant que rien n'est saisi, le bouton d'envoi n'a rien à envoyer : il
+  /// sert alors de raccourci vers le scan, sans occuper de place en plus.
+  Future<void> _scan() async {
+    if (ref.read(quickAddAccountProvider) == null) {
+      widget.onNoAccount();
+      return;
+    }
+
+    _focusNode.unfocus();
+    await showReceiptScanSourceSheet(context);
+  }
+
   Future<void> _undo(QuickAddSubmission submission) async {
     await HapticFeedback.mediumImpact();
     await ref.read(quickAddProvider.notifier).undo(submission);
@@ -148,6 +161,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     final draft = ref.watch(quickAddProvider);
     final usesRemote = ref.watch(quickAddUsesRemoteProvider);
+    final offersScan =
+        draft.isEmpty && ref.watch(receiptScanAvailableProvider);
     final scheme = Theme.of(context).colorScheme;
 
     final motion = context.frostedTokens.motion.snappy;
@@ -185,9 +200,12 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               ),
             ),
             const SizedBox(width: FrostedSpacing.sp2),
-            _SubmitButton(
-              enabled: draft.isSubmittable,
-              onTap: _submit,
+            _TrailingButton(
+              icon: offersScan
+                  ? Symbols.photo_camera_rounded
+                  : Symbols.arrow_upward_rounded,
+              enabled: offersScan || draft.isSubmittable,
+              onTap: offersScan ? _scan : _submit,
               background: scheme.primary,
               foreground: scheme.onPrimary,
             ),
@@ -209,15 +227,17 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   }
 }
 
-class _SubmitButton extends StatelessWidget {
+class _TrailingButton extends StatelessWidget {
   static const double _size = 44;
 
+  final IconData icon;
   final bool enabled;
   final VoidCallback onTap;
   final Color background;
   final Color foreground;
 
-  const _SubmitButton({
+  const _TrailingButton({
+    required this.icon,
     required this.enabled,
     required this.onTap,
     required this.background,
@@ -245,12 +265,17 @@ class _SubmitButton extends StatelessWidget {
           onTap: enabled ? onTap : null,
           customBorder: const CircleBorder(),
           child: Center(
-            child: Icon(
-              Symbols.arrow_upward_rounded,
-              size: 20,
-              color: enabled
-                  ? foreground
-                  : scheme.onSurface.withValues(alpha: 0.38),
+            child: AnimatedSwitcher(
+              duration: motion.duration,
+              switchInCurve: motion.curve,
+              child: Icon(
+                icon,
+                key: ValueKey(icon),
+                size: 20,
+                color: enabled
+                    ? foreground
+                    : scheme.onSurface.withValues(alpha: 0.38),
+              ),
             ),
           ),
         ),

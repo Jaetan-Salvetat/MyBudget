@@ -1,95 +1,61 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:openai_dart/openai_dart.dart';
-
-import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/core/enums/ai_model.dart';
-import 'package:mybudget/core/enums/ai_provider.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 
+/// Lit un ticket de caisse. La clé, le fournisseur et le modèle sont ceux de
+/// l'ajout rapide : une seule configuration pour les deux fonctions.
 class ReceiptScanService {
-  static const AiProvider _provider = AiProvider.gemini;
+  ReceiptScanService({required AiChatClient client}) : _client = client;
 
-  final String _model;
-  final OpenAIClient _client;
+  static const String _schemaName = 'receipt';
 
-  ReceiptScanService({required String apiKey, required AiModel model})
-    : _model = model.id,
-      _client = OpenAIClient.withApiKey(apiKey, baseUrl: _provider.baseUrl);
+  static const Map<String, dynamic> _schema = {
+    'type': 'object',
+    'properties': {
+      'store_name': {
+        'type': ['string', 'null'],
+      },
+      'date': {
+        'type': ['string', 'null'],
+      },
+      'items': {
+        'type': 'array',
+        'items': {
+          'type': 'object',
+          'properties': {
+            'name': {'type': 'string'},
+            'amount': {'type': 'number'},
+            'discount': {'type': 'number'},
+            'category': {
+              'type': ['string', 'null'],
+            },
+          },
+          'required': ['name', 'amount', 'discount'],
+          'additionalProperties': false,
+        },
+      },
+    },
+    'required': ['store_name', 'date', 'items'],
+    'additionalProperties': false,
+  };
 
-  /// La clé et le modèle viennent des réglages, partagés avec l'ajout rapide :
-  /// une seule clé et un seul choix de modèle pour les deux fonctions.
-  static Future<ReceiptScanService> fromStoredKey(
-    ApiKeyService keyService, {
-    required AiModel model,
-  }) async {
-    final apiKey = await keyService.read(_provider);
-    if (apiKey == null) throw const ScanMissingApiKeyException();
-    return ReceiptScanService(apiKey: apiKey, model: model);
-  }
+  final AiChatClient _client;
 
   Future<ReceiptScanResultModel> extractItems(
-    Uint8List imageBytes,
+    AiImageAttachment image,
     List<CategoryDisplay> categories,
   ) async {
     final categoryNames = categories.map(_qualifiedName).toList();
-    final prompt = _buildPrompt(categoryNames);
-    final base64Image = base64Encode(imageBytes);
 
-    final response = await _client.chat.completions.create(
-      ChatCompletionCreateRequest(
-        model: _model,
-        temperature: 0.1,
-        messages: [
-          ChatMessage.user([
-            ContentPart.text(prompt),
-            ContentPart.imageBase64(data: base64Image, mediaType: 'image/jpeg'),
-          ]),
-        ],
-        responseFormat: ResponseFormat.jsonSchema(
-          name: 'receipt',
-          strict: true,
-          schema: {
-            'type': 'object',
-            'properties': {
-              'store_name': {
-                'type': ['string', 'null'],
-              },
-              'date': {
-                'type': ['string', 'null'],
-              },
-              'items': {
-                'type': 'array',
-                'items': {
-                  'type': 'object',
-                  'properties': {
-                    'name': {'type': 'string'},
-                    'amount': {'type': 'number'},
-                    'discount': {'type': 'number'},
-                    'category': {
-                      'type': ['string', 'null'],
-                    },
-                  },
-                  'required': ['name', 'amount', 'discount'],
-                  'additionalProperties': false,
-                },
-              },
-            },
-            'required': ['store_name', 'date', 'items'],
-            'additionalProperties': false,
-          },
-        ),
-      ),
+    final content = await _client.complete(
+      prompt: _buildPrompt(categoryNames),
+      schemaName: _schemaName,
+      schema: _schema,
+      image: image,
     );
-
-    final content = response.text;
-    if (content == null || content.isEmpty) {
-      throw Exception('Réponse vide du service');
-    }
 
     return _parseResponse(content, categories);
   }

@@ -21,6 +21,7 @@ class _ScriptedChatClient implements AiChatClient {
     required String prompt,
     required String schemaName,
     required Map<String, dynamic> schema,
+    AiImageAttachment? image,
   }) async {
     prompts.add(prompt);
     schemas.add(schema);

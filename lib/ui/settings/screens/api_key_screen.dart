@@ -10,6 +10,7 @@ import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/models/api_key_check.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
+import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 
@@ -194,6 +195,7 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
     await ref.read(quickAddDegradationProvider.notifier).clear();
     ref.invalidate(hasStoredApiKeyProvider);
     ref.invalidate(quickAddEngineProvider);
+    ref.invalidate(receiptScanServiceProvider);
   }
 
   Future<void> _confirmDelete(AiProvider provider) async {
@@ -228,6 +230,7 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
     await ref.read(quickAddDegradationProvider.notifier).clear();
     ref.invalidate(hasStoredApiKeyProvider);
     ref.invalidate(quickAddEngineProvider);
+    ref.invalidate(receiptScanServiceProvider);
 
     if (!mounted) return;
     _controller.clear();

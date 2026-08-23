@@ -1,3 +1,5 @@
+import 'package:mybudget/core/enums/ai_request_failure.dart';
+
 sealed class ScanException implements Exception {
   static const int scanCooldownSeconds = 120;
 
@@ -6,44 +8,27 @@ sealed class ScanException implements Exception {
 
   const ScanException({required this.message, required this.retryAfterSeconds});
 
-  static ScanException fromServerMessage(String serverMessage) {
-    final upper = serverMessage.toUpperCase();
-
-    if (upper.contains('429') || upper.contains('RESOURCE_EXHAUSTED')) {
-      return const ScanRateLimitException();
-    }
-    if (upper.contains('503') || upper.contains('UNAVAILABLE')) {
-      return const ScanServiceUnavailableException();
-    }
-    if (upper.contains('500') || upper.contains('INTERNAL')) {
-      return const ScanGenericException(
-        message: 'Une erreur interne est survenue côté serveur',
-      );
-    }
-    if (upper.contains('504') || upper.contains('DEADLINE_EXCEEDED')) {
-      return const ScanGenericException(
+  /// Traduit l'échec typé du client en une erreur que l'écran sait montrer :
+  /// un message, et surtout ce que l'utilisateur peut faire ensuite.
+  static ScanException fromFailure(AiRequestFailure failure) {
+    return switch (failure) {
+      AiRequestFailure.invalidKey ||
+      AiRequestFailure.permissionDenied ||
+      AiRequestFailure.modelNotFound => const ScanInvalidApiKeyException(),
+      AiRequestFailure.quotaExceeded => const ScanRateLimitException(),
+      AiRequestFailure.serviceUnavailable =>
+        const ScanServiceUnavailableException(),
+      AiRequestFailure.timeout => const ScanGenericException(
         message: 'L\'analyse a pris trop de temps, veuillez réessayer',
-      );
-    }
-    if (upper.contains('403') || upper.contains('PERMISSION_DENIED')) {
-      return const ScanGenericException(
-        message: 'Accès refusé au service d\'analyse',
-      );
-    }
-    if (upper.contains('404') || upper.contains('NOT_FOUND')) {
-      return const ScanGenericException(
-        message: 'Le service d\'analyse est indisponible',
-      );
-    }
-    if (upper.contains('400') || upper.contains('INVALID_ARGUMENT')) {
-      return const ScanGenericException(
-        message: 'L\'image envoyée n\'a pas pu être traitée',
-      );
-    }
-
-    return const ScanGenericException(
-      message: 'Impossible d\'analyser le ticket',
-    );
+      ),
+      AiRequestFailure.offline => const ScanOfflineException(),
+      AiRequestFailure.malformedResponse => const ScanGenericException(
+        message: 'La réponse du service n\'a pas pu être lue',
+      ),
+      AiRequestFailure.unknown => const ScanGenericException(
+        message: 'Impossible d\'analyser le ticket',
+      ),
+    };
   }
 }
 
@@ -74,6 +59,21 @@ final class ScanMissingApiKeyException extends ScanException {
         message: 'Le scan de ticket demande votre propre clé API',
         retryAfterSeconds: 0,
       );
+}
+
+/// La clé est bien là mais le fournisseur la refuse : réessayer ne changera
+/// rien, il faut en poser une autre.
+final class ScanInvalidApiKeyException extends ScanException {
+  const ScanInvalidApiKeyException()
+    : super(
+        message: 'Votre clé API a été refusée par le fournisseur',
+        retryAfterSeconds: 0,
+      );
+}
+
+final class ScanOfflineException extends ScanException {
+  const ScanOfflineException()
+    : super(message: 'Pas de connexion internet', retryAfterSeconds: 0);
 }
 
 final class ScanGenericException extends ScanException {
