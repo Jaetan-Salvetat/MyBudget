@@ -5,12 +5,14 @@ class BeneficiaryAvatar extends StatelessWidget {
   final double radius;
   final int? avatarColor;
   final String? initials;
+  final BorderRadius? borderRadius;
 
   const BeneficiaryAvatar({
     required this.name,
     this.radius = 20,
     this.avatarColor,
     this.initials,
+    this.borderRadius,
     super.key,
   });
 
@@ -28,9 +30,15 @@ class BeneficiaryAvatar extends StatelessWidget {
         ? Color(avatarColor!)
         : Theme.of(context).colorScheme.onPrimaryContainer;
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: bgColor,
+    return Container(
+      width: radius * 2,
+      height: radius * 2,
+      decoration: BoxDecoration(
+        color: bgColor,
+        shape: borderRadius == null ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: borderRadius,
+      ),
+      alignment: Alignment.center,
       child: Text(
         displayInitials,
         style: TextStyle(

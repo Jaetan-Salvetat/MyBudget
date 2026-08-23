@@ -5,81 +5,54 @@ import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 const double _slotSize = 36;
 const double _avatarSize = 32;
 const double _iconSize = 17;
-const double _squareCornerRadius = 10;
-const double _circleCornerRadius = _avatarSize / 2;
-const double _surfaceGapSpread = 1.5;
-const double _ringSpread = 3;
+const BorderRadius _avatarRadius = BorderRadius.all(Radius.circular(10));
 const double _badgeSize = 15;
 const double _badgeOffset = -2;
 const double _badgeBorderWidth = 1.5;
 const double _badgeFontSize = 9;
 
 class TransactionAvatar extends StatelessWidget {
-  final Widget avatar;
-  final Color? avatarColor;
-  final BorderRadius borderRadius;
-  final Color? ringColor;
-  final String? badgeLetter;
+  final Color color;
+  final IconData icon;
   final Color badgeColor;
+  final Beneficiary? beneficiary;
+  final String? badgeLetter;
 
-  TransactionAvatar.category({
-    required Color color,
-    required IconData icon,
+  const TransactionAvatar({
+    required this.color,
+    required this.icon,
     required this.badgeColor,
-    this.ringColor,
+    this.beneficiary,
     this.badgeLetter,
     super.key,
-  }) : avatar = _SolidIcon(icon: icon),
-       avatarColor = color,
-       borderRadius = const BorderRadius.all(
-         Radius.circular(_squareCornerRadius),
-       );
-
-  TransactionAvatar.beneficiary({
-    required Beneficiary? beneficiary,
-    required Color fallbackColor,
-    required IconData fallbackIcon,
-    required this.badgeColor,
-    this.ringColor,
-    this.badgeLetter,
-    super.key,
-  }) : avatar = _BeneficiaryOrIcon(
-         beneficiary: beneficiary,
-         fallbackColor: fallbackColor,
-         fallbackIcon: fallbackIcon,
-       ),
-       avatarColor = null,
-       borderRadius = const BorderRadius.all(
-         Radius.circular(_circleCornerRadius),
-       );
+  });
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: _slotSize,
       height: _slotSize,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Container(
-            width: _avatarSize,
-            height: _avatarSize,
-            decoration: BoxDecoration(
-              color: avatarColor,
-              borderRadius: borderRadius,
-              boxShadow: ringColor != null
-                  ? [
-                      BoxShadow(
-                        color: scheme.surface,
-                        spreadRadius: _surfaceGapSpread,
-                      ),
-                      BoxShadow(color: ringColor!, spreadRadius: _ringSpread),
-                    ]
-                  : null,
-            ),
-            child: ClipRRect(borderRadius: borderRadius, child: avatar),
-          ),
+          beneficiary != null
+              ? BeneficiaryAvatar(
+                  name: beneficiary!.name,
+                  initials: beneficiary!.initials,
+                  avatarColor: beneficiary!.color,
+                  radius: _avatarSize / 2,
+                  borderRadius: _avatarRadius,
+                )
+              : Container(
+                  width: _avatarSize,
+                  height: _avatarSize,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: _avatarRadius,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(icon, color: Colors.white, size: _iconSize),
+                ),
           if (badgeLetter != null)
             Positioned(
               bottom: _badgeOffset,
@@ -87,49 +60,6 @@ class TransactionAvatar extends StatelessWidget {
               child: _Badge(letter: badgeLetter!, color: badgeColor),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _SolidIcon extends StatelessWidget {
-  final IconData icon;
-
-  const _SolidIcon({required this.icon});
-
-  @override
-  Widget build(BuildContext context) =>
-      Icon(icon, color: Colors.white, size: _iconSize);
-}
-
-class _BeneficiaryOrIcon extends StatelessWidget {
-  final Beneficiary? beneficiary;
-  final Color fallbackColor;
-  final IconData fallbackIcon;
-
-  const _BeneficiaryOrIcon({
-    required this.beneficiary,
-    required this.fallbackColor,
-    required this.fallbackIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (beneficiary != null) {
-      return BeneficiaryAvatar(
-        name: beneficiary!.name,
-        initials: beneficiary!.initials,
-        avatarColor: beneficiary!.color,
-        radius: _circleCornerRadius,
-      );
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: fallbackColor.withValues(alpha: 0.18),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Icon(fallbackIcon, color: fallbackColor, size: _iconSize),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -35,7 +36,6 @@ class CompactRevenueRow extends StatelessWidget {
     final finance = context.financeColors;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
-    final isRecurrent = revenue.frequencyEnum != Frequency.oneTime;
     final letter = switch (revenue.frequencyEnum) {
       Frequency.monthly => 'M',
       Frequency.annual => 'A',
@@ -44,6 +44,9 @@ class CompactRevenueRow extends StatelessWidget {
     final badgeColor = revenue.frequencyEnum == Frequency.monthly
         ? scheme.primary
         : scheme.secondary;
+    final categoryColor = category != null
+        ? Color(category!.color)
+        : finance.income;
 
     final dateLabel = switch (revenue.frequencyEnum) {
       Frequency.monthly => 'Le ${revenue.startDate.day}',
@@ -80,11 +83,12 @@ class CompactRevenueRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            TransactionAvatar.beneficiary(
+            TransactionAvatar(
+              color: categoryColor,
+              icon: category == null
+                  ? Symbols.savings_rounded
+                  : CategoryDefaults.resolveIcon(category!.icon),
               beneficiary: beneficiary,
-              fallbackColor: finance.income,
-              fallbackIcon: Symbols.savings_rounded,
-              ringColor: isRecurrent ? badgeColor : null,
               badgeLetter: letter,
               badgeColor: badgeColor,
             ),

@@ -33,7 +33,6 @@ class CompactExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final isRecurrent = expense.frequencyEnum != Frequency.oneTime;
     final letter = switch (expense.frequencyEnum) {
       Frequency.monthly => 'M',
       Frequency.annual => 'A',
@@ -68,12 +67,11 @@ class CompactExpenseRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            TransactionAvatar.category(
+            TransactionAvatar(
               color: categoryColor,
               icon: category == null
                   ? Symbols.category_rounded
                   : CategoryDefaults.resolveIcon(category!.icon),
-              ringColor: isRecurrent ? badgeColor : null,
               badgeLetter: letter,
               badgeColor: badgeColor,
             ),

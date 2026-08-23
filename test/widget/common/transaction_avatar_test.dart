@@ -10,8 +10,6 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 void main() {
   const categoryColor = Color(0xFF4CAF50);
   const badgeColor = Color(0xFF2196F3);
-  const ringColor = Color(0xFFFF9800);
-  const fallbackColor = Color(0xFF9C27B0);
 
   final beneficiary = Beneficiary.fromModel(
     BeneficiaryModel.create(name: 'Jean Dupont', color: 0xFFE91E63),
@@ -21,166 +19,122 @@ void main() {
     MaterialApp(theme: AppTheme.dark(), home: Scaffold(body: child)),
   );
 
-  BoxDecoration decorationOf(WidgetTester tester, Finder finder) =>
-      tester.widget<Container>(finder).decoration! as BoxDecoration;
+  BoxDecoration avatarDecoration(WidgetTester tester) =>
+      tester
+              .widget<Container>(
+                find
+                    .descendant(
+                      of: find.byType(TransactionAvatar),
+                      matching: find.byType(Container),
+                    )
+                    .first,
+              )
+              .decoration!
+          as BoxDecoration;
 
-  Finder ringContainer() => find
-      .descendant(
-        of: find.byType(TransactionAvatar),
-        matching: find.byType(Container),
-      )
-      .first;
+  testWidgets('paints the category color and its icon without a beneficiary', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+      ),
+    );
 
-  group('category variant', () {
-    testWidgets('paints the category color and icon', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
-
-      expect(decorationOf(tester, ringContainer()).color, categoryColor);
-      expect(
-        tester.widget<Icon>(find.byIcon(Symbols.restaurant_rounded)).color,
-        Colors.white,
-      );
-    });
-
-    testWidgets('uses a rounded square shape', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
-
-      expect(
-        decorationOf(tester, ringContainer()).borderRadius,
-        BorderRadius.circular(10),
-      );
-    });
+    expect(avatarDecoration(tester).color, categoryColor);
+    expect(
+      tester.widget<Icon>(find.byIcon(Symbols.restaurant_rounded)).color,
+      Colors.white,
+    );
+    expect(find.byType(BeneficiaryAvatar), findsNothing);
   });
 
-  group('beneficiary variant', () {
-    testWidgets('shows the beneficiary avatar when one is given', (
+  testWidgets('shows the beneficiary initials instead of the icon', (
+    tester,
+  ) async {
+    await pump(
       tester,
-    ) async {
-      await pump(
-        tester,
-        TransactionAvatar.beneficiary(
-          beneficiary: beneficiary,
-          fallbackColor: fallbackColor,
-          fallbackIcon: Symbols.savings_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
+      TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+        beneficiary: beneficiary,
+      ),
+    );
 
-      expect(find.byType(BeneficiaryAvatar), findsOneWidget);
-      expect(find.text('JD'), findsOneWidget);
-      expect(find.byIcon(Symbols.savings_rounded), findsNothing);
-    });
-
-    testWidgets('falls back to the icon when there is no beneficiary', (
-      tester,
-    ) async {
-      await pump(
-        tester,
-        TransactionAvatar.beneficiary(
-          beneficiary: null,
-          fallbackColor: fallbackColor,
-          fallbackIcon: Symbols.savings_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
-
-      expect(find.byType(BeneficiaryAvatar), findsNothing);
-      expect(
-        tester.widget<Icon>(find.byIcon(Symbols.savings_rounded)).color,
-        fallbackColor,
-      );
-    });
-
-    testWidgets('uses a circular shape', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.beneficiary(
-          beneficiary: null,
-          fallbackColor: fallbackColor,
-          fallbackIcon: Symbols.savings_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
-
-      expect(
-        decorationOf(tester, ringContainer()).borderRadius,
-        BorderRadius.circular(16),
-      );
-    });
+    expect(find.text('JD'), findsOneWidget);
+    expect(find.byIcon(Symbols.restaurant_rounded), findsNothing);
   });
 
-  group('chrome shared by both variants', () {
-    testWidgets('draws no ring when no ring color is given', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
+  testWidgets('keeps the same rounded square shape in both cases', (
+    tester,
+  ) async {
+    const expected = BorderRadius.all(Radius.circular(10));
 
-      expect(decorationOf(tester, ringContainer()).boxShadow, isNull);
-    });
-
-    testWidgets('draws a surface gap then the ring when a color is given', (
+    await pump(
       tester,
-    ) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-          ringColor: ringColor,
-        ),
-      );
+      const TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+      ),
+    );
+    expect(avatarDecoration(tester).borderRadius, expected);
 
-      final shadows = decorationOf(tester, ringContainer()).boxShadow!;
-      expect(shadows, hasLength(2));
-      expect(shadows.last.color, ringColor);
-      expect(shadows.first.spreadRadius, lessThan(shadows.last.spreadRadius));
-    });
+    await pump(
+      tester,
+      TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+        beneficiary: beneficiary,
+      ),
+    );
+    expect(avatarDecoration(tester).borderRadius, expected);
+  });
 
-    testWidgets('renders the badge letter when one is given', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-          badgeLetter: 'M',
-        ),
-      );
+  testWidgets('never paints a shadow behind the avatar', (tester) async {
+    await pump(
+      tester,
+      TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+        beneficiary: beneficiary,
+        badgeLetter: 'M',
+      ),
+    );
 
-      expect(find.text('M'), findsOneWidget);
-    });
+    expect(avatarDecoration(tester).boxShadow, isNull);
+  });
 
-    testWidgets('renders no badge without a letter', (tester) async {
-      await pump(
-        tester,
-        TransactionAvatar.category(
-          color: categoryColor,
-          icon: Symbols.restaurant_rounded,
-          badgeColor: badgeColor,
-        ),
-      );
+  testWidgets('renders the badge letter when one is given', (tester) async {
+    await pump(
+      tester,
+      const TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+        badgeLetter: 'M',
+      ),
+    );
 
-      expect(find.byType(Text), findsNothing);
-    });
+    expect(find.text('M'), findsOneWidget);
+  });
+
+  testWidgets('renders no badge without a letter', (tester) async {
+    await pump(
+      tester,
+      const TransactionAvatar(
+        color: categoryColor,
+        icon: Symbols.restaurant_rounded,
+        badgeColor: badgeColor,
+      ),
+    );
+
+    expect(find.byType(Text), findsNothing);
   });
 }
