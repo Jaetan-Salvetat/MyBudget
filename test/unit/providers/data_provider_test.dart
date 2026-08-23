@@ -21,7 +21,10 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mybudget/core/services/data/legacy_backup_upgrader.dart';
+import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -66,7 +69,15 @@ void main() {
   late MockCategoryOverrideRepository mockCategoryOverrideRepo;
   late MockCategoryMemoryRepository mockCategoryMemoryRepo;
 
-  setUpAll(() {
+  late LegacyBackupUpgrader upgrader;
+
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    final taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
+    upgrader = LegacyBackupUpgrader(LegacyCategoryMapper(taxonomy));
+
     registerFallbackValue(FakeAccountModel());
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeBeneficiaryModel());
@@ -107,6 +118,7 @@ void main() {
         categoryMemoryRepositoryProvider.overrideWithValue(
           mockCategoryMemoryRepo,
         ),
+        legacyBackupUpgraderProvider.overrideWithValue(upgrader),
       ],
     );
   }
@@ -211,6 +223,58 @@ void main() {
     final addedExpense = captured.first as ExpenseModel;
 
     expect(addedExpense.beneficiaryId, 55);
+  });
+
+  test('importUserData maps categories from a v0.7.5 backup', () async {
+    final jsonContent = jsonEncode({
+      'version': 2,
+      'accounts': [
+        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
+      ],
+      'categories': [
+        {'id': '1', 'name': 'Alimentation', 'icon': 'restaurant'},
+        {'id': '2', 'name': 'Chats', 'icon': 'pets'},
+      ],
+      'expenses': [
+        {
+          'id': '1',
+          'name': 'Courses',
+          'amount': 50.0,
+          'accountId': '100',
+          'categoryId': '1',
+          'date': DateTime(2026, 1, 5).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+        {
+          'id': '2',
+          'name': 'Croquettes',
+          'amount': 20.0,
+          'accountId': '100',
+          'categoryId': '2',
+          'date': DateTime(2026, 1, 6).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+      ],
+    });
+
+    stubDeleteAll();
+    when(() => mockAccountRepo.add(any())).thenReturn(200);
+    when(() => mockExpenseRepo.add(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+    final imported = verify(
+      () => mockExpenseRepo.add(captureAny()),
+    ).captured.cast<ExpenseModel>();
+
+    expect(imported.map((e) => e.categorySlug), [
+      'alimentation.supermarche',
+      LegacyCategoryMapper.fallback,
+    ]);
+    expect(imported.first.startDate, DateTime(2026, 1, 5));
   });
 
   test('importUserData sets importReport on success', () async {

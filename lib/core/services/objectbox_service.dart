@@ -5,6 +5,7 @@ import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/legacy_category_model.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -24,6 +25,7 @@ class ObjectBoxService {
   late Box<LoanModel> loanBox;
   late Box<LoanEventModel> loanEventBox;
   late Box<TransferModel> transferBox;
+  late Box<LegacyCategoryModel> legacyCategoryBox;
 
   static ObjectBoxService? _instance;
 
@@ -51,6 +53,7 @@ class ObjectBoxService {
     loanBox = Box<LoanModel>(store);
     loanEventBox = Box<LoanEventModel>(store);
     transferBox = Box<TransferModel>(store);
+    legacyCategoryBox = Box<LegacyCategoryModel>(store);
   }
 
   void closeStore() {

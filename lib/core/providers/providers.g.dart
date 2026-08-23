@@ -46,7 +46,7 @@ final class ObjectBoxServiceProvider
   }
 }
 
-String _$objectBoxServiceHash() => r'02c6f5f49e110b24ad5cbc0ccc9331e0dad3f814';
+String _$objectBoxServiceHash() => r'c5aa6b0e7ffaa5a0b541517dd1f7dc134abb9dd1';
 
 @ProviderFor(categoryTaxonomy)
 final categoryTaxonomyProvider = CategoryTaxonomyProvider._();
@@ -130,6 +130,54 @@ final class QuickAddClassifierProvider
 
 String _$quickAddClassifierHash() =>
     r'2236a78741d07fe4d5913ef9c856ad7e53a522a0';
+
+@ProviderFor(legacyBackupUpgrader)
+final legacyBackupUpgraderProvider = LegacyBackupUpgraderProvider._();
+
+final class LegacyBackupUpgraderProvider
+    extends
+        $FunctionalProvider<
+          LegacyBackupUpgrader,
+          LegacyBackupUpgrader,
+          LegacyBackupUpgrader
+        >
+    with $Provider<LegacyBackupUpgrader> {
+  LegacyBackupUpgraderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'legacyBackupUpgraderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$legacyBackupUpgraderHash();
+
+  @$internal
+  @override
+  $ProviderElement<LegacyBackupUpgrader> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LegacyBackupUpgrader create(Ref ref) {
+    return legacyBackupUpgrader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LegacyBackupUpgrader value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LegacyBackupUpgrader>(value),
+    );
+  }
+}
+
+String _$legacyBackupUpgraderHash() =>
+    r'3f7d7b5cb1642ecc0120e0beccff295fdddbd8a7';
 
 @ProviderFor(apiKeyService)
 final apiKeyServiceProvider = ApiKeyServiceProvider._();

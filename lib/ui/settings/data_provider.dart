@@ -108,9 +108,13 @@ class DataNotifier extends _$DataNotifier {
   }
 
   ImportValidationResult validateImportData(String jsonContent) {
-    final data = jsonDecode(jsonContent) as Map<String, dynamic>;
     final importService = _createImportService();
-    return importService.validate(data);
+    return importService.validate(_decodeBackup(jsonContent));
+  }
+
+  Map<String, dynamic> _decodeBackup(String jsonContent) {
+    final data = jsonDecode(jsonContent) as Map<String, dynamic>;
+    return ref.read(legacyBackupUpgraderProvider).upgrade(data);
   }
 
   Future<void> importUserData(String jsonContent) async {
@@ -122,7 +126,7 @@ class DataNotifier extends _$DataNotifier {
         importStatus: 'Validation des données...',
       );
 
-      final data = jsonDecode(jsonContent) as Map<String, dynamic>;
+      final data = _decodeBackup(jsonContent);
       final importService = _createImportService();
 
       final validated = importService.validate(data);

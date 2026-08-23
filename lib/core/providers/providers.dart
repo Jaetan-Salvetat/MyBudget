@@ -7,8 +7,13 @@ import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/legacy_category_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/services/data/legacy_backup_upgrader.dart';
+import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
+import 'package:mybudget/core/services/data/legacy_category_migration.dart';
+import 'package:mybudget/core/services/data/legacy_loan_defaults_migration.dart';
 import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
 import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
 import 'package:mybudget/core/services/loan_payoff_service.dart';
@@ -34,8 +39,21 @@ final appUpdaterProvider = Provider<AppUpdater>(
 );
 
 @Riverpod(keepAlive: true)
-Future<ObjectBoxService> objectBoxService(Ref ref) {
-  return ObjectBoxService.getInstance();
+Future<ObjectBoxService> objectBoxService(Ref ref) async {
+  final service = await ObjectBoxService.getInstance();
+  final taxonomy = await ref.watch(categoryTaxonomyProvider.future);
+
+  await LegacyCategoryMigration(
+    expenses: ExpenseRepository(service.expenseBox),
+    legacyCategories: LegacyCategoryRepository(service.legacyCategoryBox),
+    mapper: LegacyCategoryMapper(taxonomy),
+  ).run();
+
+  await LegacyLoanDefaultsMigration(
+    loans: LoanRepository(service.loanBox),
+  ).run();
+
+  return service;
 }
 
 @Riverpod(keepAlive: true)
@@ -54,6 +72,13 @@ Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
   );
   await service.load();
   return service;
+}
+
+@Riverpod(keepAlive: true)
+LegacyBackupUpgrader legacyBackupUpgrader(Ref ref) {
+  return LegacyBackupUpgrader(
+    LegacyCategoryMapper(ref.watch(categoryTaxonomyProvider).requireValue),
+  );
 }
 
 @Riverpod(keepAlive: true)

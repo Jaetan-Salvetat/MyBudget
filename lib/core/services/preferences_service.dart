@@ -14,6 +14,10 @@ class PreferencesService {
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
   static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
+  static const String keyLegacyCategoryMigrationDone =
+      'legacyCategoryMigrationDone';
+  static const String keyLegacyLoanDefaultsMigrationDone =
+      'legacyLoanDefaultsMigrationDone';
 
   static const String keyLastScanTimestamp = 'lastScanTimestamp';
   static const String keyGeminiApiKey = 'geminiApiKey';
@@ -91,6 +95,22 @@ class PreferencesService {
 
   static Future<void> setHasSeenUpdateOnboarding() async {
     await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
+  }
+
+  static bool isLegacyCategoryMigrationDone() {
+    return _prefs.getBool(keyLegacyCategoryMigrationDone) ?? false;
+  }
+
+  static Future<void> setLegacyCategoryMigrationDone() async {
+    await _prefs.setBool(keyLegacyCategoryMigrationDone, true);
+  }
+
+  static bool isLegacyLoanDefaultsMigrationDone() {
+    return _prefs.getBool(keyLegacyLoanDefaultsMigrationDone) ?? false;
+  }
+
+  static Future<void> setLegacyLoanDefaultsMigrationDone() async {
+    await _prefs.setBool(keyLegacyLoanDefaultsMigrationDone, true);
   }
 
   static int getLastScanTimestamp() {

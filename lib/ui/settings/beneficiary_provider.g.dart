@@ -34,7 +34,7 @@ final class BeneficiaryNotifierProvider
 }
 
 String _$beneficiaryNotifierHash() =>
-    r'17cc45f31054a45c3719c3554aad5ab597495353';
+    r'c2cc0fd2c7d32cfd1a392270e2c74d631bc56d20';
 
 abstract class _$BeneficiaryNotifier extends $AsyncNotifier<List<Beneficiary>> {
   FutureOr<List<Beneficiary>> build();
