@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
+import 'package:path_provider/path_provider.dart';
+
+typedef TempDirectoryResolver = Future<Directory> Function();
 
 typedef HeadPrediction = ({int index, double confidence});
 
@@ -23,18 +27,48 @@ typedef QuickAddModelOutput = ({
 const int kCategorySuggestionCount = 3;
 
 class QuickAddModelRunner {
-  static const String assetPath = 'assets/models/model.onnx';
+  /// Le plugin ONNX extrait l'asset dans le dossier temporaire et le met en
+  /// cache sous son seul nom de fichier : republier un modele reentraine sous
+  /// le meme nom laisserait toutes les installations existantes tourner sur
+  /// l'ancien. La version dans le nom donne a chaque modele sa propre entree
+  /// de cache — a incrementer a chaque nouveau modele.
+  static const String assetPath = 'assets/models/model_v2.onnx';
+
+  static final RegExp _extractionPattern = RegExp(r'^model(_v\d+)?\.onnx$');
 
   final OnnxRuntime _ort;
+  final TempDirectoryResolver _tempDirectory;
   OrtSession? _session;
 
-  QuickAddModelRunner(this._ort);
+  QuickAddModelRunner(this._ort, {TempDirectoryResolver? tempDirectory})
+    : _tempDirectory = tempDirectory ?? getTemporaryDirectory;
 
   bool get isLoaded => _session != null;
 
   Future<void> load() async {
     if (_session != null) return;
+    await _deleteOutdatedExtractions();
     _session = await _ort.createSessionFromAsset(assetPath);
+  }
+
+  /// Les extractions des versions precedentes pesent autant que le modele :
+  /// les laisser dans le cache doublerait l'espace occupe a chaque mise a
+  /// jour. Un echec de nettoyage ne doit pas priver l'utilisateur de l'ajout
+  /// rapide, on le signale et on charge quand meme.
+  Future<void> _deleteOutdatedExtractions() async {
+    final currentName = assetPath.split('/').last;
+    try {
+      final directory = await _tempDirectory();
+      await for (final entry in directory.list()) {
+        final name = entry.path.split(Platform.pathSeparator).last;
+        if (entry is! File) continue;
+        if (name == currentName || !_extractionPattern.hasMatch(name)) continue;
+        await entry.delete();
+      }
+    } on FileSystemException catch (error, stackTrace) {
+      debugPrint('Nettoyage des modeles caches impossible : '
+          '$error\n$stackTrace');
+    }
   }
 
   Future<QuickAddModelOutput> run(TokenizedInput tokens) async {

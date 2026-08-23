@@ -6,7 +6,12 @@ typedef TokenizedInput = ({List<int> inputIds, List<int> attentionMask});
 
 class QuickAddTokenizer {
   static const String assetPath = 'assets/models/tokenizer.json';
-  static const int _maxLength = 64;
+
+  /// Le graphe ONNX accepte une longueur libre : on pade au plus petit palier
+  /// qui contient la saisie plutot qu'au maximum, le modele ne calculant alors
+  /// plus les positions de bourrage. Quelques paliers seulement, pour qu'ORT
+  /// reutilise ses buffers au lieu d'en reallouer a chaque forme inedite.
+  static const List<int> lengthBuckets = [8, 16, 32, 64];
   static const int _padId = 0;
   static const int _bosId = 2;
   static const int _eosId = 1;
@@ -59,15 +64,23 @@ class QuickAddTokenizer {
     }
     ids.add(_eosId);
 
-    if (ids.length > _maxLength) {
-      final truncated = ids.sublist(0, _maxLength - 1)..add(_eosId);
-      return (inputIds: truncated, attentionMask: List.filled(_maxLength, 1));
+    final maxLength = lengthBuckets.last;
+    if (ids.length > maxLength) {
+      final truncated = ids.sublist(0, maxLength - 1)..add(_eosId);
+      return (inputIds: truncated, attentionMask: List.filled(maxLength, 1));
     }
 
-    final padLength = _maxLength - ids.length;
+    final padLength = _bucketFor(ids.length) - ids.length;
     return (
       inputIds: ids + List.filled(padLength, _padId),
       attentionMask: List.filled(ids.length, 1) + List.filled(padLength, 0),
+    );
+  }
+
+  int _bucketFor(int length) {
+    return lengthBuckets.firstWhere(
+      (bucket) => length <= bucket,
+      orElse: () => lengthBuckets.last,
     );
   }
 

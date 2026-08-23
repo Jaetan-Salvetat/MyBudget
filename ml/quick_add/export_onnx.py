@@ -12,6 +12,10 @@ ONNX_RAW = Path(__file__).parent / "output" / "model_raw.onnx"
 ONNX_MERGED = Path(__file__).parent / "output" / "model_merged.onnx"
 ONNX_FINAL = Path(__file__).parent / "output" / "model.onnx"
 
+# Traced short so nothing bakes a padded length into the graph : the sequence
+# axis stays symbolic and the app pads to the smallest bucket that fits.
+SEQUENCE_TRACE_LENGTH = 16
+
 
 class OnnxBackbone(nn.Module):
     """Wraps the backbone + mean pooling for ONNX export (returns pooled [1, hidden_size])."""
@@ -52,7 +56,7 @@ def export_full_model() -> None:
     model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(str(MODEL_PATH))
-    dummy = tokenizer("test", return_tensors="pt", truncation=True, padding="max_length", max_length=64)
+    dummy = tokenizer("test", return_tensors="pt", truncation=True, padding="max_length", max_length=SEQUENCE_TRACE_LENGTH)
 
     wrapper = OnnxFullModel(model)
 
@@ -63,8 +67,8 @@ def export_full_model() -> None:
         input_names=["input_ids", "attention_mask"],
         output_names=["type_logits", "category_logits", "recurrence_logits"],
         dynamic_axes={
-            "input_ids": {0: "batch"},
-            "attention_mask": {0: "batch"},
+            "input_ids": {0: "batch", 1: "sequence"},
+            "attention_mask": {0: "batch", 1: "sequence"},
             "type_logits": {0: "batch"},
             "category_logits": {0: "batch"},
             "recurrence_logits": {0: "batch"},
