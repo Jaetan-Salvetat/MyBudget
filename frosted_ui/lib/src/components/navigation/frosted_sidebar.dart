@@ -166,7 +166,6 @@ class _Item extends StatelessWidget {
           borderRadius: BorderRadius.circular(FrostedRadius.sm),
         ),
         child: s.ink(
-          color: fg,
           borderRadius: BorderRadius.circular(FrostedRadius.sm),
           Padding(
             padding: const EdgeInsets.symmetric(

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
+import 'package:mybudget/ui/settings/screens/theme_screen.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,5 +42,14 @@ void main() {
     await tester.pump();
 
     expect(find.text('Sombre'), findsOneWidget);
+  });
+
+  testWidgets('opens the theme screen', (tester) async {
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    await tester.tap(find.text('Thème'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ThemeScreen), findsOneWidget);
   });
 }

@@ -13,6 +13,15 @@ void main() {
     expect(theme.brightness, Brightness.dark);
   });
 
+  test('FrostedTheme splashes with the M3 sparkle ink', () {
+    for (final ThemeData theme in <ThemeData>[
+      FrostedTheme.light(seedColor: const Color(0xFF7C5CFF)),
+      FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF)),
+    ]) {
+      expect(theme.splashFactory, InkSparkle.splashFactory);
+    }
+  });
+
   testWidgets('FrostedGlass renders with theme tokens',
       (WidgetTester tester) async {
     await tester.pumpWidget(

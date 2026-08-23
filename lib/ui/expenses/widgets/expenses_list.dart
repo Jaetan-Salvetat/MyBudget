@@ -21,7 +21,7 @@ import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_bottom_sheet.dart';
+import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_group_header.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_sort_menu.dart';
@@ -483,7 +483,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       beneficiary: beneficiary,
       showDivider: showDivider,
       showDate: showDate,
-      onEdit: () => _openEditSheet(expense),
+      onEdit: () => _openEditScreen(expense),
       onDelete: () => _deleteExpense(expense),
     );
   }
@@ -500,26 +500,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           _showNoAccountDialog(context, 'une dépense');
           return;
         }
-        ExpenseBottomSheet.show(
-          context: context,
-          accounts: accounts,
-          closedExpenses: ref
-              .read(expenseProvider.notifier)
-              .getClosedExpenses(),
-          onSubmit: (newExpense) async {
-            try {
-              await ref.read(expenseProvider.notifier).addExpense(newExpense);
-            } catch (e) {
-              if (context.mounted) {
-                FrostedSnackbar.show(
-                  context,
-                  message: 'Erreur lors de l\'ajout: $e',
-                );
-              }
-            }
-          },
-          onCancel: () {},
-        );
+        _openCreateScreen(accounts);
       },
     );
   }
@@ -602,28 +583,41 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
-  Future<void> _openEditSheet(ExpenseModel expense) async {
-    final accounts = ref.read(accountProvider).value ?? [];
-    ExpenseBottomSheet.show(
+  Future<void> _openCreateScreen(List<AccountModel> accounts) async {
+    final expense = await ExpenseFormScreen.push(
       context: context,
       accounts: accounts,
-      expense: expense,
-      onSubmit: (updatedExpense) async {
-        try {
-          await ref
-              .read(expenseProvider.notifier)
-              .updateExpense(updatedExpense);
-        } catch (e) {
-          if (mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de la modification: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
+      closedExpenses: ref.read(expenseProvider.notifier).getClosedExpenses(),
     );
+    if (expense == null) return;
+
+    try {
+      await ref.read(expenseProvider.notifier).addExpense(expense);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
+      }
+    }
+  }
+
+  Future<void> _openEditScreen(ExpenseModel expense) async {
+    final updatedExpense = await ExpenseFormScreen.push(
+      context: context,
+      accounts: ref.read(accountProvider).value ?? [],
+      expense: expense,
+    );
+    if (updatedExpense == null) return;
+
+    try {
+      await ref.read(expenseProvider.notifier).updateExpense(updatedExpense);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la modification: $e',
+        );
+      }
+    }
   }
 
   Future<void> _deleteExpense(ExpenseModel expense) async {

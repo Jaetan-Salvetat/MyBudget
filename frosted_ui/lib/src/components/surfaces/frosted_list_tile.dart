@@ -120,7 +120,6 @@ class FrostedListTile extends StatelessWidget {
         curve: motion.curve,
         decoration: BoxDecoration(color: fill, borderRadius: _shape(s)),
         child: s.ink(
-          color: cs.onSurface,
           borderRadius: _shape(s),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: minHeight),

@@ -9,7 +9,7 @@ import 'package:mybudget/ui/common/widgets/category_tile.dart';
 import 'package:mybudget/ui/common/widgets/expandable_group.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/ui/settings/widgets/category_form_bottom_sheet.dart';
+import 'package:mybudget/ui/settings/screens/category_form_screen.dart';
 
 /// Read-only taxonomy tree. Categories cannot be created or deleted: the
 /// taxonomy is the contract with the classifier. Only name, icon and colour
@@ -35,12 +35,19 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final overrides = ref.watch(categoryOverrideProvider).value ?? const {};
-    final topInset = MediaQuery.of(context).padding.top;
 
     return FrostedScaffold(
-      appBar: const FrostedTopBar(title: 'Catégories'),
+      appBar: FrostedTopBar(
+        title: 'Catégories',
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
       body: Padding(
-        padding: EdgeInsets.fromLTRB(16, topInset + kToolbarHeight + 12, 16, 0),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          FrostedTopBar.bodyTopPadding(context) + 12,
+          16,
+          0,
+        ),
         child: ref
             .watch(categoryDisplayResolverProvider)
             .when(
@@ -135,7 +142,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     CategoryDisplayResolver resolver,
     CategoryDisplay category,
   ) async {
-    final action = await CategoryFormBottomSheet.show(
+    final action = await CategoryFormScreen.push(
       context: context,
       initial: category,
       defaults: resolver.defaultsOf(category),

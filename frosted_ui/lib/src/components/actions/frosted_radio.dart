@@ -44,7 +44,6 @@ class FrostedRadio<T> extends StatelessWidget {
             : cs.onSurface.withValues(alpha: 0.38);
 
         return s.ink(
-          color: _selected ? cs.primary : cs.onSurface,
           borderRadius: BorderRadius.circular(FrostedRadius.full),
           Padding(
             padding: const EdgeInsets.all(FrostedSpacing.sp3),

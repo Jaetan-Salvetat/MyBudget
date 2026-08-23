@@ -132,7 +132,6 @@ class _Crumb extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: label,
       builder: (BuildContext context, InteractionStates s) => s.ink(
-        color: cs.onSurface,
         borderRadius: BorderRadius.circular(FrostedRadius.xs),
         Padding(
           padding: const EdgeInsets.symmetric(
@@ -169,7 +168,6 @@ class _SearchButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(FrostedRadius.md),
         ),
         child: s.ink(
-          color: cs.onSurface,
           borderRadius: BorderRadius.circular(FrostedRadius.md),
           Padding(
             padding: const EdgeInsets.symmetric(

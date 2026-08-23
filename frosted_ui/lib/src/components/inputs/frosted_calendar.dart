@@ -203,7 +203,6 @@ class _MonthLabel extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.full),
           ),
           child: s.ink(
-            color: cs.onSurface,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -281,7 +280,6 @@ class _DayCell extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
             child: s.ink(
-              color: fg,
               borderRadius: BorderRadius.circular(FrostedRadius.full),
               Center(
                 child: Text(
@@ -342,7 +340,6 @@ class _YearCell extends StatelessWidget {
               borderRadius: BorderRadius.circular(FrostedRadius.full),
             ),
             child: s.ink(
-              color: fg,
               borderRadius: BorderRadius.circular(FrostedRadius.full),
               Center(
                 child: Text(

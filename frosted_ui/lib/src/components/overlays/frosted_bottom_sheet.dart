@@ -6,7 +6,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
-import '../../theme/frosted_tokens.dart';
 import '../actions/frosted_icon_button.dart';
 
 const AnimationStyle _kSheetAnimation = AnimationStyle(
@@ -15,6 +14,10 @@ const AnimationStyle _kSheetAnimation = AnimationStyle(
   curve: Cubic(0.32, 0.72, 0, 1),
   reverseCurve: Cubic(0.32, 0.72, 0, 1),
 );
+
+/// Breathing room kept between the status bar and a full-height sheet, so its
+/// top corners stay visible instead of butting against the system inset.
+const double _kStatusBarGap = FrostedSpacing.sp2;
 
 /// Shows a [FrostedBottomSheet] as a modal route — a glass sheet that slides
 /// up from the bottom edge over a blurred scrim, draggable to dismiss.
@@ -29,7 +32,10 @@ Future<T?> showFrostedBottomSheet<T>({
   final NavigatorState navigator = Navigator.of(context, rootNavigator: true);
   return navigator.push<T>(
     _FrostedBottomSheetRoute<T>(
-      builder: builder,
+      builder: (BuildContext sheetContext) => Padding(
+        padding: const EdgeInsets.only(top: _kStatusBarGap),
+        child: builder(sheetContext),
+      ),
       capturedThemes: InheritedTheme.capture(
         from: context,
         to: navigator.context,
@@ -56,6 +62,7 @@ class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
          backgroundColor: Colors.transparent,
          elevation: 0,
          modalBarrierColor: Colors.transparent,
+         useSafeArea: true,
          sheetAnimationStyle: _kSheetAnimation,
        );
 
@@ -66,14 +73,11 @@ class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
       children: <Widget>[
         IgnorePointer(
           child: FrostedGlass(
-            level: FrostedGlassLevel.regular,
+            level: FrostedGlassLevel.thin,
             tone: FrostedGlassTone.dark,
             elevation: FrostedGlassElevation.none,
             borderRadius: BorderRadius.zero,
-            animation: CurvedAnimation(
-              parent: animation!,
-              curve: _kSheetAnimation.curve!,
-            ),
+            animation: animation,
           ),
         ),
         super.buildModalBarrier(),
@@ -113,7 +117,6 @@ class FrostedBottomSheet extends StatelessWidget {
             color: cs.surfaceContainer.withValues(alpha: 0.72),
             borderRadius: radius,
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            boxShadow: context.frostedTokens.glass.liftedShadow,
           ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(

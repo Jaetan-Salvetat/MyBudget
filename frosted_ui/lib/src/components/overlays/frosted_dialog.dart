@@ -44,7 +44,7 @@ Future<T?> showFrostedDialog<T>({
                       ? () => Navigator.of(context).maybePop()
                       : null,
                   child: FrostedGlass(
-                    level: FrostedGlassLevel.regular,
+                    level: FrostedGlassLevel.thin,
                     tone: FrostedGlassTone.dark,
                     elevation: FrostedGlassElevation.none,
                     borderRadius: BorderRadius.zero,

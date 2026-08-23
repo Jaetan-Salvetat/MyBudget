@@ -140,7 +140,6 @@ class FrostedChip extends StatelessWidget {
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            color: fg,
             borderRadius: _shape(s),
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -283,7 +282,6 @@ class _DeleteAffordance extends StatelessWidget {
     return InteractiveSurface(
       onTap: onDelete,
       builder: (BuildContext context, InteractionStates s) => s.ink(
-        color: color,
         borderRadius: BorderRadius.circular(FrostedRadius.full),
         Icon(Icons.close, size: _glyphSize, color: color),
       ),

@@ -13,7 +13,7 @@ import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
-import 'package:mybudget/ui/revenues/widgets/revenue_bottom_sheet.dart';
+import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
@@ -225,7 +225,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       beneficiary: beneficiary,
       category: category,
       showDivider: showDivider,
-      onEdit: () => _openEditSheet(revenue, accounts),
+      onEdit: () => _openEditScreen(revenue, accounts),
       onDelete: () => _deleteRevenue(revenue),
     );
   }
@@ -274,26 +274,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           _showNoAccountDialog(context, 'un revenu');
           return;
         }
-        RevenueBottomSheet.show(
-          context: context,
-          accounts: accounts,
-          closedRevenues: ref
-              .read(revenueProvider.notifier)
-              .getClosedRevenues(),
-          onSubmit: (newRevenue) async {
-            try {
-              await ref.read(revenueProvider.notifier).addRevenue(newRevenue);
-            } catch (e) {
-              if (context.mounted) {
-                FrostedSnackbar.show(
-                  context,
-                  message: 'Erreur lors de l\'ajout: $e',
-                );
-              }
-            }
-          },
-          onCancel: () {},
-        );
+        _openCreateScreen(accounts);
       },
     );
   }
@@ -339,30 +320,44 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  Future<void> _openEditSheet(
+  Future<void> _openCreateScreen(List<AccountModel> accounts) async {
+    final revenue = await RevenueFormScreen.push(
+      context: context,
+      accounts: accounts,
+      closedRevenues: ref.read(revenueProvider.notifier).getClosedRevenues(),
+    );
+    if (revenue == null) return;
+
+    try {
+      await ref.read(revenueProvider.notifier).addRevenue(revenue);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
+      }
+    }
+  }
+
+  Future<void> _openEditScreen(
     RevenueModel revenue,
     List<AccountModel> accounts,
   ) async {
-    RevenueBottomSheet.show(
+    final updatedRevenue = await RevenueFormScreen.push(
       context: context,
       accounts: accounts,
       revenue: revenue,
-      onSubmit: (updatedRevenue) async {
-        try {
-          await ref
-              .read(revenueProvider.notifier)
-              .updateRevenue(updatedRevenue);
-        } catch (e) {
-          if (mounted) {
-            FrostedSnackbar.show(
-              context,
-              message: 'Erreur lors de la modification: $e',
-            );
-          }
-        }
-      },
-      onCancel: () {},
     );
+    if (updatedRevenue == null) return;
+
+    try {
+      await ref.read(revenueProvider.notifier).updateRevenue(updatedRevenue);
+    } catch (e) {
+      if (mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la modification: $e',
+        );
+      }
+    }
   }
 
   Future<void> _deleteRevenue(RevenueModel revenue) async {

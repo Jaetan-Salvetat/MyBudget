@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
 import 'package:mybudget/ui/settings/screens/categories_screen.dart';
-import 'package:mybudget/ui/settings/widgets/beneficiaries_bottom_sheet.dart';
 
 class InputSection extends StatelessWidget {
   const InputSection({super.key});
@@ -28,7 +28,10 @@ class InputSection extends StatelessWidget {
           subtitle: 'Ajouter ou supprimer des bénéficiaires',
           leading: const FrostedListAvatar(icon: Symbols.people_rounded),
           trailing: const Icon(Symbols.chevron_right_rounded),
-          onTap: () => BeneficiariesBottomSheet.show(context: context),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BeneficiariesScreen()),
+          ),
         ),
       ],
     );

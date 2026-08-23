@@ -179,7 +179,6 @@ class _MainAction extends StatelessWidget {
             borderRadius: radius,
           ),
           child: s.ink(
-            color: fg,
             borderRadius: radius,
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -276,7 +275,6 @@ class _ChevronAction extends StatelessWidget {
                 borderRadius: radius,
               ),
               child: s.ink(
-                color: fg,
                 borderRadius: radius,
                 AnimatedRotation(
                   duration: motion.duration,

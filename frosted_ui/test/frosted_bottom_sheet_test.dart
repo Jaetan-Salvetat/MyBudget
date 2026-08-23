@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
@@ -121,6 +122,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  group('FrostedBottomSheet surface', () {
+    testWidgets('it paints no drop shadow, which the route would clip', (
+      WidgetTester tester,
+    ) async {
+      await openSheet(tester);
+
+      final BoxDecoration decoration =
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .descendant(
+                          of: find.byType(FrostedBottomSheet),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+
+      expect(decoration.boxShadow, isNull);
+    });
+  });
+
   group('FrostedBottomSheet close button', () {
     testWidgets('a titled sheet gets a close button', (
       WidgetTester tester,
@@ -152,6 +176,26 @@ void main() {
   });
 
   group('FrostedBottomSheet drag to dismiss', () {
+    testWidgets('the backdrop blur fades in step with the finger', (
+      WidgetTester tester,
+    ) async {
+      await openSheet(tester);
+
+      final double opened = _barrierSigma(tester);
+      final double height = tester.getSize(find.byType(FrostedBottomSheet)).height;
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(FrostedBottomSheet)),
+      );
+      await gesture.moveBy(const Offset(0, kDragSlopDefault));
+      await gesture.moveBy(Offset(0, height / 2));
+      await tester.pump();
+
+      expect(_barrierSigma(tester), closeTo(opened / 2, 1));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('a downward drag past the midpoint closes the sheet', (
       WidgetTester tester,
     ) async {
@@ -212,4 +256,86 @@ void main() {
       expect(find.byType(FrostedBottomSheet), findsOneWidget);
     });
   });
+
+  group('FrostedBottomSheet status bar', () {
+    Future<void> openTallSheet(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(top: 48);
+      tester.view.viewPadding = const FakeViewPadding(top: 48);
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: FrostedTheme.dark(seedColor: seed),
+          home: Scaffold(
+            body: Builder(
+              builder: (BuildContext context) => TextButton(
+                onPressed: () => showFrostedBottomSheet<void>(
+                  context: context,
+                  builder: (_) => FrostedBottomSheet(
+                    title: 'Catégorie',
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: List<Widget>.generate(
+                        40,
+                        (int i) => SizedBox(height: 48, child: Text('row $i')),
+                      ),
+                    ),
+                  ),
+                ),
+                child: const Text('ouvrir'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('ouvrir'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a full-height sheet stays clear of the status bar', (
+      WidgetTester tester,
+    ) async {
+      await openTallSheet(tester);
+
+      expect(
+        tester.getTopLeft(find.byType(FrostedBottomSheet)).dy,
+        greaterThan(48),
+      );
+    });
+
+    testWidgets('its title clears the status bar too', (
+      WidgetTester tester,
+    ) async {
+      await openTallSheet(tester);
+
+      expect(tester.getTopLeft(find.text('Catégorie')).dy, greaterThan(48));
+    });
+
+    testWidgets('a short sheet keeps its natural height', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(top: 48);
+      tester.view.viewPadding = const FakeViewPadding(top: 48);
+      addTearDown(tester.view.reset);
+
+      await openSheet(tester);
+
+      expect(
+        tester.getSize(find.byType(FrostedBottomSheet)).height,
+        lessThan(400),
+      );
+    });
+  });
+}
+
+double _barrierSigma(WidgetTester tester) {
+  final String filter =
+      tester.layers.whereType<BackdropFilterLayer>().first.filter.toString();
+  return double.parse(
+    RegExp(r'blur\(([0-9.]+)').firstMatch(filter)!.group(1)!,
+  );
 }

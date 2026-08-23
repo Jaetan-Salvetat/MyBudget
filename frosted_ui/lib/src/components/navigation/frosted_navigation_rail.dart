@@ -167,7 +167,6 @@ class _RailItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
           child: s.ink(
-            color: fg,
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
             content,
           ),

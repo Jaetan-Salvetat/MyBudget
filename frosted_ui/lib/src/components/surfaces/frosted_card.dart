@@ -61,7 +61,6 @@ class FrostedCard extends StatelessWidget {
           curve: motion.curve,
           decoration: _decoration(cs, pressed: s.pressed),
           child: s.ink(
-            color: _inkColor(cs),
             borderRadius: BorderRadius.circular(_radiusFor(pressed: s.pressed)),
             Padding(padding: padding, child: child),
           ),
@@ -72,12 +71,6 @@ class FrostedCard extends StatelessWidget {
 
   double _radiusFor({required bool pressed}) =>
       pressed ? FrostedRadius.stepDown(radius) : radius;
-
-  Color _inkColor(ColorScheme cs) => switch (variant) {
-    FrostedCardVariant.filled => cs.onSurface,
-    FrostedCardVariant.outlined => cs.onSurface,
-    FrostedCardVariant.accent => cs.onPrimaryContainer,
-  };
 
   BoxDecoration _decoration(ColorScheme cs, {required bool pressed}) {
     final double radius = _radiusFor(pressed: pressed);

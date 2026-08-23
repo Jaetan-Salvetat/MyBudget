@@ -229,7 +229,6 @@ class _Field extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
           child: s.ink(
-            color: fg,
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
             Center(
               child: Text(
