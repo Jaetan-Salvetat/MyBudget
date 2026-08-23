@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -35,6 +37,107 @@ void main() {
       ),
     );
   }
+
+  double contrastRatio(Color a, Color b) {
+    final double first = a.computeLuminance();
+    final double second = b.computeLuminance();
+    final double lighter = math.max(first, second);
+    final double darker = math.min(first, second);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  Future<void> pumpThemed(
+    WidgetTester tester, {
+    required ThemeData theme,
+  }) {
+    return tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: FrostedNavPill(
+              destinations: destinations,
+              selectedIndex: 0,
+              onDestinationSelected: (int _) {},
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration selectedDecoration(WidgetTester tester) {
+    final AnimatedContainer container = tester.widget<AnimatedContainer>(
+      find
+          .ancestor(
+            of: find.text('Accueil'),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first,
+    );
+    return container.decoration! as BoxDecoration;
+  }
+
+  Color selectedLabelColor(WidgetTester tester) {
+    return tester.widget<Text>(find.text('Accueil')).style!.color!;
+  }
+
+  group('FrostedNavPill selection legibility', () {
+    testWidgets('the selected pill stands out from the surface in light', (
+      WidgetTester tester,
+    ) async {
+      final ThemeData theme = FrostedTheme.light(seedColor: seed);
+      await pumpThemed(tester, theme: theme);
+      await tester.pumpAndSettle();
+
+      final Color surface = theme.colorScheme.surface;
+      final Color pill = Color.alphaBlend(
+        selectedDecoration(tester).color!,
+        surface,
+      );
+
+      expect(contrastRatio(pill, surface), greaterThanOrEqualTo(1.25));
+    });
+
+    testWidgets('the selected pill stands out from the surface in dark', (
+      WidgetTester tester,
+    ) async {
+      final ThemeData theme = FrostedTheme.dark(seedColor: seed);
+      await pumpThemed(tester, theme: theme);
+      await tester.pumpAndSettle();
+
+      final Color surface = theme.colorScheme.surface;
+      final Color pill = Color.alphaBlend(
+        selectedDecoration(tester).color!,
+        surface,
+      );
+
+      expect(contrastRatio(pill, surface), greaterThanOrEqualTo(1.25));
+    });
+
+    testWidgets('the selected label stays readable on its own pill', (
+      WidgetTester tester,
+    ) async {
+      for (final ThemeData theme in <ThemeData>[
+        FrostedTheme.light(seedColor: seed),
+        FrostedTheme.dark(seedColor: seed),
+      ]) {
+        await pumpThemed(tester, theme: theme);
+        await tester.pumpAndSettle();
+
+        final Color pill = Color.alphaBlend(
+          selectedDecoration(tester).color!,
+          theme.colorScheme.surface,
+        );
+
+        expect(
+          contrastRatio(selectedLabelColor(tester), pill),
+          greaterThanOrEqualTo(4.5),
+        );
+      }
+    });
+  });
 
   group('FrostedNavPill labels', () {
     testWidgets('only the selected destination carries a visible label', (

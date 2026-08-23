@@ -15,6 +15,12 @@ import 'frosted_nav_item.dart';
 /// tappable.
 const double _kMinTapTarget = 48;
 
+/// Accent strength of the selected destination's tint. Light surfaces need a
+/// denser tint than dark ones: on a pale pill an M3 container tone lands
+/// within a hair of the glass it sits on, so the selection disappears.
+const double _kSelectedTintLight = 0.18;
+const double _kSelectedTintDark = 0.30;
+
 /// A compact Liquid Glass pill holding a handful of navigation destinations.
 ///
 /// Only the selected destination spells out its label, inline next to its
@@ -135,11 +141,14 @@ class _NavPillDestination extends StatelessWidget {
     final TextTheme text = Theme.of(context).textTheme;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color background = selected
-        ? cs.primaryContainer.withValues(alpha: 0.5)
+        ? cs.primary.withValues(
+            alpha: isDark ? _kSelectedTintDark : _kSelectedTintLight,
+          )
         : Colors.transparent;
     final Color foreground = selected
-        ? cs.onPrimaryContainer
+        ? cs.primary
         : cs.onSurface.withValues(alpha: 0.65);
     final IconData icon = selected && item.selectedIcon != null
         ? item.selectedIcon!
