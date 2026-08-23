@@ -19,6 +19,27 @@ void main() {
       expect(state.transactionsTab, TransactionsTab.expenses);
     });
 
+    test('back from a secondary tab returns to the dashboard', () {
+      final container = makeContainer();
+      final notifier = container.read(homeNavigationProvider.notifier);
+      notifier.selectTab(HomeTab.accounts);
+
+      final handled = notifier.handleBack();
+
+      expect(handled, isTrue);
+      expect(container.read(homeNavigationProvider).tab, HomeTab.dashboard);
+    });
+
+    test('back from the dashboard leaves the app', () {
+      final container = makeContainer();
+
+      final handled = container.read(homeNavigationProvider.notifier)
+          .handleBack();
+
+      expect(handled, isFalse);
+      expect(container.read(homeNavigationProvider).tab, HomeTab.dashboard);
+    });
+
     test('selectTab keeps the current transactions sub-tab', () {
       final container = makeContainer();
       final notifier = container.read(homeNavigationProvider.notifier);

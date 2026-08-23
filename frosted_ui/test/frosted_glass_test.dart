@@ -30,6 +30,113 @@ void main() {
     );
   }
 
+  group('FrostedGlass suspension', () {
+    Future<void> pumpSuspended(WidgetTester tester, bool suspended) {
+      return tester.pumpWidget(
+        MaterialApp(
+          theme: FrostedTheme.dark(seedColor: seed),
+          home: FrostedGlassSuspension(
+            suspended: suspended,
+            child: const Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 100,
+                height: 80,
+                child: FrostedGlass(child: SizedBox.expand()),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('glass blurs the page when nothing rasterizes it', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, false);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isNotEmpty);
+    });
+
+    testWidgets('glass drops its backdrop while an ancestor rasterizes it', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, true);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isEmpty);
+    });
+
+    testWidgets('glass takes its backdrop back once the ancestor lets go', (
+      WidgetTester tester,
+    ) async {
+      await pumpSuspended(tester, true);
+      await pumpSuspended(tester, false);
+
+      expect(tester.layers.whereType<BackdropFilterLayer>(), isNotEmpty);
+    });
+  });
+
+  group('FrostedGlass edge', () {
+    Future<void> pumpElevated(
+      WidgetTester tester, {
+      required Brightness brightness,
+      required FrostedGlassElevation elevation,
+    }) {
+      return tester.pumpWidget(
+        MaterialApp(
+          theme: brightness == Brightness.dark
+              ? FrostedTheme.dark(seedColor: seed)
+              : FrostedTheme.light(seedColor: seed),
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 100,
+              height: 80,
+              child: FrostedGlass(
+                elevation: elevation,
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    BorderSide edgeOf(WidgetTester tester) {
+      final Iterable<DecoratedBox> boxes = tester.widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(FrostedGlass),
+          matching: find.byType(DecoratedBox),
+        ),
+      );
+      final BoxDecoration decoration = boxes
+          .map((DecoratedBox box) => box.decoration as BoxDecoration)
+          .firstWhere((BoxDecoration d) => d.border != null);
+      return (decoration.border! as Border).top;
+    }
+
+    for (final Brightness brightness in Brightness.values) {
+      testWidgets('a detached surface carries a crisper hairline in '
+          '${brightness.name}', (WidgetTester tester) async {
+        await pumpElevated(
+          tester,
+          brightness: brightness,
+          elevation: FrostedGlassElevation.none,
+        );
+        final double flush = edgeOf(tester).color.a;
+
+        await pumpElevated(
+          tester,
+          brightness: brightness,
+          elevation: FrostedGlassElevation.floating,
+        );
+        final double detached = edgeOf(tester).color.a;
+
+        expect(detached, greaterThan(flush));
+      });
+    }
+  });
+
   group('FrostedGlass bounded blur', () {
     testWidgets('bounds match the surface when it sits at the layer origin', (
       WidgetTester tester,

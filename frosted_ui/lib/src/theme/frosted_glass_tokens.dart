@@ -23,6 +23,8 @@ class FrostedGlassTokens {
     required this.ultraThick,
     required this.lightBorder,
     required this.darkBorder,
+    required this.lightDetachedBorder,
+    required this.darkDetachedBorder,
     required this.saturation,
     required this.floatingShadow,
     required this.liftedShadow,
@@ -58,6 +60,8 @@ class FrostedGlassTokens {
       ),
       lightBorder: BorderSide(color: Color(0x0D000000), width: 0.5),
       darkBorder: BorderSide(color: Color(0x1FFFFFFF), width: 0.5),
+      lightDetachedBorder: BorderSide(color: Color(0x1F000000), width: 0.5),
+      darkDetachedBorder: BorderSide(color: Color(0x33FFFFFF), width: 0.5),
       saturation: 1.4,
       floatingShadow: <BoxShadow>[
         BoxShadow(
@@ -85,6 +89,12 @@ class FrostedGlassTokens {
 
   final BorderSide lightBorder;
   final BorderSide darkBorder;
+
+  /// Hairline for glass that floats over the page instead of sitting flush in
+  /// it. Nothing frames such a surface but its own edge, so it needs a crisper
+  /// one than a panel the layout already delimits.
+  final BorderSide lightDetachedBorder;
+  final BorderSide darkDetachedBorder;
 
   /// Backdrop saturation multiplier (1.0 = no boost).
   final double saturation;
@@ -118,6 +128,8 @@ class FrostedGlassTokens {
     FrostedGlassLevelSpec? ultraThick,
     BorderSide? lightBorder,
     BorderSide? darkBorder,
+    BorderSide? lightDetachedBorder,
+    BorderSide? darkDetachedBorder,
     double? saturation,
     List<BoxShadow>? floatingShadow,
     List<BoxShadow>? liftedShadow,
@@ -131,6 +143,8 @@ class FrostedGlassTokens {
       ultraThick: ultraThick ?? this.ultraThick,
       lightBorder: lightBorder ?? this.lightBorder,
       darkBorder: darkBorder ?? this.darkBorder,
+      lightDetachedBorder: lightDetachedBorder ?? this.lightDetachedBorder,
+      darkDetachedBorder: darkDetachedBorder ?? this.darkDetachedBorder,
       saturation: saturation ?? this.saturation,
       floatingShadow: floatingShadow ?? this.floatingShadow,
       liftedShadow: liftedShadow ?? this.liftedShadow,
@@ -151,6 +165,16 @@ class FrostedGlassTokens {
       ultraThick: FrostedGlassLevelSpec.lerp(a.ultraThick, b.ultraThick, t),
       lightBorder: BorderSide.lerp(a.lightBorder, b.lightBorder, t),
       darkBorder: BorderSide.lerp(a.darkBorder, b.darkBorder, t),
+      lightDetachedBorder: BorderSide.lerp(
+        a.lightDetachedBorder,
+        b.lightDetachedBorder,
+        t,
+      ),
+      darkDetachedBorder: BorderSide.lerp(
+        a.darkDetachedBorder,
+        b.darkDetachedBorder,
+        t,
+      ),
       saturation: lerpDouble(a.saturation, b.saturation, t)!,
       floatingShadow: BoxShadow.lerpList(
         a.floatingShadow,

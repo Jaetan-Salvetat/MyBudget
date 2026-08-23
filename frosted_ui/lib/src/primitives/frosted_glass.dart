@@ -9,6 +9,7 @@ import '../theme/frosted_glass_level_spec.dart';
 import '../theme/frosted_glass_tokens.dart';
 import '../theme/frosted_tokens.dart';
 import 'frosted_glass_level.dart';
+import 'frosted_glass_suspension.dart';
 
 /// The Liquid Glass primitive used by every chrome surface (tab bar,
 /// toolbar, sheet, modal shell).
@@ -78,7 +79,13 @@ class FrostedGlass extends StatelessWidget {
     final Color veilColor = (isDark ? Colors.black : Colors.white).withValues(
       alpha: veilAlpha,
     );
-    final BorderSide base = isDark ? glass.darkBorder : glass.lightBorder;
+    final bool detached = elevation != FrostedGlassElevation.none;
+    final BorderSide base = switch ((isDark, detached)) {
+      (true, true) => glass.darkDetachedBorder,
+      (true, false) => glass.darkBorder,
+      (false, true) => glass.lightDetachedBorder,
+      (false, false) => glass.lightBorder,
+    };
     final BorderSide border = base.copyWith(
       color: base.color.withValues(alpha: base.color.a * t),
     );
@@ -104,11 +111,13 @@ class FrostedGlass extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Positioned.fill(
-              child: _GlassBackdrop(
-                sigma: spec.blurSigma * t,
-                saturation: lerpDouble(1, glass.saturation, t)!,
-                child: ColoredBox(color: veilColor),
-              ),
+              child: FrostedGlassSuspension.of(context)
+                  ? ColoredBox(color: veilColor)
+                  : _GlassBackdrop(
+                      sigma: spec.blurSigma * t,
+                      saturation: lerpDouble(1, glass.saturation, t)!,
+                      child: ColoredBox(color: veilColor),
+                    ),
             ),
             Positioned.fill(
               child: IgnorePointer(
