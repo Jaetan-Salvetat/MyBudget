@@ -16,6 +16,9 @@ class ExpenseModel {
   @Index()
   String? categorySlug;
 
+  @Property(uid: 6567315342602454646)
+  int? legacyCategoryId;
+
   @Property(uid: 7133072174613285923)
   late DateTime startDate;
 

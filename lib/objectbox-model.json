@@ -30,6 +30,37 @@
       "relations": []
     },
     {
+      "id": "2:637957068368109063",
+      "lastPropertyId": "4:6632633250043774965",
+      "name": "LegacyCategoryModel",
+      "properties": [
+        {
+          "id": "1:4274885399649890297",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6079627583281643679",
+          "name": "name",
+          "indexId": "2:2810518327203723333",
+          "type": 9,
+          "flags": 2048
+        },
+        {
+          "id": "3:2964126038854478579",
+          "name": "icon",
+          "type": 9
+        },
+        {
+          "id": "4:6632633250043774965",
+          "name": "color",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
       "id": "3:1032015678209972615",
       "lastPropertyId": "12:8351109485124106539",
       "name": "ExpenseModel",
@@ -51,6 +82,11 @@
           "id": "3:197846412074687742",
           "name": "amount",
           "type": 8
+        },
+        {
+          "id": "4:6567315342602454646",
+          "name": "legacyCategoryId",
+          "type": 6
         },
         {
           "id": "5:7133072174613285923",
@@ -484,20 +520,13 @@
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [
-    637957068368109063
-  ],
+  "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     3745183620062731729,
     2052082936511433960,
     5939978804947497821,
     2223950211617359170,
-    6567315342602454646,
-    4274885399649890297,
-    6079627583281643679,
-    2964126038854478579,
-    6632633250043774965,
     342834846661396669
   ],
   "retiredRelationUids": [],

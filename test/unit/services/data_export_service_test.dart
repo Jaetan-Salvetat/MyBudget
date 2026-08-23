@@ -96,7 +96,7 @@ void main() {
 
     final result = service.buildExportData();
 
-    expect(result['version'], 2);
+    expect(result['version'], 3);
     expect(result['exportDate'], isNotNull);
     expect(result['filename'], startsWith('mybudget_backup_'));
     expect(result['filename'], endsWith('.json'));

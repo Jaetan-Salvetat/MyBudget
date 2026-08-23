@@ -63,7 +63,10 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     );
 
     return FrostedScaffold(
-      appBar: const FrostedTopBar(title: 'Détail du prêt'),
+      appBar: FrostedTopBar(
+        title: 'Détail du prêt',
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 120, 16, 24),
