@@ -9,7 +9,7 @@ import 'package:mybudget/ui/dashboard/widgets/dashboard_greeting.dart';
 import 'package:mybudget/ui/dashboard/widgets/dashboard_header_balance.dart';
 import 'package:mybudget/ui/dashboard/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/dashboard/widgets/upcoming_movements_section.dart';
-import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
+import 'package:mybudget/core/providers/transaction_filter_provider.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';

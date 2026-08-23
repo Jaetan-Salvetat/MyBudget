@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -12,21 +14,23 @@ import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/providers/transaction_filter_provider.dart';
+import 'package:mybudget/core/services/transaction_filter_service.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_filter_data.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/transaction_filter_data.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/expenses/expenses_filter_provider.dart';
+import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
+import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
+import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
+import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/expenses/widgets/expense_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_group_header.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_sort_menu.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_quick_filters.dart';
-import 'package:mybudget/ui/expenses/widgets/expenses_search_bar.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
@@ -60,7 +64,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     super.dispose();
   }
 
-  ExpensesFilterNotifier get _filterNotifier =>
+  TransactionFilterNotifier get _filterNotifier =>
       ref.read(expensesFilterProvider.notifier);
 
   String? _groupKeyOf(ExpenseModel expense) {
@@ -70,40 +74,27 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ?.groupKeyOrUncategorized(expense.categorySlug);
   }
 
-  bool _matchesFilter(ExpenseModel expense, ExpenseFilterData filter) {
-    if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-      if (!expense.name.toLowerCase().contains(
-        filter.searchQuery!.toLowerCase(),
-      )) {
-        return false;
-      }
-    }
-    if (filter.minAmount != null && expense.amount < filter.minAmount!) {
-      return false;
-    }
-    if (filter.maxAmount != null && expense.amount > filter.maxAmount!) {
-      return false;
-    }
-    if (filter.groupKeys.isNotEmpty &&
-        !filter.groupKeys.contains(_groupKeyOf(expense))) {
-      return false;
-    }
-    if (filter.accountIds.isNotEmpty &&
-        !filter.accountIds.contains(expense.accountId)) {
-      return false;
-    }
-    if (filter.types.isNotEmpty &&
-        !filter.types.contains(expense.frequencyEnum)) {
-      return false;
-    }
-    return true;
+  List<ExpenseModel> _monthExpenses() {
+    final selectedMonth = ref.read(selectedMonthProvider);
+    return (ref.read(expenseProvider).value ?? [])
+        .where((e) => e.endDate == null)
+        .where((e) => _belongsToSelectedMonth(e, selectedMonth))
+        .toList();
+  }
+
+  double _highestAmount(List<ExpenseModel> expenses) {
+    return expenses.fold<double>(0, (highest, e) => max(highest, e.amount));
   }
 
   List<ExpenseModel> _filterExpenses(
     List<ExpenseModel> expenses,
-    ExpenseFilterData filter,
+    TransactionFilterData filter,
   ) {
-    return expenses.where((e) => _matchesFilter(e, filter)).toList();
+    return TransactionFilterService.apply(
+      expenses,
+      filter,
+      groupKeyOf: _groupKeyOf,
+    );
   }
 
   bool _belongsToSelectedMonth(ExpenseModel expense, DateTime selectedMonth) {
@@ -151,90 +142,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   List<ActiveFilterPill> _activeFilterPills(
-    ExpenseFilterData filter,
+    TransactionFilterData filter,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
+    List<Beneficiary> beneficiaries,
   ) {
-    final pills = <ActiveFilterPill>[];
-
-    for (final type in filter.types) {
-      final label = switch (type) {
-        Frequency.monthly => 'Mensuel',
-        Frequency.annual => 'Annuel',
-        Frequency.oneTime => 'Ponctuel',
-      };
-      pills.add(
-        ActiveFilterPill(
-          id: 'type-${type.name}',
-          label: label,
-          onRemove: () => _filterNotifier.update(
-            (current) => current.copyWith(
-              types: current.types.where((t) => t != type).toList(),
-            ),
-          ),
-        ),
-      );
-    }
-
-    for (final id in filter.groupKeys) {
-      final group = categories.where((c) => c.slug == id).firstOrNull;
-      pills.add(
-        ActiveFilterPill(
-          id: 'cat-$id',
-          label: group?.label ?? '—',
-          onRemove: () => _filterNotifier.toggleGroup(id),
-        ),
-      );
-    }
-
-    for (final id in filter.accountIds) {
-      final acc = accounts.firstWhere(
-        (a) => a.id == id,
-        orElse: () => AccountModel.create(name: '—', bank: ''),
-      );
-      pills.add(
-        ActiveFilterPill(
-          id: 'acc-$id',
-          label: acc.name,
-          onRemove: () => _filterNotifier.update(
-            (current) => current.copyWith(
-              accountIds: current.accountIds.where((a) => a != id).toList(),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (filter.minAmount != null || filter.maxAmount != null) {
-      final min = filter.minAmount?.round();
-      final max = filter.maxAmount?.round();
-      String label;
-      if (min != null && max != null) {
-        label = '$min – $max €';
-      } else if (min != null) {
-        label = '≥ $min €';
-      } else {
-        label = '≤ $max €';
-      }
-      pills.add(
-        ActiveFilterPill(
-          id: 'amount',
-          label: label,
-          onRemove: () => _filterNotifier.update(
-            (current) => ExpenseFilterData(
-              startDay: current.startDay,
-              endDay: current.endDay,
-              searchQuery: current.searchQuery,
-              groupKeys: current.groupKeys,
-              accountIds: current.accountIds,
-              types: current.types,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return pills;
+    return ActiveFilterPillsBuilder.build(
+      filter: filter,
+      categories: categories,
+      accounts: accounts,
+      beneficiaries: beneficiaries,
+      onChanged: (updated) => _filterNotifier.update((_) => updated),
+    );
   }
 
   @override
@@ -300,7 +219,12 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
               0,
               (s, e) => s + e.amount,
             );
-            final pills = _activeFilterPills(filter, categories, accounts);
+            final pills = _activeFilterPills(
+              filter,
+              categories,
+              accounts,
+              beneficiaries,
+            );
 
             final today = DateTime.now();
             final isViewingCurrentMonth =
@@ -322,14 +246,18 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   ),
                 ),
                 _hPad(
-                  ExpensesSearchBar(
+                  TransactionSearchBar(
                     controller: _searchController,
                     activeFiltersCount: filter.activeCount,
                     onChanged: (value) => _filterNotifier.update(
                       (current) => current.copyWith(searchQuery: value),
                     ),
-                    onOpenFilters: () =>
-                        _showFilterSheet(context, categories, accounts),
+                    onOpenFilters: () => _showFilterSheet(
+                      context,
+                      categories,
+                      accounts,
+                      beneficiaries,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -561,25 +489,21 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     BuildContext context,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
+    List<Beneficiary> beneficiaries,
   ) {
-    ExpenseFilterBottomSheet.show(
+    TransactionFilterBottomSheet.show(
       context: context,
+      title: 'Filtrer les dépenses',
       initialFilterData: ref.read(expensesFilterProvider),
       categories: categories,
       accounts: accounts,
-      resultCount: (filter) {
-        final selectedMonth = ref.read(selectedMonthProvider);
-        final activeExpenses = (ref.read(expenseProvider).value ?? [])
-            .where((e) => e.endDate == null)
-            .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-            .toList();
-        return _filterExpenses(activeExpenses, filter).length;
-      },
+      beneficiaries: beneficiaries,
+      highestAmount: _highestAmount(_monthExpenses()),
+      resultCount: (filter) =>
+          _filterExpenses(_monthExpenses(), filter).length,
       onApply: (updated) => _filterNotifier.update(
         (current) => updated.copyWith(searchQuery: current.searchQuery),
       ),
-      onClear: () {},
-      onCancel: () {},
     );
   }
 

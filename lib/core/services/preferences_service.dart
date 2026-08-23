@@ -31,6 +31,7 @@ class PreferencesService {
 
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
+  static const String keyRevenuesGroupBy = 'revenuesGroupBy';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -187,6 +188,14 @@ class PreferencesService {
 
   static Future<void> setExpensesSortBy(String value) async {
     await _prefs.setString(keyExpensesSortBy, value);
+  }
+
+  static String? getRevenuesGroupBy() {
+    return _prefs.getString(keyRevenuesGroupBy);
+  }
+
+  static Future<void> setRevenuesGroupBy(String value) async {
+    await _prefs.setString(keyRevenuesGroupBy, value);
   }
 
   static Future<void> clearAll() async {

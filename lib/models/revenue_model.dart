@@ -1,18 +1,22 @@
+import 'package:mybudget/core/entities/filterable_transaction.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:objectbox/objectbox.dart';
 
 const _sentinel = Object();
 
 @Entity()
-class RevenueModel {
+class RevenueModel implements FilterableTransaction {
   @Id()
   int id = 0;
 
   @Index()
+  @override
   late String name;
 
+  @override
   late int accountId;
 
+  @override
   late double amount;
 
   @Property(uid: 1213904468792118615)
@@ -25,9 +29,11 @@ class RevenueModel {
 
   late String frequency;
 
+  @override
   int? beneficiaryId;
 
   @Index()
+  @override
   String? categorySlug;
 
   RevenueModel() {
@@ -46,6 +52,7 @@ class RevenueModel {
     this.categorySlug,
   });
 
+  @override
   Frequency get frequencyEnum => Frequency.fromString(frequency);
 
   set frequencyEnum(Frequency value) {
