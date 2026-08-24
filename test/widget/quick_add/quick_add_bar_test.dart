@@ -217,6 +217,26 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('the keyboard send action keeps the rafale going too', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await tester.showKeyboard(find.byType(TextField));
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    await tester.pumpAndSettle();
+
+    verify(() => expenseRepository.add(any())).called(1);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.text, '');
+    expect(field.focusNode!.hasFocus, isTrue);
+
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('what just landed stays on screen, undoable', (tester) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();

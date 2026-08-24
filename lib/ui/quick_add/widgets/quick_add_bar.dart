@@ -81,6 +81,11 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   void _reportFocus() => widget.onFocusChanged(_focusNode.hasFocus);
 
+  /// The keyboard's send key must behave like the send button : without this,
+  /// the framework's default action handling unfocuses the field and the
+  /// rafale dies on the very key made for it.
+  void _keepTyping() {}
+
   void _cancel() {
     _controller.clear();
     ref.read(quickAddProvider.notifier).reset();
@@ -214,6 +219,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
                   textInputAction: TextInputAction.send,
                   onChanged: _onChanged,
                   onSubmitted: (_) => _submit(),
+                  onEditingComplete: _keepTyping,
                 ),
               ),
             ),
