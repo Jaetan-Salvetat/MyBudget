@@ -1,26 +1,26 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
-import 'package:mybudget/models/quick_add_submission_model.dart';
+import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_submission_ticker.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 /// The one place a transaction gets typed. Reads the text as it comes,
-/// creates on submit, and leaves the way back in the snackbar.
+/// creates on submit, and keeps the keyboard up : entering the day's expenses
+/// is a rafale, not one trip per line. The way back sits in the ticker below.
 class QuickAddBar extends ConsumerStatefulWidget {
-  static const Duration undoWindow = Duration(seconds: 5);
-
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
   final VoidCallback onNoAccount;
@@ -38,10 +38,15 @@ class QuickAddBar extends ConsumerStatefulWidget {
 
 class QuickAddBarState extends ConsumerState<QuickAddBar>
     with WidgetsBindingObserver {
+  /// How long the send button holds its check before offering to send again.
+  static const Duration sentFlash = Duration(milliseconds: 700);
+
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _keyboardOpen = false;
   bool _submitting = false;
+  bool _sentFlashing = false;
+  Timer? _sentFlashTimer;
 
   @override
   void initState() {
@@ -52,6 +57,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   @override
   void dispose() {
+    _sentFlashTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _focusNode.removeListener(_reportFocus);
     _controller.dispose();
@@ -94,8 +100,22 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
 
+  /// The moment the model catches up with a category it stands behind : worth
+  /// a tap under the finger, the transaction is ready as typed.
+  void _onDraftChanged(QuickAddDraft? previous, QuickAddDraft next) {
+    final landedConfident =
+        previous != null &&
+        previous.isStale &&
+        !next.isStale &&
+        !next.isEmpty &&
+        next.categorySlug != null &&
+        !next.isCategoryUncertain;
+    if (landedConfident) unawaited(HapticFeedback.lightImpact());
+  }
+
   /// Submitting waits for the reading the model still owes on the current
-  /// text, so the button stays busy instead of swallowing the tap.
+  /// text, so the button stays busy instead of swallowing the tap. The focus
+  /// stays : the next expense types straight away, the ticker holds the undo.
   Future<void> _submit() async {
     if (_submitting) return;
     if (!ref.read(quickAddProvider).isSubmittable) return;
@@ -112,10 +132,10 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           .read(quickAddProvider.notifier)
           .submit(accountId);
       _controller.clear();
-      _focusNode.unfocus();
-      await HapticFeedback.lightImpact();
+      unawaited(HapticFeedback.mediumImpact());
       if (!mounted) return;
-      _showUndo(submission);
+      ref.read(quickAddRecentSubmissionsProvider.notifier).push(submission);
+      _flashSent();
     } on QuickAddException catch (e) {
       if (!mounted) return;
       FrostedSnackbar.show(context, message: e.message);
@@ -124,21 +144,12 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     }
   }
 
-  void _showUndo(QuickAddSubmission submission) {
-    final amount = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(submission.amount);
-    final sign = submission.type == TransactionType.income ? '+' : '−';
-
-    FrostedSnackbar.show(
-      context,
-      message: '${submission.name} $sign $amount enregistré',
-      actionLabel: 'Annuler',
-      duration: QuickAddBar.undoWindow,
-      bottomInset: kNavPillFootprint,
-      onAction: () => _undo(submission),
-    );
+  void _flashSent() {
+    _sentFlashTimer?.cancel();
+    setState(() => _sentFlashing = true);
+    _sentFlashTimer = Timer(sentFlash, () {
+      if (mounted) setState(() => _sentFlashing = false);
+    });
   }
 
   /// Tant que rien n'est saisi, le bouton d'envoi n'a rien à envoyer : il
@@ -153,17 +164,13 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     await showReceiptScanSourceSheet(context);
   }
 
-  Future<void> _undo(QuickAddSubmission submission) async {
-    await HapticFeedback.mediumImpact();
-    await ref.read(quickAddProvider.notifier).undo(submission);
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.listen(quickAddFocusRequestProvider, (_, _) {
       _focusNode.requestFocus();
     });
     ref.listen(quickAddDegradationProvider, _onDegradationChanged);
+    ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);
     final usesRemote = ref.watch(quickAddUsesRemoteProvider);
@@ -207,12 +214,10 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
             ),
             const SizedBox(width: FrostedSpacing.sp2),
             _TrailingButton(
-              icon: offersScan
-                  ? Symbols.photo_camera_rounded
-                  : Symbols.arrow_upward_rounded,
-              enabled: offersScan || draft.isSubmittable,
+              icon: _trailingIcon(offersScan),
+              enabled: _sentFlashing || offersScan || draft.isSubmittable,
               busy: _submitting,
-              onTap: offersScan ? _scan : _submit,
+              onTap: _onTrailingTap(offersScan),
               background: scheme.primary,
               foreground: scheme.onPrimary,
             ),
@@ -229,8 +234,22 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
                   child: QuickAddPreview(),
                 ),
         ),
+        const QuickAddSubmissionTicker(),
       ],
     );
+  }
+
+  /// The check holds the button just long enough to say "parti", then gives
+  /// the send back : a rafale never waits on it.
+  IconData _trailingIcon(bool offersScan) {
+    if (_sentFlashing) return Symbols.check_rounded;
+    if (offersScan) return Symbols.photo_camera_rounded;
+    return Symbols.arrow_upward_rounded;
+  }
+
+  VoidCallback _onTrailingTap(bool offersScan) {
+    if (_sentFlashing) return () {};
+    return offersScan ? _scan : _submit;
   }
 }
 

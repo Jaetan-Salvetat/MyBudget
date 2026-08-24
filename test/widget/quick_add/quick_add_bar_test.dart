@@ -14,19 +14,32 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/category_memory_service.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
+class MockExpenseRepository extends Mock implements ExpenseRepository {}
+
+class MockRevenueRepository extends Mock implements RevenueRepository {}
+
 class MockCategoryMemoryService extends Mock implements CategoryMemoryService {}
 
 class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
+
+class FakeExpenseModel extends Fake implements ExpenseModel {}
+
+class FakeRevenueModel extends Fake implements RevenueModel {}
 
 class FakeAccountNotifier extends AccountNotifier {
   FakeAccountNotifier(this._accounts);
@@ -49,9 +62,13 @@ void main() {
   late MockClassifierService classifier;
   late MockCategoryMemoryService memory;
   late MockCategoryOverrideRepository overrides;
+  late MockExpenseRepository expenseRepository;
+  late MockRevenueRepository revenueRepository;
   late CategoryTaxonomyService taxonomy;
 
   setUpAll(() async {
+    registerFallbackValue(FakeExpenseModel());
+    registerFallbackValue(FakeRevenueModel());
     taxonomy = CategoryTaxonomyService();
     await taxonomy.load();
   });
@@ -64,8 +81,15 @@ void main() {
     classifier = MockClassifierService();
     memory = MockCategoryMemoryService();
     overrides = MockCategoryOverrideRepository();
+    expenseRepository = MockExpenseRepository();
+    revenueRepository = MockRevenueRepository();
 
+    when(() => expenseRepository.getActive()).thenReturn([]);
+    when(() => expenseRepository.add(any())).thenReturn(7);
+    when(() => expenseRepository.delete(any())).thenReturn(true);
+    when(() => revenueRepository.getActive()).thenReturn([]);
     when(() => memory.recall(any())).thenReturn(null);
+    when(() => memory.remember(any(), any())).thenAnswer((_) {});
     when(() => overrides.getAll()).thenReturn({});
     when(() => classifier.classify(any())).thenAnswer(
       (_) async => QuickAddClassification(
@@ -91,6 +115,8 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
+          expenseRepositoryProvider.overrideWithValue(expenseRepository),
+          revenueRepositoryProvider.overrideWithValue(revenueRepository),
           receiptScanAvailableProvider.overrideWithValue(scanAvailable),
           accountProvider.overrideWith(
             () => FakeAccountNotifier([accountOf(1, 'Courant')]),
@@ -162,6 +188,90 @@ void main() {
 
     expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
     expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
+  });
+
+  Future<void> typeAndAnalyze(WidgetTester tester, String input) async {
+    await tester.enterText(find.byType(TextField), input);
+    await tester.pump(
+      QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 50),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('submitting keeps the keyboard up for the next entry', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pumpAndSettle();
+
+    verify(() => expenseRepository.add(any())).called(1);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.text, '');
+    expect(field.focusNode!.hasFocus, isTrue);
+
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('what just landed stays on screen, undoable', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Mc do'), findsOneWidget);
+
+    await tester.tap(find.text('Annuler'));
+    await tester.pumpAndSettle();
+
+    verify(() => expenseRepository.delete(7)).called(1);
+    expect(find.textContaining('Mc do'), findsNothing);
+  });
+
+  testWidgets('the line lets go on its own after the retention', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pumpAndSettle();
+
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Annuler'), findsNothing);
+    verifyNever(() => expenseRepository.delete(any()));
+  });
+
+  testWidgets('the send button flashes a check once it has sent', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byIcon(Symbols.check_rounded), findsOneWidget);
+
+    await tester.pump(QuickAddBarState.sentFlash);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.check_rounded), findsNothing);
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
   });
 
   testWidgets('cancelling empties the field and the draft', (tester) async {

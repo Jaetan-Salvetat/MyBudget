@@ -7,6 +7,10 @@ import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
+  /// The logo settling in : the shortest a launch can feel, never a padding
+  /// on top of the real loading.
+  static const Duration entranceDuration = Duration(milliseconds: 1000);
+
   const SplashScreen({super.key});
 
   @override
@@ -24,28 +28,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: SplashScreen.entranceDuration,
       vsync: this,
     );
 
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
-    _controller.forward();
-    // Le splash dure plus longtemps que le chargement du moteur d'ajout
-    // rapide : autant le faire ici plutot qu'a la premiere frappe.
-    ref.read(quickAddWarmUpProvider);
     _navigate();
   }
 
@@ -55,8 +49,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     super.dispose();
   }
 
+  /// Leaves when everything the home needs is actually ready — the quick-add
+  /// engine included, BERT et tokenizer : pas d'horloge, pas d'attente en
+  /// trop. L'entrée du logo sert de plancher pour ne jamais couper net.
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    try {
+      await Future.wait([
+        _controller.forward(),
+        ref.read(quickAddWarmUpProvider.future),
+      ]);
+    } catch (error, stackTrace) {
+      debugPrint('Préparation au démarrage incomplète : $error\n$stackTrace');
+    }
 
     if (!mounted) return;
 

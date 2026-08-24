@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview_chips.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
 
 void main() {
   Future<void> pumpChips(
@@ -58,10 +59,20 @@ void main() {
     tester,
   ) async {
     await pumpChips(tester, amountLabel: '12,00 €', isStale: true);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 600));
 
     expect(find.text('12,00 €'), findsOneWidget);
     expect(find.text('Fast-food'), findsNothing);
+  });
+
+  testWidgets('the pending analysis shimmers instead of sitting still', (
+    tester,
+  ) async {
+    await pumpChips(tester, amountLabel: '12,00 €', isStale: true);
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.text('analyse…'), findsOneWidget);
+    expect(find.byType(QuickAddShimmer), findsOneWidget);
   });
 
   testWidgets('shows the day the transaction will land on', (tester) async {

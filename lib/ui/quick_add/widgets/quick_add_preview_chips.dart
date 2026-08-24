@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_stale.dart';
 
 /// The category the app believes the text belongs to, ready to be drawn.
@@ -74,9 +75,11 @@ class QuickAddPreviewChips extends StatelessWidget {
           ),
         ),
       if (isStale && category == null)
-        FrostedChip.readOnly(
-          label: 'analyse…',
-          icon: Symbols.auto_awesome_rounded,
+        QuickAddShimmer(
+          child: FrostedChip.readOnly(
+            label: 'analyse…',
+            icon: Symbols.auto_awesome_rounded,
+          ),
         ),
     ];
 
