@@ -15,13 +15,19 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
+from transformers.trainer_pt_utils import LengthGroupedSampler
 from transformers.utils import ModelOutput
 
-from generate_dataset import LABELS
+from taxonomy import LABELS
 
 MODEL_NAME = "jhu-clsp/mmBERT-small"
 OUTPUT_DIR = Path(__file__).parent / "output"
 DATASET_DIR = Path(__file__).parent / "dataset"
+
+MAX_LENGTH = 64
+BATCH_SIZE = 32
+NUM_EPOCHS = 5
+LEARNING_RATE = 5e-5
 
 NUM_TYPES = 2
 NUM_CATEGORIES = len(LABELS)
@@ -130,6 +136,20 @@ class BudgetClassifier(PreTrainedModel):
 class MultiHeadTrainer(Trainer):
     """Trainer subclass that routes labels to the multi-head model."""
 
+    def _get_train_sampler(self, train_dataset=None) -> torch.utils.data.Sampler:
+        """Regroupe les saisies de longueur voisine dans un même lot.
+
+        Avec un padding dynamique, mélanger une saisie de 4 tokens et une de 60
+        ramène tout le lot à 60. Le regroupement rend au padding dynamique le
+        gain qu'un mélange uniforme lui reprend.
+        """
+        dataset = train_dataset if train_dataset is not None else self.train_dataset
+        return LengthGroupedSampler(
+            batch_size=self.args.train_batch_size,
+            dataset=dataset,
+            lengths=list(dataset["length"]),
+        )
+
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(
             input_ids=inputs["input_ids"],
@@ -186,24 +206,40 @@ def load_dataset_from_jsonl(path: Path) -> Dataset:
 
 
 def tokenize(examples: dict, tokenizer: AutoTokenizer) -> dict:
-    out = tokenizer(examples["text"], truncation=True, padding="max_length", max_length=64)
+    out = tokenizer(examples["text"], truncation=True, max_length=MAX_LENGTH)
     out["type_labels"] = examples["type_label"]
     out["category_labels"] = examples["category_label"]
     out["recurrence_labels"] = examples["recurrence_label"]
+    out["length"] = [len(ids) for ids in out["input_ids"]]
     return out
 
 
 class MultiLabelDataCollator:
-    """Collates batches with multiple label columns."""
+    """Pad au plus long du lot, pas à 64.
+
+    La saisie médiane fait quelques tokens : bourrer jusqu'à 64 multipliait le
+    calcul par dix pour un résultat identique, les positions de bourrage étant
+    masquées dans l'attention comme dans le mean pooling.
+    """
+
+    def __init__(self, pad_token_id: int):
+        self.pad_token_id = pad_token_id
 
     def __call__(self, features: list[dict]) -> dict:
-        batch: dict = {}
-        for key in ("input_ids", "attention_mask", "type_labels", "category_labels", "recurrence_labels"):
-            vals = [f[key] for f in features]
-            if isinstance(vals[0], torch.Tensor):
-                batch[key] = torch.stack(vals)
-            else:
-                batch[key] = torch.tensor(vals, dtype=torch.long)
+        lengths = [len(feature["input_ids"]) for feature in features]
+        width = max(lengths)
+        input_ids = torch.full((len(features), width), self.pad_token_id, dtype=torch.long)
+        attention_mask = torch.zeros((len(features), width), dtype=torch.long)
+        for row, feature in enumerate(features):
+            length = lengths[row]
+            input_ids[row, :length] = torch.as_tensor(feature["input_ids"], dtype=torch.long)
+            attention_mask[row, :length] = torch.as_tensor(
+                feature["attention_mask"], dtype=torch.long
+            )
+
+        batch: dict = {"input_ids": input_ids, "attention_mask": attention_mask}
+        for key in ("type_labels", "category_labels", "recurrence_labels"):
+            batch[key] = torch.tensor([feature[key] for feature in features], dtype=torch.long)
         return batch
 
 
@@ -225,14 +261,19 @@ def main() -> None:
     train_dataset = train_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True)
     eval_dataset = eval_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True)
 
-    train_dataset.set_format("torch", columns=["input_ids", "attention_mask", "type_labels", "category_labels", "recurrence_labels"])
-    eval_dataset.set_format("torch", columns=["input_ids", "attention_mask", "type_labels", "category_labels", "recurrence_labels"])
+    columns = [
+        "input_ids", "attention_mask", "length",
+        "type_labels", "category_labels", "recurrence_labels",
+    ]
+    train_dataset = train_dataset.select_columns(columns)
+    eval_dataset = eval_dataset.select_columns(columns)
 
     training_args = TrainingArguments(
         output_dir=str(OUTPUT_DIR),
-        num_train_epochs=5,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
+        num_train_epochs=NUM_EPOCHS,
+        per_device_train_batch_size=BATCH_SIZE,
+        per_device_eval_batch_size=BATCH_SIZE * 2,
+        remove_unused_columns=False,
         eval_strategy="epoch",
         save_strategy="epoch",
         # Sans limite, chaque epoch laisse 1.6 Go de reprise sur le disque.
@@ -243,8 +284,10 @@ def main() -> None:
         logging_steps=10,
         seed=42,
         report_to="none",
-        warmup_ratio=0.1,
-        learning_rate=3e-5,
+        warmup_ratio=0.06,
+        learning_rate=LEARNING_RATE,
+        weight_decay=0.01,
+        lr_scheduler_type="cosine",
     )
 
     trainer = MultiHeadTrainer(
@@ -253,7 +296,7 @@ def main() -> None:
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=MultiLabelDataCollator(),
+        data_collator=MultiLabelDataCollator(tokenizer.pad_token_id),
     )
 
     trainer.train()
