@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -56,6 +57,7 @@ void main() {
   });
 
   setUp(() async {
+    await initializeDateFormatting('fr_FR');
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await PreferencesService.init();
 
@@ -70,6 +72,7 @@ void main() {
         type: TransactionType.expense,
         category: taxonomy.resolve('restauration.fast_food')!,
         frequency: Frequency.oneTime,
+        date: DateTime(2026, 8, 20),
         amount: 12.0,
         name: 'Mc do',
         typeConfidence: 0.99,

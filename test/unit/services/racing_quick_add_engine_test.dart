@@ -40,6 +40,7 @@ void main() {
       type: TransactionType.expense,
       category: taxonomy.resolve(slug)!,
       frequency: Frequency.oneTime,
+      date: DateTime(2026, 8, 20),
       amount: 25,
       name: name,
       typeConfidence: 1,

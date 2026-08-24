@@ -41,6 +41,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _keyboardOpen = false;
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -93,9 +94,11 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
 
+  /// Submitting waits for the reading the model still owes on the current
+  /// text, so the button stays busy instead of swallowing the tap.
   Future<void> _submit() async {
-    final draft = ref.read(quickAddProvider);
-    if (!draft.isSubmittable) return;
+    if (_submitting) return;
+    if (!ref.read(quickAddProvider).isSubmittable) return;
 
     final accountId = ref.read(quickAddAccountProvider);
     if (accountId == null) {
@@ -103,6 +106,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
       return;
     }
 
+    setState(() => _submitting = true);
     try {
       final submission = await ref
           .read(quickAddProvider.notifier)
@@ -115,6 +119,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     } on QuickAddException catch (e) {
       if (!mounted) return;
       FrostedSnackbar.show(context, message: e.message);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -205,6 +211,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
                   ? Symbols.photo_camera_rounded
                   : Symbols.arrow_upward_rounded,
               enabled: offersScan || draft.isSubmittable,
+              busy: _submitting,
               onTap: offersScan ? _scan : _submit,
               background: scheme.primary,
               foreground: scheme.onPrimary,
@@ -230,8 +237,12 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 class _TrailingButton extends StatelessWidget {
   static const double _size = 44;
 
+  static const double _spinnerSize = 18;
+  static const double _spinnerStroke = 2;
+
   final IconData icon;
   final bool enabled;
+  final bool busy;
   final VoidCallback onTap;
   final Color background;
   final Color foreground;
@@ -239,6 +250,7 @@ class _TrailingButton extends StatelessWidget {
   const _TrailingButton({
     required this.icon,
     required this.enabled,
+    required this.busy,
     required this.onTap,
     required this.background,
     required this.foreground,
@@ -262,20 +274,30 @@ class _TrailingButton extends StatelessWidget {
         color: Colors.transparent,
         shape: const CircleBorder(),
         child: InkWell(
-          onTap: enabled ? onTap : null,
+          onTap: enabled && !busy ? onTap : null,
           customBorder: const CircleBorder(),
           child: Center(
             child: AnimatedSwitcher(
               duration: motion.duration,
               switchInCurve: motion.curve,
-              child: Icon(
-                icon,
-                key: ValueKey(icon),
-                size: 20,
-                color: enabled
-                    ? foreground
-                    : scheme.onSurface.withValues(alpha: 0.38),
-              ),
+              child: busy
+                  ? SizedBox(
+                      key: const ValueKey('busy'),
+                      width: _spinnerSize,
+                      height: _spinnerSize,
+                      child: CircularProgressIndicator(
+                        strokeWidth: _spinnerStroke,
+                        color: foreground,
+                      ),
+                    )
+                  : Icon(
+                      icon,
+                      key: ValueKey(icon),
+                      size: 20,
+                      color: enabled
+                          ? foreground
+                          : scheme.onSurface.withValues(alpha: 0.38),
+                    ),
             ),
           ),
         ),

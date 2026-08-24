@@ -6,6 +6,13 @@ class QuickAddClassification {
   final TransactionType type;
   final TaxonomyNode category;
   final Frequency frequency;
+
+  /// The day the transaction lands on, read from the text or today.
+  final DateTime date;
+
+  /// Whether [date] was written in the text rather than assumed.
+  final bool hasWrittenDate;
+
   /// Null while the text carries no amount yet : the draft stays incomplete
   /// instead of failing.
   final double? amount;
@@ -22,6 +29,8 @@ class QuickAddClassification {
     required this.type,
     required this.category,
     required this.frequency,
+    required this.date,
+    this.hasWrittenDate = false,
     this.amount,
     required this.name,
     required this.typeConfidence,

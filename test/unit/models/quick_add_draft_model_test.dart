@@ -26,10 +26,11 @@ void main() {
       expect(draft.isSubmittable, isFalse);
     });
 
-    test('is not submittable while the category is missing', () {
+    test('an amount alone is enough : the category has a fallback', () {
       const draft = QuickAddDraft(input: 'mc do 12', amount: 12.0);
 
-      expect(draft.isSubmittable, isFalse);
+      expect(draft.isSubmittable, isTrue);
+      expect(draft.categorySlugOrFallback, QuickAddDraft.uncategorizedSlug);
     });
 
     test('is not submittable with a zero amount', () {
@@ -41,6 +42,16 @@ void main() {
       );
 
       expect(draft.isSubmittable, isFalse);
+    });
+
+    test('a known category is kept over the fallback', () {
+      const draft = QuickAddDraft(
+        input: 'mc do 12',
+        amount: 12.0,
+        categorySlug: 'restauration.fast_food',
+      );
+
+      expect(draft.categorySlugOrFallback, 'restauration.fast_food');
     });
 
     test('is submittable once amount and category are known', () {
@@ -99,10 +110,29 @@ void main() {
       expect(updated.input, 'mc do 12');
     });
 
-    test('copyWith toggles the analysing flag', () {
-      const draft = QuickAddDraft(input: 'mc do 12', isAnalyzing: true);
+    test('a reading that predates the current input is stale', () {
+      const draft = QuickAddDraft(
+        input: 'mc do 12 avec Paul',
+        analyzedInput: 'mc do 12',
+        amount: 12.0,
+        categorySlug: 'restauration.fast_food',
+      );
 
-      expect(draft.copyWith(isAnalyzing: false).isAnalyzing, isFalse);
+      expect(draft.isStale, isTrue);
+    });
+
+    test('a reading of the current input is not stale', () {
+      const draft = QuickAddDraft(
+        input: 'mc do 12',
+        analyzedInput: 'mc do 12',
+        amount: 12.0,
+      );
+
+      expect(draft.isStale, isFalse);
+    });
+
+    test('the empty draft has nothing pending', () {
+      expect(QuickAddDraft.empty.isStale, isFalse);
     });
   });
 }

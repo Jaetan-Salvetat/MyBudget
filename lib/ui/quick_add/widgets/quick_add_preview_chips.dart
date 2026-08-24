@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_stale.dart';
 
 /// The category the app believes the text belongs to, ready to be drawn.
 class QuickAddCategoryPreview {
@@ -30,15 +31,24 @@ class QuickAddPreviewChips extends StatelessWidget {
   final String? amountLabel;
   final QuickAddCategoryPreview? category;
   final String? recurrenceLabel;
-  final bool isAnalyzing;
+  final String? dateLabel;
+
+  /// The model has yet to read the text being typed. Only what it produces
+  /// dims and stops answering : the amount and the date are re-read at every
+  /// keystroke and are never behind.
+  final bool isStale;
+
   final VoidCallback onPickCategory;
+  final VoidCallback onPickDate;
 
   const QuickAddPreviewChips({
     required this.amountLabel,
     required this.category,
     required this.recurrenceLabel,
-    required this.isAnalyzing,
+    required this.dateLabel,
+    required this.isStale,
     required this.onPickCategory,
+    required this.onPickDate,
     super.key,
   });
 
@@ -47,13 +57,23 @@ class QuickAddPreviewChips extends StatelessWidget {
     final chips = <Widget>[
       if (amountLabel != null)
         FrostedChip.readOnly(label: amountLabel!, icon: Symbols.euro_rounded),
-      if (category != null) _categoryChip(category!),
-      if (recurrenceLabel != null)
-        FrostedChip.readOnly(
-          label: recurrenceLabel!,
-          icon: Symbols.repeat_rounded,
+      if (dateLabel != null)
+        FrostedChip.assist(
+          label: dateLabel!,
+          icon: Symbols.calendar_today_rounded,
+          onTap: onPickDate,
         ),
-      if (isAnalyzing && category == null)
+      if (category != null)
+        QuickAddStale(stale: isStale, child: _categoryChip(category!)),
+      if (recurrenceLabel != null)
+        QuickAddStale(
+          stale: isStale,
+          child: FrostedChip.readOnly(
+            label: recurrenceLabel!,
+            icon: Symbols.repeat_rounded,
+          ),
+        ),
+      if (isStale && category == null)
         FrostedChip.readOnly(
           label: 'analyse…',
           icon: Symbols.auto_awesome_rounded,

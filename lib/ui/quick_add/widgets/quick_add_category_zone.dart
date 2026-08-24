@@ -4,6 +4,7 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_category_suggestions.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_stale.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 /// Holds one slot on the dashboard : the month's breakdown normally, the
@@ -32,12 +33,15 @@ class QuickAddCategoryZone extends ConsumerWidget {
     final suggestions = _candidates(resolver, draft.categorySuggestions, selectedSlug);
     if (suggestions.isEmpty) return breakdown;
 
-    return QuickAddCategorySuggestions(
-      suggestions: suggestions,
-      selectedSlug: selectedSlug,
-      onSelected: (slug) =>
-          ref.read(quickAddProvider.notifier).selectCategory(slug),
-      onBrowseAll: () => _browseAll(context, ref),
+    return QuickAddStale(
+      stale: draft.isStale,
+      child: QuickAddCategorySuggestions(
+        suggestions: suggestions,
+        selectedSlug: selectedSlug,
+        onSelected: (slug) =>
+            ref.read(quickAddProvider.notifier).selectCategory(slug),
+        onBrowseAll: () => _browseAll(context, ref),
+      ),
     );
   }
 

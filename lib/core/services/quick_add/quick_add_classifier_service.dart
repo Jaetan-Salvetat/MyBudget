@@ -3,10 +3,10 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
-import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 
 class QuickAddClassifierService implements QuickAddEngine {
@@ -32,11 +32,8 @@ class QuickAddClassifierService implements QuickAddEngine {
   /// has not typed one : classifying is understanding, not validating.
   @override
   Future<QuickAddClassification> classify(String input) async {
-    final priceResult = PriceParserService.parse(input);
-
-    final cleanedText = priceResult == null || priceResult.remaining.isEmpty
-        ? input
-        : priceResult.remaining;
+    final facts = QuickAddTextReader.read(input);
+    final cleanedText = facts.modelText;
 
     final tokens = _tokenizer.encode(cleanedText);
     final output = await _modelRunner.run(tokens);
@@ -59,8 +56,10 @@ class QuickAddClassifierService implements QuickAddEngine {
       type: type,
       category: category,
       frequency: frequency,
-      amount: priceResult?.price,
-      name: _buildName(priceResult?.remaining ?? input, category),
+      date: facts.date,
+      hasWrittenDate: facts.hasWrittenDate,
+      amount: facts.amount,
+      name: _buildName(facts.remaining, category),
       typeConfidence: output.type.confidence,
       categoryConfidence: output.category.confidence,
       recurrenceConfidence: output.recurrence.confidence,

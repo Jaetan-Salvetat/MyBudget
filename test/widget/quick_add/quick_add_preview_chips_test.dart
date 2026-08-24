@@ -10,8 +10,10 @@ void main() {
     String? amountLabel,
     QuickAddCategoryPreview? category,
     String? recurrenceLabel,
-    bool isAnalyzing = false,
+    String? dateLabel,
+    bool isStale = false,
     VoidCallback? onPickCategory,
+    VoidCallback? onPickDate,
   }) {
     return tester.pumpWidget(
       MaterialApp(
@@ -21,8 +23,10 @@ void main() {
             amountLabel: amountLabel,
             category: category,
             recurrenceLabel: recurrenceLabel,
-            isAnalyzing: isAnalyzing,
+            dateLabel: dateLabel,
+            isStale: isStale,
             onPickCategory: onPickCategory ?? () {},
+            onPickDate: onPickDate ?? () {},
           ),
         ),
       ),
@@ -53,11 +57,71 @@ void main() {
   testWidgets('shows the amount before the category has landed', (
     tester,
   ) async {
-    await pumpChips(tester, amountLabel: '12,00 €', isAnalyzing: true);
+    await pumpChips(tester, amountLabel: '12,00 €', isStale: true);
     await tester.pumpAndSettle();
 
     expect(find.text('12,00 €'), findsOneWidget);
     expect(find.text('Fast-food'), findsNothing);
+  });
+
+  testWidgets('shows the day the transaction will land on', (tester) async {
+    await pumpChips(tester, amountLabel: '12,00 €', dateLabel: 'Hier');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hier'), findsOneWidget);
+  });
+
+  testWidgets('tapping the date chip asks for another day', (tester) async {
+    var picked = 0;
+    await pumpChips(
+      tester,
+      amountLabel: '12,00 €',
+      dateLabel: 'Hier',
+      onPickDate: () => picked++,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Hier'));
+    await tester.pumpAndSettle();
+
+    expect(picked, 1);
+  });
+
+  testWidgets('the date stays editable while the model catches up', (
+    tester,
+  ) async {
+    var picked = 0;
+    await pumpChips(
+      tester,
+      amountLabel: '12,00 €',
+      dateLabel: 'Hier',
+      category: category,
+      isStale: true,
+      onPickDate: () => picked++,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Hier'));
+    await tester.pumpAndSettle();
+
+    expect(picked, 1);
+  });
+
+  testWidgets('a stale reading cannot be corrected', (tester) async {
+    var picked = 0;
+    await pumpChips(
+      tester,
+      amountLabel: '12,00 €',
+      category: category,
+      isStale: true,
+      onPickCategory: () => picked++,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Fast-food'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    expect(picked, 0);
   });
 
   testWidgets('shows the category once it lands', (tester) async {
