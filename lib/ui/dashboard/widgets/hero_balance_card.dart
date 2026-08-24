@@ -4,6 +4,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/dashboard/widgets/balance_donut.dart';
 
@@ -160,25 +161,30 @@ class _CenterAmount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final parts = _split(balance);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        RichText(
-          text: TextSpan(
-            style: AppTextStyles.heroAmount(color: color),
-            children: [
-              TextSpan(text: '${parts.sign}${parts.integerPart}'),
-              TextSpan(
-                text: ',${parts.decimalPart} €',
-                style: AppTextStyles.displaySerifItalic(
-                  fontSize: 28,
-                  color: color.withValues(alpha: 0.65),
-                ),
+        AnimatedAmount(
+          amount: balance,
+          builder: (context, value) {
+            final parts = _split(value);
+            return RichText(
+              text: TextSpan(
+                style: AppTextStyles.heroAmount(color: color),
+                children: [
+                  TextSpan(text: '${parts.sign}${parts.integerPart}'),
+                  TextSpan(
+                    text: ',${parts.decimalPart} €',
+                    style: AppTextStyles.displaySerifItalic(
+                      fontSize: 28,
+                      color: color.withValues(alpha: 0.65),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
         const SizedBox(height: 2),
         Text(

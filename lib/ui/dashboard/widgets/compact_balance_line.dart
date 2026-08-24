@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 /// The hero balance, reduced to one line. Stands in for the card while the
@@ -24,18 +25,21 @@ class CompactBalanceLine extends StatelessWidget {
           const Eyebrow('Reste à vivre'),
           const SizedBox(width: FrostedSpacing.sp3),
           Expanded(
-            child: Text(
-              NumberFormat.currency(
-                locale: 'fr_FR',
-                symbol: '€',
-              ).format(balance),
-              textAlign: TextAlign.right,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.amount(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: color,
+            child: AnimatedAmount(
+              amount: balance,
+              builder: (context, value) => Text(
+                NumberFormat.currency(
+                  locale: 'fr_FR',
+                  symbol: '€',
+                ).format(value),
+                textAlign: TextAlign.right,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.amount(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
               ),
             ),
           ),

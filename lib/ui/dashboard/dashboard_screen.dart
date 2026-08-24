@@ -14,7 +14,6 @@ import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_category_zone.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
@@ -109,18 +108,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   onNoAccount: () => showQuickAddNoAccountDialog(context),
                 ),
               ),
-            QuickAddCategoryZone(
-              typing: _quickAddFocused,
-              breakdown: CategoryBreakdownSection(
-                categories: state.categorySummaries,
-                onCategoryTap: _openCategoryExpenses,
-              ),
-            ),
             _CollapsedWhileTyping(
               collapsed: _quickAddFocused,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  CategoryBreakdownSection(
+                    categories: state.categorySummaries,
+                    onCategoryTap: _openCategoryExpenses,
+                  ),
                   UpcomingMovementsSection(
                     movements: state.upcomingMovements,
                   ),

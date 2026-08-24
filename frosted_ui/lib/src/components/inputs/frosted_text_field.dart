@@ -35,6 +35,7 @@ class FrostedTextField extends StatefulWidget {
     this.autofocus = false,
     this.onChanged,
     this.onSubmitted,
+    this.onEditingComplete,
     this.glass = false,
     super.key,
   });
@@ -60,6 +61,10 @@ class FrostedTextField extends StatefulWidget {
   final bool autofocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+
+  /// Replaces the framework's default action handling. Pass an empty
+  /// callback to keep focus and keyboard through a send/done action.
+  final VoidCallback? onEditingComplete;
 
   /// Replaces the solid fill with a blurred translucent veil. Off-spec for
   /// content surfaces, so opt-in.
@@ -184,6 +189,7 @@ class _FrostedTextFieldState extends State<FrostedTextField> {
       inputFormatters: widget.inputFormatters,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
+      onEditingComplete: widget.onEditingComplete,
       cursorColor: cs.primary,
       cursorWidth: 2,
       cursorRadius: const Radius.circular(1),

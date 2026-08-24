@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
@@ -9,11 +10,13 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_preview_chips.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Turns the live draft into the chips the user reads while typing.
+/// Turns the live draft into the transaction line the user reads while
+/// typing.
 class QuickAddPreview extends ConsumerWidget {
   const QuickAddPreview({super.key});
 
@@ -23,42 +26,73 @@ class QuickAddPreview extends ConsumerWidget {
     if (draft.isEmpty) return const SizedBox.shrink();
 
     final error = draft.analysisError;
-    if (error != null) return _AnalysisError(message: error);
 
-    return QuickAddPreviewChips(
-      amountLabel: _amountLabel(draft),
-      category: _category(context, ref, draft),
-      recurrenceLabel: draft.frequency == Frequency.oneTime
-          ? null
-          : draft.frequency.label,
-      isAnalyzing: draft.isAnalyzing,
-      onPickCategory: () => _pickCategory(context, ref, draft),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        QuickAddDraftLine(
+          amount: draft.amount,
+          isIncome: draft.type == TransactionType.income,
+          category: _category(context, ref, draft),
+          recurrenceLabel: draft.frequency == Frequency.oneTime
+              ? null
+              : draft.frequency.label,
+          dateLabel: _dateLabel(draft.date),
+          isStale: draft.isStale,
+          onPickCategory: () => _pickCategory(context, ref, draft),
+          onPickDate: () => _pickDate(context, ref, draft),
+        ),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: FrostedSpacing.sp2),
+            child: _AnalysisError(message: error),
+          ),
+      ],
     );
   }
 
-  String? _amountLabel(QuickAddDraft draft) {
-    final amount = draft.amount;
-    if (amount == null) return null;
+  /// The two days a transaction is typed on almost every time get a word
+  /// rather than a date : reading "hier" is quicker than dating it.
+  String? _dateLabel(DateTime? date) {
+    if (date == null) return null;
 
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount);
-    return draft.type == TransactionType.income ? '+ $formatted' : formatted;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final days = today.difference(DateUtils.dateOnly(date)).inDays;
+    if (days == 0) return 'Aujourd\'hui';
+    if (days == 1) return 'Hier';
+
+    return DateFormat('EEE d MMM', 'fr_FR').format(date);
   }
 
+  Future<void> _pickDate(
+    BuildContext context,
+    WidgetRef ref,
+    QuickAddDraft draft,
+  ) async {
+    final picked = await DateSelector.showFullDatePicker(
+      context: context,
+      initialDate: draft.date ?? DateTime.now(),
+    );
+    if (picked == null) return;
+    ref.read(quickAddProvider.notifier).selectDate(picked);
+  }
+
+  /// Null only while the reading has yet to land : the line then says so.
+  /// Once it has, an unnamed category shows the one it will be recorded
+  /// under, flagged as a guess so a tap corrects it.
   QuickAddCategoryPreview? _category(
     BuildContext context,
     WidgetRef ref,
     QuickAddDraft draft,
   ) {
     final slug = draft.categorySlug;
-    if (slug == null) return null;
+    if (slug == null && draft.isStale) return null;
 
+    final isNamed = slug != null;
     final CategoryDisplay? display = ref
         .watch(categoryDisplayResolverProvider)
         .value
-        ?.resolve(slug);
+        ?.resolve(draft.categorySlugOrFallback);
     if (display == null) {
       return QuickAddCategoryPreview(
         label: 'Choisir une catégorie',
@@ -72,7 +106,7 @@ class QuickAddPreview extends ConsumerWidget {
       label: display.label,
       icon: CategoryDefaults.resolveIcon(display.icon),
       color: Color(display.color),
-      isUncertain: draft.isCategoryUncertain,
+      isUncertain: !isNamed || draft.isCategoryUncertain,
     );
   }
 

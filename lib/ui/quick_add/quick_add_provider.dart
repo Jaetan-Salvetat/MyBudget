@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
@@ -24,8 +25,17 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   /// Long enough for a pause to read as one, short enough to feel live.
   static const Duration analysisDebounce = Duration(milliseconds: 200);
 
+  /// Shown when the model could not read the text. It names what the user has
+  /// left to do, not what broke : the cause goes to the logs.
+  static const String unreadInputMessage =
+      'Catégorie non reconnue, choisis-la.';
+
   Timer? _debounce;
   int _analysisSeq = 0;
+
+  /// The reading currently running, awaited when the user submits before it
+  /// has landed.
+  Future<void>? _analysisRun;
 
   @override
   QuickAddDraft build() {
@@ -44,33 +54,40 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     state = _instantDraft(input);
 
     final seq = _analysisSeq;
-    _debounce = Timer(analysisDebounce, () => _analyze(input, seq));
+    _debounce = Timer(analysisDebounce, () {
+      _analysisRun = _analyze(input, seq);
+    });
+  }
+
+  /// Pins the day the user picked : it outlives every later reading, and only
+  /// goes away with the draft itself.
+  void selectDate(DateTime date) {
+    if (state.isEmpty) return;
+    state = state.copyWith(date: date, isDatePinned: true);
   }
 
   void selectCategory(String slug) {
-    if (state.isEmpty) return;
+    if (state.isEmpty || state.isStale) return;
 
     ref.read(categoryMemoryProvider).remember(state.memoryKey, slug);
     state = state.copyWith(categorySlug: slug, categoryConfidence: 1.0);
   }
 
   Future<QuickAddSubmission> submit(int accountId) async {
+    await _settleAnalysis();
+
     final draft = state;
-    if (draft.amount == null) {
+    if (!draft.isSubmittable) {
       throw const QuickAddNoAmountException();
     }
-    final categorySlug = draft.categorySlug;
-    if (categorySlug == null) {
-      throw const QuickAddClassificationException(
-        message: 'Aucune catégorie reconnue',
-      );
-    }
+    final categorySlug = draft.categorySlugOrFallback;
 
     _cancelPendingAnalysis();
     state = QuickAddDraft.empty;
 
     final name = draft.name ?? draft.input;
     final amount = draft.amount!;
+    final startDate = draft.date ?? DateTime.now();
     final int id;
 
     if (draft.type == TransactionType.income) {
@@ -80,7 +97,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
             RevenueModel.create(
               name: name,
               amount: amount,
-              startDate: DateTime.now(),
+              startDate: startDate,
               frequency: draft.frequency.label,
               accountId: accountId,
               categorySlug: categorySlug,
@@ -94,7 +111,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
               name: name,
               amount: amount,
               categorySlug: categorySlug,
-              startDate: DateTime.now(),
+              startDate: startDate,
               frequency: draft.frequency.label,
               accountId: accountId,
             ),
@@ -126,7 +143,21 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   void _cancelPendingAnalysis() {
     _debounce?.cancel();
     _debounce = null;
+    _analysisRun = null;
     _analysisSeq++;
+  }
+
+  /// Brings the reading up to the text being submitted : the pause is cut
+  /// short, and a reading already running is waited on. Submitting must never
+  /// record what the model saw one keystroke ago.
+  Future<void> _settleAnalysis() async {
+    final pending = _debounce;
+    if (pending != null && pending.isActive) {
+      pending.cancel();
+      _debounce = null;
+      _analysisRun = _analyze(state.input, _analysisSeq);
+    }
+    await _analysisRun;
   }
 
   /// What regex alone can tell, without waiting for the model. The previously
@@ -134,16 +165,19 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   /// blinking out at every keystroke.
   QuickAddDraft _instantDraft(String input) {
     final previous = state;
+    final facts = QuickAddTextReader.read(input);
     return QuickAddDraft(
       input: input,
-      amount: PriceParserService.parse(input)?.price,
+      analyzedInput: previous.analyzedInput,
+      amount: facts.amount,
+      date: previous.isDatePinned ? previous.date : facts.date,
+      isDatePinned: previous.isDatePinned,
       name: previous.name,
       categorySlug: previous.categorySlug,
       categoryConfidence: previous.categoryConfidence,
       categorySuggestions: previous.categorySuggestions,
       type: previous.type,
       frequency: previous.frequency,
-      isAnalyzing: true,
       memoryKey: previous.memoryKey,
     );
   }
@@ -154,12 +188,10 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       final classification = await engine.classify(input);
       if (seq != _analysisSeq) return;
       state = _draftFrom(input, classification);
-    } on QuickAddException catch (e) {
+    } catch (error, stackTrace) {
+      debugPrint('Analyse de l\'ajout rapide impossible : $error\n$stackTrace');
       if (seq != _analysisSeq) return;
-      state = _failedDraft(input, e.message);
-    } catch (e) {
-      if (seq != _analysisSeq) return;
-      state = _failedDraft(input, 'Analyse impossible : $e');
+      state = _failedDraft(input, unreadInputMessage);
     }
   }
 
@@ -173,9 +205,13 @@ class QuickAddNotifier extends _$QuickAddNotifier {
         .read(categoryMemoryProvider)
         .recall(classification.cleanedText);
 
+    final previous = state;
     return QuickAddDraft(
       input: input,
+      analyzedInput: input,
       amount: classification.amount,
+      date: previous.isDatePinned ? previous.date : classification.date,
+      isDatePinned: previous.isDatePinned,
       name: classification.name,
       categorySlug: remembered ?? classification.categorySlug,
       categoryConfidence: remembered == null
@@ -188,10 +224,17 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     );
   }
 
+  /// A reading that failed is still a reading that landed : the draft stops
+  /// waiting and keeps what regex alone could tell.
   QuickAddDraft _failedDraft(String input, String message) {
+    final previous = state;
+    final facts = QuickAddTextReader.read(input);
     return QuickAddDraft(
       input: input,
-      amount: PriceParserService.parse(input)?.price,
+      analyzedInput: input,
+      amount: facts.amount,
+      date: previous.isDatePinned ? previous.date : facts.date,
+      isDatePinned: previous.isDatePinned,
       analysisError: message,
     );
   }

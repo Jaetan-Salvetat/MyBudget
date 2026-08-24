@@ -5,12 +5,12 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
-import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 
-/// Le moteur distant. Il ne voit jamais le montant : celui-ci est extrait
-/// localement et retiré du texte avant l'envoi, ce qui supprime d'un coup les
+/// Le moteur distant. Il ne voit ni le montant ni la date : les deux sont lus
+/// localement et retirés du texte avant l'envoi, ce qui supprime d'un coup les
 /// montants hallucinés et les séparateurs décimaux inversés.
 class RemoteQuickAddEngine implements QuickAddEngine {
   RemoteQuickAddEngine({required this._client, required this._taxonomy});
@@ -40,10 +40,8 @@ class RemoteQuickAddEngine implements QuickAddEngine {
 
   @override
   Future<QuickAddClassification> classify(String input) async {
-    final priceResult = PriceParserService.parse(input);
-    final cleanedText = priceResult == null || priceResult.remaining.isEmpty
-        ? input
-        : priceResult.remaining;
+    final facts = QuickAddTextReader.read(input);
+    final cleanedText = facts.modelText;
 
     final slugs = _nodes().map((node) => node.slug).toList();
     final schema = _schemaFor(slugs);
@@ -55,7 +53,7 @@ class RemoteQuickAddEngine implements QuickAddEngine {
         schema: schema,
       );
 
-      final classification = _parse(raw, cleanedText, priceResult?.price);
+      final classification = _parse(raw, cleanedText, facts);
       if (classification != null) return classification;
     }
 
@@ -153,8 +151,8 @@ class RemoteQuickAddEngine implements QuickAddEngine {
         'pas dans la saisie.',
       )
       ..writeln(
-        '- Le montant a déjà été retiré de la saisie. N\'en invente aucun, '
-        'et n\'en remets pas dans "name".',
+        '- Le montant et la date ont déjà été retirés de la saisie. '
+        'N\'en invente aucun, et n\'en remets pas dans "name".',
       )
       ..writeln()
       ..writeln('Exemples :')
@@ -192,7 +190,7 @@ class RemoteQuickAddEngine implements QuickAddEngine {
   QuickAddClassification? _parse(
     String raw,
     String cleanedText,
-    double? amount,
+    QuickAddTextFacts facts,
   ) {
     final Map<String, dynamic> payload;
     try {
@@ -218,10 +216,12 @@ class RemoteQuickAddEngine implements QuickAddEngine {
       frequency: recurrence == _recurringLabel
           ? Frequency.monthly
           : Frequency.oneTime,
-      amount: amount,
+      date: facts.date,
+      hasWrittenDate: facts.hasWrittenDate,
+      amount: facts.amount,
       name: name is String && name.trim().isNotEmpty
           ? name.trim()
-          : _fallbackName(cleanedText, category),
+          : _fallbackName(facts.remaining, category),
       typeConfidence: 1,
       categoryConfidence: 1,
       recurrenceConfidence: 1,

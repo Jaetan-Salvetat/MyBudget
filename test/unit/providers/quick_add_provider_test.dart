@@ -85,16 +85,22 @@ final TaxonomyNode salaireNetLeaf = leafOf(
   'payments',
 );
 
+final DateTime today = DateTime(2026, 8, 20);
+
 QuickAddClassification expenseClassification({
   TaxonomyNode? category,
   double? amount = 25.0,
   String name = 'Resto italien',
   double categoryConfidence = 0.95,
+  DateTime? date,
+  bool hasWrittenDate = false,
 }) {
   return QuickAddClassification(
     type: TransactionType.expense,
     category: category ?? restaurantLeaf,
     frequency: Frequency.oneTime,
+    date: date ?? today,
+    hasWrittenDate: hasWrittenDate,
     amount: amount,
     name: name,
     typeConfidence: 0.99,
@@ -110,6 +116,7 @@ QuickAddClassification incomeClassification() {
     type: TransactionType.income,
     category: salaireNetLeaf,
     frequency: Frequency.monthly,
+    date: today,
     amount: 2500.0,
     name: 'Salaire',
     cleanedText: 'salaire',
@@ -182,7 +189,7 @@ void main() {
 
       final draft = container.read(quickAddProvider);
       expect(draft.amount, 25.0);
-      expect(draft.isAnalyzing, isTrue);
+      expect(draft.isStale, isTrue);
       verifyNever(() => classifier.classify(any()));
     });
 
@@ -196,7 +203,7 @@ void main() {
       expect(draft.name, 'Resto italien');
       expect(draft.type, TransactionType.expense);
       expect(draft.frequency, Frequency.oneTime);
-      expect(draft.isAnalyzing, isFalse);
+      expect(draft.isStale, isFalse);
       expect(draft.isSubmittable, isTrue);
     });
 
@@ -224,7 +231,7 @@ void main() {
       final draft = container.read(quickAddProvider);
       expect(draft.categorySlug, 'restauration.restaurant');
       expect(draft.amount, 25.5);
-      expect(draft.isAnalyzing, isTrue);
+      expect(draft.isStale, isTrue);
     });
 
     test('drops an analysis the input has moved past', () async {
@@ -320,8 +327,105 @@ void main() {
 
       final draft = container.read(quickAddProvider);
       expect(draft.analysisError, isNotNull);
-      expect(draft.isAnalyzing, isFalse);
+      expect(draft.isStale, isFalse);
       expect(draft.amount, 25.0);
+    });
+  });
+
+  group('QuickAddNotifier reading that lags behind the input', () {
+    test('a pick is ignored while the reading is stale', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.onInputChanged('resto 25 avec Paul');
+      notifier.selectCategory('restauration.bar');
+
+      verifyNever(() => memory.remember(any(), any()));
+      expect(
+        container.read(quickAddProvider).categorySlug,
+        'restauration.restaurant',
+      );
+    });
+  });
+
+  group('QuickAddNotifier.submit while the model is still reading', () {
+    test('cuts the pause short rather than dropping the tap', () async {
+      when(
+        () => classifier.classify('salaire 2500'),
+      ).thenAnswer((_) async => incomeClassification());
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('salaire 2500');
+
+      final submission = await notifier.submit(3);
+
+      expect(submission.type, TransactionType.income);
+      expect(submission.amount, 2500.0);
+      verify(() => classifier.classify('salaire 2500')).called(1);
+    });
+
+    test('never records the category of the previous input', () async {
+      when(
+        () => classifier.classify('resto 25'),
+      ).thenAnswer((_) async => expenseClassification());
+      when(
+        () => classifier.classify('salaire 2500'),
+      ).thenAnswer((_) async => incomeClassification());
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.onInputChanged('salaire 2500');
+
+      final submission = await notifier.submit(3);
+
+      expect(submission.type, TransactionType.income);
+      verifyNever(() => expenseRepository.add(any()));
+    });
+
+    test('waits for an analysis already in flight', () async {
+      when(() => classifier.classify('salaire 2500')).thenAnswer((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+        return incomeClassification();
+      });
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('salaire 2500');
+      await Future<void>.delayed(
+        QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 20),
+      );
+
+      final submission = await notifier.submit(3);
+
+      expect(submission.type, TransactionType.income);
+      verify(() => classifier.classify('salaire 2500')).called(1);
+    });
+  });
+
+  group('QuickAddNotifier.submit without a category', () {
+    test('a failed analysis still records the amount', () async {
+      when(
+        () => classifier.classify(any()),
+      ).thenThrow(StateError('session closed'));
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('truc 25');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).isSubmittable, isTrue);
+      await notifier.submit(3);
+
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
+      expect(expense.amount, 25.0);
+      expect(expense.categorySlug, QuickAddDraft.uncategorizedSlug);
     });
   });
 
@@ -419,6 +523,57 @@ void main() {
       await pumpAnalysis();
 
       expect(container.read(quickAddProvider), same(QuickAddDraft.empty));
+    });
+  });
+
+  group('QuickAddNotifier date', () {
+    test('records the day the text names', () async {
+      when(() => classifier.classify(any())).thenAnswer(
+        (_) async => expenseClassification(
+          date: DateTime(2026, 8, 15),
+          hasWrittenDate: true,
+        ),
+      );
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25 samedi');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).date, DateTime(2026, 8, 15));
+      await notifier.submit(3);
+
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
+      expect(expense.startDate, DateTime(2026, 8, 15));
+    });
+
+    test('a hand-picked day survives the next reading', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      notifier.selectDate(DateTime(2026, 8, 3));
+      notifier.onInputChanged('resto 25 avec Paul');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).date, DateTime(2026, 8, 3));
+    });
+
+    test('a hand-picked day is dropped with the draft', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.selectDate(DateTime(2026, 8, 3));
+
+      await notifier.submit(3);
+      notifier.onInputChanged('café 3');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).date, today);
     });
   });
 
