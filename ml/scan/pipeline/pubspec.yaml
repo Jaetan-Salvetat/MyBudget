@@ -1,0 +1,15 @@
+name: receipt_pipeline
+description: >-
+  Pipeline local de structuration de tickets de caisse : reconstruction des
+  lignes physiques depuis ML Kit, extraction articles/prix/remises, checksum
+  et politique de décision du flow scan. Portage Dart de référence de
+  ml/scan/test/analysis (lines.py, structure.py, flow.py).
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0

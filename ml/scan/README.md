@@ -6,21 +6,27 @@ La catégorisation (BERT) est hors scope de cette étude.
 
 ## Verdict (2026-08-24)
 
-Architecture retenue, chaque étage mesuré :
+**Décision produit : le scan est LOCAL ou CLOUD, réglage exclusif — jamais
+d'escalade automatique.** Le mode cloud (flow VLM existant) ne bouge pas ;
+tout ce dossier vise le mode local, qui doit être l'option recommandée
+(cible ~99 % de validation directe sur tickets frais). Architecture du mode
+local, chaque étage mesuré :
 
 ```
-photo → ML Kit → déskew + clustering → [structuration] → checksum
-                                                          ├─ OK (88%) → BERT → validation directe
-                                                          └─ échec → escalade cloud (si clé) → re-checksum
-                                                                     └─ sinon écran de confirmation pré-rempli
+photo → ML Kit → déskew + clustering → règles → checksum OK → validation directe
+                          │ échec ↓
+                          prétraitement + 2e OCR → règles → checksum (garde-fou)
+                          │ échec ↓
+                          classifieur de lignes (V2) → re-checksum
+                          │ échec ↓
+                          écran de confirmation pré-rempli (échec DÉTECTÉ, jamais silencieux)
 ```
 
-- **V1** : `[structuration]` = règles géométriques (0,17 correction/ticket,
-  0 invention, 0,3s, gratuit, offline) ; escalade cloud = flow VLM existant
-  avec un modèle classe Gemini Flash (0,00 correction/ticket mesuré).
-- **V2** : `[structuration]` devient un **classifieur de lignes** entraîné
-  sur le golden — apprend les formats inconnus sans pouvoir inventer un
-  montant — le jour où il bat les règles sur le bench. Interface identique.
+- **Règles** : géométrie + lexiques, 0 invention structurelle, ~0,4 s.
+- **Classifieur de lignes (V2, actif)** : second avis gated par checksum —
+  étiquette les lignes porteuses de prix (article/remise/total/paiement/
+  bruit), montants recopiés de l'OCR, hallucination impossible. Il ne peut
+  que sauver des tickets flagués, jamais corrompre un validé.
 - Éliminé par les données : OCR à entraîner, modèle end-to-end image→JSON
   embarqué, LLM génératif on-device (voir benchmark plus bas).
 
@@ -107,6 +113,91 @@ comprend » doit tourner en local un jour, c'est un **classifieur de lignes**
 (sortie = étiquettes, montants recopiés de l'OCR, hallucination
 structurellement impossible), entraînable sur le golden.
 
+## Mode local — bench & calibration (2026-08-24)
+
+L'instrument central est **`analysis/bench_local.py`** : il rejoue le flow
+local complet (règles → retry → classifieur V2) depuis les dumps OCR d'un
+run device — une modification de règles ou de modèle se mesure en secondes
+sur 1000 vrais tickets, sans retoucher au téléphone. Métriques : validation
+directe, faux auto-validés (la barre : 0 montant faux), corrections/ticket
+en confirmation. `analysis/analyze_local_failures.py` classe chaque échec
+(structuration / total non lu / montants absents de l'OCR / golden non
+checksummable) pour dire où investir.
+
+État sur les 1000 tickets FindIt (pire-cas : thermiques 2017 pâlis),
+vérité golden, plafond corpus 94,8 % :
+
+| Étape | Validation directe | Faux montants validés |
+|---|---|---|
+| Règles d'origine | 70,9 % | 0 (audités un par un) |
+| + calibration (TUA, TOT, INCL, fallbacks, MERCI) | 73,3 % | 0 |
+| **+ classifieur V2** | **78,6 %** | **0** |
+| Restant : 88 structuration, 42 total non lu, 47 OCR, 37 plafond | | |
+
+Décisions de calibration issues du bench :
+
+- **Garde-fou retry** : un retry dont la somme d'articles est inférieure à
+  celle de la passe 1 est refusé même si son checksum passe (collision de
+  substitution observée : article 9,90 perdu + total 22,45 lu 12,55).
+- **Références de secours gated `total is None`** : table TVA (somme des
+  TTC), compteur « N ARTICLE(S) » + ligne CB, total sans séparateur
+  (« 2790 »), prix orphelin de fin de ticket. Un fallback ne doit JAMAIS
+  outrepasser un total lu qui ne colle pas (faux positif observé sinon).
+- Lexiques : `TUA` (V→U), `TOT` abrégé, `A RENDRE`, total « TVA INCL »
+  non exclu, frontières de mot (`MERCI` matchait dans `COMMERCIALE`).
+- Écartés par les données : tolérance 2 centimes, exemption colonne des
+  prix négatifs, cross-check de totaux.
+
+## Classifieur de lignes V2 (2026-08-24, actif)
+
+`analysis/line_features.py` (32 features déterministes par ligne porteuse
+de prix : géométrie, lexiques, contexte ±1 ligne — portables en Dart) +
+`analysis/train_line_classifier.py` (HistGradientBoosting) +
+`analysis/structure_ml.py` (structuration depuis les labels, re-checksum).
+
+- **98,7 % d'accuracy lignes sur T1-test** ; +53 tickets sauvés sur 1000
+  (+25 sur T1-test jamais vu à l'entraînement → généralise).
+- L'étiquetage est automatique et c'est LA leçon : rôles joués par les
+  règles sur les tickets checksum-validés (vérité confirmée) + labels
+  correctifs alignés golden sur les échecs, lignes incertaines **exclues**.
+  Étiqueter « ignore » une ligne d'article au montant abîmé par l'OCR
+  apprend au modèle à jeter des articles (première version : 62 %
+  d'accuracy pour cette raison).
+- Branché en second avis : uniquement sur les tickets que règles+retry
+  flaguent, sortie re-checksummée. Zéro faux montant introduit.
+- À faire pour l'app : portage de l'inférence en Dart pur (arbres
+  transpilables ou petit MLP à poids constants — pas de TFLite).
+
+La spec d'implémentation app (mapping UI, messages d'erreur, invariants) :
+**`VERIFICATION.md`**.
+
+## Portage Dart & banc on-device (2026-08-24)
+
+- **`pipeline/`** : package Dart pur `receipt_pipeline` — portage de
+  `lines.py` + `structure.py` + `flow.py`, 46 tests portés. Parité vérifiée
+  champ à champ contre Python sur 699 dumps OCR (FindIt, enhanced, web,
+  synthétique) : **0 divergence** (`analysis/check_parity.py` +
+  `pipeline/tool/parity.dart`).
+- **`test/harness/`** devient un banc à deux modes : « Suite complète »
+  (images via `adb push` dans `files/input/`, flow local complet par ticket,
+  dump OCR historique + section `flow`) et « Scanner un ticket » (photo →
+  flow local → résultat structuré à l'écran). Le prétraitement retry
+  (autocontrast + unsharp + upscale 2400 px) est embarqué en Dart.
+- **`analysis/score_device_flow.py`** score un run de suite tel qu'exécuté
+  sur le device : parité device ↔ Python par ticket, métriques vs golden.
+  Nommage des images poussées : `t1test_<doc>.jpg` / `t1train_<doc>.jpg`.
+
+Runs 1000 tickets golden : S9+ (2018) et Pixel 8 Pro — **OCR strictement
+identique sur 99,7 % des images, 0 décision divergente** : le moteur ML Kit
+est constant inter-devices, la seule variable réelle est la qualité de la
+photo (capteur, focus). Latence pipeline S9+ : médiane 404 ms, p95 1,2 s.
+Dumps : `test/results/device_flow[_pixel]/` (gitignorés), corpus de replay
+de `bench_local.py`.
+
+Parité connue : l'APK d'avant le fix des diacritiques a produit 1 dump
+divergent (`t1train_790`, « TŤC ») — corrigé dans le package (table de
+repli latin étendu-A), APK reconstruit.
+
 ## Golden dataset
 
 `test/golden/T1-{test,train}/` : 1000 tickets FR annotés (enseigne, date,
@@ -116,13 +207,10 @@ indépendante) ; 8 désaccords audités = conventions de représentation, zéro
 erreur de montant. Sert de référence gratuite à tous les benchmarks et
 d'assiette d'entraînement. Coût de construction : ~0,60 $.
 
-Architecture qui en découle : **local d'abord** (ML Kit + structuration +
-checksum : gratuit, offline, privé, 88% zéro-correction, jamais faux en
-silence) → **escalade cloud sur échec de checksum** (le tail des formats
-exotiques → 100%), la sortie cloud repassant par le même checksum. Le choix
-local/cloud devient un réglage produit (privacy, clé API), plus un débat
-technique. Note : la Batch API OpenRouter (-75%) est text-only, les images
-passent en sync.
+Note historique : l'étude avait d'abord conclu à une escalade cloud sur
+échec de checksum ; la décision produit finale (2026-08-24) est **deux
+modes exclusifs** — le local doit tenir seul (voir Verdict). Note : la
+Batch API OpenRouter (-75%) est text-only, les images passent en sync.
 
 ## Les trois découvertes qui conditionnent l'architecture
 
@@ -182,8 +270,11 @@ passent en sync.
 - Dates éclatées (`202 6`, `o9`) : compacter et normaliser o→0 avant regex ;
   formats `/` et `.`.
 - R8/proguard : le plugin ML Kit référence les recognizers chinois/devanagari
-  absents ; `-dontwarn` requis, et vérifier le release build sur device (le
-  shrinking a produit un NPE runtime en plus de l'erreur de build).
+  absents (`-dontwarn` pour le build) ET le shrinking strip des classes du
+  recognizer → NPE runtime sur chaque `processImage` en release. Fix mesuré :
+  règles keep `com.google.mlkit.**`, `com.google.android.odml.**`,
+  `com.google.android.gms.internal.mlkit_vision_text_common.**`
+  (cf. harness/android/app/proguard-rules.pro) ; parité release AOT vérifiée.
 
 ## Limite connue
 
@@ -193,33 +284,49 @@ signalé par le checksum). Piste si besoin : clustering par colonne avec suivi
 local de pente, ou classifieur de lignes léger — à ne faire que si les photos
 réelles le justifient.
 
-## Prochaines étapes (plan validé)
+## Prochaines étapes
 
-1. **Portage Dart** du pipeline local (`lines.py` + `structure.py`, ~400
-   lignes ; spec = `test_structure.py` + bench golden) ; sortie vers
+1. ~~Portage Dart des règles~~ **fait** ; ~~classifieur V2~~ **fait côté
+   Python** (+5,3 pts). Reste : porter en Dart les règles ajoutées par la
+   calibration + l'inférence du classifieur (arbres transpilés ou MLP à
+   poids constants, pur Dart), re-valider la parité sur les dumps.
+2. **Monter vers ~99 % local** : pousser le ML sur les 88 échecs de
+   structuration restants, attaquer les 42 totaux non lus, variantes de
+   prétraitement best-of-N (checksum = oracle) pour les 47 tickets aux
+   montants absents de l'OCR.
+3. **Intégration app (mode LOCAL uniquement)** : brancher `receipt_pipeline`
+   (sans clé API, sans cooldown, offline), sortie vers
    `ReceiptScanResultModel` — écran d'édition et `validateAndCreate`
-   inchangés. Scan local par défaut : sans clé API, sans cooldown, offline.
-2. **Escalade cloud** sur échec de checksum : réutiliser le service distant
-   existant (clé perso), re-checksum sur sa sortie.
-3. **Classifieur de lignes (V2)** : entraînement sur golden + synthétique,
-   critère d'entrée = battre 0,17 correction/ticket sur le bench.
+   inchangés. Le mode cloud existant ne bouge pas. Spec : `VERIFICATION.md`.
 4. **BERT** sur les libellés extraits — augmentation « style ticket » du
    dataset quick-add, calibrée sur les 1000 tickets réels du golden.
-5. Fil rouge : valider sur des photos fraîches prises au Pixel (le corpus
-   FindIt est un pire-cas scanné, pas le scénario nominal).
+5. Fil rouge : valider sur des photos fraîches prises au téléphone via le
+   mode « Scanner un ticket » du harnais (le corpus FindIt est un pire-cas
+   scanné, pas le scénario nominal — la capture app devra soigner
+   résolution/focus, seule vraie variable inter-devices).
 
 ## Contenu
 
-- `test/harness/` — app Flutter qui passe des images dans ML Kit et dump le
-  JSON complet (mots, boîtes, confiances, angles). Deux sources : images
-  poussées via `adb push` dans `files/input/` (prioritaire, aucun rebuild)
-  ou `assets/corpus/` ; `adb pull` de `files/results/`.
+- `pipeline/` — package Dart `receipt_pipeline` (lines, structure, flow,
+  sérialisation) + tests + `tool/parity.dart`.
+- `VERIFICATION.md` — spec d'implémentation app du système de vérification.
+- `test/harness/` — banc Flutter on-device : mode « Suite complète » (flow
+  local sur images poussées via `adb push` dans `files/input/`, prioritaire
+  sur `assets/corpus/` ; `adb pull` de `files/results/`) et mode « Scanner
+  un ticket » (caméra).
 - `test/analysis/` — clustering (`lines.py`), structuration (`structure.py`)
-  + tests (`test_structure.py`), générateur synthétique (`receipt_content.py`,
-  `receipt_render.py`, `generate_corpus.py`), scoring synthétique
-  (`score.py`), vérité depuis transcriptions (`transcript_truth.py`),
-  benchmarks LLM/VLM (`llm_structure.py`, `bench_llm.py`, `bench_gemini.py`,
-  `probe_capacity.py`), construction du golden (`annotate_golden.py`).
+  + tests (`test_structure.py`), politique de flow (`flow.py` +
+  `test_flow.py`), **bench du mode local rejoué des dumps
+  (`bench_local.py`)**, taxonomie des échecs (`analyze_local_failures.py`),
+  classifieur V2 (`line_features.py`, `train_line_classifier.py`,
+  `structure_ml.py`, modèle dans `models/`), bench multi-étages historique
+  (`bench_flow.py`), scoring d'un run device (`score_device_flow.py`),
+  parité Dart↔Python (`check_parity.py`), générateur synthétique
+  (`receipt_content.py`, `receipt_render.py`, `generate_corpus.py`),
+  scoring synthétique (`score.py`), vérité depuis transcriptions
+  (`transcript_truth.py`), benchmarks LLM/VLM (`llm_structure.py`,
+  `bench_llm.py`, `bench_gemini.py`, `probe_capacity.py`), construction du
+  golden (`annotate_golden.py`).
 - `test/golden/` — **golden dataset committable** : 1000 annotations JSON.
 - `test/dataset_findit/` — dataset Find it! (img + txt, gitignoré) ;
   `test/corpus_synthetic/` — 120 tickets générés + ground truth ;

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from lines import PhysicalLine, Word, cluster_lines
 
@@ -36,6 +36,7 @@ DISCOUNT_WORDS = (
 )
 TOTAL_WORDS = (
     "TOTAL",
+    "TOT",
     "PAYER",
     "MONTANT DU",
     "AMOUNT DUE",
@@ -56,10 +57,12 @@ STOP_WORDS = (
     "PAYER",
     "SOUS-TOTAL",
     "TVA",
+    "TUA",
     "CB ",
     "CARTE BANCAIRE",
     "ESPECES",
     "RENDU",
+    "A RENDRE",
     "MONNAIE",
     "CHEQUE",
     "ARTICLE(",
@@ -108,6 +111,7 @@ EXCLUDED_TOTAL_WORDS = (
     "HT",
     "H.T",
     "TVA",
+    "TUA",
     "ELIGIBLE",
     "POINTS",
     "FRANC",
@@ -115,6 +119,10 @@ EXCLUDED_TOTAL_WORDS = (
 )
 
 PAYMENT_WORDS = ("CB", "CARTE BANCAIRE", "CARTE BLEUE")
+TVA_WORDS = ("TVA", "TUA")
+TAX_INCLUSIVE_WORDS = ("INCL",)
+MISSING_SEPARATOR_TOTAL_PATTERN = re.compile(r"(\d{3,6})\s*$")
+ARTICLE_COUNT_PATTERN = re.compile(r"(\d{1,3})ARTICLE")
 
 
 @dataclass
@@ -132,6 +140,9 @@ class ExtractedReceipt:
     subtotal: float | None
     payment: float | None
     items: list[ExtractedItem]
+    tva_ttc_sum: float | None = None
+    printed_count: int | None = None
+    fallback_references: list[float] = field(default_factory=list)
 
     @property
     def items_sum(self) -> float:
@@ -143,10 +154,24 @@ class ExtractedReceipt:
         total TTC en Europe, ou le sous-total hors taxe aux États-Unis. Le
         montant débité par carte ne sert de référence que si aucun total n'a
         été lu : quand un total lu ne colle pas, on flague — accepter sur la
-        seule ligne de paiement laisserait passer des extractions fausses."""
+        seule ligne de paiement laisserait passer des extractions fausses.
+        Deux références de secours mesurées sur corpus : la somme des TTC de
+        la table TVA (décomposition imprimée du total), et la ligne CB quand
+        le compteur « N ARTICLE(S) » confirme qu'aucun article ne manque."""
         if self._matches(self.total) or self._matches(self.subtotal):
             return True
-        return self.total is None and self._matches(self.payment)
+        if self.total is None and self._matches(self.tva_ttc_sum):
+            return True
+        if self.total is None and any(
+            self._matches(candidate) for candidate in self.fallback_references
+        ):
+            return True
+        if self._matches(self.payment):
+            if self.total is None:
+                return True
+            if self.printed_count == len(self.items):
+                return True
+        return False
 
     def _matches(self, reference: float | None) -> bool:
         return reference is not None and abs(self.items_sum - reference) < 0.005
@@ -292,8 +317,11 @@ def _contains(text: str, lexicon: tuple[str, ...]) -> bool:
             if re.search(dotted, undotted):
                 return True
             continue
-        if entry in upper:
+        boundary = rf"(?<![A-Z]){re.escape(entry)}(?![A-Z])"
+        if re.search(boundary, upper):
             return True
+        if entry in upper:
+            continue
         squeezed = entry.replace(" ", "")
         if squeezed in compact or squeezed in unglyphed:
             return True
@@ -316,12 +344,20 @@ def _price_column_left(lines: list[PhysicalLine]) -> float | None:
     return median_right * 0.75
 
 
-def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
+def extract(
+    lines: list[PhysicalLine],
+    roles: dict[int, str] | None = None,
+) -> ExtractedReceipt:
+    """`roles`, si fourni, reçoit le rôle joué par chaque ligne indexée :
+    item / discount / total / subtotal / payment / stop — matière première
+    d'entraînement du classifieur de lignes (V2)."""
     store = lines[0].text if lines else None
     date = _find_date(lines)
     column_left = _price_column_left(lines)
     merged = [merge_price_fragments(line) for line in lines]
     total_index, total = _find_final_total(merged)
+    if roles is not None and total_index is not None:
+        roles[total_index] = "total"
 
     items: list[ExtractedItem] = []
     pending_label: str | None = None
@@ -335,6 +371,8 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
         if _contains(text, SUBTOTAL_WORDS) and priced is not None:
             if subtotal is None:
                 subtotal = priced[0]
+                if roles is not None:
+                    roles.setdefault(index, "subtotal")
             pending_label = None
             continue
 
@@ -347,6 +385,8 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
                 text, PAYMENT_WORDS
             ):
                 payment = priced[0]
+                if roles is not None:
+                    roles.setdefault(index, "payment")
             pending_label = None
             continue
 
@@ -367,6 +407,8 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
         if price < 0 or _is_discount_line(label):
             if items:
                 items[-1].discount = round(items[-1].discount + abs(price), 2)
+                if roles is not None:
+                    roles.setdefault(index, "discount")
             pending_label = None
             continue
 
@@ -380,6 +422,8 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
                     name=_clean_name(pending_label), amount=price, discount=0.0
                 )
             )
+            if roles is not None:
+                roles.setdefault(index, "item")
             pending_label = None
             continue
 
@@ -392,12 +436,16 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
                         discount=0.0,
                     )
                 )
+                if roles is not None:
+                    roles.setdefault(index, "item")
             pending_label = None
             continue
 
         items.append(
             ExtractedItem(name=_clean_name(label), amount=price, discount=0.0)
         )
+        if roles is not None:
+            roles.setdefault(index, "item")
         pending_label = None
 
     return ExtractedReceipt(
@@ -407,7 +455,72 @@ def extract(lines: list[PhysicalLine]) -> ExtractedReceipt:
         subtotal=subtotal,
         payment=payment,
         items=items,
+        tva_ttc_sum=_tva_ttc_sum(merged),
+        printed_count=_printed_count(merged),
+        fallback_references=_fallback_references(merged),
     )
+
+
+def _fallback_references(merged: list[PhysicalLine]) -> list[float]:
+    """Montants de secours pour le checksum, quand le total régulier manque :
+    total sans séparateur décimal sur une ligne « total » pâlie (« 2790 » =
+    27,90), et prix orphelin d'une ligne sans texte (total en gras dont le
+    libellé a été détruit par l'OCR). Jamais utilisés seuls : une somme
+    d'articles doit retomber dessus au centime."""
+    candidates: list[float] = []
+    for line in merged:
+        text = line.text
+        if _contains(text, TOTAL_WORDS) and not (
+            _contains(text, EXCLUDED_TOTAL_WORDS)
+            and not _contains(text, TAX_INCLUSIVE_WORDS)
+        ):
+            if _rightmost_price(line) is None and _embedded_price(text) is None:
+                match = MISSING_SEPARATOR_TOTAL_PATTERN.search(text)
+                if match:
+                    candidates.append(round(int(match.group(1)) / 100, 2))
+            continue
+        letters = sum(char.isalpha() for char in text)
+        if letters >= 2:
+            continue
+        prices = [
+            price
+            for word in line.words
+            if (price := parse_price(word.text)) is not None
+        ]
+        if len(prices) == 1 and prices[0] > 0:
+            candidates.append(prices[0])
+    return candidates
+
+
+def _tva_ttc_sum(merged: list[PhysicalLine]) -> float | None:
+    """Somme des TTC de la table TVA (« B TVA 20.00 5.67 1.13 6.80 ») : une
+    ligne-tableau porte au moins trois montants, le TTC est le plus à droite.
+    Les lignes « TVA 10% : 0,81 » (montant de taxe seul) sont ignorées."""
+    total = 0.0
+    rows = 0
+    for line in merged:
+        if not _contains(line.text, TVA_WORDS):
+            continue
+        prices = [
+            price
+            for word in line.words
+            if (price := parse_price(word.text)) is not None
+        ]
+        if len(prices) >= 3:
+            total += prices[-1]
+            rows += 1
+    return round(total, 2) if rows else None
+
+
+def _printed_count(merged: list[PhysicalLine]) -> int | None:
+    """Compteur d'articles imprimé (« 11 ARTICLE(S) »), compacté car l'OCR
+    éclate ou colle les mots."""
+    for line in merged:
+        compact = re.sub(r"\s+", "", line.text.upper())
+        match = ARTICLE_COUNT_PATTERN.search(compact)
+        if match:
+            return int(match.group(1))
+    return None
 
 
 def _find_final_total(
@@ -421,7 +534,9 @@ def _find_final_total(
     for index, line in enumerate(merged):
         if not _contains(line.text, TOTAL_WORDS):
             continue
-        if _contains(line.text, EXCLUDED_TOTAL_WORDS):
+        if _contains(line.text, EXCLUDED_TOTAL_WORDS) and not _contains(
+            line.text, TAX_INCLUSIVE_WORDS
+        ):
             continue
         priced = _rightmost_price(line)
         price = priced[0] if priced is not None else _embedded_price(line.text)

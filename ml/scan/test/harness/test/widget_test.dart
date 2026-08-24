@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ocr_harness/gallery_screen.dart';
 import 'package:ocr_harness/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('home offers the three bench modes', (WidgetTester tester) async {
+    await tester.pumpWidget(const OcrHarnessApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Suite complète'), findsOneWidget);
+    expect(find.text('Tester depuis la galerie'), findsOneWidget);
+    expect(find.text('Scanner un ticket'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('gallery screen starts empty with a picker button',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const OcrHarnessApp());
+    await tester.tap(find.text('Tester depuis la galerie'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(GalleryScreen), findsOneWidget);
+    expect(
+      find.text('Choisis des photos de tickets à tester.'),
+      findsOneWidget,
+    );
+    expect(find.text('Choisir'), findsOneWidget);
   });
 }

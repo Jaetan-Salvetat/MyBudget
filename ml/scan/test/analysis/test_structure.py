@@ -188,3 +188,162 @@ class TestDeskew:
         tilted = [rotate(left), rotate(right)]
         assert len(cluster_lines(tilted)) == 2
         assert len(cluster_lines(deskew_words(tilted, angle))) == 1
+
+
+class TestChangeDue:
+    def test_a_rendre_line_is_not_an_item(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("ESPECES", 0), ("5,00", 38)],
+            [("A", 0), ("RENDRE", 2), ("EUR", 20), ("2,50", 38)],
+        ])
+        result = extract(lines)
+        assert [(i.name, i.amount) for i in result.items] == [("PAIN", 2.50)]
+
+    def test_a_rendre_zero_is_not_an_item(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("A", 0), ("RENDRE", 2), ("EUR", 20), ("0,00", 38)],
+            [("TOTAL", 0), ("2,50", 38)],
+        ])
+        result = extract(lines)
+        assert [(i.name, i.amount) for i in result.items] == [("PAIN", 2.50)]
+        assert result.checksum_ok
+
+
+class TestExtraChecksumReferences:
+    def test_tva_table_ttc_sum_validates_when_total_unreadable(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PERRIER", 0), ("3.20", 38)],
+            [("CHARDONNAY", 0), ("6.80", 38)],
+            [("TOTAL", 0), ("1O.0OO", 38)],
+            [("B", 0), ("TUA", 2), ("20.00", 8), ("5.67", 15), ("1.13", 22), ("6.80", 38)],
+            [("C", 0), ("TUA", 2), ("10.00", 8), ("2.91", 15), ("0.29", 22), ("3.20", 38)],
+        ])
+        result = extract(lines)
+        assert result.total is None
+        assert result.tva_ttc_sum == 10.00
+        assert result.checksum_ok
+
+    def test_tva_amount_only_lines_do_not_build_a_reference(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("TVA", 0), ("10%", 5), ("0,23", 38)],
+        ])
+        result = extract(lines)
+        assert result.tva_ttc_sum is None
+
+    def test_article_count_parsed(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("2", 0), ("ARTICLES", 2)],
+        ])
+        assert extract(lines).printed_count == 2
+
+    def test_payment_with_matching_count_validates_despite_bad_total(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("LAIT", 0), ("1,20", 38)],
+            [("TOTAL", 0), ("9,70", 38)],
+            [("2", 0), ("ARTICLES", 2)],
+            [("CB", 0), ("EMV", 4), ("3,70", 38)],
+        ])
+        result = extract(lines)
+        assert result.total == 9.70
+        assert result.checksum_ok
+
+    def test_payment_without_count_does_not_override_read_total(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("LAIT", 0), ("1,20", 38)],
+            [("TOTAL", 0), ("9,70", 38)],
+            [("CB", 0), ("EMV", 4), ("3,70", 38)],
+        ])
+        assert not extract(lines).checksum_ok
+
+    def test_count_mismatch_does_not_unlock_payment(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("PAIN", 0), ("2,50", 38)],
+            [("LAIT", 0), ("1,20", 38)],
+            [("TOTAL", 0), ("9,70", 38)],
+            [("3", 0), ("ARTICLES", 2)],
+            [("CB", 0), ("EMV", 4), ("3,70", 38)],
+        ])
+        assert not extract(lines).checksum_ok
+
+
+class TestTotalRecovery:
+    def test_abbreviated_tot_is_a_total(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("POMME", 0), ("1,32", 38)],
+            [("ENDIVE", 0), ("2,42", 38)],
+            [("2", 0), ("Art.", 2), ("Tot", 8), ("3,74", 38)],
+        ])
+        result = extract(lines)
+        assert result.total == 3.74
+        assert result.checksum_ok
+
+    def test_tva_incl_total_is_not_excluded(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("MENU", 0), ("27,90", 38)],
+            [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("27,90", 38)],
+        ])
+        assert extract(lines).total == 27.90
+
+    def test_missing_decimal_separator_total_rescued(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("MENU", 0), ("27,90", 38)],
+            [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("2790", 38)],
+        ])
+        result = extract(lines)
+        assert result.checksum_ok
+
+    def test_orphan_trailing_price_matching_sum_validates(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("Pomme", 0)],
+            [("X", 2), ("2,60", 6), ("2,60", 38)],
+            [("BANANE", 0), ("2,44", 38)],
+            [("5,04", 38)],
+            [("0,27", 38)],
+        ])
+        result = extract(lines)
+        assert result.items_sum == 5.04
+        assert result.checksum_ok
+
+    def test_orphan_price_not_matching_sum_flags(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("BANANE", 0), ("2,44", 38)],
+            [("9,99", 38)],
+        ])
+        result = extract(lines)
+        assert not result.checksum_ok
+
+
+class TestDiscountLeftOfColumn:
+    def test_negative_price_escapes_column_filter(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("JEAN", 0)],
+            [("*082242000033", 0), ("36", 15), ("34.99", 30), ("€", 37)],
+            [("Action", 0), ("commerciale", 7), ("-50%=", 19), ("-17.50", 26), ("€", 34)],
+            [("Total", 0), ("17.49", 30), ("€", 37)],
+            [("Carte", 0), ("Bancaire", 6), ("17.49", 30)],
+        ])
+        result = extract(lines)
+        assert [(i.name, i.amount, i.discount) for i in result.items] == [
+            ("JEAN", 34.99, 17.50),
+        ]
+        assert result.checksum_ok
