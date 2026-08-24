@@ -14,6 +14,8 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_submission_ticker.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
@@ -198,18 +200,21 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         Row(
           children: [
             Expanded(
-              child: FrostedTextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                leadingIcon: usesRemote
-                    ? Symbols.cloud_rounded
-                    : Symbols.auto_awesome_rounded,
-                trailingIcon: showContext ? Symbols.close_rounded : null,
-                onTrailingTap: _cancel,
-                hintText: 'café 3,50 · netflix 13,99 · salaire 2500',
-                textInputAction: TextInputAction.send,
-                onChanged: _onChanged,
-                onSubmitted: (_) => _submit(),
+              child: QuickAddThinkingBorder(
+                thinking: !draft.isEmpty && draft.isStale,
+                child: FrostedTextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  leadingIcon: usesRemote
+                      ? Symbols.cloud_rounded
+                      : Symbols.auto_awesome_rounded,
+                  trailingIcon: showContext ? Symbols.close_rounded : null,
+                  onTrailingTap: _cancel,
+                  hintText: 'café 3,50 · netflix 13,99 · salaire 2500',
+                  textInputAction: TextInputAction.send,
+                  onChanged: _onChanged,
+                  onSubmitted: (_) => _submit(),
+                ),
               ),
             ),
             const SizedBox(width: FrostedSpacing.sp2),
@@ -218,8 +223,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               enabled: _sentFlashing || offersScan || draft.isSubmittable,
               busy: _submitting,
               onTap: _onTrailingTap(offersScan),
-              background: scheme.primary,
-              foreground: scheme.onPrimary,
+              background: _categoryAccent(draft) ?? scheme.primary,
+              foreground: _accentForeground(draft, scheme),
             ),
           ],
         ),
@@ -237,6 +242,30 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         const QuickAddSubmissionTicker(),
       ],
     );
+  }
+
+  /// Once the model stands behind a category, its colour takes the send
+  /// button : the tap records *that* transaction, not a generic submit.
+  Color? _categoryAccent(QuickAddDraft draft) {
+    final slug = draft.categorySlug;
+    if (slug == null || draft.isStale || draft.isCategoryUncertain) {
+      return null;
+    }
+
+    final display = ref
+        .watch(categoryDisplayResolverProvider)
+        .value
+        ?.resolve(slug);
+    if (display == null) return null;
+    return Color(display.color);
+  }
+
+  Color _accentForeground(QuickAddDraft draft, ColorScheme scheme) {
+    final accent = _categoryAccent(draft);
+    if (accent == null) return scheme.onPrimary;
+    return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF1C1B1F);
   }
 
   /// The check holds the button just long enough to say "parti", then gives

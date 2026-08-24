@@ -12,10 +12,11 @@ import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_preview_chips.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Turns the live draft into the chips the user reads while typing.
+/// Turns the live draft into the transaction line the user reads while
+/// typing.
 class QuickAddPreview extends ConsumerWidget {
   const QuickAddPreview({super.key});
 
@@ -29,8 +30,9 @@ class QuickAddPreview extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        QuickAddPreviewChips(
-          amountLabel: _amountLabel(draft),
+        QuickAddDraftLine(
+          amount: draft.amount,
+          isIncome: draft.type == TransactionType.income,
           category: _category(context, ref, draft),
           recurrenceLabel: draft.frequency == Frequency.oneTime
               ? null
@@ -50,7 +52,7 @@ class QuickAddPreview extends ConsumerWidget {
   }
 
   /// The two days a transaction is typed on almost every time get a word
-  /// rather than a date : reading "Hier" is quicker than dating it.
+  /// rather than a date : reading "hier" is quicker than dating it.
   String? _dateLabel(DateTime? date) {
     if (date == null) return null;
 
@@ -75,18 +77,7 @@ class QuickAddPreview extends ConsumerWidget {
     ref.read(quickAddProvider.notifier).selectDate(picked);
   }
 
-  String? _amountLabel(QuickAddDraft draft) {
-    final amount = draft.amount;
-    if (amount == null) return null;
-
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount);
-    return draft.type == TransactionType.income ? '+ $formatted' : formatted;
-  }
-
-  /// Null only while the reading has yet to land : the chips then say so.
+  /// Null only while the reading has yet to land : the line then says so.
   /// Once it has, an unnamed category shows the one it will be recorded
   /// under, flagged as a guess so a tap corrects it.
   QuickAddCategoryPreview? _category(
