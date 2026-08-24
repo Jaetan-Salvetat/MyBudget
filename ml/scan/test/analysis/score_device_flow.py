@@ -28,16 +28,20 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from bench_flow import AMOUNT_EPSILON, StageStats, TicketRun, count_edits
+from bench_flow import StageStats, TicketRun, count_edits
 from flow import AUTO_STAGES, CLOUD, CONFIRM, FlowPolicy
 from llm_structure import parse_llm_receipt
 from structure import extract_from_result
 
 ROOT = Path(__file__).parent.parent
-GOLDEN_DIRS = {"t1test": ROOT / "golden" / "T1-test", "t1train": ROOT / "golden" / "T1-train"}
+GOLDEN_DIRS = {
+    "t1test": ROOT / "golden" / "T1-test",
+    "t1train": ROOT / "golden" / "T1-train",
+}
 CLOUD_CACHE = ROOT / "results" / "llm_gemini37_flash_flow"
 LEGACY_CLOUD_CACHE = ROOT / "results" / "llm_gemini37_flash"
 NAME_PATTERN = re.compile(r"^(t1test|t1train)_(\d+)\.jpg\.json$")
+EXCLUDED_PATH = ROOT / "golden" / "excluded.txt"
 
 STAGE_NAMES = {"local": "local", "localRetry": "local_retry", "confirm": "confirm"}
 
@@ -54,13 +58,35 @@ class DeviceTicket:
     dump_path: Path
 
 
-def load_tickets(results_dir: Path) -> list[DeviceTicket]:
+def parse_excluded(text: str) -> set[str]:
+    names = set()
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        names.add(stripped.split()[0])
+    return names
+
+
+def load_excluded(path: Path = EXCLUDED_PATH) -> set[str]:
+    if not path.exists():
+        return set()
+    return parse_excluded(path.read_text())
+
+
+def load_tickets(
+    results_dir: Path, excluded: set[str] | None = None
+) -> list[DeviceTicket]:
+    if excluded is None:
+        excluded = load_excluded()
     tickets = []
     for dump_path in sorted(results_dir.glob("*.json")):
         match = NAME_PATTERN.match(dump_path.name)
         if match is None:
             continue
         split, doc = match.groups()
+        if f"{split}_{doc}" in excluded:
+            continue
         golden_path = GOLDEN_DIRS[split] / f"{doc}.json"
         if not golden_path.exists():
             print(f"golden manquant pour {dump_path.name}")
@@ -122,7 +148,9 @@ def _cloud_cache_path(ticket: DeviceTicket) -> Path | None:
     return None
 
 
-def _golden_cloud(ticket: DeviceTicket) -> tuple[list[tuple[float, float]], float | None]:
+def _golden_cloud(
+    ticket: DeviceTicket,
+) -> tuple[list[tuple[float, float]], float | None]:
     receipt = ticket.golden["receipt"]
     items = [
         (round(float(i["amount"]), 2), round(abs(float(i["discount"])), 2))
@@ -142,16 +170,12 @@ def resolve_outcome(ticket: DeviceTicket) -> tuple[str, list[tuple[float, float]
 
     cache = _cloud_cache_path(ticket)
     if cache is not None:
-        cloud_items, cloud_total = parse_llm_receipt(
-            json.loads(cache.read_text())
-        )
+        cloud_items, cloud_total = parse_llm_receipt(json.loads(cache.read_text()))
     else:
         cloud_items, cloud_total = _golden_cloud(ticket)
     accepted = (
         cloud_total is not None
-        and abs(
-            round(sum(a - d for a, d in cloud_items), 2) - cloud_total
-        )
+        and abs(round(sum(a - d for a, d in cloud_items), 2) - cloud_total)
         <= POLICY.tolerance
     )
     return (CLOUD if accepted else CONFIRM), cloud_items
@@ -179,9 +203,7 @@ def score(tickets: list[DeviceTicket]) -> None:
     total = len(tickets)
     auto = sum(stats[stage].tickets for stage in AUTO_STAGES)
     retry_used = sum(1 for t in tickets if t.flow["retryUsed"])
-    false_accepts = [
-        run for stage in AUTO_STAGES for run in stats[stage].faulty
-    ]
+    false_accepts = [run for stage in AUTO_STAGES for run in stats[stage].faulty]
 
     print(f"\n=== flow on-device ({total} tickets)")
     for stage in [*AUTO_STAGES, CONFIRM]:
@@ -191,10 +213,10 @@ def score(tickets: list[DeviceTicket]) -> None:
         mean = stage_stats.edits_total / stage_stats.tickets
         print(
             f"  {stage:<12}: {stage_stats.tickets:>4} "
-            f"({stage_stats.tickets/total:.0%})  corr/ticket {mean:.2f}"
+            f"({stage_stats.tickets / total:.0%})  corr/ticket {mean:.2f}"
         )
     print(
-        f"  auto-validés : {auto}/{total} ({auto/total:.0%}), "
+        f"  auto-validés : {auto}/{total} ({auto / total:.0%}), "
         f"retry tentés : {retry_used}, cloud en proxy golden : {cloud_proxied}"
     )
     print(f"  FAUX AUTO-VALIDÉS : {len(false_accepts)}")
@@ -207,14 +229,14 @@ def score(tickets: list[DeviceTicket]) -> None:
     )
     if latencies:
         print(
-            f"  latence pipeline : médiane {latencies[len(latencies)//2]} ms, "
-            f"p95 {latencies[int(len(latencies)*0.95)]} ms"
+            f"  latence pipeline : médiane {latencies[len(latencies) // 2]} ms, "
+            f"p95 {latencies[int(len(latencies) * 0.95)]} ms"
         )
 
 
 def main() -> None:
-    results_dir = ROOT / "results" / (
-        sys.argv[1] if len(sys.argv) > 1 else "device_flow"
+    results_dir = (
+        ROOT / "results" / (sys.argv[1] if len(sys.argv) > 1 else "device_flow")
     )
     tickets = load_tickets(results_dir)
     if not tickets:

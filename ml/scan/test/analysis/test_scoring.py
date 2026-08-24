@@ -27,3 +27,22 @@ class TestCountEdits:
 
     def test_negative_expected_without_matching_discount(self):
         assert count_edits([(2.31, 0.0), (0.31, 0.0)], [2.31, 0.31, -1.22]) == 1
+
+
+class TestParseExcluded:
+    def test_name_with_reason(self):
+        from score_device_flow import parse_excluded
+
+        text = "t1test_68  ocr_montants_absents\nt1train_405 golden_non_checksummable"
+        assert parse_excluded(text) == {"t1test_68", "t1train_405"}
+
+    def test_skips_comments_and_blank_lines(self):
+        from score_device_flow import parse_excluded
+
+        text = "# corpus sain\n\nt1test_1  x\n"
+        assert parse_excluded(text) == {"t1test_1"}
+
+    def test_empty_text(self):
+        from score_device_flow import parse_excluded
+
+        assert parse_excluded("") == set()

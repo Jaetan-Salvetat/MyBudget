@@ -26,7 +26,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from score_device_flow import STAGE_NAMES, load_tickets
+from score_device_flow import EXCLUDED_PATH, STAGE_NAMES, load_tickets
 
 ROOT = Path(__file__).parent.parent
 AMOUNT_PATTERN = re.compile(r"\d{1,4}[.,]\d{2}")
@@ -58,32 +58,59 @@ def golden_checksummable(golden: dict) -> bool:
     return abs(items_sum - round(float(total), 2)) < EPSILON
 
 
+def golden_amounts(golden: dict) -> list[float]:
+    return [
+        round(float(i["amount"]), 2)
+        for i in golden["receipt"]["items"]
+        if abs(i["amount"]) >= EPSILON
+    ]
+
+
+def missing_ocr_amounts(ticket) -> list[float]:
+    seen = ocr_amounts(json.loads(ticket.dump_path.read_text()))
+    return [
+        a
+        for a in golden_amounts(ticket.golden)
+        if not any(abs(abs(a) - s) < EPSILON for s in seen)
+    ]
+
+
+def hopeless_reason(ticket) -> str | None:
+    """Raison d'exclusion du corpus de travail : aucun pipeline par checksum
+    ne peut valider ce ticket, quelles que soient les règles."""
+    if not golden_checksummable(ticket.golden):
+        return "golden_non_checksummable"
+    if missing_ocr_amounts(ticket):
+        return "ocr_montants_absents"
+    return None
+
+
+def write_excluded(tickets) -> None:
+    lines = [
+        "# tickets hors corpus de travail (analyze_local_failures.py --write-excluded)"
+    ]
+    reasons = [(t.name, hopeless_reason(t)) for t in tickets]
+    for name, reason in reasons:
+        if reason is not None:
+            lines.append(f"{name}  {reason}")
+    EXCLUDED_PATH.write_text("\n".join(lines) + "\n")
+    print(f"{sum(1 for _, r in reasons if r)} tickets exclus -> {EXCLUDED_PATH}")
+
+
 def classify(ticket) -> tuple[str, bool]:
     golden = ticket.golden
     if not golden_checksummable(golden):
         return "golden_non_checksummable", False
 
-    dump = json.loads(ticket.dump_path.read_text())
-    seen = ocr_amounts(dump)
-    expected = [
-        round(float(i["amount"]), 2)
-        for i in golden["receipt"]["items"]
-        if abs(i["amount"]) >= EPSILON
-    ]
-    missing_in_ocr = [
-        a for a in expected if not any(abs(abs(a) - s) < EPSILON for s in seen)
-    ]
+    expected = golden_amounts(golden)
+    missing_in_ocr = missing_ocr_amounts(ticket)
 
     best = ticket.flow.get("retry") or ticket.flow["pass1"]
     no_reference = (
-        best["total"] is None
-        and best["subtotal"] is None
-        and best["payment"] is None
+        best["total"] is None and best["subtotal"] is None and best["payment"] is None
     )
 
-    items_sum = round(
-        sum(i["amount"] - i["discount"] for i in best["items"]), 2
-    )
+    items_sum = round(sum(i["amount"] - i["discount"] for i in best["items"]), 2)
     golden_total = round(float(golden["receipt"]["total"]), 2)
     delta = round(golden_total - items_sum, 2)
     near_miss = any(abs(a - delta) < EPSILON for a in expected)
@@ -96,21 +123,19 @@ def classify(ticket) -> tuple[str, bool]:
 
 
 def main() -> None:
-    results_dir = ROOT / "results" / (
-        sys.argv[1] if len(sys.argv) > 1 else "device_flow"
-    )
+    args = [a for a in sys.argv[1:] if a != "--write-excluded"]
+    results_dir = ROOT / "results" / (args[0] if args else "device_flow")
+    if "--write-excluded" in sys.argv:
+        write_excluded(load_tickets(results_dir, excluded=set()))
+        return
     tickets = load_tickets(results_dir)
-    ceiling_fail = sum(
-        1 for t in tickets if not golden_checksummable(t.golden)
-    )
+    ceiling_fail = sum(1 for t in tickets if not golden_checksummable(t.golden))
     print(
         f"plafond corpus : {len(tickets) - ceiling_fail}/{len(tickets)} golden "
         f"checksummables ({(len(tickets) - ceiling_fail) / len(tickets):.1%})"
     )
 
-    confirms = [
-        t for t in tickets if STAGE_NAMES[t.flow["stage"]] == "confirm"
-    ]
+    confirms = [t for t in tickets if STAGE_NAMES[t.flow["stage"]] == "confirm"]
     categories: Counter[str] = Counter()
     near_misses: Counter[str] = Counter()
     examples: dict[str, list[str]] = {}

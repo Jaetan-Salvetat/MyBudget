@@ -124,15 +124,27 @@ en confirmation. `analysis/analyze_local_failures.py` classe chaque échec
 (structuration / total non lu / montants absents de l'OCR / golden non
 checksummable) pour dire où investir.
 
-État sur les 1000 tickets FindIt (pire-cas : thermiques 2017 pâlis),
-vérité golden, plafond corpus 94,8 % :
+**Corpus de travail sain (2026-08-24)** : les tickets structurellement
+ingagnables sont exclus des benchs via `test/golden/excluded.txt` (101
+tickets : 52 golden non-checksummables — cantine subventionnée, balance —
+et 49 aux montants absents de l'OCR, dont `t1test_68`, l'unique vrai faux
+validé historique). Liste régénérable :
+`analyze_local_failures.py device_flow --write-excluded` ; filtrée par
+`load_tickets`, donc par tous les benchs. Le plafond du corpus restant est
+100 % — chaque échec est attaquable côté règles/modèle.
 
-| Étape | Validation directe | Faux montants validés |
+État sur les 899 tickets FindIt du corpus sain (pire-cas : thermiques 2017
+pâlis), vérité golden (historique mesuré sur les 1000 bruts, plafond 94,8 %,
+avec 78,6 % au dernier état) :
+
+| Étape | Checksum OK (sur corpus sain) | Faux montants validés |
 |---|---|---|
-| Règles d'origine | 70,9 % | 0 (audités un par un) |
-| + calibration (TUA, TOT, INCL, fallbacks, MERCI) | 73,3 % | 0 |
-| **+ classifieur V2** | **78,6 %** | **0** |
-| Restant : 88 structuration, 42 total non lu, 47 OCR, 37 plafond | | |
+| Règles + calibration (TUA, TOT, INCL, fallbacks, MERCI) | 79,9 % | 1* |
+| **+ classifieur V2** | **85,5 %** | 2* |
+| Restant : 130 — structuration + total non lu uniquement | | |
+
+\* `t1train_1869` et `t1train_1657` : 1 correction chacun, golden
+« gemini-seul » (non double-validé) — à auditer, probablement conventions.
 
 Décisions de calibration issues du bench :
 
