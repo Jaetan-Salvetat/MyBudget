@@ -46,7 +46,7 @@
                 "charges": { "label": "Charges", "icon": "receipt_long" },
                 "energie": { "label": "Énergie", "icon": "bolt" },
                 "eau": { "label": "Eau", "icon": "water_drop" },
-                "telecom": { "label": "Télécom & internet", "icon": "wifi" },
+                "telecom": { "label": "Télécom & internet", "icon": "wifi", "deprecated": true, "alias_of": "numerique.telecom" },
                 "travaux": { "label": "Travaux & bricolage", "icon": "handyman" }
             }
         },
@@ -72,6 +72,18 @@
                 "livre_presse": { "label": "Livres & presse", "icon": "menu_book" },
                 "streaming": { "label": "Streaming", "icon": "subscriptions" },
                 "musique": { "label": "Musique", "icon": "music_note" }
+            }
+        },
+        "numerique": {
+            "label": "Numérique",
+            "icon": "cloud",
+            "color": "#673AB7",
+            "subcategories": {
+                "logiciel_service": { "label": "Logiciels & services", "icon": "apps" },
+                "ia": { "label": "Intelligence artificielle", "icon": "smart_toy" },
+                "hebergement_domaine": { "label": "Hébergement & domaines", "icon": "dns" },
+                "stockage_cloud": { "label": "Stockage cloud", "icon": "hard_drive" },
+                "telecom": { "label": "Télécom & internet", "icon": "wifi" }
             }
         },
         "shopping": {

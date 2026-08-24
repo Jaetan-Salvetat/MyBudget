@@ -27,8 +27,10 @@ List<String> _orderedSlugs(Map<String, dynamic> taxonomy) {
       final subcategories =
           (group.value as Map<String, dynamic>)['subcategories']
               as Map<String, dynamic>;
-      for (final subcategory in subcategories.keys) {
-        slugs.add('${group.key}.$subcategory');
+      for (final subcategory in subcategories.entries) {
+        final body = subcategory.value as Map<String, dynamic>;
+        if (body['deprecated'] == true) continue;
+        slugs.add('${group.key}.${subcategory.key}');
       }
     }
   }

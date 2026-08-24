@@ -17,18 +17,6 @@ ONNX_FINAL = Path(__file__).parent / "output" / "model.onnx"
 SEQUENCE_TRACE_LENGTH = 16
 
 
-class OnnxBackbone(nn.Module):
-    """Wraps the backbone + mean pooling for ONNX export (returns pooled [1, hidden_size])."""
-
-    def __init__(self, model: BudgetClassifier):
-        super().__init__()
-        self.backbone = model.backbone
-
-    def forward(self, input_ids: torch.LongTensor, attention_mask: torch.LongTensor) -> torch.Tensor:
-        outputs = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
-        return mean_pool(outputs.last_hidden_state, attention_mask)
-
-
 class OnnxFullModel(nn.Module):
     """Wraps the full multi-head model for ONNX export (returns 3 logit tensors)."""
 

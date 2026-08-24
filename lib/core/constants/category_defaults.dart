@@ -112,6 +112,11 @@ abstract final class CategoryDefaults {
     'groups': Symbols.groups_rounded,
     'sell': Symbols.sell_rounded,
     'key': Symbols.key_rounded,
+    'cloud': Symbols.cloud_rounded,
+    'apps': Symbols.apps_rounded,
+    'smart_toy': Symbols.smart_toy_rounded,
+    'dns': Symbols.dns_rounded,
+    'hard_drive': Symbols.hard_drive_rounded,
   };
 
   static const String defaultIcon = 'label';

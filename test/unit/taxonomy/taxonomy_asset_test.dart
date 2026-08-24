@@ -23,16 +23,23 @@ void main() {
     }
   }
 
-  Iterable<String> orderedSlugs() sync* {
+  Iterable<MapEntry<String, Map<String, dynamic>>> subcategories() sync* {
     for (final group in groups()) {
-      final subcategories =
+      final children =
           (group.value as Map<String, dynamic>)['subcategories']
               as Map<String, dynamic>;
-      for (final subcategory in subcategories.keys) {
-        yield '${group.key}.$subcategory';
+      for (final child in children.entries) {
+        yield MapEntry(
+          '${group.key}.${child.key}',
+          child.value as Map<String, dynamic>,
+        );
       }
     }
   }
+
+  Iterable<String> orderedSlugs() => subcategories()
+      .where((entry) => entry.value['deprecated'] != true)
+      .map((entry) => entry.key);
 
   group('taxonomy asset', () {
     test('declares the version expected by the app', () {
@@ -120,6 +127,23 @@ void main() {
     test('group slugs are unique across sections', () {
       final keys = groups().map((group) => group.key).toList();
       expect(keys.toSet().length, keys.length);
+    });
+
+    test('deprecated subcategories alias a live slug', () {
+      final live = orderedSlugs().toSet();
+      for (final entry in subcategories()) {
+        if (entry.value['deprecated'] != true) continue;
+        final alias = entry.value['alias_of'];
+        expect(alias, isA<String>(), reason: entry.key);
+        expect(live, contains(alias), reason: entry.key);
+      }
+    });
+
+    test('an aliased subcategory is deprecated', () {
+      for (final entry in subcategories()) {
+        if (entry.value['alias_of'] == null) continue;
+        expect(entry.value['deprecated'], isTrue, reason: entry.key);
+      }
     });
 
     test('model labels match the taxonomy slugs in order', () {

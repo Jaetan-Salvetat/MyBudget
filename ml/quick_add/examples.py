@@ -700,7 +700,7 @@ EXAMPLES: dict[str, list[tuple[str, int]]] = {
         ("saur", 1),
         ("Wasserrechnung", 1),
     ],
-    "logement.telecom": [
+    "numerique.telecom": [
         ("orange", 1),
         ("SFR", 1),
         ("bouygues", 1),
