@@ -1,16 +1,32 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import 'ocr_dump.dart';
 import 'preprocess.dart';
 
+const String lineClassifierAsset = 'assets/models/line_clf_v3.json';
+
+Future<LineClassifier>? _classifier;
+
+/// Classifieur de lignes embarqué (JSON exporté depuis Python), chargé une
+/// fois pour toute la session.
+Future<LineClassifier> loadLineClassifier() {
+  return _classifier ??= rootBundle.loadString(lineClassifierAsset).then(
+        (json) =>
+            LineClassifier.fromJson(jsonDecode(json) as Map<String, dynamic>),
+      );
+}
+
 class OcrPass {
   const OcrPass({
     required this.recognized,
+    required this.lines,
     required this.receipt,
     required this.latencyMs,
     required this.imageWidth,
@@ -18,6 +34,7 @@ class OcrPass {
   });
 
   final RecognizedText recognized;
+  final List<PhysicalLine> lines;
   final ExtractedReceipt receipt;
   final int latencyMs;
   final int imageWidth;
@@ -40,14 +57,16 @@ class LocalScanResult {
   int get totalLatencyMs => pass1.latencyMs + (retry?.latencyMs ?? 0);
 }
 
-/// Le flow local complet sur une image : OCR + structuration, puis retry
-/// prétraité si le checksum échoue. Un stage `confirm` = échec détecté :
-/// dans l'app, écran de confirmation pré-rempli.
+/// Le flow local complet sur une image : OCR + structuration, retry
+/// prétraité si le checksum échoue, puis classifieur (argmax, décodage sous
+/// contrainte). Un stage `confirm` = non vérifié : dans l'app, l'écran
+/// d'édition affiche un bandeau au lieu d'un badge.
 Future<LocalScanResult> runLocalFlow(
   TextRecognizer recognizer,
   File imageFile,
   Directory tempDir,
 ) async {
+  final classifier = await loadLineClassifier();
   final pass1 = await _runPass(recognizer, imageFile);
 
   OcrPass? retry;
@@ -58,8 +77,8 @@ Future<LocalScanResult> runLocalFlow(
   final outcome = decide(
     pass1.receipt,
     retry?.receipt,
-    null,
     FlowPolicy.recommended,
+    rescue: classifierRescue([pass1.lines, ?retry?.lines], classifier),
   );
   return LocalScanResult(outcome: outcome, pass1: pass1, retry: retry);
 }
@@ -100,27 +119,20 @@ Future<OcrPass> _runPass(TextRecognizer recognizer, File imageFile) async {
   );
   stopwatch.stop();
 
+  final lines = linesFromRecognized(recognized);
   return OcrPass(
     recognized: recognized,
-    receipt: extractFromRecognized(recognized),
+    lines: lines,
+    receipt: extract(lines),
     latencyMs: stopwatch.elapsedMilliseconds,
     imageWidth: imageWidth,
     imageHeight: imageHeight,
   );
 }
 
-/// Noms de stage au format des scripts Python (snake_case) : le nom d'enum
-/// Dart n'est pas le contrat.
-const Map<FlowStage, String> _stageNames = {
-  FlowStage.local: 'local',
-  FlowStage.localRetry: 'local_retry',
-  FlowStage.cloud: 'cloud',
-  FlowStage.confirm: 'confirm',
-};
-
 Map<String, dynamic> flowJson(LocalScanResult result) {
   return {
-    'stage': _stageNames[result.outcome.stage]!,
+    'stage': stageName(result.outcome.stage),
     'retryUsed': result.retryUsed,
     'pass1Ms': result.pass1.latencyMs,
     'retryMs': result.retry?.latencyMs,
@@ -130,7 +142,7 @@ Map<String, dynamic> flowJson(LocalScanResult result) {
       final retry => receiptJson(retry.receipt),
     },
     'outcome': {
-      'stage': _stageNames[result.outcome.stage]!,
+      'stage': stageName(result.outcome.stage),
       'total': result.outcome.total,
       'items': [
         for (final item in result.outcome.items)

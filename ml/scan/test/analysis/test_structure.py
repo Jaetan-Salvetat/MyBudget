@@ -347,3 +347,77 @@ class TestDiscountLeftOfColumn:
             ("JEAN", 34.99, 17.50),
         ]
         assert result.checksum_ok
+
+
+class TestPaymentSynonyms:
+    def _receipt(self, payment_row):
+        return receipt_lines([
+            [("STORE", 10)],
+            [("POMME", 0), ("1,32", 38)],
+            [("ENDIVE", 0), ("2,42", 38)],
+            payment_row,
+        ])
+
+    def test_cash_line_is_a_payment_reference(self):
+        result = extract(self._receipt([("Espèces", 0), ("3,74", 38)]))
+        assert result.payment == 3.74
+        assert result.items == [
+            result.items[0], result.items[1]
+        ] and len(result.items) == 2
+        assert result.checksum_ok
+
+    def test_cheque_line_is_a_payment_reference(self):
+        result = extract(self._receipt([("CHEQUE", 0), ("AUTO.", 8), ("3,74", 38)]))
+        assert result.payment == 3.74
+        assert result.checksum_ok
+
+    def test_paiement_line_is_a_payment_reference(self):
+        result = extract(self._receipt([("Paiement", 0), ("CB", 10), ("3,74", 38)]))
+        assert result.payment == 3.74
+        assert result.checksum_ok
+
+    def test_montant_percu_is_a_payment_reference(self):
+        result = extract(self._receipt([("Montant", 0), ("perçu", 8), (":", 14), ("3,74", 38)]))
+        assert result.payment == 3.74
+        assert result.checksum_ok
+
+    def test_payment_never_overrides_a_read_total(self):
+        lines = receipt_lines([
+            [("STORE", 10)],
+            [("POMME", 0), ("1,32", 38)],
+            [("TOTAL", 0), ("9,99", 38)],
+            [("Espèces", 0), ("1,32", 38)],
+        ])
+        result = extract(lines)
+        assert result.total == 9.99
+        assert not result.checksum_ok
+
+
+class TestTotalSynonyms:
+    def _receipt(self, total_row):
+        return receipt_lines([
+            [("STORE", 10)],
+            [("POMME", 0), ("1,32", 38)],
+            [("ENDIVE", 0), ("2,42", 38)],
+            total_row,
+        ])
+
+    def test_net_a_regler(self):
+        result = extract(self._receipt([("NET", 0), ("A", 4), ("REGLER", 6), ("3,74", 38)]))
+        assert result.total == 3.74
+        assert result.checksum_ok
+
+    def test_doit(self):
+        result = extract(self._receipt([("DOIT", 0), ("3,74", 38)]))
+        assert result.total == 3.74
+        assert result.checksum_ok
+
+    def test_prix_ttc(self):
+        result = extract(self._receipt([("PRIX", 0), ("TTC", 5), ("3,74", 38)]))
+        assert result.total == 3.74
+        assert result.checksum_ok
+
+    def test_montant_ttc(self):
+        result = extract(self._receipt([("Montant", 0), ("TTC", 8), ("3,74", 38)]))
+        assert result.total == 3.74
+        assert result.checksum_ok

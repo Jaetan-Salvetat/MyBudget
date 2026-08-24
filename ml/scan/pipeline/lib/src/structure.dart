@@ -8,9 +8,11 @@ library;
 import 'lines.dart';
 
 final RegExp _pricePattern = RegExp(r'^-?\d{1,4}[.,]\d{2}$');
-final RegExp _quantityPattern = RegExp(r'^(\d{1,2})[xX*](-?\d{1,4}[.,]\d{2})$');
-final RegExp _weightPattern =
+final RegExp quantityPattern = RegExp(r'^(\d{1,2})[xX*](-?\d{1,4}[.,]\d{2})$');
+final RegExp weightPattern =
     RegExp(r'^\d{1,3}[.,]\d{1,3}\s?[Kk]?[Gg][xX*]\d{1,4}[.,]\d{1,2}.*$');
+final RegExp _missingSeparatorTotalPattern = RegExp(r'(\d{3,6})\s*$');
+final RegExp _articleCountPattern = RegExp(r'(\d{1,3})ARTICLE');
 final RegExp _datePattern = RegExp(r'(\d{2})[/.](\d{2})[/.](\d{4})');
 final RegExp _integerPattern = RegExp(r'^-?\d{1,4}$');
 final RegExp _decimalsPattern = RegExp(r'^\d{2}$');
@@ -30,11 +32,17 @@ const List<String> discountWords = [
 
 const List<String> totalWords = [
   'TOTAL',
+  'TOT',
   'PAYER',
   'MONTANT DU',
   'AMOUNT DUE',
   'BALANCE DUE',
   'TOT TTC',
+  'NET A REGLER',
+  'A REGLER',
+  'DOIT',
+  'PRIX TTC',
+  'MONTANT TTC',
 ];
 
 const List<String> subtotalWords = [
@@ -52,6 +60,7 @@ const List<String> stopWords = [
   'PAYER',
   'SOUS-TOTAL',
   'TVA',
+  'TUA',
   'CB ',
   'CARTE BANCAIRE',
   'ESPECES',
@@ -99,19 +108,37 @@ const List<String> stopWords = [
   'CARTE BLEUE',
   'TOTAUX',
   'SOLDE',
+  'PAIEMENT',
+  'REGLEMENT',
+  'PERCU',
+  'RECU',
 ];
 
 const List<String> excludedTotalWords = [
   'HT',
   'H.T',
   'TVA',
+  'TUA',
   'ELIGIBLE',
   'POINTS',
   'FRANC',
   'FRF',
 ];
 
-const List<String> paymentWords = ['CB', 'CARTE BANCAIRE', 'CARTE BLEUE'];
+const List<String> paymentWords = [
+  'CB',
+  'CARTE BANCAIRE',
+  'CARTE BLEUE',
+  'ESPECES',
+  'CHEQUE',
+  'PAIEMENT',
+  'REGLEMENT',
+  'MONTANT PERCU',
+  'PERCU',
+  'RECU',
+];
+const List<String> tvaWords = ['TVA', 'TUA'];
+const List<String> taxInclusiveWords = ['INCL'];
 
 class ExtractedItem {
   ExtractedItem({
@@ -133,6 +160,9 @@ class ExtractedReceipt {
     required this.subtotal,
     required this.payment,
     required this.items,
+    this.tvaTtcSum,
+    this.printedCount,
+    this.fallbackReferences = const [],
   });
 
   final String? store;
@@ -141,6 +171,9 @@ class ExtractedReceipt {
   final double? subtotal;
   final double? payment;
   final List<ExtractedItem> items;
+  final double? tvaTtcSum;
+  final int? printedCount;
+  final List<double> fallbackReferences;
 
   double get itemsSum => roundCents(
         items.fold(0.0, (sum, item) => sum + item.amount - item.discount),
@@ -150,10 +183,19 @@ class ExtractedReceipt {
   /// TTC en Europe, ou le sous-total hors taxe aux États-Unis. Le montant
   /// débité par carte ne sert de référence que si aucun total n'a été lu :
   /// quand un total lu ne colle pas, on flague — accepter sur la seule ligne
-  /// de paiement laisserait passer des extractions fausses.
+  /// de paiement laisserait passer des extractions fausses. Deux références
+  /// de secours mesurées sur corpus : la somme des TTC de la table TVA
+  /// (décomposition imprimée du total), et la ligne CB quand le compteur
+  /// « N ARTICLE(S) » confirme qu'aucun article ne manque.
   bool get checksumOk {
     if (_matches(total) || _matches(subtotal)) return true;
-    return total == null && _matches(payment);
+    if (total == null && _matches(tvaTtcSum)) return true;
+    if (total == null && fallbackReferences.any(_matches)) return true;
+    if (_matches(payment)) {
+      if (total == null) return true;
+      if (printedCount == items.length) return true;
+    }
+    return false;
   }
 
   bool _matches(double? reference) =>
@@ -274,28 +316,28 @@ double? _minConfidence(Word first, Word second) {
 final RegExp _gluedPricePattern =
     RegExp(r'^[A-Za-z]{1,5}(-?\d{1,4}[.,]\d{2})[€eE]?$');
 
-class _PricedWord {
-  const _PricedWord(this.price, this.word);
+class PricedWord {
+  const PricedWord(this.price, this.word);
 
   final double price;
   final Word word;
 }
 
-_PricedWord? _rightmostPrice(PhysicalLine line) {
+PricedWord? rightmostPrice(PhysicalLine line) {
   for (final word in line.words.reversed) {
     final price = parsePrice(word.text);
-    if (price != null) return _PricedWord(price, word);
+    if (price != null) return PricedWord(price, word);
   }
   for (final word in line.words.reversed) {
     final glued = _gluedPricePattern.firstMatch(word.text);
     if (glued != null) {
-      return _PricedWord(
+      return PricedWord(
         double.parse(glued.group(1)!.replaceAll(',', '.')),
         word,
       );
     }
   }
-  if (_containsEntry(line.text, totalWords)) {
+  if (containsEntry(line.text, totalWords)) {
     return _splitPrice(line);
   }
   return null;
@@ -303,7 +345,7 @@ _PricedWord? _rightmostPrice(PhysicalLine line) {
 
 /// Récupère un prix dont le séparateur décimal n'a pas été lu : les gros
 /// totaux en gras sortent parfois « 54 50 » en deux mots adjacents.
-_PricedWord? _splitPrice(PhysicalLine line) {
+PricedWord? _splitPrice(PhysicalLine line) {
   final words = line.words;
   if (words.length < 2) return null;
   final units = words[words.length - 2];
@@ -315,7 +357,7 @@ _PricedWord? _splitPrice(PhysicalLine line) {
   final gap = decimals.left - units.right;
   if (gap > (units.bottom - units.top) * 1.5) return null;
   final value = double.parse('${units.text}.${decimals.text}');
-  return _PricedWord(value, decimals);
+  return PricedWord(value, decimals);
 }
 
 String _labelOf(PhysicalLine line, Word priceWord) {
@@ -355,7 +397,7 @@ const Map<String, String> _accentFold = {
   'Ź': 'Z', 'Ż': 'Z', 'Ž': 'Z',
 };
 
-String _foldAccents(String text) {
+String foldAccents(String text) {
   final buffer = StringBuffer();
   for (final char in text.split('')) {
     buffer.write(_accentFold[char] ?? char);
@@ -369,8 +411,8 @@ final RegExp _whitespacePattern = RegExp(r'\s+');
 /// (« Monna ie », « TOTALA PAYER ») et le lexique doit y résister. Les
 /// entrées courtes exigent une frontière de mot : « TEL » ne doit pas
 /// matcher dans « TORTELL.PESTO ».
-bool _containsEntry(String text, List<String> lexicon) {
-  final upper = _foldAccents(text.toUpperCase());
+bool containsEntry(String text, List<String> lexicon) {
+  final upper = foldAccents(text.toUpperCase());
   final compact = upper.replaceAll(_whitespacePattern, '');
   final undotted = upper.replaceAll('.', '');
   final unglyphed = upper
@@ -390,7 +432,9 @@ bool _containsEntry(String text, List<String> lexicon) {
       }
       continue;
     }
-    if (upper.contains(entry)) return true;
+    final boundary = RegExp('(?<![A-Z])${RegExp.escape(entry)}(?![A-Z])');
+    if (boundary.hasMatch(upper)) return true;
+    if (upper.contains(entry)) continue;
     final squeezed = entry.replaceAll(' ', '');
     if (compact.contains(squeezed) || unglyphed.contains(squeezed)) {
       return true;
@@ -405,7 +449,7 @@ bool _containsEntry(String text, List<String> lexicon) {
 double? _priceColumnLeft(List<PhysicalLine> lines) {
   final rights = <double>[];
   for (final line in lines) {
-    final priced = _rightmostPrice(line);
+    final priced = rightmostPrice(line);
     if (priced != null) rights.add(priced.word.right);
   }
   if (rights.isEmpty) return null;
@@ -418,7 +462,7 @@ final RegExp _compactLabelPattern = RegExp(r'EUR|€|\s+');
 
 ExtractedReceipt extract(List<PhysicalLine> lines) {
   final store = lines.isEmpty ? null : lines.first.text;
-  final date = _findDate(lines);
+  final date = findDate(lines);
   final columnLeft = _priceColumnLeft(lines);
   final merged = [for (final line in lines) mergePriceFragments(line)];
   final (totalIndex, total) = _findFinalTotal(merged);
@@ -431,23 +475,23 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
   for (var index = 0; index < merged.length; index++) {
     final line = merged[index];
     final text = line.text;
-    final priced = _rightmostPrice(line);
+    final priced = rightmostPrice(line);
 
-    if (_containsEntry(text, subtotalWords) && priced != null) {
+    if (containsEntry(text, subtotalWords) && priced != null) {
       subtotal ??= priced.price;
       pendingLabel = null;
       continue;
     }
 
-    if (_containsEntry(text, totalWords)) {
+    if (containsEntry(text, totalWords)) {
       pendingLabel = null;
       continue;
     }
 
-    if (_containsEntry(text, stopWords)) {
+    if (containsEntry(text, stopWords)) {
       if (payment == null &&
           priced != null &&
-          _containsEntry(text, paymentWords)) {
+          containsEntry(text, paymentWords)) {
         payment = priced.price;
       }
       pendingLabel = null;
@@ -457,12 +501,12 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
     if (totalIndex != null && index > totalIndex) continue;
 
     if (priced == null) {
-      pendingLabel = _plausibleLabel(text);
+      pendingLabel = plausibleLabel(text);
       continue;
     }
 
     if (columnLeft != null && priced.word.right < columnLeft) {
-      pendingLabel = _plausibleLabel(text);
+      pendingLabel = plausibleLabel(text);
       continue;
     }
 
@@ -478,12 +522,12 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
     }
 
     final compactLabel = label.replaceAll(_compactLabelPattern, '');
-    final quantityMatch = _quantityPattern.hasMatch(compactLabel) ||
-        _weightPattern.hasMatch(compactLabel);
+    final quantityMatch = quantityPattern.hasMatch(compactLabel) ||
+        weightPattern.hasMatch(compactLabel);
     if (quantityMatch && pendingLabel != null) {
       items.add(
         ExtractedItem(
-          name: _cleanName(pendingLabel),
+          name: cleanName(pendingLabel),
           amount: priced.price,
           discount: 0.0,
         ),
@@ -492,11 +536,11 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
       continue;
     }
 
-    if (_plausibleLabel(label) == null) {
-      if (pendingLabel != null && _isDetailLine(label)) {
+    if (plausibleLabel(label) == null) {
+      if (pendingLabel != null && isDetailLine(label)) {
         items.add(
           ExtractedItem(
-            name: _cleanName(pendingLabel),
+            name: cleanName(pendingLabel),
             amount: priced.price,
             discount: 0.0,
           ),
@@ -508,7 +552,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
 
     items.add(
       ExtractedItem(
-        name: _cleanName(label),
+        name: cleanName(label),
         amount: priced.price,
         discount: 0.0,
       ),
@@ -523,7 +567,70 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
     subtotal: subtotal,
     payment: payment,
     items: items,
+    tvaTtcSum: _tvaTtcSum(merged),
+    printedCount: _printedCount(merged),
+    fallbackReferences: _fallbackReferences(merged),
   );
+}
+
+bool _isExcludedTotalLine(String text) =>
+    containsEntry(text, excludedTotalWords) &&
+    !containsEntry(text, taxInclusiveWords);
+
+List<double> _linePrices(PhysicalLine line) =>
+    [for (final word in line.words) ?parsePrice(word.text)];
+
+/// Montants de secours pour le checksum, quand le total régulier manque :
+/// total sans séparateur décimal sur une ligne « total » pâlie (« 2790 » =
+/// 27,90), et prix orphelin d'une ligne sans texte (total en gras dont le
+/// libellé a été détruit par l'OCR). Jamais utilisés seuls : une somme
+/// d'articles doit retomber dessus au centime.
+List<double> _fallbackReferences(List<PhysicalLine> merged) {
+  final candidates = <double>[];
+  for (final line in merged) {
+    final text = line.text;
+    if (containsEntry(text, totalWords) && !_isExcludedTotalLine(text)) {
+      if (rightmostPrice(line) == null && _embeddedPrice(text) == null) {
+        final match = _missingSeparatorTotalPattern.firstMatch(text);
+        if (match != null) {
+          candidates.add(roundCents(int.parse(match.group(1)!) / 100));
+        }
+      }
+      continue;
+    }
+    if (_countLetters(text) >= 2) continue;
+    final prices = _linePrices(line);
+    if (prices.length == 1 && prices.first > 0) candidates.add(prices.first);
+  }
+  return candidates;
+}
+
+/// Somme des TTC de la table TVA (« B TVA 20.00 5.67 1.13 6.80 ») : une
+/// ligne-tableau porte au moins trois montants, le TTC est le plus à droite.
+/// Les lignes « TVA 10% : 0,81 » (montant de taxe seul) sont ignorées.
+double? _tvaTtcSum(List<PhysicalLine> merged) {
+  var total = 0.0;
+  var rows = 0;
+  for (final line in merged) {
+    if (!containsEntry(line.text, tvaWords)) continue;
+    final prices = _linePrices(line);
+    if (prices.length >= 3) {
+      total += prices.last;
+      rows++;
+    }
+  }
+  return rows > 0 ? roundCents(total) : null;
+}
+
+/// Compteur d'articles imprimé (« 11 ARTICLE(S) »), compacté car l'OCR
+/// éclate ou colle les mots.
+int? _printedCount(List<PhysicalLine> merged) {
+  for (final line in merged) {
+    final compact = line.text.toUpperCase().replaceAll(_whitespacePattern, '');
+    final match = _articleCountPattern.firstMatch(compact);
+    if (match != null) return int.parse(match.group(1)!);
+  }
+  return null;
 }
 
 /// Le total à payer est le DERNIER montant d'une ligne « total » du ticket :
@@ -534,9 +641,9 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
   double? total;
   for (var index = 0; index < merged.length; index++) {
     final line = merged[index];
-    if (!_containsEntry(line.text, totalWords)) continue;
-    if (_containsEntry(line.text, excludedTotalWords)) continue;
-    final priced = _rightmostPrice(line);
+    if (!containsEntry(line.text, totalWords)) continue;
+    if (_isExcludedTotalLine(line.text)) continue;
+    final priced = rightmostPrice(line);
     final price = priced?.price ?? _embeddedPrice(line.text);
     if (price != null) {
       totalIndex = index;
@@ -562,7 +669,7 @@ final RegExp _detailTokenPattern =
 /// 3.13 »), pesée de balance (« 0,070 10,00 »), décomposition pharmacie
 /// (« (2 x 15,92) »), ou rien du tout (prix seul sur sa ligne). Aucun mot :
 /// le libellé de l'article est sur la ligne du dessus.
-bool _isDetailLine(String label) {
+bool isDetailLine(String label) {
   final stripped = label.trim();
   if (stripped.isEmpty) return true;
   if (_countLetters(stripped) > 3) return false;
@@ -588,7 +695,7 @@ final RegExp _multiSpacePattern = RegExp(r'\s{2,}');
 
 /// Libellé prêt pour la catégorisation : sans préfixe quantité, sans points
 /// de conduite ni prix unitaire résiduel.
-String _cleanName(String label) {
+String cleanName(String label) {
   var cleaned = label.trim().replaceFirst(_quantityPrefixPattern, '');
   cleaned = cleaned.replaceAll(_leaderRunPattern, ' ');
   cleaned = cleaned.replaceFirst(_trailingPricePattern, '');
@@ -596,16 +703,16 @@ String _cleanName(String label) {
   return cleaned.replaceAll(_multiSpacePattern, ' ').trim();
 }
 
-String? _plausibleLabel(String text) {
+String? plausibleLabel(String text) {
   final stripped = text.trim();
   if (_countLetters(stripped) < 2) return null;
-  if (_containsEntry(stripped, stopWords)) return null;
+  if (containsEntry(stripped, stopWords)) return null;
   return stripped;
 }
 
 /// L'OCR éclate parfois les dates (« 202 6 », « o9 ») : on compacte les
 /// espaces et on ramène o/O vers 0 avant de chercher le motif.
-String? _findDate(List<PhysicalLine> lines) {
+String? findDate(List<PhysicalLine> lines) {
   for (final line in lines) {
     final compact = line.text
         .replaceAll(_whitespacePattern, '')

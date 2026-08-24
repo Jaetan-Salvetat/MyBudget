@@ -42,6 +42,11 @@ TOTAL_WORDS = (
     "AMOUNT DUE",
     "BALANCE DUE",
     "TOT TTC",
+    "NET A REGLER",
+    "A REGLER",
+    "DOIT",
+    "PRIX TTC",
+    "MONTANT TTC",
 )
 SUBTOTAL_WORDS = (
     "SOUS-TOTAL",
@@ -105,6 +110,10 @@ STOP_WORDS = (
     "CARTE BLEUE",
     "TOTAUX",
     "SOLDE",
+    "PAIEMENT",
+    "REGLEMENT",
+    "PERCU",
+    "RECU",
 )
 
 EXCLUDED_TOTAL_WORDS = (
@@ -118,7 +127,18 @@ EXCLUDED_TOTAL_WORDS = (
     "FRF",
 )
 
-PAYMENT_WORDS = ("CB", "CARTE BANCAIRE", "CARTE BLEUE")
+PAYMENT_WORDS = (
+    "CB",
+    "CARTE BANCAIRE",
+    "CARTE BLEUE",
+    "ESPECES",
+    "CHEQUE",
+    "PAIEMENT",
+    "REGLEMENT",
+    "MONTANT PERCU",
+    "PERCU",
+    "RECU",
+)
 TVA_WORDS = ("TVA", "TUA")
 TAX_INCLUSIVE_WORDS = ("INCL",)
 MISSING_SEPARATOR_TOTAL_PATTERN = re.compile(r"(\d{3,6})\s*$")

@@ -1,6 +1,8 @@
-/// Rejoue le pipeline Dart sur des dumps OCR du harnais et écrit une
-/// extraction par ticket, pour comparaison champ à champ avec la version
-/// Python (analysis/check_parity.py).
+/// Rejoue le pipeline Dart sur des dumps OCR du harnais et écrit, par
+/// ticket, l'extraction de la passe 1 et — si un modèle est fourni — la
+/// décision du flow local complet (règles → retry → classifieur → décodeur),
+/// pour comparaison champ à champ avec la version Python
+/// (analysis/check_parity.py).
 library;
 
 import 'dart:convert';
@@ -8,16 +10,27 @@ import 'dart:io';
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
+const String modelOption = '--model=';
+
 void main(List<String> args) {
-  if (args.isEmpty) {
-    stderr.writeln('usage: dart tool/parity.dart <results_dir>...');
+  final dirs = args.where((arg) => !arg.startsWith(modelOption)).toList();
+  final modelPath = args
+      .where((arg) => arg.startsWith(modelOption))
+      .map((arg) => arg.substring(modelOption.length))
+      .firstOrNull;
+  if (dirs.isEmpty) {
+    stderr.writeln('usage: dart tool/parity.dart [--model=path] <results_dir>...');
     exitCode = 2;
     return;
   }
+  final classifier = modelPath == null
+      ? null
+      : LineClassifier.fromJson(
+          jsonDecode(File(modelPath).readAsStringSync()) as Map<String, dynamic>,
+        );
   final output = <String, Object?>{};
-  for (final dirPath in args) {
-    final dir = Directory(dirPath);
-    final files = dir
+  for (final dirPath in dirs) {
+    final files = Directory(dirPath)
         .listSync()
         .whereType<File>()
         .where((file) => file.path.endsWith('.json'))
@@ -26,15 +39,42 @@ void main(List<String> args) {
     for (final file in files) {
       final data = jsonDecode(file.readAsStringSync());
       if (data is! Map<String, dynamic> || data['blocks'] == null) continue;
-      final receipt = _extractFromDump(data);
-      final key = file.uri.pathSegments.last;
-      output['$dirPath/$key'] = receiptJson(receipt);
+      final pass1 = clusteredLines(data);
+      final entry = <String, Object?>{'pass1': receiptJson(extract(pass1))};
+      if (classifier != null) {
+        entry['flow'] = _flowJson(data, pass1, classifier);
+      }
+      output['$dirPath/${file.uri.pathSegments.last}'] = entry;
     }
   }
   stdout.writeln(jsonEncode(output));
 }
 
-ExtractedReceipt _extractFromDump(Map<String, dynamic> data) {
+Map<String, Object?> _flowJson(
+  Map<String, dynamic> data,
+  List<PhysicalLine> pass1,
+  LineClassifier classifier,
+) {
+  final retryData = data['ocrRetry'] as Map<String, dynamic>?;
+  final retry = retryData == null ? null : clusteredLines(retryData);
+  final outcome = decide(
+    extract(pass1),
+    retry == null ? null : extract(retry),
+    FlowPolicy.recommended,
+    rescue: classifierRescue([pass1, ?retry], classifier),
+  );
+  return {
+    'stage': stageName(outcome.stage),
+    'total': outcome.total,
+    'items': [
+      for (final item in outcome.items)
+        {'amount': item.amount, 'discount': item.discount},
+    ],
+  };
+}
+
+/// Lignes physiques d'un dump OCR (mots + angle médian), comme sur device.
+List<PhysicalLine> clusteredLines(Map<String, dynamic> data) {
   final words = <Word>[];
   final angles = <double>[];
   for (final block in data['blocks'] as List<dynamic>) {
@@ -61,7 +101,5 @@ ExtractedReceipt _extractFromDump(Map<String, dynamic> data) {
       }
     }
   }
-  final deskewed = deskewWords(words, medianAngle(angles));
-  return extract(clusterLines(deskewed));
+  return clusterLines(deskewWords(words, medianAngle(angles)));
 }
-

@@ -1,20 +1,14 @@
-"""Score le flow complet exécuté on-device contre le golden.
+"""Score le flow local complet exécuté on-device contre le golden.
 
 Le harnais (mode « Suite complète ») dump par ticket la sortie ML Kit brute
-plus la section `flow` : décision Dart (local / local_retry / confirm) et
-extractions des deux passes. Ce script :
+plus la section `flow` : décision Dart (local / local_retry / local_ml /
+local_dp / confirm) et extractions des deux passes. Ce script :
 
-1. vérifie la parité Dart-device ↔ Python sur chaque passe (même OCR →
-   même extraction, sinon bug de portage) ;
-2. simule l'escalade cloud des tickets `confirm` : cache Gemini réel quand
-   il existe (second run indépendant), sinon l'annotation golden du ticket —
-   qui EST la sortie Gemini sauvegardée pour cette image. Sur les tickets en
-   proxy golden, les corrections de l'étage cloud valent 0 par construction ;
-   la répartition d'étages et le taux d'acceptation du checksum cloud, eux,
-   restent honnêtes ;
-3. score le résultat final de chaque étage contre le golden — la métrique
-   produit : répartition des étages, corrections par ticket, faux
-   auto-validés.
+1. vérifie la parité Dart-device ↔ Python : même dump OCR → même extraction
+   de la passe 1 ET même décision de flow (stage, total, articles), sinon
+   bug de portage ;
+2. score la sortie de chaque étage contre le golden — la métrique produit :
+   répartition des étages, corrections par ticket, faux vérifiés.
 
 Nommage des images : t1test_<doc>.jpg / t1train_<doc>.jpg → golden
 T1-test/<doc>.json / T1-train/<doc>.json.
@@ -29,8 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bench_flow import StageStats, TicketRun, count_edits
-from flow import AUTO_STAGES, CLOUD, CONFIRM, FlowPolicy
-from llm_structure import parse_llm_receipt
+from local_flow import CONFIRM, VERIFIED_STAGES, decide_local
 from structure import extract_from_result
 
 ROOT = Path(__file__).parent.parent
@@ -38,14 +31,17 @@ GOLDEN_DIRS = {
     "t1test": ROOT / "golden" / "T1-test",
     "t1train": ROOT / "golden" / "T1-train",
 }
-CLOUD_CACHE = ROOT / "results" / "llm_gemini37_flash_flow"
-LEGACY_CLOUD_CACHE = ROOT / "results" / "llm_gemini37_flash"
 NAME_PATTERN = re.compile(r"^(t1test|t1train)_(\d+)\.jpg\.json$")
 EXCLUDED_PATH = ROOT / "golden" / "excluded.txt"
 
-STAGE_NAMES = {"local": "local", "localRetry": "local_retry", "confirm": "confirm"}
-
-POLICY = FlowPolicy(retry_must_not_lose_value=True)
+STAGE_NAMES = {
+    "local": "local",
+    "localRetry": "local_retry",
+    "local_retry": "local_retry",
+    "local_ml": "local_ml",
+    "local_dp": "local_dp",
+    "confirm": "confirm",
+}
 
 
 @dataclass
@@ -109,16 +105,26 @@ def load_tickets(
 
 
 def check_parity(tickets: list[DeviceTicket]) -> int:
-    """Le même dump OCR doit produire la même extraction en Dart (device) et
-    en Python : c'est le contrat du portage."""
+    """Le même dump OCR doit produire la même extraction et la même décision
+    en Dart (device) et en Python : c'est le contrat du portage."""
     mismatches = 0
     for ticket in tickets:
+        dump = json.loads(ticket.dump_path.read_text())
         python_pass1 = _receipt_json(extract_from_result(ticket.dump_path))
         if python_pass1 != ticket.flow["pass1"]:
             mismatches += 1
             print(f"PARITE pass1 {ticket.name}:")
             print(f"  dart   {ticket.flow['pass1']}")
             print(f"  python {python_pass1}")
+        python_flow = decide_local(dump)
+        device_flow = _device_outcome(ticket)
+        if (python_flow.stage, python_flow.items, python_flow.total) != device_flow:
+            mismatches += 1
+            print(f"PARITE flow {ticket.name}:")
+            print(f"  dart   {device_flow}")
+            print(
+                f"  python {(python_flow.stage, python_flow.items, python_flow.total)}"
+            )
     return mismatches
 
 
@@ -137,76 +143,41 @@ def _receipt_json(receipt) -> dict:
     }
 
 
-def _cloud_cache_path(ticket: DeviceTicket) -> Path | None:
-    direct = CLOUD_CACHE / f"{ticket.split}_{ticket.doc}.json"
-    if direct.exists():
-        return direct
-    if ticket.split == "t1test":
-        legacy = LEGACY_CLOUD_CACHE / f"fr_genuine_{int(ticket.doc):04d}.json"
-        if legacy.exists():
-            return legacy
-    return None
-
-
-def _golden_cloud(
+def _device_outcome(
     ticket: DeviceTicket,
-) -> tuple[list[tuple[float, float]], float | None]:
-    receipt = ticket.golden["receipt"]
-    items = [
-        (round(float(i["amount"]), 2), round(abs(float(i["discount"])), 2))
-        for i in receipt["items"]
-    ]
-    total = receipt.get("total")
-    return items, (round(float(total), 2) if total is not None else None)
-
-
-def resolve_outcome(ticket: DeviceTicket) -> tuple[str, list[tuple[float, float]]]:
-    """Reprend la décision device et joue l'escalade cloud côté simulation :
-    stage final + articles retenus."""
-    stage = STAGE_NAMES[ticket.flow["stage"]]
-    if stage in ("local", "local_retry"):
-        items = ticket.flow["outcome"]["items"]
-        return stage, [(i["amount"], i["discount"]) for i in items]
-
-    cache = _cloud_cache_path(ticket)
-    if cache is not None:
-        cloud_items, cloud_total = parse_llm_receipt(json.loads(cache.read_text()))
-    else:
-        cloud_items, cloud_total = _golden_cloud(ticket)
-    accepted = (
-        cloud_total is not None
-        and abs(round(sum(a - d for a, d in cloud_items), 2) - cloud_total)
-        <= POLICY.tolerance
+) -> tuple[str, list[tuple[float, float]], float | None]:
+    outcome = ticket.flow["outcome"]
+    return (
+        STAGE_NAMES[outcome["stage"]],
+        [(round(i["amount"], 2), round(i["discount"], 2)) for i in outcome["items"]],
+        outcome["total"],
     )
-    return (CLOUD if accepted else CONFIRM), cloud_items
 
 
 def score(tickets: list[DeviceTicket]) -> None:
-    stats = {stage: StageStats() for stage in [*AUTO_STAGES, CONFIRM]}
-    cloud_proxied = 0
+    stats = {stage: StageStats() for stage in [*VERIFIED_STAGES, CONFIRM]}
     for ticket in tickets:
-        stage, got = resolve_outcome(ticket)
-        if ticket.flow["stage"] == "confirm" and _cloud_cache_path(ticket) is None:
-            cloud_proxied += 1
+        stage, got, _total = _device_outcome(ticket)
         expected = [
             round(float(item["amount"]), 2)
             for item in ticket.golden["receipt"]["items"]
         ]
-        run = TicketRun(
-            name=ticket.name,
-            stage=stage,
-            edits=count_edits(got, expected),
-            double_validated=bool(ticket.golden.get("transcript_agrees")),
+        stats[stage].add(
+            TicketRun(
+                name=ticket.name,
+                stage=stage,
+                edits=count_edits(got, expected),
+                double_validated=bool(ticket.golden.get("transcript_agrees")),
+            )
         )
-        stats[stage].add(run)
 
     total = len(tickets)
-    auto = sum(stats[stage].tickets for stage in AUTO_STAGES)
+    verified = sum(stats[stage].tickets for stage in VERIFIED_STAGES)
     retry_used = sum(1 for t in tickets if t.flow["retryUsed"])
-    false_accepts = [run for stage in AUTO_STAGES for run in stats[stage].faulty]
+    false_accepts = [run for stage in VERIFIED_STAGES for run in stats[stage].faulty]
 
     print(f"\n=== flow on-device ({total} tickets)")
-    for stage in [*AUTO_STAGES, CONFIRM]:
+    for stage in [*VERIFIED_STAGES, CONFIRM]:
         stage_stats = stats[stage]
         if not stage_stats.tickets:
             continue
@@ -216,10 +187,10 @@ def score(tickets: list[DeviceTicket]) -> None:
             f"({stage_stats.tickets / total:.0%})  corr/ticket {mean:.2f}"
         )
     print(
-        f"  auto-validés : {auto}/{total} ({auto / total:.0%}), "
-        f"retry tentés : {retry_used}, cloud en proxy golden : {cloud_proxied}"
+        f"  vérifiés : {verified}/{total} ({verified / total:.1%}), "
+        f"retry tentés : {retry_used}"
     )
-    print(f"  FAUX AUTO-VALIDÉS : {len(false_accepts)}")
+    print(f"  FAUX VÉRIFIÉS : {len(false_accepts)}")
     for run in false_accepts:
         double = "double-validé" if run.double_validated else "gemini-seul"
         print(f"    {run.stage} {run.name}: {run.edits} corrections ({double})")

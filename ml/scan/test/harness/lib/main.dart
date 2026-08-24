@@ -4,6 +4,10 @@ import 'gallery_screen.dart';
 import 'scan_screen.dart';
 import 'suite_screen.dart';
 
+/// `--dart-define=AUTO_SUITE=true` : ouvre la suite complète et la lance
+/// sans interaction, pour piloter un run device depuis adb.
+const bool autoSuite = bool.fromEnvironment('AUTO_SUITE');
+
 void main() {
   runApp(const OcrHarnessApp());
 }
@@ -13,7 +17,9 @@ class OcrHarnessApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomeScreen());
+    return MaterialApp(
+      home: autoSuite ? const SuiteScreen(autoStart: true) : const HomeScreen(),
+    );
   }
 }
 

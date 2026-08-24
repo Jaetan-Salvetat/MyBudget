@@ -66,17 +66,15 @@ class StageBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (MaterialColor color, String label) = switch (stage) {
-      FlowStage.local => (Colors.green, 'Checksum OK — validation directe'),
-      FlowStage.localRetry => (
-          Colors.green,
-          'Checksum OK après retry — validation directe',
-        ),
-      FlowStage.cloud => (Colors.blue, 'Validé par le cloud'),
+      FlowStage.local => (Colors.green, 'Vérifié — règles'),
+      FlowStage.localRetry => (Colors.green, 'Vérifié — règles après retry'),
+      FlowStage.localMl => (Colors.teal, 'Vérifié — classifieur'),
+      FlowStage.localDp => (Colors.teal, 'Vérifié — décodage sous contrainte'),
       FlowStage.confirm => (
           Colors.orange,
           retryUsed
-              ? 'Checksum KO (retry tenté) — écran de confirmation'
-              : 'Checksum KO — écran de confirmation',
+              ? 'Non vérifié (retry tenté) — à relire'
+              : 'Non vérifié — à relire',
         ),
     };
     return Container(
@@ -92,6 +90,6 @@ class StageBanner extends StatelessWidget {
 
 Color stageColor(FlowStage stage) => switch (stage) {
       FlowStage.local || FlowStage.localRetry => Colors.green,
-      FlowStage.cloud => Colors.blue,
+      FlowStage.localMl || FlowStage.localDp => Colors.teal,
       FlowStage.confirm => Colors.orange,
     };

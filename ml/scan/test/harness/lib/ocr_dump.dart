@@ -29,12 +29,13 @@ List<double> anglesFrom(RecognizedText recognized) {
   ];
 }
 
-ExtractedReceipt extractFromRecognized(RecognizedText recognized) {
+/// Lignes physiques du ticket (déskew + clustering des mots ML Kit).
+List<PhysicalLine> linesFromRecognized(RecognizedText recognized) {
   final words = deskewWords(
     wordsFrom(recognized),
     medianAngle(anglesFrom(recognized)),
   );
-  return extract(clusterLines(words));
+  return clusterLines(words);
 }
 
 /// Dump JSON complet de la sortie ML Kit, au format historique consommé par

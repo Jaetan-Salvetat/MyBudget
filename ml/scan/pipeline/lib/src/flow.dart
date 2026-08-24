@@ -1,53 +1,41 @@
-/// Politique de décision du flow scan complet.
+/// Politique de décision du flow scan local.
 ///
-/// local (checksum) → retry prétraité (checksum) → écran de confirmation
-/// pré-rempli. L'étage cloud de `decide` sert aux benchs historiques : le
-/// mode produit est local seul (voir ml/scan/VERIFICATION.md).
-/// Logique pure, sans I/O, alignée sur `ml/scan/test/analysis/flow.py` et
-/// calibrée par `bench_flow.py` : 0 faux auto-validé sur corpus avec le
-/// garde-fou retry actif.
+/// règles (checksum) → retry prétraité (checksum, garde-fou) → classifieur
+/// argmax (re-checksum) → décodage sous contrainte → non vérifié. Le stage
+/// n'est qu'un niveau d'information affiché à l'utilisateur : tout scan
+/// atterrit sur l'écran d'édition pré-rempli (voir ml/scan/VERIFICATION.md).
+/// Logique pure, sans I/O, alignée sur `ml/scan/test/analysis/local_flow.py`.
 library;
 
+import 'classifier.dart';
+import 'decode.dart';
+import 'line_features.dart';
+import 'lines.dart';
 import 'structure.dart';
 
-enum FlowStage { local, localRetry, cloud, confirm }
+enum FlowStage { local, localRetry, localMl, localDp, confirm }
 
-const Set<FlowStage> autoStages = {
+/// Stages dont la sortie a passé le checksum : badge « vérifié » côté UI.
+const Set<FlowStage> verifiedStages = {
   FlowStage.local,
   FlowStage.localRetry,
-  FlowStage.cloud,
+  FlowStage.localMl,
+  FlowStage.localDp,
 };
-
-enum ConfirmPrefill { cloud, local }
 
 class FlowPolicy {
   const FlowPolicy({
     this.tolerance = 0.005,
-    this.crossCheckLocalTotal = false,
-    this.confirmPrefill = ConfirmPrefill.cloud,
     this.retryMustNotLoseValue = false,
   });
 
   /// Politique retenue par le bench : garde-fou retry actif, tolérance
-  /// stricte, pré-remplissage cloud.
+  /// stricte.
   static const FlowPolicy recommended =
       FlowPolicy(retryMustNotLoseValue: true);
 
   final double tolerance;
-  final bool crossCheckLocalTotal;
-  final ConfirmPrefill confirmPrefill;
   final bool retryMustNotLoseValue;
-}
-
-class CloudReceipt {
-  const CloudReceipt({required this.items, required this.total});
-
-  final List<ExtractedItem> items;
-  final double? total;
-
-  double get itemsSum => roundCents(
-        items.fold(0.0, (sum, item) => sum + item.amount - item.discount),
-      );
 }
 
 class FlowOutcome {
@@ -60,7 +48,13 @@ class FlowOutcome {
   final FlowStage stage;
   final List<ExtractedItem> items;
   final double? total;
+
+  bool get verified => verifiedStages.contains(stage);
 }
+
+/// Sauvetage à la demande d'un ticket que les règles n'ont pas vérifié :
+/// n'est appelé que si local et retry ont échoué.
+typedef Rescue = (FlowStage, ExtractedReceipt)? Function();
 
 /// Un retry qui somme moins que la passe 1 a perdu des articles : son
 /// checksum peut passer par collision de substitution sur le total (vu sur
@@ -74,68 +68,48 @@ bool _retryLosesValue(
   return retry.itemsSum < local.itemsSum - policy.tolerance;
 }
 
-bool cloudAccepts(
-  CloudReceipt cloud,
-  double? localTotal,
-  FlowPolicy policy,
-) {
-  final cloudTotal = cloud.total;
-  if (cloudTotal == null) return false;
-  if ((cloud.itemsSum - cloudTotal).abs() > policy.tolerance) return false;
-  if (policy.crossCheckLocalTotal &&
-      localTotal != null &&
-      (cloudTotal - localTotal).abs() > policy.tolerance) {
-    return false;
-  }
-  return true;
-}
-
-double? _localTotal(ExtractedReceipt local, ExtractedReceipt? retry) =>
-    local.total ?? retry?.total;
+FlowOutcome _outcome(FlowStage stage, ExtractedReceipt receipt) =>
+    FlowOutcome(stage: stage, items: receipt.items, total: receipt.total);
 
 FlowOutcome decide(
   ExtractedReceipt local,
   ExtractedReceipt? retry,
-  CloudReceipt? cloud,
-  FlowPolicy policy,
-) {
-  if (local.checksumOk) {
-    return FlowOutcome(
-      stage: FlowStage.local,
-      items: local.items,
-      total: local.total,
-    );
-  }
+  FlowPolicy policy, {
+  Rescue? rescue,
+}) {
+  if (local.checksumOk) return _outcome(FlowStage.local, local);
   if (retry != null &&
       retry.checksumOk &&
       !_retryLosesValue(local, retry, policy)) {
-    return FlowOutcome(
-      stage: FlowStage.localRetry,
-      items: retry.items,
-      total: retry.total,
-    );
+    return _outcome(FlowStage.localRetry, retry);
   }
+  if (rescue != null) {
+    final rescued = rescue();
+    if (rescued != null) return _outcome(rescued.$1, rescued.$2);
+  }
+  return _outcome(FlowStage.confirm, retry ?? local);
+}
 
-  if (cloud != null &&
-      cloudAccepts(cloud, _localTotal(local, retry), policy)) {
-    return FlowOutcome(
-      stage: FlowStage.cloud,
-      items: cloud.items,
-      total: cloud.total,
-    );
-  }
-
-  if (cloud != null && policy.confirmPrefill == ConfirmPrefill.cloud) {
-    return FlowOutcome(
-      stage: FlowStage.confirm,
-      items: cloud.items,
-      total: cloud.total,
-    );
-  }
-  final bestLocal = retry ?? local;
-  return FlowOutcome(
-    stage: FlowStage.confirm,
-    items: bestLocal.items,
-    total: bestLocal.total,
-  );
+/// Sauvetage par le classifieur : argmax sur chaque passe, puis décodage
+/// sous contrainte sur chaque passe. Toute sortie repasse par le checksum.
+Rescue classifierRescue(
+  List<List<PhysicalLine>> passes,
+  LineClassifier classifier,
+) {
+  return () {
+    final mergedPasses = [for (final pass in passes) mergedLines(pass)];
+    for (final merged in mergedPasses) {
+      final receipt = extractMl(merged, classifier);
+      if (receipt != null && receipt.checksumOk) {
+        return (FlowStage.localMl, receipt);
+      }
+    }
+    for (final merged in mergedPasses) {
+      final receipt = extractConstrained(merged, classifier);
+      if (receipt != null && receipt.checksumOk) {
+        return (FlowStage.localDp, receipt);
+      }
+    }
+    return null;
+  };
 }

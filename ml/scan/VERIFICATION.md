@@ -7,6 +7,14 @@ Le scan est un réglage exclusif LOCAL ou CLOUD ; le mode cloud existant
 entre les deux. Les chiffres viennent de `test/analysis/bench_local.py`
 (1000 tickets FindIt, vérité golden).
 
+> **Décision produit 2026-08-24 : jamais de validation directe.** Tout scan
+> atterrit sur l'écran d'édition pré-rempli ; les étages et le checksum
+> décrits ici servent uniquement à *afficher* un niveau de confiance (badge
+> « vérifié » / bandeau d'alerte avec delta). Le texte ci-dessous parle
+> encore de « validation directe » : lire « vérifié ». Réécriture complète
+> prévue avec le refactor du flow (étage classifieur + décodeur dans
+> `decide()`).
+
 ## Le principe
 
 Le ticket contient sa propre preuve : `Σ(articles − remises) = total

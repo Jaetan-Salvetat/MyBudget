@@ -1,10 +1,12 @@
-"""Structuration V2 par classifieur de lignes — second avis gated checksum.
+"""Structuration par classifieur de lignes — second avis gated checksum.
 
 Le modèle n'étiquette que les lignes porteuses de prix (article / remise /
 total / paiement / ignorer) ; les montants sont recopiés de l'OCR, les noms
 suivent la même mécanique de libellé que les règles. Toute sortie repasse
 par le checksum : le classifieur ne peut que sauver des tickets flagués,
-jamais en corrompre un validé.
+jamais en corrompre un validé. Deux artefacts : V2 (32 features) et V3
+(features arithmétiques + lexiques flous + trigrammes, actif), chacun lié à
+son featurizer.
 """
 
 from __future__ import annotations
@@ -14,7 +16,9 @@ from pathlib import Path
 import joblib
 import numpy as np
 
-from line_features import featurize
+from line_features import PricedLine
+from line_features import featurize as featurize_v2
+from line_features_v3 import featurize as featurize_v3
 from lines import PhysicalLine
 from structure import (
     ExtractedItem,
@@ -22,59 +26,71 @@ from structure import (
     _clean_name,
     _find_date,
     _plausible_label,
-    _rightmost_price,
 )
 
-MODEL_PATH = Path(__file__).parent / "models" / "line_clf.joblib"
+MODELS_DIR = Path(__file__).parent / "models"
+MODEL_PATHS = {
+    "v2": MODELS_DIR / "line_clf.joblib",
+    "v3": MODELS_DIR / "line_clf_v3.joblib",
+}
+FEATURIZERS = {"v2": featurize_v2, "v3": featurize_v3}
+ACTIVE_VERSION = "v3"
 
 ITEM, DISCOUNT, TOTAL, PAYMENT, IGNORE = 0, 1, 2, 3, 4
 
-_model = None
+_models: dict[str, object] = {}
 
 
-def _load_model():
-    global _model
-    if _model is None:
-        _model = joblib.load(MODEL_PATH)
-    return _model
+def load_classifier(version: str | None = None):
+    """(modèle, featurizer) de la version active — les deux doivent toujours
+    venir du même artefact."""
+    version = version or ACTIVE_VERSION
+    if version not in _models:
+        _models[version] = joblib.load(MODEL_PATHS[version])
+    return _models[version], FEATURIZERS[version]
 
 
-def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
-    lines, rows = featurize(merged)
-    if not lines:
-        return None
-    predictions = _load_model().predict(np.array(rows))
-
+def _pending_labels(
+    merged: list[PhysicalLine], lines: list[PricedLine]
+) -> dict[int, str | None]:
     priced_indexes = {priced.index for priced in lines}
     pending_by_index: dict[int, str | None] = {}
     pending: str | None = None
     for index, line in enumerate(merged):
         pending_by_index[index] = pending
-        if index in priced_indexes:
-            pending = None
-        else:
-            pending = _plausible_label(line.text)
+        pending = None if index in priced_indexes else _plausible_label(line.text)
+    return pending_by_index
 
+
+def receipt_from_labels(
+    merged: list[PhysicalLine], lines: list[PricedLine], labels: list[int]
+) -> ExtractedReceipt | None:
+    """Reçu structuré depuis les rôles par ligne. Un prix négatif est
+    toujours une remise, quel que soit son label : un article ne peut pas
+    être négatif."""
+    pending_by_index = _pending_labels(merged, lines)
     items: list[ExtractedItem] = []
     total: float | None = None
     payment: float | None = None
-    for priced, prediction in zip(lines, predictions):
+    for priced, label in zip(lines, labels):
         price = round(priced.price, 2)
-        if prediction == ITEM:
-            label = _plausible_label(priced.label)
-            name = label or pending_by_index[priced.index] or priced.label
-            items.append(
-                ExtractedItem(
-                    name=_clean_name(name), amount=price, discount=0.0
-                )
+        if label == ITEM and price < 0:
+            label = DISCOUNT
+        if label == ITEM:
+            name = (
+                _plausible_label(priced.label)
+                or pending_by_index[priced.index]
+                or priced.label
             )
-        elif prediction == DISCOUNT and items:
+            items.append(
+                ExtractedItem(name=_clean_name(name), amount=price, discount=0.0)
+            )
+        elif label == DISCOUNT and items:
             items[-1].discount = round(items[-1].discount + abs(price), 2)
-        elif prediction == TOTAL:
+        elif label == TOTAL:
             total = price
-        elif prediction == PAYMENT and payment is None:
+        elif label == PAYMENT and payment is None:
             payment = price
-
     if not items:
         return None
     return ExtractedReceipt(
@@ -85,3 +101,12 @@ def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
         payment=payment,
         items=items,
     )
+
+
+def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
+    model, featurize = load_classifier()
+    lines, rows = featurize(merged)
+    if not lines:
+        return None
+    predictions = model.predict(np.array(rows))
+    return receipt_from_labels(merged, lines, [int(p) for p in predictions])

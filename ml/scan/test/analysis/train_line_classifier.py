@@ -12,22 +12,25 @@ Découpage : entraînement sur T1-train, évaluation sur T1-test.
 
 from __future__ import annotations
 
-import json
+import sys
 from pathlib import Path
 
 import joblib
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, log_loss
 
 from analyze_local_failures import golden_checksummable
-from line_features import featurize, merged_lines
+from line_features import merged_lines
+from line_features_v3 import fuzzy_lexicon_similarity
 from lines import cluster_lines, deskew_words, load_words, median_angle
 from score_device_flow import load_tickets
-from structure import PAYMENT_WORDS, _contains, extract
+from structure import PAYMENT_WORDS, TOTAL_WORDS, _contains, extract
+from structure_ml import FEATURIZERS, MODEL_PATHS
 
 ROOT = Path(__file__).parent.parent
-MODEL_PATH = Path(__file__).parent / "models" / "line_clf.joblib"
+SATURATION_THRESHOLD = 0.99
+FUZZY_ROLE_THRESHOLD = 0.6
 
 ITEM, DISCOUNT, TOTAL, PAYMENT, IGNORE = 0, 1, 2, 3, 4
 CLASS_NAMES = ["item", "discount", "total", "payment", "ignore"]
@@ -55,10 +58,7 @@ def _labels_for(ticket, raw_lines, lines) -> list[int | None] | None:
     roles: dict[int, str] = {}
     receipt = extract(raw_lines, roles=roles)
     if receipt.checksum_ok:
-        return [
-            ROLE_TO_CLASS.get(roles.get(priced.index), IGNORE)
-            for priced in lines
-        ]
+        return [ROLE_TO_CLASS.get(roles.get(priced.index), IGNORE) for priced in lines]
 
     golden = ticket.golden["receipt"]
     if not golden_checksummable(ticket.golden):
@@ -81,15 +81,30 @@ def _labels_for(ticket, raw_lines, lines) -> list[int | None] | None:
         text = priced.line.text
         if price < 0 and _consume(remaining_discounts, -price):
             labels.append(DISCOUNT)
-        elif price >= 0 and abs(price - total) < EPSILON and (
-            _contains(text, PAYMENT_WORDS)
+        elif (
+            price >= 0
+            and abs(price - total) < EPSILON
+            and (_contains(text, PAYMENT_WORDS))
         ):
             labels.append(PAYMENT)
         elif price >= 0 and _consume(remaining_items, price):
             labels.append(ITEM)
+        elif price >= 0 and abs(price - total) < EPSILON:
+            labels.append(_reference_role(text))
         else:
             labels.append(None)
     return labels
+
+
+def _reference_role(text: str) -> int | None:
+    """Ligne au montant du total golden, non consommée comme article : total
+    ou paiement selon son libellé (lexique flou, l'OCR abîme ces mots), sinon
+    incertaine — « rendu », « versé » portent parfois la même valeur."""
+    if fuzzy_lexicon_similarity(text, TOTAL_WORDS) >= FUZZY_ROLE_THRESHOLD:
+        return TOTAL
+    if fuzzy_lexicon_similarity(text, PAYMENT_WORDS) >= FUZZY_ROLE_THRESHOLD:
+        return PAYMENT
+    return None
 
 
 def _consume(values: list[float], target: float) -> bool:
@@ -100,7 +115,7 @@ def _consume(values: list[float], target: float) -> bool:
     return False
 
 
-def build_dataset(split: str):
+def build_dataset(split: str, featurize):
     features = []
     labels = []
     tickets = 0
@@ -108,9 +123,7 @@ def build_dataset(split: str):
         if ticket.split != split:
             continue
         words, data = load_words(ticket.dump_path)
-        merged = merged_lines(
-            cluster_lines(deskew_words(words, median_angle(data)))
-        )
+        merged = merged_lines(cluster_lines(deskew_words(words, median_angle(data))))
         lines, rows = featurize(merged)
         if not lines:
             continue
@@ -119,9 +132,7 @@ def build_dataset(split: str):
         if ticket_labels is None:
             continue
         kept = [
-            (row, label)
-            for row, label in zip(rows, ticket_labels)
-            if label is not None
+            (row, label) for row, label in zip(rows, ticket_labels) if label is not None
         ]
         if not kept:
             continue
@@ -132,24 +143,52 @@ def build_dataset(split: str):
     return np.array(features), np.array(labels)
 
 
-def main() -> None:
-    x_train, y_train = build_dataset("t1train")
-    x_test, y_test = build_dataset("t1test")
-
-    model = HistGradientBoostingClassifier(
-        max_iter=300, learning_rate=0.1, random_state=42
+def _model_for(version: str) -> HistGradientBoostingClassifier:
+    if version == "v2":
+        return HistGradientBoostingClassifier(
+            max_iter=300, learning_rate=0.1, random_state=42
+        )
+    return HistGradientBoostingClassifier(
+        max_iter=600,
+        learning_rate=0.05,
+        min_samples_leaf=20,
+        l2_regularization=1.0,
+        early_stopping=True,
+        validation_fraction=0.15,
+        n_iter_no_change=30,
+        random_state=42,
     )
+
+
+def _report_calibration(model, x_test, y_test) -> None:
+    probas = model.predict_proba(x_test)
+    print(f"log-loss test : {log_loss(y_test, probas):.4f}")
+    confident = probas.max(axis=1) >= SATURATION_THRESHOLD
+    wrong_confident = (model.predict(x_test) != y_test) & confident
+    print(
+        f"lignes à P≥{SATURATION_THRESHOLD} : {confident.mean():.1%}, "
+        f"dont fausses : {wrong_confident.sum()}"
+    )
+
+
+def main() -> None:
+    version = "v3" if "--v3" in sys.argv else "v2"
+    featurize = FEATURIZERS[version]
+    x_train, y_train = build_dataset("t1train", featurize)
+    x_test, y_test = build_dataset("t1test", featurize)
+
+    model = _model_for(version)
     model.fit(x_train, y_train)
 
     predictions = model.predict(x_test)
     print(
-        classification_report(
-            y_test, predictions, target_names=CLASS_NAMES, digits=3
-        )
+        classification_report(y_test, predictions, target_names=CLASS_NAMES, digits=3)
     )
-    MODEL_PATH.parent.mkdir(exist_ok=True)
-    joblib.dump(model, MODEL_PATH)
-    print(f"modèle → {MODEL_PATH}")
+    _report_calibration(model, x_test, y_test)
+    path = MODEL_PATHS[version]
+    path.parent.mkdir(exist_ok=True)
+    joblib.dump(model, path)
+    print(f"modèle {version} → {path}")
 
 
 if __name__ == "__main__":

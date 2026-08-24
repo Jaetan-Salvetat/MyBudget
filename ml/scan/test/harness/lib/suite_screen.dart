@@ -19,7 +19,10 @@ const String _doneFlagName = 'done.flag';
 /// Sources : `input/` poussé via adb (prioritaire, aucun rebuild), sinon les
 /// assets embarqués.
 class SuiteScreen extends StatefulWidget {
-  const SuiteScreen({super.key});
+  const SuiteScreen({super.key, this.autoStart = false});
+
+  /// Lance la suite dès l'ouverture : pilotage sans interaction (adb).
+  final bool autoStart;
 
   @override
   State<SuiteScreen> createState() => _SuiteScreenState();
@@ -31,6 +34,14 @@ class _SuiteScreenState extends State<SuiteScreen> {
   bool _done = false;
   int _processed = 0;
   int _total = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoStart) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _runSuite());
+    }
+  }
 
   Future<void> _runSuite() async {
     setState(() {

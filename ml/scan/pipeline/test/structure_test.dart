@@ -266,4 +266,211 @@ void main() {
       expect(namedAmounts(result), [('PAIN', 2.50)]);
     });
   });
+
+  group('extra checksum references', () {
+    test('tva table ttc sum validates when total unreadable', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PERRIER', 0), ('3.20', 38)],
+        [('CHARDONNAY', 0), ('6.80', 38)],
+        [('TOTAL', 0), ('1O.0OO', 38)],
+        [('B', 0), ('TUA', 2), ('20.00', 8), ('5.67', 15), ('1.13', 22), ('6.80', 38)],
+        [('C', 0), ('TUA', 2), ('10.00', 8), ('2.91', 15), ('0.29', 22), ('3.20', 38)],
+      ]);
+      final result = extract(lines);
+      expect(result.total, isNull);
+      expect(result.tvaTtcSum, 10.00);
+      expect(result.checksumOk, isTrue);
+    });
+
+    test('tva amount only lines do not build a reference', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PAIN', 0), ('2,50', 38)],
+        [('TVA', 0), ('10%', 5), ('0,23', 38)],
+      ]);
+      expect(extract(lines).tvaTtcSum, isNull);
+    });
+
+    test('article count parsed', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PAIN', 0), ('2,50', 38)],
+        [('2', 0), ('ARTICLES', 2)],
+      ]);
+      expect(extract(lines).printedCount, 2);
+    });
+
+    test('payment with matching count validates despite bad total', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PAIN', 0), ('2,50', 38)],
+        [('LAIT', 0), ('1,20', 38)],
+        [('TOTAL', 0), ('9,70', 38)],
+        [('2', 0), ('ARTICLES', 2)],
+        [('CB', 0), ('EMV', 4), ('3,70', 38)],
+      ]);
+      final result = extract(lines);
+      expect(result.total, 9.70);
+      expect(result.checksumOk, isTrue);
+    });
+
+    test('payment without count does not override read total', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PAIN', 0), ('2,50', 38)],
+        [('LAIT', 0), ('1,20', 38)],
+        [('TOTAL', 0), ('9,70', 38)],
+        [('CB', 0), ('EMV', 4), ('3,70', 38)],
+      ]);
+      expect(extract(lines).checksumOk, isFalse);
+    });
+
+    test('count mismatch does not unlock payment', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('PAIN', 0), ('2,50', 38)],
+        [('LAIT', 0), ('1,20', 38)],
+        [('TOTAL', 0), ('9,70', 38)],
+        [('3', 0), ('ARTICLES', 2)],
+        [('CB', 0), ('EMV', 4), ('3,70', 38)],
+      ]);
+      expect(extract(lines).checksumOk, isFalse);
+    });
+  });
+
+  group('total recovery', () {
+    test('abbreviated tot is a total', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('POMME', 0), ('1,32', 38)],
+        [('ENDIVE', 0), ('2,42', 38)],
+        [('2', 0), ('Art.', 2), ('Tot', 8), ('3,74', 38)],
+      ]);
+      final result = extract(lines);
+      expect(result.total, 3.74);
+      expect(result.checksumOk, isTrue);
+    });
+
+    test('tva incl total is not excluded', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('MENU', 0), ('27,90', 38)],
+        [('Total', 0), ('(TVA', 8), ('INCL)', 13), ('27,90', 38)],
+      ]);
+      expect(extract(lines).total, 27.90);
+    });
+
+    test('missing decimal separator total rescued', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('MENU', 0), ('27,90', 38)],
+        [('Total', 0), ('(TVA', 8), ('INCL)', 13), ('2790', 38)],
+      ]);
+      expect(extract(lines).checksumOk, isTrue);
+    });
+
+    test('orphan trailing price matching sum validates', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('Pomme', 0)],
+        [('X', 2), ('2,60', 6), ('2,60', 38)],
+        [('BANANE', 0), ('2,44', 38)],
+        [('5,04', 38)],
+        [('0,27', 38)],
+      ]);
+      final result = extract(lines);
+      expect(result.itemsSum, 5.04);
+      expect(result.checksumOk, isTrue);
+    });
+
+    test('orphan price not matching sum flags', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('BANANE', 0), ('2,44', 38)],
+        [('9,99', 38)],
+      ]);
+      expect(extract(lines).checksumOk, isFalse);
+    });
+  });
+
+  group('discount left of column', () {
+    test('negative price escapes column filter', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('JEAN', 0)],
+        [('*082242000033', 0), ('36', 15), ('34.99', 30), ('€', 37)],
+        [('Action', 0), ('commerciale', 7), ('-50%=', 19), ('-17.50', 26), ('€', 34)],
+        [('Total', 0), ('17.49', 30), ('€', 37)],
+        [('Carte', 0), ('Bancaire', 6), ('17.49', 30)],
+      ]);
+      final result = extract(lines);
+      expect(
+        [for (final i in result.items) (i.name, i.amount, i.discount)],
+        [('JEAN', 34.99, 17.50)],
+      );
+      expect(result.checksumOk, isTrue);
+    });
+  });
+
+  group('lexicon boundaries', () {
+    test('merci inside commerciale is not a stop word', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('ACTION', 0), ('COMMERCIALE', 7), ('4,00', 38)],
+        [('TOTAL', 0), ('4,00', 38)],
+      ]);
+      expect(namedAmounts(extract(lines)), [('ACTION COMMERCIALE', 4.00)]);
+    });
+  });
+
+  List<PhysicalLine> twoItemsThen(List<(String, int)> lastRow) => receiptLines([
+        [('STORE', 10)],
+        [('POMME', 0), ('1,32', 38)],
+        [('ENDIVE', 0), ('2,42', 38)],
+        lastRow,
+      ]);
+
+  group('payment synonyms', () {
+    for (final row in [
+      [('Espèces', 0), ('3,74', 38)],
+      [('CHEQUE', 0), ('AUTO.', 8), ('3,74', 38)],
+      [('Paiement', 0), ('CB', 10), ('3,74', 38)],
+      [('Montant', 0), ('perçu', 8), (':', 14), ('3,74', 38)],
+    ]) {
+      test('${row.first.$1} line is a payment reference', () {
+        final result = extract(twoItemsThen(row));
+        expect(result.payment, 3.74);
+        expect(result.items.length, 2);
+        expect(result.checksumOk, isTrue);
+      });
+    }
+
+    test('payment never overrides a read total', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('POMME', 0), ('1,32', 38)],
+        [('TOTAL', 0), ('9,99', 38)],
+        [('Espèces', 0), ('1,32', 38)],
+      ]);
+      final result = extract(lines);
+      expect(result.total, 9.99);
+      expect(result.checksumOk, isFalse);
+    });
+  });
+
+  group('total synonyms', () {
+    for (final row in [
+      [('NET', 0), ('A', 4), ('REGLER', 6), ('3,74', 38)],
+      [('DOIT', 0), ('3,74', 38)],
+      [('PRIX', 0), ('TTC', 5), ('3,74', 38)],
+      [('Montant', 0), ('TTC', 8), ('3,74', 38)],
+    ]) {
+      test('${row.first.$1} line is a total', () {
+        final result = extract(twoItemsThen(row));
+        expect(result.total, 3.74);
+        expect(result.checksumOk, isTrue);
+      });
+    }
+  });
 }

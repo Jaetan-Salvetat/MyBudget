@@ -1,8 +1,10 @@
-"""Compare l'extraction Dart (tool/parity.dart) à la référence Python.
+"""Compare le pipeline Dart (tool/parity.dart) à la référence Python.
 
-Champ à champ, ticket par ticket : store, date, total, subtotal, payment,
-checksum et la liste exacte des articles. Zéro divergence attendue — le
-portage Dart est spécifié par cette égalité.
+Ticket par ticket : extraction de la passe 1 champ à champ (store, date,
+total, subtotal, payment, checksum, articles) et, avec `--model`, la
+décision du flow local complet (stage, total, articles retenus) rejouée
+avec le classifieur exporté. Zéro divergence attendue — le portage Dart est
+spécifié par cette égalité.
 """
 
 from __future__ import annotations
@@ -12,10 +14,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+from local_flow import decide_local
 from structure import ExtractedReceipt, extract_from_result
 
 ROOT = Path(__file__).parent.parent
 PIPELINE_DIR = ROOT.parent / "pipeline"
+MODEL_PATH = Path(__file__).parent / "models" / "line_clf_v3.json"
 
 DEFAULT_DIRS = [
     "results/device_fr",
@@ -41,33 +45,48 @@ def python_receipt_json(receipt: ExtractedReceipt) -> dict:
     }
 
 
+def python_flow_json(dump_path: Path) -> dict:
+    outcome = decide_local(json.loads(dump_path.read_text()))
+    return {
+        "stage": outcome.stage,
+        "total": outcome.total,
+        "items": [{"amount": a, "discount": d} for a, d in outcome.items],
+    }
+
+
+def _report(key: str, field: str, python: dict, dart: dict) -> None:
+    print(f"\nDIVERGENCE {field} {key}")
+    for name, value in python.items():
+        if value != dart.get(name):
+            print(f"  python {name}: {value}")
+            print(f"  dart   {name}: {dart.get(name)}")
+
+
 def main() -> None:
-    dirs = sys.argv[1:] or DEFAULT_DIRS
+    with_model = "--model" in sys.argv
+    dirs = [a for a in sys.argv[1:] if a != "--model"] or DEFAULT_DIRS
     absolute_dirs = [str(ROOT / d) for d in dirs]
+    command = ["dart", "tool/parity.dart", *absolute_dirs]
+    if with_model:
+        command.append(f"--model={MODEL_PATH}")
     completed = subprocess.run(
-        ["dart", "tool/parity.dart", *absolute_dirs],
-        cwd=PIPELINE_DIR,
-        capture_output=True,
-        text=True,
-        check=True,
+        command, cwd=PIPELINE_DIR, capture_output=True, text=True, check=True
     )
     dart_results: dict[str, dict] = json.loads(completed.stdout)
 
     mismatches = 0
-    compared = 0
-    for key, dart_receipt in dart_results.items():
-        python_receipt = python_receipt_json(extract_from_result(Path(key)))
-        compared += 1
-        if python_receipt == dart_receipt:
-            continue
-        mismatches += 1
-        print(f"\nDIVERGENCE {key}")
-        for field in python_receipt:
-            if python_receipt[field] != dart_receipt.get(field):
-                print(f"  python {field}: {python_receipt[field]}")
-                print(f"  dart   {field}: {dart_receipt.get(field)}")
+    for key, dart_entry in dart_results.items():
+        python_pass1 = python_receipt_json(extract_from_result(Path(key)))
+        if python_pass1 != dart_entry["pass1"]:
+            mismatches += 1
+            _report(key, "pass1", python_pass1, dart_entry["pass1"])
+        if "flow" in dart_entry:
+            python_flow = python_flow_json(Path(key))
+            if python_flow != dart_entry["flow"]:
+                mismatches += 1
+                _report(key, "flow", python_flow, dart_entry["flow"])
 
-    print(f"\n{compared} tickets comparés, {mismatches} divergences")
+    print(f"\n{len(dart_results)} tickets comparés, {mismatches} divergences")
     if mismatches:
         sys.exit(1)
 

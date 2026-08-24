@@ -183,6 +183,68 @@ de prix : géométrie, lexiques, contexte ±1 ligne — portables en Dart) +
 La spec d'implémentation app (mapping UI, messages d'erreur, invariants) :
 **`VERIFICATION.md`**.
 
+## Intelligence sans hallucination : décodage sous contrainte + V3 (2026-08-24)
+
+Réponse à la crainte « le système est bête » sans LLM ni VLM : toute
+l'intelligence porte sur **l'étiquetage** de lignes existantes, jamais sur
+le contenu — les montants sont recopiés de l'OCR, l'hallucination est
+structurellement impossible. Discipline : modèles et seuils calibrés sur
+**T1-train**, T1-test intouché = seule mesure de généralisation.
+
+| Étape (corpus sain, 899) | T1-train | T1-test | Faux (test) |
+|---|---|---|---|
+| Départ : règles + retry + V2 argmax | 85,4 % | 85,7 % | 0 |
+| + décodage sous contrainte (`decode_constrained.py`) | 86,9 % | 87,5 % | 0 |
+| + V3 (features arithmétiques, lexiques flous, trigrammes) | 89,4 % | 87,7 % | 0 |
+| + lexiques paiement/total étendus + étiquetage correctif total/paiement | 91,1 % | 91,7 % | 3 |
+| + invariants structurels (rien après la référence, négatif ≠ article) | 92,0 % | 92,4 % | 1* |
+| **+ paiement en référence sans flip (vote de deux signaux)** | **92,5 %** | **92,6 %** | **1*** |
+
+\* `t1test_1181` : paire subvention 14,12 / −14,12 à net zéro (format
+cantine), aucun montant faux dans la somme. Total corpus : **832/899
+(92,5 %)**, contre 769/899 (85,5 %) en début de chantier.
+
+Les mécanismes, du plus rentable au moins :
+
+1. **Le checksum devient un guide, plus seulement un juge**
+   (`decode_constrained.py`) : le classifieur sort des probabilités par
+   ligne ; on cherche l'étiquetage le plus probable dont Σ(articles −
+   remises) tombe exactement sur une référence imprimée — subset-sum exact
+   en centimes par programmation dynamique, `min_prob` 0,02 (jamais forcer
+   un rôle que le modèle juge impossible), référence total à P ≥ 0,5.
+   Invariants de ticket encodés dans l'espace de recherche : aucune ligne à
+   0 centime en article, **rien ne compte après la ligne de référence**
+   (la monnaie rendue après un paiement en espèces n'est jamais un
+   article — cause des 3 faux observés avant), **un prix négatif n'est
+   jamais un article**, un paiement ne sert de référence qu'en dernier
+   recours et **sans aucun flip** (les articles selon l'argmax doivent
+   tomber pile dessus : modèle + ligne imprimée contre un total lu faux).
+2. **Le vrai goulot était l'étiquetage d'entraînement**, pas le modèle :
+   l'étiquetage correctif sur tickets échoués n'attribuait jamais
+   TOTAL/PAYMENT, donc le modèle n'avait jamais vu une ligne total garblée
+   étiquetée total. Et le lexique paiement ne connaissait que la CB —
+   espèces, chèque, paiement, règlement, perçu, reçu n'existaient pas ; NET
+   A REGLER, DOIT, PRIX TTC, MONTANT TTC non plus côté total. C'est
+   l'étape qui rapporte +4 points sur test.
+3. **V3** (`line_features_v3.py`) : signaux agnostiques au format — ce
+   prix est-il la somme d'un bloc au-dessus ? une fraction TVA/HT d'un
+   autre prix ? la somme des remises précédentes (récap « avantages ») ?
+   dupliqué ailleurs ? — plus similarité d'édition aux lexiques (résiste à
+   `Tota1`, `TOT AL`, `LU.A`) et trigrammes hachés du libellé. Régularisé
+   (early stopping, feuilles ≥ 20) pour des probabilités exploitables :
+   log-loss test 0,26 → 0,07, lignes fausses à P ≥ 0,99 : 52 → 8. Le gain
+   propre de V3 sur test est modeste (+1) mais il rend le décodeur
+   efficace.
+
+Diagnostic des 33 restants de test (`scratchpad`, reproductible) : 11 ont un
+montant golden **jamais parsé** comme prix (`27C 27.90`, `€ 49 56`),
+~15 une référence trop garblée pour tout lexique (`E SPECES 23.O0`,
+`Cartes Berc1TES`, `DOLT`, `TO'AL`) ou nue (`61.59 EUR`), 3 des remises
+informatives propres à un format (`Nouveau prix 49,90 -5,10`). Plus de
+levier générique : la suite est côté parsing OCR, ou côté modèle de
+séquence / encodeur layout-aware entraîné sur golden + synthétique.
+
+
 ## Portage Dart & banc on-device (2026-08-24)
 
 - **`pipeline/`** : package Dart pur `receipt_pipeline` — portage de
@@ -298,14 +360,17 @@ réelles le justifient.
 
 ## Prochaines étapes
 
-1. ~~Portage Dart des règles~~ **fait** ; ~~classifieur V2~~ **fait côté
-   Python** (+5,3 pts). Reste : porter en Dart les règles ajoutées par la
-   calibration + l'inférence du classifieur (arbres transpilés ou MLP à
-   poids constants, pur Dart), re-valider la parité sur les dumps.
-2. **Monter vers ~99 % local** : pousser le ML sur les 88 échecs de
-   structuration restants, attaquer les 42 totaux non lus, variantes de
-   prétraitement best-of-N (checksum = oracle) pour les 47 tickets aux
-   montants absents de l'OCR.
+1. **Refactor du flow** : le classifieur + décodeur deviennent un étage de
+   plein droit de `decide()` (Python puis Dart, inférence injectable côté
+   Dart), étage cloud retiré du package Dart, sémantique « information
+   affichée » partout (décision produit : **jamais de validation
+   directe**, tout passe par l'écran d'édition, checksum = badge/bandeau).
+2. Portage Dart : lexiques étendus (la parité Python↔Dart est **rompue**
+   depuis l'extension des lexiques, à rétablir), features V3, inférence
+   du classifieur (arbres transpilés, pur Dart), décodeur DP.
+3. Au-delà de 92,5 % : parsing OCR des montants abîmés, puis modèle de
+   séquence / encodeur layout-aware (classe BERT, entraîné sur golden +
+   synthétique) — voir section « Intelligence sans hallucination ».
 3. **Intégration app (mode LOCAL uniquement)** : brancher `receipt_pipeline`
    (sans clé API, sans cooldown, offline), sortie vers
    `ReceiptScanResultModel` — écran d'édition et `validateAndCreate`
@@ -330,8 +395,10 @@ réelles le justifient.
   + tests (`test_structure.py`), politique de flow (`flow.py` +
   `test_flow.py`), **bench du mode local rejoué des dumps
   (`bench_local.py`)**, taxonomie des échecs (`analyze_local_failures.py`),
-  classifieur V2 (`line_features.py`, `train_line_classifier.py`,
-  `structure_ml.py`, modèle dans `models/`), bench multi-étages historique
+  classifieur V2/V3 (`line_features.py`, `line_features_v3.py`,
+  `train_line_classifier.py [--v3]`, `structure_ml.py`, modèles dans
+  `models/`), **décodage sous contrainte checksum
+  (`decode_constrained.py`)**, bench multi-étages historique
   (`bench_flow.py`), scoring d'un run device (`score_device_flow.py`),
   parité Dart↔Python (`check_parity.py`), générateur synthétique
   (`receipt_content.py`, `receipt_render.py`, `generate_corpus.py`),
