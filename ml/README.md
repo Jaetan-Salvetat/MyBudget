@@ -98,6 +98,17 @@ identique (MPS n'est pas déterministe au bit près malgré `SEED = 42`).
 Les `checkpoint-*` ne servent qu'à reprendre un entraînement interrompu ;
 `save_total_limit` en borne l'accumulation dans `train.py`.
 
+`tool/cleanup.sh` ramène `ml/` à cet état — en simulation par défaut, `--apply`
+pour supprimer, `--min-free 50` pour ne libérer que le nécessaire en cours de
+run. Les checkpoints sont épargnés tant qu'un `train.py` tourne :
+
+```bash
+./tool/cleanup.sh                                  # ce qui serait supprimé
+./tool/cleanup.sh --apply                          # caches, checkpoints, export périmé
+./tool/cleanup.sh --datasets --backups --hf-cache --apply
+./tool/cleanup.sh quick_add --apply                # un seul projet
+```
+
 ## Prérequis
 
 Python ≥ 3.11 + `uv`, ~4 Go de RAM pour l'entraînement, une connexion pour la
