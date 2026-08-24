@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/626.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PRUN'OLIVE",
+  "date": "2017-05-06",
+  "total": 6.88,
+  "items": [
+   {
+    "name": "Olives aromatisees",
+    "amount": 3.81,
+    "discount": 0
+   },
+   {
+    "name": "Olives farcies/kalama ta",
+    "amount": 3.07,
+    "discount": 0
+   }
+  ]
+ }
+}

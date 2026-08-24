@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1918.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": null,
+  "date": "2017-02-05",
+  "total": 3.63,
+  "items": [
+   {
+    "name": "Unité 0",
+    "amount": 2.13,
+    "discount": 0
+   },
+   {
+    "name": "Piece +",
+    "amount": 1.5,
+    "discount": 0
+   }
+  ]
+ }
+}

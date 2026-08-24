@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-test/img/687.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-03-03",
+  "total": 70.67,
+  "items": [
+   {
+    "name": "LITIERE VEGETAL ECOLOGIQ.U 10L",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "SACHET PLASTIQUE LITIERE GM X8",
+    "amount": 3.46,
+    "discount": 0
+   },
+   {
+    "name": "COMP.COUP.POM.POI/POM.FRSE UX8",
+    "amount": 1.72,
+    "discount": 0
+   },
+   {
+    "name": "VELOUTE TOMATE/BASILIC",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "750G CASSONADE",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "MONSTER MUNCH KETCHUP 85G",
+    "amount": 1.03,
+    "discount": 0
+   },
+   {
+    "name": "COMP.COUP.FRTS POM.NAT.4X",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT GRECQUE BIO VRAI 2X125G",
+    "amount": 2.57,
+    "discount": 0
+   },
+   {
+    "name": "MIN BEUR.1/2SEL ELVIR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "LIEGEOIS POM/ABRIC X4",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "CREME FR.EP.15% BRIDELICE 10CL",
+    "amount": 0.56,
+    "discount": 0
+   },
+   {
+    "name": "SAUMN PUREE BRO 300G",
+    "amount": 3.48,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVES ROUGES U BIO 200G",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "MADEL.CHOC.NOIR",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTES FENDUES",
+    "amount": 1.26,
+    "discount": 0
+   },
+   {
+    "name": "QUICHE TOMATES MOZZARELLA 200G",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "2TR JBON VENDEE",
+    "amount": 2.77,
+    "discount": 0
+   },
+   {
+    "name": "PETIT PAVE CND DOUCE FRANCE X2",
+    "amount": 4.57,
+    "discount": 0
+   },
+   {
+    "name": "TOURNEDOS FILET DE DINDE U X2",
+    "amount": 3.71,
+    "discount": 0
+   },
+   {
+    "name": "HACHE CABILLAUD CITRON U 200G",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "ENFOIRES LES/MISSION ENFOIR+S",
+    "amount": 19.98,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGN.BLC P/COUPE A FARCIR",
+    "amount": 0.57,
+    "discount": 0
+   },
+   {
+    "name": "NECTAR OR./PECH./ABRI.BIO 1,5L",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "VOLVIC JUICY FRAISE 1,5L",
+    "amount": 2.48,
+    "discount": 0
+   }
+  ]
+ }
+}

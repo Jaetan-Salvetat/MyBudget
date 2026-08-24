@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/521.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-05-18",
+  "total": 14.6,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 3.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*80G CHOC NOIR 80%",
+    "amount": 3.24,
+    "discount": 0.0
+   },
+   {
+    "name": "*F BANANE",
+    "amount": 0.33,
+    "discount": 0.0
+   },
+   {
+    "name": "*POULET CHAMP NOIR",
+    "amount": 3.65,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAUMON OSEILLE/RIZ",
+    "amount": 4.18,
+    "discount": 0.0
+   }
+  ]
+ }
+}

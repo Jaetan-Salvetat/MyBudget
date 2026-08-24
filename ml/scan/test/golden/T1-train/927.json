@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/927.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-05-13",
+  "total": 2.54,
+  "items": [
+   {
+    "name": "SAC POUB.LIEN CLASSIQ.U 20X30L",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "SACS CONGELATION U PM ST.X50",
+    "amount": 1.09,
+    "discount": 0
+   }
+  ]
+ }
+}

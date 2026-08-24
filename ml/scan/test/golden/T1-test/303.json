@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/303.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-30",
+  "total": 8.42,
+  "items": [
+   {
+    "name": "*250G TABOULE FRUIT",
+    "amount": 3.04,
+    "discount": 0
+   },
+   {
+    "name": "*CAKE APERITI LEGUM",
+    "amount": 2.88,
+    "discount": 0
+   },
+   {
+    "name": "*SALAD ITAL.PAT/PLT",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

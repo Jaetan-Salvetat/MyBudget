@@ -1,0 +1,79 @@
+{
+ "source": "dataset_findit/T1-test/img/231.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2015-11-09",
+  "total": 29.31,
+  "items": [
+   {
+    "name": "1/2 CANNELLONI CRF",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "1KG COQUILLETTE P.",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "250G RAVIOLI PLT P",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "375G RATATOUILLE C",
+    "amount": 2.42,
+    "discount": 0
+   },
+   {
+    "name": "GALETTE AUX PRUNEA",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "GALETTE NATURE 250",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "GATEAU CHARENTAIS",
+    "amount": 3.53,
+    "discount": 0
+   },
+   {
+    "name": "LE PAVE 500GR",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "PETIT DEJEUNER CHO",
+    "amount": 2.23,
+    "discount": 0
+   },
+   {
+    "name": "SCE TOMATE BIO",
+    "amount": 1.67,
+    "discount": 0
+   },
+   {
+    "name": "TARTE FLAMBEE GRAT",
+    "amount": 2.08,
+    "discount": 0
+   },
+   {
+    "name": "50ML DEO BIL.NAT.P",
+    "amount": 4.04,
+    "discount": 0
+   }
+  ]
+ }
+}

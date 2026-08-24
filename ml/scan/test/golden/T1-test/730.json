@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/730.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PHARMACIE DE BEAULIEU",
+  "date": "2017-04-30",
+  "total": 15.92,
+  "items": [
+   {
+    "name": "NOVALAC AR 1 / 750G **** 3401578651057",
+    "amount": 15.92,
+    "discount": 0
+   }
+  ]
+ }
+}

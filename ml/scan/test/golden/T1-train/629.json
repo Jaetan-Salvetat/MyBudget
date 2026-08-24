@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/629.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-22",
+  "total": 10.6,
+  "items": [
+   {
+    "name": "PORRIDGE FIGUE/FRAMB.BJORG375G",
+    "amount": 3.48,
+    "discount": 0
+   },
+   {
+    "name": "JB LENTILLES CUIS.LEG.BIO 400G",
+    "amount": 2.59,
+    "discount": 0
+   },
+   {
+    "name": "MOULIN.LEG.PRINT.BIO POTAG.1L",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "GALETTES 4CER.RIZ C.U BIO 130G",
+    "amount": 1.98,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-test/img/641.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-06-14",
+  "total": 19.3,
+  "items": [
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 6.08,
+    "discount": 0.0
+   },
+   {
+    "name": "LITIERE POUR CHAT PARF",
+    "amount": 1.2,
+    "discount": 0.0
+   },
+   {
+    "name": "PREPA MOELLEUX CHOCO ALSA.435G",
+    "amount": 1.98,
+    "discount": 0.59
+   },
+   {
+    "name": "* TABOULE ORIENT 1KG P.FRAICHEUR",
+    "amount": 1.58,
+    "discount": 0.0
+   },
+   {
+    "name": "ASSIETTE CROQUANTE,250G",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "BATAVIA",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE 3 MEUNIERS 250G",
+    "amount": 4.76,
+    "discount": 0.0
+   },
+   {
+    "name": "* 50ENVELOPPES C6 80G,1P",
+    "amount": 0.9,
+    "discount": 0.0
+   },
+   {
+    "name": "* 50 ENVELOPPES 11X22CM 80G.1P",
+    "amount": 0.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

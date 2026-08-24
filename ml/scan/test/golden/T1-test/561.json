@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/561.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-05-31",
+  "total": 14.66,
+  "items": [
+   {
+    "name": "*125G NOI.CAJOU CRF",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "*250G KROKODIL CRF",
+    "amount": 1.02,
+    "discount": 0
+   },
+   {
+    "name": "*6X1L LAIT MATIN LEG.",
+    "amount": 10.56,
+    "discount": 0
+   },
+   {
+    "name": "*PET 6X1.5L EAU SCE C",
+    "amount": 1.14,
+    "discount": 0
+   }
+  ]
+ }
+}

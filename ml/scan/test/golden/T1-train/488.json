@@ -1,0 +1,154 @@
+{
+ "source": "dataset_findit/T1-train/img/488.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-05-25",
+  "total": 70.74,
+  "items": [
+   {
+    "name": "*1/3 FIL.MAQUER.MOU",
+    "amount": 2.04,
+    "discount": 0
+   },
+   {
+    "name": "*1/4 THON NATREL PN",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "*125G RONDELE NOIX",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "16 DOLCE GUSTO THE",
+    "amount": 4.75,
+    "discount": 0
+   },
+   {
+    "name": "*1L BADOIT VERTE",
+    "amount": 0.6,
+    "discount": 0
+   },
+   {
+    "name": "250G PL BEUR AOP",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "400G BOLO VERDURE",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "*4X COQUILLE S.JACQ",
+    "amount": 6.36,
+    "discount": 0
+   },
+   {
+    "name": "*8X125G VELOUTE NAT",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE CARREFOUR",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE PRECUITE",
+    "amount": 2.52,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "DELP.4T SF NORVEGE",
+    "amount": 7.41,
+    "discount": 0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 3.24,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL RAPE CRF",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "KRISPROLLS 400G",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "MAGRET CANARD S/V",
+    "amount": 8.8,
+    "discount": 0
+   },
+   {
+    "name": "*MAXI NATUR.JACQUET",
+    "amount": 1.04,
+    "discount": 0
+   },
+   {
+    "name": "MOUTARDE ORIGINALE",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "*PARMIGIANO REGGIAN",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "*POINTE BRIE 60%MG",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "*RADIS ROSE BOTTE",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*TABOULE POULET",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "1L15 SENS LENOR",
+    "amount": 4.75,
+    "discount": 0
+   },
+   {
+    "name": "6RLX PH XXL BLC AQ",
+    "amount": 3.51,
+    "discount": 0
+   },
+   {
+    "name": "MAXFRESH COLGATE",
+    "amount": 2.07,
+    "discount": 0
+   },
+   {
+    "name": "100 GOBELETS BLANC",
+    "amount": 1.4,
+    "discount": 0
+   }
+  ]
+ }
+}

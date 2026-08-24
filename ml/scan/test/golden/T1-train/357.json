@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/357.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-12",
+  "total": 11.81,
+  "items": [
+   {
+    "name": "*500G CAROT.RAP.CRF",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*LT3X22G HWD 2FRESH",
+    "amount": 2.72,
+    "discount": 0
+   },
+   {
+    "name": "*MOUSSE AU CHOCOLAT",
+    "amount": 6.22,
+    "discount": 0
+   },
+   {
+    "name": "*TABOULE VOLAILLE",
+    "amount": 1.7,
+    "discount": 0
+   }
+  ]
+ }
+}

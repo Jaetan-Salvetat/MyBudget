@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/967.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BONNE JOURNEE",
+  "date": "2016-02-26",
+  "total": 4.8,
+  "items": [
+   {
+    "name": "1 Pavot Jambon Cru",
+    "amount": 4.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

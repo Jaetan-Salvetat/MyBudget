@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/105.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-05-19",
+  "total": 12.49,
+  "items": [
+   {
+    "name": "1 BIC MARKING 2300",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "12 FEUTRE PTE MOY",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "BRK SQR 1L PJ POMM",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "JUS DE POMME BIO",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "KINDER SCHOKOBONS",
+    "amount": 4.87,
+    "discount": 0
+   }
+  ]
+ }
+}

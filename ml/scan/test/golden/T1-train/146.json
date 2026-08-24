@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/146.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-11-17",
+  "total": 4.14,
+  "items": [
+   {
+    "name": "215G SLD.MANHATTAN",
+    "amount": 5.25,
+    "discount": 0
+   }
+  ]
+ }
+}

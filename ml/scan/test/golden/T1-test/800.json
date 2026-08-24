@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/800.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CARREFOUR STATION SAS",
+  "date": "2017-01-02",
+  "total": 47.57,
+  "items": [
+   {
+    "name": "Pompe 4 SansPlomb 95",
+    "amount": 47.57,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/849.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 5.48,
+  "items": [
+   {
+    "name": "POIVRON",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 1.61,
+    "discount": 0
+   },
+   {
+    "name": "NOIRE DE CRIMEE",
+    "amount": 1.92,
+    "discount": 0
+   }
+  ]
+ }
+}

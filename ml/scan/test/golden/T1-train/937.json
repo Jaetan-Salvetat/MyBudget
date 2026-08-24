@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/937.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MNC",
+  "date": "2017-02-01",
+  "total": 1.75,
+  "items": [
+   {
+    "name": "Carte Postale 10*15",
+    "amount": 1.75,
+    "discount": 0
+   }
+  ]
+ }
+}

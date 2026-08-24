@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1334.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CASA",
+  "date": "2017-03-25",
+  "total": 29.95,
+  "items": [
+   {
+    "name": "DIAMOND TAPIS 150X210 GRIC",
+    "amount": 29.95,
+    "discount": 0
+   }
+  ]
+ }
+}

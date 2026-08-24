@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-test/img/625.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": null,
+  "date": "2017-06-15",
+  "total": 46.44,
+  "items": [
+   {
+    "name": "COR RGE FONT SANTE BIO 75CL",
+    "amount": 4.75,
+    "discount": 0
+   },
+   {
+    "name": "FRO.PAST.PT BRIE 32% B.VU 500G",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "CR.FRAICHE BIO 35% ISIGNY 20CL",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "SPECULOOS LOTUS SACHET 700G",
+    "amount": 2.7,
+    "discount": 0
+   },
+   {
+    "name": "BOISSON BIO AMANDE U BIO 1L",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "CHIPS BLEUE/VITELOT.SIBEL.100G",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "STICKS&BRETZELS DR OETKER 137G",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "CHIPS SAV.CHEVRE BRETS 125G",
+    "amount": 1.27,
+    "discount": 0
+   },
+   {
+    "name": "PAIN BATARD CEREALES SELECT'",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "BRIE LT.PAST.31,8%MG ROITELET",
+    "amount": 3.96,
+    "discount": 0
+   },
+   {
+    "name": "MORBIER AOP LT CRU 29% MG",
+    "amount": 3.79,
+    "discount": 0
+   },
+   {
+    "name": "TOMME SAVOIE IGP LT CRU29%USAV",
+    "amount": 3.45,
+    "discount": 0
+   },
+   {
+    "name": "BLEU DE CHEVRE PAST.26% JUSSAC",
+    "amount": 2.03,
+    "discount": 0
+   },
+   {
+    "name": "BRANDADE BOITE 190GX2 10%GRA",
+    "amount": 6.99,
+    "discount": 0
+   },
+   {
+    "name": "TIELLE SETOISE U SAV.2X105G",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "TORTILLA AUX OIGNONS 500GR",
+    "amount": 3.99,
+    "discount": 0
+   }
+  ]
+ }
+}

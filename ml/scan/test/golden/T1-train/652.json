@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/652.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "naturenville",
+  "date": "2017-06-10",
+  "total": 5.26,
+  "items": [
+   {
+    "name": "POMME BRAEBURN",
+    "amount": 2.19,
+    "discount": 0.0
+   },
+   {
+    "name": "FENOUIL CONVERSION BIO",
+    "amount": 1.62,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE FEUILLE DE CHENE VERTE BIO",
+    "amount": 1.45,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/610.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PLEINE NATURE AVIGNON NORD",
+  "date": "2017-07-04",
+  "total": 10.6,
+  "items": [
+   {
+    "name": "CRUSTY EPEAUTRE FR",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "MIX TIBETAIN VRAC 0.066 kg x 23.50EUR/kg",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "SOUPE FENOUIL CITR",
+    "amount": 6.26,
+    "discount": 0
+   }
+  ]
+ }
+}

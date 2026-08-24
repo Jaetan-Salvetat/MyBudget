@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/594.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF EXP ORLEANS BOURGOGNE",
+  "date": "2017-04-26",
+  "total": 4.3,
+  "items": [
+   {
+    "name": "*CREM FRAICHE EPAIS",
+    "amount": 0.79,
+    "discount": 0.0
+   },
+   {
+    "name": "*JBN PARIS CRF 4TR.",
+    "amount": 2.01,
+    "discount": 0.0
+   },
+   {
+    "name": "*PAIN COMPLET 0% P",
+    "amount": 1.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

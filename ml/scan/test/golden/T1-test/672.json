@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/672.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BURGER KING RESTAURANTS",
+  "date": "2017-06-01",
+  "total": 9.4,
+  "items": [
+   {
+    "name": "XXL DOUBLE BAC CHS",
+    "amount": 6.2,
+    "discount": 0
+   },
+   {
+    "name": "X-CREAM BOUNTY",
+    "amount": 3.2,
+    "discount": 0
+   }
+  ]
+ }
+}

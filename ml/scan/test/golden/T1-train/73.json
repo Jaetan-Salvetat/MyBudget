@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-train/img/73.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-01-20",
+  "total": 16.01,
+  "items": [
+   {
+    "name": "150G CHIPS GOURMAN",
+    "amount": 0.66,
+    "discount": 0
+   },
+   {
+    "name": "1L PS VELOUTE LEG",
+    "amount": 1.88,
+    "discount": 0
+   },
+   {
+    "name": "200G CHOCOLAT LAIT",
+    "amount": 1.98,
+    "discount": 0
+   },
+   {
+    "name": "420G SAUCE NAPOLIT",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "BEIGNETS CALAMARS",
+    "amount": 2.34,
+    "discount": 0
+   },
+   {
+    "name": "BROCOLI FILME",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 1.57,
+    "discount": 0
+   },
+   {
+    "name": "PET 1.5L EAU MIN.",
+    "amount": 0.58,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA TONNO",
+    "amount": 2.52,
+    "discount": 0
+   },
+   {
+    "name": "SAC POCKET CARREFO",
+    "amount": 1.0,
+    "discount": 0
+   }
+  ]
+ }
+}

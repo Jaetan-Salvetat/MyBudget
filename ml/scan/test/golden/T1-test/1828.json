@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1828.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "NOZ ST JEAN D'ANGELY",
+  "date": "2017-03-10",
+  "total": 6.87,
+  "items": [
+   {
+    "name": "BTA MAYO NAT BOC 4",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "GOUTTES REPULSIVES",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "HOUSSE DE TABLE A",
+    "amount": 2.99,
+    "discount": 0
+   }
+  ]
+ }
+}

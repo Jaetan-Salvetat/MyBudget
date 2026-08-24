@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/835.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SUR LE POUCE",
+  "date": "2017-07-06",
+  "total": 5.7,
+  "items": [
+   {
+    "name": "1 Croissant",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "1 Pain au chocolat",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "2 Cafe Expresso",
+    "amount": 3.0,
+    "discount": 0
+   }
+  ]
+ }
+}

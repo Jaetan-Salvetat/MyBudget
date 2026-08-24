@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/481.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-05-31",
+  "total": 28.16,
+  "items": [
+   {
+    "name": "1,5K STERILISE PLT",
+    "amount": 6.2,
+    "discount": 0
+   },
+   {
+    "name": "260G RICORE NESTLE",
+    "amount": 4.25,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN CEREALES BIO",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE WILLIAM VRT",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "RICORE 100G",
+    "amount": 2.09,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE IMP",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*YRT BRASSE 0% NATU",
+    "amount": 1.62,
+    "discount": 0
+   },
+   {
+    "name": "4KG SEL REGEN.SUN",
+    "amount": 3.26,
+    "discount": 0
+   },
+   {
+    "name": "6RLX PH XXL BLC AQ",
+    "amount": 3.51,
+    "discount": 0
+   }
+  ]
+ }
+}

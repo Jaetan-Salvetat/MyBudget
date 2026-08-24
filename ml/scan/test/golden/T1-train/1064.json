@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-train/img/1064.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA FERME SANTONE",
+  "date": "2017-05-13",
+  "total": 103.29,
+  "items": [
+   {
+    "name": "POITRINE D'AGNEAU \"ROSEAU\"",
+    "amount": 5.31,
+    "discount": 0.0
+   },
+   {
+    "name": "EPAULE D'AGNEAU \"ROSEAU\"",
+    "amount": 25.16,
+    "discount": 0.0
+   },
+   {
+    "name": "BAVETTE DE FLANCHET/PALERON KG",
+    "amount": 8.5,
+    "discount": 0.0
+   },
+   {
+    "name": "CUISSE DE POULET KG",
+    "amount": 8.56,
+    "discount": 0.0
+   },
+   {
+    "name": "JAMBON SEC DE PAYS S/V",
+    "amount": 3.13,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCISSE SECHE ESPELETTE SV",
+    "amount": 2.41,
+    "discount": 0.0
+   },
+   {
+    "name": "JAMBON BLANC MAISON S/V",
+    "amount": 2.55,
+    "discount": 0.0
+   },
+   {
+    "name": "JAMBON BLANC MAISON S/V",
+    "amount": 3.5,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME GOLDEN kg -Tare:PT:0.005kg",
+    "amount": 1.38,
+    "discount": 0.0
+   },
+   {
+    "name": "PACK YAOURT CHEVRE",
+    "amount": 3.1,
+    "discount": 0.0
+   },
+   {
+    "name": "YAOURT NATURE 4X125GRS",
+    "amount": 5.2,
+    "discount": 0.0
+   },
+   {
+    "name": "RADIS botte Manois",
+    "amount": 1.4,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE Manois",
+    "amount": 0.8,
+    "discount": 0.0
+   },
+   {
+    "name": "JUS DE POMME 1L",
+    "amount": 2.4,
+    "discount": 0.0
+   },
+   {
+    "name": "BETTERAVE CUITE kg -Tare:0.005kg",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "CELERI RAVE Mano-Tare:PT:0.005kg",
+    "amount": 1.17,
+    "discount": 0.0
+   },
+   {
+    "name": "CAROTTE botte f.s.",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SOUPE LANGOUSTINES BOCAL 0.78KG",
+    "amount": 4.66,
+    "discount": 0.0
+   },
+   {
+    "name": "HUITRE FINE kg -Tare:PT:0.005kg",
+    "amount": 6.37,
+    "discount": 0.0
+   },
+   {
+    "name": "FARINE DE BLE COMPLETE 5KG",
+    "amount": 10.5,
+    "discount": 0.0
+   },
+   {
+    "name": "FRAISE bq250 Manois",
+    "amount": 3.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

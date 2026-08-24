@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-train/img/503.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-31",
+  "total": 66.6,
+  "items": [
+   {
+    "name": "100G KS TITI",
+    "amount": 5.29,
+    "discount": 0
+   },
+   {
+    "name": "150G TRUITE FUMEE",
+    "amount": 4.17,
+    "discount": 0
+   },
+   {
+    "name": "*72CL HV XF CRF",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "75 LLP RG CARDINAL",
+    "amount": 9.9,
+    "discount": 3.96
+   },
+   {
+    "name": "*BQ 125G FRAMBOISE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*BQ 250G GARIGUET.F",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*CITRON JNE PIECE",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "*COURGETTE",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "*LENTILLES CRF",
+    "amount": 0.91,
+    "discount": 0
+   },
+   {
+    "name": "*MONTBELIARD X2",
+    "amount": 3.17,
+    "discount": 0
+   },
+   {
+    "name": "OEUF GRANITES",
+    "amount": 10.9,
+    "discount": 0
+   },
+   {
+    "name": "OEUF LT ECLAT NOIS",
+    "amount": 5.9,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN AU NOIX",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE WILLIAM VRT",
+    "amount": 4.33,
+    "discount": 0
+   },
+   {
+    "name": "*POIVRON ROUGE",
+    "amount": 2.11,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE COCKTAIL",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*YAOUR.BRAS.NAT.CRF",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "12RLX PH.BLANC 2 P",
+    "amount": 2.04,
+    "discount": 0
+   },
+   {
+    "name": "2 EPONG.GRATT.SPTX",
+    "amount": 1.44,
+    "discount": 0
+   },
+   {
+    "name": "ECO30 SPHERIQUE 18",
+    "amount": 4.75,
+    "discount": 0
+   },
+   {
+    "name": "SAC CAISSE PAPIER",
+    "amount": 0.2,
+    "discount": 0
+   }
+  ]
+ }
+}

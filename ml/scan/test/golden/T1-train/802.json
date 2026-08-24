@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/802.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "EARL BOGERS VENDELICE",
+  "date": "2017-07-17",
+  "total": 6.0,
+  "items": [
+   {
+    "name": "Divers",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Divers",
+    "amount": 2.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

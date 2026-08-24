@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/406.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-27",
+  "total": 4.75,
+  "items": [
+   {
+    "name": "*CAROT.RAP.CRF 300G",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "*MOUSSE AU CHOCOLAT",
+    "amount": 3.11,
+    "discount": 0
+   },
+   {
+    "name": "*TABOUL.ORIENT.300G",
+    "amount": 0.94,
+    "discount": 0
+   }
+  ]
+ }
+}

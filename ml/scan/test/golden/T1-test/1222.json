@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/1222.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "espace culturel E.Leclerc",
+  "date": "2017-06-17",
+  "total": 93.1,
+  "items": [
+   {
+    "name": "LE TEMPS DE LILAS",
+    "amount": 18.05,
+    "discount": 0.0
+   },
+   {
+    "name": "VERNON SUBUTEX",
+    "amount": 7.51,
+    "discount": 0.0
+   },
+   {
+    "name": "AGATHA",
+    "amount": 16.05,
+    "discount": 0.0
+   },
+   {
+    "name": "DES VIES EN MIEUX",
+    "amount": 7.41,
+    "discount": 0.0
+   },
+   {
+    "name": "REPOSE-TOI SUR MOI",
+    "amount": 7.98,
+    "discount": 0.0
+   },
+   {
+    "name": "LES COULEURS DE LA VIE",
+    "amount": 19.95,
+    "discount": 0.0
+   },
+   {
+    "name": "FENDRE L ARMURE",
+    "amount": 16.15,
+    "discount": 0.0
+   }
+  ]
+ }
+}

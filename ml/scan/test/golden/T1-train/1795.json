@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1795.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "McDonald's ANGOULINS",
+  "date": "2016-09-13",
+  "total": 12.5,
+  "items": [
+   {
+    "name": "BO ChickTastyBa",
+    "amount": 9.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Flu MM's+Cara",
+    "amount": 3.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

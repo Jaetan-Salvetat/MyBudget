@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1188.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SOGERES",
+  "date": "2004-05-25",
+  "total": 3.9,
+  "items": [
+   {
+    "name": "PLATEAU 1",
+    "amount": 2.48,
+    "discount": 0
+   }
+  ]
+ }
+}

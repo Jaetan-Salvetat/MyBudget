@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/743.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "espace culturel E.Leclerc",
+  "date": "2016-12-28",
+  "total": 9.97,
+  "items": [
+   {
+    "name": "BOITE ALLOCINE LE CINEMA ET LES",
+    "amount": 9.97,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-test/img/190.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-01-10",
+  "total": 54.4,
+  "items": [
+   {
+    "name": "*1/2 300G MAIS SSA",
+    "amount": 1.17,
+    "discount": 0.0
+   },
+   {
+    "name": "*120EUF PLEIN AIR M",
+    "amount": 6.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*180G SAUM.FUM.NORV",
+    "amount": 4.35,
+    "discount": 0.0
+   },
+   {
+    "name": "*370G CONF FIGUES",
+    "amount": 1.4,
+    "discount": 0.0
+   },
+   {
+    "name": "*470G BOCAL MAYO",
+    "amount": 3.86,
+    "discount": 0.0
+   },
+   {
+    "name": "*500ML LIQ.VSL CRF",
+    "amount": 1.28,
+    "discount": 0.0
+   },
+   {
+    "name": "*600G BRIOC.VEND.RF",
+    "amount": 3.44,
+    "discount": 0.0
+   },
+   {
+    "name": "*75ML DENT ANTI TAR",
+    "amount": 1.24,
+    "discount": 0.0
+   },
+   {
+    "name": "*AVOCAT",
+    "amount": 2.4,
+    "discount": 0.0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.94,
+    "discount": 0.0
+   },
+   {
+    "name": "*BATONNETS SURIMI",
+    "amount": 3.22,
+    "discount": 0.0
+   },
+   {
+    "name": "*BEURRE 1/2SEL BIO",
+    "amount": 2.33,
+    "discount": 0.0
+   },
+   {
+    "name": "*BOURSIN AFH 150G",
+    "amount": 1.63,
+    "discount": 0.0
+   },
+   {
+    "name": "*CITRON VERT",
+    "amount": 0.45,
+    "discount": 0.0
+   },
+   {
+    "name": "*CLEMENTINE FILET 1KG",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*FILM 30M",
+    "amount": 1.53,
+    "discount": 0.0
+   },
+   {
+    "name": "*JAMBON CUIT AC 4T",
+    "amount": 3.9,
+    "discount": 0.0
+   },
+   {
+    "name": "*LA PIZZA JBN/EMMEN",
+    "amount": 3.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*OIGNON JAUNE",
+    "amount": 0.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*P.MIE FROM.CRF BIO",
+    "amount": 2.17,
+    "discount": 0.0
+   },
+   {
+    "name": "*PAIN AMERIC.SANDWI",
+    "amount": 0.97,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZA JBON/CHAMPIG",
+    "amount": 2.37,
+    "discount": 0.0
+   },
+   {
+    "name": "*SACS POUB TRAD 30L",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "*SPEC LAIT CREM CRF",
+    "amount": 0.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

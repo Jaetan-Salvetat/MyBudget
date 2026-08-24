@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/386.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-21",
+  "total": 27.28,
+  "items": [
+   {
+    "name": "*250ML SOJA CUISINE",
+    "amount": 1.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*300G PRINCE CHOCOL",
+    "amount": 1.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*30X TAB VSL EN 1",
+    "amount": 7.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*6 RLX P.H.2PLI CRF",
+    "amount": 1.49,
+    "discount": 0.0
+   },
+   {
+    "name": "*CERNEAUX DAUPH.RDF",
+    "amount": 3.92,
+    "discount": 0.0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.41,
+    "discount": 0.0
+   },
+   {
+    "name": "*LESS.FR.ETE MVERT",
+    "amount": 8.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*LT 1/2E.BIO CRF 1L",
+    "amount": 1.05,
+    "discount": 0.0
+   }
+  ]
+ }
+}

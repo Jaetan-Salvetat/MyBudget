@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/897.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-21",
+  "total": 1.16,
+  "items": [
+   {
+    "name": "POMME GOLDEN DELICIOUS",
+    "amount": 1.16,
+    "discount": 0.0
+   }
+  ]
+ }
+}

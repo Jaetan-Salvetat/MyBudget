@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/588.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-06-21",
+  "total": 0.65,
+  "items": [
+   {
+    "name": "*PET 50 CL EVIAN",
+    "amount": 0.65,
+    "discount": 0.0
+   }
+  ]
+ }
+}

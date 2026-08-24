@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/968.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Nature & Découvertes",
+  "date": "2016-09-27",
+  "total": 24.95,
+  "items": [
+   {
+    "name": "PLAID INTEGRAL KANGURU GR",
+    "amount": 24.95,
+    "discount": 0
+   }
+  ]
+ }
+}

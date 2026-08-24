@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/708.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-03-15",
+  "total": 15.53,
+  "items": [
+   {
+    "name": "ELEPH BROSSE VAISS.",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "ELEPH BROSSE VAISS.",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "ELE.TAPIS ESSUIE-PIE",
+    "amount": 10.15,
+    "discount": 0
+   }
+  ]
+ }
+}

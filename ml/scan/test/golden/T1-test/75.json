@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/75.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2016-12-08",
+  "total": 8.15,
+  "items": [
+   {
+    "name": "*225G KRISPROLL.S/S",
+    "amount": 2.9,
+    "discount": 0.0
+   },
+   {
+    "name": "*P.SANDW.CEREAL.CRF",
+    "amount": 2.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*POELEE LEGUME BIO",
+    "amount": 2.45,
+    "discount": 0.0
+   }
+  ]
+ }
+}

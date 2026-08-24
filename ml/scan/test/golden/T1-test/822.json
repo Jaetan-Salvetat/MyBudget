@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/822.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEADER PRICE",
+  "date": "2017-07-11",
+  "total": 3.21,
+  "items": [
+   {
+    "name": "VELOUT.LEG.BIO",
+    "amount": 2.44,
+    "discount": 0.0
+   },
+   {
+    "name": "GALETT.4CEREA.",
+    "amount": 0.77,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/731.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BOUCHERIE D'ANTAN",
+  "date": "2017-02-11",
+  "total": 43.75,
+  "items": [
+   {
+    "name": "BOUCHERIE",
+    "amount": 43.75,
+    "discount": 0
+   }
+  ]
+ }
+}

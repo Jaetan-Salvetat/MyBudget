@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1945.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SAGS La Plagne",
+  "date": "2017-01-25",
+  "total": 42.0,
+  "items": [
+   {
+    "name": "Ticket de stat.horaire",
+    "amount": 42.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

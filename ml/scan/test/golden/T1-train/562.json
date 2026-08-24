@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/562.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-06-20",
+  "total": 2.14,
+  "items": [
+   {
+    "name": "*BAGUETTE BLANCHE",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*PET 6X1.5L EAU SCE C",
+    "amount": 1.14,
+    "discount": 0.0
+   }
+  ]
+ }
+}

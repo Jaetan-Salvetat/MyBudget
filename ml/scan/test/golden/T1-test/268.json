@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/268.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-06-08",
+  "total": 5.49,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 0.59,
+    "discount": 0.0
+   },
+   {
+    "name": "*D.PIZZA 4 FORMAGGI",
+    "amount": 4.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

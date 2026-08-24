@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/142.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-03-26",
+  "total": 13.77,
+  "items": [
+   {
+    "name": "200G CHOCO MOOO M",
+    "amount": 2.03,
+    "discount": 0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "BISC.PT DEJ.CRF",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 1.57,
+    "discount": 0
+   },
+   {
+    "name": "NEMS PORC+SAUCE",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA JBN FROMAGE",
+    "amount": 1.17,
+    "discount": 0
+   }
+  ]
+ }
+}

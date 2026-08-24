@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/664.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Earl Le Rouge Gorge",
+  "date": "2017-06-17",
+  "total": 11.07,
+  "items": [
+   {
+    "name": "Article divers",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "Article divers",
+    "amount": 4.93,
+    "discount": 0
+   },
+   {
+    "name": "Article divers",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "Article divers",
+    "amount": 3.34,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/566.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-03-18",
+  "total": 19.07,
+  "items": [
+   {
+    "name": "*1.5L MOJITO 7UP",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "*AIGUILL.POULET X2",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   },
+   {
+    "name": "*CAMEMBER.LANQUETO",
+    "amount": 2.31,
+    "discount": 0
+   },
+   {
+    "name": "*CERVELAS 200G",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "*EMINCES DE GESIERS",
+    "amount": 2.21,
+    "discount": 0
+   },
+   {
+    "name": "*KNACKI -25%SEL",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*PET 2L TROPICANA M",
+    "amount": 3.52,
+    "discount": 0
+   },
+   {
+    "name": "*TERR.CAMP.CRF 180G",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "BLOC ENERGY OCEAN",
+    "amount": 2.16,
+    "discount": 0
+   }
+  ]
+ }
+}

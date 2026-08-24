@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1072.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LES VERGERS DE ST CYR",
+  "date": "2017-04-08",
+  "total": 3.59,
+  "items": [
+   {
+    "name": "POMME BELCHARD",
+    "amount": 1.59,
+    "discount": 0.0
+   },
+   {
+    "name": "JUS DE POMME",
+    "amount": 2.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

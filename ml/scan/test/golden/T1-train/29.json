@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/29.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-18",
+  "total": 7.27,
+  "items": [
+   {
+    "name": "*200G SCHOKOBONS KI",
+    "amount": 3.12,
+    "discount": 0.0
+   },
+   {
+    "name": "*75 CAB ANJ RSE MDD",
+    "amount": 4.15,
+    "discount": 0.0
+   }
+  ]
+ }
+}

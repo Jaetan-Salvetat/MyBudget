@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1728.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-02-27",
+  "total": 4.82,
+  "items": [
+   {
+    "name": "PAIN AU LAIT U X15 525G",
+    "amount": 1.35,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME CHANTECLER BELCHARD",
+    "amount": 1.59,
+    "discount": 0.0
+   },
+   {
+    "name": "ORANGE NAVELINE",
+    "amount": 0.94,
+    "discount": 0.0
+   },
+   {
+    "name": "LAIT UHT ENTIER U BK 1 LITRE",
+    "amount": 0.94,
+    "discount": 0.0
+   }
+  ]
+ }
+}

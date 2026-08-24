@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/665.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SATORIZ Le bio pour tous",
+  "date": "2017-05-05",
+  "total": 11.32,
+  "items": [
+   {
+    "name": "un COOKIES FOURRES",
+    "amount": 2.57,
+    "discount": 0
+   },
+   {
+    "name": "un CRUSTY PICKS FR",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "un SALADE MEXICAIN",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "un CHEF QUINOA CUR",
+    "amount": 3.7,
+    "discount": 0
+   }
+  ]
+ }
+}

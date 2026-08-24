@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/162.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-05",
+  "total": 8.9,
+  "items": [
+   {
+    "name": "180G QUINOA BOULG",
+    "amount": 2.77,
+    "discount": 0
+   },
+   {
+    "name": "PARMENTIER PATATES",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "VACHE A BOIRE VANI",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

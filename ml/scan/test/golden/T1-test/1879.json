@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1879.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc FLEURS DE CHAMPAGNE",
+  "date": "2017-01-27",
+  "total": 4.9,
+  "items": [
+   {
+    "name": "FLEURS COUPEES",
+    "amount": 4.9,
+    "discount": 0
+   }
+  ]
+ }
+}

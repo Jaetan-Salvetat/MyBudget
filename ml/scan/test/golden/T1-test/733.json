@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/733.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ISEO GOURMET",
+  "date": "2017-02-10",
+  "total": 23.0,
+  "items": [
+   {
+    "name": "BOUCHEES VAPEUR",
+    "amount": 8.4,
+    "discount": 0
+   },
+   {
+    "name": "SALADE POULET",
+    "amount": 5.9,
+    "discount": 0
+   },
+   {
+    "name": "VERRINE DE SAUMON",
+    "amount": 4.9,
+    "discount": 0
+   },
+   {
+    "name": "ROULEAUX PRINTEMPS",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE MOYEN",
+    "amount": 0.6,
+    "discount": 0
+   }
+  ]
+ }
+}

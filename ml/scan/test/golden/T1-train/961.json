@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/961.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "GÉMO",
+  "date": "2016-08-26",
+  "total": 29.99,
+  "items": [
+   {
+    "name": "ESCARPIN NOIR",
+    "amount": 29.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/910.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-12",
+  "total": 12.63,
+  "items": [
+   {
+    "name": "RIZ CANTONAIS MICRO-OND.U 250G",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCISSE STRASBOURG U X10 350G",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "RIZ BASMATI CURRY MICRO.U 250G",
+    "amount": 1.19,
+    "discount": 0.0
+   },
+   {
+    "name": "PUREE DE POIS CASSES U DP 250G",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUC.COCK.BOUDIN BLC UX25 200G",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE RIZ THON OEUF CRU.U310G",
+    "amount": 5.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

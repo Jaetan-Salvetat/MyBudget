@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/700.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PICARD SURGELES SAS",
+  "date": "2017-03-29",
+  "total": 53.75,
+  "items": [
+   {
+    "name": "*Colin Bord. FE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Blanq.volailFE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Parm.poulet FE",
+    "amount": 5.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Tartiflette FE",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet pestoFE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet basquai",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet/pâte FE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Chili Carne FE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Filet poulet 1k",
+    "amount": 10.35,
+    "discount": 0.0
+   },
+   {
+    "name": "Escalopes dinde",
+    "amount": 12.4,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "source": "dataset_findit/T1-test/img/827.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U ECHILLAIS",
+  "date": "2017-06-14",
+  "total": 97.81,
+  "items": [
+   {
+    "name": "CHEVRE FRAIS 200G",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "L.&PL.ST MORET 8% 300G+30G.GRT",
+    "amount": 2.89,
+    "discount": 0.87
+   },
+   {
+    "name": "COMTE AOP 34,6%MG USAV.+/-250G",
+    "amount": 4.61,
+    "discount": 0
+   },
+   {
+    "name": "JONCHEE NATURE 2 PORTIONS",
+    "amount": 3.6,
+    "discount": 0
+   },
+   {
+    "name": "BRIE MEAUX AOP L.CRU 21% USAV.",
+    "amount": 2.88,
+    "discount": 0
+   },
+   {
+    "name": "ST NECTAIRE FERM.AOP LC22,5%",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "FRISKIES STERILISE BF CHAT 2KG",
+    "amount": 4.8,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE RONDE EN GRAPPE RENNES",
+    "amount": 1.61,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT NAT.LT CHEVRE SOIGNONX4",
+    "amount": 2.1,
+    "discount": 0.63
+   },
+   {
+    "name": "SAUMON FUME U BIO 4TR.150G",
+    "amount": 6.79,
+    "discount": 0
+   },
+   {
+    "name": "3 X GIGOT *** AVEC OS TRANCHE",
+    "amount": 6.73,
+    "discount": 0
+   },
+   {
+    "name": "CHEVAL MAGAZINE",
+    "amount": 5.9,
+    "discount": 0
+   },
+   {
+    "name": "GALETTES BLE NOIR JARN.X4 240G",
+    "amount": 2.1,
+    "discount": 0.84
+   },
+   {
+    "name": "CITRON VERT",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "EAU SOURCE D'AUVERGNE U 6X1,5L",
+    "amount": 3.18,
+    "discount": 0
+   },
+   {
+    "name": "CHOCO.NOIR DEGUSTAT.85% U 100G",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "AMANDE DECORT.B.VU SACHET 500G",
+    "amount": 5.45,
+    "discount": 0
+   },
+   {
+    "name": "GAILLAC ROUGE CH.MERITZ 75CL",
+    "amount": 4.5,
+    "discount": 0
+   },
+   {
+    "name": "BERGERAC RG FONSECOST.U 75CL",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "MOULE DE FILIERE",
+    "amount": 4.15,
+    "discount": 0
+   },
+   {
+    "name": "MAQUEREAU",
+    "amount": 3.68,
+    "discount": 0
+   },
+   {
+    "name": "CACAHU.GRIL.SALE.BENENUTS 410G",
+    "amount": 2.17,
+    "discount": 0
+   },
+   {
+    "name": "CACAHUETES SAV.WASABI U 150G",
+    "amount": 1.04,
+    "discount": 0
+   },
+   {
+    "name": "LES.LIQ.SENT.SUD U NAT.RECH.2L",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "RECH.INOD.A/VOL.PYREL PLAQ.X30",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "JOKER 100%PJ ORANGE PULPE 1,5L",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "MOULE CAKE U.MAI.28CM A/OREIL.",
+    "amount": 6.79,
+    "discount": 0
+   }
+  ]
+ }
+}

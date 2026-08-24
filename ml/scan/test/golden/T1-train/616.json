@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/616.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-03-23",
+  "total": 19.09,
+  "items": [
+   {
+    "name": "ARACHIDE COQUE BIEN VU SHT 1KG",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "PAIN BATARD CEREALES SELECT°",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "PETIT RISSO 280G",
+    "amount": 3.69,
+    "discount": 0
+   },
+   {
+    "name": "BEURRE MOULE DS 80%MG U 500G",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "STE MAURE SOIGNON BUCH.23%200G",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "BEUR.DX 82%AOP GD FERM.PQ 250G",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "CHOC.LAIT NOISETTES.ENT.U 200G",
+    "amount": 1.45,
+    "discount": 0
+   }
+  ]
+ }
+}

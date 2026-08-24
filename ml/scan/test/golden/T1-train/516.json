@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-train/img/516.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-07",
+  "total": 41.36,
+  "items": [
+   {
+    "name": "1/6HARI.LE PHARE",
+    "amount": 4.32,
+    "discount": 0
+   },
+   {
+    "name": "4X125G RIZ LONG",
+    "amount": 0.53,
+    "discount": 0
+   },
+   {
+    "name": "500G TOMACOULI AIL",
+    "amount": 3.27,
+    "discount": 0
+   },
+   {
+    "name": "*800G CORDON PLT",
+    "amount": 3.66,
+    "discount": 0
+   },
+   {
+    "name": "BALLOTIN ISIS - RO",
+    "amount": 3.7,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPS-EL LT BTE 9",
+    "amount": 11.28,
+    "discount": 0
+   },
+   {
+    "name": "CREV.CUITE 40/60",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL RAPE CRF",
+    "amount": 1.52,
+    "discount": 0
+   },
+   {
+    "name": "LTX5 HWD ICEFRESH",
+    "amount": 1.88,
+    "discount": 0
+   },
+   {
+    "name": "LTX5 HWD POWERFRES",
+    "amount": 1.88,
+    "discount": 1.88
+   },
+   {
+    "name": "M&M'S&FRIENDS BOTT",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "M&M'S&FRIENDS BOTT",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "YAB FRAISE OFF ECO",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "AB YOP CHO OF ECO",
+    "amount": 1.45,
+    "discount": 1.45
+   },
+   {
+    "name": "YOP CHOCO-CARAMEL",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "72X LING.BB LAIT",
+    "amount": 1.78,
+    "discount": 0
+   }
+  ]
+ }
+}

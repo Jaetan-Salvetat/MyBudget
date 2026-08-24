@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/383.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-31",
+  "total": 6.36,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 0.34,
+    "discount": 0
+   },
+   {
+    "name": "*CRF SALADE SAUMON",
+    "amount": 3.32,
+    "discount": 0
+   },
+   {
+    "name": "*FOUGASSETTE BLEU&NOI",
+    "amount": 2.7,
+    "discount": 0
+   }
+  ]
+ }
+}

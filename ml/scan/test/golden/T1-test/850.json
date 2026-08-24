@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/850.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Aux Saveurs d'Asie",
+  "date": "2017-06-13",
+  "total": 10.0,
+  "items": [
+   {
+    "name": "2 GIO PATE VIETN 500G HN",
+    "amount": 10.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

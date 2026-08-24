@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/556.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-06-16",
+  "total": 5.68,
+  "items": [
+   {
+    "name": "*CAROTTES",
+    "amount": 0.53,
+    "discount": 0
+   },
+   {
+    "name": "*PDT VRAC",
+    "amount": 1.5,
+    "discount": 0
+   }
+  ]
+ }
+}

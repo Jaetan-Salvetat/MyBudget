@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/88.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-31",
+  "total": 5.33,
+  "items": [
+   {
+    "name": "*250G TORTELL.PESTO",
+    "amount": 3.21,
+    "discount": 0.0
+   },
+   {
+    "name": "*RMS CLASSIQUES VEL",
+    "amount": 1.08,
+    "discount": 0.0
+   },
+   {
+    "name": "*VELOUT LEG.ROYCO",
+    "amount": 1.04,
+    "discount": 0.0
+   }
+  ]
+ }
+}

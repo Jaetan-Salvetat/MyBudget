@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/1730.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SARL ARGEDIS SUD OUEST",
+  "date": "2014-09-21",
+  "total": 13.55,
+  "items": [
+   {
+    "name": "SANDW",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "ALIM TN",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "LIQ TR5",
+    "amount": 0.71,
+    "discount": 0
+   },
+   {
+    "name": "ALI TR5",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "LIQ TR5",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "LIQ TR5",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "SANDW",
+    "amount": 3.02,
+    "discount": 0
+   },
+   {
+    "name": "FRAIS TR5",
+    "amount": 1.08,
+    "discount": 0
+   }
+  ]
+ }
+}

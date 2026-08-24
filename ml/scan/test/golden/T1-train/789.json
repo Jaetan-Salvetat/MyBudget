@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/789.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "ASF",
+  "date": "2016-12-30",
+  "total": 22.3,
+  "items": [
+   {
+    "name": "Sortie Montpellier 2 Entree Toulouse-S-E Classe-tarif..1 km..249",
+    "amount": 22.3,
+    "discount": 0.0
+   }
+  ]
+ }
+}

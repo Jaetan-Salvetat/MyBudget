@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/740.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LEADER PRICE",
+  "date": "2016-07-31",
+  "total": 11.84,
+  "items": [
+   {
+    "name": "COOKIES NOUG.PEP.CHO",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "Y.BOIRE FRAMBOISE 85",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "CHIPS NATURE 350G LP",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "PLAT.REPAS JB OEUF/E",
+    "amount": 3.08,
+    "discount": 0
+   },
+   {
+    "name": "SDW POLAIRE JB CHEDD",
+    "amount": 1.28,
+    "discount": 0
+   },
+   {
+    "name": "GENOISE FRAMBOISE 15",
+    "amount": 0.73,
+    "discount": 0
+   },
+   {
+    "name": "SDW POULET CRUDITES",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "PETIT LAIT 175G LP",
+    "amount": 0.58,
+    "discount": 0
+   },
+   {
+    "name": "SDW JAMBON EMMENTAL",
+    "amount": 0.72,
+    "discount": 0
+   },
+   {
+    "name": "MELANGE EXOTIQUE 120",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "EAU DE SOURCE 50CL L",
+    "amount": 0.15,
+    "discount": 0
+   }
+  ]
+ }
+}

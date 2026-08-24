@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/358.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-06-17",
+  "total": 17.48,
+  "items": [
+   {
+    "name": "*200G TZATZIKI CRF",
+    "amount": 1.81,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*CHIPS PESTO PARMES",
+    "amount": 2.48,
+    "discount": 0
+   },
+   {
+    "name": "*KINDER SCHOKOBONS",
+    "amount": 3.43,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 4.4,
+    "discount": 0
+   },
+   {
+    "name": "*X4 M.SUBITE KRIEK",
+    "amount": 4.52,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,109 @@
+{
+ "source": "dataset_findit/T1-test/img/584.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2017-05-16",
+  "total": 93.29,
+  "items": [
+   {
+    "name": "180G SAUM.FUM.NORV",
+    "amount": 3.35,
+    "discount": 0
+   },
+   {
+    "name": "8X125G PANIER 0%",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "300G COEUR COMPLIC",
+    "amount": 2.09,
+    "discount": 0
+   },
+   {
+    "name": "TERRINE DE SAUMON",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "X48 SENSEO CORSE",
+    "amount": 5.13,
+    "discount": 0
+   },
+   {
+    "name": "CRUNCH CALI ROLL",
+    "amount": 7.2,
+    "discount": 0
+   },
+   {
+    "name": "BUCHE DE CHEVRE",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "100G AM/MYRT.LINDT",
+    "amount": 1.63,
+    "discount": 0
+   },
+   {
+    "name": "180G HOUM.CURY CRF",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "PANACH.JEUNE POUSS",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "DENTAFL. MOY.CHIEN",
+    "amount": 11.88,
+    "discount": 0
+   },
+   {
+    "name": "TARTINE DOUX DX",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "PAVE BIO 500G TR P",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "270G BISCOTTES",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "FROMAGE BLANC 20%",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "110 MOUCHOIR CRF.",
+    "amount": 0.96,
+    "discount": 0
+   },
+   {
+    "name": "CHAUSSETTES",
+    "amount": 19.8,
+    "discount": 0
+   },
+   {
+    "name": "3 BOXERS ATHENA",
+    "amount": 20.9,
+    "discount": 0
+   },
+   {
+    "name": "2 PILES LR43/186",
+    "amount": 6.8,
+    "discount": 0
+   }
+  ]
+ }
+}

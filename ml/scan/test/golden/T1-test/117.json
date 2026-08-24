@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/117.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-08-03",
+  "total": 14.5,
+  "items": [
+   {
+    "name": "110 MOUCHOIR CRF.",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0
+   },
+   {
+    "name": "30ST THE VERT MENT",
+    "amount": 2.13,
+    "discount": 0
+   },
+   {
+    "name": "CAF.LYO IGP COLOMB",
+    "amount": 4.77,
+    "discount": 0
+   },
+   {
+    "name": "CREME LAVANTE PECH",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "X6 RLX P.H CONF.",
+    "amount": 2.34,
+    "discount": 0
+   }
+  ]
+ }
+}

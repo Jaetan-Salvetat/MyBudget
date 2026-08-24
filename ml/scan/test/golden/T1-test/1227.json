@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1227.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BURGER KING®",
+  "date": "2017-06-14",
+  "total": 10.4,
+  "items": [
+   {
+    "name": "X-CREAM® TWIX®",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "MENU WHOPPER®",
+    "amount": 7.2,
+    "discount": 0
+   }
+  ]
+ }
+}

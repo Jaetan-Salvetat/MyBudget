@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/609.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-03-09",
+  "total": 15.03,
+  "items": [
+   {
+    "name": "P' N BATARD CEREALES SELECT",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "PAIN BATARD COMPLET SELECT U",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "CONTE AOP LC 34% ENTREMONT350G",
+    "amount": 4.39,
+    "discount": 0
+   },
+   {
+    "name": "FRO.PAST.PT BRIE 32% B.VU 500G",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "BEUR.DX 82%AOP GD FERM.PQ 250G",
+    "amount": 4.95,
+    "discount": 0
+   }
+  ]
+ }
+}

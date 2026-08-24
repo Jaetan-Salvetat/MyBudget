@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/491.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-17",
+  "total": 6.26,
+  "items": [
+   {
+    "name": "*BANANES",
+    "amount": 4.47,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMM PDT RAPE 200G",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "SAC CAISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

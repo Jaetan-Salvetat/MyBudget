@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/587.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-04",
+  "total": 11.27,
+  "items": [
+   {
+    "name": "*75CL HUILE OMEGA BIO",
+    "amount": 6.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*AVOCAT GROS",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*CUISSON 15M",
+    "amount": 2.07,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMELO ROSE",
+    "amount": 0.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/474.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-06-14",
+  "total": 77.7,
+  "items": [
+   {
+    "name": "*6X CANDIA C 10M-3A",
+    "amount": 3.14,
+    "discount": 0
+   },
+   {
+    "name": "*CEREAL.BABIVANILLE",
+    "amount": 2.72,
+    "discount": 0
+   },
+   {
+    "name": "*LAIT UHT 1/2ECREME",
+    "amount": 12.96,
+    "discount": 3.24
+   },
+   {
+    "name": "*PTIT ONCTUEUX FRAI",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "12 INCO SERV NIGHT",
+    "amount": 16.1,
+    "discount": 12.14
+   },
+   {
+    "name": "ALWAYS INCONT NORM",
+    "amount": 8.18,
+    "discount": 0
+   },
+   {
+    "name": "ARIEL LIQ 23D ORIG",
+    "amount": 15.0,
+    "discount": 0
+   },
+   {
+    "name": "CREME LIFT+ SUBLIM",
+    "amount": 8.65,
+    "discount": 0
+   },
+   {
+    "name": "X86 T4 BD PAMPERS",
+    "amount": 26.0,
+    "discount": 0
+   }
+  ]
+ }
+}

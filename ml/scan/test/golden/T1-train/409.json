@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/409.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-28",
+  "total": 12.29,
+  "items": [
+   {
+    "name": "*BUDDHA BOL FALAFEL",
+    "amount": 5.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*COOKIES CHOCO 184G",
+    "amount": 1.89,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMELO ROSE PIECE",
+    "amount": 0.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMME BIO X4",
+    "amount": 3.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

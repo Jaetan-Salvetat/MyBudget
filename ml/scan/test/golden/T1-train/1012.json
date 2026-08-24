@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1012.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "ACTION",
+  "date": "2016-10-05",
+  "total": 8.57,
+  "items": [
+   {
+    "name": "!2516612 toblerone 100g chocolat au lait",
+    "amount": 1.58,
+    "discount": 0.0
+   },
+   {
+    "name": "2501766 intex matelas gonflable 1p. 76x191x22cm",
+    "amount": 6.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

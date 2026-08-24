@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/778.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "THE FLOWERS CAFE",
+  "date": "2016-12-26",
+  "total": 23.0,
+  "items": [
+   {
+    "name": "CAFE LATTE",
+    "amount": 3.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CHOCOLATS EPAIS NATUR",
+    "amount": 8.0,
+    "discount": 0.0
+   },
+   {
+    "name": "MOELLEUX CHOCOLAT",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CRUMBLES POIRE CHOCOL",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CHEESE CAKE",
+    "amount": 4.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

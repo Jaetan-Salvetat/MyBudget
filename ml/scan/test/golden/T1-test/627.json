@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/627.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CHEZ ABDEL",
+  "date": "2017-06-19",
+  "total": 7.02,
+  "items": [
+   {
+    "name": "COURGETTE",
+    "amount": 4.5,
+    "discount": 0
+   },
+   {
+    "name": "CERISE",
+    "amount": 2.52,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/948.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "DECATHLON LA ROCHELLE",
+  "date": "2017-02-13",
+  "total": 93.92,
+  "items": [
+   {
+    "name": "MATELAS ARPENAZ AIR",
+    "amount": 24.99,
+    "discount": 0
+   },
+   {
+    "name": "KIT REPARATION 300 N",
+    "amount": 12.99,
+    "discount": 0
+   },
+   {
+    "name": "CHAMBRE AIR 700X35/4",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "ECLAIRAGE ARRIERE CU",
+    "amount": 9.99,
+    "discount": 0
+   },
+   {
+    "name": "KIT VIOO USB AV & A",
+    "amount": 25.99,
+    "discount": 0
+   },
+   {
+    "name": "GANT FORCLAZ 300 HYB",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "CYCLING 100 CAT3",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "GONFLEUR A PIED",
+    "amount": 6.99,
+    "discount": 0
+   }
+  ]
+ }
+}

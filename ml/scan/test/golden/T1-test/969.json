@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/969.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Galeries Lafayette",
+  "date": "2015-12-28",
+  "total": 24.9,
+  "items": [
+   {
+    "name": "3700392420307 7396 SCRAPCOOKING",
+    "amount": 17.5,
+    "discount": 0.0
+   },
+   {
+    "name": "3700392470883 7396 SCRAPCOOKING",
+    "amount": 3.7,
+    "discount": 0.0
+   },
+   {
+    "name": "3700392470890 7396 SCRAPCOOKING",
+    "amount": 3.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

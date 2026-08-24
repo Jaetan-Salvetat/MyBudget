@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/114.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-10-24",
+  "total": 7.46,
+  "items": [
+   {
+    "name": "335G COFFRET REPAS",
+    "amount": 5.91,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME GOLDEN GROSSE",
+    "amount": 1.55,
+    "discount": 0.0
+   }
+  ]
+ }
+}

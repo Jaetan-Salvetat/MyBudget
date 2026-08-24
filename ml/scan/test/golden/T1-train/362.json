@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/362.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-07",
+  "total": 7.82,
+  "items": [
+   {
+    "name": "*150G SDW TR.POLAIR",
+    "amount": 3.37,
+    "discount": 0.0
+   },
+   {
+    "name": "*180G QUINOA BOULG",
+    "amount": 2.77,
+    "discount": 0.0
+   },
+   {
+    "name": "*DESS.FRTS POM/PEC/",
+    "amount": 1.68,
+    "discount": 0.0
+   }
+  ]
+ }
+}

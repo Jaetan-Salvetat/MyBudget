@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/254.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-21",
+  "total": 14.08,
+  "items": [
+   {
+    "name": "110G MELANGE EXOT.",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "*CHAUSSON POMME X2",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.18,
+    "discount": 0
+   },
+   {
+    "name": "*LE SUEDOI.JB/CHEVR",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "*SALADE VENEZIA",
+    "amount": 4.82,
+    "discount": 0
+   },
+   {
+    "name": "BANDE MERCUR.",
+    "amount": 4.1,
+    "discount": 0
+   }
+  ]
+ }
+}

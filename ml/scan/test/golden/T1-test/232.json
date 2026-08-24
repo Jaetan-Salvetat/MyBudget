@@ -1,0 +1,124 @@
+{
+ "source": "dataset_findit/T1-test/img/232.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-02-08",
+  "total": 39.81,
+  "items": [
+   {
+    "name": "205G DESSERT NOIR",
+    "amount": 3.9,
+    "discount": 0.0
+   },
+   {
+    "name": "250G TORTELL.PESTO",
+    "amount": 2.97,
+    "discount": 0.0
+   },
+   {
+    "name": "360G CONF.FRAISE",
+    "amount": 1.91,
+    "discount": 0.0
+   },
+   {
+    "name": "37CL SALSIFIS CRF",
+    "amount": 1.02,
+    "discount": 0.0
+   },
+   {
+    "name": "6X50G PETIT GERVAI",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "BOULE BLANCHE",
+    "amount": 1.35,
+    "discount": 0.0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 0.63,
+    "discount": 0.0
+   },
+   {
+    "name": "CREM.DESSERT CHOCO",
+    "amount": 0.89,
+    "discount": 0.0
+   },
+   {
+    "name": "DUO HARICOTV&B CRM",
+    "amount": 1.86,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 1.42,
+    "discount": 0.0
+   },
+   {
+    "name": "JBN PARIS CRF 6TR.",
+    "amount": 2.51,
+    "discount": 0.0
+   },
+   {
+    "name": "LENTILLES CASSEGR.",
+    "amount": 1.03,
+    "discount": 0.0
+   },
+   {
+    "name": "LINDT NOIR 85%",
+    "amount": 1.49,
+    "discount": 0.0
+   },
+   {
+    "name": "NEMS PORC+SAUCE",
+    "amount": 2.28,
+    "discount": 0.0
+   },
+   {
+    "name": "RADIS ROSE BOTTE",
+    "amount": 1.3,
+    "discount": 0.0
+   },
+   {
+    "name": "RATATOUILLE 1/4",
+    "amount": 2.06,
+    "discount": 0.0
+   },
+   {
+    "name": "RATATOUILLE CRF",
+    "amount": 0.92,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCE TOMATE PROVE",
+    "amount": 1.68,
+    "discount": 0.0
+   },
+   {
+    "name": "ST NECTAIRE FERMIE",
+    "amount": 2.15,
+    "discount": 0.0
+   },
+   {
+    "name": "4 RLX P.H.CRF ECOP",
+    "amount": 2.26,
+    "discount": 0.0
+   },
+   {
+    "name": "500ML LIQ.VSL ECO",
+    "amount": 1.85,
+    "discount": 0.0
+   },
+   {
+    "name": "500ML SAVON EX.PUR",
+    "amount": 2.78,
+    "discount": 0.0
+   }
+  ]
+ }
+}

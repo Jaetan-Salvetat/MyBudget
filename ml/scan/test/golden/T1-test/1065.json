@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1065.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Charcuterie Pannetier",
+  "date": "2017-05-10",
+  "total": 3.25,
+  "items": [
+   {
+    "name": "Entrée du prix unit.",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "Jambon de pays maison",
+    "amount": 1.59,
+    "discount": 0
+   }
+  ]
+ }
+}

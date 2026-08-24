@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/170.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-12",
+  "total": 9.22,
+  "items": [
+   {
+    "name": "*250G SALADE PARISI",
+    "amount": 5.8,
+    "discount": 0
+   },
+   {
+    "name": "*BEURRIER TENDRE DX",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "*PDT BEURRE PLQ 82%",
+    "amount": 1.71,
+    "discount": 0
+   }
+  ]
+ }
+}

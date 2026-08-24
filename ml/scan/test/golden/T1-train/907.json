@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/907.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-12",
+  "total": 6.82,
+  "items": [
+   {
+    "name": "CABILLAUD CIT.RIZ MARIE 290G",
+    "amount": 3.85,
+    "discount": 0.0
+   },
+   {
+    "name": "SAL.FUS.IT.MIX BUF +FROM.330G",
+    "amount": 4.95,
+    "discount": 1.98
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/655.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": null,
+  "date": "2017-06-18",
+  "total": 6.1,
+  "items": [
+   {
+    "name": "SAC 5KG SUCR.CRISTAL S.LO",
+    "amount": 6.1,
+    "discount": 0
+   }
+  ]
+ }
+}

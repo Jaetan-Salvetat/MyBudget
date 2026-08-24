@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/533.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-06-01",
+  "total": 11.76,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "*300G CHILI CON CARNE",
+    "amount": 3.37,
+    "discount": 0
+   },
+   {
+    "name": "*80G CHOC NOIR 80%",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "*PARMENTIER DE CABILL",
+    "amount": 4.11,
+    "discount": 0
+   }
+  ]
+ }
+}

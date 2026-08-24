@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/217.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-09",
+  "total": 19.2,
+  "items": [
+   {
+    "name": "*1/5 THON ENTIER",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "1/6HARI.LE PHARE",
+    "amount": 0.48,
+    "discount": 0
+   },
+   {
+    "name": "*300G FOUGASSE CHEV",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "*CANNELLONI RICOTTA",
+    "amount": 6.9,
+    "discount": 0
+   },
+   {
+    "name": "*LIPTON GREEN LYCHE",
+    "amount": 1.85,
+    "discount": 0.56
+   },
+   {
+    "name": "TARTE POMME 6P",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "X-TRA TOTAL ECO",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "SAC CAISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0
+   }
+  ]
+ }
+}

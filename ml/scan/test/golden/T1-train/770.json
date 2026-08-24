@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/770.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "ZARA - LA ROCHELLE",
+  "date": "2017-01-14",
+  "total": 7.0,
+  "items": [
+   {
+    "name": "PULL-OVER",
+    "amount": -12.99,
+    "discount": 0
+   },
+   {
+    "name": "CARDIGAN",
+    "amount": 19.99,
+    "discount": 0
+   }
+  ]
+ }
+}

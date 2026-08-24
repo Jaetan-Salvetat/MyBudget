@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/911.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-23",
+  "total": 7.35,
+  "items": [
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE CONSOMMATION",
+    "amount": 2.79,
+    "discount": 0
+   }
+  ]
+ }
+}

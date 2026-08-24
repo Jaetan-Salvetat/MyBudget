@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1005.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Centre de Beauté Yves Rocher",
+  "date": "2017-01-07",
+  "total": 5.95,
+  "items": [
+   {
+    "name": "82644 O DEFAUT CORRECT PEAU PARFAITE",
+    "amount": 5.95,
+    "discount": 5.95
+   }
+  ]
+ }
+}

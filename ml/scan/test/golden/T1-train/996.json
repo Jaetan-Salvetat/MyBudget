@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/996.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BOUCHERIE PHILIBERTINE",
+  "date": "2016-12-16",
+  "total": 7.54,
+  "items": [
+   {
+    "name": "1",
+    "amount": 7.54,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/184.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-01-26",
+  "total": 5.78,
+  "items": [
+   {
+    "name": "*90G MOELLEUX CHOCOLA",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*F POMME ROYAL GALA",
+    "amount": 0.43,
+    "discount": 0.0
+   },
+   {
+    "name": "*POULET CHAMP NOIR",
+    "amount": 3.65,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/880.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-06-21",
+  "total": 33.01,
+  "items": [
+   {
+    "name": "CONCENTRE TUBE,300G",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "VELOUTE POTIRON",
+    "amount": 3.46,
+    "discount": 0
+   },
+   {
+    "name": "16YAF PANIER FRT PANAC,2KG",
+    "amount": 3.17,
+    "discount": 0
+   },
+   {
+    "name": "BOULETTE DE VEAU NAT X12,400G",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "HARICOT VERT",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "GALA POCHE 2KG",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "KIWI LOT",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "AVOCAT MUR A POINT X 2",
+    "amount": 6.58,
+    "discount": 0
+   },
+   {
+    "name": "ANETH BARQUETTE 20GR 0.99",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "PECHE PLATE ESPAGNE 2KG",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "GLACE MENTHE VERTE CHOCO 750ML",
+    "amount": 4.53,
+    "discount": 0
+   }
+  ]
+ }
+}

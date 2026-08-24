@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/1458.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2016-11-19",
+  "total": 23.81,
+  "items": [
+   {
+    "name": "BUTTERNUT VRAC",
+    "amount": 2.87,
+    "discount": 0
+   },
+   {
+    "name": "CAMPANIERE PAIN FIGU",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "CAMPANIERE BAG SESAM",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "MAILLE MAYONNAISE BO",
+    "amount": 2.14,
+    "discount": 0
+   },
+   {
+    "name": "BAGUET.SPEC.AUX CERE",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "TENDE TRANCHE A BIFT",
+    "amount": 3.26,
+    "discount": 0
+   },
+   {
+    "name": "LES CREA CHOC.NOIR 8",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "NESTLE DESSERT NOIR",
+    "amount": 3.76,
+    "discount": 0
+   },
+   {
+    "name": "NESTLE DESSERT NOIR",
+    "amount": 3.76,
+    "discount": 0
+   },
+   {
+    "name": "LOT 2 GALETTES PUR B",
+    "amount": 4.03,
+    "discount": 0
+   }
+  ]
+ }
+}

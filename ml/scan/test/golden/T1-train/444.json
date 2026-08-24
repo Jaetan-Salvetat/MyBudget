@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/444.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-05",
+  "total": 2.53,
+  "items": [
+   {
+    "name": "*POMME CHANTECLERC",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "*RIZ BASMATI",
+    "amount": 1.17,
+    "discount": 0
+   }
+  ]
+ }
+}

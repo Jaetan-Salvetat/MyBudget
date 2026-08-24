@@ -60,3 +60,14 @@ ml/**/__pycache__/
 assets/models/*.onnx
 # Source du tokenizer : sert seulement à régénérer tokenizer.bin
 assets/models/tokenizer.json
+
+# ML scan : datasets et sorties OCR volumineux
+ml/scan/test/dataset_findit/
+ml/scan/test/results/
+ml/scan/test/corpus_fr/
+ml/scan/test/corpus_fr_big/
+ml/scan/test/corpus_fr_enhanced/
+ml/scan/test/corpus_web/
+ml/scan/test/corpus_synthetic/
+ml/scan/test/harness/assets/corpus/
+ml/scan/test/corpus/

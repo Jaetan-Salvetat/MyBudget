@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/891.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PRIMEURS 17",
+  "date": "2017-06-24",
+  "total": 5.77,
+  "items": [
+   {
+    "name": "peche",
+    "amount": 1.45,
+    "discount": 0.0
+   },
+   {
+    "name": "brugnqn jaune/blanc",
+    "amount": 1.32,
+    "discount": 0.0
+   },
+   {
+    "name": "avocat",
+    "amount": 3.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

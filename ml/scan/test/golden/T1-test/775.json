@@ -1,0 +1,154 @@
+{
+ "source": "dataset_findit/T1-test/img/775.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2016-12-27",
+  "total": 66.47,
+  "items": [
+   {
+    "name": "MAXI JAC NATURE 550G",
+    "amount": 0.87,
+    "discount": 0
+   },
+   {
+    "name": "* MARRON ENTIER 510G N.JARDIN,51",
+    "amount": 3.69,
+    "discount": 0
+   },
+   {
+    "name": "* CROUTON SOUP NAT. 2X90G EPI OR",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "* FILETS MAQ ESC 169G P.OCEAN,16",
+    "amount": 1.05,
+    "discount": 0
+   },
+   {
+    "name": "PRESSADE NECT BIO F.SAISON",
+    "amount": 2.3,
+    "discount": 0
+   },
+   {
+    "name": "PACK EAU SOURCE 6X1,5L",
+    "amount": 1.02,
+    "discount": 0
+   },
+   {
+    "name": "BLOC WC ACT.FRESH EXPLOSION,1P",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "ACTIVATEUR BLC VANISH BLANCOX1",
+    "amount": 2.54,
+    "discount": 0
+   },
+   {
+    "name": "FA DCHE MEN NIGHT PASSION 250M",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "SKIP PDRE ACTIVE CLEAN 7MESURE",
+    "amount": 3.33,
+    "discount": 0
+   },
+   {
+    "name": "DEO DRY DARK TEMPTATION,150ML",
+    "amount": 3.43,
+    "discount": 0
+   },
+   {
+    "name": "PAIC EXCEL + ANTIBACT,500ML",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "FRUITS PATIS.,12X125G",
+    "amount": 3.11,
+    "discount": 0
+   },
+   {
+    "name": "COMTE EXTRA PORT,350G",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "LAIT UHT 1/2ECREME BTE,6X1L",
+    "amount": 4.8,
+    "discount": 0
+   },
+   {
+    "name": "BEURRE SURGERES DOUX",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUFS BIO MOYEN,CAL M",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "STE MAURE SOIGNON 200G",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "* EMMENTAL RAPE,200G",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "COQUIL ST JACQUE BRETON.2X110G",
+    "amount": 4.75,
+    "discount": 0
+   },
+   {
+    "name": "* PAIN AU CHOCOLAT X6 EPI D'OR,4",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "TABOULE MENTHE DOUCE,300G",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "JBON FIN ITAL.4TR+1GR,150G",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "* BOUDIN NOIR OIGNON LS /3 375GR",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINES CORSES",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE TRADITION",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "4T SAUMON FUME ECOSSE",
+    "amount": 6.34,
+    "discount": 0
+   },
+   {
+    "name": "SUPER GLUE 3",
+    "amount": 3.16,
+    "discount": 0
+   }
+  ]
+ }
+}

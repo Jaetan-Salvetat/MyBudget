@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/192.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-01-18",
+  "total": 7.44,
+  "items": [
+   {
+    "name": "*AVOCAT MAP X2",
+    "amount": 4.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*BIO BANANE",
+    "amount": 1.88,
+    "discount": 0.0
+   },
+   {
+    "name": "*ENDIVES",
+    "amount": 0.71,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAC CAISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/926.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-31",
+  "total": 2.32,
+  "items": [
+   {
+    "name": "LOT DE 4 BAGUETTES + 1 GRATUIT",
+    "amount": 2.32,
+    "discount": 0
+   }
+  ]
+ }
+}

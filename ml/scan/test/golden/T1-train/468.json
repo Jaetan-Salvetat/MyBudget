@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/468.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-21",
+  "total": 4.54,
+  "items": [
+   {
+    "name": "100G NESCAFE NES",
+    "amount": 2.62,
+    "discount": 0
+   },
+   {
+    "name": "*BP 1L LAIT 1/2ECRE",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.36,
+    "discount": 0
+   }
+  ]
+ }
+}

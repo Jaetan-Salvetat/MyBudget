@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-test/img/493.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-12",
+  "total": 23.16,
+  "items": [
+   {
+    "name": "*120G FIL.MQX A POE",
+    "amount": 2.38,
+    "discount": 0
+   },
+   {
+    "name": "*120G FIL.MQX A POE",
+    "amount": 2.38,
+    "discount": 0
+   },
+   {
+    "name": "*120G PAVE THON/TOM",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "*130G CHIPS FROMAGE",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "*1L LE FRT MULTIFRT",
+    "amount": 1.44,
+    "discount": 0
+   },
+   {
+    "name": "*1L PJ ORANGE CRF",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "216G MUF TT CHOCO",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "2X500G SPAGHETTI P",
+    "amount": 1.48,
+    "discount": 0.44
+   },
+   {
+    "name": "*APERIVRAIS PROVENC",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE CAMPAGNAR",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE CARREFOUR",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "COOKIES TT CHOCO",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSERV.BLCHE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE BQ 3FRT 0,99",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE HOLLANDAISE",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 0.67,
+    "discount": 0
+   }
+  ]
+ }
+}

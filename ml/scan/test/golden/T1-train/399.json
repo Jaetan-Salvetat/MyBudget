@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/399.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-03",
+  "total": 14.76,
+  "items": [
+   {
+    "name": "*6 OEUF PLEIN AIR G",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "*AUBERGINE",
+    "amount": 0.56,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 1.32,
+    "discount": 0
+   },
+   {
+    "name": "*BISC. SOJA ORANGE",
+    "amount": 2.04,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "*COURGETTE",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "*OIGNON JAUNE FLT 1KG",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "*TAMPAX COMPAK SUP.",
+    "amount": 3.81,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE GRAPPE",
+    "amount": 1.92,
+    "discount": 0
+   }
+  ]
+ }
+}

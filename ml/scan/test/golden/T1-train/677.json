@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/677.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PEPPONE LA ROCHELLE",
+  "date": "2017-05-24",
+  "total": 54.6,
+  "items": [
+   {
+    "name": "1.00 Pizza Intervista",
+    "amount": 13.9,
+    "discount": 0
+   },
+   {
+    "name": "1.00 Pizza Media",
+    "amount": 14.9,
+    "discount": 0
+   },
+   {
+    "name": "1.00 Spaghetti Champignons",
+    "amount": 10.9,
+    "discount": 0
+   },
+   {
+    "name": "1.00 Amarena Melba",
+    "amount": 6.95,
+    "discount": 0
+   },
+   {
+    "name": "1.00 Ass. Merdouilles",
+    "amount": 7.95,
+    "discount": 0
+   }
+  ]
+ }
+}

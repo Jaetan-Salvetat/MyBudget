@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1453.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "l'auto E.Leclerc",
+  "date": "2016-12-23",
+  "total": 24.9,
+  "items": [
+   {
+    "name": "CHAINES 9MM OTOBLOC.100",
+    "amount": 24.9,
+    "discount": 0
+   }
+  ]
+ }
+}

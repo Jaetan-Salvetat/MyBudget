@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/229.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market",
+  "date": "2016-10-11",
+  "total": 5.27,
+  "items": [
+   {
+    "name": "10 FEUILLES BRICK",
+    "amount": 1.06,
+    "discount": 0
+   },
+   {
+    "name": "SALADE MECHOUIA",
+    "amount": 3.72,
+    "discount": 0
+   },
+   {
+    "name": "TUBE 70G HARISSA",
+    "amount": 0.49,
+    "discount": 0
+   }
+  ]
+ }
+}

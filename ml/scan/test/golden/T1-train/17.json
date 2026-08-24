@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/17.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-07-28",
+  "total": 3.82,
+  "items": [
+   {
+    "name": "SALADE PATE JBON",
+    "amount": 3.82,
+    "discount": 0
+   }
+  ]
+ }
+}

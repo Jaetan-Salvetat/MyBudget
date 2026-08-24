@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/2.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-27",
+  "total": 8.08,
+  "items": [
+   {
+    "name": "*250G P.COOKIE PEP",
+    "amount": 2.44,
+    "discount": 0
+   },
+   {
+    "name": "*COUSCOUS MAROCAINE",
+    "amount": 3.65,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

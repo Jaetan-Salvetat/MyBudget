@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/325.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-16",
+  "total": 6.74,
+  "items": [
+   {
+    "name": "*180G CAROTTES RAPE",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "*250G TABOULE FRUIT",
+    "amount": 3.04,
+    "discount": 0
+   },
+   {
+    "name": "*BUBBLI'S LEMON&LIME",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.POMMES SS CRF",
+    "amount": 0.93,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/72.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-15",
+  "total": 6.08,
+  "items": [
+   {
+    "name": "*4T JAMB SUP.TSR",
+    "amount": 2.51,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*COOKIES SENSATION",
+    "amount": 2.73,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-train/img/653.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LIDL",
+  "date": "2017-04-24",
+  "total": 27.39,
+  "items": [
+   {
+    "name": "Poivron rouge vrac",
+    "amount": 0.69,
+    "discount": 0.0
+   },
+   {
+    "name": "Pomme Golden vrac",
+    "amount": 1.24,
+    "discount": 0.0
+   },
+   {
+    "name": "Poire Vrac",
+    "amount": 1.83,
+    "discount": 0.0
+   },
+   {
+    "name": "Carotte",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "Menthe",
+    "amount": 1.59,
+    "discount": 0.0
+   },
+   {
+    "name": "Pomme de terre Minut",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "Plats exotiques mous",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "Plats exot. poulet a",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "Emmental râpé 3x70g",
+    "amount": 1.12,
+    "discount": 0.0
+   },
+   {
+    "name": "Salade de carottes",
+    "amount": 0.67,
+    "discount": 0.0
+   },
+   {
+    "name": "Salade mélangée",
+    "amount": 1.19,
+    "discount": 0.0
+   },
+   {
+    "name": "Farine type 45",
+    "amount": 0.45,
+    "discount": 0.0
+   },
+   {
+    "name": "Oeufs DJP cal. gros",
+    "amount": 1.43,
+    "discount": 0.0
+   },
+   {
+    "name": "Sucre sachet",
+    "amount": 0.75,
+    "discount": 0.0
+   },
+   {
+    "name": "Purée de tomates",
+    "amount": 1.56,
+    "discount": 0.0
+   },
+   {
+    "name": "Lentilles",
+    "amount": 0.69,
+    "discount": 0.0
+   },
+   {
+    "name": "Champignons émincés",
+    "amount": 0.82,
+    "discount": 0.0
+   },
+   {
+    "name": "Sauté de veau",
+    "amount": 1.73,
+    "discount": 0.0
+   },
+   {
+    "name": "Betteraves rouges",
+    "amount": 0.69,
+    "discount": 0.0
+   },
+   {
+    "name": "Mentos Gum Box",
+    "amount": 2.79,
+    "discount": 0.0
+   },
+   {
+    "name": "Mentos Gum Box",
+    "amount": 2.79,
+    "discount": 0.0
+   }
+  ]
+ }
+}

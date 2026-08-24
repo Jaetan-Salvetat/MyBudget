@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1657.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "RESTAURANT ORANGE",
+  "date": "2017-04-11",
+  "total": 3.58,
+  "items": [
+   {
+    "name": "MENU ARDOISE",
+    "amount": 3.28,
+    "discount": 0
+   },
+   {
+    "name": "ENTREMETS DIVERS",
+    "amount": 0.3,
+    "discount": 0
+   }
+  ]
+ }
+}

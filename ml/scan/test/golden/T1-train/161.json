@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/161.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-02",
+  "total": 7.23,
+  "items": [
+   {
+    "name": "320G SLDE STOCKHOL",
+    "amount": 4.23,
+    "discount": 0
+   },
+   {
+    "name": "BISCOTTES",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0
+   }
+  ]
+ }
+}

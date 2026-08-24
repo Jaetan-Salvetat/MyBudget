@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/777.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "H&M",
+  "date": "2017-01-14",
+  "total": 7.0,
+  "items": [
+   {
+    "name": "Cosmétiques caisses 0386622 NOSIZE Vert",
+    "amount": 1.0,
+    "discount": 2.99
+   },
+   {
+    "name": "Cosmétiques caisses 0386622 NOSIZE Vert",
+    "amount": 1.0,
+    "discount": 2.99
+   },
+   {
+    "name": "Maille 0314329 M Bleu",
+    "amount": 5.0,
+    "discount": 14.99
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1821.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PAUL",
+  "date": "2016-11-18",
+  "total": 1.8,
+  "items": [
+   {
+    "name": "1 CHAUSSON POMMES",
+    "amount": 1.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

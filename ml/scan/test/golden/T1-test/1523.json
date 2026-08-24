@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1523.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEROY MERLIN PUILBOREAU",
+  "date": "2017-02-21",
+  "total": 61.05,
+  "items": [
+   {
+    "name": "TOLE ACIER ZINGUE LISSE 12X100X0.05CM",
+    "amount": 6.3,
+    "discount": 0.0
+   },
+   {
+    "name": "CABLE LEVAG A.GAL STAND 95KG D2.9MM L15M",
+    "amount": 15.2,
+    "discount": 0.0
+   },
+   {
+    "name": "TENDEUR DECO PIV INOX P/CABLE D2MM",
+    "amount": 17.8,
+    "discount": 0.0
+   },
+   {
+    "name": "4 SERRE-CABLE VELO AZ P/CABLE 3.5MM",
+    "amount": 4.85,
+    "discount": 0.0
+   },
+   {
+    "name": "PEINT.MS SAT CREME COU DV 0.5L BLEU PAON",
+    "amount": 16.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

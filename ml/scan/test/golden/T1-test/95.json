@@ -1,0 +1,99 @@
+{
+ "source": "dataset_findit/T1-test/img/95.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-13",
+  "total": 63.56,
+  "items": [
+   {
+    "name": "*10OEUF.BIO MOY.CRF",
+    "amount": 3.25,
+    "discount": 0
+   },
+   {
+    "name": "*200G SCHOKOBONS KI",
+    "amount": 3.12,
+    "discount": 0
+   },
+   {
+    "name": "*200G STE MAURE",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "*75 BDX RGE ML BIO",
+    "amount": 5.75,
+    "discount": 0
+   },
+   {
+    "name": "*75 VDP OC RG BIO09",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNONS BRUNS 25",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*CHIPS PAYSANNE SEL",
+    "amount": 3.16,
+    "discount": 0
+   },
+   {
+    "name": "*FROM.TARTINER AFH",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "*GALETTE AMANDE 6 PAR",
+    "amount": 6.95,
+    "discount": 0
+   },
+   {
+    "name": "*GALETTE POMME 6 PART",
+    "amount": 6.95,
+    "discount": 0
+   },
+   {
+    "name": "*LA ROCHELOISE BLONDE",
+    "amount": 7.9,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 4.82,
+    "discount": 0
+   },
+   {
+    "name": "*OLIVE PROVENCAL",
+    "amount": 2.71,
+    "discount": 0
+   },
+   {
+    "name": "*PREFOU TOMAT BASIL",
+    "amount": 4.8,
+    "discount": 0
+   },
+   {
+    "name": "*SAC CAISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0
+   },
+   {
+    "name": "*SOUPE LEG.MOULINEE",
+    "amount": 2.88,
+    "discount": 0
+   }
+  ]
+ }
+}

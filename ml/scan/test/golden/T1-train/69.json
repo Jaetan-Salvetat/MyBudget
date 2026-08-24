@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/69.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-02-17",
+  "total": 3.54,
+  "items": [
+   {
+    "name": "PET 6X1,5L EAU MIN",
+    "amount": 3.54,
+    "discount": 0
+   }
+  ]
+ }
+}

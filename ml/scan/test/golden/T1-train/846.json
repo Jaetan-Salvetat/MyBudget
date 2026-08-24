@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/846.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Restaurant McDonald's",
+  "date": "2017-06-12",
+  "total": 8.5,
+  "items": [
+   {
+    "name": "BO Mythic",
+    "amount": 8.5,
+    "discount": 0
+   }
+  ]
+ }
+}

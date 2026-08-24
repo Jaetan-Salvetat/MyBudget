@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/1468.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-01-21",
+  "total": 50.35,
+  "items": [
+   {
+    "name": "1L BORDEAUX AOP",
+    "amount": 7.2,
+    "discount": 0.0
+   },
+   {
+    "name": "1L L ESTIVAL ROSE",
+    "amount": 6.25,
+    "discount": 0.0
+   },
+   {
+    "name": "ONGLET ECHALOTE",
+    "amount": 17.3,
+    "discount": 0.0
+   },
+   {
+    "name": "LA MANZIO",
+    "amount": 15.8,
+    "discount": 0.0
+   },
+   {
+    "name": "COUPE 2 BOULES",
+    "amount": 3.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/650.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ZARA",
+  "date": "2017-06-07",
+  "total": 7.95,
+  "items": [
+   {
+    "name": "T-SHIRT",
+    "amount": 7.95,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/576.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-01-30",
+  "total": 7.67,
+  "items": [
+   {
+    "name": "85G NOODLES SAVEUR",
+    "amount": 0.43,
+    "discount": 0.18
+   },
+   {
+    "name": "85G NOODLES SAVEUR",
+    "amount": 0.43,
+    "discount": 0
+   },
+   {
+    "name": "*PET 2L TROPICANA",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "6RLX PH XXL BLC AQ",
+    "amount": 3.57,
+    "discount": 0
+   }
+  ]
+ }
+}

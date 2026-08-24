@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1649.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LABEL CHATELAINE",
+  "date": "2017-04-17",
+  "total": 17.31,
+  "items": [
+   {
+    "name": "POULET FERMIER ROTI",
+    "amount": 17.31,
+    "discount": 0.0
+   }
+  ]
+ }
+}

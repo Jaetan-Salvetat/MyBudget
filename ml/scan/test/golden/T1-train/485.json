@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/485.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-12",
+  "total": 13.07,
+  "items": [
+   {
+    "name": "*EMPRESURE CHOCOLAT",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "FLT S/OS A ROTIR",
+    "amount": 11.42,
+    "discount": 0
+   }
+  ]
+ }
+}

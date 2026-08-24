@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1706.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2016-12-03",
+  "total": 65.7,
+  "items": [
+   {
+    "name": "BT LAMBRUSCO ROSE",
+    "amount": 23.8,
+    "discount": 0
+   },
+   {
+    "name": "2 LA MANZIO",
+    "amount": 31.6,
+    "discount": 0
+   },
+   {
+    "name": "LA MARGARITA",
+    "amount": 10.3,
+    "discount": 0
+   }
+  ]
+ }
+}

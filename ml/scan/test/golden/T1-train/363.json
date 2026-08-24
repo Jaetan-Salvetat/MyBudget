@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/363.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-22",
+  "total": 10.44,
+  "items": [
+   {
+    "name": "*KINDER SCHOKOBONS",
+    "amount": 3.43,
+    "discount": 0
+   },
+   {
+    "name": "*PETIT BATON BERGER",
+    "amount": 2.61,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATES COEUR DE PIG",
+    "amount": 4.4,
+    "discount": 0
+   }
+  ]
+ }
+}

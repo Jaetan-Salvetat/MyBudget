@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/420.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-27",
+  "total": 8.08,
+  "items": [
+   {
+    "name": "*320G :LDE ROMA JBN",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BANANI",
+    "amount": 0.35,
+    "discount": 0
+   },
+   {
+    "name": "*CAROT E RAPE BIO",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMEITINE",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*EAU CLISTALINE X6",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/651.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "TY BREIZ",
+  "date": "2017-06-19",
+  "total": 86.0,
+  "items": [
+   {
+    "name": "1x SALADE PARISIENNE",
+    "amount": 9.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1x SUCREE SALEE",
+    "amount": 9.9,
+    "discount": 0.0
+   },
+   {
+    "name": "1x POULETTE",
+    "amount": 11.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1x MONTAGNARDE",
+    "amount": 11.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1x MIEL CITRON",
+    "amount": 4.7,
+    "discount": 0.0
+   },
+   {
+    "name": "1x CHOCO MAISON",
+    "amount": 5.7,
+    "discount": 0.0
+   },
+   {
+    "name": "1x CARAMEL BEURRE SA",
+    "amount": 5.7,
+    "discount": 0.0
+   },
+   {
+    "name": "1x POMMES CARAM BEUR",
+    "amount": 7.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1x LOIC RAISON BRUT",
+    "amount": 11.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1x LOIC RAISON DOUX",
+    "amount": 11.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

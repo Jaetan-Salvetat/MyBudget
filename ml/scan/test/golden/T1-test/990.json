@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/990.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "GAMM VERT - TONNAY CHARENTE",
+  "date": "2016-12-17",
+  "total": 48.0,
+  "items": [
+   {
+    "name": "CHAINE 3/8P 1.3",
+    "amount": 25.65,
+    "discount": 0.0
+   },
+   {
+    "name": "CHAINE 3/8P 1.3",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "LIME D4MM F93442",
+    "amount": 5.6,
+    "discount": 0.0
+   },
+   {
+    "name": "COTES DE BORDEAUX CHEMIN DE BRIG",
+    "amount": 7.2,
+    "discount": 0.0
+   },
+   {
+    "name": "COTES DE BORDEAUX CHEMIN DE BRIG",
+    "amount": 3.6,
+    "discount": 0.0
+   },
+   {
+    "name": "PECHARMANT ETIQUETTENOIRE RESERV",
+    "amount": 5.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1456.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2016-12-20",
+  "total": 32.61,
+  "items": [
+   {
+    "name": "MAT.BIO 60/120CM U.PET ECRU",
+    "amount": 31.9,
+    "discount": 0
+   },
+   {
+    "name": "JEU DE 32 CARTES",
+    "amount": 0.71,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/924.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-05-31",
+  "total": 22.8,
+  "items": [
+   {
+    "name": "LA MARGARITA",
+    "amount": 10.7,
+    "discount": 0
+   },
+   {
+    "name": "LA REGINA",
+    "amount": 12.1,
+    "discount": 0
+   }
+  ]
+ }
+}

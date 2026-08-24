@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/199.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2016-12-17",
+  "total": 15.84,
+  "items": [
+   {
+    "name": "*225G KRISPROLL.S/S",
+    "amount": 1.45,
+    "discount": 0.0
+   },
+   {
+    "name": "*600G POELEE.LEG.GR",
+    "amount": 3.67,
+    "discount": 0.0
+   },
+   {
+    "name": "*CLEMENTINE BIO FILET",
+    "amount": 3.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*COCOTTES CHOCOLAT",
+    "amount": 1.79,
+    "discount": 0.0
+   },
+   {
+    "name": "*COUNTRY CRISP CHOC",
+    "amount": 3.69,
+    "discount": 0.0
+   },
+   {
+    "name": "*POELEE LA PARISIEN",
+    "amount": 1.94,
+    "discount": 0.0
+   }
+  ]
+ }
+}

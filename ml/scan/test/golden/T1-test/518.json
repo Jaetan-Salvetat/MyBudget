@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/518.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-14",
+  "total": 20.45,
+  "items": [
+   {
+    "name": "*120G FIL.MQX A POE",
+    "amount": 4.76,
+    "discount": 0.0
+   },
+   {
+    "name": "*120G PAVE THON/TOM",
+    "amount": 2.45,
+    "discount": 0.0
+   },
+   {
+    "name": "174G NAPOLITAIN",
+    "amount": 2.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*1L PJ ORANGE CRF",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "250G TAM TAM CHOCO",
+    "amount": 1.63,
+    "discount": 0.0
+   },
+   {
+    "name": "*2X1L POTAG.MALIN L",
+    "amount": 3.88,
+    "discount": 1.94
+   },
+   {
+    "name": "*BAGUETTE CARREFOUR",
+    "amount": 0.85,
+    "discount": 0.0
+   },
+   {
+    "name": "*BP 1L LT UHT 1/2EC",
+    "amount": 0.92,
+    "discount": 0.0
+   },
+   {
+    "name": "*PET 1L PJ MULTIFRU",
+    "amount": 1.77,
+    "discount": 0.0
+   },
+   {
+    "name": "*PTIT POT CR. CHOCO",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "*ST 1KG CAROTTE FQC",
+    "amount": 0.89,
+    "discount": 0.0
+   }
+  ]
+ }
+}

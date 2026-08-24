@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/125.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-01-05",
+  "total": 6.84,
+  "items": [
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.17,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "MIXA EPS CREME VIS",
+    "amount": 4.83,
+    "discount": 0.0
+   }
+  ]
+ }
+}

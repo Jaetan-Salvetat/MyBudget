@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/14.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-11-23",
+  "total": 8.47,
+  "items": [
+   {
+    "name": "*200G SCHOKOBONS KI",
+    "amount": 3.12,
+    "discount": 0
+   },
+   {
+    "name": "*ROSE SOIF D'EVASION",
+    "amount": 5.35,
+    "discount": 0
+   }
+  ]
+ }
+}

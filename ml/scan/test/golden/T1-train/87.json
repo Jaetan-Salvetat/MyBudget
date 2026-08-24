@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/87.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-02-16",
+  "total": 3.72,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 2.25,
+    "discount": 0.0
+   },
+   {
+    "name": "*MINI MOUCHOIR CRF",
+    "amount": 1.47,
+    "discount": 0.0
+   }
+  ]
+ }
+}

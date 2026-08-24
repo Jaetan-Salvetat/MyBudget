@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/965.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "ISEO BISTROT DE LA MER",
+  "date": "2016-07-21",
+  "total": 212.4,
+  "items": [
+   {
+    "name": "MENU BISTROT 3",
+    "amount": 147.0,
+    "discount": 0
+   },
+   {
+    "name": "TARTARE SAUMON BISTROT",
+    "amount": 0.0,
+    "discount": 0
+   },
+   {
+    "name": "VERRE DE PROVENCE",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "COTE DE PROVENCE RAMATUELL",
+    "amount": 27.0,
+    "discount": 0
+   },
+   {
+    "name": "HOEGAARDEN",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "TEQUILA SUNRISE",
+    "amount": 10.0,
+    "discount": 0
+   },
+   {
+    "name": "SEX ON THE BEACH",
+    "amount": 8.5,
+    "discount": 0
+   }
+  ]
+ }
+}

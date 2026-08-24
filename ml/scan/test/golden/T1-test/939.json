@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/939.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ALDI ST JEAN BRAYE BIENVENUE",
+  "date": "2017-02-25",
+  "total": 11.8,
+  "items": [
+   {
+    "name": "BANANES VRAC",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "CHOCOLAT NOIR AMANDES",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "CHOCOLAT NOIR AMANDES",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "CHOCOLAT NOIR AMANDES",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "CHOCO NOIR NOISETTES",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "CHOCO NOIR NOISETTES",
+    "amount": 1.89,
+    "discount": 0
+   }
+  ]
+ }
+}

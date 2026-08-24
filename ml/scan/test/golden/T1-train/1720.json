@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1720.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-02-11",
+  "total": 4.89,
+  "items": [
+   {
+    "name": "SDW.WRAPS BACON SCE YAOURT190G",
+    "amount": 2.84,
+    "discount": 0
+   },
+   {
+    "name": "SDW MAX.TRI.POL.JBN CHED.U210G",
+    "amount": 2.05,
+    "discount": 0
+   }
+  ]
+ }
+}

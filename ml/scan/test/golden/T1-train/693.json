@@ -1,0 +1,149 @@
+{
+ "source": "dataset_findit/T1-train/img/693.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-03-11",
+  "total": 55.92,
+  "items": [
+   {
+    "name": "NECTAR OR./PECH./ABRI.BIO 1,5L",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "VOLVIC JUICY FRAISE 1,5L",
+    "amount": 3.72,
+    "discount": 0
+   },
+   {
+    "name": "MN CHEVRE FRAIS 15% COUP.6X20G",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "TIRAMISU SPECULOOS USAV.2X100G",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "CHEVRE CHAUD X 4",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "OEUFS GROS CALIBRE BIO LOUE X4",
+    "amount": 1.84,
+    "discount": 0
+   },
+   {
+    "name": "FR.PAS.CHEV.PYRAMIDE 11%U 150G",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "CREME FR.EP.15% BRIDELICE 10CL",
+    "amount": 0.56,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGN.BLC P/COUPE A FARCIR",
+    "amount": 0.39,
+    "discount": 0
+   },
+   {
+    "name": "X20 SAC POUBEL.U.RES.30L H.BAG",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "LIQ.VAISS.FRAMB.RAINETT 500ML",
+    "amount": 1.58,
+    "discount": 0
+   },
+   {
+    "name": "X25 SAC.P. 15L BLC VANILLE",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "MANGEOIRE INOX P/CHAT",
+    "amount": 4.1,
+    "discount": 0
+   },
+   {
+    "name": "CHOCO.NR NESTLE DESSERT 2X205G",
+    "amount": 3.81,
+    "discount": 0
+   },
+   {
+    "name": "60G CRISPY CRUNCH COEUR SAUMON",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "AUBERGIN.CASSEGRAIN 1/4",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "RATATOUILLE 1/4",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "ASPERGES VERTES EN BOCAL",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "DELICES 4VAR.POISSON",
+    "amount": 1.32,
+    "discount": 0
+   },
+   {
+    "name": "MADELEINET.CHOC NOIR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "MADEL.CHOC.NOIR",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTES FENDUES",
+    "amount": 1.26,
+    "discount": 0
+   },
+   {
+    "name": "FLT LIEU RISOT.TOM.BAS.FM.280G",
+    "amount": 4.64,
+    "discount": 0
+   },
+   {
+    "name": "GALETTE.SARRASIN SS GLUTEN X4",
+    "amount": 2.32,
+    "discount": 0
+   },
+   {
+    "name": "JBON SC LABEL ROUGE FM 2TR 80G",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVES ROUGES U BIO 200G",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "PAIN CHOCOLAT PB SELECTION X2",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

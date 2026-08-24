@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/745.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "RT - LE QUAI GOURMAND",
+  "date": "2016-11-11",
+  "total": 13.9,
+  "items": [
+   {
+    "name": "1 UNI FORMULE 13.90 € PLAT CHAUD DELICE CASSIS",
+    "amount": 13.9,
+    "discount": 0
+   }
+  ]
+ }
+}

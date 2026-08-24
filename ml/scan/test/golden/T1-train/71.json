@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/71.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-16",
+  "total": 5.73,
+  "items": [
+   {
+    "name": "*PIM'S FRAMBOISE LU",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "*SALADE PLT EPICE",
+    "amount": 4.42,
+    "discount": 0
+   }
+  ]
+ }
+}

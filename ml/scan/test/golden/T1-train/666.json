@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-train/img/666.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-05-27",
+  "total": 23.23,
+  "items": [
+   {
+    "name": "TOMATE GRAPPE",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "PAIN CHOCOLAT P.BEUR",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "POIRE ABATE VRAC",
+    "amount": 4.11,
+    "discount": 0
+   },
+   {
+    "name": "ALWAYS PROTEGE SLIP",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "COTE D'OR BLOC NOIR",
+    "amount": 2.22,
+    "discount": 0
+   },
+   {
+    "name": "PATURAGES TOURTEAU FO",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "LFC BAG BASE FARINE",
+    "amount": 0.79,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE SESAME PREC",
+    "amount": 1.05,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE CERISE ALLONG",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "RANOU TABOULE RAISIN",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE MARA DES BOIS",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "ENTREMONT COMTE FRUI",
+    "amount": 3.06,
+    "discount": 0
+   }
+  ]
+ }
+}

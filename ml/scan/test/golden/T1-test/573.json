@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/573.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-01-23",
+  "total": 2.33,
+  "items": [
+   {
+    "name": "400G CROISSANTS CR",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   }
+  ]
+ }
+}

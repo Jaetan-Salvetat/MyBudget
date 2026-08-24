@@ -1,0 +1,149 @@
+{
+ "source": "dataset_findit/T1-test/img/722.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-01-20",
+  "total": 61.81,
+  "items": [
+   {
+    "name": "MADELEINET.CHOC NOIR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "MADEL.CHOC.NOIR",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "JBON CRU DENTEL.AOSTE 120GENU",
+    "amount": 4.24,
+    "discount": 0
+   },
+   {
+    "name": "PETIT PAVE CND DOUCE FRANCE X2",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "COURONNE NATURE 315G",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "PAIN CHOCOLAT PB SELECTION X2",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "JB INFUSION THYM MENTHE BIO30G",
+    "amount": 2.38,
+    "discount": 0
+   },
+   {
+    "name": "COMP.4POM/FRSE+4P/FRAMB.S/S",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "MONSTER MUNCH KETCHUP 85G",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "RAPE CHEVRE NAT.LP 33,9% 150G",
+    "amount": 2.38,
+    "discount": 0
+   },
+   {
+    "name": "MN CHEVRE FRAIS 15% COUP.6X20G",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "TIRAMISU SPECULOOS USAV.2X100G",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "10CL CREME FRAICHE",
+    "amount": 0.62,
+    "discount": 0
+   },
+   {
+    "name": "ALIGOT L'AUBRAC U SAV.X6 500G",
+    "amount": 5.39,
+    "discount": 0
+   },
+   {
+    "name": "SAUMN PUREE BRO 300G",
+    "amount": 3.48,
+    "discount": 0
+   },
+   {
+    "name": "GNOCCHI POELER MOZZA.TOMA.280G",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVES ROUGES U BIO 200G",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "GATEAU FOND.CHOCO.DAUNAT 90G",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "NECTAR OR./PECH./ABRI.BIO 1,5L",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "HACHE THON PROVENCALE U 200G",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "COMPOTEE LEGUMES FINDUS 400G",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGNON BLANC PIED COUPE",
+    "amount": 0.4,
+    "discount": 0
+   },
+   {
+    "name": "POTIMARRON",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE ILE DE RE",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTE",
+    "amount": 0.1,
+    "discount": 0
+   },
+   {
+    "name": "POINTE DE PORC ESCALOPE X 1",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "MICHELIN DEGIVRANT 300ML",
+    "amount": 3.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/945.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "U express",
+  "date": "2015-11-07",
+  "total": 9.92,
+  "items": [
+   {
+    "name": "SAL.MEZ.PEN.CRUD.CUP BLINI320G",
+    "amount": 5.76,
+    "discount": 0.0
+   },
+   {
+    "name": "SDW TR.XXL THON CRUDITES 230G",
+    "amount": 2.37,
+    "discount": 0.0
+   },
+   {
+    "name": "GAUFRE.PAILLE/OR FRAMB.LU 170G",
+    "amount": 1.79,
+    "discount": 0.0
+   }
+  ]
+ }
+}

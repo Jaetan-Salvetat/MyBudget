@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/920.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BRICOMARCHÉ",
+  "date": "2014-11-13",
+  "total": 12.04,
+  "items": [
+   {
+    "name": "DISC D125 120G 8T",
+    "amount": 6.63,
+    "discount": 0
+   },
+   {
+    "name": "END REBOU POUDRE 1KG",
+    "amount": 5.41,
+    "discount": 0
+   }
+  ]
+ }
+}

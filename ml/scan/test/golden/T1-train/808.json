@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-train/img/808.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA BOUTIQUE LEA NATURE",
+  "date": "2017-07-17",
+  "total": 38.57,
+  "items": [
+   {
+    "name": "JB Thé vert menthe",
+    "amount": 11.95,
+    "discount": 0.0
+   },
+   {
+    "name": "JB Thé vert orange et ber",
+    "amount": 2.79,
+    "discount": 0.0
+   },
+   {
+    "name": "JB Thé Noir Ceylan Biodyn",
+    "amount": 2.99,
+    "discount": 0.0
+   },
+   {
+    "name": "JB Thé Noir English Break",
+    "amount": 2.99,
+    "discount": 0.0
+   },
+   {
+    "name": "JB THE NOIR&ROOIBOS TUTTI",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "JB BOUIL CUBE POULE SHDP*",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "JB BOUIL CUBE POULE SHDP*",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "JB BOUIL CUBE LEG DEGRAIS",
+    "amount": 2.59,
+    "discount": 0.0
+   },
+   {
+    "name": "JB BOUIL CUBE LEG DEGRAIS",
+    "amount": 2.59,
+    "discount": 0.0
+   },
+   {
+    "name": "JB HUILE D'OLIVE EXTRA FR",
+    "amount": 4.99,
+    "discount": 0.0
+   },
+   {
+    "name": "JB HUILE OLIVE VIERGE EXT",
+    "amount": 6.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

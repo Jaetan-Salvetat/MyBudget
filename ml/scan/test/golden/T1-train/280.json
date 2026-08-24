@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/280.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-12",
+  "total": 6.56,
+  "items": [
+   {
+    "name": "*FOZZA POULET CHEVR",
+    "amount": 2.3,
+    "discount": 0
+   },
+   {
+    "name": "*PIM'S FRAMBOISE LU",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "*TOMAT: JAUNE BQ 250G",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

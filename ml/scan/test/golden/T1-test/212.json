@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-test/img/212.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market",
+  "date": "2017-01-07",
+  "total": 87.49,
+  "items": [
+   {
+    "name": "1L RHUM BLC AGR.",
+    "amount": 18.3,
+    "discount": 0
+   },
+   {
+    "name": "250G BEUR MOUL SDG",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "300G NX CAJOU GRIL",
+    "amount": 3.77,
+    "discount": 0
+   },
+   {
+    "name": "400G QUINOA CRF BI",
+    "amount": 3.57,
+    "discount": 0
+   },
+   {
+    "name": "410G CACAH.GRILLE",
+    "amount": 2.6,
+    "discount": 0
+   },
+   {
+    "name": "75CL HT MEDOC CHT",
+    "amount": 12.5,
+    "discount": 0
+   },
+   {
+    "name": "*BIO COURGETTE CEE",
+    "amount": 4.9,
+    "discount": 0
+   },
+   {
+    "name": "*BIO ORANGE 1KG P.R",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "*CITRON VERT PIECE",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "*COMTE EXT.V.RESERV",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "*DANETT.CHOCO NR X4",
+    "amount": 1.27,
+    "discount": 0
+   },
+   {
+    "name": "ENTRECOTE",
+    "amount": 12.31,
+    "discount": 0
+   },
+   {
+    "name": "FARINE SEM.COMPLET",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "INFUS.4 PLANT.CRF",
+    "amount": 1.93,
+    "discount": 0
+   },
+   {
+    "name": "*PERENE DE CAMPAGNE",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "*POMMES DAUPHINES",
+    "amount": 1.57,
+    "discount": 0
+   },
+   {
+    "name": "*ROQUEFORT RDF",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "*SCH 1KG ENDIVE",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "*SCISSE SECH.AUV.",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "*ST NECTAIRE FERM.",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "*YRT NATURE BIO",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

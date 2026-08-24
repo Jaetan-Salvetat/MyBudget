@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/502.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-09",
+  "total": 9.48,
+  "items": [
+   {
+    "name": "*BQ 250G GARIGUET.F",
+    "amount": 6.58,
+    "discount": 0
+   },
+   {
+    "name": "*CAMPAGNE 400G",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN COMPLET 300G",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "SAC CAISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0
+   }
+  ]
+ }
+}

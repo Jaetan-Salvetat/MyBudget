@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/555.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-03-28",
+  "total": 6.36,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*280G AIGUILLET POULE",
+    "amount": 4.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*F POMME PINK LADY",
+    "amount": 0.71,
+    "discount": 0.0
+   }
+  ]
+ }
+}

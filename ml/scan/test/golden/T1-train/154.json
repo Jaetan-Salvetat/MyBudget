@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/154.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-08",
+  "total": 6.15,
+  "items": [
+   {
+    "name": "SALADE VENEZIA",
+    "amount": 4.23,
+    "discount": 0
+   },
+   {
+    "name": "VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0
+   }
+  ]
+ }
+}

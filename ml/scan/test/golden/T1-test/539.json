@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/539.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-04-20",
+  "total": 11.89,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "*300G LENTILLE BUTERN",
+    "amount": 3.26,
+    "discount": 0
+   },
+   {
+    "name": "*F POMME PINK LADY",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "*SAUMON OSEILLE/RIZ",
+    "amount": 4.18,
+    "discount": 0
+   }
+  ]
+ }
+}

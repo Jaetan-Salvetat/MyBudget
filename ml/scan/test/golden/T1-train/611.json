@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/611.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BIOTOPE",
+  "date": "2017-07-05",
+  "total": 4.8,
+  "items": [
+   {
+    "name": "1 PAPIER TOILETTE 8 RLX ******",
+    "amount": 4.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

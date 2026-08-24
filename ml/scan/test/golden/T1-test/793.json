@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/793.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-01-11",
+  "total": 8.0,
+  "items": [
+   {
+    "name": "HEINZ COULIS TOMATE",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "TARTARE AFH 250G",
+    "amount": 2.18,
+    "discount": 0.0
+   },
+   {
+    "name": "MOISSON 12 OEUFS PA",
+    "amount": 2.76,
+    "discount": 0.0
+   },
+   {
+    "name": "ENTREMONT GRUYERE RA",
+    "amount": 2.01,
+    "discount": 0.0
+   }
+  ]
+ }
+}

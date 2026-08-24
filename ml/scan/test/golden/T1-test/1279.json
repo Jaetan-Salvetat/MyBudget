@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1279.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "KIABI",
+  "date": "2017-02-21",
+  "total": 19.0,
+  "items": [
+   {
+    "name": "W Tee-shirt fluide col 685522 BLEU L",
+    "amount": 10.0,
+    "discount": 0
+   },
+   {
+    "name": "W Tee-shirt jersey fla 591430 NOIR L",
+    "amount": 5.0,
+    "discount": 0
+   },
+   {
+    "name": "W Pantalon sport coton 422752 GRIS L",
+    "amount": 5.0,
+    "discount": 1.0
+   }
+  ]
+ }
+}

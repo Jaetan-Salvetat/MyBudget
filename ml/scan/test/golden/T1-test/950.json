@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-test/img/950.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-13",
+  "total": 31.14,
+  "items": [
+   {
+    "name": "SAC CABAS DURAB.GM U GENERIC",
+    "amount": 0.6,
+    "discount": 0
+   },
+   {
+    "name": "ROTI PORC CUIT FOUR U 8TR360G",
+    "amount": 4.8,
+    "discount": 0
+   },
+   {
+    "name": "JAMBON DE PARIS U 12TR 540G",
+    "amount": 4.59,
+    "discount": 0
+   },
+   {
+    "name": "BATON BERGER NOISET.BRIDOU250G",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "RILLETTE MANS CHARAUDEAU 220G",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "EMM.PAST.28%MG U PORTION 400G",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "BEURRIER TENDRE DS",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "CAMEMB.PAST.20%PRESIDENT 250G",
+    "amount": 1.32,
+    "discount": 0
+   },
+   {
+    "name": "EAU SOURCE ALPES U PACK 6X50CL",
+    "amount": 1.27,
+    "discount": 0
+   },
+   {
+    "name": "PAIN MAI.BOU.CER.SCHAR ST 300G",
+    "amount": 3.25,
+    "discount": 0
+   },
+   {
+    "name": "AIRWAVE.SS MTH/EUCALYP.BOX 84G",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "PAIN MIE SANDWICH NAT.U 550G",
+    "amount": 1.64,
+    "discount": 0
+   }
+  ]
+ }
+}

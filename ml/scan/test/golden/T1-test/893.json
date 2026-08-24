@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/893.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "COULEUR MARCHE FRUITS ET LEGUMES",
+  "date": "2017-06-17",
+  "total": 312.36,
+  "items": [
+   {
+    "name": "ORANGES A JUS",
+    "amount": 3.68,
+    "discount": 0
+   },
+   {
+    "name": "POMELOS X 1",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "ORANGE GAMIN",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "BRUGNON BLANC",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "ABRICOT",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "MELON",
+    "amount": 3.5,
+    "discount": 0
+   }
+  ]
+ }
+}

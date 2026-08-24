@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/662.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2018-05-31",
+  "total": 5.68,
+  "items": [
+   {
+    "name": "MULET",
+    "amount": 5.68,
+    "discount": 0.0
+   }
+  ]
+ }
+}

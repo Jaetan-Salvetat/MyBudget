@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/624.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-06",
+  "total": 22.26,
+  "items": [
+   {
+    "name": "CAFE CLASSIC G.M.X60 DOS.420G",
+    "amount": 5.85,
+    "discount": 0
+   },
+   {
+    "name": "CHOC.LT AM./P.SEL C.D'OR 180G",
+    "amount": 2.59,
+    "discount": 0
+   },
+   {
+    "name": "DEMI ST-NECT.AOP LP 27% U 280G",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "TOMME NRE DES PYRE.IGP27%U200G",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "BEUR.DX 82%AOP GD FERM.PQ 250G",
+    "amount": 3.64,
+    "discount": 0
+   },
+   {
+    "name": "SALADE MANHATTAN SODEBO 320G",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "TIELLE SETOISE U SAV.2X105G",
+    "amount": 2.19,
+    "discount": 0
+   }
+  ]
+ }
+}

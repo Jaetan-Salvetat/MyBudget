@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1419.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MONOPRIX",
+  "date": "2015-10-07",
+  "total": 87.95,
+  "items": [
+   {
+    "name": "X BIGT AOP LUNETTE",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "XXPYJ M3/4 RAYE",
+    "amount": 27.99,
+    "discount": 0
+   },
+   {
+    "name": "X LEGG AOP LUNETTE",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "CULOTTE 44/46 BLC",
+    "amount": 9.99,
+    "discount": 0
+   },
+   {
+    "name": "CULOTTE 44/46 NOI",
+    "amount": 9.99,
+    "discount": 0
+   }
+  ]
+ }
+}

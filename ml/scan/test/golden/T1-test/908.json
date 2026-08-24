@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/908.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CREPERIE AUX DELICES BRETONS",
+  "date": "2017-06-01",
+  "total": 42.5,
+  "items": [
+   {
+    "name": "03 Blanche",
+    "amount": 33.0,
+    "discount": 0.0
+   },
+   {
+    "name": "01 Salade plat",
+    "amount": 9.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

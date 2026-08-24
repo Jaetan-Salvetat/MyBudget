@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/647.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "GÉMO",
+  "date": "2017-06-09",
+  "total": 14.99,
+  "items": [
+   {
+    "name": "BERMUDA BEIGE.",
+    "amount": 14.99,
+    "discount": 0
+   }
+  ]
+ }
+}

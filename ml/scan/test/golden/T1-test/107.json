@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/107.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-11-15",
+  "total": 12.66,
+  "items": [
+   {
+    "name": "*1/2 CONFIT AUBERGI",
+    "amount": 3.48,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*BATONNET OUATE CRF",
+    "amount": 0.5,
+    "discount": 0
+   },
+   {
+    "name": "*BRIE DE MEAUX RDF",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "*X36 DOS SENSEO CLA",
+    "amount": 4.49,
+    "discount": 0
+   }
+  ]
+ }
+}

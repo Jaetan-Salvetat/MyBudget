@@ -1,0 +1,149 @@
+{
+ "source": "dataset_findit/T1-train/img/498.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-11",
+  "total": 49.84,
+  "items": [
+   {
+    "name": "*1/5 SARDINE OLIV",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "10X OEUFS FRAIS",
+    "amount": 1.01,
+    "discount": 0
+   },
+   {
+    "name": "*1L PUR JUS POMME",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "250G MIEL ORANGER",
+    "amount": 2.65,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*300G LT ECR.REGILA",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "*BLEDINE M.CEREALE",
+    "amount": 2.83,
+    "discount": 1.98
+   },
+   {
+    "name": "CAFE MAX HAVELAAR",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIG.PIED/MCX",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*DESSERT SSA POM/PO",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL PLAQUETTE",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "*ET 500G INST.CACAO",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "*FL 500G CITRON PP",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*FLAN X 1",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "GAUFRETTES CHOCO",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "KG CUISSE PLT BLC",
+    "amount": 2.34,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 2.96,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE FEUILLE",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "*P.POIS/CAR.E.F.CRF",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "*PASTIN MULTICEREAL",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 1.82,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE BQ 3FRT 0,99",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE -P.PRIX",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "150ML DEO SCORPIO",
+    "amount": 3.66,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/580.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-04",
+  "total": 23.37,
+  "items": [
+   {
+    "name": "180G SCE TOM AIL",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*2.5KG PDT CONS FOC",
+    "amount": 3.69,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE BIO 250G",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*BRIE ROITELET",
+    "amount": 3.86,
+    "discount": 0
+   },
+   {
+    "name": "*CHOUCROUTE GARNIE",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "*KIWI PIECE",
+    "amount": 3.0,
+    "discount": 1.02
+   },
+   {
+    "name": "*TABOULE ORIENTAL",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "DEO BILLE FEM NART",
+    "amount": 2.28,
+    "discount": 0
+   },
+   {
+    "name": "FILM 30M",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "SERUM PHYSIOLOGIQU",
+    "amount": 1.62,
+    "discount": 0
+   }
+  ]
+ }
+}

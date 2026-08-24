@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/208.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2017-01-10",
+  "total": 6.13,
+  "items": [
+   {
+    "name": "4 MINI BEIGNET FRAMB",
+    "amount": 3.05,
+    "discount": 0.0
+   },
+   {
+    "name": "4 CEREALES XTREM CHO",
+    "amount": 3.08,
+    "discount": 0.0
+   }
+  ]
+ }
+}

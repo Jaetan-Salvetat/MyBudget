@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-test/img/470.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-05-30",
+  "total": 30.63,
+  "items": [
+   {
+    "name": "*BIO MENTHE POT FR",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "*CERISE",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "FL.14G THYM DUCROS",
+    "amount": 1.81,
+    "discount": 0
+   },
+   {
+    "name": "*KIWI PIECE",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "*POIVRON ROUGE",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*PHILADELPHIA LIGHT",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*POIVRON JAUNE",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "NUTELLA T.220",
+    "amount": 0.19,
+    "discount": 0
+   },
+   {
+    "name": "*YRT POT VER.NATURE",
+    "amount": 1.32,
+    "discount": 0
+   },
+   {
+    "name": "ARTICLES A 3 EUR",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "SECHE COUVERTS",
+    "amount": 4.85,
+    "discount": 0
+   },
+   {
+    "name": "SET 17 BOÎTES",
+    "amount": 5.5,
+    "discount": 0
+   }
+  ]
+ }
+}

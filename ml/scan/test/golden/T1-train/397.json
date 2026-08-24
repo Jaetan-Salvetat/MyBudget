@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/397.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-04",
+  "total": 11.11,
+  "items": [
+   {
+    "name": "*8XDOS SENSEO CAPP.",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "*GOUTE  DORE CACAO",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "*PARME TIER CANARD",
+    "amount": 4.73,
+    "discount": 0
+   },
+   {
+    "name": "*SAC C ISSE PAPIER",
+    "amount": 0.1,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 2.07,
+    "discount": 0
+   }
+  ]
+ }
+}

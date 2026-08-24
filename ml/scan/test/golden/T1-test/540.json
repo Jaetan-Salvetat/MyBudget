@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/540.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-03-01",
+  "total": 9.2,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*280G AIGUILLET POULE",
+    "amount": 4.05,
+    "discount": 0
+   },
+   {
+    "name": "*BTE 110 MOUCHOIR CON",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "*MENTH EXTRA FRAICH",
+    "amount": 2.3,
+    "discount": 0
+   }
+  ]
+ }
+}

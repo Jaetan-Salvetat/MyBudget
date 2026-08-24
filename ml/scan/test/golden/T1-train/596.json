@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/596.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour",
+  "date": "2017-06-17",
+  "total": 3.9,
+  "items": [
+   {
+    "name": "6 INST 20X30",
+    "amount": 3.9,
+    "discount": 0
+   }
+  ]
+ }
+}

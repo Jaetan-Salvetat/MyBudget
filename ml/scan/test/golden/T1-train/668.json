@@ -1,0 +1,159 @@
+{
+ "source": "dataset_findit/T1-train/img/668.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SIMPLY ST JEAN DE BRAYE",
+  "date": "2017-05-10",
+  "total": 75.06,
+  "items": [
+   {
+    "name": "ROUDOR",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "CARTE NOIRE",
+    "amount": 3.35,
+    "discount": 0
+   },
+   {
+    "name": "COOKIES PEPIT CHOCO1",
+    "amount": 3.39,
+    "discount": 0
+   },
+   {
+    "name": "PALET PEP CHOC S/GLU",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "KELLOGGS FROSTIES400",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "BROSSE DENTS",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "BROSSE DENTS",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "DENTIFRICE",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "GEL DOUCHE",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "SHAMPOOING",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "MOUCHOIR",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "MOUCHOIRS",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "SAVON RECTANGLE PATC",
+    "amount": 1.73,
+    "discount": 0
+   },
+   {
+    "name": "POM RISSOLEE",
+    "amount": 0.88,
+    "discount": 0
+   },
+   {
+    "name": "CREM FOUETTE",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCH TRESSE NAT PA",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "EXTRA LARGE",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 2.22,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE PLATEAU 1KG",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "CHAMP BQ 500G",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE RONDE GRAPPE",
+    "amount": 1.87,
+    "discount": 0
+   },
+   {
+    "name": "TOMATES",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "TOMATES",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "AIL VIOLET TUBE 1 TE",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "ANANAS ENTIER 400G",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "NOIX DE COCO 150G",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "BOEUF X1 ROTI*",
+    "amount": 12.96,
+    "discount": 0
+   },
+   {
+    "name": "PORC X6 FILET SS OS",
+    "amount": 5.63,
+    "discount": 0
+   }
+  ]
+ }
+}

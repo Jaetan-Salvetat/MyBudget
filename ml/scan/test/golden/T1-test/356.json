@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/356.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-16",
+  "total": 6.15,
+  "items": [
+   {
+    "name": "*250G TABOULE FRUIT",
+    "amount": 3.04,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOUSSE AU CHOCOLAT",
+    "amount": 3.11,
+    "discount": 0.0
+   }
+  ]
+ }
+}

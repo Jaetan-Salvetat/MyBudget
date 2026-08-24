@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/248.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-18",
+  "total": 27.49,
+  "items": [
+   {
+    "name": "80G CHOC NOIR 80%",
+    "amount": 0.96,
+    "discount": 0.0
+   },
+   {
+    "name": "CHOCO NR 60% MADAG",
+    "amount": 0.96,
+    "discount": 0.42
+   },
+   {
+    "name": "LT2X250G MLU CLASS",
+    "amount": 17.55,
+    "discount": 5.85
+   },
+   {
+    "name": "LT3X100G.EXT SUP.N",
+    "amount": 2.69,
+    "discount": 0.0
+   },
+   {
+    "name": "*MACARON FRAMBOISE",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "BUGGY RC 1/18  >E",
+    "amount": 10.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

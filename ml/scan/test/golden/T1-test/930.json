@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/930.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PAUL ST ROCH",
+  "date": "2017-04-27",
+  "total": 5.2,
+  "items": [
+   {
+    "name": "TARTE SUCRE IND",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "FLAN NORMAND IND",
+    "amount": 3.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

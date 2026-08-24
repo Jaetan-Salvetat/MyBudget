@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/436.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-14",
+  "total": 14.71,
+  "items": [
+   {
+    "name": "*250G TORTELL.PESTO",
+    "amount": 3.21,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMMENTAL RAPE 100G",
+    "amount": 1.94,
+    "discount": 0.0
+   },
+   {
+    "name": "*GALETTE QUINOA TOM",
+    "amount": 2.81,
+    "discount": 0.0
+   },
+   {
+    "name": "*GD LAIT COTON CRF",
+    "amount": 1.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*KIRI CREME X 8",
+    "amount": 1.83,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.72,
+    "discount": 0.0
+   }
+  ]
+ }
+}

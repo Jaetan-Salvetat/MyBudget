@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/622.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Aux Saveurs d'Asie",
+  "date": "2017-07-05",
+  "total": 8.07,
+  "items": [
+   {
+    "name": "NON PESE 0.53kg x 4.99€/kg = 2.64€ EDDOES FR",
+    "amount": 2.64,
+    "discount": 0.0
+   },
+   {
+    "name": "NON PESE 0.69kg x 4.75€/kg = 3.28€ SOI SAM FR",
+    "amount": 3.28,
+    "discount": 0.0
+   },
+   {
+    "name": "1 SAUCE SOJA CLAIRE 500ML",
+    "amount": 2.15,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/774.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Nature & Découvertes",
+  "date": "2017-01-14",
+  "total": 6.9,
+  "items": [
+   {
+    "name": "PETITE PHILO SOIR 10187240",
+    "amount": 6.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

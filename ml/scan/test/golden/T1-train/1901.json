@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/1901.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PICARD SURGELES SAS",
+  "date": "2017-01-24",
+  "total": 32.5,
+  "items": [
+   {
+    "name": "*Colombo poiss.",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Poulet pestoFE",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Parm.poulet FE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*Colin Bord. FE",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "*Poulet basquai",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Blanq.volailFE",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Poulet teriyak",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "*Chili Carne FE",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Tartiflette FE",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*Boulett sc bbq",
+    "amount": 2.0,
+    "discount": 0
+   }
+  ]
+ }
+}

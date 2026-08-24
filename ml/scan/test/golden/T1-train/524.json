@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/524.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-06-21",
+  "total": 6.42,
+  "items": [
+   {
+    "name": "*300G COLESLAW CARREF",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "*300G COUSCOUS ORIENT",
+    "amount": 3.93,
+    "discount": 0
+   },
+   {
+    "name": "*PET 50 CL COCA COLA",
+    "amount": 1.28,
+    "discount": 0
+   }
+  ]
+ }
+}

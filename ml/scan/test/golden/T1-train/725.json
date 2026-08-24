@@ -1,0 +1,194 @@
+{
+ "source": "dataset_findit/T1-train/img/725.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SIMPLY ST JEAN DE BRAYE",
+  "date": "2017-05-21",
+  "total": 81.45,
+  "items": [
+   {
+    "name": "LULU CHOC 4X150G LU",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "PRINC 5CHOC+ 1 LAIT",
+    "amount": 6.85,
+    "discount": 0
+   },
+   {
+    "name": "H CHOCO.NOIR",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "SCE BOLO FROMAGE ITA",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "SCE PROVENCALE 425G",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "H FLAGEOLETS VERT EX-F",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "H HARICO EF C.MAIN345G",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "H HARICO EF C.MAIN345G",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "H HARICOT BEURRE E. F",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "H PETIT POIS CAROT420G",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "PTIT FLAN VANILLE 4X",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "PTIT ONCTUEU",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "PTIT ONCTUEU",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "H BISC.SABL.CHOC.SS/GL",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "H FUSILLI 500G SS/GLUT",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "H MINI CAKE CHOCO SS/G",
+    "amount": 3.08,
+    "discount": 0
+   },
+   {
+    "name": "MINI CAKES PEPITE CH",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "H MINICAK FRAI.S/GLUX6",
+    "amount": 3.23,
+    "discount": 0
+   },
+   {
+    "name": "H LAIT BIO1/2ECREME AU",
+    "amount": 5.64,
+    "discount": 0
+   },
+   {
+    "name": "C&A SSA ASSORTIES12X",
+    "amount": 3.89,
+    "discount": 0
+   },
+   {
+    "name": "DANETTE 3 CHOCOLATS",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "H BRIE 200G",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "H BRIE 200G",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE ZIP AU",
+    "amount": 3.4,
+    "discount": 0
+   },
+   {
+    "name": "ROUCOULONS PAYSANGE",
+    "amount": 2.09,
+    "discount": 0
+   },
+   {
+    "name": "VACHE QUI RIT 24P 40",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE 500 GR FRANCE",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE FILME PIEC",
+    "amount": 0.65,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE FILME PIEC",
+    "amount": 0.65,
+    "discount": 0
+   },
+   {
+    "name": "LEGUMES FRAI",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "RADIS ROSE BOTTE",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE RONDE GRAPPE",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "TTP ORANGE AVEC PULP",
+    "amount": 3.55,
+    "discount": 0
+   }
+  ]
+ }
+}

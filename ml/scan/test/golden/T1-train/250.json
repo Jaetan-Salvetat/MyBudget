@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-train/img/250.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-25",
+  "total": 18.71,
+  "items": [
+   {
+    "name": "100G CREVETTES JUM",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "300G CEREAL FAC DU",
+    "amount": 2.88,
+    "discount": 0
+   },
+   {
+    "name": "*4X125G LA LTR LT E",
+    "amount": 1.29,
+    "discount": 0.39
+   },
+   {
+    "name": "5ST LEVURE CHIMIQU",
+    "amount": 0.54,
+    "discount": 0
+   },
+   {
+    "name": "*8 PORTIONS KIRI",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "*93G THON NATUREL",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "*FL 500G CITRON PP",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*PETITE CAROTTE ST",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE BQ 3FRT 0,99",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*PTIT POT CR. CHOCO",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "*ST 1KG POM BICOLOR",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "*TROPICANA ORANGE",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "SACS POUB 30LX40",
+    "amount": 0.9,
+    "discount": 0
+   }
+  ]
+ }
+}

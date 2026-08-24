@@ -1,0 +1,104 @@
+{
+ "source": "dataset_findit/T1-test/img/249.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-14",
+  "total": 40.45,
+  "items": [
+   {
+    "name": "12 OEUFS MOY.CRF",
+    "amount": 2.83,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*4X120G PANIER EXTR",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "CHUTE.SAUM.FUM.**",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "*CLEM.FEUIL.CORSE",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FR.POMM/BANAN",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL FRANCAIS",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 1.96,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 2.54,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 2.03,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.43,
+    "discount": 0
+   },
+   {
+    "name": "*PUR JUS RAISIN 1L",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE QUI RIT X 32",
+    "amount": 3.35,
+    "discount": 0
+   },
+   {
+    "name": "DEBOUCHEUR GEL",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "ESSUIE TOUT X2 RLX",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "SOCQUETTES",
+    "amount": 7.95,
+    "discount": 3.98
+   }
+  ]
+ }
+}

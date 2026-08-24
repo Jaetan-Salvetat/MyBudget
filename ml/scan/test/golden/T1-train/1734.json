@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1734.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA CURE GOURMANDE",
+  "date": "2017-02-18",
+  "total": 12.45,
+  "items": [
+   {
+    "name": "SACHET CG 2015 BERLAND",
+    "amount": 8.5,
+    "discount": 0
+   },
+   {
+    "name": "SACHET PLASTIQUE-MINI",
+    "amount": 3.95,
+    "discount": 0
+   }
+  ]
+ }
+}

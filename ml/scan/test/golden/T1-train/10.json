@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/10.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-22",
+  "total": 14.46,
+  "items": [
+   {
+    "name": "400G TRESOR DUO CH",
+    "amount": 3.31,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUF GROS EXTRA",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "BANANE BIO",
+    "amount": 1.58,
+    "discount": 0
+   },
+   {
+    "name": "BISCOT.MULTI CEREA",
+    "amount": 1.28,
+    "discount": 0
+   },
+   {
+    "name": "LT 1/2E MATIN LEGE",
+    "amount": 3.02,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA TONNO RISTOR",
+    "amount": 2.57,
+    "discount": 0
+   },
+   {
+    "name": "YAF PANIER FRAM/MU",
+    "amount": 1.45,
+    "discount": 0
+   }
+  ]
+ }
+}

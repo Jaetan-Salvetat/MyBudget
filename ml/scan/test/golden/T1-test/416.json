@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/416.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-03",
+  "total": 3.08,
+  "items": [
+   {
+    "name": "*BP 1L LAIT 1/2ECRE",
+    "amount": 0.86,
+    "discount": 0.0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.4,
+    "discount": 0.0
+   },
+   {
+    "name": "*PUR JUS ORANGE",
+    "amount": 1.82,
+    "discount": 0.0
+   }
+  ]
+ }
+}

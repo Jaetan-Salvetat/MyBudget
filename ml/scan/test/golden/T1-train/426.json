@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/426.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-18",
+  "total": 5.67,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*PT ST VARIETE MX",
+    "amount": 1.65,
+    "discount": 0.0
+   },
+   {
+    "name": "*SDW TRI JBN CHEDDA",
+    "amount": 1.74,
+    "discount": 0.0
+   },
+   {
+    "name": "*X16 CHOCOLAT BN",
+    "amount": 1.23,
+    "discount": 0.0
+   }
+  ]
+ }
+}

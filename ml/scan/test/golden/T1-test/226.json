@@ -1,0 +1,184 @@
+{
+ "source": "dataset_findit/T1-test/img/226.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-03-07",
+  "total": 73.98,
+  "items": [
+   {
+    "name": "1/2 CANNELLONI CRF",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "1KG FUSILLI P.C CR",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "200G CROQ'SOJA",
+    "amount": 2.64,
+    "discount": 0
+   },
+   {
+    "name": "250G TORTELL.PESTO",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "37CL CORNICHON.E.F",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "8X125G VELOUTE NAT",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "ANDROS POMME POIRE",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "AUBERGINE",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.5,
+    "discount": 0
+   },
+   {
+    "name": "BISCOT.MULTI CEREA",
+    "amount": 1.01,
+    "discount": 0
+   },
+   {
+    "name": "BOULE BLANCHE",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "CAPRICE DES DIEUX",
+    "amount": 2.89,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE MOYENNE",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "CONFITURE BIO FRAI",
+    "amount": 3.92,
+    "discount": 0
+   },
+   {
+    "name": "DOLCE PIZZA CAPRI",
+    "amount": 4.58,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 2.84,
+    "discount": 0
+   },
+   {
+    "name": "ET 500G RIZ 12MN C",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "JBN PARIS CRF 6TR.",
+    "amount": 2.51,
+    "discount": 0
+   },
+   {
+    "name": "KIRI CREME X 12",
+    "amount": 2.28,
+    "discount": 0
+   },
+   {
+    "name": "MOUTARDE AMORA",
+    "amount": 0.45,
+    "discount": 0
+   },
+   {
+    "name": "OEUFS BIO LOUE",
+    "amount": 3.09,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 25",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "POIRE COMICE VRAC",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "POIREAU VRAC",
+    "amount": 0.54,
+    "discount": 0
+   },
+   {
+    "name": "QUENEL VOLAI.PJEAN",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE TOMATE OLIVE",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "SCE TOMATE BIO",
+    "amount": 1.67,
+    "discount": 0
+   },
+   {
+    "name": "XTREM CHOCO NOISET",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "BTE 90 MOUCHOIRS",
+    "amount": 2.6,
+    "discount": 0
+   },
+   {
+    "name": "CLOCHE MICRO ONDES",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "MOULE MANQUE",
+    "amount": 6.2,
+    "discount": 0
+   },
+   {
+    "name": "PLAT ROND 4EN1 CLA",
+    "amount": 8.05,
+    "discount": 0
+   }
+  ]
+ }
+}

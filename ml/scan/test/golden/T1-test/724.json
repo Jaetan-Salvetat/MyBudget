@@ -1,0 +1,109 @@
+{
+ "source": "dataset_findit/T1-test/img/724.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SIMPLY ST JEAN DE BRAYE",
+  "date": "2017-05-06",
+  "total": 57.02,
+  "items": [
+   {
+    "name": "UNCLE BENS RIZ LONG",
+    "amount": 12.35,
+    "discount": 0
+   },
+   {
+    "name": "H SAUCE PESTO ROUGE 19",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "H SAUCE PISTOU 190G AU",
+    "amount": 2.04,
+    "discount": 0
+   },
+   {
+    "name": "H SAUCE PROVENCALE AUC",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "H FUSILLI 500G SS/GLUT",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "H MINI CAKE CHOCO SS/G",
+    "amount": 3.08,
+    "discount": 0
+   },
+   {
+    "name": "MINI CAKES PEPITE CH",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "H MINICAK FRAI.S/GLUX6",
+    "amount": 3.23,
+    "discount": 0
+   },
+   {
+    "name": "H CAMEMBERT BIO AUCHAN",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE ZIP AU",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE ZIP AU",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "PETIT BILLY 15% MG 2",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "POINTE DE BRIE 32% P",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "POINTE DE BRIE 32% P",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "PAIN AUX CEREALES SA",
+    "amount": 4.5,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 1.48,
+    "discount": 0
+   },
+   {
+    "name": "H PUR JUS ORANGE AUCHA",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "H BOUILLOTE",
+    "amount": 4.07,
+    "discount": 0
+   }
+  ]
+ }
+}

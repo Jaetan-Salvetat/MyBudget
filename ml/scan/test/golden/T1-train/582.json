@@ -1,0 +1,99 @@
+{
+ "source": "dataset_findit/T1-train/img/582.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City ANGOULINS",
+  "date": "2017-06-20",
+  "total": 35.01,
+  "items": [
+   {
+    "name": "4 BRK 1L LAIT UHT PL",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "4 270G BISCOTTES",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "4 FROMAGE BLANC 2,8%",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "4 8X125G PANIER 0%",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "4 MELON PIECE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "4 NECTARINE JNE VRAC",
+    "amount": 2.51,
+    "discount": 0
+   },
+   {
+    "name": "4 CHAMOIS D OR",
+    "amount": 3.18,
+    "discount": 0
+   },
+   {
+    "name": "4 PDA BAGUETTE RUSTI",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "4 PX ROND TOMATE MEL",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "4 BRIOCHE NANTERRE P",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "4 CARPACCIO BOEUF",
+    "amount": 4.06,
+    "discount": 0
+   },
+   {
+    "name": "4 PANACH.JEUNE POUSS",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "4 MOZZA.BUFALA CRF",
+    "amount": 2.88,
+    "discount": 0
+   },
+   {
+    "name": "4 CRF TARAMA EXTRA",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "4 HOUM.EXTRA CAROT.",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "4 EDUL/POUDRE SUCRAL",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "6 110 MOUCHOIR CRF.",
+    "amount": 0.96,
+    "discount": 0
+   }
+  ]
+ }
+}

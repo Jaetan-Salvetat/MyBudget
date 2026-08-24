@@ -1,0 +1,144 @@
+{
+ "source": "dataset_findit/T1-test/img/253.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-11-26",
+  "total": 60.38,
+  "items": [
+   {
+    "name": "*11G CORIANDRE FLOR",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "150 PBT CHOC NR PO",
+    "amount": 1.12,
+    "discount": 0
+   },
+   {
+    "name": "1L HLE OLIVE VE CR",
+    "amount": 5.25,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "375G MIEL EUCALYPT",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "*4X250ML BDEJ BISC/",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "750G CASSON.PERUCH",
+    "amount": 3.56,
+    "discount": 0
+   },
+   {
+    "name": "*AMANDE EMONDE 300G",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "*ANDROS POMME/POIRE",
+    "amount": 1.34,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*BLEDIDEJ CROISSANC",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "*BOURSIN GOURMAND",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGON EMINCE",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "KG FLT PLT JNE HAL",
+    "amount": 3.94,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "*PASTIN MULTICEREAL",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.43,
+    "discount": 0
+   },
+   {
+    "name": "*POMME RHUBARBE X4",
+    "amount": 1.34,
+    "discount": 0
+   },
+   {
+    "name": "*PUR JUS RAISIN 1L",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "SPAGHETTI CUISSON",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*YOPA LIT CERISE",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "*YOPA LIT CERISE",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "NIVEA MAR P.SENSIB",
+    "amount": 2.78,
+    "discount": 0
+   }
+  ]
+ }
+}

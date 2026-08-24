@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/966.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE RECIF RESTAURANT",
+  "date": "2016-10-22",
+  "total": 7.0,
+  "items": [
+   {
+    "name": "CHOCOLAT",
+    "amount": 7.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

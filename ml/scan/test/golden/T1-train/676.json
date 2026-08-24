@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/676.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-05-02",
+  "total": 14.95,
+  "items": [
+   {
+    "name": "LU GRANOLA EXT.COOK.",
+    "amount": 1.41,
+    "discount": 0.0
+   },
+   {
+    "name": "*74246 ECODIM MCX5 F",
+    "amount": 7.99,
+    "discount": 0.0
+   },
+   {
+    "name": "IDS SCISSE AUVERGNE",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "DAUN SDW TRG XXL PLT",
+    "amount": 2.11,
+    "discount": 0.0
+   },
+   {
+    "name": "BOUT.OR CHIPS CRAQUA",
+    "amount": 0.94,
+    "discount": 0.0
+   }
+  ]
+ }
+}

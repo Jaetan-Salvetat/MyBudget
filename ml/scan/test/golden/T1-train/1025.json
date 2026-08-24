@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1025.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "JOUECLUB LAGORD",
+  "date": "2017-07-01",
+  "total": 38.96,
+  "items": [
+   {
+    "name": "BEACH COMBO SET",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "PAPIER CADEAU D",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "Mes jeux de gra",
+    "amount": 24.99,
+    "discount": 0
+   },
+   {
+    "name": "HAND SPINNER CE",
+    "amount": 4.99,
+    "discount": 0
+   }
+  ]
+ }
+}

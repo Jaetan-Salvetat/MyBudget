@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-test/img/776.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2016-12-24",
+  "total": 43.54,
+  "items": [
+   {
+    "name": "CORNICHONS CROQ'VERT AMORA380G",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "* HUILE DE TOURNESOL 1L RUSTICA,",
+    "amount": 1.81,
+    "discount": 0
+   },
+   {
+    "name": "* CONF FIGUES 370G MAMIE DOUCEUR",
+    "amount": 1.06,
+    "discount": 0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 2.72,
+    "discount": 0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 2.72,
+    "discount": 0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 2.04,
+    "discount": 0
+   },
+   {
+    "name": "LITIERE POUR CHAT 7L,7L",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "MAYO.CITRON BOCAL 255G",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "* J.ORANGE.ABC.JAFADEN,BRIK,1L",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "DEPOUSS MEUBLE CIRE 300ML ECO+",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "* SACS POUBELL COULISS.50LX15,15",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "* PH ROSE MIMOSA X12,1P",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "4 VEL CR CHOC NOISETTE,280G",
+    "amount": 1.63,
+    "discount": 0
+   },
+   {
+    "name": "VELOURS CREME CARAMEL 4X70G",
+    "amount": 1.48,
+    "discount": 0
+   },
+   {
+    "name": "VELOUTE NATURE",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "UHT BK CHARENTE POITOU",
+    "amount": 8.28,
+    "discount": 0
+   },
+   {
+    "name": "4 YAF PANIER FRAISE FRAMB,500G",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 510G",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 3 MEUNIERS 250G",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "CREVETTES ROSES 60/80",
+    "amount": 4.18,
+    "discount": 0
+   }
+  ]
+ }
+}

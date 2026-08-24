@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/567.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-06-08",
+  "total": 7.35,
+  "items": [
+   {
+    "name": "400G CROISSANTS CR",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "EPICEA COUPE",
+    "amount": 5.55,
+    "discount": 1.67
+   }
+  ]
+ }
+}
