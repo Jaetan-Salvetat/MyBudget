@@ -15,6 +15,7 @@ En production la précision vaut « couverture × mémorisation + (1 − couvert
 """
 
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 
@@ -26,7 +27,7 @@ from knowledge.entities import normalize, read_entities
 from taxonomy import LABELS, canonical
 from train import BudgetClassifier
 
-MODEL_PATH = Path(__file__).parent / "output" / "best"
+MODEL_PATH = Path(os.environ.get("QUICK_ADD_MODEL", Path(__file__).parent / "output" / "best"))
 CORPUS_PATH = Path(__file__).parent / "eval_world.json"
 MAX_NGRAM = 4
 CONFIDENCE_BINS = 10

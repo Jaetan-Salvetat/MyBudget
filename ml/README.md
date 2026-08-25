@@ -25,7 +25,9 @@ ml/
 │   ├── test_onnx.py          # Vérifie l'artefact livré : justesse et fidélité
 │   ├── eval_world.json       # 294 cas FR/EN étiquetés à la main, par axe
 │   ├── eval_corpus.json      # 157 cas historiques
-│   └── tests/                # 30 tests des invariants du pipeline
+│   ├── eval_receipts.json    # 5 005 libellés de tickets FindIt étiquetés (scan)
+│   ├── receipts/             # Corpus « style ticket » et cascade du scan (TRAINING.md §8)
+│   └── tests/                # Tests des invariants du pipeline
 └── price_parser/             # Prototype Dart d'extraction de prix (regex)
 ```
 
@@ -70,6 +72,7 @@ uv run python eval_world.py         # connaissance monde
 uv run python test_model.py         # non-régression
 uv run python export_onnx.py        # → output/model.onnx
 uv run python test_onnx.py          # justesse et fidélité de l'export int8
+uv run python -m receipts.evaluate --cascade   # libellés de tickets (scan)
 uv run python -m pytest             # invariants du pipeline
 ```
 

@@ -7,6 +7,7 @@ de la justesse ? Ce script répond aux deux avant publication.
 """
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -18,8 +19,8 @@ from taxonomy import LABELS, canonical
 from train import MAX_LENGTH, BudgetClassifier
 
 ROOT = Path(__file__).parent
-MODEL_PATH = ROOT / "output" / "best"
-ONNX_PATH = ROOT / "output" / "model.onnx"
+MODEL_PATH = Path(os.environ.get("QUICK_ADD_MODEL", ROOT / "output" / "best"))
+ONNX_PATH = Path(os.environ.get("QUICK_ADD_EXPORT_DIR", ROOT / "output")) / "model.onnx"
 CORPORA = ("eval_world.json", "eval_corpus.json")
 
 TYPE_LABELS = ["expense", "income"]

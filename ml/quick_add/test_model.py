@@ -1,4 +1,5 @@
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from transformers import AutoTokenizer
 from generate_dataset import LABELS
 from train import BudgetClassifier, BudgetClassifierConfig
 
-MODEL_PATH = Path(__file__).parent / "output" / "best"
+MODEL_PATH = Path(os.environ.get("QUICK_ADD_MODEL", Path(__file__).parent / "output" / "best"))
 CORPUS_PATH = Path(__file__).parent / "eval_corpus.json"
 
 TYPE_LABELS = ["expense", "income"]

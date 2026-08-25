@@ -2,15 +2,17 @@ import torch
 import torch.nn as nn
 import onnx
 from onnxruntime.quantization import QuantType, quantize_dynamic
+import os
 from pathlib import Path
 from transformers import AutoTokenizer
 
 from train import BudgetClassifier, BudgetClassifierConfig, mean_pool
 
-MODEL_PATH = Path(__file__).parent / "output" / "best"
-ONNX_RAW = Path(__file__).parent / "output" / "model_raw.onnx"
-ONNX_MERGED = Path(__file__).parent / "output" / "model_merged.onnx"
-ONNX_FINAL = Path(__file__).parent / "output" / "model.onnx"
+MODEL_PATH = Path(os.environ.get("QUICK_ADD_MODEL", Path(__file__).parent / "output" / "best"))
+EXPORT_DIR = Path(os.environ.get("QUICK_ADD_EXPORT_DIR", Path(__file__).parent / "output"))
+ONNX_RAW = EXPORT_DIR / "model_raw.onnx"
+ONNX_MERGED = EXPORT_DIR / "model_merged.onnx"
+ONNX_FINAL = EXPORT_DIR / "model.onnx"
 
 # Traced short so nothing bakes a padded length into the graph : the sequence
 # axis stays symbolic and the app pads to the smallest bucket that fits.

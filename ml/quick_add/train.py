@@ -1,4 +1,5 @@
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -21,7 +22,7 @@ from transformers.utils import ModelOutput
 from taxonomy import LABELS
 
 MODEL_NAME = "jhu-clsp/mmBERT-small"
-OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR = Path(os.environ.get("QUICK_ADD_OUTPUT", Path(__file__).parent / "output"))
 DATASET_DIR = Path(__file__).parent / "dataset"
 
 MAX_LENGTH = 64
@@ -200,9 +201,25 @@ def compute_metrics(eval_pred) -> dict:
     }
 
 
+def read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+
 def load_dataset_from_jsonl(path: Path) -> Dataset:
-    rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
-    return Dataset.from_list(rows)
+    return Dataset.from_list(read_jsonl(path))
+
+
+def training_rows(dataset_dir: Path) -> list[dict]:
+    """Le corpus quick-add, plus le corpus « style ticket » s'il a été généré.
+
+    Les deux servent le même modèle : le scan lit des libellés de caisse, le
+    quick-add des saisies libres, et l'app ne charge qu'un seul ONNX.
+    """
+    rows = read_jsonl(dataset_dir / "train.jsonl")
+    receipts = dataset_dir / "receipts_train.jsonl"
+    if receipts.exists():
+        rows.extend(read_jsonl(receipts))
+    return rows
 
 
 def tokenize(examples: dict, tokenizer: AutoTokenizer) -> dict:
@@ -255,7 +272,7 @@ def main() -> None:
     model = BudgetClassifier(config)
     model.backbone = ModernBertModel.from_pretrained(MODEL_NAME)
 
-    train_dataset = load_dataset_from_jsonl(DATASET_DIR / "train.jsonl")
+    train_dataset = Dataset.from_list(training_rows(DATASET_DIR))
     eval_dataset = load_dataset_from_jsonl(DATASET_DIR / "eval.jsonl")
 
     train_dataset = train_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True)

@@ -213,7 +213,81 @@ Les alias se séparent par une barre verticale : `"Disney+|Disney Plus|disney"`.
 Après ajout : `python -m knowledge.build`, `python generate_dataset.py`,
 `python train.py`.
 
-## 8. Pistes non explorées
+## 8. Le même modèle pour le scan : libellés de ticket
+
+Le scan local (`ml/scan`) sort une enseigne et des libellés tels qu'une
+caisse les imprime — `*160G BLC PLT 4TR.F`, `CRF-CITY LA ROCHELLE`. Mesuré
+sur les 1 000 tickets FindIt étiquetés à la main (`receipts/labels.py`,
+5 005 articles, T1-test = 2 531 jamais vus), le modèle quick-add seul y est
+aveugle : 8 % strict en majuscules, 20 % après normalisation. Deux raisons :
+il n'a jamais vu de majuscules sans accent ni d'abréviations de caisse, et il
+ne connaît presque aucun produit (« jus de pomme bio » → fast-food).
+
+Ce que le dossier `receipts/` ajoute, sans changer l'architecture ni l'ONNX :
+
+```bash
+uv run python -m receipts.fetch_off                 # Open Food/Beauty Facts FR → dataset/cache/*.parquet
+uv run python -m receipts.generate_receipt_dataset  # → dataset/receipts_train.jsonl (+ eval)
+uv run python train.py                              # train.jsonl + receipts_train.jsonl
+uv run python -m receipts.evaluate --cascade        # T1-test, strict / famille / ticket
+uv run python -m receipts.export_normalization_fixture   # parité Dart de la normalisation
+```
+
+- `receipts/normalize.py` : ce que l'app applique avant le modèle (retrait
+  des marqueurs, contenances, compteurs, codes ; minuscules). Miroir Dart
+  dans `ml/scan/pipeline/lib/src/categorize.dart`, parité vérifiée sur les
+  3 845 lignes des golden ;
+- `receipts/style.py` : déforme un nom de produit comme une caisse
+  (abréviations `PLT`/`JBN`/`1/2ECR`, troncature 16-26 caractères,
+  contenance `4X125G`, marque distributeur `CRF`/`U`, voyelles supprimées) ;
+- `receipts/lexicon.py` : ~1 900 libellés écrits à la main pour ce que les
+  sources ouvertes ne couvrent pas (vêtements, bricolage, pharmacie, plats,
+  carburant, péage…), les abréviations d'enseigne (`CRF CITY`, `ITM`) et
+  200 villes pour les en-têtes ;
+- `receipts/generate_receipt_dataset.py` : OFF/OBF (12 000 produits les plus
+  scannés), lexique, en-têtes d'enseigne (entités physiques + ville +
+  raison sociale), et les libellés réels de T1-train avec leur vérité —
+  **jamais T1-test**. Plafond de 12 000 lignes par classe : sans lui,
+  l'alimentaire tire tout libellé inconnu vers « supermarché » et le
+  quick-add régresse (mesuré : `eval_world` 96 → 94 %, revenu à 96 % avec le
+  plafond et un rejeu de 50 000 lignes) ;
+- `receipts/cascade.py` : la décision de l'app. La taxonomie est une
+  taxonomie de marchands, donc **classe du ticket = enseigne** (si lue à
+  P ≥ 0,9, sinon vote des articles pondéré par la confiance) et **article =
+  classe du ticket**, sauf famille distincte (vêtement, animalerie,
+  pharmacie, jouet…) à P ≥ 0,8 dans une enseigne alimentaire. Seuils
+  balayés sur T1-train : un seuil enseigne élevé rend la main au vote des
+  articles dès que l'en-tête est incertain, et le vote est devenu fiable ;
+- `receipts/finetune.py` : boucle rapide (40 min) qui poursuit `output/best`
+  sur le corpus ticket + rejeu du corpus général, vers `output/receipts` —
+  jamais dans `output/best`. `QUICK_ADD_MODEL=output/receipts` fait tourner
+  `eval_world.py` et `test_model.py` sur ce modèle.
+
+Mesures sur T1-test (articles, vérité manuelle) :
+
+| Modèle | Article seul (strict / famille) | Cascade, enseigne lue | Cascade, enseigne masquée |
+|---|---|---|---|
+| `output/best` (quick-add livré) | 20 % / 38 % | 40 % / 65 % — ticket 63 % | 35 % / 54 % — ticket 46 % |
+| + fine-tune corpus ticket v1 (60 % supermarché, seuils 0,5/0,6) | 65 % / 88 % | 86 % / 93 % — ticket 87 % | 70 % / 89 % — ticket 81 % |
+| + fine-tune corpus ticket v2 (plafond par classe, rejeu 50 k, seuils 0,9/0,8) | 65 % / 87 % | 83 % / 93 % — ticket 88 % | 75 % / 92 % — ticket 85 % |
+| **`train.py` complet, 5 epochs, deux corpus (`output/full_receipts`)** | 67 % / 89 % | **85 % / 93 % — ticket 88 %** | 75 % / 92 % — ticket 86 % |
+
+« Famille » confond supermarché/épicerie/marché et
+restaurant/fast-food/café/bar : ces frontières sont des conventions
+d'enseigne, pas des faits. Le strict en enseigne lue tombe avec v2 sur une seule
+bascule intra-famille (« Carrefour market AYTRE » → épicerie, 522 articles :
+la base d'entités classe Carrefour Market en supérette). Les erreurs de
+famille restantes sont des enseignes inconnues (cantines, petits
+restaurants) dont les plats — `pain`, `tartiflette` — ressemblent à des
+produits.
+
+Le modèle complet repasse les seuils de la section 4 : `eval_world` 96 %,
+ECE 3,4 %, 99 % de justesse sur les 80 % les plus confiants, `test_model`
+niveau `app` 100 % — le scan et le quick-add partagent le même ONNX. Il
+n'est **pas publié** : `output/best` reste le modèle livré tant que la
+décision n'est pas prise.
+
+## 9. Pistes non explorées
 
 - **Adaptation MLM du backbone.** 98,3 M des 131 M de paramètres sont dans la
   table d'embeddings, là où vit la connaissance lexicale — et le fine-tuning
@@ -229,13 +303,15 @@ Après ajout : `python -m knowledge.build`, `python generate_dataset.py`,
 - **Calibration par température** sur un jeu tenu à part, pour que le seuil de
   confiance de l'app veuille dire quelque chose.
 
-## 9. Journal
+## 10. Journal
 
 | Version | Données | `eval_world` | `eval_corpus` |
 |---|---|---|---|
 | 75 classes (2026-08-21) | 2 172 exemples écrits à la main, augmentation ×8 | 20 % sur des marques hors corpus | 97 % (labels réalignés) |
 | 80 classes, itération 1 (2026-08-23) | 28 668 entités, 124 175 exemples, 5 epochs | **93 %** — couverture 98 %, mémorisation 94 %, type 100 %, récurrence 90 %, ECE 3,5 % | catégorie 97 %, récurrence 93 % |
 | 80 classes, itération 2 (2026-08-24) | + récurrence déduite de la formulation, marques manquantes, mots de boulangerie | **96 %** — couverture 100 %, type 99 %, récurrence 95 %, ECE 3,5 %, **100 % de justesse sur les 80 % les plus confiants** | catégorie **99 %**, type 100 %, récurrence 98 % |
+
+| 80 classes + corpus ticket (2026-08-25, `output/full_receipts`, non publié) | + 40 539 libellés style ticket (OFF, lexique, T1-train, en-têtes), plafond 12 000/classe | **96 %** — ECE 3,4 %, 99 % sur les 80 % les plus confiants | catégorie 100 % (`app`), hard 88 % |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.

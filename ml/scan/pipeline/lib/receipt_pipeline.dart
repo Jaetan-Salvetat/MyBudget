@@ -1,3 +1,4 @@
+export 'src/categorize.dart';
 export 'src/classifier.dart';
 export 'src/decode.dart';
 export 'src/flow.dart';
