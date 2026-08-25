@@ -120,12 +120,12 @@ def check_parity(tickets: list[DeviceTicket]) -> int:
             print(f"  python {python_pass1}")
         python_flow = decide_local(dump)
         device_flow = _device_outcome(ticket)
-        if (python_flow.stage, python_flow.items, python_flow.total) != device_flow:
+        if (python_flow.stage, python_flow.amounts, python_flow.total) != device_flow:
             mismatches += 1
             print(f"PARITE flow {ticket.name}:")
             print(f"  dart   {device_flow}")
             print(
-                f"  python {(python_flow.stage, python_flow.items, python_flow.total)}"
+                f"  python {(python_flow.stage, python_flow.amounts, python_flow.total)}"
             )
     return mismatches
 

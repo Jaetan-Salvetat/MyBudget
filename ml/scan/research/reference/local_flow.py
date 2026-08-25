@@ -17,7 +17,12 @@ from reference.decode_constrained import extract_constrained
 from reference.flow import FlowPolicy, decide
 from reference.fuse_passes import fuse_passes
 from reference.lines import PhysicalLine, Word, cluster_lines, deskew_words
-from reference.structure import ExtractedReceipt, extract, merge_price_fragments
+from reference.structure import (
+    ExtractedItem,
+    ExtractedReceipt,
+    extract,
+    merge_price_fragments,
+)
 from reference.structure_ml import extract_ml
 
 POLICY = FlowPolicy(retry_must_not_lose_value=True, confirm_prefill="local")
@@ -33,13 +38,27 @@ VERIFIED_STAGES = (LOCAL, LOCAL_RETRY, LOCAL_ML, LOCAL_DP, LOCAL_FUSED)
 
 @dataclass(frozen=True)
 class LocalOutcome:
+    """Les articles retenus, libellés compris.
+
+    Le libellé n'est pas décoratif : c'est lui qui décide de la catégorie, donc
+    de la ligne de budget. Le portage Dart le remonte depuis toujours
+    (`FlowOutcome.items` porte des `ExtractedItem`) ; la référence Python ne
+    gardait que les montants, et aucune mesure ne pouvait donc voir un libellé
+    rattaché au mauvais prix."""
+
     stage: str
-    items: list[tuple[float, float]]
+    items: list[ExtractedItem]
     total: float | None
 
     @property
     def verified(self) -> bool:
         return self.stage in VERIFIED_STAGES
+
+    @property
+    def amounts(self) -> list[tuple[float, float]]:
+        """Montants seuls — ce que compare le scoreur historique et la
+        vérification de parité avec le device."""
+        return [(round(i.amount, 2), round(i.discount, 2)) for i in self.items]
 
 
 def clustered_lines(dump: dict) -> list[PhysicalLine]:
@@ -88,8 +107,16 @@ def classifier_rescue(
     return None
 
 
-def _items_of(receipt_items) -> list[tuple[float, float]]:
-    return [(round(i.amount, 2), round(i.discount, 2)) for i in receipt_items]
+def _receipt_of_stage(
+    stage: str, local: ExtractedReceipt, retry: ExtractedReceipt | None
+) -> ExtractedReceipt:
+    """Le ticket dont la décision a retenu les articles — `decide` ne rend que
+    des montants, les libellés se reprennent à la source."""
+    if stage == LOCAL_RETRY and retry is not None:
+        return retry
+    if stage == CONFIRM and retry is not None:
+        return retry
+    return local
 
 
 def _decide_pass(
@@ -101,12 +128,14 @@ def _decide_pass(
 ) -> LocalOutcome:
     outcome = decide(local, retry, None, None, POLICY)
     if outcome.stage != CONFIRM or not use_ml:
-        return LocalOutcome(outcome.stage, outcome.items, outcome.total)
+        receipt = _receipt_of_stage(outcome.stage, local, retry)
+        return LocalOutcome(outcome.stage, receipt.items, outcome.total)
     rescued = classifier_rescue(rescue_passes, use_dp=use_dp)
     if rescued is None:
-        return LocalOutcome(CONFIRM, outcome.items, outcome.total)
+        receipt = _receipt_of_stage(CONFIRM, local, retry)
+        return LocalOutcome(CONFIRM, receipt.items, outcome.total)
     stage, receipt = rescued
-    return LocalOutcome(stage, _items_of(receipt.items), receipt.verified_total)
+    return LocalOutcome(stage, receipt.items, receipt.verified_total)
 
 
 def fused_rescue(passes: list[list[PhysicalLine]]) -> ExtractedReceipt | None:
@@ -132,4 +161,4 @@ def decide_local(dump: dict, use_ml: bool = True, use_dp: bool = True) -> LocalO
     receipt = fused_rescue(passes)
     if receipt is None:
         return outcome
-    return LocalOutcome(LOCAL_FUSED, _items_of(receipt.items), receipt.verified_total)
+    return LocalOutcome(LOCAL_FUSED, receipt.items, receipt.verified_total)

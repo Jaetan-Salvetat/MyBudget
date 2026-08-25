@@ -45,8 +45,8 @@ des annotations acceptées, via `annotate.audit` :
 
 | Split | Exactes |
 |---|---|
-| T1-train | 412/414 (**99,5 %**) |
-| T1-test | 413/413 (**100 %**) |
+| T1-train | 415/417 (**99,5 %**) |
+| T1-test | 414/415 (**99,8 %**) |
 
 Les deux seuls écarts sont des tickets de cantine où « Droit d'entrée +6,64 »
 et « Participation −6,64 » sont annotés alors que le golden les ignore :
@@ -54,13 +54,13 @@ effet net nul, lecture défendable, pas une hallucination.
 
 ## Taux d'acceptation par corpus
 
-1239 tickets annotés, **968 acceptés (78 %)**.
+1243 tickets annotés, **979 acceptés (79 %)**.
 
 | Corpus | Acceptés | Nature |
 |---|---|---|
-| FindIt T1-train | 414/500 (83 %) | scans à plat, OCR fiable |
-| FindIt T1-test | 413/500 (83 %) | idem, réservé à l'évaluation |
-| synthetic | 93/121 (77 %) | tickets générés |
+| FindIt T1-train | 417/500 (83 %) | scans à plat, OCR fiable |
+| FindIt T1-test | 415/500 (83 %) | idem, réservé à l'évaluation |
+| synthetic | 97/121 (80 %) | tickets générés |
 | selection_web | 24/42 (57 %) | scans web, tickets US inclus |
 | photos_pixel | 18/71 (25 %) | photos téléphone, papier froissé |
 | mixed | 6/11 | tickets et factures web |
@@ -73,31 +73,29 @@ d'évaluation, jamais d'entraînement.
 
 ## Le corpus
 
-**537 tickets d'entraînement, 12 177 lignes** — T1-train 414, synthetic 93,
-selection_web 24, mixed 6. **431 tickets d'évaluation, 10 245 lignes** —
-T1-test 413, photos_pixel 18.
+**544 tickets d'entraînement, 12 386 lignes** — T1-train 417, synthetic 97,
+selection_web 24, mixed 6. **435 tickets d'évaluation, 10 448 lignes** —
+T1-test 415, photos_pixel 18.
 
-Répartition des rôles à l'entraînement : header 3462, footer 2926, item 2852,
-total 546, item_label 498, payment 498, tax 421, noise 361, discount 176,
-subtotal 174, summary 136, change 127.
+Répartition à l'entraînement : item 2931, header 2797, footer 2636, store 575,
+total 548, date_line 535, item_label 509, payment 494, tax 442, noise 306,
+discount 186, subtotal 172, change 130, summary 125.
 
-`item_label` et `discount` sont les deux rôles que l'ancien schéma ne savait
-pas exprimer ; `discount` reste le plus rare, à surveiller à l'entraînement.
+`store`, `date_line` et `item_label` sont les rôles que l'ancien schéma ne
+savait pas exprimer, et ils portent les trois postes d'erreur les plus chers.
+`discount` reste le plus rare, à surveiller à l'entraînement.
 
-## La barre à battre
+## Ce que le corpus a donné
 
-`bench.line_roles --held-out` mesure le classifieur actuel sur le jeu
-d'évaluation, rôles ramenés à ses 5 classes :
+Le tagger entraîné dessus (`line_classifier/train_roles.py`), sur le jeu
+d'évaluation :
 
-Sur 431 tickets, 3 814 lignes porteuses de prix :
+| `item` | `total` | `date_line` | `store` | `payment` | `item_label` | `discount` |
+|---|---|---|---|---|---|---|
+| 98,5 % | 96,4 % | 95,0 % | 93,0 % | 92,1 % | 82,7 % | 76,6 % |
 
-| exactitude | `item` | `discount` | `total` | `payment` | `ignore` |
-|---|---|---|---|---|---|
-| 93,9 % | 99,5 % | **61,4 %** | **81,7 %** | 88,1 % | 91,6 % |
-
-Deux remises sur cinq sont manquées — dont 13 prises pour des articles, ce
-qui fausse la somme dans le mauvais sens. Et 35 lignes non contributives
-sont classées `item` : exactement le défaut vu sur un ticket Maxi Zoo réel.
+Branché sur l'enseigne, la date et les libellés faibles, il fait passer les
+tickets parfaits de 51,0 % à 69,0 % sur T1-test (`bench.vision_local`).
 
 ## Séparation
 

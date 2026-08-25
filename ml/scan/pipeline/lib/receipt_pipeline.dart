@@ -5,6 +5,8 @@ export 'src/flow.dart';
 export 'src/fuse_passes.dart';
 export 'src/invariants.dart';
 export 'src/line_features.dart';
+export 'src/line_features_all.dart';
 export 'src/lines.dart';
+export 'src/role_tagger.dart';
 export 'src/serialize.dart';
 export 'src/structure.dart';

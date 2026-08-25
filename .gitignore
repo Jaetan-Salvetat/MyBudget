@@ -58,6 +58,10 @@ ml/**/__pycache__/
 
 # Modèle du classifieur : hors dépôt, récupéré via ./tool/fetch_model.sh
 assets/models/*.onnx
+# Classifieur de lignes du scan : publie en release, recupere par
+# tool/line_classifier/fetch.sh
+assets/models/line_clf_v*.json
+assets/models/line_roles_v*.json
 # Source du tokenizer : sert seulement à régénérer tokenizer.bin
 assets/models/tokenizer.json
 
@@ -67,3 +71,6 @@ ml/scan/data/*
 !ml/scan/data/golden/
 !ml/scan/data/annotations/
 ml/scan/harness/assets/corpus/
+# Artefacts d'entrainement du scan : regeneres par line_classifier.train*,
+# livres a l'app en release (tool/line_classifier/)
+ml/scan/research/models/

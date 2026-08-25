@@ -14,65 +14,23 @@ from __future__ import annotations
 import sys
 from collections import Counter
 
-import numpy as np
-
-from annotate.dataset import AnnotatedReceipt, load
-from annotate.schema import (
-    DISCOUNT,
-    ITEM,
-    PAYMENT,
-    SUBTOTAL,
-    TOTAL,
-)
-from reference.line_features import merged_lines
+from annotate.dataset import load
+from line_classifier.dataset import labelled_lines
 from reference.line_labels import CLASS_NAMES
-from reference.line_labels import DISCOUNT as CLASS_DISCOUNT
-from reference.line_labels import IGNORE as CLASS_IGNORE
-from reference.line_labels import ITEM as CLASS_ITEM
-from reference.line_labels import PAYMENT as CLASS_PAYMENT
-from reference.line_labels import TOTAL as CLASS_TOTAL
 from reference.structure_ml import load_classifier
-
-ROLE_TO_CLASS = {
-    ITEM: CLASS_ITEM,
-    DISCOUNT: CLASS_DISCOUNT,
-    TOTAL: CLASS_TOTAL,
-    SUBTOTAL: CLASS_TOTAL,
-    PAYMENT: CLASS_PAYMENT,
-}
-
-
-def _pairs(receipt: AnnotatedReceipt, featurize) -> tuple[list[int], list[list[float]]]:
-    """Le classifieur travaille sur les lignes fusionnées : l'index d'une
-    ligne fusionnée est celui de la ligne brute dont elle vient."""
-    merged = merged_lines(receipt.lines)
-    priced, rows = featurize(merged)
-    expected = []
-    features = []
-    for line, row in zip(priced, rows):
-        if line.index >= len(receipt.roles):
-            continue
-        expected.append(ROLE_TO_CLASS.get(receipt.roles[line.index], CLASS_IGNORE))
-        features.append(row)
-    return expected, features
 
 
 def main(argv: list[str]) -> int:
     receipts = load(held_out="--held-out" in argv)
     model, featurize = load_classifier()
 
-    expected: list[int] = []
-    features: list[list[float]] = []
-    for receipt in receipts:
-        truth, rows = _pairs(receipt, featurize)
-        expected.extend(truth)
-        features.extend(rows)
+    features, expected = labelled_lines(receipts, featurize)
 
-    if not features:
+    if not len(features):
         print("aucune ligne à prix dans le corpus chargé")
         return 1
-    predicted = model.predict(np.array(features))
-    truth = np.array(expected)
+    predicted = model.predict(features)
+    truth = expected
 
     jeu = "évaluation" if "--held-out" in argv else "entraînement"
     print(f"=== classifieur actuel sur le corpus annoté ({jeu})")

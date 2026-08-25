@@ -49,7 +49,12 @@ android {
 
     defaultConfig {
         applicationId = "fr.jaetan.mybudget"
-        minSdk = 31
+        // Android 8.0. Vérifié avant de descendre de 31 : aucun plugin ne
+        // demande plus que 24, et le code natif n'appelle aucune API
+        // au-delà — `FLAG_IMMUTABLE` existe depuis 23, la surcharge
+        // `setRemoteAdapter(Int, Intent)` des widgets depuis 11 (dépréciée
+        // en 31, pas supprimée).
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

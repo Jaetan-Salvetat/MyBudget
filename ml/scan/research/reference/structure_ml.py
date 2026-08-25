@@ -26,7 +26,9 @@ from reference.structure import (
     _plausible_label,
 )
 
-MODEL_PATH = MODELS_DIR / "line_clf_v3.joblib"
+# Sans numéro de version : la version d'un classifieur est celle de sa
+# release (`tool/line_classifier/lock.env`), pas celle du fichier de travail.
+MODEL_PATH = MODELS_DIR / "line_clf.joblib"
 
 _model = None
 
@@ -77,7 +79,12 @@ def receipt_from_labels(
                 or priced.label
             )
             items.append(
-                ExtractedItem(name=_clean_name(name), amount=price, discount=0.0)
+                ExtractedItem(
+                    name=_clean_name(name),
+                    amount=price,
+                    discount=0.0,
+                    line_index=priced.index,
+                )
             )
         elif label == DISCOUNT and items:
             items[-1].discount = round(items[-1].discount + abs(price), 2)

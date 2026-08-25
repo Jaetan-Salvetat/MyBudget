@@ -633,7 +633,12 @@ ExtractedReceipt? receiptFromLabels(
           pendingByIndex[priced.index] ??
           priced.label;
       items.add(
-        ExtractedItem(name: cleanName(name), amount: price, discount: 0.0),
+        ExtractedItem(
+          name: cleanName(name),
+          amount: price,
+          discount: 0.0,
+          lineIndex: priced.index,
+        ),
       );
     } else if (label == labelDiscount && items.isNotEmpty) {
       items.last.discount = roundCents(items.last.discount + price.abs());

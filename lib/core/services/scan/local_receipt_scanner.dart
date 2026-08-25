@@ -33,16 +33,29 @@ class LocalReceiptScan {
 class LocalReceiptScanner {
   final ReceiptLineRecognizer _recognizer;
   final LineClassifier _classifier;
+  final RoleTagger _tagger;
   final ReceiptImageEnhancer _enhance;
 
   const LocalReceiptScanner({
     required this._recognizer,
     required this._classifier,
+    required this._tagger,
     this._enhance = enhanceReceiptForRetry,
   });
 
   Future<LocalReceiptScan> scan(Uint8List imageBytes) async {
+    // Le scan tourne sur des photos de 30+ Mpx et sur des téléphones de
+    // plusieurs générations : sans mesure par étage, une régression de
+    // latence est invisible jusqu'à ce qu'un utilisateur la subisse.
+    final watch = Stopwatch()..start();
+    var mark = 0;
+    void step(String label) {
+      debugPrint('[scan] $label : ${watch.elapsedMilliseconds - mark} ms');
+      mark = watch.elapsedMilliseconds;
+    }
+
     final pass1 = await _recognizer.recognize(imageBytes);
+    step('OCR passe 1 (${pass1.length} lignes)');
     if (pass1.isEmpty) throw const ScanUnreadableException();
 
     final local = extract(pass1);
@@ -52,6 +65,7 @@ class LocalReceiptScanner {
       _classifier,
       FlowPolicy.recommended,
     );
+    step('règles + classifieur');
 
     ExtractedReceipt? retryReceipt;
     if (!outcome.verified) {
@@ -66,10 +80,19 @@ class LocalReceiptScanner {
           _classifier,
           FlowPolicy.recommended,
         );
+        step('retry (2e OCR + étages)');
       }
     }
 
     if (outcome.items.isEmpty) throw const ScanNoItemsException();
+
+    // Le tagger travaille sur les lignes dont l'extraction retenue est issue
+    // — passe 1, retry ou fusion : `ExtractedItem.lineIndex` les indexe, et
+    // rattacher un libellé sur les lignes d'une autre passe désignerait
+    // n'importe quoi.
+    final lines = outcome.sourceLines.isEmpty ? pass1 : outcome.sourceLines;
+    final roles = _tagger.probabilities(lines);
+    step('tagger de rôles (${lines.length} lignes)');
 
     // Dès qu'on a dû aller en seconde passe, c'est elle qui porte la lecture
     // retenue : son enseigne et sa date priment, la première ne comble que
@@ -78,10 +101,10 @@ class LocalReceiptScanner {
     final fallback = retryReceipt == null ? null : local;
     return LocalReceiptScan(
       stage: outcome.stage,
-      store: reference.store ?? fallback?.store,
-      date: reference.date ?? fallback?.date,
+      store: storeOf(lines, roles) ?? reference.store ?? fallback?.store,
+      date: dateOf(lines, roles) ?? reference.date ?? fallback?.date,
       total: outcome.total,
-      items: outcome.items,
+      items: relabel(outcome.items, lines, roles),
     );
   }
 

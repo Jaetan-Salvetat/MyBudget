@@ -13,13 +13,17 @@ from __future__ import annotations
 
 import json
 import sys
+from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
+from bench.exactness import ExtractedName, receipt_exactness
 from bench.flow import StageStats, TicketRun, count_edits
 from ocr.pipeline import dump_for
 from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
-from reference.local_flow import CONFIRM, VERIFIED_STAGES, decide_local
+from reference.header_ml import date_of, role_probabilities, store_of
+from reference.labels_ml import relabel
+from reference.local_flow import CONFIRM, VERIFIED_STAGES, clustered_lines, decide_local
 
 SPLIT_DIRS = {"t1test": "T1-test", "t1train": "T1-train"}
 OUTPUT_DIR = RESULTS_DIR / "vision_local"
@@ -38,12 +42,19 @@ def _images(split: str, limit: int | None) -> list[Path]:
 
 def _run_one(image: Path) -> dict:
     dump = dump_for(image)
+    lines = clustered_lines(dump)
+    probabilities = role_probabilities(lines)
     outcome = decide_local(dump)
     return {
         "doc": image.stem,
         "stage": outcome.stage,
+        "store": store_of(lines, probabilities),
+        "date": date_of(lines, probabilities),
         "total": outcome.total,
-        "items": [list(item) for item in outcome.items],
+        "items": [
+            {"name": i.name, "amount": i.amount, "discount": i.discount}
+            for i in relabel(outcome.items, lines, probabilities)
+        ],
         "fullText": dump["fullText"],
     }
 
@@ -53,6 +64,7 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     images = _images(split, limit)
     runs = []
+    exact_runs: list[dict] = []
     with ProcessPoolExecutor() as pool:
         for result in pool.map(_run_one, images):
             golden = json.loads((golden_dir / f"{result['doc']}.json").read_text())
@@ -60,12 +72,25 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
                 round(float(item["amount"]), 2)
                 for item in golden["receipt"]["items"]
             ]
-            got = [(amount, discount) for amount, discount in result["items"]]
-            result["edits"] = count_edits(got, expected)
+            result["edits"] = count_edits(
+                [(i["amount"], i["discount"]) for i in result["items"]], expected
+            )
             result["expected"] = expected
+            exactness = receipt_exactness(
+                result["store"],
+                result["date"],
+                result["total"],
+                [
+                    ExtractedName(i["name"], i["amount"], i["discount"])
+                    for i in result["items"]
+                ],
+                golden,
+            )
+            result["wrong"] = exactness.wrong
             (OUTPUT_DIR / f"{split}_{result['doc']}.json").write_text(
                 json.dumps(result, ensure_ascii=False)
             )
+            exact_runs.append(result)
             runs.append(
                 TicketRun(
                     name=f"{split}_{result['doc']}",
@@ -74,7 +99,19 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
                     double_validated=bool(golden.get("transcript_agrees")),
                 )
             )
-    return runs
+    return runs, exact_runs
+
+
+def report_exactness(results: list[dict]) -> None:
+    """La métrique produit : un ticket ne compte que si tout est juste."""
+    exact = sum(1 for result in results if not result["wrong"])
+    print(f"\n=== tickets parfaits : {exact}/{len(results)} ({exact / len(results):.1%})")
+    causes: Counter[str] = Counter()
+    for result in results:
+        for field in result["wrong"]:
+            causes[field] += 1
+    for field, count in causes.most_common():
+        print(f"  {field:<10} faux sur {count:>4} tickets ({count / len(results):.0%})")
 
 
 def report(runs: list[TicketRun]) -> None:
@@ -109,7 +146,9 @@ def main(argv: list[str]) -> int:
         split = argv[argv.index("--split") + 1]
     if "--limit" in argv:
         limit = int(argv[argv.index("--limit") + 1])
-    report(run(split, limit))
+    runs, results = run(split, limit)
+    report(runs)
+    report_exactness(results)
     return 0
 
 

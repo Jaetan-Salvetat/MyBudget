@@ -6,6 +6,9 @@ non, avec la raison du rejet. Le fichier par ticket sert de cache : relancer
 ne refait que ce qui manque.
 
     OPENROUTER_API_KEY=... uv run python -m annotate.run <dossier>... [--workers N]
+
+`--force` réannote ce qui existe déjà : à réserver aux évolutions du schéma,
+c'est un appel payant par ticket.
 """
 
 from __future__ import annotations
@@ -58,8 +61,8 @@ def _annotate_with_retry(prompt: str, lines_text: str, image_url: str) -> dict:
     raise last if last else AnnotationError("échec sans cause")
 
 
-def process(image: Path, output: Path) -> str:
-    if output.exists():
+def process(image: Path, output: Path, force: bool = False) -> str:
+    if output.exists() and not force:
         return json.loads(output.read_text()).get("reason") or "accepté"
 
     dump = dump_for(image, with_retry=False)
@@ -85,9 +88,9 @@ def process(image: Path, output: Path) -> str:
     return record.get("reason") or "accepté"
 
 
-def _safe_process(image: Path, output: Path) -> str:
+def _safe_process(image: Path, output: Path, force: bool) -> str:
     try:
-        return process(image, output)
+        return process(image, output, force)
     except (AnnotationError, OSError, ValueError, KeyError) as error:
         print(f"  ÉCHEC {image.name} : {error}", file=sys.stderr)
         return "échec technique"
@@ -101,6 +104,7 @@ def _corpus_name(directory: Path) -> str:
 
 def main(argv: list[str]) -> int:
     workers = DEFAULT_WORKERS
+    force = "--force" in argv
     if "--workers" in argv:
         workers = int(argv[argv.index("--workers") + 1])
     directories = [Path(a) for a in argv if not a.startswith("--") and Path(a).is_dir()]
@@ -116,7 +120,7 @@ def main(argv: list[str]) -> int:
     outcomes: Counter[str] = Counter()
     done = 0
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        for reason in pool.map(lambda job: _safe_process(*job), jobs):
+        for reason in pool.map(lambda job: _safe_process(*job, force), jobs):
             outcomes["accepté" if reason == "accepté" else "rejeté"] += 1
             done += 1
             if done % 10 == 0:

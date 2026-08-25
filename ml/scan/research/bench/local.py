@@ -47,7 +47,7 @@ def replay(
             TicketRun(
                 name=ticket.name,
                 stage=outcome.stage,
-                edits=count_edits(outcome.items, expected),
+                edits=count_edits(outcome.amounts, expected),
                 double_validated=bool(ticket.golden.get("transcript_agrees")),
             )
         )

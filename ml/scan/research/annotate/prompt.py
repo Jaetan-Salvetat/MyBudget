@@ -33,6 +33,12 @@ Si une ligne `item` a son libellé sur une autre ligne, donne `label_index`
 : le numéro de cette ligne. Sinon omets le champ.
 
 Règles importantes :
+- `store` est la ligne qui porte le NOM de l'enseigne (celui du logo), une
+  seule par ticket ; un slogan (« Burger Restaurant »), une adresse ou une
+  raison sociale sont des `header`. Si le nom de l'enseigne n'apparaît sur
+  aucune ligne, n'annote aucun `store` ;
+- `date_line` est la ligne qui porte la date de l'achat, une seule par
+  ticket, même si elle porte aussi l'heure ou un numéro de caisse ;
 - une ligne « TOTAL REMISE », « Total remise » ou « cumul des avantages »
   est un `summary`, jamais un `total` ;
 - le `total` est le montant que le client paie réellement ;

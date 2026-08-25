@@ -53,11 +53,41 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late LineClassifier classifier;
+  late RoleTagger tagger;
 
   setUpAll(() async {
-    final json = await File('assets/models/line_clf_v3.json').readAsString();
+    final asset = Directory('assets/models')
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.path)
+        .firstWhere(
+          (path) => RegExp(r'line_clf_v\d+\.json$').hasMatch(path),
+          orElse: () => throw StateError(
+            'Aucun classifieur dans assets/models/ : '
+            'lancer ./tool/line_classifier/fetch.sh',
+          ),
+        );
+    final json = await File(asset).readAsString();
     classifier = LineClassifier.fromJson(
       jsonDecode(json) as Map<String, dynamic>,
+    );
+
+    final taggerAsset = Directory('assets/models')
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.path)
+        .firstWhere(
+          (path) => RegExp(r'line_roles_v\d+\.json$').hasMatch(path),
+          orElse: () => throw StateError(
+            'Aucun tagger dans assets/models/ : '
+            'lancer ./tool/line_classifier/fetch.sh',
+          ),
+        );
+    tagger = RoleTagger(
+      LineClassifier.fromJson(
+        jsonDecode(await File(taggerAsset).readAsString())
+            as Map<String, dynamic>,
+      ),
     );
   });
 
@@ -68,6 +98,7 @@ void main() {
     return LocalReceiptScanner(
       recognizer: recognizer,
       classifier: classifier,
+      tagger: tagger,
       enhance: enhance,
     );
   }

@@ -564,11 +564,12 @@ réelles le justifient.
    scanné, pas le scénario nominal — la capture app devra soigner
    résolution/focus, seule vraie variable inter-devices).
 
-## Photos réelles & corpus annoté (2026-08-25)
+## Photos réelles, métrique stricte & corpus annoté (2026-08-25)
 
 Le point 6 des étapes ci-dessus est tombé : 71 photos de tickets prises au
 téléphone (Intermarché, Noz, Maxi Zoo, Gifi…) mesurées de bout en bout. Elles
-invalident deux hypothèses de toute l'étude.
+invalident deux hypothèses de toute l'étude, et une troisième est tombée en
+mesurant correctement.
 
 **L'orientation.** 54 % des photos ont leur texte à ±90° — un ticket long se
 photographie en paysage. Le clustering raisonne en recouvrement vertical et
@@ -576,9 +577,49 @@ n'a aucun sens avant d'avoir retiré ce quart de tour ; sans correction, le
 ticket entier devient une seule ligne. Corrigé côté recherche (`ocr/`, page
 remise d'aplomb avant structuration), **pas encore dans l'app**.
 
-**Le plafond réel.** Orientation corrigée, le flow ne vérifie que **35 %** de
-ces photos, contre 90,4 % sur FindIt. Le corpus FindIt n'est pas un pire-cas :
-c'est un cas facile déguisé, mono-enseigne et scanné à plat.
+**Le corpus FindIt n'est pas un pire-cas.** Orientation corrigée, le flow ne
+vérifie que 35 % de ces photos contre 90,4 % sur FindIt. C'est un cas facile
+déguisé : mono-enseigne, scanné à plat.
+
+**Le checksum ne mesure pas ce que l'utilisateur voit.** `count_edits`
+comparait des montants, sans ordre, et **ni les libellés, ni l'enseigne, ni la
+date**. Or le nom décide de la catégorie donc de la ligne de budget, la date
+décide du mois. `bench/exactness.py` pose la métrique produit : un ticket ne
+compte que si **tout** est juste — enseigne, date, total, et chaque article
+apparié sur (nom, montant net), sans article en trop ni manquant.
+
+| Sur T1-test (500 tickets) | au départ | après cette passe |
+|---|---|---|
+| « vérifiés » (checksum) | 90,4 % | 90,2 % |
+| **tickets parfaits** | **51,0 %** | **69,0 %** |
+
+Deux tolérances, et seulement deux, pour mesurer le rattachement et pas l'OCR :
+les libellés se comparent par similarité (`120GENU` vaut `120GENV`) mais un
+libellé qui ne nomme rien (`EUR`, un code) ne s'apparie à rien ; l'enseigne
+accepte l'inclusion (`city` vaut `CARREFOUR CITY`, l'OCR ne lit que le logo).
+
+Le flow Python jetait les libellés (`LocalOutcome` ne portait que des
+montants) là où le Dart les remonte depuis toujours : aucune mesure ne
+*pouvait* voir un libellé rattaché au mauvais prix.
+
+### Où part le reste
+
+| Poste | Au départ | Maintenant | Ce qui a changé |
+|---|---|---|---|
+| articles | 131 (26 %) | 124 (25 %) | libellés faibles rattachés par le tagger |
+| date | 153 (31 %) | **19 (4 %)** | lecture reprise + ligne désignée par le tagger |
+| enseigne | 58 (12 %) | **32 (6 %)** | ligne désignée par le tagger, plus `lines[0]` |
+| total | 26 (5 %) | 26 (5 %) | inchangé |
+
+La date était le premier poste ; sa lecture a été reprise et figée par 38
+tests — année sur deux ou quatre chiffres, séparateurs `/ . -`, jour et mois
+sur un chiffre, mois en toutes lettres ou abrégés et accentués, numéros de
+téléphone masqués (séparateur obligatoire **et identique** : sinon le masque
+avale les codes de caisse, et une date encadrée de séparateurs est rejetée).
+
+Reste dans les 124 articles faux : **66 libellés qui nomment le mauvais
+produit** (le tagger ne corrige que ceux qui ne nomment rien), 44 montants
+faux, 14 écarts de comptage.
 
 ### Ce qui casse, mesuré sur un ticket lisible et bien orienté
 
@@ -598,22 +639,61 @@ est vrai chez Carrefour et faux dès qu'une enseigne imprime le prix deux fois.
 tickets qu'elles validaient : le modèle était leur élève, entraîné sur une
 seule enseigne, et n'étiquetait que les lignes porteuses de prix.
 
-D'où le nouveau corpus : **537 tickets d'entraînement, 12 177 lignes, 12
-rôles**, annotés depuis l'image et filtrés par checksum
-(`research/annotate/README.md`). Fiabilité prouvée contre le golden FindIt :
-**412/414 sur T1-train (99,5 %) et 413/413 sur T1-test (100 %)**. Le jeu
-d'évaluation — `T1-test` et `photos_pixel`, 431 tickets — ne sert jamais à
-entraîner.
+Le corpus annoté le remplace : tickets annotés depuis l'image, filtrés par
+checksum (`research/annotate/README.md`), fiabilité prouvée contre le golden
+FindIt — **412/414 sur T1-train (99,5 %) et 413/413 sur T1-test (100 %)**. Le
+jeu d'évaluation — `T1-test` et `photos_pixel` — ne sert jamais à entraîner.
 
-Barre à battre, mesurée sur ce jeu d'évaluation (`bench.line_roles`) :
+Réentraîné dessus, le classifieur gagne beaucoup **sur les rôles** :
 
-| | exactitude | `discount` | `total` | `ignore` |
-|---|---|---|---|---|
-| `line_clf_v3` | 93,9 % | 61,4 % | 81,7 % | 91,6 % |
+| | exactitude | `discount` | `total` | `payment` | `ignore` |
+|---|---|---|---|---|---|
+| supervisé par les règles | 93,9 % | 61,4 % | 81,7 % | 88,1 % | 91,6 % |
+| supervisé par le corpus | **96,7 %** | **79,5 %** | **97,2 %** | **95,1 %** | 89,8 % |
 
-Les 35 lignes non contributives classées `item` sont exactement le défaut
-Maxi Zoo, et 13 remises prises pour des articles faussent la somme dans le
-mauvais sens.
+**Et rien sur le flow** : 90,2 % de vérifiés inchangés, et les faux vérifiés
+passent de 2 à 4. La cause, vue sur `t1test_722` : le golden a `2,40 + 0,10`,
+le décodeur retient `1,55 + 0,95` — même somme, mauvais montants. Le
+subset-sum a plusieurs solutions exactes et seules les probabilités du
+classifieur les départagent ; un classifieur *différent*, même meilleur, en
+choisit simplement une autre. **La métrique de rôles et celle du flow ne sont
+pas alignées** — le goulot n'est pas la qualité du classifieur, c'est que le
+décodeur accepte une combinaison ambiguë. Rien n'a été publié : la barre reste
+zéro montant faux.
+
+### Le tagger de rôles
+
+Un seul modèle, toutes les lignes, 14 classes (`line_classifier/train_roles.py`,
+features de `line_features_all.py` — géométrie relative, forme du texte,
+lexiques, et le voisinage immédiat qui permet d'apprendre qu'après le total il
+n'y a plus d'articles). Sur les 435 tickets d'évaluation, 10 448 lignes :
+
+| `item` | `total` | `date_line` | `store` | `payment` | `item_label` | `discount` |
+|---|---|---|---|---|---|---|
+| 98,5 % | 96,4 % | 95,0 % | 93,0 % | 92,1 % | 82,7 % | 76,6 % |
+
+93,4 % d'exactitude globale. **Le tagger désigne la ligne, le parsing lit le
+champ** : l'enseigne est la ligne argmax `store` (et rien du tout si le modèle
+hésite — mieux vaut pas d'enseigne qu'une ligne au hasard), la date est lue
+sur la ligne `date_line` avec repli sur le ticket entier, et un libellé qui ne
+nomme rien (« EUR », un code) prend la ligne `item_label` la plus proche
+au-dessus, chacune ne servant qu'une fois.
+
+Il corrige, il n'arbitre pas : un libellé déjà parlant n'est jamais écrasé.
+Le décodeur sous contrainte n'a pas été touché — c'est lui qui avait doublé
+les faux vérifiés.
+
+**Reste à porter en Dart** : le tagger et le rattachement des libellés. Le
+versionnement est prêt (`tool/line_classifier/`, asset lu dans le manifeste).
+
+### Schéma à 14 rôles
+
+`store` et `date_line` sortent de `header` : les mesures montrent qu'ils
+échouent pour des raisons opposées — l'enseigne est une *sélection de ligne*
+ratée, la date une *lecture* ratée sur la bonne ligne. Le modèle désigne la
+ligne, le parsing garde la lecture du champ. Pas de second classifieur : les
+rôles de ligne sont mutuellement exclusifs, les découper fabriquerait des
+conflits à arbitrer, et 537 tickets ne nourrissent pas N modèles.
 
 ## Contenu
 

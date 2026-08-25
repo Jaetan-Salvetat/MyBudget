@@ -108,7 +108,7 @@ void main() {
         receipt([2.0], 9.0),
         null,
         strict,
-        rescue: () => (FlowStage.localDp, receipt([2.0, 7.0], 9.0)),
+        rescue: () => (FlowStage.localDp, receipt([2.0, 7.0], 9.0), const []),
       );
       expect(outcome.stage, FlowStage.localDp);
       expect(outcome.verified, isTrue);

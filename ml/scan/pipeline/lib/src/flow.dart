@@ -45,18 +45,25 @@ class FlowOutcome {
     required this.stage,
     required this.items,
     required this.total,
+    required this.sourceLines,
   });
 
   final FlowStage stage;
   final List<ExtractedItem> items;
   final double? total;
 
+  /// Les lignes dont l'extraction retenue est issue. `ExtractedItem.lineIndex`
+  /// les indexe : le flow peut retenir la passe 1, le retry ou leur fusion,
+  /// et rien d'autre ne dit laquelle. Sans elles, rattacher un libellé
+  /// désignerait la ligne d'une autre passe.
+  final List<PhysicalLine> sourceLines;
+
   bool get verified => verifiedStages.contains(stage);
 }
 
 /// Sauvetage à la demande d'un ticket que les règles n'ont pas vérifié :
 /// n'est appelé que si local et retry ont échoué.
-typedef Rescue = (FlowStage, ExtractedReceipt)? Function();
+typedef Rescue = (FlowStage, ExtractedReceipt, List<PhysicalLine>)? Function();
 
 /// Un retry qui somme moins que la passe 1 a perdu des articles : son
 /// checksum peut passer par collision de substitution sur le total (vu sur
@@ -87,29 +94,45 @@ bool _sameTotal(
 
 /// Un étage vérifié affiche la référence qui a réellement vérifié la somme ;
 /// la confirmation pré-remplit avec le total lu, faux ou non.
-FlowOutcome _outcome(FlowStage stage, ExtractedReceipt receipt) => FlowOutcome(
+FlowOutcome _outcome(
+  FlowStage stage,
+  ExtractedReceipt receipt,
+  List<PhysicalLine> sourceLines,
+) => FlowOutcome(
   stage: stage,
   items: receipt.items,
   total: verifiedStages.contains(stage) ? receipt.verifiedTotal : receipt.total,
+  sourceLines: sourceLines,
 );
 
 FlowOutcome decide(
   ExtractedReceipt local,
   ExtractedReceipt? retry,
   FlowPolicy policy, {
+  // Vide par défaut : un appelant qui ne fournit pas les lignes obtient un
+  // résultat sans `sourceLines`, donc pas de rattachement de libellé — jamais
+  // un rattachement sur les lignes d'une autre passe. Les tests de décision
+  // pure s'en passent, le flow de l'app les fournit.
+  List<PhysicalLine> localLines = const [],
+  List<PhysicalLine>? retryLines,
   Rescue? rescue,
 }) {
-  if (local.checksumOk) return _outcome(FlowStage.local, local);
+  if (local.checksumOk) return _outcome(FlowStage.local, local, localLines);
   if (retry != null &&
       retry.checksumOk &&
       !_retryLosesValue(local, retry, policy)) {
-    return _outcome(FlowStage.localRetry, retry);
+    return _outcome(FlowStage.localRetry, retry, retryLines ?? localLines);
   }
   if (rescue != null) {
     final rescued = rescue();
-    if (rescued != null) return _outcome(rescued.$1, rescued.$2);
+    if (rescued != null) return _outcome(rescued.$1, rescued.$2, rescued.$3);
   }
-  return _outcome(FlowStage.confirm, retry ?? local);
+  final fallback = retry ?? local;
+  return _outcome(
+    FlowStage.confirm,
+    fallback,
+    retry != null ? (retryLines ?? localLines) : localLines,
+  );
 }
 
 /// Sauvetage par le classifieur : argmax sur chaque passe, puis décodage
@@ -120,16 +143,16 @@ Rescue classifierRescue(
 ) {
   return () {
     final mergedPasses = [for (final pass in passes) mergedLines(pass)];
-    for (final merged in mergedPasses) {
-      final receipt = extractMl(merged, classifier);
+    for (var index = 0; index < mergedPasses.length; index++) {
+      final receipt = extractMl(mergedPasses[index], classifier);
       if (receipt != null && receipt.checksumOk) {
-        return (FlowStage.localMl, receipt);
+        return (FlowStage.localMl, receipt, passes[index]);
       }
     }
-    for (final merged in mergedPasses) {
-      final receipt = extractConstrained(merged, classifier);
+    for (var index = 0; index < mergedPasses.length; index++) {
+      final receipt = extractConstrained(mergedPasses[index], classifier);
       if (receipt != null && receipt.checksumOk) {
-        return (FlowStage.localDp, receipt);
+        return (FlowStage.localDp, receipt, passes[index]);
       }
     }
     return null;
@@ -138,7 +161,7 @@ Rescue classifierRescue(
 
 /// Dernier étage gratuit : les deux passes fusionnées ligne à ligne, le
 /// décodeur arbitrant les montants qui diffèrent. Sortie re-checksummée.
-ExtractedReceipt? fusedRescue(
+(ExtractedReceipt, List<PhysicalLine>)? fusedRescue(
   List<PhysicalLine> pass1,
   List<PhysicalLine> retry,
   LineClassifier classifier,
@@ -149,7 +172,7 @@ ExtractedReceipt? fusedRescue(
     classifier,
     alternatives: fused.alternatives,
   );
-  if (receipt != null && receipt.checksumOk) return receipt;
+  if (receipt != null && receipt.checksumOk) return (receipt, fused.lines);
   return null;
 }
 
@@ -160,7 +183,13 @@ FlowOutcome decideFirstPass(
   List<PhysicalLine> pass1,
   LineClassifier classifier,
   FlowPolicy policy,
-) => decide(local, null, policy, rescue: classifierRescue([pass1], classifier));
+) => decide(
+  local,
+  null,
+  policy,
+  localLines: pass1,
+  rescue: classifierRescue([pass1], classifier),
+);
 
 /// Après un retry : mêmes étages sur la passe prétraitée, puis fusion des
 /// deux passes si rien ne vérifie. Miroir de `decide_local` après retry.
@@ -176,9 +205,12 @@ FlowOutcome decideRetryPass(
     local,
     retryReceipt,
     policy,
+    localLines: pass1,
+    retryLines: retry,
     rescue: classifierRescue([retry], classifier),
   );
   if (outcome.verified) return outcome;
   final fused = fusedRescue(pass1, retry, classifier);
-  return fused == null ? outcome : _outcome(FlowStage.localFused, fused);
+  if (fused == null) return outcome;
+  return _outcome(FlowStage.localFused, fused.$1, fused.$2);
 }

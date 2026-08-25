@@ -7,9 +7,11 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/line_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
+import 'package:mybudget/core/services/scan/role_tagger_asset.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
@@ -20,21 +22,31 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
 
-/// Le classifieur de lignes exporté depuis la recherche
-/// (`ml/scan/research/line_classifier/export.py`), embarqué avec l'app.
-const String lineClassifierAsset = 'assets/models/line_clf_v3.json';
-
 /// Le flow local, gardé en vie : le classifieur de lignes et le moteur de
 /// reconnaissance coûtent plus cher à recréer qu'à garder.
 @Riverpod(keepAlive: true)
 Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
-  final json = await rootBundle.loadString(lineClassifierAsset);
   final classifier = LineClassifier.fromJson(
-    jsonDecode(json) as Map<String, dynamic>,
+    jsonDecode(
+          await rootBundle.loadString(await lineClassifierAssetFromManifest()),
+        )
+        as Map<String, dynamic>,
+  );
+  final tagger = RoleTagger(
+    LineClassifier.fromJson(
+      jsonDecode(
+            await rootBundle.loadString(await roleTaggerAssetFromManifest()),
+          )
+          as Map<String, dynamic>,
+    ),
   );
   final recognizer = MlKitReceiptLineRecognizer();
   ref.onDispose(recognizer.close);
-  return LocalReceiptScanner(recognizer: recognizer, classifier: classifier);
+  return LocalReceiptScanner(
+    recognizer: recognizer,
+    classifier: classifier,
+    tagger: tagger,
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -60,9 +72,18 @@ class ScanNotifier extends _$ScanNotifier {
   Future<void> scanReceipt(Uint8List imageBytes) async {
     state = const AsyncLoading();
     try {
+      final watch = Stopwatch()..start();
       final scanner = await ref.read(localReceiptScannerProvider.future);
       final composer = await ref.read(receiptScanComposerProvider.future);
-      state = AsyncData(await composer.compose(await scanner.scan(imageBytes)));
+      debugPrint('[scan] chargement des modèles : ${watch.elapsedMilliseconds} ms');
+      final read = await scanner.scan(imageBytes);
+      final beforeCategories = watch.elapsedMilliseconds;
+      state = AsyncData(await composer.compose(read));
+      debugPrint(
+        '[scan] catégorisation : '
+        '${watch.elapsedMilliseconds - beforeCategories} ms, '
+        'total ${watch.elapsedMilliseconds} ms',
+      );
     } on ScanException catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
     } catch (error, stackTrace) {

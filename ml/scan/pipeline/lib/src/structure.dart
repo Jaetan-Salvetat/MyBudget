@@ -16,7 +16,59 @@ final RegExp weightPattern = RegExp(
 );
 final RegExp _missingSeparatorTotalPattern = RegExp(r'(\d{3,6})\s*$');
 final RegExp _articleCountPattern = RegExp(r'(\d{1,3})ARTICLE');
-final RegExp _datePattern = RegExp(r'(\d{2})[/.](\d{2})[/.](\d{4})');
+/// Un numéro de téléphone français, retiré du texte avant toute recherche de
+/// date. Sans ce masque, « 05.46.27.02.12 » se lit « 27.02.12 » : mesuré, 170
+/// tickets de plus repartaient avec une fausse date.
+///
+/// Le séparateur doit être présent et le *même* entre les cinq paires. Sans
+/// l'exiger identique, « 08-03-2017 12:42 » compacté ressemblait à un numéro ;
+/// sans l'exiger présent, le masque avalait les codes de caisse — un ticket
+/// est plein de suites de dix chiffres commençant par zéro, et « 0002 G04
+/// 000643 22/02/2017 » y perdait sa date. Un numéro imprimé sans séparateur
+/// ne se confond avec aucune date, il n'a pas besoin d'être masqué.
+final RegExp _phonePattern = RegExp(r'(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)');
+
+/// Une date de ticket, année sur quatre chiffres ou sur deux. L'année courte
+/// exige une frontière à droite, sinon elle mord sur l'heure que le
+/// compactage des espaces a recollée (« 13/03/17 20:30 » → « 13/03/1720:30 »).
+/// Jour et mois peuvent n'avoir qu'un chiffre (« 7/10/15 », « 14/1/17 ») : le
+/// masque des numéros et la validation calendaire tiennent les faux positifs.
+final RegExp _datePattern = RegExp(
+  r'(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))',
+);
+
+/// Mois en toutes lettres ou abrégé : un ticket sur six l'imprime ainsi.
+const List<String> _monthNames = [
+  'JANV|JAN',
+  'FEVR|FEV',
+  'MARS|MAR',
+  'AVRIL|AVR',
+  'MAI',
+  'JUIN|JUN',
+  'JUILLET|JUIL|JUL',
+  'AOUT|AOU',
+  'SEPTEMBRE|SEPT|SEP',
+  'OCTOBRE|OCT',
+  'NOVEMBRE|NOV',
+  'DECEMBRE|DEC',
+];
+
+final RegExp _literalDatePattern = RegExp(
+  r'(\d{1,2})(?:ER)?[/.\- ]?(' +
+      _monthNames.join('|') +
+      r')[A-Z]*[/.\- ]?(\d{4}|\d{2})',
+  caseSensitive: false,
+);
+
+/// Bornes d'une date de ticket : au-delà, l'année lue n'en est pas une.
+const int _minYear = 1990;
+const int _maxYear = 2035;
+
+/// Pivot POSIX pour les années sur deux chiffres. Un ticket de caisse est
+/// toujours du siècle courant, mais le pivot coûte moins qu'une hypothèse.
+const int _centuryPivot = 70;
+const int _maxDay = 31;
+const int _maxMonth = 12;
 final RegExp _integerPattern = RegExp(r'^-?\d{1,4}$');
 final RegExp _decimalsPattern = RegExp(r'^[.,]?\d{2}$');
 final RegExp _leaderDotsPattern = RegExp(r'^[.…]+');
@@ -161,11 +213,18 @@ class ExtractedItem {
     required this.name,
     required this.amount,
     required this.discount,
+    this.lineIndex,
   });
 
-  final String name;
+  String name;
   final double amount;
   double discount;
+
+  /// Ligne dont l'article vient. Sans elle, impossible de confronter un
+  /// libellé à ce que le tagger de rôles dit de son voisinage — et la
+  /// majorité des tickets aux articles faux ont les bons montants, seul le
+  /// libellé est allé chercher la mauvaise ligne.
+  final int? lineIndex;
 }
 
 class ExtractedReceipt {
@@ -550,6 +609,12 @@ int levenshtein(String left, String right) {
 
 /// Lexique total exact, ou un mot à une édition de « TOTAL » (« TO'AL »,
 /// « OTAL », « T0TAL ») : l'OCR abîme surtout cette ligne, imprimée en gras.
+/// Le texte compacté porte-t-il une date, sous l'une de ses formes ? Sert de
+/// feature au tagger de rôles : c'est le signal le plus direct qu'une ligne
+/// est celle de la date.
+bool hasDatePattern(String compact) =>
+    _datePattern.hasMatch(compact) || _literalDatePattern.hasMatch(compact);
+
 bool containsTotal(String text) {
   if (containsEntry(text, totalWords)) return true;
   return text
@@ -692,6 +757,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
           name: cleanName(pendingLabel),
           amount: priced.price,
           discount: 0.0,
+          lineIndex: index,
         ),
       );
       pendingLabel = null;
@@ -705,6 +771,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
             name: cleanName(pendingLabel),
             amount: priced.price,
             discount: 0.0,
+            lineIndex: index,
           ),
         );
       }
@@ -717,6 +784,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
         name: cleanName(label),
         amount: priced.price,
         discount: 0.0,
+        lineIndex: index,
       ),
     );
     pendingLabel = null;
@@ -873,21 +941,87 @@ String? plausibleLabel(String text) {
   return stripped;
 }
 
+/// L'année d'une date de ticket, sur deux ou quatre chiffres.
+///
+/// Compacter les espaces recolle l'heure à la date (« 13/03/17 20:30 »
+/// devient « 13/03/1720:30 ») : quatre chiffres qui ne forment pas une année
+/// plausible sont donc une année sur deux chiffres suivie de l'heure, et
+/// c'est ainsi qu'il faut les relire.
+String _yearOf(String digits) {
+  var read = digits;
+  if (read.length == 4) {
+    final year = int.parse(read);
+    if (year >= _minYear && year <= _maxYear) return read;
+    read = read.substring(0, 2); // l'heure avait été recollée à l'année
+  }
+  final century = int.parse(read) < _centuryPivot ? 2000 : 1900;
+  return '${century + int.parse(read)}';
+}
+
 /// L'OCR éclate parfois les dates (« 202 6 », « o9 ») : on compacte les
 /// espaces et on ramène o/O vers 0 avant de chercher le motif.
+bool _isCalendarDay(String day, String month) {
+  final d = int.parse(day);
+  final m = int.parse(month);
+  return d >= 1 && d <= _maxDay && m >= 1 && m <= _maxMonth;
+}
+
+/// Le rang du mois nommé, sur deux chiffres.
+String? _monthNumber(String name) {
+  final upper = name.toUpperCase();
+  for (var index = 0; index < _monthNames.length; index++) {
+    for (final entry in _monthNames[index].split('|')) {
+      if (upper.startsWith(entry)) return (index + 1).toString().padLeft(2, '0');
+    }
+  }
+  return null;
+}
+
+/// L'OCR confond o et 0 dans les chiffres — substitution réservée à cette
+/// lecture-ci, elle détruirait les mois en lettres (« OCTOBRE »).
+String? _numericDate(String compact) {
+  final digitsOnly = compact.replaceAll('o', '0').replaceAll('O', '0');
+  for (final match in _datePattern.allMatches(digitsOnly)) {
+    final day = match.group(1)!;
+    final month = match.group(2)!;
+    if (_isCalendarDay(day, month)) {
+      final paddedDay = int.parse(day).toString().padLeft(2, '0');
+      final paddedMonth = int.parse(month).toString().padLeft(2, '0');
+      return '${_yearOf(match.group(3)!)}-$paddedMonth-$paddedDay';
+    }
+  }
+  return null;
+}
+
+/// Les mois s'impriment accentués (« août ») : la comparaison se fait sur la
+/// forme sans accent, comme le reste des lexiques.
+String? _literalDate(String compact) {
+  final unaccented = foldAccents(compact);
+  for (final match in _literalDatePattern.allMatches(unaccented)) {
+    final day = match.group(1)!;
+    final month = _monthNumber(match.group(2)!);
+    if (month != null && _isCalendarDay(day, month)) {
+      final paddedDay = int.parse(day).toString().padLeft(2, '0');
+      return '${_yearOf(match.group(3)!)}-$month-$paddedDay';
+    }
+  }
+  return null;
+}
+
+/// La date de l'achat, sous l'une de ses formes imprimées.
+///
+/// Les espaces sont compactés (l'OCR éclate « 202 6 ») et les numéros de
+/// téléphone masqués avant toute recherche. La forme numérique prime : elle
+/// est la plus courante et la moins ambiguë. La première occurrence *valide*
+/// gagne — un jour ou un mois impossible n'est pas une date, et la vraie est
+/// souvent plus loin sur la même ligne.
 String? findDate(List<PhysicalLine> lines) {
   for (final line in lines) {
     final compact = line.text
         .replaceAll(_whitespacePattern, '')
-        .replaceAll('o', '0')
-        .replaceAll('O', '0');
-    final match = _datePattern.firstMatch(compact);
-    if (match != null) {
-      final day = match.group(1)!;
-      final month = match.group(2)!;
-      final year = match.group(3)!;
-      return '$year-$month-$day';
-    }
+        .replaceAll(_phonePattern, ' ');
+    final found = _numericDate(compact) ?? _literalDate(compact);
+    if (found != null) return found;
   }
   return null;
 }

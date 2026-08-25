@@ -279,7 +279,7 @@ def diagnose_ticket(ticket) -> TicketDiagnostic:
                     )
 
     outcome = decide_local(dump)
-    chosen_edits = count_edits(outcome.items, expected)
+    chosen_edits = count_edits(outcome.amounts, expected)
     agreement, verified_methods = concordance(stages)
     ocr = ocr_damage(dump, ticket.split, ticket.doc, golden)
     return TicketDiagnostic(

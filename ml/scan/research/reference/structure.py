@@ -18,7 +18,55 @@ QUANTITY_PATTERN = re.compile(r"^(\d{1,2})[xX*](-?\d{1,4}[.,]\d{2})$")
 WEIGHT_PATTERN = re.compile(
     r"^\d{1,3}[.,]\d{1,3}\s?[Kk]?[Gg][xX*]\d{1,4}[.,]\d{1,2}.*$"
 )
-DATE_PATTERN = re.compile(r"(\d{2})[/.](\d{2})[/.](\d{4})")
+# Un numéro de téléphone français, retiré du texte avant toute recherche de
+# date. Sans ce masque, « 05.46.27.02.12 » se lit « 27.02.12 » : mesuré, 170
+# tickets de plus repartaient avec une fausse date. Le masquer vaut mieux
+# qu'un garde-fou sur la date elle-même, qui rejetait aussi les dates
+# légitimement encadrées de séparateurs (« /000003/07/01/2017/ »).
+#
+# Le séparateur doit être présent et le *même* entre les cinq paires. Sans
+# l'exiger identique, « 08-03-2017 12:42 » compacté ressemblait à un numéro ;
+# sans l'exiger présent, le masque avalait les codes de caisse — un ticket est
+# plein de suites de dix chiffres commençant par zéro, et « 0002 G04 000643
+# 22/02/2017 » y perdait sa date. Un numéro imprimé sans séparateur ne se
+# confond avec aucune date, il n'a pas besoin d'être masqué.
+PHONE_PATTERN = re.compile(r"(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)")
+
+# Une date de ticket, année sur quatre chiffres ou sur deux. L'année courte
+# exige une frontière à droite, sinon elle mord sur l'heure que le compactage
+# des espaces a recollée (« 13/03/17 20:30 » → « 13/03/1720:30 »).
+# Jour et mois peuvent n'avoir qu'un chiffre (« 7/10/15 », « 14/1/17 ») : le
+# masque des numéros et la validation calendaire tiennent les faux positifs.
+DATE_PATTERN = re.compile(
+    r"(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))"
+)
+
+# Mois en toutes lettres ou abrégé : un ticket sur six de T1-test l'imprime
+# ainsi. Les accents sont retirés en amont, la casse est indifférente.
+MONTH_NAMES = (
+    "JANV|JAN",
+    "FEVR|FEV",
+    "MARS|MAR",
+    "AVRIL|AVR",
+    "MAI",
+    "JUIN|JUN",
+    "JUILLET|JUIL|JUL",
+    "AOUT|AOU",
+    "SEPTEMBRE|SEPT|SEP",
+    "OCTOBRE|OCT",
+    "NOVEMBRE|NOV",
+    "DECEMBRE|DEC",
+)
+LITERAL_DATE_PATTERN = re.compile(
+    r"(\d{1,2})(?:ER)?[/.\- ]?(" + "|".join(MONTH_NAMES) + r")[A-Z]*[/.\- ]?(\d{4}|\d{2})",
+    re.IGNORECASE,
+)
+# Bornes d'une date de ticket : au-delà, l'année lue n'en est pas une.
+MIN_YEAR, MAX_YEAR = 1990, 2035
+MAX_DAY, MAX_MONTH = 31, 12
+# Pivot POSIX pour les années sur deux chiffres. Un ticket de caisse est
+# toujours du siècle courant, mais le pivot coûte moins qu'une hypothèse.
+CENTURY_PIVOT = 70
 INTEGER_PATTERN = re.compile(r"^-?\d{1,4}$")
 DECIMALS_PATTERN = re.compile(r"^[.,]?\d{2}$")
 LEADER_DOTS_PATTERN = re.compile(r"^[.…]+")
@@ -161,6 +209,11 @@ class ExtractedItem:
     name: str
     amount: float
     discount: float
+    # Ligne dont l'article vient. Sans elle, impossible de confronter un
+    # libellé à ce que le tagger de rôles dit de son voisinage — et 84 des
+    # 131 tickets aux articles faux ont les bons montants, seul le libellé
+    # est allé chercher la mauvaise ligne.
+    line_index: int | None = None
 
 
 @dataclass
@@ -516,7 +569,10 @@ def extract(
         if quantity_match and pending_label is not None:
             items.append(
                 ExtractedItem(
-                    name=_clean_name(pending_label), amount=price, discount=0.0
+                    name=_clean_name(pending_label),
+                    amount=price,
+                    discount=0.0,
+                    line_index=index,
                 )
             )
             if roles is not None:
@@ -531,6 +587,7 @@ def extract(
                         name=_clean_name(pending_label),
                         amount=price,
                         discount=0.0,
+                        line_index=index,
                     )
                 )
                 if roles is not None:
@@ -538,7 +595,14 @@ def extract(
             pending_label = None
             continue
 
-        items.append(ExtractedItem(name=_clean_name(label), amount=price, discount=0.0))
+        items.append(
+            ExtractedItem(
+                name=_clean_name(label),
+                amount=price,
+                discount=0.0,
+                line_index=index,
+            )
+        )
         if roles is not None:
             roles.setdefault(index, "item")
         pending_label = None
@@ -693,15 +757,75 @@ def _plausible_label(text: str) -> str | None:
     return stripped
 
 
+def _year_of(digits: str) -> str:
+    """L'année d'une date de ticket, sur deux ou quatre chiffres.
+
+    Compacter les espaces recolle l'heure à la date (« 13/03/17 20:30 »
+    devient « 13/03/1720:30 ») : quatre chiffres qui ne forment pas une année
+    plausible sont donc une année sur deux chiffres suivie de l'heure, et
+    c'est ainsi qu'il faut les relire."""
+    if len(digits) == 4:
+        year = int(digits)
+        if MIN_YEAR <= year <= MAX_YEAR:
+            return digits
+        digits = digits[:2]  # l'heure avait été recollée à l'année
+    century = 2000 if int(digits) < CENTURY_PIVOT else 1900
+    return str(century + int(digits))
+
+
+def _is_calendar_day(day: str, month: str) -> bool:
+    return 1 <= int(day) <= MAX_DAY and 1 <= int(month) <= MAX_MONTH
+
+
+def _month_number(name: str) -> str:
+    """Le rang du mois nommé, sur deux chiffres."""
+    upper = name.upper()
+    for index, alternatives in enumerate(MONTH_NAMES, start=1):
+        if any(upper.startswith(entry) for entry in alternatives.split("|")):
+            return f"{index:02d}"
+    raise ValueError(f"mois inconnu : {name}")
+
+
+def _numeric_date(compact: str) -> str | None:
+    """L'OCR confond o et 0 dans les chiffres — substitution réservée à cette
+    lecture-ci, elle détruirait les mois en lettres (« OCTOBRE »)."""
+    digits_only = compact.replace("o", "0").replace("O", "0")
+    for match in DATE_PATTERN.finditer(digits_only):
+        day, month, year = match.groups()
+        if _is_calendar_day(day, month):
+            return f"{_year_of(year)}-{int(month):02d}-{int(day):02d}"
+    return None
+
+
+def _literal_date(compact: str) -> str | None:
+    """Les mois s'impriment accentués (« août ») : la comparaison se fait sur
+    la forme sans accent, comme le reste des lexiques."""
+    unaccented = "".join(
+        char
+        for char in unicodedata.normalize("NFD", compact)
+        if not unicodedata.combining(char)
+    )
+    for match in LITERAL_DATE_PATTERN.finditer(unaccented):
+        day, name, year = match.groups()
+        month = _month_number(name)
+        if _is_calendar_day(day, month):
+            return f"{_year_of(year)}-{month}-{int(day):02d}"
+    return None
+
+
 def _find_date(lines: list[PhysicalLine]) -> str | None:
-    """L'OCR éclate parfois les dates (« 202 6 », « o9 ») : on compacte les
-    espaces et on ramène o/O vers 0 avant de chercher le motif."""
+    """La date de l'achat, sous l'une de ses formes imprimées.
+
+    Les espaces sont compactés (l'OCR éclate « 202 6 ») et les numéros de
+    téléphone masqués avant toute recherche. La forme numérique prime : elle
+    est la plus courante et la moins ambiguë. La première occurrence *valide*
+    gagne — un jour ou un mois impossible n'est pas une date, et la vraie est
+    souvent plus loin sur la même ligne."""
     for line in lines:
-        compact = re.sub(r"\s+", "", line.text).replace("o", "0").replace("O", "0")
-        match = DATE_PATTERN.search(compact)
-        if match:
-            day, month, year = match.groups()
-            return f"{year}-{month}-{day}"
+        compact = PHONE_PATTERN.sub(" ", re.sub(r"\s+", "", line.text))
+        found = _numeric_date(compact) or _literal_date(compact)
+        if found is not None:
+            return found
     return None
 
 
