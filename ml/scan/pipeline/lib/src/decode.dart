@@ -5,13 +5,18 @@
 /// Le classifieur n'étiquette que les lignes porteuses de prix ; les
 /// montants sont recopiés de l'OCR, jamais générés. Le décodeur cherche
 /// l'étiquetage le plus probable dont la somme (articles − remises) retombe
-/// exactement sur une référence imprimée : subset-sum exact en centimes.
+/// exactement sur une référence : subset-sum exact en centimes. Les
+/// références viennent de plusieurs sources indépendantes — lignes total du
+/// classifieur, dernier total lexical, décomposition TVA, espèces − rendu,
+/// Σ des rayons — fusionnées par montant : deux sources d'accord valent plus
+/// qu'une. Les invariants structurels ferment l'espace de recherche.
 library;
 
 import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'classifier.dart';
+import 'invariants.dart';
 import 'line_features.dart';
 import 'lines.dart';
 import 'structure.dart';
@@ -19,20 +24,109 @@ import 'structure.dart';
 const int centsCap = 500000;
 const int negativeCap = 50000;
 const double defaultMinProb = 0.02;
-const int defaultMaxReferences = 3;
+const int defaultMaxReferences = 4;
 const double defaultMinReferenceProb = 0.5;
 const double _probabilityFloor = 1e-12;
 const List<int> labelOrder = [labelItem, labelDiscount, labelIgnore];
+const double alternativeProb = 0.5;
+const int _variantCount = 2;
+const double softIgnoreProb = 0.5;
+const double evidenceProb = 0.5;
+const double totalLineProbFloor = 0.1;
+const double concordanceBonus = 1.5;
+const int singleItemMinSources = 2;
+const Set<EvidenceSource> arithmeticSources = {
+  EvidenceSource.tax,
+  EvidenceSource.paymentChange,
+};
 
 class LineOptions {
-  const LineOptions({required this.cents, required this.logProbs});
+  const LineOptions({
+    required this.cents,
+    required this.logProbs,
+    this.alternativeCents,
+  });
 
   final int cents;
   final Map<int, double> logProbs;
+  final int? alternativeCents;
+
+  /// (variante, centimes, pénalité) : la lecture principale, puis la lecture
+  /// alternative de l'autre passe OCR quand elle diffère.
+  List<(int, int, double)> variants() => [
+    (0, cents, 0.0),
+    if (alternativeCents case final alternative?)
+      (1, alternative, math.log(alternativeProb)),
+  ];
 }
 
-const LineOptions forcedIgnore =
-    LineOptions(cents: 0, logProbs: {labelIgnore: 0.0});
+const LineOptions forcedIgnoreOption = LineOptions(
+  cents: 0,
+  logProbs: {labelIgnore: 0.0},
+);
+
+class Assignment {
+  const Assignment(this.labels, this.cents);
+
+  final List<int> labels;
+  final List<int> cents;
+}
+
+class Reference {
+  const Reference({
+    required this.cents,
+    required this.cutoffRank,
+    required this.role,
+    required this.logProb,
+    required this.sources,
+    required this.lineRank,
+  });
+
+  final int cents;
+  final int cutoffRank;
+  final int role;
+  final double logProb;
+  final List<EvidenceSource> sources;
+  final int? lineRank;
+}
+
+class Hypothesis {
+  const Hypothesis({
+    required this.referenceCents,
+    required this.referenceRole,
+    required this.labels,
+    required this.logProb,
+    this.sources = const [],
+    this.singleItem = false,
+    this.cents = const [],
+  });
+
+  final int referenceCents;
+  final int referenceRole;
+  final List<int> labels;
+  final double logProb;
+  final List<EvidenceSource> sources;
+  final bool singleItem;
+  final List<int> cents;
+}
+
+/// Somme des remises possibles : borne la plage utile des sommes
+/// intermédiaires à [−D, cible + D] — un état au-delà ne peut plus retomber
+/// sur la cible, l'élaguer ne change pas l'optimum.
+int _discountCapacity(List<LineOptions> lines, double floor) {
+  var capacity = 0;
+  for (final line in lines) {
+    final logProb = line.logProbs[labelDiscount];
+    if (logProb != null && logProb >= floor) {
+      var widest = 0;
+      for (final (_, cents, _) in line.variants()) {
+        widest = math.max(widest, cents.abs());
+      }
+      capacity += widest;
+    }
+  }
+  return capacity;
+}
 
 int _contribution(int label, int cents) {
   if (label == labelItem) return cents;
@@ -40,30 +134,35 @@ int _contribution(int label, int cents) {
   return 0;
 }
 
+int _encode(int label, int variant) => label * _variantCount + variant;
+
+(int, int) _decodeChoice(int choice) =>
+    (choice ~/ _variantCount, choice % _variantCount);
+
 /// Étiquetage maximisant Σ log P sous contrainte Σ contributions =
-/// [targetCents]. Une étiquette dont la probabilité est sous [minProb] est
-/// interdite : on ne force jamais un rôle que le modèle juge impossible.
-List<int>? bestAssignment(
+/// [targetCents], avec pour chaque ligne le montant retenu (lecture
+/// principale ou alternative). Une étiquette dont la probabilité est sous
+/// [minProb] est interdite : on ne force jamais un rôle que le modèle juge
+/// impossible.
+Assignment? bestAssignmentDetail(
   List<LineOptions> lines,
   int targetCents, {
   double minProb = 0.0,
 }) {
-  if (lines.isEmpty) return targetCents == 0 ? [] : null;
+  if (lines.isEmpty) return targetCents == 0 ? const Assignment([], []) : null;
+  if (targetCents < 0 || targetCents > centsCap) return null;
   final floor = minProb > 0 ? math.log(minProb) : double.negativeInfinity;
-  var positiveReach = 0;
-  var negativeReach = 0;
-  for (final line in lines) {
-    positiveReach += math.max(line.cents, 0);
-    negativeReach += line.cents.abs();
-  }
-  positiveReach = math.min(positiveReach, centsCap);
-  negativeReach = math.min(negativeReach, negativeCap);
-  final size = positiveReach + negativeReach + 1;
-  final offset = negativeReach;
+  final discountCapacity = math.min(
+    _discountCapacity(lines, floor),
+    negativeCap,
+  );
+  final size = targetCents + 2 * discountCapacity + 1;
+  final offset = discountCapacity;
   var scores = Float64List(size)..fillRange(0, size, double.negativeInfinity);
   scores[offset] = 0.0;
   final choices = [
-    for (var i = 0; i < lines.length; i++) Int8List(size)..fillRange(0, size, -1),
+    for (var i = 0; i < lines.length; i++)
+      Int8List(size)..fillRange(0, size, -1),
   ];
 
   for (final (index, line) in lines.indexed) {
@@ -71,21 +170,26 @@ List<int>? bestAssignment(
     for (final label in labelOrder) {
       final logProb = line.logProbs[label];
       if (logProb == null || logProb < floor) continue;
-      final shift = _contribution(label, line.cents);
-      if (shift >= 0) {
-        for (var position = shift; position < size; position++) {
-          final candidate = scores[position - shift] + logProb;
-          if (candidate > next[position]) {
-            next[position] = candidate;
-            choices[index][position] = label;
+      for (final (variant, cents, penalty) in line.variants()) {
+        final shift = _contribution(label, cents);
+        if (shift.abs() >= size) continue;
+        final gain = logProb + penalty;
+        final choice = _encode(label, variant);
+        if (shift >= 0) {
+          for (var position = shift; position < size; position++) {
+            final candidate = scores[position - shift] + gain;
+            if (candidate > next[position]) {
+              next[position] = candidate;
+              choices[index][position] = choice;
+            }
           }
-        }
-      } else {
-        for (var position = 0; position < size + shift; position++) {
-          final candidate = scores[position - shift] + logProb;
-          if (candidate > next[position]) {
-            next[position] = candidate;
-            choices[index][position] = label;
+        } else {
+          for (var position = 0; position < size + shift; position++) {
+            final candidate = scores[position - shift] + gain;
+            if (candidate > next[position]) {
+              next[position] = candidate;
+              choices[index][position] = choice;
+            }
           }
         }
       }
@@ -98,57 +202,60 @@ List<int>? bestAssignment(
     return null;
   }
   final labels = <int>[];
+  final amounts = <int>[];
   for (var index = lines.length - 1; index >= 0; index--) {
-    final label = choices[index][position];
+    final (label, variant) = _decodeChoice(choices[index][position]);
+    final cents = lines[index].variants()[variant].$2;
     labels.add(label);
-    position -= _contribution(label, lines[index].cents);
+    amounts.add(cents);
+    position -= _contribution(label, cents);
   }
-  return labels.reversed.toList();
+  return Assignment(labels.reversed.toList(), amounts.reversed.toList());
 }
+
+List<int>? bestAssignment(
+  List<LineOptions> lines,
+  int targetCents, {
+  double minProb = 0.0,
+}) => bestAssignmentDetail(lines, targetCents, minProb: minProb)?.labels;
 
 int _toCents(double price) => (price * 100).round();
 
 double _logOf(double probability) =>
     math.log(math.max(probability, _probabilityFloor));
 
-class Hypothesis {
-  const Hypothesis({
-    required this.referenceRank,
-    required this.referenceRole,
-    required this.labels,
-    required this.logProb,
-  });
-
-  final int referenceRank;
-  final int referenceRole;
-  final List<int> labels;
-  final double logProb;
-}
-
-/// Options par ligne sous deux invariants de ticket : rien ne compte après
-/// la ligne de référence (total ou paiement — la monnaie rendue qui suit un
-/// paiement en espèces n'est jamais un article), et un prix négatif n'est
-/// jamais un article. Une ligne à 0 centime n'apporte aucune information de
-/// somme.
+/// Options par ligne sous les invariants de ticket : rien ne compte après
+/// la référence (la monnaie rendue qui suit un paiement en espèces n'est
+/// jamais un article), un prix négatif n'est jamais un article, une ligne à
+/// 0 centime n'apporte aucune information de somme, les lignes
+/// structurellement exclues (taxe, HT, récap de remises) sont ignorées et un
+/// total de rayon détecté par l'arithmétique peut toujours l'être.
 List<LineOptions> lineOptions(
   List<PricedLine> lines,
   List<List<double>> probas,
-  int referenceRank, {
+  int cutoffRank, {
+  Set<int> forcedIgnore = const {},
+  int? referenceRank,
   bool argmaxOnly = false,
+  Map<int, int> alternatives = const {},
+  Set<int> softIgnore = const {},
 }) {
   final options = <LineOptions>[];
   for (final (rank, priced) in lines.indexed) {
-    if (rank == referenceRank) continue;
-    final row = probas[rank];
     final cents = _toCents(priced.price);
-    if (cents == 0 || rank > referenceRank) {
-      options.add(forcedIgnore);
+    if (rank == referenceRank ||
+        forcedIgnore.contains(rank) ||
+        cents == 0 ||
+        rank > cutoffRank) {
+      options.add(forcedIgnoreOption);
       continue;
     }
-    final skip = math.max(
+    final row = probas[rank];
+    var skip = math.max(
       row[labelIgnore],
       math.max(row[labelTotal], row[labelPayment]),
     );
+    if (softIgnore.contains(rank)) skip = math.max(skip, softIgnoreProb);
     var logProbs = <int, double>{
       labelDiscount: _logOf(row[labelDiscount]),
       labelIgnore: _logOf(skip),
@@ -165,26 +272,102 @@ List<LineOptions> lineOptions(
       }
       logProbs = {bestLabel!: logProbs[bestLabel]!};
     }
-    options.add(LineOptions(cents: cents, logProbs: logProbs));
+    final alternative = alternatives[rank];
+    options.add(
+      LineOptions(
+        cents: cents,
+        logProbs: logProbs,
+        alternativeCents: alternative != cents ? alternative : null,
+      ),
+    );
   }
   return options;
 }
 
-List<int> _referenceCandidates(
+List<Reference> _classifierReferences(
+  List<PricedLine> lines,
   List<List<double>> probas,
-  int role,
-  int maxReferences,
+  Constraints structure,
   double minReferenceProb,
-) {
-  final ranks = List<int>.generate(probas.length, (i) => i)
-    ..sort((a, b) {
-      final byProb = probas[b][role].compareTo(probas[a][role]);
-      return byProb != 0 ? byProb : a.compareTo(b);
-    });
-  return [
-    for (final rank in ranks)
-      if (probas[rank][role] >= minReferenceProb) rank,
-  ].take(maxReferences).toList();
+) => [
+  for (final rank in structure.referenceRanks.toList()..sort())
+    if (probas[rank][labelTotal] >= minReferenceProb && lines[rank].price > 0)
+      Reference(
+        cents: _toCents(lines[rank].price),
+        cutoffRank: rank,
+        role: labelTotal,
+        logProb: math.log(probas[rank][labelTotal]),
+        sources: const [EvidenceSource.classifier],
+        lineRank: rank,
+      ),
+];
+
+List<Reference> _evidenceReferences(
+  List<List<double>> probas,
+  Constraints structure,
+) => [
+  for (final evidence in structure.evidences)
+    Reference(
+      cents: evidence.cents,
+      cutoffRank: evidence.cutoffRank,
+      role: labelTotal,
+      logProb: math.log(
+        evidence.source == EvidenceSource.totalLine
+            ? math.max(
+                probas[evidence.lineRank!][labelTotal],
+                totalLineProbFloor,
+              )
+            : evidenceProb,
+      ),
+      sources: [evidence.source],
+      lineRank: evidence.lineRank,
+    ),
+];
+
+/// Fusion par montant : la ligne imprimée fixe la coupure quand il y en a
+/// une, chaque source supplémentaire d'accord ajoute un bonus. L'ordre des
+/// montants à égalité de score suit leur première apparition.
+List<Reference> mergeReferences(List<Reference> references) {
+  final byCents = <int, List<Reference>>{};
+  for (final reference in references) {
+    if (reference.cents > 0) {
+      byCents.putIfAbsent(reference.cents, () => []).add(reference);
+    }
+  }
+  final merged = <Reference>[];
+  for (final entry in byCents.entries) {
+    final group = entry.value;
+    final sources = <EvidenceSource>[];
+    for (final reference in group) {
+      for (final source in reference.sources) {
+        if (!sources.contains(source)) sources.add(source);
+      }
+    }
+    final printed = group.where((r) => r.lineRank != null).toList();
+    final anchor = printed.isNotEmpty
+        ? printed.first
+        : group.reduce((a, b) => a.cutoffRank <= b.cutoffRank ? a : b);
+    var best = double.negativeInfinity;
+    for (final reference in group) {
+      best = math.max(best, reference.logProb);
+    }
+    merged.add(
+      Reference(
+        cents: entry.key,
+        cutoffRank: anchor.cutoffRank,
+        role: labelTotal,
+        logProb: best + (sources.length - 1) * concordanceBonus,
+        sources: sources,
+        lineRank: anchor.lineRank,
+      ),
+    );
+  }
+  final indexed = [for (final (i, r) in merged.indexed) (i, r)];
+  indexed.sort((a, b) {
+    final byScore = b.$2.logProb.compareTo(a.$2.logProb);
+    return byScore != 0 ? byScore : a.$1.compareTo(b.$1);
+  });
+  return [for (final entry in indexed) entry.$2];
 }
 
 double _assignmentLogProb(List<int> labels, List<LineOptions> options) {
@@ -195,71 +378,217 @@ double _assignmentLogProb(List<int> labels, List<LineOptions> options) {
   return total;
 }
 
-Hypothesis? _bestHypothesis(
+Hypothesis? _hypothesis(
   List<PricedLine> lines,
   List<List<double>> probas,
-  int role,
+  Reference reference,
+  Constraints structure,
+  double minProb, {
+  bool argmaxOnly = false,
+  Map<int, int> alternatives = const {},
+}) {
+  final options = lineOptions(
+    lines,
+    probas,
+    reference.cutoffRank,
+    forcedIgnore: structure.forcedIgnore,
+    referenceRank: reference.lineRank,
+    argmaxOnly: argmaxOnly,
+    alternatives: alternatives,
+    softIgnore: structure.softIgnore,
+  );
+  final assignment = bestAssignmentDetail(
+    options,
+    reference.cents,
+    minProb: minProb,
+  );
+  if (assignment == null) return null;
+  final labels = [...assignment.labels];
+  final logProb = _assignmentLogProb(labels, options) + reference.logProb;
+  if (reference.lineRank case final lineRank?) {
+    labels[lineRank] = reference.role;
+  }
+  return Hypothesis(
+    referenceCents: reference.cents,
+    referenceRole: reference.role,
+    labels: labels,
+    logProb: logProb,
+    sources: reference.sources,
+    cents: assignment.cents,
+  );
+}
+
+Hypothesis? _bestTotalHypothesis(
+  List<PricedLine> lines,
+  List<List<double>> probas,
+  List<Reference> references,
+  Constraints structure,
   double minProb,
-  int maxReferences,
-  double minReferenceProb,
-  bool argmaxOnly,
+  Map<int, int> alternatives,
 ) {
   Hypothesis? best;
-  for (final rank in _referenceCandidates(
-    probas,
-    role,
-    maxReferences,
-    minReferenceProb,
-  )) {
-    final target = _toCents(lines[rank].price);
-    if (target <= 0) continue;
-    final options = lineOptions(lines, probas, rank, argmaxOnly: argmaxOnly);
-    final labels = bestAssignment(options, target, minProb: minProb);
-    if (labels == null) continue;
-    final logProb =
-        _assignmentLogProb(labels, options) + _logOf(probas[rank][role]);
-    if (best == null || logProb > best.logProb) {
-      final fullLabels = [...labels]..insert(rank, role);
-      best = Hypothesis(
-        referenceRank: rank,
-        referenceRole: role,
-        labels: fullLabels,
-        logProb: logProb,
-      );
+  for (final reference in references) {
+    final hypothesis = _hypothesis(
+      lines,
+      probas,
+      reference,
+      structure,
+      minProb,
+      alternatives: alternatives,
+    );
+    if (hypothesis != null &&
+        (best == null || hypothesis.logProb > best.logProb)) {
+      best = hypothesis;
     }
   }
   return best;
 }
 
-/// Les totaux d'abord, avec exploration. Un paiement ne sert de référence
-/// qu'en dernier recours et sans aucun flip : les articles tels que le
-/// modèle les voit doivent tomber pile sur le montant payé — deux signaux
-/// indépendants contre un total lu qui ne colle pas.
+/// Un paiement ne sert de référence qu'en dernier recours et sans aucun
+/// flip : les articles tels que le modèle les voit doivent tomber pile sur
+/// le montant payé — deux signaux indépendants contre un total lu faux.
+Hypothesis? _paymentHypothesis(
+  List<PricedLine> lines,
+  List<List<double>> probas,
+  Constraints structure,
+  int maxReferences,
+  double minReferenceProb,
+) {
+  final ranks = List<int>.generate(probas.length, (i) => i)
+    ..sort((a, b) {
+      final byProb = probas[b][labelPayment].compareTo(probas[a][labelPayment]);
+      return byProb != 0 ? byProb : a.compareTo(b);
+    });
+  final candidates = [
+    for (final rank in ranks)
+      if (probas[rank][labelPayment] >= minReferenceProb &&
+          !structure.forcedIgnore.contains(rank) &&
+          lines[rank].price > 0)
+        rank,
+  ].take(maxReferences);
+  Hypothesis? best;
+  for (final rank in candidates) {
+    final reference = Reference(
+      cents: _toCents(lines[rank].price),
+      cutoffRank: rank,
+      role: labelPayment,
+      logProb: math.log(probas[rank][labelPayment]),
+      sources: const [EvidenceSource.classifier],
+      lineRank: rank,
+    );
+    final hypothesis = _hypothesis(
+      lines,
+      probas,
+      reference,
+      structure,
+      0.0,
+      argmaxOnly: true,
+    );
+    if (hypothesis != null &&
+        (best == null || hypothesis.logProb > best.logProb)) {
+      best = hypothesis;
+    }
+  }
+  return best;
+}
+
+bool _noItemCandidate(List<LineOptions> options, double minProb) {
+  final floor = minProb > 0 ? math.log(minProb) : double.negativeInfinity;
+  return options.every(
+    (option) => (option.logProbs[labelItem] ?? double.negativeInfinity) < floor,
+  );
+}
+
+/// Ticket sans aucune ligne d'article (parking, carburant) : un montant
+/// prouvé par l'arithmétique ET une seconde source, sans candidat article ni
+/// compteur d'articles contraire, est l'unique achat.
+Hypothesis? _singleItemHypothesis(
+  List<PricedLine> lines,
+  List<List<double>> probas,
+  List<Reference> references,
+  Constraints structure,
+  double minProb,
+  int? printedCount,
+) {
+  if (printedCount != null && printedCount != 1) return null;
+  for (final reference in references) {
+    if (reference.sources.length < singleItemMinSources) continue;
+    if (!reference.sources.any(arithmeticSources.contains)) continue;
+    final options = lineOptions(
+      lines,
+      probas,
+      reference.cutoffRank,
+      forcedIgnore: structure.forcedIgnore,
+      referenceRank: reference.lineRank,
+      softIgnore: structure.softIgnore,
+    );
+    if (!_noItemCandidate(options, minProb)) continue;
+    final labels = List<int>.filled(lines.length, labelIgnore);
+    if (reference.lineRank case final lineRank?) {
+      labels[lineRank] = labelTotal;
+    }
+    return Hypothesis(
+      referenceCents: reference.cents,
+      referenceRole: labelTotal,
+      labels: labels,
+      logProb: reference.logProb,
+      sources: reference.sources,
+      singleItem: true,
+    );
+  }
+  return null;
+}
+
+List<Reference> references(
+  List<PricedLine> lines,
+  List<List<double>> probas,
+  Constraints structure, {
+  double minReferenceProb = defaultMinReferenceProb,
+}) => mergeReferences([
+  ..._classifierReferences(lines, probas, structure, minReferenceProb),
+  ..._evidenceReferences(probas, structure),
+]);
+
 Hypothesis? decodeConstrained(
   List<PricedLine> lines,
   List<List<double>> probas, {
   double minProb = defaultMinProb,
   int maxReferences = defaultMaxReferences,
   double minReferenceProb = defaultMinReferenceProb,
+  int? printedCount,
+  Map<int, int> alternatives = const {},
 }) {
-  final total = _bestHypothesis(
+  final structure = constraints(lines);
+  final candidates = references(
     lines,
     probas,
-    labelTotal,
+    structure,
+    minReferenceProb: minReferenceProb,
+  ).take(maxReferences).toList();
+  final total = _bestTotalHypothesis(
+    lines,
+    probas,
+    candidates,
+    structure,
     minProb,
-    maxReferences,
-    minReferenceProb,
-    false,
+    alternatives,
   );
   if (total != null) return total;
-  return _bestHypothesis(
+  final payment = _paymentHypothesis(
     lines,
     probas,
-    labelPayment,
-    minProb,
+    structure,
     maxReferences,
     minReferenceProb,
-    true,
+  );
+  if (payment != null) return payment;
+  return _singleItemHypothesis(
+    lines,
+    probas,
+    candidates,
+    structure,
+    minProb,
+    printedCount,
   );
 }
 
@@ -277,14 +606,19 @@ Map<int, String?> _pendingLabels(
   return pendingByIndex;
 }
 
+String? _storeOf(List<PhysicalLine> merged) =>
+    merged.isEmpty ? null : merged.first.text;
+
 /// Reçu structuré depuis les rôles par ligne. Un prix négatif est toujours
 /// une remise, quel que soit son label : un article ne peut pas être
-/// négatif.
+/// négatif. [referenceTotal] : montant de référence prouvé sans ligne total
+/// étiquetée (décomposition TVA, espèces − rendu).
 ExtractedReceipt? receiptFromLabels(
   List<PhysicalLine> merged,
   List<PricedLine> lines,
-  List<int> labels,
-) {
+  List<int> labels, {
+  double? referenceTotal,
+}) {
   final pendingByIndex = _pendingLabels(merged, lines);
   final items = <ExtractedItem>[];
   double? total;
@@ -294,7 +628,8 @@ ExtractedReceipt? receiptFromLabels(
     final price = roundCents(priced.price);
     if (label == labelItem && price < 0) label = labelDiscount;
     if (label == labelItem) {
-      final name = plausibleLabel(priced.label) ??
+      final name =
+          plausibleLabel(priced.label) ??
           pendingByIndex[priced.index] ??
           priced.label;
       items.add(
@@ -310,37 +645,113 @@ ExtractedReceipt? receiptFromLabels(
   }
   if (items.isEmpty) return null;
   return ExtractedReceipt(
-    store: merged.isEmpty ? null : merged.first.text,
+    store: _storeOf(merged),
     date: findDate(merged),
-    total: total,
+    total: total ?? referenceTotal,
     subtotal: null,
     payment: payment,
     items: items,
   );
 }
 
-/// Structuration par l'argmax du classifieur.
+/// Ticket sans ligne d'article : l'unique achat porte le montant prouvé et
+/// le nom de l'enseigne.
+ExtractedReceipt singleItemReceipt(List<PhysicalLine> merged, double total) {
+  final store = _storeOf(merged);
+  return ExtractedReceipt(
+    store: store,
+    date: findDate(merged),
+    total: total,
+    subtotal: null,
+    payment: null,
+    items: [
+      ExtractedItem(name: cleanName(store ?? ''), amount: total, discount: 0.0),
+    ],
+  );
+}
+
+/// Applique les invariants structurels à un étiquetage argmax : une ligne
+/// exclue est ignorée, un total hors des rangs éligibles aussi, un total de
+/// rayon détecté par l'arithmétique n'est pas un article.
+List<int> constrainedLabels(List<int> labels, Constraints structure) => [
+  for (final (rank, label) in labels.indexed)
+    if (structure.forcedIgnore.contains(rank) ||
+        (label == labelTotal && !structure.referenceRanks.contains(rank)) ||
+        (label == labelItem && structure.softIgnore.contains(rank)))
+      labelIgnore
+    else
+      label,
+];
+
+/// Structuration par l'argmax du classifieur, sous invariants.
 ExtractedReceipt? extractMl(
   List<PhysicalLine> merged,
   LineClassifier classifier,
 ) {
   final (lines, rows) = featurize(merged);
   if (lines.isEmpty) return null;
-  final labels = [for (final row in rows) argmax(classifier.predictProba(row))];
-  return receiptFromLabels(merged, lines, labels);
+  final predictions = [
+    for (final row in rows) argmax(classifier.predictProba(row)),
+  ];
+  return receiptFromLabels(
+    merged,
+    lines,
+    constrainedLabels(predictions, constraints(lines)),
+  );
 }
+
+/// Alternatives indexées par ligne fusionnée → par rang de ligne chiffrée.
+Map<int, int> _rankAlternatives(
+  List<PricedLine> lines,
+  Map<int, int> alternatives,
+) => {
+  for (final (rank, priced) in lines.indexed) rank: ?alternatives[priced.index],
+};
+
+/// Réécrit le montant des seules lignes contributives dont le décodeur a
+/// retenu la lecture alternative.
+List<PricedLine> withChosenAmounts(
+  List<PricedLine> lines,
+  List<int> labels,
+  List<int> cents,
+) => [
+  for (final (rank, priced) in lines.indexed)
+    if ((labels[rank] == labelItem || labels[rank] == labelDiscount) &&
+        cents[rank] != _toCents(priced.price))
+      PricedLine(
+        index: priced.index,
+        line: priced.line,
+        price: cents[rank] / 100,
+        word: priced.word,
+      )
+    else
+      priced,
+];
 
 /// Structuration par décodage sous contrainte checksum.
 ExtractedReceipt? extractConstrained(
   List<PhysicalLine> merged,
-  LineClassifier classifier,
-) {
+  LineClassifier classifier, {
+  Map<int, int> alternatives = const {},
+}) {
   final (lines, rows) = featurize(merged);
   if (lines.isEmpty) return null;
   final hypothesis = decodeConstrained(
     lines,
     classifier.predictProbaAll(rows),
+    printedCount: printedCount(merged),
+    alternatives: _rankAlternatives(lines, alternatives),
   );
   if (hypothesis == null) return null;
-  return receiptFromLabels(merged, lines, hypothesis.labels);
+  final referenceTotal = hypothesis.referenceCents / 100;
+  if (hypothesis.singleItem) return singleItemReceipt(merged, referenceTotal);
+  final chosen = hypothesis.cents.isEmpty
+      ? lines
+      : withChosenAmounts(lines, hypothesis.labels, hypothesis.cents);
+  return receiptFromLabels(
+    merged,
+    chosen,
+    hypothesis.labels,
+    referenceTotal: referenceTotal,
+  );
 }

@@ -92,14 +92,46 @@ void main() {
 
   test('feature vector has the exported width', () {
     final merged = mergedLines([
-      PhysicalLine(words: [
-        const Word(text: 'PAIN', left: 0, top: 0, right: 50, bottom: 20, confidence: 0.9),
-        const Word(text: '2,50', left: 300, top: 0, right: 350, bottom: 20, confidence: 0.9),
-      ]),
-      PhysicalLine(words: [
-        const Word(text: 'TOTAL', left: 0, top: 40, right: 60, bottom: 60, confidence: 0.9),
-        const Word(text: '2,50', left: 300, top: 40, right: 350, bottom: 60, confidence: 0.9),
-      ]),
+      PhysicalLine(
+        words: [
+          const Word(
+            text: 'PAIN',
+            left: 0,
+            top: 0,
+            right: 50,
+            bottom: 20,
+            confidence: 0.9,
+          ),
+          const Word(
+            text: '2,50',
+            left: 300,
+            top: 0,
+            right: 350,
+            bottom: 20,
+            confidence: 0.9,
+          ),
+        ],
+      ),
+      PhysicalLine(
+        words: [
+          const Word(
+            text: 'TOTAL',
+            left: 0,
+            top: 40,
+            right: 60,
+            bottom: 60,
+            confidence: 0.9,
+          ),
+          const Word(
+            text: '2,50',
+            left: 300,
+            top: 40,
+            right: 350,
+            bottom: 60,
+            confidence: 0.9,
+          ),
+        ],
+      ),
     ]);
     final (lines, rows) = featurize(merged);
     expect(lines.length, 2);

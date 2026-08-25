@@ -53,12 +53,14 @@ class TestParsePrice:
 
 class TestExtract:
     def test_simple_items(self):
-        lines = receipt_lines([
-            [("CARREFOUR", 10)],
-            [("LAIT", 0), ("ENTIER", 5), ("1,20", 38)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("TOTAL", 0), ("3,70", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("CARREFOUR", 10)],
+                [("LAIT", 0), ("ENTIER", 5), ("1,20", 38)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("TOTAL", 0), ("3,70", 38)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount) for i in result.items] == [
             ("LAIT ENTIER", 1.20),
@@ -68,86 +70,104 @@ class TestExtract:
         assert result.checksum_ok
 
     def test_discount_attaches_to_previous_item(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("CHIPS", 0), ("2,00", 38)],
-            [("REMISE", 2), ("FID.", 9), ("-0,50", 37)],
-            [("TOTAL", 0), ("1,50", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("CHIPS", 0), ("2,00", 38)],
+                [("REMISE", 2), ("FID.", 9), ("-0,50", 37)],
+                [("TOTAL", 0), ("1,50", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.items[0].discount == 0.50
         assert result.checksum_ok
 
     def test_quantity_on_second_line(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("CAFE", 0), ("MOULU", 5)],
-            [("3", 2), ("X", 4), ("3,40", 6), ("10,20", 37)],
-            [("TOTAL", 0), ("10,20", 37)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("CAFE", 0), ("MOULU", 5)],
+                [("3", 2), ("X", 4), ("3,40", 6), ("10,20", 37)],
+                [("TOTAL", 0), ("10,20", 37)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount) for i in result.items] == [("CAFE MOULU", 10.20)]
 
     def test_total_and_payment_are_not_items(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("TOTAL", 0), ("A", 6), ("PAYER", 8), ("2,50", 38)],
-            [("CB", 0), ("EMV", 3), ("2,50", 38)],
-            [("ESPECES", 0), ("5,00", 38)],
-            [("RENDU", 0), ("2,50", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("TOTAL", 0), ("A", 6), ("PAYER", 8), ("2,50", 38)],
+                [("CB", 0), ("EMV", 3), ("2,50", 38)],
+                [("ESPECES", 0), ("5,00", 38)],
+                [("RENDU", 0), ("2,50", 38)],
+            ]
+        )
         result = extract(lines)
         assert len(result.items) == 1
         assert result.total == 2.50
 
     def test_split_total_recovered(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("54,50", 37)],
-            [("Total", 0), (":", 6), ("54", 37), ("50", 40)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("54,50", 37)],
+                [("Total", 0), (":", 6), ("54", 37), ("50", 40)],
+            ]
+        )
         result = extract(lines)
         assert result.total == 54.50
 
     def test_phone_number_is_not_a_price(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("Fax.:", 0), ("033", 6), ("853", 10), ("67", 14), ("19", 17)],
-            [("PAIN", 0), ("2,50", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("Fax.:", 0), ("033", 6), ("853", 10), ("67", 14), ("19", 17)],
+                [("PAIN", 0), ("2,50", 38)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount) for i in result.items] == [("PAIN", 2.50)]
 
     def test_date_with_split_digits(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("LE", 0), ("15/o9/202", 3), ("6", 13), ("A", 15), ("14:06", 17)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("LE", 0), ("15/o9/202", 3), ("6", 13), ("A", 15), ("14:06", 17)],
+            ]
+        )
         assert extract(lines).date == "2026-09-15"
 
     def test_date_with_dots(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("30.07.2007/13:29:17", 10)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("30.07.2007/13:29:17", 10)],
+            ]
+        )
         assert extract(lines).date == "2007-07-30"
 
     def test_promotion_in_name_is_still_an_item(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("Salades", 0), ("x2", 8), ("(promotion)", 11), ("1,40", 38)],
-            [("TOTAL", 0), ("1,40", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("Salades", 0), ("x2", 8), ("(promotion)", 11), ("1,40", 38)],
+                [("TOTAL", 0), ("1,40", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.items[0].amount == 1.40
         assert result.items[0].discount == 0.0
 
     def test_quantity_prefix_stripped_from_name(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("1", 0), ("WELSH", 2), ("10.20", 20), ("10.20", 37)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("1", 0), ("WELSH", 2), ("10.20", 20), ("10.20", 37)],
+            ]
+        )
         result = extract(lines)
         assert result.items[0].name == "WELSH"
         assert result.items[0].amount == 10.20
@@ -192,22 +212,26 @@ class TestDeskew:
 
 class TestChangeDue:
     def test_a_rendre_line_is_not_an_item(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("ESPECES", 0), ("5,00", 38)],
-            [("A", 0), ("RENDRE", 2), ("EUR", 20), ("2,50", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("ESPECES", 0), ("5,00", 38)],
+                [("A", 0), ("RENDRE", 2), ("EUR", 20), ("2,50", 38)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount) for i in result.items] == [("PAIN", 2.50)]
 
     def test_a_rendre_zero_is_not_an_item(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("A", 0), ("RENDRE", 2), ("EUR", 20), ("0,00", 38)],
-            [("TOTAL", 0), ("2,50", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("A", 0), ("RENDRE", 2), ("EUR", 20), ("0,00", 38)],
+                [("TOTAL", 0), ("2,50", 38)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount) for i in result.items] == [("PAIN", 2.50)]
         assert result.checksum_ok
@@ -215,133 +239,177 @@ class TestChangeDue:
 
 class TestExtraChecksumReferences:
     def test_tva_table_ttc_sum_validates_when_total_unreadable(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PERRIER", 0), ("3.20", 38)],
-            [("CHARDONNAY", 0), ("6.80", 38)],
-            [("TOTAL", 0), ("1O.0OO", 38)],
-            [("B", 0), ("TUA", 2), ("20.00", 8), ("5.67", 15), ("1.13", 22), ("6.80", 38)],
-            [("C", 0), ("TUA", 2), ("10.00", 8), ("2.91", 15), ("0.29", 22), ("3.20", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PERRIER", 0), ("3.20", 38)],
+                [("CHARDONNAY", 0), ("6.80", 38)],
+                [("TOTAL", 0), ("1O.0OO", 38)],
+                [
+                    ("B", 0),
+                    ("TUA", 2),
+                    ("20.00", 8),
+                    ("5.67", 15),
+                    ("1.13", 22),
+                    ("6.80", 38),
+                ],
+                [
+                    ("C", 0),
+                    ("TUA", 2),
+                    ("10.00", 8),
+                    ("2.91", 15),
+                    ("0.29", 22),
+                    ("3.20", 38),
+                ],
+            ]
+        )
         result = extract(lines)
         assert result.total is None
         assert result.tva_ttc_sum == 10.00
         assert result.checksum_ok
 
     def test_tva_amount_only_lines_do_not_build_a_reference(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("TVA", 0), ("10%", 5), ("0,23", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("TVA", 0), ("10%", 5), ("0,23", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.tva_ttc_sum is None
 
     def test_article_count_parsed(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("2", 0), ("ARTICLES", 2)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("2", 0), ("ARTICLES", 2)],
+            ]
+        )
         assert extract(lines).printed_count == 2
 
     def test_payment_with_matching_count_validates_despite_bad_total(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("LAIT", 0), ("1,20", 38)],
-            [("TOTAL", 0), ("9,70", 38)],
-            [("2", 0), ("ARTICLES", 2)],
-            [("CB", 0), ("EMV", 4), ("3,70", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("LAIT", 0), ("1,20", 38)],
+                [("TOTAL", 0), ("9,70", 38)],
+                [("2", 0), ("ARTICLES", 2)],
+                [("CB", 0), ("EMV", 4), ("3,70", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.total == 9.70
         assert result.checksum_ok
 
     def test_payment_without_count_does_not_override_read_total(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("LAIT", 0), ("1,20", 38)],
-            [("TOTAL", 0), ("9,70", 38)],
-            [("CB", 0), ("EMV", 4), ("3,70", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("LAIT", 0), ("1,20", 38)],
+                [("TOTAL", 0), ("9,70", 38)],
+                [("CB", 0), ("EMV", 4), ("3,70", 38)],
+            ]
+        )
         assert not extract(lines).checksum_ok
 
     def test_count_mismatch_does_not_unlock_payment(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("PAIN", 0), ("2,50", 38)],
-            [("LAIT", 0), ("1,20", 38)],
-            [("TOTAL", 0), ("9,70", 38)],
-            [("3", 0), ("ARTICLES", 2)],
-            [("CB", 0), ("EMV", 4), ("3,70", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("PAIN", 0), ("2,50", 38)],
+                [("LAIT", 0), ("1,20", 38)],
+                [("TOTAL", 0), ("9,70", 38)],
+                [("3", 0), ("ARTICLES", 2)],
+                [("CB", 0), ("EMV", 4), ("3,70", 38)],
+            ]
+        )
         assert not extract(lines).checksum_ok
 
 
 class TestTotalRecovery:
     def test_abbreviated_tot_is_a_total(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("POMME", 0), ("1,32", 38)],
-            [("ENDIVE", 0), ("2,42", 38)],
-            [("2", 0), ("Art.", 2), ("Tot", 8), ("3,74", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("POMME", 0), ("1,32", 38)],
+                [("ENDIVE", 0), ("2,42", 38)],
+                [("2", 0), ("Art.", 2), ("Tot", 8), ("3,74", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.total == 3.74
         assert result.checksum_ok
 
     def test_tva_incl_total_is_not_excluded(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("MENU", 0), ("27,90", 38)],
-            [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("27,90", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("MENU", 0), ("27,90", 38)],
+                [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("27,90", 38)],
+            ]
+        )
         assert extract(lines).total == 27.90
 
     def test_missing_decimal_separator_total_rescued(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("MENU", 0), ("27,90", 38)],
-            [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("2790", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("MENU", 0), ("27,90", 38)],
+                [("Total", 0), ("(TVA", 8), ("INCL)", 13), ("2790", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.checksum_ok
 
     def test_orphan_trailing_price_matching_sum_validates(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("Pomme", 0)],
-            [("X", 2), ("2,60", 6), ("2,60", 38)],
-            [("BANANE", 0), ("2,44", 38)],
-            [("5,04", 38)],
-            [("0,27", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("Pomme", 0)],
+                [("X", 2), ("2,60", 6), ("2,60", 38)],
+                [("BANANE", 0), ("2,44", 38)],
+                [("5,04", 38)],
+                [("0,27", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.items_sum == 5.04
         assert result.checksum_ok
 
     def test_orphan_price_not_matching_sum_flags(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("BANANE", 0), ("2,44", 38)],
-            [("9,99", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("BANANE", 0), ("2,44", 38)],
+                [("9,99", 38)],
+            ]
+        )
         result = extract(lines)
         assert not result.checksum_ok
 
 
 class TestDiscountLeftOfColumn:
     def test_negative_price_escapes_column_filter(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("JEAN", 0)],
-            [("*082242000033", 0), ("36", 15), ("34.99", 30), ("€", 37)],
-            [("Action", 0), ("commerciale", 7), ("-50%=", 19), ("-17.50", 26), ("€", 34)],
-            [("Total", 0), ("17.49", 30), ("€", 37)],
-            [("Carte", 0), ("Bancaire", 6), ("17.49", 30)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("JEAN", 0)],
+                [("*082242000033", 0), ("36", 15), ("34.99", 30), ("€", 37)],
+                [
+                    ("Action", 0),
+                    ("commerciale", 7),
+                    ("-50%=", 19),
+                    ("-17.50", 26),
+                    ("€", 34),
+                ],
+                [("Total", 0), ("17.49", 30), ("€", 37)],
+                [("Carte", 0), ("Bancaire", 6), ("17.49", 30)],
+            ]
+        )
         result = extract(lines)
         assert [(i.name, i.amount, i.discount) for i in result.items] == [
             ("JEAN", 34.99, 17.50),
@@ -351,19 +419,22 @@ class TestDiscountLeftOfColumn:
 
 class TestPaymentSynonyms:
     def _receipt(self, payment_row):
-        return receipt_lines([
-            [("STORE", 10)],
-            [("POMME", 0), ("1,32", 38)],
-            [("ENDIVE", 0), ("2,42", 38)],
-            payment_row,
-        ])
+        return receipt_lines(
+            [
+                [("STORE", 10)],
+                [("POMME", 0), ("1,32", 38)],
+                [("ENDIVE", 0), ("2,42", 38)],
+                payment_row,
+            ]
+        )
 
     def test_cash_line_is_a_payment_reference(self):
         result = extract(self._receipt([("Espèces", 0), ("3,74", 38)]))
         assert result.payment == 3.74
-        assert result.items == [
-            result.items[0], result.items[1]
-        ] and len(result.items) == 2
+        assert (
+            result.items == [result.items[0], result.items[1]]
+            and len(result.items) == 2
+        )
         assert result.checksum_ok
 
     def test_cheque_line_is_a_payment_reference(self):
@@ -377,17 +448,21 @@ class TestPaymentSynonyms:
         assert result.checksum_ok
 
     def test_montant_percu_is_a_payment_reference(self):
-        result = extract(self._receipt([("Montant", 0), ("perçu", 8), (":", 14), ("3,74", 38)]))
+        result = extract(
+            self._receipt([("Montant", 0), ("perçu", 8), (":", 14), ("3,74", 38)])
+        )
         assert result.payment == 3.74
         assert result.checksum_ok
 
     def test_payment_never_overrides_a_read_total(self):
-        lines = receipt_lines([
-            [("STORE", 10)],
-            [("POMME", 0), ("1,32", 38)],
-            [("TOTAL", 0), ("9,99", 38)],
-            [("Espèces", 0), ("1,32", 38)],
-        ])
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("POMME", 0), ("1,32", 38)],
+                [("TOTAL", 0), ("9,99", 38)],
+                [("Espèces", 0), ("1,32", 38)],
+            ]
+        )
         result = extract(lines)
         assert result.total == 9.99
         assert not result.checksum_ok
@@ -395,15 +470,19 @@ class TestPaymentSynonyms:
 
 class TestTotalSynonyms:
     def _receipt(self, total_row):
-        return receipt_lines([
-            [("STORE", 10)],
-            [("POMME", 0), ("1,32", 38)],
-            [("ENDIVE", 0), ("2,42", 38)],
-            total_row,
-        ])
+        return receipt_lines(
+            [
+                [("STORE", 10)],
+                [("POMME", 0), ("1,32", 38)],
+                [("ENDIVE", 0), ("2,42", 38)],
+                total_row,
+            ]
+        )
 
     def test_net_a_regler(self):
-        result = extract(self._receipt([("NET", 0), ("A", 4), ("REGLER", 6), ("3,74", 38)]))
+        result = extract(
+            self._receipt([("NET", 0), ("A", 4), ("REGLER", 6), ("3,74", 38)])
+        )
         assert result.total == 3.74
         assert result.checksum_ok
 
@@ -421,3 +500,184 @@ class TestTotalSynonyms:
         result = extract(self._receipt([("Montant", 0), ("TTC", 8), ("3,74", 38)]))
         assert result.total == 3.74
         assert result.checksum_ok
+
+
+class TestDamagedPrices:
+    def test_semicolon_decimal_separator(self):
+        assert parse_price("17;00") == 17.00
+
+    def test_leading_colon_stripped(self):
+        assert parse_price(":17,00") == 17.00
+
+    def test_total_line_price_with_trailing_junk_digit(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("SALADE", 0), ("7,07", 38)],
+                [("TOTAL", 0), ("A", 6), ("PAYER", 8), ("7.074", 37)],
+            ]
+        )
+        assert extract(lines).total == 7.07
+
+    def test_item_line_keeps_three_decimals_unparsed(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("SALADE", 0), ("4.236", 38)],
+                [("TOTAL", 0), ("4,23", 38)],
+            ]
+        )
+        assert extract(lines).items == []
+
+    def test_split_total_with_separator_on_decimals(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("VIN", 0), ("17,00", 38)],
+                [("TOTAL", 0), ("TTC", 6), ("17", 36), (",00", 38)],
+            ]
+        )
+        assert extract(lines).total == 17.00
+
+
+class TestFuzzyTotal:
+    def test_total_with_one_damaged_glyph(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("CLOU", 0), ("32,17", 38)],
+                [("TO'AL", 0), ("Euro", 6), ("32.17", 38)],
+            ]
+        )
+        result = extract(lines)
+        assert result.total == 32.17
+        assert result.checksum_ok
+
+    def test_total_missing_first_letter(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("VIN", 0), ("14,50", 38)],
+                [("OTAL", 0), ("REGLEMENT", 5), ("14,50", 38)],
+            ]
+        )
+        assert extract(lines).total == 14.50
+
+    def test_unrelated_word_is_not_a_total(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("HOTEL", 0), ("DU", 6), ("PORT", 9), ("80,00", 38)],
+                [("TOTAL", 0), ("80,00", 38)],
+            ]
+        )
+        result = extract(lines)
+        assert [i.amount for i in result.items] == [80.00]
+
+
+class TestSubtotalAbbreviation:
+    def test_s_tot_is_a_subtotal_never_the_total(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("CAFE", 0), ("4,35", 38)],
+                [("S/TOT", 0), ("18.47", 38)],
+                [("TOTAL", 0), ("4,35", 38)],
+            ]
+        )
+        result = extract(lines)
+        assert result.total == 4.35
+        assert result.subtotal == 18.47
+
+    def test_s_tot_alone_does_not_become_the_total(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("CAFE", 0), ("4,35", 38)],
+                [("S/TOT", 0), ("18.47", 38)],
+            ]
+        )
+        assert extract(lines).total is None
+
+
+class TestCardBrandPayments:
+    def test_visa_line_is_a_payment(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("JEU", 0), ("38,96", 38)],
+                [("Visa", 0), ("38.96", 38)],
+            ]
+        )
+        result = extract(lines)
+        assert result.payment == 38.96
+        assert len(result.items) == 1
+
+    def test_contactless_line_is_a_payment(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("JEU", 0), ("7,07", 38)],
+                [("C8", 0), ("EMV", 3), ("SANS", 7), ("CONTACT", 12), ("7.07", 38)],
+            ]
+        )
+        result = extract(lines)
+        assert result.payment == 7.07
+        assert len(result.items) == 1
+
+
+class TestVerifiedTotal:
+    def _receipt(self, **overrides):
+        from structure import ExtractedItem, ExtractedReceipt
+
+        fields = {
+            "store": None,
+            "date": None,
+            "total": None,
+            "subtotal": None,
+            "payment": None,
+            "items": [ExtractedItem(name="A", amount=2.0, discount=0.0)],
+        }
+        fields.update(overrides)
+        return ExtractedReceipt(**fields)
+
+    def test_read_total_that_matches(self):
+        assert self._receipt(total=2.0).verified_total == 2.0
+
+    def test_payment_with_count_overrides_a_misread_total(self):
+        receipt = self._receipt(total=3.44, payment=2.0, printed_count=1)
+        assert receipt.checksum_ok
+        assert receipt.verified_total == 2.0
+
+    def test_tva_table_sum_when_total_unreadable(self):
+        receipt = self._receipt(tva_ttc_sum=2.0)
+        assert receipt.verified_total == 2.0
+
+    def test_none_when_nothing_matches(self):
+        assert self._receipt(total=9.0).verified_total is None
+
+
+class TestTaxLexicon:
+    def test_us_tax_line_is_not_an_item(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("BURGER", 0), ("8,95", 38)],
+                [("TAX", 0), ("0,74", 38)],
+                [("TOTAL", 0), ("9,69", 38)],
+            ]
+        )
+        assert [i.amount for i in extract(lines).items] == [8.95]
+
+
+class TestZeroAmountLines:
+    def test_zero_amount_line_is_not_an_item(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("VESTE", 0), ("34,99", 38)],
+                [("Info", 0), ("0,00", 38)],
+                [("TOTAL", 0), ("34,99", 38)],
+            ]
+        )
+        assert [i.amount for i in extract(lines).items] == [34.99]

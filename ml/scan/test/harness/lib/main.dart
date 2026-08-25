@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'gallery_screen.dart';
 import 'scan_screen.dart';
+import 'stats_screen.dart';
 import 'suite_screen.dart';
 
 /// `--dart-define=AUTO_SUITE=true` : ouvre la suite complète et la lance
@@ -41,9 +42,8 @@ class HomeScreen extends StatelessWidget {
                 'Flow local sur tout le corpus (input/ via adb, sinon '
                 'assets) ; résultats JSON pour le scoring Python.',
               ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SuiteScreen()),
-              ),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const SuiteScreen())),
             ),
           ),
           Card(
@@ -54,9 +54,21 @@ class HomeScreen extends StatelessWidget {
                 'Un lot de photos de tickets, flow local sur chacune, '
                 'verdict par image et dumps pour analyse.',
               ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GalleryScreen()),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const GalleryScreen())),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.insights),
+              title: const Text('Stats de session'),
+              subtitle: const Text(
+                'Étages, taux vérifié, retries et latences cumulés sur '
+                'tous les tickets traités depuis le lancement.',
               ),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const StatsScreen())),
             ),
           ),
           Card(
@@ -67,9 +79,8 @@ class HomeScreen extends StatelessWidget {
                 'Photo d\'un vrai ticket, flow local complet, résultat '
                 'structuré à l\'écran.',
               ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ScanScreen()),
-              ),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const ScanScreen())),
             ),
           ),
         ],

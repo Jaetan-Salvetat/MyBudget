@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'local_flow.dart';
 import 'result_view.dart';
+import 'session_stats.dart';
 
 /// Scan d'un ticket via l'appareil photo : le flow local complet tourne sur
 /// la photo et affiche le résultat structuré — le scénario nominal que le
@@ -42,13 +43,11 @@ class _ScanScreenState extends State<ScanScreen> {
     final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
     try {
       final tempDir = await getTemporaryDirectory();
-      final result = await runLocalFlow(
-        recognizer,
-        File(photo.path),
-        tempDir,
-      );
+      final result = await runLocalFlow(recognizer, File(photo.path), tempDir);
+      sessionStats.record(result);
       setState(() => _result = result);
     } catch (error, stackTrace) {
+      sessionStats.recordFailure();
       debugPrint('scan failure: $error\n$stackTrace');
       setState(() => _error = 'Échec du scan : $error');
     } finally {

@@ -5,9 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import 'local_flow.dart';
 import 'ocr_dump.dart';
+import 'result_view.dart';
+import 'session_stats.dart';
+import 'stats_screen.dart';
+import 'ticket_detail_screen.dart';
 
 const String _corpusPrefix = 'assets/corpus/';
 const String _resultsDirName = 'results';
@@ -28,8 +33,20 @@ class SuiteScreen extends StatefulWidget {
   State<SuiteScreen> createState() => _SuiteScreenState();
 }
 
+class _SuiteEntry {
+  const _SuiteEntry({
+    required this.image,
+    required this.result,
+    required this.error,
+  });
+
+  final _SuiteImage image;
+  final LocalScanResult? result;
+  final String? error;
+}
+
 class _SuiteScreenState extends State<SuiteScreen> {
-  final List<String> _log = [];
+  final List<_SuiteEntry> _entries = [];
   bool _running = false;
   bool _done = false;
   int _processed = 0;
@@ -48,13 +65,13 @@ class _SuiteScreenState extends State<SuiteScreen> {
       _running = true;
       _done = false;
       _processed = 0;
-      _log.clear();
+      _entries.clear();
     });
     final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
     try {
       final Directory? externalDir = await getExternalStorageDirectory();
       if (externalDir == null) {
-        _append('FATAL: no external storage directory');
+        debugPrint('OCR_HARNESS: FATAL: no external storage directory');
         return;
       }
       final resultsDir = Directory('${externalDir.path}/$_resultsDirName');
@@ -64,8 +81,9 @@ class _SuiteScreenState extends State<SuiteScreen> {
       final inputDir = Directory('${externalDir.path}/input');
       await inputDir.create(recursive: true);
       final fromInput = _imagesFromDir(inputDir);
-      final List<_SuiteImage> images =
-          fromInput.isNotEmpty ? fromInput : await _imagesFromAssets(tempDir);
+      final List<_SuiteImage> images = fromInput.isNotEmpty
+          ? fromInput
+          : await _imagesFromAssets(tempDir);
       setState(() => _total = images.length);
 
       for (final image in images) {
@@ -89,15 +107,20 @@ class _SuiteScreenState extends State<SuiteScreen> {
               recognized: retry.recognized,
             );
           }
-          await File(
-            '${resultsDir.path}/${image.name}.json',
-          ).writeAsString(jsonEncode(dump));
+          await File('${resultsDir.path}/${image.name}.json')
+              .writeAsString(jsonEncode(dump));
+          sessionStats.record(result);
           _append(
-            'OK ${image.name}: ${result.outcome.stage.name}'
+            _SuiteEntry(image: image, result: result, error: null),
+            'OK ${image.name}: ${stageName(result.outcome.stage)}'
             '${result.retryUsed ? ' (retry)' : ''}',
           );
         } catch (error, stackTrace) {
-          _append('FAIL ${image.name}: $error');
+          sessionStats.recordFailure();
+          _append(
+            _SuiteEntry(image: image, result: null, error: '$error'),
+            'FAIL ${image.name}: $error',
+          );
           debugPrint('suite failure on ${image.name}: $error\n$stackTrace');
         }
         setState(() => _processed++);
@@ -105,7 +128,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
 
       await File('${resultsDir.path}/$_doneFlagName').writeAsString('done');
       setState(() => _done = true);
-      _append('ALL DONE');
+      debugPrint('OCR_HARNESS: ALL DONE');
     } finally {
       await recognizer.close();
       setState(() => _running = false);
@@ -143,9 +166,48 @@ class _SuiteScreenState extends State<SuiteScreen> {
     return images;
   }
 
-  void _append(String message) {
+  void _append(_SuiteEntry entry, String message) {
     debugPrint('OCR_HARNESS: $message');
-    setState(() => _log.insert(0, message));
+    setState(() => _entries.insert(0, entry));
+  }
+
+  Widget _entryTile(_SuiteEntry entry) {
+    final result = entry.result;
+    if (result == null) {
+      return ListTile(
+        dense: true,
+        leading: const Icon(Icons.error, color: Colors.red, size: 16),
+        title: Text(entry.image.name),
+        subtitle: Text(entry.error ?? 'échec'),
+      );
+    }
+    final receipt = result.retry?.receipt ?? result.pass1.receipt;
+    return ListTile(
+      dense: true,
+      leading: Icon(
+        Icons.circle,
+        color: stageColor(result.outcome.stage),
+        size: 16,
+      ),
+      title: Text(entry.image.name),
+      subtitle: Text(
+        '${stageName(result.outcome.stage)} — '
+        '${result.outcome.items.length} articles, '
+        'somme ${receipt.itemsSum.toStringAsFixed(2)} / '
+        'total ${receipt.total?.toStringAsFixed(2) ?? '—'}'
+        '${result.retryUsed ? ' — retry' : ''}',
+      ),
+      trailing: Text('${result.totalLatencyMs} ms'),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => TicketDetailScreen(
+            name: entry.image.name,
+            imageFile: entry.image.file,
+            result: result,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -156,9 +218,17 @@ class _SuiteScreenState extends State<SuiteScreen> {
           _done
               ? 'DONE ($_processed/$_total)'
               : _running
-                  ? 'Suite… $_processed/$_total'
-                  : 'Suite complète',
+              ? 'Suite… $_processed/$_total'
+              : 'Suite complète',
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Stats de session',
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const StatsScreen())),
+            icon: const Icon(Icons.insights),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -166,10 +236,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
             LinearProgressIndicator(value: _processed / _total),
           Expanded(
             child: ListView(
-              children: [
-                for (final entry in _log)
-                  ListTile(dense: true, title: Text(entry)),
-              ],
+              children: [for (final entry in _entries) _entryTile(entry)],
             ),
           ),
         ],

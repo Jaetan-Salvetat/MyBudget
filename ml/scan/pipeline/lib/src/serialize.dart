@@ -24,9 +24,10 @@ Map<String, Object?> receiptJson(ExtractedReceipt receipt) {
 /// Noms de stage au format des scripts Python (snake_case) : le nom d'enum
 /// Dart n'est pas le contrat.
 String stageName(FlowStage stage) => switch (stage) {
-      FlowStage.local => 'local',
-      FlowStage.localRetry => 'local_retry',
-      FlowStage.localMl => 'local_ml',
-      FlowStage.localDp => 'local_dp',
-      FlowStage.confirm => 'confirm',
-    };
+  FlowStage.local => 'local',
+  FlowStage.localRetry => 'local_retry',
+  FlowStage.localMl => 'local_ml',
+  FlowStage.localDp => 'local_dp',
+  FlowStage.localFused => 'local_fused',
+  FlowStage.confirm => 'confirm',
+};

@@ -125,8 +125,9 @@ class LineClassifier {
     return [for (final weight in weights) weight / total];
   }
 
-  List<List<double>> predictProbaAll(List<List<double>> rows) =>
-      [for (final row in rows) predictProba(row)];
+  List<List<double>> predictProbaAll(List<List<double>> rows) => [
+    for (final row in rows) predictProba(row),
+  ];
 }
 
 /// Indice de la probabilité maximale, première occurrence en cas d'égalité

@@ -40,6 +40,8 @@ STAGE_NAMES = {
     "local_retry": "local_retry",
     "local_ml": "local_ml",
     "local_dp": "local_dp",
+    "localFused": "local_fused",
+    "local_fused": "local_fused",
     "confirm": "confirm",
 }
 

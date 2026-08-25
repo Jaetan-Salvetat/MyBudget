@@ -20,7 +20,7 @@ WEIGHT_PATTERN = re.compile(
 )
 DATE_PATTERN = re.compile(r"(\d{2})[/.](\d{2})[/.](\d{4})")
 INTEGER_PATTERN = re.compile(r"^-?\d{1,4}$")
-DECIMALS_PATTERN = re.compile(r"^\d{2}$")
+DECIMALS_PATTERN = re.compile(r"^[.,]?\d{2}$")
 LEADER_DOTS_PATTERN = re.compile(r"^[.…]+")
 
 DISCOUNT_WORDS = (
@@ -48,12 +48,18 @@ TOTAL_WORDS = (
     "PRIX TTC",
     "MONTANT TTC",
 )
+FUZZY_TOTAL_WORD = "TOTAL"
+FUZZY_TOTAL_MAX_DISTANCE = 1
+FUZZY_TOTAL_TOKEN_LENGTHS = range(4, 7)
 SUBTOTAL_WORDS = (
     "SOUS-TOTAL",
     "SOUS TOTAL",
+    "SOUS TOT",
     "SUBTOTAL",
     "SUB-TOTAL",
     "SUB TOTAL",
+    "S/TOTAL",
+    "S/TOT",
     "AMOUNT",
     "TAXABLE",
 )
@@ -130,7 +136,12 @@ EXCLUDED_TOTAL_WORDS = (
 PAYMENT_WORDS = (
     "CB",
     "CARTE BANCAIRE",
+    "CARTES BANCAIRES",
     "CARTE BLEUE",
+    "VISA",
+    "MASTERCARD",
+    "SANS CONTACT",
+    "EMV",
     "ESPECES",
     "CHEQUE",
     "PAIEMENT",
@@ -139,7 +150,7 @@ PAYMENT_WORDS = (
     "PERCU",
     "RECU",
 )
-TVA_WORDS = ("TVA", "TUA")
+TVA_WORDS = ("TVA", "TUA", "TAX", "TAXE", "TAXES")
 TAX_INCLUSIVE_WORDS = ("INCL",)
 MISSING_SEPARATOR_TOTAL_PATTERN = re.compile(r"(\d{3,6})\s*$")
 ARTICLE_COUNT_PATTERN = re.compile(r"(\d{1,3})ARTICLE")
@@ -193,17 +204,40 @@ class ExtractedReceipt:
                 return True
         return False
 
+    @property
+    def verified_total(self) -> float | None:
+        """Le montant qui a réellement vérifié la somme des articles — c'est
+        lui qu'on affiche, jamais un total lu qui ne colle pas."""
+        if self._matches(self.total):
+            return self.total
+        if self._matches(self.subtotal):
+            return self.subtotal
+        if self.total is None and self._matches(self.tva_ttc_sum):
+            return self.tva_ttc_sum
+        if self.total is None:
+            for candidate in self.fallback_references:
+                if self._matches(candidate):
+                    return candidate
+        if self.checksum_ok and self._matches(self.payment):
+            return self.payment
+        return None
+
     def _matches(self, reference: float | None) -> bool:
         return reference is not None and abs(self.items_sum - reference) < 0.005
 
 
 GLYPH_PRICE_PATTERN = re.compile(r"^-?[\dIlOoS]{1,4}[.,][\dIlOoS]{2}$")
 GLYPH_TRANSLATION = str.maketrans("IlOoS", "11005")
+DAMAGED_SEPARATOR_TRANSLATION = str.maketrans(";", ",")
+LEADING_PUNCTUATION = ":"
 
 
 def parse_price(text: str) -> float | None:
+    normalized = text.translate(DAMAGED_SEPARATOR_TRANSLATION).lstrip(
+        LEADING_PUNCTUATION
+    )
     cleaned = LEADER_DOTS_PATTERN.sub(
-        "", text.replace("€", "").replace("$", "").strip("eE")
+        "", normalized.replace("€", "").replace("$", "").strip("eE")
     )
     cleaned = re.sub(r"([.,]\d{2})[A-Za-z]$", r"\1", cleaned)
     if not PRICE_PATTERN.match(cleaned):
@@ -274,6 +308,7 @@ def _min_confidence(first: Word, second: Word) -> float | None:
 
 
 GLUED_PRICE_PATTERN = re.compile(r"^[A-Za-z]{1,5}(-?\d{1,4}[.,]\d{2})[€eE]?$")
+TRAILING_JUNK_PRICE_PATTERN = re.compile(r"^(-?\d{1,4}[.,]\d{2})\S$")
 
 
 def _rightmost_price(line: PhysicalLine) -> tuple[float, Word] | None:
@@ -285,8 +320,19 @@ def _rightmost_price(line: PhysicalLine) -> tuple[float, Word] | None:
         glued = GLUED_PRICE_PATTERN.match(word.text)
         if glued is not None:
             return float(glued.group(1).replace(",", ".")), word
-    if _contains(line.text, TOTAL_WORDS):
-        return _split_price(line)
+    if contains_total(line.text):
+        return _trailing_junk_price(line) or _split_price(line)
+    return None
+
+
+def _trailing_junk_price(line: PhysicalLine) -> tuple[float, Word] | None:
+    """Prix d'une ligne total suivi d'un caractère parasite (« 7.074 »,
+    « 3.10D ») : seul le contexte total autorise cette lecture, le checksum
+    valide derrière."""
+    for word in reversed(line.words):
+        junk = TRAILING_JUNK_PRICE_PATTERN.match(word.text)
+        if junk is not None:
+            return float(junk.group(1).replace(",", ".")), word
     return None
 
 
@@ -304,12 +350,40 @@ def _split_price(line: PhysicalLine) -> tuple[float, Word] | None:
     gap = decimals.left - units.right
     if gap > (units.bottom - units.top) * 1.5:
         return None
-    value = float(f"{units.text}.{decimals.text}")
+    value = float(f"{units.text}.{decimals.text.lstrip('.,')}")
     return value, decimals
 
 
 def _label_of(line: PhysicalLine, price_word: Word) -> str:
     return " ".join(word.text for word in line.words if word is not price_word)
+
+
+def levenshtein(left: str, right: str) -> int:
+    previous = list(range(len(right) + 1))
+    for row, left_char in enumerate(left, start=1):
+        current = [row]
+        for column, right_char in enumerate(right, start=1):
+            current.append(
+                min(
+                    previous[column] + 1,
+                    current[column - 1] + 1,
+                    previous[column - 1] + (left_char != right_char),
+                )
+            )
+        previous = current
+    return previous[-1]
+
+
+def contains_total(text: str) -> bool:
+    """Lexique total exact, ou un mot à une édition de « TOTAL » (« TO'AL »,
+    « OTAL », « T0TAL ») : l'OCR abîme surtout cette ligne, imprimée en gras."""
+    if _contains(text, TOTAL_WORDS):
+        return True
+    return any(
+        len(token) in FUZZY_TOTAL_TOKEN_LENGTHS
+        and levenshtein(token.upper(), FUZZY_TOTAL_WORD) <= FUZZY_TOTAL_MAX_DISTANCE
+        for token in text.split()
+    )
 
 
 def _contains(text: str, lexicon: tuple[str, ...]) -> bool:
@@ -324,9 +398,7 @@ def _contains(text: str, lexicon: tuple[str, ...]) -> bool:
     )
     compact = re.sub(r"\s+", "", upper)
     undotted = upper.replace(".", "")
-    unglyphed = re.sub(
-        r"\s+", "", upper.translate(str.maketrans("015", "OIS"))
-    )
+    unglyphed = re.sub(r"\s+", "", upper.translate(str.maketrans("015", "OIS")))
     for entry in lexicon:
         stripped = entry.strip()
         if len(stripped) < 5:
@@ -396,13 +468,15 @@ def extract(
             pending_label = None
             continue
 
-        if _contains(text, TOTAL_WORDS):
+        if contains_total(text):
             pending_label = None
             continue
 
         if _contains(text, STOP_WORDS):
-            if payment is None and priced is not None and _contains(
-                text, PAYMENT_WORDS
+            if (
+                payment is None
+                and priced is not None
+                and _contains(text, PAYMENT_WORDS)
             ):
                 payment = priced[0]
                 if roles is not None:
@@ -421,6 +495,9 @@ def extract(
         if column_left is not None and price_word.right < column_left:
             pending_label = _plausible_label(text)
             continue
+        if price == 0:
+            pending_label = None
+            continue
 
         label = _label_of(line, price_word).strip()
 
@@ -433,9 +510,9 @@ def extract(
             continue
 
         compact_label = re.sub(r"EUR|[€]|\s+", "", label)
-        quantity_match = QUANTITY_PATTERN.match(
+        quantity_match = QUANTITY_PATTERN.match(compact_label) or WEIGHT_PATTERN.match(
             compact_label
-        ) or WEIGHT_PATTERN.match(compact_label)
+        )
         if quantity_match and pending_label is not None:
             items.append(
                 ExtractedItem(
@@ -461,9 +538,7 @@ def extract(
             pending_label = None
             continue
 
-        items.append(
-            ExtractedItem(name=_clean_name(label), amount=price, discount=0.0)
-        )
+        items.append(ExtractedItem(name=_clean_name(label), amount=price, discount=0.0))
         if roles is not None:
             roles.setdefault(index, "item")
         pending_label = None
@@ -490,7 +565,7 @@ def _fallback_references(merged: list[PhysicalLine]) -> list[float]:
     candidates: list[float] = []
     for line in merged:
         text = line.text
-        if _contains(text, TOTAL_WORDS) and not (
+        if contains_total(text) and not (
             _contains(text, EXCLUDED_TOTAL_WORDS)
             and not _contains(text, TAX_INCLUSIVE_WORDS)
         ):
@@ -552,7 +627,7 @@ def _find_final_total(
     total_index: int | None = None
     total: float | None = None
     for index, line in enumerate(merged):
-        if not _contains(line.text, TOTAL_WORDS):
+        if not contains_total(line.text) or _contains(line.text, SUBTOTAL_WORDS):
             continue
         if _contains(line.text, EXCLUDED_TOTAL_WORDS) and not _contains(
             line.text, TAX_INCLUSIVE_WORDS
@@ -588,9 +663,7 @@ def _is_detail_line(label: str) -> bool:
     letters = sum(char.isalpha() for char in stripped)
     if letters > 3:
         return False
-    return all(
-        DETAIL_TOKEN_PATTERN.fullmatch(token) for token in stripped.split()
-    )
+    return all(DETAIL_TOKEN_PATTERN.fullmatch(token) for token in stripped.split())
 
 
 def _is_discount_line(label: str) -> bool:

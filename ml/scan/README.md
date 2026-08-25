@@ -245,6 +245,190 @@ levier générique : la suite est côté parsing OCR, ou côté modèle de
 séquence / encodeur layout-aware entraîné sur golden + synthétique.
 
 
+## Flow V3 porté en Dart & diagnostics (2026-08-24, soir)
+
+- **Ordre des étages mesuré** (899 dumps) : classifieur avant le retry.
+  Passe 1 : règles → classifieur argmax → décodeur ; si rien ne vérifie,
+  retry (2e OCR, l'étage cher) → règles → classifieur → décodeur. Même
+  précision (832/899), **94 retries au lieu de 198**. Référence Python :
+  `analysis/local_flow.py` (`decide_local`), miroir Dart `flow.dart`
+  (`decide` + `classifierRescue`), harnais `local_flow.dart`.
+- **Portage Dart complet** : lexiques et règles de calibration
+  (`structure.dart`), features V2+V3 (`line_features.dart`, CRC-32 et
+  Levenshtein inclus), inférence du classifieur depuis un JSON exporté
+  (`classifier.dart`, `analysis/export_line_classifier.py`, écart vs
+  sklearn 4e-16), décodeur DP (`decode.dart`). **Parité flow complet
+  Python↔Dart : 1000 dumps, 0 divergence** (`check_parity.py --model`).
+  Tie-breaking du décodeur déterministe des deux côtés (tri stable des
+  références, ordre fixe des labels).
+  Plage du DP bornée à `[−D, cible + D]` (D = capacité de remise des lignes
+  dont P(remise) passe le seuil) : élagage exact, sans quoi le décodeur en
+  Dart pur prenait 30 s par ticket sur un S9+.
+- **Harnais** : modèle en asset (`assets/models/line_clf_v3.json`),
+  `--dart-define=AUTO_SUITE=true` lance la suite sans interaction (pilotage
+  adb), chaque ticket de la liste ouvre un détail (résultat / image zoomable
+  / texte OCR des deux passes), stats de session en direct (étages, taux
+  vérifié, retries, latences) accessibles depuis chaque écran.
+- **`analysis/diagnose.py`** — le système de vérification côté test :
+  tous les étages sur tous les tickets, **vérité par ligne** alignée sur le
+  golden (`line_truth.py` : item / discount / total / payment / tva /
+  subtotal / quantity / discount_summary / change / ignore) → matrices de
+  confusion par étage ; **concordance** entre étages vérifiés (un désaccord
+  = collision détectable sans golden) ; **calibration** du taux de faux par
+  niveau de confiance affichable ; noms d'articles vs golden ; dégâts OCR
+  vs transcription ; **test adversarial du décodeur** (référence remplacée
+  par une valeur fausse). Sortie `results/diagnostics/<run>.jsonl` +
+  rapport (`--report=<jsonl>` rejoue le rapport sans recalcul).
+
+Premiers enseignements (899 tickets) :
+
+| Signal disponible sans golden | Tickets | Faux affichés |
+|---|---|---|
+| ≥ 3 méthodes vérifiées concordantes | 745 | 0 |
+| 2 méthodes concordantes | 52 | 1 (paire net zéro) |
+| 1 seule méthode | 17 | 0 |
+| **désaccord entre méthodes vérifiées** | 19 | **2** |
+| aucune | 66 | — |
+
+- Le **décodeur seul** vérifie 796/899 mais avec 5 faux : c'est l'étage
+  risqué, la cascade le masque. **Adversarial : 21 % des références
+  fausses trouvent quand même une solution** (574/2686) — un total mal lu
+  par l'OCR a une chance sur cinq d'être « vérifié » à tort par le décodeur
+  seul.
+- La concordance est le signal manquant : les 2 vrais faux affichés sont
+  dans les 19 « désaccord ». Proposition : « vérifié » = ≥ 2 méthodes
+  d'accord ; 1 méthode ou désaccord → bandeau « à relire ».
+- Confusions dominantes du classifieur (argmax, 899 tickets) : lignes
+  `ignore` promues article 56, `tva` promues article 54, `total` lues
+  article 40, `payment` ignorées 49 — la cible du prochain entraînement.
+- Noms d'articles : similarité médiane 0,95 vs golden, 5,8 % sous 0,6 —
+  premier chiffre sur les libellés, jamais mesurés avant.
+- Causes racines des 67 non vérifiés : 32 parasites promus par le
+  classifieur, 20 références non reconnues, 8 références jamais parsées en
+  prix, 4 articles manqués, 3 totaux illisibles.
+
+## Vers 99 % : invariants arithmétiques & fusion des passes (2026-08-25)
+
+Objectif fiabilité (pas de latence) : **832 → 858/899 (95,4 %)**, faux
+vérifiés 3 → **2** (les deux paires subvention à net zéro, golden
+« gemini-seul »). Méthode : lecture ligne à ligne des 67 échecs, puis
+uniquement des règles *structurelles* — jamais de règle par ticket, aucun
+seuil déplacé, aucun golden ni exclusion touchés. Tout reste gated par le
+checksum au centime et `min_prob`.
+
+| Étape | Vérifiés | Faux |
+|---|---|---|
+| Départ (V3 + DP, parité Dart) | 832 (92,5 %) | 3 |
+| Parsing + lexiques (VISA, S/TOT, CARTES BANCAIRES, SANS CONTACT ; `17 ,00`, `17;00`, `7.074` sur ligne total ; TOTAL flou à 1 édition) + ré-entraînement V3 | 841 | 5* |
+| + `invariants.py` + références multi-sources dans le décodeur | 849 | 3 |
+| + garde-fou retry assoupli (même total lu) | 850 | 3 |
+| + fusion des passes (`fuse_passes.py`) | 854 | 3 |
+| + totaux de rayon arithmétiques, Σ rayons | 856 | 3 |
+| + taxes jamais article, total intermédiaire éligible s'il clôt les articles, total final avant le premier paiement | 858 | 3 |
+| + ligne 0 € jamais article (règles) | **858 (95,4 %)** | **2** |
+
+Par split (modèle entraîné sur T1-train uniquement) : **T1-train 432/451
+(95,8 %)**, **T1-test 426/448 (95,1 %)** — l'écart train/test reste faible,
+les règles n'ont pas surappris le corpus.
+
+\* Leçon : les lexiques nourrissent les features V3 (similarité floue) —
+changer un lexique sans ré-entraîner déplace les probabilités
+(« Totaux: » passé de P(total) 0,24 à 0,76). Tout changement de lexique =
+`train_line_classifier.py --v3` + `export_line_classifier.py`.
+
+Les mécanismes (`analysis/invariants.py`, sans modèle, portables en Dart) :
+
+1. **Décomposition TVA** : un HT et une taxe à taux légal (2,1/5,5/10/20 %,
+   ±1 centime) prouvent le TTC — sur une ligne de table (`B 20,00% 6,13
+   1,22 7,35`, `1> 5.50 0.56 10.04`), ou HT lexical (`HT`, `H.T`, `NET`,
+   `TTL`) + ligne TVA. Multi-taux sommés. Les lignes consommées ne sont
+   jamais des articles ; toute ligne à lexique taxe (`TVA`, `TUA`, `TAX`)
+   non plus. Un taux seul (`5,50`, `20,00`) n'est pas une ligne de taxe :
+   ce sont aussi des prix.
+2. **Espèces − rendu** = montant réglé (le plus grand paiement avant la
+   ligne de rendu ; `Rendu Espèces` est un rendu, pas un paiement).
+3. **Récap de remises** : une remise égale à la somme des remises réelles
+   précédentes est un récapitulatif (`REMISE TOTALE`, `TOTAL REMISE
+   IMMEDIATE`) — si elle porte le mot total ou si ≥ 2 remises la précèdent
+   (deux remises identiques ne sont pas un récap).
+4. **Totaux de rayon** : une ligne égale à la somme courante des articles
+   depuis le rayon précédent (≥ 2 articles sans lexique, 1 avec) est un
+   sous-total — ignorable même si le classifieur dit article
+   (`ALINENTAIRE 9.05`). Σ des rayons = référence quand ils couvrent tous
+   les articles (`Total Soins 12,55` + `Total Non Alimentaire 9.90` =
+   22,45 alors que le total à payer est illisible).
+5. **Éligibilité des références** : jamais un montant HT ; le total final =
+   dernier total lexical **avant le premier paiement** (`Total Bon
+   immédiat 3.72` imprimé après la CB n'est pas le total) ; avant lui, un
+   sous-total ou total intermédiaire seulement s'il clôt les articles (ni
+   article ni remise après lui, pas de rayon différent avant) — `Net Total`
+   US suivi de taxes oui, `SOUS TOTAL` suivi de `REMISE` non, `TOTAL
+   ALIMENTAIRE` suivi d'articles non.
+6. **Références multi-sources** (`decode_constrained.py`) : lignes total du
+   classifieur (P ≥ 0,5, rangs éligibles), dernier total lexical (même à
+   P faible : `TO'AL Euro`, `OTAL REGLEMENT`), TVA, espèces − rendu, Σ
+   rayons — fusionnées par montant, chaque source d'accord ajoute un bonus.
+   Une référence virtuelle (sans ligne) coupe à la première ligne qui la
+   prouve.
+7. **Ticket mono-article** (parking, carburant) : montant prouvé par une
+   source arithmétique ET une autre, aucun candidat article, compteur
+   d'articles absent ou 1 → l'unique achat porte le montant et le nom de
+   l'enseigne. Refusé sinon (`2 ARTICLE(S) TOTAL 4.70` avec articles
+   illisibles reste en confirmation).
+8. **Fusion des passes** (`fuse_passes.py`, étage `local_fused`) : lignes
+   de la passe brute et de la passe prétraitée alignées par position
+   verticale ; ligne non chiffrée remplacée par la lecture de l'autre
+   passe, ligne absente insérée, montant différent → **alternative** que
+   le DP arbitre (pénalité log 0,5). Rien d'inventé : chaque montant vient
+   d'une passe OCR. +4 tickets Carrefour (`S2.75e` lu 52,75 d'un côté,
+   2,75 de l'autre).
+9. **Affichage** : `verified_total` = la référence qui a réellement
+   vérifié la somme (jamais un total lu qui ne colle pas — cas paiement +
+   compteur d'articles où le total lu était une ligne TVA).
+
+Validité, mesurée avant de conclure :
+
+- **Adversarial** (référence remplacée par un montant faux) : **20,1 %**
+  de collisions sur la valeur fausse (21,4 % avant) — le décodeur n'a pas
+  été fragilisé par les candidats supplémentaires. La métrique de
+  `diagnose.py` a été corrigée : retrouver le *vrai* total par une autre
+  source (table TVA, espèces − rendu) n'est pas une collision (brut : 42 %).
+- **Concordance** : 4 tickets `local_fused` sans autre méthode d'accord,
+  0 faux ; tous les vérifiés à ≥ 2 méthodes : 0 faux hors les 2 net-zéro.
+- **Hold-out jamais regardé** : synthétique 120 identique (100/100/97,9 %,
+  précision 100 %) ; `device_fr_big` 208 → 211 vérifiés (+3, dont
+  `0697` récupéré par la règle « total avant paiement ») ; `device_web`
+  (US, hors domaine) 152 → 148 : 3 pertes sont des **corrections** (taxe
+  ou remise avalée en silence avant : `srd_1123`, `srd_1126`,
+  `invoice_with_discount`), 1 est une taxe sans lexique (`IL Sales`), et
+  le total affiché devient le sous-total vérifié (hors taxe) — sémantique
+  US à traiter avec la locale, pas ici.
+
+**Plafond réaliste sur FindIt.** Les 41 restants : ~12 sans aucune ligne
+chiffrée ou aux articles illisibles dans les deux passes (`t1test_740`,
+`t1train_1738`, `981`, `1274`, `530`, `84`, `450`, `139`…), 4 carburant
+(volume en litres pris pour un article, total sans lexique), 3 lignes TVA
+imprimées incohérentes avec le total (`t1test_741`), 1 ticket photographié
+en double (`483`), 1 échange à article négatif (`770`), ~10 Carrefour à
+lignes fusionnées par le clustering (deux prix sur une ligne : `3.75e
+2.94€`) ou articles manqués par les deux passes, 1 montant à 50 % non
+imprimé (`868`). Sans meilleure OCR (ou image), le gisement générique
+restant est le clustering des tickets inclinés (lignes à deux prix) — ~5
+tickets. Le **99 % est une cible pour photos fraîches** (tier synthétique
+photo : 100 %), pas pour ce corpus pire-cas.
+
+**Portage Dart (2026-08-25)** : `pipeline/` porte tout le chapitre —
+`invariants.dart`, `fuse_passes.dart`, décodeur à références multiples,
+alternatives et mono-article (`decode.dart`), `verifiedTotal`, lexiques et
+parsing (`structure.dart`), étage `FlowStage.localFused`, orchestration
+partagée `decideFirstPass` / `decideRetryPass` (outil de parité et harnais
+utilisent le même code), modèle ré-exporté dans l'asset du harnais.
+**Parité `check_parity.py --model` : 1000/1000 sur `device_flow`, 699/699
+sur fr / fr_big / fr_enhanced / web / emulator_all, 0 divergence.** 183
+tests Dart. Harnais : la page « Stats de session » se met à jour en direct
+(le builder renvoyait un widget `const` identique, jamais reconstruit —
+remplacé par un `SessionSnapshot` immuable par notification).
+
 ## Portage Dart & banc on-device (2026-08-24)
 
 - **`pipeline/`** : package Dart pur `receipt_pipeline` — portage de
@@ -360,31 +544,30 @@ réelles le justifient.
 
 ## Prochaines étapes
 
-1. **Refactor du flow** : le classifieur + décodeur deviennent un étage de
-   plein droit de `decide()` (Python puis Dart, inférence injectable côté
-   Dart), étage cloud retiré du package Dart, sémantique « information
-   affichée » partout (décision produit : **jamais de validation
-   directe**, tout passe par l'écran d'édition, checksum = badge/bandeau).
-2. Portage Dart : lexiques étendus (la parité Python↔Dart est **rompue**
-   depuis l'extension des lexiques, à rétablir), features V3, inférence
-   du classifieur (arbres transpilés, pur Dart), décodeur DP.
-3. Au-delà de 92,5 % : parsing OCR des montants abîmés, puis modèle de
-   séquence / encodeur layout-aware (classe BERT, entraîné sur golden +
-   synthétique) — voir section « Intelligence sans hallucination ».
-3. **Intégration app (mode LOCAL uniquement)** : brancher `receipt_pipeline`
+1. ~~Portage Dart du chapitre « Vers 99 % »~~ **fait** (parité
+   1000/1000). Reste : relancer la suite device (S9+ / Pixel) pour mesurer
+   la latence du nouveau flow (fusion + DP à alternatives).
+2. **Niveau de confiance par concordance** : n'afficher « vérifié »
+   qu'avec ≥ 2 méthodes d'accord ; durcir le décodeur (adversarial
+   20 %) : nombre de flips, marge de log-prob.
+3. Au-delà de 95 % : clustering des tickets inclinés (lignes à deux prix),
+   puis modèle de séquence / encodeur layout-aware (classe BERT, golden +
+   synthétique).
+4. **Intégration app (mode LOCAL uniquement)** : brancher `receipt_pipeline`
    (sans clé API, sans cooldown, offline), sortie vers
    `ReceiptScanResultModel` — écran d'édition et `validateAndCreate`
    inchangés. Le mode cloud existant ne bouge pas. Spec : `VERIFICATION.md`.
-4. **BERT** sur les libellés extraits — augmentation « style ticket » du
+5. **BERT** sur les libellés extraits — augmentation « style ticket » du
    dataset quick-add, calibrée sur les 1000 tickets réels du golden.
-5. Fil rouge : valider sur des photos fraîches prises au téléphone via le
+6. Fil rouge : valider sur des photos fraîches prises au téléphone via le
    mode « Scanner un ticket » du harnais (le corpus FindIt est un pire-cas
    scanné, pas le scénario nominal — la capture app devra soigner
    résolution/focus, seule vraie variable inter-devices).
 
 ## Contenu
 
-- `pipeline/` — package Dart `receipt_pipeline` (lines, structure, flow,
+- `pipeline/` — package Dart `receipt_pipeline` (lines, structure,
+  line_features, classifier, decode, flow,
   sérialisation) + tests + `tool/parity.dart`.
 - `VERIFICATION.md` — spec d'implémentation app du système de vérification.
 - `test/harness/` — banc Flutter on-device : mode « Suite complète » (flow
@@ -398,12 +581,15 @@ réelles le justifient.
   classifieur V2/V3 (`line_features.py`, `line_features_v3.py`,
   `train_line_classifier.py [--v3]`, `structure_ml.py`, modèles dans
   `models/`), **décodage sous contrainte checksum
-  (`decode_constrained.py`)**, bench multi-étages historique
+  (`decode_constrained.py`)**, flow local de référence (`local_flow.py`),
+  export du modèle (`export_line_classifier.py`), **diagnostics
+  (`diagnose.py`, `line_truth.py`)**, bench multi-étages historique
   (`bench_flow.py`), scoring d'un run device (`score_device_flow.py`),
   parité Dart↔Python (`check_parity.py`), générateur synthétique
   (`receipt_content.py`, `receipt_render.py`, `generate_corpus.py`),
   scoring synthétique (`score.py`), vérité depuis transcriptions
-  (`transcript_truth.py`), benchmarks LLM/VLM (`llm_structure.py`,
+  (`transcript_truth.py`), **invariants structurels (`invariants.py`)**,
+  **fusion des passes (`fuse_passes.py`)**, benchmarks LLM/VLM (`llm_structure.py`,
   `bench_llm.py`, `bench_gemini.py`, `probe_capacity.py`), construction du
   golden (`annotate_golden.py`).
 - `test/golden/` — **golden dataset committable** : 1000 annotations JSON.

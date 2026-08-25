@@ -17,7 +17,9 @@ Future<LineClassifier>? _classifier;
 /// Classifieur de lignes embarqué (JSON exporté depuis Python), chargé une
 /// fois pour toute la session.
 Future<LineClassifier> loadLineClassifier() {
-  return _classifier ??= rootBundle.loadString(lineClassifierAsset).then(
+  return _classifier ??= rootBundle
+      .loadString(lineClassifierAsset)
+      .then(
         (json) =>
             LineClassifier.fromJson(jsonDecode(json) as Map<String, dynamic>),
       );
@@ -57,10 +59,11 @@ class LocalScanResult {
   int get totalLatencyMs => pass1.latencyMs + (retry?.latencyMs ?? 0);
 }
 
-/// Le flow local complet sur une image : OCR + structuration, retry
-/// prétraité si le checksum échoue, puis classifieur (argmax, décodage sous
-/// contrainte). Un stage `confirm` = non vérifié : dans l'app, l'écran
-/// d'édition affiche un bandeau au lieu d'un badge.
+/// Le flow local complet sur une image. Passe 1 : règles, puis classifieur
+/// (argmax, décodage sous contrainte). Si rien ne vérifie, seulement alors
+/// le retry prétraité — l'étage cher (2e OCR) — avec les mêmes étages, puis
+/// la fusion des deux passes. Un stage `confirm` = non vérifié : dans
+/// l'app, l'écran d'édition affiche un bandeau au lieu d'un badge.
 Future<LocalScanResult> runLocalFlow(
   TextRecognizer recognizer,
   File imageFile,
@@ -68,18 +71,27 @@ Future<LocalScanResult> runLocalFlow(
 ) async {
   final classifier = await loadLineClassifier();
   final pass1 = await _runPass(recognizer, imageFile);
+  var outcome = decideFirstPass(
+    pass1.receipt,
+    pass1.lines,
+    classifier,
+    FlowPolicy.recommended,
+  );
 
   OcrPass? retry;
-  if (!pass1.receipt.checksumOk) {
+  if (!outcome.verified) {
     retry = await _runRetry(recognizer, imageFile, tempDir);
+    if (retry != null) {
+      outcome = decideRetryPass(
+        pass1.receipt,
+        retry.receipt,
+        pass1.lines,
+        retry.lines,
+        classifier,
+        FlowPolicy.recommended,
+      );
+    }
   }
-
-  final outcome = decide(
-    pass1.receipt,
-    retry?.receipt,
-    FlowPolicy.recommended,
-    rescue: classifierRescue([pass1.lines, ?retry?.lines], classifier),
-  );
   return LocalScanResult(outcome: outcome, pass1: pass1, retry: retry);
 }
 
@@ -146,11 +158,7 @@ Map<String, dynamic> flowJson(LocalScanResult result) {
       'total': result.outcome.total,
       'items': [
         for (final item in result.outcome.items)
-          {
-            'name': item.name,
-            'amount': item.amount,
-            'discount': item.discount,
-          },
+          {'name': item.name, 'amount': item.amount, 'discount': item.discount},
       ],
     },
   };

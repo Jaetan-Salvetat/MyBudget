@@ -19,23 +19,27 @@ void main(List<String> args) {
       .map((arg) => arg.substring(modelOption.length))
       .firstOrNull;
   if (dirs.isEmpty) {
-    stderr.writeln('usage: dart tool/parity.dart [--model=path] <results_dir>...');
+    stderr.writeln(
+      'usage: dart tool/parity.dart [--model=path] <results_dir>...',
+    );
     exitCode = 2;
     return;
   }
   final classifier = modelPath == null
       ? null
       : LineClassifier.fromJson(
-          jsonDecode(File(modelPath).readAsStringSync()) as Map<String, dynamic>,
+          jsonDecode(File(modelPath).readAsStringSync())
+              as Map<String, dynamic>,
         );
   final output = <String, Object?>{};
   for (final dirPath in dirs) {
-    final files = Directory(dirPath)
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.json'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final files =
+        Directory(dirPath)
+            .listSync()
+            .whereType<File>()
+            .where((file) => file.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     for (final file in files) {
       final data = jsonDecode(file.readAsStringSync());
       if (data is! Map<String, dynamic> || data['blocks'] == null) continue;
@@ -55,14 +59,25 @@ Map<String, Object?> _flowJson(
   List<PhysicalLine> pass1,
   LineClassifier classifier,
 ) {
-  final retryData = data['ocrRetry'] as Map<String, dynamic>?;
-  final retry = retryData == null ? null : clusteredLines(retryData);
-  final outcome = decide(
-    extract(pass1),
-    retry == null ? null : extract(retry),
+  final local = extract(pass1);
+  var outcome = decideFirstPass(
+    local,
+    pass1,
+    classifier,
     FlowPolicy.recommended,
-    rescue: classifierRescue([pass1, ?retry], classifier),
   );
+  final retryData = data['ocrRetry'] as Map<String, dynamic>?;
+  if (!outcome.verified && retryData != null) {
+    final retry = clusteredLines(retryData);
+    outcome = decideRetryPass(
+      local,
+      extract(retry),
+      pass1,
+      retry,
+      classifier,
+      FlowPolicy.recommended,
+    );
+  }
   return {
     'stage': stageName(outcome.stage),
     'total': outcome.total,
@@ -78,8 +93,8 @@ List<PhysicalLine> clusteredLines(Map<String, dynamic> data) {
   final words = <Word>[];
   final angles = <double>[];
   for (final block in data['blocks'] as List<dynamic>) {
-    for (final line in (block as Map<String, dynamic>)['lines']
-        as List<dynamic>) {
+    for (final line
+        in (block as Map<String, dynamic>)['lines'] as List<dynamic>) {
       final lineMap = line as Map<String, dynamic>;
       final angle = lineMap['angle'];
       if (angle != null) angles.add((angle as num).toDouble());

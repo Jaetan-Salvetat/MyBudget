@@ -70,15 +70,11 @@ class TestCloudEscalation:
         assert outcome.stage == CLOUD
 
     def test_cloud_rejected_when_sum_diverges(self):
-        outcome = decide(
-            receipt([2.0], 5.0), None, [(2.0, 0.0)], 5.0, STRICT
-        )
+        outcome = decide(receipt([2.0], 5.0), None, [(2.0, 0.0)], 5.0, STRICT)
         assert outcome.stage == CONFIRM
 
     def test_cloud_rejected_without_total(self):
-        outcome = decide(
-            receipt([2.0], 5.0), None, [(2.0, 0.0)], None, STRICT
-        )
+        outcome = decide(receipt([2.0], 5.0), None, [(2.0, 0.0)], None, STRICT)
         assert outcome.stage == CONFIRM
 
     def test_tolerance_absorbs_rounding_gap(self):
@@ -99,21 +95,15 @@ class TestCrossCheck:
     POLICY = FlowPolicy(cross_check_local_total=True)
 
     def test_cloud_rejected_when_totals_disagree(self):
-        outcome = decide(
-            receipt([2.0], 21.0), None, [(20.0, 0.0)], 20.0, self.POLICY
-        )
+        outcome = decide(receipt([2.0], 21.0), None, [(20.0, 0.0)], 20.0, self.POLICY)
         assert outcome.stage == CONFIRM
 
     def test_cloud_accepted_when_totals_agree(self):
-        outcome = decide(
-            receipt([2.0], 20.0), None, [(20.0, 0.0)], 20.0, self.POLICY
-        )
+        outcome = decide(receipt([2.0], 20.0), None, [(20.0, 0.0)], 20.0, self.POLICY)
         assert outcome.stage == CLOUD
 
     def test_cloud_accepted_when_no_local_total(self):
-        outcome = decide(
-            receipt([2.0], None), None, [(20.0, 0.0)], 20.0, self.POLICY
-        )
+        outcome = decide(receipt([2.0], None), None, [(20.0, 0.0)], 20.0, self.POLICY)
         assert outcome.stage == CLOUD
 
     def test_retry_total_serves_as_reference(self):
@@ -129,17 +119,13 @@ class TestCrossCheck:
 
 class TestConfirmPrefill:
     def test_prefill_cloud_by_default(self):
-        outcome = decide(
-            receipt([2.0], 5.0), None, [(9.0, 0.0)], 8.0, STRICT
-        )
+        outcome = decide(receipt([2.0], 5.0), None, [(9.0, 0.0)], 8.0, STRICT)
         assert outcome.stage == CONFIRM
         assert outcome.items == [(9.0, 0.0)]
 
     def test_prefill_local_when_policy_says_so(self):
         policy = FlowPolicy(confirm_prefill="local")
-        outcome = decide(
-            receipt([2.0], 5.0), None, [(9.0, 0.0)], 8.0, policy
-        )
+        outcome = decide(receipt([2.0], 5.0), None, [(9.0, 0.0)], 8.0, policy)
         assert outcome.items == [(2.0, 0.0)]
 
     def test_prefill_falls_back_to_retry_without_cloud(self):
@@ -167,6 +153,16 @@ class TestRetryValueGuard:
             self.POLICY,
         )
         assert outcome.stage == CONFIRM
+
+    def test_retry_losing_a_spurious_item_on_the_same_total_validates(self):
+        outcome = decide(
+            receipt([5.0, 32.49, 137.11], 142.11),
+            receipt([5.0, 137.11], 142.11),
+            None,
+            None,
+            self.POLICY,
+        )
+        assert outcome.stage == LOCAL_RETRY
 
     def test_retry_with_equal_value_still_validates(self):
         outcome = decide(
@@ -197,3 +193,12 @@ class TestRetryValueGuard:
             FlowPolicy(),
         )
         assert outcome.stage == LOCAL_RETRY
+
+
+class TestVerifiedTotalIsDisplayed:
+    def test_payment_verified_receipt_reports_the_payment_as_total(self):
+        local = receipt([2.0, 3.0], 9.99, payment=5.0)
+        local.printed_count = 2
+        outcome = decide(local, None, None, None, FlowPolicy())
+        assert outcome.stage == LOCAL
+        assert outcome.total == 5.0

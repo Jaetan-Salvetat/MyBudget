@@ -38,3 +38,45 @@ class TestReceiptFromLabels:
     def test_no_items_returns_none(self):
         merged, lines = _setup()
         assert receipt_from_labels(merged, lines, [IGNORE, IGNORE, TOTAL]) is None
+
+
+class TestReferenceTotal:
+    def test_virtual_reference_fills_a_missing_total(self):
+        merged, lines = _setup()
+        receipt = receipt_from_labels(
+            merged, lines, [ITEM, DISCOUNT, IGNORE], reference_total=1.5
+        )
+        assert receipt.total == 1.5 and receipt.checksum_ok
+
+    def test_labelled_total_wins_over_the_reference(self):
+        merged, lines = _setup()
+        receipt = receipt_from_labels(
+            merged, lines, [ITEM, DISCOUNT, TOTAL], reference_total=9.99
+        )
+        assert receipt.total == 1.5
+
+
+class TestSingleItemReceipt:
+    def test_one_item_named_after_the_store(self):
+        from structure_ml import single_item_receipt
+
+        merged, _ = _setup()
+        receipt = single_item_receipt(merged, 14.7)
+        assert [(i.name, i.amount, i.discount) for i in receipt.items] == [
+            ("STORE", 14.7, 0.0)
+        ]
+        assert receipt.total == 14.7 and receipt.checksum_ok
+
+
+class TestConstrainedLabels:
+    def test_forced_ignore_and_ineligible_totals_are_dropped(self):
+        from invariants import Constraints
+        from structure_ml import constrained_labels
+
+        structure = Constraints(
+            forced_ignore=frozenset({1}),
+            reference_ranks=frozenset({3}),
+            evidences=(),
+        )
+        labels = [ITEM, ITEM, TOTAL, TOTAL]
+        assert constrained_labels(labels, structure) == [ITEM, IGNORE, IGNORE, TOTAL]

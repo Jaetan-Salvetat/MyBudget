@@ -16,10 +16,7 @@ class ScanResultView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
       children: [
-        StageBanner(
-          stage: result.outcome.stage,
-          retryUsed: result.retryUsed,
-        ),
+        StageBanner(stage: result.outcome.stage, retryUsed: result.retryUsed),
         const SizedBox(height: 12),
         Text(
           receipt.store ?? 'Enseigne illisible',
@@ -35,7 +32,7 @@ class ScanResultView extends StatelessWidget {
             trailing: Text(
               item.discount > 0
                   ? '${item.amount.toStringAsFixed(2)} '
-                      '(-${item.discount.toStringAsFixed(2)})'
+                        '(-${item.discount.toStringAsFixed(2)})'
                   : item.amount.toStringAsFixed(2),
             ),
           ),
@@ -54,11 +51,7 @@ class ScanResultView extends StatelessWidget {
 }
 
 class StageBanner extends StatelessWidget {
-  const StageBanner({
-    super.key,
-    required this.stage,
-    required this.retryUsed,
-  });
+  const StageBanner({super.key, required this.stage, required this.retryUsed});
 
   final FlowStage stage;
   final bool retryUsed;
@@ -70,12 +63,13 @@ class StageBanner extends StatelessWidget {
       FlowStage.localRetry => (Colors.green, 'Vérifié — règles après retry'),
       FlowStage.localMl => (Colors.teal, 'Vérifié — classifieur'),
       FlowStage.localDp => (Colors.teal, 'Vérifié — décodage sous contrainte'),
+      FlowStage.localFused => (Colors.teal, 'Vérifié — fusion des passes'),
       FlowStage.confirm => (
-          Colors.orange,
-          retryUsed
-              ? 'Non vérifié (retry tenté) — à relire'
-              : 'Non vérifié — à relire',
-        ),
+        Colors.orange,
+        retryUsed
+            ? 'Non vérifié (retry tenté) — à relire'
+            : 'Non vérifié — à relire',
+      ),
     };
     return Container(
       padding: const EdgeInsets.all(12),
@@ -89,7 +83,7 @@ class StageBanner extends StatelessWidget {
 }
 
 Color stageColor(FlowStage stage) => switch (stage) {
-      FlowStage.local || FlowStage.localRetry => Colors.green,
-      FlowStage.localMl || FlowStage.localDp => Colors.teal,
-      FlowStage.confirm => Colors.orange,
-    };
+  FlowStage.local || FlowStage.localRetry => Colors.green,
+  FlowStage.localMl || FlowStage.localDp || FlowStage.localFused => Colors.teal,
+  FlowStage.confirm => Colors.orange,
+};

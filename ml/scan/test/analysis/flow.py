@@ -38,10 +38,7 @@ class FlowOutcome:
 
 
 def _items_of(receipt: ExtractedReceipt) -> CloudItems:
-    return [
-        (round(item.amount, 2), round(item.discount, 2))
-        for item in receipt.items
-    ]
+    return [(round(item.amount, 2), round(item.discount, 2)) for item in receipt.items]
 
 
 def _local_total(
@@ -62,7 +59,22 @@ def _retry_loses_value(
     corpus), on l'envoie en confirmation plutôt que de valider en silence."""
     if not policy.retry_must_not_lose_value:
         return False
+    if _same_total(local, retry, policy):
+        return False
     return retry.items_sum < local.items_sum - policy.tolerance
+
+
+def _same_total(
+    local: ExtractedReceipt, retry: ExtractedReceipt, policy: FlowPolicy
+) -> bool:
+    """Même total lu par les deux passes : la référence n'a pas bougé, la
+    valeur perdue était un article parasite de la passe 1, pas une
+    collision."""
+    return (
+        local.total is not None
+        and retry.total is not None
+        and abs(local.total - retry.total) <= policy.tolerance
+    )
 
 
 def cloud_accepts(
@@ -73,18 +85,14 @@ def cloud_accepts(
 ) -> bool:
     if cloud_total is None:
         return False
-    items_sum = round(
-        sum(amount - discount for amount, discount in cloud_items), 2
-    )
+    items_sum = round(sum(amount - discount for amount, discount in cloud_items), 2)
     if abs(items_sum - cloud_total) > policy.tolerance:
         return False
-    if (
+    return not (
         policy.cross_check_local_total
         and local_total is not None
         and abs(cloud_total - local_total) > policy.tolerance
-    ):
-        return False
-    return True
+    )
 
 
 def decide(
@@ -95,13 +103,13 @@ def decide(
     policy: FlowPolicy,
 ) -> FlowOutcome:
     if local.checksum_ok:
-        return FlowOutcome(LOCAL, _items_of(local), local.total)
+        return FlowOutcome(LOCAL, _items_of(local), local.verified_total)
     if (
         retry is not None
         and retry.checksum_ok
         and not _retry_loses_value(local, retry, policy)
     ):
-        return FlowOutcome(LOCAL_RETRY, _items_of(retry), retry.total)
+        return FlowOutcome(LOCAL_RETRY, _items_of(retry), retry.verified_total)
 
     if cloud_items is not None and cloud_accepts(
         cloud_items, cloud_total, _local_total(local, retry), policy

@@ -89,7 +89,10 @@ def main() -> None:
         x_test, _ = build_dataset("t1test", load_classifier("v3")[1])
         reference = model.predict_proba(x_test)
         worst = max(
-            max(abs(a - b) for a, b in zip(predict_proba_exported(exported, list(row)), ref))
+            max(
+                abs(a - b)
+                for a, b in zip(predict_proba_exported(exported, list(row)), ref)
+            )
             for row, ref in zip(x_test, reference)
         )
         print(f"écart max export vs sklearn sur t1test : {worst:.2e}")

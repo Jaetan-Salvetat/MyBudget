@@ -3,34 +3,7 @@ import 'dart:math' as math;
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:test/test.dart';
 
-const double lineHeight = 30.0;
-const double charWidth = 14.0;
-
-Word word(String text, int column, int row) {
-  final left = column * charWidth;
-  final top = row * (lineHeight + 8);
-  return Word(
-    text: text,
-    left: left,
-    top: top,
-    right: left + text.length * charWidth,
-    bottom: top + lineHeight,
-    confidence: 0.9,
-  );
-}
-
-PhysicalLine line(int row, List<(String, int)> tokens) {
-  return PhysicalLine(
-    words: [for (final (text, column) in tokens) word(text, column, row)],
-  );
-}
-
-List<PhysicalLine> receiptLines(List<List<(String, int)>> rows) {
-  return [for (final (index, tokens) in rows.indexed) line(index, tokens)];
-}
-
-List<(String, double)> namedAmounts(ExtractedReceipt receipt) =>
-    [for (final item in receipt.items) (item.name, item.amount)];
+import 'support.dart';
 
 void main() {
   group('parsePrice', () {
@@ -84,10 +57,7 @@ void main() {
         [('TOTAL', 0), ('3,70', 38)],
       ]);
       final result = extract(lines);
-      expect(namedAmounts(result), [
-        ('LAIT ENTIER', 1.20),
-        ('PAIN', 2.50),
-      ]);
+      expect(namedAmounts(result), [('LAIT ENTIER', 1.20), ('PAIN', 2.50)]);
       expect(result.total, 3.70);
       expect(result.checksumOk, isTrue);
     });
@@ -195,10 +165,7 @@ void main() {
     test('distant fragments untouched', () {
       final source = line(0, [('REMISE', 2), ('-1,', 10), ('00', 33)]);
       final merged = mergePriceFragments(source);
-      expect(
-        [for (final w in merged.words) w.text],
-        ['REMISE', '-1,', '00'],
-      );
+      expect([for (final w in merged.words) w.text], ['REMISE', '-1,', '00']);
     });
   });
 
@@ -274,8 +241,22 @@ void main() {
         [('PERRIER', 0), ('3.20', 38)],
         [('CHARDONNAY', 0), ('6.80', 38)],
         [('TOTAL', 0), ('1O.0OO', 38)],
-        [('B', 0), ('TUA', 2), ('20.00', 8), ('5.67', 15), ('1.13', 22), ('6.80', 38)],
-        [('C', 0), ('TUA', 2), ('10.00', 8), ('2.91', 15), ('0.29', 22), ('3.20', 38)],
+        [
+          ('B', 0),
+          ('TUA', 2),
+          ('20.00', 8),
+          ('5.67', 15),
+          ('1.13', 22),
+          ('6.80', 38),
+        ],
+        [
+          ('C', 0),
+          ('TUA', 2),
+          ('10.00', 8),
+          ('2.91', 15),
+          ('0.29', 22),
+          ('3.20', 38),
+        ],
       ]);
       final result = extract(lines);
       expect(result.total, isNull);
@@ -400,7 +381,13 @@ void main() {
         [('STORE', 10)],
         [('JEAN', 0)],
         [('*082242000033', 0), ('36', 15), ('34.99', 30), ('€', 37)],
-        [('Action', 0), ('commerciale', 7), ('-50%=', 19), ('-17.50', 26), ('€', 34)],
+        [
+          ('Action', 0),
+          ('commerciale', 7),
+          ('-50%=', 19),
+          ('-17.50', 26),
+          ('€', 34),
+        ],
         [('Total', 0), ('17.49', 30), ('€', 37)],
         [('Carte', 0), ('Bancaire', 6), ('17.49', 30)],
       ]);
@@ -425,11 +412,11 @@ void main() {
   });
 
   List<PhysicalLine> twoItemsThen(List<(String, int)> lastRow) => receiptLines([
-        [('STORE', 10)],
-        [('POMME', 0), ('1,32', 38)],
-        [('ENDIVE', 0), ('2,42', 38)],
-        lastRow,
-      ]);
+    [('STORE', 10)],
+    [('POMME', 0), ('1,32', 38)],
+    [('ENDIVE', 0), ('2,42', 38)],
+    lastRow,
+  ]);
 
   group('payment synonyms', () {
     for (final row in [

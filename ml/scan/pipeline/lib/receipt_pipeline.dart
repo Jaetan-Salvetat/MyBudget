@@ -1,6 +1,8 @@
 export 'src/classifier.dart';
 export 'src/decode.dart';
 export 'src/flow.dart';
+export 'src/fuse_passes.dart';
+export 'src/invariants.dart';
 export 'src/line_features.dart';
 export 'src/lines.dart';
 export 'src/serialize.dart';

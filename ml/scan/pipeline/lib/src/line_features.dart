@@ -92,8 +92,7 @@ bool _startsWithDiscountWord(String text) {
 
 bool _isNameOnly(PhysicalLine line) {
   if (rightmostPrice(line) != null) return false;
-  return _countLetters(line.text) >= 2 &&
-      !containsEntry(line.text, stopWords);
+  return _countLetters(line.text) >= 2 && !containsEntry(line.text, stopWords);
 }
 
 double _flag(PhysicalLine? line, bool Function(PhysicalLine) predicate) {
@@ -119,8 +118,9 @@ List<double> _baseRow(
   final label = priced.label;
   final compactLabel = label.replaceAll(_compactLabelPattern, '');
   final prevLine = priced.index > 0 ? merged[priced.index - 1] : null;
-  final nextLine =
-      priced.index + 1 < merged.length ? merged[priced.index + 1] : null;
+  final nextLine = priced.index + 1 < merged.length
+      ? merged[priced.index + 1]
+      : null;
   final pricesInLine = [
     for (final candidate in line.words) ?parsePrice(candidate.text),
   ];
@@ -138,8 +138,10 @@ List<double> _baseRow(
     _countLetters(label).toDouble(),
     _bit(label.contains('%')),
     _bit(isDetailLine(label)),
-    _bit(quantityPattern.hasMatch(compactLabel) ||
-        weightPattern.hasMatch(compactLabel)),
+    _bit(
+      quantityPattern.hasMatch(compactLabel) ||
+          weightPattern.hasMatch(compactLabel),
+    ),
     _bit(_barcodePattern.hasMatch(label)),
     _bit(containsEntry(text, totalWords)),
     _bit(containsEntry(text, subtotalWords)),
@@ -205,29 +207,11 @@ bool taxShaped(int cents, List<int> allCents) {
   return false;
 }
 
-String normalizedText(String text) => foldAccents(text.toUpperCase())
-    .replaceAll('0', 'O')
-    .replaceAll('1', 'I')
-    .replaceAll('5', 'S');
-
-int levenshtein(String left, String right) {
-  var previous = List<int>.generate(right.length + 1, (i) => i);
-  for (var row = 1; row <= left.length; row++) {
-    final current = <int>[row];
-    for (var column = 1; column <= right.length; column++) {
-      final substitution =
-          left[row - 1] == right[column - 1] ? 0 : 1;
-      current.add(
-        math.min(
-          math.min(previous[column] + 1, current[column - 1] + 1),
-          previous[column - 1] + substitution,
-        ),
-      );
-    }
-    previous = current;
-  }
-  return previous.last;
-}
+String normalizedText(String text) =>
+    foldAccents(text.toUpperCase())
+        .replaceAll('0', 'O')
+        .replaceAll('1', 'I')
+        .replaceAll('5', 'S');
 
 double _similarity(String candidate, String entry) =>
     1.0 - levenshtein(candidate, entry) / math.max(entry.length, 1);
@@ -335,8 +319,14 @@ List<List<double>> _extraRows(List<PricedLine> lines) {
       fuzzyLexiconSimilarity(text, stopWords),
       prevIndex != null ? fuzzyTotal[prevIndex] : 0.0,
       nextIndex != null ? fuzzyTotal[nextIndex] : 0.0,
-      _logRatio(absolute[index], prevIndex != null ? absolute[prevIndex] : null),
-      _logRatio(absolute[index], nextIndex != null ? absolute[nextIndex] : null),
+      _logRatio(
+        absolute[index],
+        prevIndex != null ? absolute[prevIndex] : null,
+      ),
+      _logRatio(
+        absolute[index],
+        nextIndex != null ? absolute[nextIndex] : null,
+      ),
       _bit(prevIndex != null && block[prevIndex]),
       _bit(nextIndex != null && block[nextIndex]),
       ...hashedTrigrams(lines[index].label, hashBuckets),
@@ -367,5 +357,6 @@ List<List<double>> _extraRows(List<PricedLine> lines) {
   return (lines, rows);
 }
 
-List<PhysicalLine> mergedLines(List<PhysicalLine> rawLines) =>
-    [for (final line in rawLines) mergePriceFragments(line)];
+List<PhysicalLine> mergedLines(List<PhysicalLine> rawLines) => [
+  for (final line in rawLines) mergePriceFragments(line),
+];

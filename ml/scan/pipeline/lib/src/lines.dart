@@ -39,11 +39,9 @@ class PhysicalLine {
 
   String get text => words.map((word) => word.text).join(' ');
 
-  double get top =>
-      words.map((word) => word.top).reduce(math.min);
+  double get top => words.map((word) => word.top).reduce(math.min);
 
-  double get bottom =>
-      words.map((word) => word.bottom).reduce(math.max);
+  double get bottom => words.map((word) => word.bottom).reduce(math.max);
 
   double? get minConfidence {
     final scores = [
@@ -71,10 +69,7 @@ List<Word> deskewWords(List<Word> words, double angleDegrees) {
   final cos = math.cos(radians);
   final sin = math.sin(radians);
 
-  return [
-    for (final word in words)
-      _rotated(word, cos, sin),
-  ];
+  return [for (final word in words) _rotated(word, cos, sin)];
 }
 
 Word _rotated(Word word, double cos, double sin) {
@@ -119,10 +114,8 @@ List<PhysicalLine> clusterLines(List<Word> words) {
   for (final word in ordered) {
     var placed = false;
     for (final clusterWords in clusters) {
-      final lineTop =
-          clusterWords.map((w) => w.top).reduce(math.min);
-      final lineBottom =
-          clusterWords.map((w) => w.bottom).reduce(math.max);
+      final lineTop = clusterWords.map((w) => w.top).reduce(math.min);
+      final lineBottom = clusterWords.map((w) => w.bottom).reduce(math.max);
       if (_verticalOverlapRatio(word, lineTop, lineBottom) >=
           minVerticalOverlapRatio) {
         clusterWords.add(word);

@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -20,8 +19,7 @@ Uint8List _enhance(Uint8List bytes) {
   if (image == null) {
     throw const FormatException('image indéchiffrable pour le prétraitement');
   }
-  final longSide =
-      image.width > image.height ? image.width : image.height;
+  final longSide = image.width > image.height ? image.width : image.height;
   if (longSide < _retryLongSide) {
     final scale = _retryLongSide / longSide;
     image = img.copyResize(

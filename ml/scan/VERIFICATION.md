@@ -41,13 +41,18 @@ total lu qui ne colle pas** (faux positifs mesurés sinon).
 ## Le flow de décision
 
 ```
-photo → OCR → règles → checksum OK ?                     → LOCAL      : validation directe
-  non → prétraitement (autocontrast+unsharp+2400px) → OCR → règles
-        → checksum OK ET somme retry ≥ somme passe 1 ?   → LOCAL_RETRY : validation directe
-  non → classifieur de lignes (V2) sur chaque passe → re-checksum
-        → OK ?                                           → LOCAL_ML    : validation directe
-  non →                                                    CONFIRM     : écran d'édition pré-rempli
+photo → OCR → règles → checksum OK ?                       → LOCAL     : vérifié
+  non → classifieur argmax → re-checksum OK ?              → LOCAL_ML  : vérifié
+  non → décodage sous contrainte → checksum OK ?           → LOCAL_DP  : vérifié
+  non → prétraitement (autocontrast+unsharp+2400px) → 2e OCR
+        → règles (somme retry ≥ somme passe 1) ?           → LOCAL_RETRY
+        → classifieur → décodeur sur la 2e passe           → LOCAL_ML / LOCAL_DP
+  non →                                                      CONFIRM   : non vérifié, bandeau
 ```
+
+Tout atterrit sur l'écran d'édition pré-rempli ; le stage pilote seulement
+badge vs bandeau. Le retry est l'étage cher (2e OCR) : mesuré, le lancer
+après le classifieur divise les retries par deux à précision égale.
 
 Paramètres calibrés (ne pas changer sans re-bencher) :
 - tolérance checksum : **0,005 €** strict ;
@@ -80,7 +85,7 @@ la photo — la capture app doit soigner résolution et focus.
 
 | Étage | Écran | Message |
 |---|---|---|
-| LOCAL / LOCAL_RETRY / LOCAL_ML | Aucun intermédiaire : la dépense part en création directe (flow `validateAndCreate` existant) | Optionnel : badge « Vérifié — la somme des articles correspond au total du ticket » |
+| LOCAL / LOCAL_RETRY / LOCAL_ML / LOCAL_DP / LOCAL_FUSED | Aucun intermédiaire : la dépense part en création directe (flow `validateAndCreate` existant) | Optionnel : badge « Vérifié — la somme des articles correspond au total du ticket » |
 | CONFIRM | Écran d'édition existant, pré-rempli | Bandeau expliquant **pourquoi** (voir ci-dessous) |
 
 Bandeau CONFIRM — deux cas à distinguer :
@@ -108,7 +113,20 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
    été lu et ne colle pas (seule exception : CB + compteur d'articles).
 3. Le retry ne se substitue à la passe 1 que s'il ne perd pas de valeur.
 4. Le classifieur n'étiquette que des lignes : les montants sont recopiés de
-   l'OCR, jamais générés.
+   l'OCR, jamais générés — y compris en fusion des passes (`local_fused`),
+   où chaque montant alternatif vient de l'autre passe OCR.
+4b. Les invariants structurels (`analysis/invariants.py`) ferment l'espace
+   de recherche sans modèle : ligne de taxe ou HT jamais article,
+   récapitulatif de remises ignoré, total de rayon = somme courante, total
+   final = dernier total lexical avant le premier paiement, sous-total
+   référence seulement si aucune remise ne le suit. Références acceptées :
+   total lu, décomposition TVA (HT + taxe à taux légal), espèces − rendu,
+   Σ des totaux de rayon — fusionnées par montant.
+4c. Le total affiché est `verified_total` : la référence qui a réellement
+   vérifié la somme des articles, jamais un total lu qui ne colle pas.
+4d. Ticket sans ligne d'article (parking, carburant) : un montant prouvé par
+   une source arithmétique et une seconde source, sans candidat article ni
+   compteur d'articles contraire, devient l'unique achat (nom = enseigne).
 5. La catégorisation (BERT/quick-add) est hors périmètre : elle n'influence
    ni le checksum ni la décision d'étage, et une catégorie douteuse ne doit
    pas déclencher CONFIRM.

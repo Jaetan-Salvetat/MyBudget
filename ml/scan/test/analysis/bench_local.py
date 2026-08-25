@@ -70,7 +70,8 @@ def report(runs: list[TicketRun]) -> None:
     print(
         f"  validation directe : {auto}/{total} ({auto / total:.1%}) "
         f"[local {stats['local'].tickets}, retry {stats['local_retry'].tickets}, "
-        f"ml {stats['local_ml'].tickets}, dp {stats['local_dp'].tickets}]"
+        f"ml {stats['local_ml'].tickets}, dp {stats['local_dp'].tickets}, "
+        f"fused {stats['local_fused'].tickets}]"
     )
     mean = confirm.edits_total / confirm.tickets if confirm.tickets else 0.0
     print(

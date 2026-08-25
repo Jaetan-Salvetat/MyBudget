@@ -32,6 +32,7 @@ from structure import (
     SUBTOTAL_WORDS,
     TOTAL_WORDS,
     TVA_WORDS,
+    levenshtein,
 )
 
 TAX_RATES = (0.021, 0.055, 0.10, 0.20)
@@ -123,24 +124,8 @@ def _normalized(text: str) -> str:
     return stripped.translate(str.maketrans("015", "OIS"))
 
 
-def _levenshtein(left: str, right: str) -> int:
-    previous = list(range(len(right) + 1))
-    for row, left_char in enumerate(left, start=1):
-        current = [row]
-        for column, right_char in enumerate(right, start=1):
-            current.append(
-                min(
-                    previous[column] + 1,
-                    current[column - 1] + 1,
-                    previous[column - 1] + (left_char != right_char),
-                )
-            )
-        previous = current
-    return previous[-1]
-
-
 def _similarity(candidate: str, entry: str) -> float:
-    return 1.0 - _levenshtein(candidate, entry) / max(len(entry), 1)
+    return 1.0 - levenshtein(candidate, entry) / max(len(entry), 1)
 
 
 def fuzzy_lexicon_similarity(text: str, lexicon: tuple[str, ...]) -> float:

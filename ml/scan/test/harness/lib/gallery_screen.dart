@@ -10,6 +10,9 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'local_flow.dart';
 import 'ocr_dump.dart';
 import 'result_view.dart';
+import 'session_stats.dart';
+import 'stats_screen.dart';
+import 'ticket_detail_screen.dart';
 
 /// Test d'un lot d'images choisies dans la galerie : chaque photo passe le
 /// flow local complet, verdict par image et détail au tap. Les dumps JSON
@@ -23,9 +26,14 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryRun {
-  const _GalleryRun({required this.name, required this.result});
+  const _GalleryRun({
+    required this.name,
+    required this.file,
+    required this.result,
+  });
 
   final String name;
+  final File file;
   final LocalScanResult result;
 }
 
@@ -69,10 +77,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
           if (dumpDir != null) {
             await _writeDump(dumpDir, name, result);
           }
+          sessionStats.record(result);
           setState(
-            () => _runs.add(_GalleryRun(name: name, result: result)),
+            () => _runs.add(
+              _GalleryRun(name: name, file: File(image.path), result: result),
+            ),
           );
         } catch (error, stackTrace) {
+          sessionStats.recordFailure();
           debugPrint('gallery failure on $name: $error\n$stackTrace');
           setState(() => _error = 'Échec sur $name : $error');
         }
@@ -130,9 +142,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
         title: Text(
           _runs.isEmpty && !_running
               ? 'Test depuis la galerie'
-              : 'Validés : $validated/${_runs.length}'
-                  '${_running ? ' ($_total au total)' : ''}',
+              : 'Vérifiés : $validated/${_runs.length}'
+                    '${_running ? ' ($_total au total)' : ''}',
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Stats de session',
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const StatsScreen())),
+            icon: const Icon(Icons.insights),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -194,9 +214,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
       trailing: Text('${result.totalLatencyMs} ms'),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: Text(run.name)),
-            body: ScanResultView(result: result),
+          builder: (_) => TicketDetailScreen(
+            name: run.name,
+            imageFile: run.file,
+            result: result,
           ),
         ),
       ),

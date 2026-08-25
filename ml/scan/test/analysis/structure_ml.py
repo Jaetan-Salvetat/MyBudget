@@ -16,6 +16,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 
+from invariants import Constraints, constraints
 from line_features import PricedLine
 from line_features import featurize as featurize_v2
 from line_features_v3 import featurize as featurize_v3
@@ -63,11 +64,15 @@ def _pending_labels(
 
 
 def receipt_from_labels(
-    merged: list[PhysicalLine], lines: list[PricedLine], labels: list[int]
+    merged: list[PhysicalLine],
+    lines: list[PricedLine],
+    labels: list[int],
+    reference_total: float | None = None,
 ) -> ExtractedReceipt | None:
     """Reçu structuré depuis les rôles par ligne. Un prix négatif est
     toujours une remise, quel que soit son label : un article ne peut pas
-    être négatif."""
+    être négatif. `reference_total` : montant de référence prouvé sans ligne
+    total étiquetée (décomposition TVA, espèces − rendu)."""
     pending_by_index = _pending_labels(merged, lines)
     items: list[ExtractedItem] = []
     total: float | None = None
@@ -94,13 +99,46 @@ def receipt_from_labels(
     if not items:
         return None
     return ExtractedReceipt(
-        store=merged[0].text if merged else None,
+        store=_store_of(merged),
         date=_find_date(merged),
-        total=total,
+        total=total if total is not None else reference_total,
         subtotal=None,
         payment=payment,
         items=items,
     )
+
+
+def _store_of(merged: list[PhysicalLine]) -> str | None:
+    return merged[0].text if merged else None
+
+
+def single_item_receipt(merged: list[PhysicalLine], total: float) -> ExtractedReceipt:
+    """Ticket sans ligne d'article : l'unique achat porte le montant prouvé
+    et le nom de l'enseigne."""
+    store = _store_of(merged)
+    return ExtractedReceipt(
+        store=store,
+        date=_find_date(merged),
+        total=total,
+        subtotal=None,
+        payment=None,
+        items=[
+            ExtractedItem(name=_clean_name(store or ""), amount=total, discount=0.0)
+        ],
+    )
+
+
+def constrained_labels(labels: list[int], structure: Constraints) -> list[int]:
+    """Applique les invariants structurels à un étiquetage argmax : une ligne
+    exclue est ignorée, un total hors des rangs éligibles aussi."""
+    return [
+        IGNORE
+        if rank in structure.forced_ignore
+        or (label == TOTAL and rank not in structure.reference_ranks)
+        or (label == ITEM and rank in structure.soft_ignore)
+        else label
+        for rank, label in enumerate(labels)
+    ]
 
 
 def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
@@ -108,5 +146,6 @@ def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
     lines, rows = featurize(merged)
     if not lines:
         return None
-    predictions = model.predict(np.array(rows))
-    return receipt_from_labels(merged, lines, [int(p) for p in predictions])
+    predictions = [int(p) for p in model.predict(np.array(rows))]
+    labels = constrained_labels(predictions, constraints(lines))
+    return receipt_from_labels(merged, lines, labels)
