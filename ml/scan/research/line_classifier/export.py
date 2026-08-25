@@ -16,11 +16,12 @@ import sys
 
 import numpy as np
 
-from paths import MODELS_DIR
+from paths import APP_MODELS_DIR, MODELS_DIR
 from reference.line_features_v3 import FEATURE_NAMES_V3
 from reference.structure_ml import MODEL_PATHS, load_classifier
 
 EXPORT_PATH = MODELS_DIR / "line_clf_v3.json"
+APP_ASSET_PATH = APP_MODELS_DIR / "line_clf_v3.json"
 
 
 def export(model) -> dict:
@@ -80,9 +81,13 @@ def predict_proba_exported(exported: dict, row: list[float]) -> list[float]:
 def main() -> None:
     model, _ = load_classifier("v3")
     exported = export(model)
-    EXPORT_PATH.write_text(json.dumps(exported, separators=(",", ":")))
+    payload = json.dumps(exported, separators=(",", ":"))
+    EXPORT_PATH.write_text(payload)
+    # L'app lit ce même artefact : deux copies qui divergeraient feraient
+    # décider le device autrement que la référence Python.
+    APP_ASSET_PATH.write_text(payload)
     size = EXPORT_PATH.stat().st_size / 1e6
-    print(f"{MODEL_PATHS['v3'].name} → {EXPORT_PATH} ({size:.1f} MB)")
+    print(f"{MODEL_PATHS['v3'].name} → {EXPORT_PATH} et {APP_ASSET_PATH} ({size:.1f} MB)")
     if "--check" in sys.argv:
         from line_classifier.train import build_dataset
 

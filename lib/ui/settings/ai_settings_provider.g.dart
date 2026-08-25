@@ -389,59 +389,6 @@ final class QuickAddUsesRemoteProvider
 String _$quickAddUsesRemoteHash() =>
     r'bfd386d9c34851a3785caf377a19e143af04607e';
 
-/// Le scan de ticket demande un modèle qui voit : il n'existe qu'avec une clé
-/// et le moteur distant. Une dégradation ne le masque pas — sans repli local,
-/// mieux vaut montrer l'erreur que faire disparaître la fonction.
-
-@ProviderFor(receiptScanAvailable)
-final receiptScanAvailableProvider = ReceiptScanAvailableProvider._();
-
-/// Le scan de ticket demande un modèle qui voit : il n'existe qu'avec une clé
-/// et le moteur distant. Une dégradation ne le masque pas — sans repli local,
-/// mieux vaut montrer l'erreur que faire disparaître la fonction.
-
-final class ReceiptScanAvailableProvider
-    extends $FunctionalProvider<bool, bool, bool>
-    with $Provider<bool> {
-  /// Le scan de ticket demande un modèle qui voit : il n'existe qu'avec une clé
-  /// et le moteur distant. Une dégradation ne le masque pas — sans repli local,
-  /// mieux vaut montrer l'erreur que faire disparaître la fonction.
-  ReceiptScanAvailableProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'receiptScanAvailableProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$receiptScanAvailableHash();
-
-  @$internal
-  @override
-  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  bool create(Ref ref) {
-    return receiptScanAvailable(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$receiptScanAvailableHash() =>
-    r'9979633c4a3b2f0331575ded1782c815ecf178c1';
-
 /// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
 /// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 

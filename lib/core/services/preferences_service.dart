@@ -19,7 +19,6 @@ class PreferencesService {
   static const String keyLegacyLoanDefaultsMigrationDone =
       'legacyLoanDefaultsMigrationDone';
 
-  static const String keyLastScanTimestamp = 'lastScanTimestamp';
   static const String keyGeminiApiKey = 'geminiApiKey';
 
   static const String keyQuickAddEnabled = 'quickAddEnabled';
@@ -112,14 +111,6 @@ class PreferencesService {
 
   static Future<void> setLegacyLoanDefaultsMigrationDone() async {
     await _prefs.setBool(keyLegacyLoanDefaultsMigrationDone, true);
-  }
-
-  static int getLastScanTimestamp() {
-    return _prefs.getInt(keyLastScanTimestamp) ?? 0;
-  }
-
-  static Future<void> setLastScanTimestamp(int timestamp) async {
-    await _prefs.setInt(keyLastScanTimestamp, timestamp);
   }
 
   static bool isQuickAddEnabled() {

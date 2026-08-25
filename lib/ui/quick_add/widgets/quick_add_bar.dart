@@ -181,8 +181,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     final draft = ref.watch(quickAddProvider);
     final usesRemote = ref.watch(quickAddUsesRemoteProvider);
-    final offersScan =
-        draft.isEmpty && ref.watch(receiptScanAvailableProvider);
+    final offersScan = draft.isEmpty;
     final scheme = Theme.of(context).colorScheme;
 
     final motion = context.frostedTokens.motion.snappy;
