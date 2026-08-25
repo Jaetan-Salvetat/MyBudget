@@ -1,7 +1,7 @@
 /// Structure les lignes physiques d'un ticket en articles + prix + remises.
 ///
 /// Règles géométriques et lexicales pures, sans modèle. Portage de référence
-/// de `ml/scan/test/analysis/structure.py` : toute divergence de comportement
+/// de `ml/scan/research/reference/structure.py` : toute divergence de comportement
 /// avec la version Python est un bug.
 library;
 

@@ -2,7 +2,7 @@
 /// ticket, l'extraction de la passe 1 et — si un modèle est fourni — la
 /// décision du flow local complet (règles → retry → classifieur → décodeur),
 /// pour comparaison champ à champ avec la version Python
-/// (analysis/check_parity.py).
+/// (research/bench/parity.py).
 library;
 
 import 'dart:convert';

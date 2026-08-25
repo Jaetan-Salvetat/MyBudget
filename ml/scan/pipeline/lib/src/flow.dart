@@ -5,7 +5,7 @@
 /// passes → non vérifié. Le stage
 /// n'est qu'un niveau d'information affiché à l'utilisateur : tout scan
 /// atterrit sur l'écran d'édition pré-rempli (voir ml/scan/VERIFICATION.md).
-/// Logique pure, sans I/O, alignée sur `ml/scan/test/analysis/local_flow.py`.
+/// Logique pure, sans I/O, alignée sur `ml/scan/research/reference/local_flow.py`.
 library;
 
 import 'classifier.dart';

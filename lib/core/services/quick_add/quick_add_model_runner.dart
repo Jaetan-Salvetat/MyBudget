@@ -68,7 +68,7 @@ class QuickAddModelRunner {
 
   /// Un modele absent du bundle ne se voit pas a la compilation : `pubspec.yaml`
   /// declare `assets/models/` comme dossier, pas fichier par fichier. Oublier
-  /// `tool/fetch_model.sh` produirait donc une app qui echoue seulement au
+  /// `tool/model/fetch.sh` produirait donc une app qui echoue seulement au
   /// premier ajout rapide — autant le dire ici, et clairement.
   static Future<String> _assetFromManifest() async {
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
@@ -79,7 +79,7 @@ class QuickAddModelRunner {
 
     if (models.isEmpty) {
       throw StateError(
-        'Aucun modele dans assets/models/ : lancer ./tool/fetch_model.sh',
+        'Aucun modele dans assets/models/ : lancer ./tool/model/fetch.sh',
       );
     }
     if (models.length > 1) {

@@ -1,45 +1,82 @@
-# ML — Quick-Add
+# ML
 
-Entraînement du classifieur on-device du quick-add. Les sources vivent ici, les
-artefacts (venv, checkpoints, dataset, cache des sources) sont générés
-localement et gitignorés.
-
-**La marche à suivre complète est dans [`quick_add/TRAINING.md`](quick_add/TRAINING.md).**
+Deux briques, un artefact partagé.
 
 ```
 ml/
-├── quick_add/
-│   ├── taxonomy.py           # Chargement des 80 classes depuis assets/categories.json
-│   ├── knowledge/            # Moisson de la connaissance monde → dataset/entities.jsonl
-│   │   ├── build.py          #   fusion, arbitrage des conflits, liste des ambiguïtés
-│   │   ├── entities.py       #   modèle commun, normalisation des noms
-│   │   ├── mapping_nsi.py    #   chemins OSM → slugs de la taxonomie
-│   │   ├── audit.py          #   échantillon déterministe à relire à la main
-│   │   └── sources/          #   services, lexicon, nsi, wikidata, openfoodfacts, patterns
-│   ├── examples.py           # Exemples curés par slug, écrits à la main
-│   ├── generate_dataset.py   # entités + exemples → train.jsonl / eval.jsonl
-│   ├── train.py              # Entraînement multi-tête
-│   ├── eval_world.py         # Connaissance monde : mémorisation vs généralisation
-│   ├── test_model.py         # Non-régression sur eval_corpus.json
-│   ├── export_onnx.py        # Export ONNX + quantization int8
-│   ├── test_onnx.py          # Vérifie l'artefact livré : justesse et fidélité
-│   ├── eval_world.json       # 294 cas FR/EN étiquetés à la main, par axe
-│   ├── eval_corpus.json      # 157 cas historiques
-│   ├── eval_receipts.json    # 5 005 libellés de tickets FindIt étiquetés (scan)
-│   ├── receipts/             # Corpus « style ticket » et cascade du scan (TRAINING.md §8)
-│   └── tests/                # Tests des invariants du pipeline
-└── price_parser/             # Prototype Dart d'extraction de prix (regex)
+├── classifier/     # le modèle BERT multi-tête — transversal quick-add + scan
+├── scan/           # OCR + structuration de tickets — spécifique
+└── price_parser/   # prototype Dart d'extraction de prix (regex)
 ```
 
-## Architecture du modèle
+`price_parser/` est un prototype dépassé : sa logique vit désormais dans
+`lib/core/services/quick_add/price_parser_service.dart`.
+
+## Le sens des dépendances
 
 ```
-Texte utilisateur
-      ↓  [Price Parser]        montant (regex, porté par PriceParserService côté app)
-  texte nettoyé
+scan/data/golden  ──────────────►  classifier/corpus/receipts   vérité terrain → corpus
+scan/research/reference  ───────►  (libellés d'articles)        sortie OCR → entrée modèle
+classifier/output/model.onnx  ──►  assets/  ──►  lib/ + scan/pipeline
+classifier/serving/  ═══ parité ═══  scan/pipeline/lib/src/categorize.dart
+```
+
+Acyclique, et c'est l'invariant à tenir : le scan alimente le classifieur en
+données, le classifieur livre un artefact que les deux consomment. Rien ne
+remonte du classifieur vers le scan sauf le `.onnx`. Un module qui remonte
+l'arborescence à la main pour aller chercher l'autre brique est un bug —
+`classifier/paths.py` et `scan/research/paths.py` sont les seuls endroits où
+un chemin inter-briques est écrit.
+
+## classifier/
+
+Un seul modèle sert les deux consommateurs : le quick-add lui apporte du
+phrasé utilisateur, le scan des libellés « style ticket ». Marche à suivre
+complète : [`classifier/README.md`](classifier/README.md).
+
+```
+classifier/
+├── taxonomy.py           # les 80 classes, contrat modèle ↔ app
+├── knowledge/            # moisson de la connaissance monde → dataset/entities.jsonl
+├── corpus/
+│   ├── quick_add/        #   phrasé utilisateur : exemples curés + génération
+│   └── receipts/         #   style caisse : lexique, déformation, vérité FindIt
+├── serving/              # contrat d'entrée/sortie — miroir Dart obligatoire
+├── training/             # entraînement, finetune, export ONNX int8
+├── evaluation/           # world / quick_add / receipts / fidélité de l'ONNX
+└── tests/                # invariants du pipeline
+```
+
+```bash
+cd ml/classifier
+uv run python -m knowledge.build            # → dataset/entities.jsonl (~28 600 entités)
+uv run python -m corpus.quick_add.build     # → dataset/train.jsonl + eval.jsonl
+uv run python -m corpus.receipts.build      # → dataset/receipts_*.jsonl
+uv run python -m training.train             # → output/best/ (~2 h sur MPS)
+uv run python -m evaluation.world           # connaissance monde
+uv run python -m evaluation.quick_add       # non-régression quick-add
+uv run python -m evaluation.receipts --cascade   # libellés de tickets (scan)
+uv run python -m training.export_onnx       # → output/model.onnx
+uv run python -m evaluation.onnx            # justesse et fidélité de l'export int8
+uv run python -m pytest                     # invariants du pipeline
+```
+
+Déploiement dans l'app :
+
+```bash
+cd ../.. && ./tool/model/publish.sh   # asset versionné + release GitHub + tool/model/lock.env
+```
+
+### Architecture du modèle
+
+```
+Texte utilisateur / libellé de ticket
+      ↓  [Price Parser]        montant (regex, PriceParserService côté app)
+      ↓  [serving/normalize]   libellé nettoyé, identique à l'entraînement
       ↓  [BPE Tokenizer]       input_ids + attention_mask (padding dynamique)
       ↓  [ONNX Model]          type_logits (2) | category_logits (80) | recurrence_logits (2)
   argmax par tête
+      ↓  [serving/cascade]     décision de catégorie d'un ticket (enseigne → articles)
 ```
 
 - Backbone : `jhu-clsp/mmBERT-small` (ModernBERT, 384 dim, 22 couches)
@@ -47,7 +84,7 @@ Texte utilisateur
 - Pooling : mean pooling
 - Quantization : int8 dynamique (~135 Mo)
 
-## Taxonomie
+### Taxonomie
 
 La source de vérité est `assets/categories.json` à la racine du projet — **pas
 un fichier de ce dossier**. L'ordre des classes est le contrat entre le modèle
@@ -59,33 +96,33 @@ dart run tool/generate_taxonomy_labels.dart --stdout   # 80 slugs, dans l'ordre 
 
 Toute modification de la taxonomie impose un réentraînement : un modèle entraîné
 sur N classes servi derrière N+k labels décale silencieusement toutes ses
-prédictions. Voir la section 6 de `TRAINING.md`.
+prédictions. Voir la section 6 de `classifier/README.md`.
 
-## Pipeline
+## scan/
 
-```bash
-cd ml/quick_add
-uv run python -m knowledge.build    # → dataset/entities.jsonl  (~28 600 entités)
-uv run python generate_dataset.py   # → dataset/train.jsonl + eval.jsonl
-uv run python train.py              # → output/best/            (~2 h sur MPS)
-uv run python eval_world.py         # connaissance monde
-uv run python test_model.py         # non-régression
-uv run python export_onnx.py        # → output/model.onnx
-uv run python test_onnx.py          # justesse et fidélité de l'export int8
-uv run python -m receipts.evaluate --cascade   # libellés de tickets (scan)
-uv run python -m pytest             # invariants du pipeline
+Photo de ticket → articles, prix, remises, total, date, 100 % on-device.
+Détail, mesures et décisions : [`scan/README.md`](scan/README.md).
+
+```
+scan/
+├── research/     # la recherche, en Python (référence, vérité, corpus, bench)
+├── pipeline/     # package Dart receipt_pipeline — le portage livré
+├── harness/      # banc Flutter on-device
+└── data/         # corpus et dumps OCR, gitignorés sauf data/golden/
 ```
 
-Déploiement dans l'app :
-
 ```bash
-cd ../.. && ./tool/publish_model.sh   # asset versionné + release GitHub + tool/model.lock
+cd ml/scan/research
+uv run python -m pytest              # invariants du pipeline de référence
+uv run python -m bench.parity        # parité Dart ↔ Python, 0 divergence attendue
+uv run python -m bench.local --ml    # le bench central : mode local sur 899 tickets
+./fetch_data.sh                      # reconstruit les corpus d'images
 ```
 
 ## Artefacts locaux
 
-`output/`, `dataset/` et `.venv/` sont gitignorés. Après un run il ne doit
-rester que :
+`output/`, `dataset/`, `data/` (sauf `data/golden/`) et `.venv/` sont
+gitignorés. Après un run il ne doit rester dans `classifier/` que :
 
 ```
 output/best/          ~600 Mo   poids PyTorch du modèle retenu
@@ -99,7 +136,7 @@ ré-exporter l'ONNX impose un ré-entraînement, dont le résultat ne sera pas
 identique (MPS n'est pas déterministe au bit près malgré `SEED = 42`).
 
 Les `checkpoint-*` ne servent qu'à reprendre un entraînement interrompu ;
-`save_total_limit` en borne l'accumulation dans `train.py`.
+`save_total_limit` en borne l'accumulation dans `training/train.py`.
 
 `tool/cleanup.sh` ramène `ml/` à cet état — en simulation par défaut, `--apply`
 pour supprimer, `--min-free 50` pour ne libérer que le nécessaire en cours de
@@ -107,10 +144,13 @@ run. Les checkpoints sont épargnés tant qu'un `train.py` tourne :
 
 ```bash
 ./tool/cleanup.sh                                  # ce qui serait supprimé
-./tool/cleanup.sh --apply                          # caches, checkpoints, export périmé
-./tool/cleanup.sh --datasets --backups --hf-cache --apply
-./tool/cleanup.sh quick_add --apply                # un seul projet
+./tool/cleanup.sh --apply                          # caches, builds Dart, checkpoints
+./tool/cleanup.sh --datasets --backups --hf-cache --raw --apply
+./tool/cleanup.sh classifier --apply               # un seul projet
 ```
+
+Jamais touchés : `scan/data/golden/` (versionné) et `scan/data/results/` — les
+dumps OCR device coûtent une nuit de run à régénérer.
 
 ## Prérequis
 

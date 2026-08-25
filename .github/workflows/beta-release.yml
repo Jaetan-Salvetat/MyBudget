@@ -73,10 +73,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: assets/models/*.onnx
-          key: quick-add-model-${{ hashFiles('tool/model.lock') }}
+          key: quick-add-model-${{ hashFiles('tool/model/lock.env') }}
 
       - name: Fetch quick-add model
-        run: ./tool/fetch_model.sh
+        run: ./tool/model/fetch.sh
 
       - name: Build apk
         run: flutter build apk --flavor beta --release --no-tree-shake-icons --build-name=${{ steps.get_version.outputs.beta_version }} --build-number=${{ steps.get_version.outputs.build }}

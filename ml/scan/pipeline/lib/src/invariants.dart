@@ -1,5 +1,5 @@
 /// Invariants structurels d'un ticket, calculés sans modèle. Portage de
-/// référence de `analysis/invariants.py`.
+/// référence de `research/reference/invariants.py`.
 ///
 /// Trois familles de preuves arithmétiques, indépendantes du classifieur :
 /// décomposition TVA (HT + taxe à taux légal = TTC), espèces − rendu,

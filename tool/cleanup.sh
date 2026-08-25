@@ -20,6 +20,7 @@ LEVEL_BACKUP=4
 LEVEL_REDOWNLOADABLE=5
 
 CACHE_DIR_NAMES=(__pycache__ .pytest_cache .ruff_cache .mypy_cache)
+BUILD_DIR_NAMES=(build .dart_tool)
 SKIPPED_TREES=(.venv .git node_modules)
 EXPORT_NAMES=(model.onnx model.onnx.data)
 DERIVED_DATASETS=(train.jsonl eval.jsonl)
@@ -30,6 +31,7 @@ keep_checkpoints=0
 with_datasets=0
 with_backups=0
 with_hf_cache=0
+with_raw=0
 min_free_gb=0
 project=""
 
@@ -44,11 +46,13 @@ Sans argument, tous les projets de ml/ sont traites.
   --datasets             inclut train.jsonl / eval.jsonl (regenerables depuis entities.jsonl)
   --backups              inclut les sauvegardes de runs precedents (output/best_*)
   --hf-cache             inclut le cache huggingface du backbone
+  --raw                  inclut les datasets telecharges (scan/data/raw, cf fetch_data.sh)
   --min-free GO          s'arrete des que cet espace libre est atteint
   -h, --help             affiche cette aide
 
 Jamais touches : output/best, output/model.onnx a jour, dataset/entities.jsonl,
-dataset/cache, .venv. Les checkpoints sont epargnes si un entrainement tourne.
+dataset/cache, scan/data/golden, scan/data/results (dumps device, une nuit de
+run), .venv. Les checkpoints sont epargnes si un entrainement tourne.
 EOF
 }
 
@@ -59,6 +63,7 @@ while [ $# -gt 0 ]; do
     --datasets) with_datasets=1 ;;
     --backups) with_backups=1 ;;
     --hf-cache) with_hf_cache=1 ;;
+    --raw) with_raw=1 ;;
     --min-free) min_free_gb="$2"; shift ;;
     -h|--help) usage; exit 0 ;;
     -*) echo "option inconnue : $1" >&2; usage >&2; exit 2 ;;
@@ -125,6 +130,41 @@ collect_python_caches() {
     \) -print | while IFS= read -r path; do
     add_candidate "$LEVEL_REGENERABLE" "cache python" "$path"
   done
+  return 0
+}
+
+collect_build_outputs() {
+  local project_dir="$1"
+  local prune=() name
+  [ -d "$project_dir" ] || return 0
+  for name in "${SKIPPED_TREES[@]}"; do
+    prune+=(-name "$name" -o)
+  done
+  find "$project_dir" \( "${prune[@]}" -false \) -prune -o -type d \( \
+    -name "${BUILD_DIR_NAMES[0]}" -o -name "${BUILD_DIR_NAMES[1]}" \
+    \) -print -prune | while IFS= read -r path; do
+    add_candidate "$LEVEL_REGENERABLE" "sortie de compilation dart" "$path"
+  done
+  return 0
+}
+
+collect_derived_corpora() {
+  local corpus_dir="$1"
+  [ -d "$corpus_dir" ] || return 0
+  find "$corpus_dir" -maxdepth 1 -mindepth 1 -type d |
+    while IFS= read -r path; do
+      add_candidate "$LEVEL_DERIVED" "corpus derive (fetch_data.sh)" "$path"
+    done
+  return 0
+}
+
+collect_raw_datasets() {
+  local raw_dir="$1"
+  [ -d "$raw_dir" ] || return 0
+  find "$raw_dir" -maxdepth 1 -mindepth 1 -type d |
+    while IFS= read -r path; do
+      add_candidate "$LEVEL_REDOWNLOADABLE" "dataset telecharge (fetch_data.sh)" "$path"
+    done
   return 0
 }
 
@@ -199,12 +239,17 @@ fi
 
 while IFS= read -r project_dir; do
   collect_python_caches "$project_dir"
+  collect_build_outputs "$project_dir"
   collect_stale_exports "$project_dir/output"
   if [ "$training_running" -eq 0 ]; then
     collect_trainer_checkpoints "$project_dir/output"
   fi
   if [ "$with_datasets" -eq 1 ]; then
     collect_derived_datasets "$project_dir/dataset"
+    collect_derived_corpora "$project_dir/data/corpus"
+  fi
+  if [ "$with_raw" -eq 1 ]; then
+    collect_raw_datasets "$project_dir/data/raw"
   fi
   if [ "$with_backups" -eq 1 ]; then
     collect_run_backups "$project_dir/output"

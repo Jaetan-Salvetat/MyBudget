@@ -1,8 +1,8 @@
 /// Catégorisation d'un ticket structuré : normalisation des libellés pour le
 /// modèle quick-add, puis décision enseigne / articles.
 ///
-/// Miroir exact de `ml/quick_add/receipts/normalize.py` et
-/// `ml/quick_add/receipts/cascade.py`. La référence de parité de la
+/// Miroir exact de `ml/classifier/serving/normalize.py` et
+/// `ml/classifier/serving/cascade.py`. La référence de parité de la
 /// normalisation est `test/fixtures/receipt_line_normalization.json` ; la
 /// cascade est mesurée par `receipts/evaluate.py --cascade`.
 library;

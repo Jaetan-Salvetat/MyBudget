@@ -1,5 +1,5 @@
 /// Fusion de deux passes OCR sur la même image, ligne physique à ligne.
-/// Portage de référence de `analysis/fuse_passes.py`.
+/// Portage de référence de `research/reference/fuse_passes.py`.
 ///
 /// Les deux passes (brute, prétraitée) abîment des lignes différentes : l'une
 /// colle une lettre au prix, l'autre saute un article. Alignées par position

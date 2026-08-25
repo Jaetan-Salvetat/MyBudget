@@ -152,7 +152,7 @@ void main() {
   });
 
   group('evaluation corpus', () {
-    const corpusPath = 'ml/quick_add/eval_corpus.json';
+    const corpusPath = 'ml/classifier/evaluation/data/quick_add.json';
 
     late List<dynamic> cases;
 

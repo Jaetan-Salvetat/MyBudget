@@ -4,7 +4,7 @@ Référence pour intégrer le pipeline (`ml/scan/pipeline`, package
 `receipt_pipeline`) dans MyBudget. Périmètre : **le mode LOCAL uniquement**.
 Le scan est un réglage exclusif LOCAL ou CLOUD ; le mode cloud existant
 (`ReceiptScanService`) ne bouge pas, il n'y a **pas d'escalade automatique**
-entre les deux. Les chiffres viennent de `test/analysis/bench_local.py`
+entre les deux. Les chiffres viennent de `research/bench/local.py`
 (1000 tickets FindIt, vérité golden).
 
 > **Décision produit 2026-08-24 : jamais de validation directe.** Tout scan
@@ -115,7 +115,7 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
 4. Le classifieur n'étiquette que des lignes : les montants sont recopiés de
    l'OCR, jamais générés — y compris en fusion des passes (`local_fused`),
    où chaque montant alternatif vient de l'autre passe OCR.
-4b. Les invariants structurels (`analysis/invariants.py`) ferment l'espace
+4b. Les invariants structurels (`research/reference/invariants.py`) ferment l'espace
    de recherche sans modèle : ligne de taxe ou HT jamais article,
    récapitulatif de remises ignoré, total de rayon = somme courante, total
    final = dernier total lexical avant le premier paiement, sous-total
@@ -131,5 +131,5 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
    ni le checksum ni la décision d'étage, et une catégorie douteuse ne doit
    pas déclencher CONFIRM.
 6. Tout changement de lexique, de règle ou de modèle passe par : tests du
-   package (`dart test`) + parité (`check_parity.py`) + bench
-   (`bench_local.py`, faux validés à zéro) avant merge.
+   package (`dart test`) + parité (`bench/parity.py`) + bench
+   (`bench/local.py`, faux validés à zéro) avant merge.

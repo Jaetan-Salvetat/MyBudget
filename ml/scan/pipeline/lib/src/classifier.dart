@@ -1,5 +1,5 @@
 /// Inférence pure Dart du classifieur de lignes (HistGradientBoosting
-/// exporté par `analysis/export_line_classifier.py`).
+/// exporté par `research/line_classifier/export.py`).
 ///
 /// Score brut par classe = baseline + Σ valeur de la feuille atteinte dans
 /// chaque arbre de l'itération ; probabilités par softmax. Aucune

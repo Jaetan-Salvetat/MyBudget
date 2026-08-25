@@ -56,18 +56,12 @@ ml/**/dataset/
 ml/**/.dart_tool/
 ml/**/__pycache__/
 
-# Modèle quick-add : hors dépôt, récupéré via ./tool/fetch_model.sh
+# Modèle du classifieur : hors dépôt, récupéré via ./tool/fetch_model.sh
 assets/models/*.onnx
 # Source du tokenizer : sert seulement à régénérer tokenizer.bin
 assets/models/tokenizer.json
 
-# ML scan : datasets et sorties OCR volumineux
-ml/scan/test/dataset_findit/
-ml/scan/test/results/
-ml/scan/test/corpus_fr/
-ml/scan/test/corpus_fr_big/
-ml/scan/test/corpus_fr_enhanced/
-ml/scan/test/corpus_web/
-ml/scan/test/corpus_synthetic/
-ml/scan/test/harness/assets/corpus/
-ml/scan/test/corpus/
+# ML scan : datasets, corpus et sorties OCR volumineux — seul le golden est versionné
+ml/scan/data/*
+!ml/scan/data/golden/
+ml/scan/harness/assets/corpus/

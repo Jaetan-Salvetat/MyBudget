@@ -44,11 +44,11 @@ incliné). Les 2 échecs sont des thumbnails web 200-250px, résolution qu'aucun
 photo de téléphone ne produit.
 
 **Corpus français réel — dataset Find it! (ICPR 2018, L3i La Rochelle, miroir
-Kaggle `srjpdl/findit-dataset`, copié dans `test/dataset_findit/`)** : seul
+Kaggle `srjpdl/findit-dataset`, copié dans `data/raw/findit/`)** : seul
 dataset public de tickets de caisse français. 1000 tickets T1 (500 train +
 500 test) ~1752×3390, chacun avec sa **transcription texte exacte** — c'est
 elle qui fournit le ground truth article par article (via
-`transcript_truth.py` : même structuration appliquée au texte parfait,
+`truth/transcript.py` : même structuration appliquée au texte parfait,
 fiable quand son propre checksum passe).
 
 Résultat central, mesuré sur 250 vrais tickets à vérité fiable :
@@ -115,21 +115,21 @@ structurellement impossible), entraînable sur le golden.
 
 ## Mode local — bench & calibration (2026-08-24)
 
-L'instrument central est **`analysis/bench_local.py`** : il rejoue le flow
+L'instrument central est **`research/bench/local.py`** : il rejoue le flow
 local complet (règles → retry → classifieur V2) depuis les dumps OCR d'un
 run device — une modification de règles ou de modèle se mesure en secondes
 sur 1000 vrais tickets, sans retoucher au téléphone. Métriques : validation
 directe, faux auto-validés (la barre : 0 montant faux), corrections/ticket
-en confirmation. `analysis/analyze_local_failures.py` classe chaque échec
+en confirmation. `research/bench/failures.py` classe chaque échec
 (structuration / total non lu / montants absents de l'OCR / golden non
 checksummable) pour dire où investir.
 
 **Corpus de travail sain (2026-08-24)** : les tickets structurellement
-ingagnables sont exclus des benchs via `test/golden/excluded.txt` (101
+ingagnables sont exclus des benchs via `data/golden/excluded.txt` (101
 tickets : 52 golden non-checksummables — cantine subventionnée, balance —
 et 49 aux montants absents de l'OCR, dont `t1test_68`, l'unique vrai faux
 validé historique). Liste régénérable :
-`analyze_local_failures.py device_flow --write-excluded` ; filtrée par
+`bench/failures.py device_flow --write-excluded` ; filtrée par
 `load_tickets`, donc par tous les benchs. Le plafond du corpus restant est
 100 % — chaque échec est attaquable côté règles/modèle.
 
@@ -162,10 +162,10 @@ Décisions de calibration issues du bench :
 
 ## Classifieur de lignes V2 (2026-08-24, actif)
 
-`analysis/line_features.py` (32 features déterministes par ligne porteuse
+`research/reference/line_features.py` (32 features déterministes par ligne porteuse
 de prix : géométrie, lexiques, contexte ±1 ligne — portables en Dart) +
-`analysis/train_line_classifier.py` (HistGradientBoosting) +
-`analysis/structure_ml.py` (structuration depuis les labels, re-checksum).
+`research/line_classifier/train.py` (HistGradientBoosting) +
+`research/reference/structure_ml.py` (structuration depuis les labels, re-checksum).
 
 - **98,7 % d'accuracy lignes sur T1-test** ; +53 tickets sauvés sur 1000
   (+25 sur T1-test jamais vu à l'entraînement → généralise).
@@ -251,14 +251,14 @@ séquence / encodeur layout-aware entraîné sur golden + synthétique.
   Passe 1 : règles → classifieur argmax → décodeur ; si rien ne vérifie,
   retry (2e OCR, l'étage cher) → règles → classifieur → décodeur. Même
   précision (832/899), **94 retries au lieu de 198**. Référence Python :
-  `analysis/local_flow.py` (`decide_local`), miroir Dart `flow.dart`
+  `research/reference/local_flow.py` (`decide_local`), miroir Dart `flow.dart`
   (`decide` + `classifierRescue`), harnais `local_flow.dart`.
 - **Portage Dart complet** : lexiques et règles de calibration
   (`structure.dart`), features V2+V3 (`line_features.dart`, CRC-32 et
   Levenshtein inclus), inférence du classifieur depuis un JSON exporté
-  (`classifier.dart`, `analysis/export_line_classifier.py`, écart vs
+  (`classifier.dart`, `research/line_classifier/export.py`, écart vs
   sklearn 4e-16), décodeur DP (`decode.dart`). **Parité flow complet
-  Python↔Dart : 1000 dumps, 0 divergence** (`check_parity.py --model`).
+  Python↔Dart : 1000 dumps, 0 divergence** (`bench/parity.py --model`).
   Tie-breaking du décodeur déterministe des deux côtés (tri stable des
   références, ordre fixe des labels).
   Plage du DP bornée à `[−D, cible + D]` (D = capacité de remise des lignes
@@ -269,9 +269,9 @@ séquence / encodeur layout-aware entraîné sur golden + synthétique.
   adb), chaque ticket de la liste ouvre un détail (résultat / image zoomable
   / texte OCR des deux passes), stats de session en direct (étages, taux
   vérifié, retries, latences) accessibles depuis chaque écran.
-- **`analysis/diagnose.py`** — le système de vérification côté test :
+- **`research/bench/diagnose.py`** — le système de vérification côté test :
   tous les étages sur tous les tickets, **vérité par ligne** alignée sur le
-  golden (`line_truth.py` : item / discount / total / payment / tva /
+  golden (`truth/roles.py` : item / discount / total / payment / tva /
   subtotal / quantity / discount_summary / change / ignore) → matrices de
   confusion par étage ; **concordance** entre étages vérifiés (un désaccord
   = collision détectable sans golden) ; **calibration** du taux de faux par
@@ -334,9 +334,9 @@ les règles n'ont pas surappris le corpus.
 \* Leçon : les lexiques nourrissent les features V3 (similarité floue) —
 changer un lexique sans ré-entraîner déplace les probabilités
 (« Totaux: » passé de P(total) 0,24 à 0,76). Tout changement de lexique =
-`train_line_classifier.py --v3` + `export_line_classifier.py`.
+`line_classifier/train.py --v3` + `line_classifier/export.py`.
 
-Les mécanismes (`analysis/invariants.py`, sans modèle, portables en Dart) :
+Les mécanismes (`research/reference/invariants.py`, sans modèle, portables en Dart) :
 
 1. **Décomposition TVA** : un HT et une taxe à taux légal (2,1/5,5/10/20 %,
    ±1 centime) prouvent le TTC — sur une ligne de table (`B 20,00% 6,13
@@ -423,7 +423,7 @@ alternatives et mono-article (`decode.dart`), `verifiedTotal`, lexiques et
 parsing (`structure.dart`), étage `FlowStage.localFused`, orchestration
 partagée `decideFirstPass` / `decideRetryPass` (outil de parité et harnais
 utilisent le même code), modèle ré-exporté dans l'asset du harnais.
-**Parité `check_parity.py --model` : 1000/1000 sur `device_flow`, 699/699
+**Parité `bench/parity.py --model` : 1000/1000 sur `device_flow`, 699/699
 sur fr / fr_big / fr_enhanced / web / emulator_all, 0 divergence.** 183
 tests Dart. Harnais : la page « Stats de session » se met à jour en direct
 (le builder renvoyait un widget `const` identique, jamais reconstruit —
@@ -434,14 +434,14 @@ remplacé par un `SessionSnapshot` immuable par notification).
 - **`pipeline/`** : package Dart pur `receipt_pipeline` — portage de
   `lines.py` + `structure.py` + `flow.py`, 46 tests portés. Parité vérifiée
   champ à champ contre Python sur 699 dumps OCR (FindIt, enhanced, web,
-  synthétique) : **0 divergence** (`analysis/check_parity.py` +
+  synthétique) : **0 divergence** (`research/bench/parity.py` +
   `pipeline/tool/parity.dart`).
-- **`test/harness/`** devient un banc à deux modes : « Suite complète »
+- **`harness/`** devient un banc à deux modes : « Suite complète »
   (images via `adb push` dans `files/input/`, flow local complet par ticket,
   dump OCR historique + section `flow`) et « Scanner un ticket » (photo →
   flow local → résultat structuré à l'écran). Le prétraitement retry
   (autocontrast + unsharp + upscale 2400 px) est embarqué en Dart.
-- **`analysis/score_device_flow.py`** score un run de suite tel qu'exécuté
+- **`research/bench/device_flow.py`** score un run de suite tel qu'exécuté
   sur le device : parité device ↔ Python par ticket, métriques vs golden.
   Nommage des images poussées : `t1test_<doc>.jpg` / `t1train_<doc>.jpg`.
 
@@ -449,8 +449,8 @@ Runs 1000 tickets golden : S9+ (2018) et Pixel 8 Pro — **OCR strictement
 identique sur 99,7 % des images, 0 décision divergente** : le moteur ML Kit
 est constant inter-devices, la seule variable réelle est la qualité de la
 photo (capteur, focus). Latence pipeline S9+ : médiane 404 ms, p95 1,2 s.
-Dumps : `test/results/device_flow[_pixel]/` (gitignorés), corpus de replay
-de `bench_local.py`.
+Dumps : `data/results/device_flow[_pixel]/` (gitignorés), corpus de replay
+de `bench/local.py`.
 
 Parité connue : l'APK d'avant le fix des diacritiques a produit 1 dump
 divergent (`t1train_790`, « TŤC ») — corrigé dans le package (table de
@@ -458,7 +458,7 @@ repli latin étendu-A), APK reconstruit.
 
 ## Golden dataset
 
-`test/golden/T1-{test,train}/` : 1000 tickets FR annotés (enseigne, date,
+`data/golden/T1-{test,train}/` : 1000 tickets FR annotés (enseigne, date,
 total, articles/prix/remises) par Gemini 3.7 Flash sur image, dont **734
 double-validés** par accord avec l'extraction depuis transcription (chaîne
 indépendante) ; 8 désaccords audités = conventions de représentation, zéro
@@ -566,56 +566,74 @@ réelles le justifient.
 
 ## Contenu
 
-- `pipeline/` — package Dart `receipt_pipeline` (lines, structure,
-  line_features, classifier, decode, flow,
-  sérialisation) + tests + `tool/parity.dart`.
-- `VERIFICATION.md` — spec d'implémentation app du système de vérification.
-- `test/harness/` — banc Flutter on-device : mode « Suite complète » (flow
+```
+ml/scan/
+├── research/            # la recherche, en Python
+│   ├── reference/       #   le pipeline de référence — tout ce qui a un miroir Dart
+│   ├── truth/           #   vérité terrain : transcriptions, rôles de ligne, golden
+│   ├── corpus/          #   génération du synthétique, reconstruction des sélections
+│   ├── line_classifier/ #   entraînement et export du classifieur de lignes
+│   ├── llm/             #   LLM/VLM comme annotateur : structuration, client Gemini
+│   ├── bench/           #   la mesure : parité, scoring, diagnostics, benchmarks
+│   ├── models/          #   artefacts du classifieur de lignes (versionnés)
+│   └── tests/           #   invariants du pipeline de référence
+├── pipeline/            # package Dart receipt_pipeline — le portage livré
+├── harness/             # banc Flutter on-device
+└── data/                # corpus, datasets, dumps OCR (gitignoré sauf golden/)
+```
+
+`research/reference/` est le seul dossier lié par contrat au Dart : chaque
+module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
+échoue à la moindre divergence.
+
+- **`research/reference/`** — reconstruction des lignes (`lines.py`),
+  structuration (`structure.py`), invariants structurels (`invariants.py`),
+  fusion des passes (`fuse_passes.py`), décodage sous contrainte checksum
+  (`decode_constrained.py`), features du classifieur (`line_features.py`,
+  `line_features_v3.py`) et contrat de classes (`line_labels.py`),
+  structuration par classifieur (`structure_ml.py`), politique de flow
+  (`flow.py`, `local_flow.py`).
+- **`research/bench/`** — bench du mode local rejoué des dumps (`local.py`,
+  l'instrument central), taxonomie des échecs (`failures.py`), diagnostics
+  (`diagnose.py`), scoring d'un run device (`device_flow.py`), scoring
+  synthétique (`score.py`), parité Dart↔Python (`parity.py`), bench
+  multi-étages historique (`flow.py`), benchmarks LLM/VLM (`gemma.py`,
+  `gemini.py`, `capacity.py`).
+- **`research/truth/`** — vérité depuis les transcriptions (`transcript.py`),
+  rôle réel de chaque ligne (`roles.py`), sélection des tickets à vérité
+  fiable (`selection.py`), construction du golden (`annotate.py`).
+- **`research/corpus/`** — générateur synthétique (`content.py`, `render.py`,
+  `generate.py`), reconstruction des sélections (`rebuild.py`).
+- **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,
+  line_features, classifier, decode, flow, sérialisation) + tests +
+  `tool/parity.dart`.
+- **`harness/`** — banc Flutter on-device : mode « Suite complète » (flow
   local sur images poussées via `adb push` dans `files/input/`, prioritaire
   sur `assets/corpus/` ; `adb pull` de `files/results/`) et mode « Scanner
   un ticket » (caméra).
-- `test/analysis/` — clustering (`lines.py`), structuration (`structure.py`)
-  + tests (`test_structure.py`), politique de flow (`flow.py` +
-  `test_flow.py`), **bench du mode local rejoué des dumps
-  (`bench_local.py`)**, taxonomie des échecs (`analyze_local_failures.py`),
-  classifieur V2/V3 (`line_features.py`, `line_features_v3.py`,
-  `train_line_classifier.py [--v3]`, `structure_ml.py`, modèles dans
-  `models/`), **décodage sous contrainte checksum
-  (`decode_constrained.py`)**, flow local de référence (`local_flow.py`),
-  export du modèle (`export_line_classifier.py`), **diagnostics
-  (`diagnose.py`, `line_truth.py`)**, bench multi-étages historique
-  (`bench_flow.py`), scoring d'un run device (`score_device_flow.py`),
-  parité Dart↔Python (`check_parity.py`), générateur synthétique
-  (`receipt_content.py`, `receipt_render.py`, `generate_corpus.py`),
-  scoring synthétique (`score.py`), vérité depuis transcriptions
-  (`transcript_truth.py`), **invariants structurels (`invariants.py`)**,
-  **fusion des passes (`fuse_passes.py`)**, benchmarks LLM/VLM (`llm_structure.py`,
-  `bench_llm.py`, `bench_gemini.py`, `probe_capacity.py`), construction du
-  golden (`annotate_golden.py`).
-- `test/golden/` — **golden dataset committable** : 1000 annotations JSON.
-- `test/dataset_findit/` — dataset Find it! (img + txt, gitignoré) ;
-  `test/corpus_synthetic/` — 120 tickets générés + ground truth ;
-  `test/corpus_fr*/`, `test/corpus_web/`, `test/corpus/` — sélections
-  d'images ; `test/results/` — sorties OCR par device + caches LLM
-  (tout gitignoré sauf golden).
+- **`data/golden/`** — golden dataset **versionné** : 1000 annotations JSON.
+  `data/raw/findit/` (dataset Find it!), `data/corpus/` (synthétique et
+  sélections d'images), `data/results/` (sorties OCR par device, caches LLM)
+  sont gitignorés.
+- **`VERIFICATION.md`** — spec d'implémentation app du système de vérification.
 
 ## Datasets : sources et reconstruction
 
 Les images ne sont **pas versionnées** (poids ~2GB + licence FindIt
 recherche-only, redistribution interdite) ; seules les annotations golden le
-sont. `test/fetch_datasets.sh` reconstruit tout :
+sont. `research/fetch_data.sh` reconstruit tout :
 
 | Dataset | Source | Licence |
 |---|---|---|
 | Find it! (1000 tickets FR + transcriptions) | officiel : http://findit.univ-lr.fr/download-the-dataset/ (formulaire) ; miroir : `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 |
 | ExpressExpense SRD (200 photos US) | https://expressexpense.com/large-receipt-image-dataset-SRD.zip (MD5 `c8eb0f2d286da5ab742e7a5b59f15147`) | MIT, attribution |
-| Wikimedia Commons (2 tickets FR) | `Special:FilePath` — voir fetch_datasets.sh | libres |
-| Synthétique (120 tickets + ground truth) | `analysis/generate_corpus.py` (seed 42, déterministe) | interne |
+| Wikimedia Commons (2 tickets FR) | `Special:FilePath` — voir fetch_data.sh | libres |
+| Synthétique (120 tickets + ground truth) | `research/corpus/generate.py` (seed 42, déterministe) | interne |
 
-Les sélections dérivées (`corpus_fr`, `corpus_fr_big`, `corpus_web`) se
-reconstruisent à l'identique via `analysis/rebuild_corpora.py` (mêmes ids,
+Les sélections dérivées (`selection_fr`, `selection_fr_big`, `selection_web`) se
+reconstruisent à l'identique via `research/corpus/rebuild.py` (mêmes ids,
 mêmes noms de fichiers → caches et benchs restent comparables).
 
 Reproduire les mesures : l'OCR device se relance en poussant les images dans
 `files/input/` du harnais (`adb push`), les benchs se rejouent gratuitement
-depuis les caches de `test/results/` et le golden.
+depuis les caches de `data/results/` et le golden.
