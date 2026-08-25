@@ -4,9 +4,7 @@ Le modèle n'étiquette que les lignes porteuses de prix (article / remise /
 total / paiement / ignorer) ; les montants sont recopiés de l'OCR, les noms
 suivent la même mécanique de libellé que les règles. Toute sortie repasse
 par le checksum : le classifieur ne peut que sauver des tickets flagués,
-jamais en corrompre un validé. Deux artefacts : V2 (32 features) et V3
-(features arithmétiques + lexiques flous + trigrammes, actif), chacun lié à
-son featurizer.
+jamais en corrompre un validé.
 """
 
 from __future__ import annotations
@@ -17,8 +15,7 @@ import numpy as np
 from paths import MODELS_DIR
 from reference.invariants import Constraints, constraints
 from reference.line_features import PricedLine
-from reference.line_features import featurize as featurize_v2
-from reference.line_features_v3 import featurize as featurize_v3
+from reference.line_features_v3 import featurize
 from reference.line_labels import DISCOUNT, IGNORE, ITEM, PAYMENT, TOTAL
 from reference.lines import PhysicalLine
 from reference.structure import (
@@ -29,24 +26,18 @@ from reference.structure import (
     _plausible_label,
 )
 
-MODEL_PATHS = {
-    "v2": MODELS_DIR / "line_clf.joblib",
-    "v3": MODELS_DIR / "line_clf_v3.joblib",
-}
-FEATURIZERS = {"v2": featurize_v2, "v3": featurize_v3}
-ACTIVE_VERSION = "v3"
+MODEL_PATH = MODELS_DIR / "line_clf_v3.joblib"
+
+_model = None
 
 
-_models: dict[str, object] = {}
-
-
-def load_classifier(version: str | None = None):
-    """(modèle, featurizer) de la version active — les deux doivent toujours
-    venir du même artefact."""
-    version = version or ACTIVE_VERSION
-    if version not in _models:
-        _models[version] = joblib.load(MODEL_PATHS[version])
-    return _models[version], FEATURIZERS[version]
+def load_classifier():
+    """(modèle, featurizer) — les deux doivent toujours venir du même
+    artefact, sinon les colonnes de features se décalent en silence."""
+    global _model
+    if _model is None:
+        _model = joblib.load(MODEL_PATH)
+    return _model, featurize
 
 
 def _pending_labels(

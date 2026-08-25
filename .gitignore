@@ -61,7 +61,9 @@ assets/models/*.onnx
 # Source du tokenizer : sert seulement à régénérer tokenizer.bin
 assets/models/tokenizer.json
 
-# ML scan : datasets, corpus et sorties OCR volumineux — seul le golden est versionné
+# ML scan : datasets, corpus et sorties OCR volumineux — seules les vérités
+# sont versionnées (golden FindIt, corpus annoté pour le classifieur de lignes)
 ml/scan/data/*
 !ml/scan/data/golden/
+!ml/scan/data/annotations/
 ml/scan/harness/assets/corpus/

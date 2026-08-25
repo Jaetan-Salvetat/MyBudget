@@ -564,6 +564,57 @@ réelles le justifient.
    scanné, pas le scénario nominal — la capture app devra soigner
    résolution/focus, seule vraie variable inter-devices).
 
+## Photos réelles & corpus annoté (2026-08-25)
+
+Le point 6 des étapes ci-dessus est tombé : 71 photos de tickets prises au
+téléphone (Intermarché, Noz, Maxi Zoo, Gifi…) mesurées de bout en bout. Elles
+invalident deux hypothèses de toute l'étude.
+
+**L'orientation.** 54 % des photos ont leur texte à ±90° — un ticket long se
+photographie en paysage. Le clustering raisonne en recouvrement vertical et
+n'a aucun sens avant d'avoir retiré ce quart de tour ; sans correction, le
+ticket entier devient une seule ligne. Corrigé côté recherche (`ocr/`, page
+remise d'aplomb avant structuration), **pas encore dans l'app**.
+
+**Le plafond réel.** Orientation corrigée, le flow ne vérifie que **35 %** de
+ces photos, contre 90,4 % sur FindIt. Le corpus FindIt n'est pas un pire-cas :
+c'est un cas facile déguisé, mono-enseigne et scanné à plat.
+
+### Ce qui casse, mesuré sur un ticket lisible et bien orienté
+
+Sur un Maxi Zoo dont l'OCR est quasi parfait, `Total remise: EUR 58,98` est
+pris pour le total — « REMISE » n'est pas dans `EXCLUDED_TOTAL_WORDS`. Comme
+`total_index` sert **aussi** de borne à la zone articles, cette borne descend
+en bas du ticket et `Achat différé` / `Montant net` entrent comme articles.
+Un seul défaut, deux symptômes, et le décodeur retombe sur la référence fausse
+en comptant quatre fois le même 16,99 → sortie fausse **badgée vérifiée**.
+
+Racine commune : les règles supposent qu'une ligne porte un article, ce qui
+est vrai chez Carrefour et faux dès qu'une enseigne imprime le prix deux fois.
+
+### Le classifieur ne pouvait pas rattraper ça
+
+`train.py` prenait les décisions des règles pour vérité sur les 77 % de
+tickets qu'elles validaient : le modèle était leur élève, entraîné sur une
+seule enseigne, et n'étiquetait que les lignes porteuses de prix.
+
+D'où le nouveau corpus : **537 tickets d'entraînement, 12 177 lignes, 12
+rôles**, annotés depuis l'image et filtrés par checksum
+(`research/annotate/README.md`). Fiabilité prouvée contre le golden FindIt :
+**412/414 sur T1-train (99,5 %) et 413/413 sur T1-test (100 %)**. Le jeu
+d'évaluation — `T1-test` et `photos_pixel`, 431 tickets — ne sert jamais à
+entraîner.
+
+Barre à battre, mesurée sur ce jeu d'évaluation (`bench.line_roles`) :
+
+| | exactitude | `discount` | `total` | `ignore` |
+|---|---|---|---|---|
+| `line_clf_v3` | 93,9 % | 61,4 % | 81,7 % | 91,6 % |
+
+Les 35 lignes non contributives classées `item` sont exactement le défaut
+Maxi Zoo, et 13 remises prises pour des articles faussent la somme dans le
+mauvais sens.
+
 ## Contenu
 
 ```

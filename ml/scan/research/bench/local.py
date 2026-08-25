@@ -7,7 +7,7 @@ classifieur ou du décodeur sur le pire-cas FindIt sans retoucher au device
 
 Étages : local (règles) → retry → ml (argmax du classifieur) → dp (décodage
 sous contrainte checksum). Options : `--ml` active les étages classifieur,
-`--no-dp` désactive le décodeur, `--v2` force l'ancien classifieur,
+`--no-dp` désactive le décodeur,
 `--split=t1train|t1test` isole un split (les modèles s'entraînent sur
 t1train : seul t1test mesure la généralisation).
 
@@ -27,10 +27,6 @@ from reference.local_flow import VERIFIED_STAGES, decide_local
 
 LOCAL_STAGES = VERIFIED_STAGES
 USE_DP = "--no-dp" not in sys.argv
-if "--v2" in sys.argv:
-    import structure_ml
-
-    structure_ml.ACTIVE_VERSION = "v2"
 
 
 def replay(

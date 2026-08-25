@@ -1,4 +1,4 @@
-"""Entraîne le classifieur de lignes V2 (lignes porteuses de prix).
+"""Entraîne le classifieur de lignes (lignes porteuses de prix).
 
 Étiquetage automatique en deux régimes : sur un ticket que les règles
 valident (checksum OK), les rôles réellement joués sont la vérité ; sur un
@@ -12,8 +12,6 @@ Découpage : entraînement sur T1-train, évaluation sur T1-test.
 
 from __future__ import annotations
 
-import sys
-
 import joblib
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -23,7 +21,7 @@ from bench.device_flow import load_tickets
 from bench.failures import golden_checksummable
 from paths import RESULTS_DIR
 from reference.line_features import merged_lines
-from reference.line_features_v3 import fuzzy_lexicon_similarity
+from reference.line_features_v3 import featurize, fuzzy_lexicon_similarity
 from reference.line_labels import (
     CLASS_NAMES,
     DISCOUNT,
@@ -35,7 +33,7 @@ from reference.line_labels import (
 )
 from reference.lines import cluster_lines, deskew_words, load_words, median_angle
 from reference.structure import PAYMENT_WORDS, TOTAL_WORDS, _contains, extract
-from reference.structure_ml import FEATURIZERS, MODEL_PATHS
+from reference.structure_ml import MODEL_PATH
 
 SATURATION_THRESHOLD = 0.99
 FUZZY_ROLE_THRESHOLD = 0.6
@@ -142,11 +140,7 @@ def build_dataset(split: str, featurize):
     return np.array(features), np.array(labels)
 
 
-def _model_for(version: str) -> HistGradientBoostingClassifier:
-    if version == "v2":
-        return HistGradientBoostingClassifier(
-            max_iter=300, learning_rate=0.1, random_state=42
-        )
+def _model() -> HistGradientBoostingClassifier:
     return HistGradientBoostingClassifier(
         max_iter=600,
         learning_rate=0.05,
@@ -171,12 +165,10 @@ def _report_calibration(model, x_test, y_test) -> None:
 
 
 def main() -> None:
-    version = "v3" if "--v3" in sys.argv else "v2"
-    featurize = FEATURIZERS[version]
     x_train, y_train = build_dataset("t1train", featurize)
     x_test, y_test = build_dataset("t1test", featurize)
 
-    model = _model_for(version)
+    model = _model()
     model.fit(x_train, y_train)
 
     predictions = model.predict(x_test)
@@ -184,10 +176,9 @@ def main() -> None:
         classification_report(y_test, predictions, target_names=CLASS_NAMES, digits=3)
     )
     _report_calibration(model, x_test, y_test)
-    path = MODEL_PATHS[version]
-    path.parent.mkdir(exist_ok=True)
-    joblib.dump(model, path)
-    print(f"modèle {version} → {path}")
+    MODEL_PATH.parent.mkdir(exist_ok=True)
+    joblib.dump(model, MODEL_PATH)
+    print(f"modèle → {MODEL_PATH}")
 
 
 if __name__ == "__main__":
