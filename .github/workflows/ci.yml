@@ -40,6 +40,17 @@ jobs:
       - name: Analyze
         run: ${{ matrix.package.tool }} analyze ${{ matrix.package.scope }}
 
+      - name: Cache models
+        if: ${{ matrix.package.name == 'mybudget' }}
+        uses: actions/cache@v4
+        with:
+          path: assets/models
+          key: models-${{ hashFiles('tool/models/lock.env') }}
+
+      - name: Fetch models
+        if: ${{ matrix.package.name == 'mybudget' }}
+        run: ./tool/models/fetch.sh
+
       - name: Test
         if: ${{ !cancelled() }}
         run: ${{ matrix.package.tool }} test
