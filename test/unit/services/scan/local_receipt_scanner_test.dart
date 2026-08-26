@@ -55,6 +55,7 @@ void main() {
   late LineClassifier classifier;
   late RoleTagger tagger;
   late LabelLinkModel link;
+  late LabelSpanModel span;
 
   setUpAll(() async {
     final asset = Directory('assets/models')
@@ -107,6 +108,23 @@ void main() {
         jsonDecode(await File(linkAsset).readAsString()) as Map<String, dynamic>,
       ),
     );
+
+    final spanAsset = Directory('assets/models')
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.path)
+        .firstWhere(
+          (path) => RegExp(r'label_span_v\d+\.json$').hasMatch(path),
+          orElse: () => throw StateError(
+            'Aucun tagger de spans dans assets/models/ : '
+            'lancer ./tool/models/fetch.sh',
+          ),
+        );
+    span = LabelSpanModel(
+      LineClassifier.fromJson(
+        jsonDecode(await File(spanAsset).readAsString()) as Map<String, dynamic>,
+      ),
+    );
   });
 
   LocalReceiptScanner scannerOf(
@@ -118,6 +136,7 @@ void main() {
       classifier: classifier,
       tagger: tagger,
       link: link,
+      span: span,
       enhance: enhance,
     );
   }

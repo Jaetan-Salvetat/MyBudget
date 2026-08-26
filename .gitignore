@@ -65,6 +65,7 @@ assets/models/tokenizer_v*.bin
 assets/models/line_clf_v*.json
 assets/models/line_roles_v*.json
 assets/models/label_link_v*.json
+assets/models/label_span_v*.json
 # Source du tokenizer : sert seulement à régénérer le tokenizer binaire
 assets/models/tokenizer.json
 

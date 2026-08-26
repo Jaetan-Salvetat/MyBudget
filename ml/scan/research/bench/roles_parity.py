@@ -1,9 +1,9 @@
-"""Compare le tagger de rôles et le modèle de lien Dart à la référence
-Python, ligne à ligne.
+"""Compare les modèles Dart à la référence Python, ligne à ligne et mot à mot.
 
 Le portage est spécifié par cette égalité : mêmes features à 1e-9 près, même
-rôle prédit. Une colonne décalée ne se voit pas autrement — le modèle
-continue de répondre, simplement il répond autre chose que la référence.
+rôle prédit, même distance au libellé, même libellé découpé. Une colonne
+décalée ne se voit pas autrement — le modèle continue de répondre, simplement
+il répond autre chose que la référence.
 
     uv run python -m bench.roles_parity [<dossier d'annotations>...]
 """
@@ -21,10 +21,13 @@ from annotate.revalidate import _lines_of
 from annotate.run import ANNOTATIONS_DIR
 from line_classifier.export_link import EXPORT_PATH as LINK_EXPORT_PATH
 from line_classifier.export_roles import EXPORT_PATH
+from line_classifier.export_span import EXPORT_PATH as SPAN_EXPORT_PATH
 from paths import PIPELINE_DIR
 from reference.header_ml import role_probabilities
 from reference.labels_ml import label_offsets
 from reference.line_features_all import featurize
+from reference.spans_ml import label_of, label_probabilities
+from reference.word_features import featurize as featurize_words
 
 MAX_FEATURE_DRIFT = 1e-9
 DEFAULT_CORPORA = ("photos_pixel", "selection_web", "mixed")
@@ -36,6 +39,7 @@ def _dart_output(directories: list[Path]) -> dict:
         "tool/roles_parity.dart",
         f"--model={EXPORT_PATH}",
         f"--link={LINK_EXPORT_PATH}",
+        f"--span={SPAN_EXPORT_PATH}",
         *[str(directory) for directory in directories],
     ]
     result = subprocess.run(
@@ -60,7 +64,10 @@ def main(argv: list[str]) -> int:
     feature_mismatches = 0
     role_mismatches = 0
     link_mismatches = 0
+    word_mismatches = 0
+    label_mismatches = 0
     worst_drift = 0.0
+    worst_word_drift = 0.0
     for directory in directories:
         for path in sorted(directory.glob("*.json")):
             expected = dart.get(path.name)
@@ -93,6 +100,46 @@ def main(argv: list[str]) -> int:
                 ]
                 print(f"RÔLES {path.name}: lignes {differing[:5]}")
 
+            python_words = [
+                value
+                for row in featurize_words(lines)
+                for value in row
+            ]
+            dart_words = [
+                value for row in expected["wordFeatures"] for value in row
+            ]
+            if len(python_words) != len(dart_words):
+                word_mismatches += 1
+                print(
+                    f"FORME MOTS {path.name}: {len(python_words)} "
+                    f"vs {len(dart_words)}"
+                )
+            else:
+                word_drift = max(
+                    (
+                        float(np.max(np.abs(np.array(a) - np.array(b))))
+                        for a, b in zip(python_words, dart_words)
+                    ),
+                    default=0.0,
+                )
+                worst_word_drift = max(worst_word_drift, word_drift)
+                if word_drift > MAX_FEATURE_DRIFT:
+                    word_mismatches += 1
+                    print(f"FEATURES MOTS {path.name}: écart {word_drift:.2e}")
+
+            spans = label_probabilities(lines)
+            python_labels = [
+                label_of(line, spans[index]) for index, line in enumerate(lines)
+            ]
+            if python_labels != expected["labels"]:
+                label_mismatches += 1
+                differing = [
+                    i
+                    for i, (a, b) in enumerate(zip(python_labels, expected["labels"]))
+                    if a != b
+                ]
+                print(f"LIBELLÉS {path.name}: lignes {differing[:5]}")
+
             python_offsets = [int(value) for value in label_offsets(lines)]
             if python_offsets != expected["labelOffsets"]:
                 link_mismatches += 1
@@ -104,11 +151,22 @@ def main(argv: list[str]) -> int:
                 print(f"LIEN {path.name}: lignes {differing[:5]}")
 
     print(f"\n=== {tickets} tickets")
-    print(f"  écart max de features : {worst_drift:.2e}")
+    print(f"  écart max de features de ligne : {worst_drift:.2e}")
+    print(f"  écart max de features de mot   : {worst_word_drift:.2e}")
     print(f"  tickets aux features divergentes : {feature_mismatches}")
+    print(f"  tickets aux features de mot divergentes : {word_mismatches}")
     print(f"  tickets aux rôles divergents     : {role_mismatches}")
     print(f"  tickets au lien divergent        : {link_mismatches}")
-    return 1 if feature_mismatches or role_mismatches or link_mismatches else 0
+    print(f"  tickets au libellé divergent     : {label_mismatches}")
+    return (
+        1
+        if feature_mismatches
+        or role_mismatches
+        or link_mismatches
+        or word_mismatches
+        or label_mismatches
+        else 0
+    )
 
 
 if __name__ == "__main__":

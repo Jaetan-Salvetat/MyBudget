@@ -11,6 +11,9 @@ SCAN_DIR = RESEARCH_DIR.parent
 PROJECT_ROOT = SCAN_DIR.parent.parent
 PIPELINE_DIR = SCAN_DIR / "pipeline"
 MODELS_DIR = RESEARCH_DIR / "models"
+ROLE_MODEL_PATH = MODELS_DIR / "line_roles.joblib"
+LINK_MODEL_PATH = MODELS_DIR / "label_link.joblib"
+SPAN_MODEL_PATH = MODELS_DIR / "label_span.joblib"
 APP_MODELS_DIR = PROJECT_ROOT / "assets" / "models"
 
 DATA_DIR = SCAN_DIR / "data"

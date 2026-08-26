@@ -378,6 +378,33 @@ def _label_of(line: PhysicalLine, price_word: Word) -> str:
     return " ".join(word.text for word in line.words if word is not price_word)
 
 
+# Le libellé occupe la zone de gauche du ticket ; les colonnes de droite ne
+# portent que des nombres — prix, devise, classe de TVA, quantité. La
+# frontière n'est pas un réglage : elle est mesurée sur ce ticket-là, au bord
+# gauche de ses mots-prix. Le quantile absorbe les prix imprimés plus à
+# gauche que la colonne (remise en pourcentage, prix unitaire entre
+# parenthèses) sans laisser un seul d'entre eux déplacer la frontière.
+LABEL_COLUMN_QUANTILE = 0.20
+
+
+def _label_column_left(merged: list[PhysicalLine]) -> float | None:
+    lefts = sorted(
+        priced[1].left
+        for priced in (_rightmost_price(line) for line in merged)
+        if priced is not None
+    )
+    if not lefts:
+        return None
+    return lefts[int(len(lefts) * LABEL_COLUMN_QUANTILE)]
+
+
+def _label_zone(line: PhysicalLine, column: float | None) -> str:
+    """Ce que la ligne imprime à gauche de la colonne des nombres."""
+    if column is None:
+        return line.text
+    return " ".join(word.text for word in line.words if word.left < column)
+
+
 def levenshtein(left: str, right: str) -> int:
     previous = list(range(len(right) + 1))
     for row, left_char in enumerate(left, start=1):
@@ -467,6 +494,7 @@ def extract(
     date = _find_date(lines)
     column_left = _price_column_left(lines)
     merged = [merge_price_fragments(line) for line in lines]
+    label_column = _label_column_left(merged)
     total_index, total = _find_final_total(merged)
     if roles is not None and total_index is not None:
         roles[total_index] = "total"
@@ -519,7 +547,7 @@ def extract(
             pending_label = None
             continue
 
-        label = _label_of(line, price_word).strip()
+        label = _label_zone(line, label_column).strip()
 
         if price < 0 or _is_discount_line(label):
             if items:

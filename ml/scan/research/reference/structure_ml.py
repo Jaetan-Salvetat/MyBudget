@@ -23,6 +23,8 @@ from reference.structure import (
     ExtractedReceipt,
     _clean_name,
     _find_date,
+    _label_column_left,
+    _label_zone,
     _plausible_label,
 )
 
@@ -65,6 +67,7 @@ def receipt_from_labels(
     être négatif. `reference_total` : montant de référence prouvé sans ligne
     total étiquetée (décomposition TVA, espèces − rendu)."""
     pending_by_index = _pending_labels(merged, lines)
+    label_column = _label_column_left(merged)
     items: list[ExtractedItem] = []
     total: float | None = None
     payment: float | None = None
@@ -73,10 +76,11 @@ def receipt_from_labels(
         if label == ITEM and price < 0:
             label = DISCOUNT
         if label == ITEM:
+            zone = _label_zone(priced.line, label_column).strip()
             name = (
-                _plausible_label(priced.label)
+                _plausible_label(zone)
                 or pending_by_index[priced.index]
-                or priced.label
+                or zone
             )
             items.append(
                 ExtractedItem(

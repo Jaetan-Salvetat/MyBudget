@@ -18,8 +18,8 @@ import joblib
 
 from annotate.dataset import load
 from line_classifier.export import export, predict_proba_exported
-from line_classifier.train_link import LINK_MODEL_PATH, dataset
-from paths import MODELS_DIR
+from line_classifier.train_link import dataset
+from paths import LINK_MODEL_PATH, MODELS_DIR
 from reference.line_features_all import window_feature_names
 
 EXPORT_PATH = MODELS_DIR / "label_link.json"

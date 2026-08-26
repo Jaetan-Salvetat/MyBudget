@@ -22,10 +22,8 @@ from sklearn.metrics import classification_report
 
 from annotate.dataset import AnnotatedReceipt, load
 from annotate.schema import ITEM
-from paths import MODELS_DIR
+from paths import LINK_MODEL_PATH, MODELS_DIR
 from reference.line_features_all import featurize, window
-
-LINK_MODEL_PATH = MODELS_DIR / "label_link.joblib"
 
 # Mesuré sur le corpus : 96 % des libellés déportés sont une ligne au-dessus
 # de leur prix, le reste à deux ou trois. Au-delà, la vérité annotée est trop

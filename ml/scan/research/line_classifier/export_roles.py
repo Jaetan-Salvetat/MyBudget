@@ -17,8 +17,8 @@ import joblib
 from annotate.dataset import load
 from annotate.schema import ROLES
 from line_classifier.export import export, predict_proba_exported
-from line_classifier.train_roles import ROLE_MODEL_PATH, dataset
-from paths import MODELS_DIR
+from line_classifier.train_roles import dataset
+from paths import MODELS_DIR, ROLE_MODEL_PATH
 from reference.line_features_all import FEATURE_NAMES
 
 EXPORT_PATH = MODELS_DIR / "line_roles.json"

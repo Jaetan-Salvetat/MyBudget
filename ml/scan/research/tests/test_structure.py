@@ -682,3 +682,86 @@ class TestZeroAmountLines:
         )
         assert [i.amount for i in extract(lines).items] == [34.99]
 
+
+
+class TestLabelColumn:
+    """Le libellé est la zone de gauche du ticket, pas le résidu d'une
+    soustraction. Les colonnes de droite — devise, classe de TVA, quantité —
+    n'en font jamais partie, et une ligne dont la zone de gauche ne porte pas
+    de mot n'est pas un article."""
+
+    def test_vat_class_letter_is_not_part_of_the_name(self):
+        lines = receipt_lines(
+            [
+                [("MAXI", 10)],
+                [("SAFE", 0), ("Maison", 5), ("toil", 12), ("399,00", 30), ("D", 38)],
+                [("Reduction", 0), ("-50,00", 30)],
+                [("TOTAL", 0), ("349,00", 30)],
+            ]
+        )
+        result = extract(lines)
+        assert [(i.name, i.amount, i.discount) for i in result.items] == [
+            ("SAFE Maison toil", 399.00, 50.00),
+        ]
+        assert result.checksum_ok
+
+    def test_vat_class_digit_is_not_part_of_the_name(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [("EMMENTAL", 0), ("RAPE", 9), ("1.22", 30), ("2", 38)],
+                [("POMME", 0), ("ROYAL", 6), ("GALA", 12), ("3.58", 30), ("2", 38)],
+                [("TOTAL", 0), ("4.80", 30)],
+            ]
+        )
+        result = extract(lines)
+        assert [i.name for i in result.items] == ["EMMENTAL RAPE", "POMME ROYAL GALA"]
+        assert result.checksum_ok
+
+    def test_unit_price_row_names_no_article(self):
+        """Maxi Zoo, Zooplus, jardineries : le prix unitaire est imprime seul
+        au-dessus du nom, et le montant se retrouve sur deux lignes. Celle qui
+        n'a que la quantite a gauche ne nomme rien — elle ne peut plus
+        produire « x EUR ». Decider qu'elle n'est pas un article demande de
+        savoir si le libelle du dessus en est un : c'est le tagger de roles
+        qui tranche, pas la colonne."""
+        lines = receipt_lines(
+            [
+                [("MAXI", 10)],
+                [("1", 8), ("x", 11), ("16,99", 24), ("EUR", 32)],
+                [("Art/Ean", 0), ("4047777102236", 8)],
+                [
+                    ("PREM", 0),
+                    ("Litiere", 6),
+                    ("AGGLO", 15),
+                    ("12KG", 22),
+                    ("16,99", 30),
+                    ("D", 38),
+                ],
+                [("Reduction", 0), ("-4,49", 30)],
+                [("TOTAL", 0), ("12,50", 30)],
+            ]
+        )
+        names = [i.name for i in extract(lines).items]
+        assert "PREM Litiere AGGLO 12KG" in names
+        assert not any("EUR" in name for name in names)
+
+    def test_name_spanning_the_left_zone_is_kept_whole(self):
+        lines = receipt_lines(
+            [
+                [("STORE", 10)],
+                [
+                    ("CHOCO", 0),
+                    ("EXCELLENCE", 6),
+                    ("NR", 17),
+                    ("85%", 20),
+                    ("LINDT", 24),
+                    ("1.19", 30),
+                    ("2", 38),
+                ],
+                [("TOTAL", 0), ("1.19", 30)],
+            ]
+        )
+        assert [i.name for i in extract(lines).items] == [
+            "CHOCO EXCELLENCE NR 85% LINDT"
+        ]

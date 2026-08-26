@@ -15,7 +15,7 @@ import joblib
 import numpy as np
 
 from annotate.schema import DATE_LINE, ROLES, STORE
-from line_classifier.train_roles import ROLE_MODEL_PATH
+from paths import ROLE_MODEL_PATH
 from reference.line_features_all import featurize
 from reference.lines import PhysicalLine
 from reference.structure import _find_date
@@ -36,6 +36,12 @@ def role_probabilities(lines: list[PhysicalLine]) -> np.ndarray:
     if not rows:
         return np.zeros((0, len(ROLES)))
     return load_role_model().predict_proba(np.array(rows))
+
+
+def predicted_roles(lines: list[PhysicalLine]) -> list[str]:
+    """Le rôle le plus probable de chaque ligne — l'argmax, sans seuil : la
+    décision se juge au checksum, pas à une confiance choisie à la main."""
+    return [ROLES[int(row.argmax())] for row in role_probabilities(lines)]
 
 
 def _best_line(

@@ -713,6 +713,82 @@ Le gap « libellé rattaché au mauvais prix » passe de 40 à 33 tickets. Les 3
 restants ne sont plus un problème de rattachement : sur 26 d'entre eux le
 libellé attendu n'existe nulle part dans l'OCR, abîmé à la lecture.
 
+### Le découpage du libellé, appris (2026-08-26)
+
+Le rattachement désigne la bonne ligne ; le libellé restait découpé dedans par
+une règle — une coupe verticale unique, le quantile 0,9 des prix
+(`_label_column_left`), plus quatre expressions régulières de nettoyage
+(`_clean_name`). Mesuré sur les 186 libellés faux de T1-test, **78 % venaient
+de ce découpage** et non du rattachement ni de l'OCR :
+
+| cause | articles | tickets perdus *uniquement* pour ça |
+|---|---|---|
+| découpage du libellé | 146 (78 %) | 69 (14,3 %) |
+| rattachement à la mauvaise ligne | 21 (11 %) | 14 (2,9 %) |
+| libellé absent de l'OCR | 19 (10 %) | 14 (2,9 %) |
+
+Sur les 103 résidus, 88 sont des tokens purement numériques : un code article
+(`583877 DIAMOND TAPIS`), un code rayon (`SANDW 6015`), une quantité
+(`*AVOCAT 2x`), un prix unitaire (`CVDC CARTE VITRIN 4.40 1`). Un ticket
+imprime trois à cinq colonnes et leurs frontières changent d'une enseigne à
+l'autre : **une coupe scalaire ne peut pas les exprimer.**
+
+La colonne devient donc une feature *par mot* (`reference/word_features.py`) :
+géométrie relative, forme du token, et surtout la **bande verticale** — ce que
+les autres lignes du ticket impriment à cette abscisse. Un mot dont la bande
+est numérique appartient à une colonne ; le même mot ailleurs appartient au
+nom.
+
+Le décodage (`reference/spans_ml.py`) impose ce qu'un libellé est par nature —
+un intervalle **contigu** de mots portant des lettres — et rien de plus.
+L'intervalle retenu est celui de log-odds maximale : un mot n'y entre que s'il
+rapporte plus qu'il ne coûte. Aucun seuil.
+
+La vérité vient de l'alignement du libellé du golden sur les mots d'une ligne
+(`truth/spans.py`), au-dessus de 0,95 de ressemblance : ce que l'OCR a abîmé
+n'enseignerait qu'une frontière inventée, et le filtre joue ici le rôle que le
+checksum joue pour les montants. Elle se lit directement des images sans
+passer par l'annotation de rôles — celle-ci rejette les tickets dont un
+montant est illisible, et ce sont eux qui portent les découpages rares : 1 516
+lignes d'entraînement en passant par elle, **2 108** sans.
+
+A/B à vérité et flow identiques, seul le rattachement du libellé change :
+
+| T1-test (483 tickets jugés) | avant | après |
+|---|---|---|
+| tickets parfaits | 307 (63,6 %) | **340 (70,4 %)** |
+| articles faux | 148 | **118** |
+| enseigne / date / total faux | 28 / 19 / 18 | inchangés |
+| vérifiés / faux vérifiés | 93,2 % / 1 | inchangés |
+
+Le tagger rend le bon intervalle sur **96,0 %** des 2 166 lignes du jeu
+d'évaluation. Comme le classifieur de lignes, il ne touche à aucun montant :
+un libellé ne peut ni sauver ni corrompre un checksum.
+
+`export_span.py` rend le JSON portable, et `line_classifier/export.py` gagne
+au passage le cas **binaire** — une seule sortie brute, lue à la sigmoïde là
+où un modèle multiclasse passe au softmax. `bench.roles_parity` compare
+désormais cinq choses : features de ligne, features de mot, rôle, distance au
+libellé et **libellé découpé** — 0 divergence sur 999 tickets de T1, écart max
+de features de mot 5,6e-16.
+
+**Le nombre en tête reste ouvert, et il n'est pas de notre côté.** Sur les 207
+lignes de T1-test qui commencent par un entier, le golden garde ce nombre dans
+le libellé 146 fois et l'exclut 61 fois — « 1 MxBO Filet-Fish » d'un côté,
+« 1 M GIANT » → « M GIANT » de l'autre, sur des tickets de même famille. La
+décision est cohérente *par ticket* (98 tickets cohérents contre 1), donc
+l'annotateur suit quelque chose ; mais aucune géométrie disponible ne le
+sépare : bande numérique, dispersion des bords de colonne, écart au mot
+suivant rapporté à l'écart habituel du ticket — tous mesurés, tous confondus
+entre les deux cas (dispersion du bord droit 0,073 contre 0,054, écart 0,0056
+contre 0,0060). Deux tentatives de features et un rééquilibrage des classes
+plus tard, le modèle exclut 25 % de ce qu'il devrait exclure.
+
+C'est une limite de la **référence**, pas du modèle : le golden ne dit pas si
+une quantité fait partie du nom. Le remède n'est pas un meilleur classifieur,
+c'est de sortir la quantité du libellé et d'en faire un champ — la question
+disparaît alors des deux côtés, celui du modèle comme celui de la vérité.
+
 ### Le golden se juge lui-même (2026-08-26)
 
 Le golden est une annotation LLM sur image : il se trompe, et en silence. Il
@@ -804,7 +880,8 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
   fusion des passes (`fuse_passes.py`), décodage sous contrainte checksum
   (`decode_constrained.py`), features du classifieur (`line_features.py`,
   `line_features_v3.py`) et contrat de classes (`line_labels.py`),
-  structuration par classifieur (`structure_ml.py`), politique de flow
+  structuration par classifieur (`structure_ml.py`), features par mot et
+  découpage du libellé (`word_features.py`, `spans_ml.py`), politique de flow
   (`flow.py`, `local_flow.py`).
 - **`research/bench/`** — bench du mode local rejoué des dumps (`local.py`,
   l'instrument central), taxonomie des échecs (`failures.py`), diagnostics
@@ -813,8 +890,9 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
   multi-étages historique (`flow.py`), benchmarks LLM/VLM (`gemma.py`,
   `gemini.py`, `capacity.py`).
 - **`research/truth/`** — vérité depuis les transcriptions (`transcript.py`),
-  rôle réel de chaque ligne (`roles.py`), sélection des tickets à vérité
-  fiable (`selection.py`), construction du golden (`annotate.py`).
+  rôle réel de chaque ligne (`roles.py`), mots qui composent un libellé
+  (`spans.py`), sélection des tickets à vérité fiable (`selection.py`),
+  construction du golden (`annotate.py`).
 - **`research/corpus/`** — générateur synthétique (`content.py`, `render.py`,
   `generate.py`), reconstruction des sélections (`rebuild.py`).
 - **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,

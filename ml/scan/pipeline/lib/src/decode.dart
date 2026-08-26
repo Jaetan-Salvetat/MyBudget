@@ -620,6 +620,7 @@ ExtractedReceipt? receiptFromLabels(
   double? referenceTotal,
 }) {
   final pendingByIndex = _pendingLabels(merged, lines);
+  final labelColumn = labelColumnLeft(merged);
   final items = <ExtractedItem>[];
   double? total;
   double? payment;
@@ -628,10 +629,9 @@ ExtractedReceipt? receiptFromLabels(
     final price = roundCents(priced.price);
     if (label == labelItem && price < 0) label = labelDiscount;
     if (label == labelItem) {
+      final zone = labelZone(priced.line, labelColumn).trim();
       final name =
-          plausibleLabel(priced.label) ??
-          pendingByIndex[priced.index] ??
-          priced.label;
+          plausibleLabel(zone) ?? pendingByIndex[priced.index] ?? zone;
       items.add(
         ExtractedItem(
           name: cleanName(name),

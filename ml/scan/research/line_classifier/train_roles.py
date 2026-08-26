@@ -26,10 +26,9 @@ from sklearn.metrics import classification_report
 
 from annotate.dataset import AnnotatedReceipt, load
 from annotate.schema import ROLES
-from paths import MODELS_DIR
+from paths import ROLE_MODEL_PATH
 from reference.line_features_all import featurize
 
-ROLE_MODEL_PATH = MODELS_DIR / "line_roles.joblib"
 ROLE_INDEX = {role: index for index, role in enumerate(ROLES)}
 
 

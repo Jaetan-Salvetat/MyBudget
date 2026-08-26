@@ -35,6 +35,7 @@ class LocalReceiptScanner {
   final LineClassifier _classifier;
   final RoleTagger _tagger;
   final LabelLinkModel _link;
+  final LabelSpanModel _span;
   final ReceiptImageEnhancer _enhance;
 
   const LocalReceiptScanner({
@@ -42,6 +43,7 @@ class LocalReceiptScanner {
     required this._classifier,
     required this._tagger,
     required this._link,
+    required this._span,
     this._enhance = enhanceReceiptForRetry,
   });
 
@@ -95,7 +97,8 @@ class LocalReceiptScanner {
     final lines = outcome.sourceLines.isEmpty ? pass1 : outcome.sourceLines;
     final roles = _tagger.probabilities(lines);
     final offsets = _link.offsets(lines);
-    step('tagger de rôles et modèle de lien (${lines.length} lignes)');
+    final spans = _span.probabilities(lines);
+    step('tagger de rôles, lien et spans (${lines.length} lignes)');
 
     // Dès qu'on a dû aller en seconde passe, c'est elle qui porte la lecture
     // retenue : son enseigne et sa date priment, la première ne comble que
@@ -107,7 +110,7 @@ class LocalReceiptScanner {
       store: storeOf(lines, roles) ?? reference.store ?? fallback?.store,
       date: dateOf(lines, roles) ?? reference.date ?? fallback?.date,
       total: outcome.total,
-      items: relabel(outcome.items, lines, offsets),
+      items: relabel(outcome.items, lines, offsets, spans),
     );
   }
 

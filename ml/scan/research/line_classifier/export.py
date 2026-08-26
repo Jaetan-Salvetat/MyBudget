@@ -1,11 +1,12 @@
-"""Exporte le classifieur de lignes (HistGradientBoosting) en JSON portable.
+"""Exporte un HistGradientBoosting en JSON portable.
 
-Format : baseline par classe + liste d'itérations, chaque itération = un
-arbre par classe, chaque arbre = tableau de nœuds (feature, seuil, gauche,
+Format : baseline par sortie + liste d'itérations, chaque itération = un
+arbre par sortie, chaque arbre = tableau de nœuds (feature, seuil, gauche,
 droite, valeur, sens des valeurs manquantes). Inférence pure Dart dans
-`pipeline/lib/src/classifier.dart` : score brut = baseline + Σ feuilles,
-softmax. `predict_proba_exported` est la référence Python du même calcul,
-vérifiée égale à sklearn.
+`pipeline/lib/src/classifier.dart` : score brut = baseline + Σ feuilles, puis
+softmax — ou sigmoïde quand le modèle est binaire et n'a qu'une sortie.
+`predict_proba_exported` est la référence Python du même calcul, vérifiée
+égale à sklearn.
 """
 
 from __future__ import annotations
@@ -72,10 +73,18 @@ def _tree_value(nodes: list[list[float]], row: list[float]) -> float:
 
 
 def predict_proba_exported(exported: dict, row: list[float]) -> list[float]:
+    """Référence Python de l'inférence Dart, égale à sklearn.
+
+    Un modèle binaire n'a qu'une sortie brute et se lit à la sigmoïde ; au-delà
+    de deux classes, une sortie par classe et un softmax. C'est la convention
+    de sklearn, et le Dart applique la même règle."""
     raw = list(exported["baseline"])
     for trees in exported["iterations"]:
         for class_index, nodes in enumerate(trees):
             raw[class_index] += _tree_value(nodes, row)
+    if len(raw) == 1:
+        probability = 1 / (1 + math.exp(-raw[0]))
+        return [1 - probability, probability]
     peak = max(raw)
     weights = [math.exp(v - peak) for v in raw]
     total = sum(weights)

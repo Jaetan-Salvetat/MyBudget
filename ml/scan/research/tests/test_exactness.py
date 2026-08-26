@@ -39,6 +39,32 @@ class TestNameMatches:
     def test_refuse_un_libelle_d_un_autre_article(self) -> None:
         assert not name_matches("PAIN COMPLET", "LESSIVE FEUILLE X80")
 
+    def test_refuse_un_mot_que_la_verite_ne_porte_pas(self) -> None:
+        """La classe de TVA, la quantité ou un code imprimé dans une autre
+        colonne n'a rien à faire dans un nom : c'est lui qui part en
+        catégorisation, et l'utilisateur le lit tel quel."""
+        assert not name_matches("EMMENTAL RAPE 2", "EMMENTAL RAPE")
+        assert not name_matches("SAFE Maison toil D", "SAFE Maison toil")
+        assert not name_matches("MPDC MARQUE PAG 2 20 1", "MPDC MARQUE PAG")
+        assert not name_matches("SANDW 6015", "SANDW")
+
+    def test_tolere_un_libelle_plus_court_que_la_verite(self) -> None:
+        """L'OCR coupe une ligne, la colonne coupe une référence : le nom
+        reste celui de l'article. Ce qui manque ne trompe personne, ce qui
+        est en trop si."""
+        assert name_matches("M GIANT", "1 M GIANT")
+        assert name_matches(
+            "W TEE SHIRT FLUIDE COL", "W TEE SHIRT FLUIDE COL 685522 BLEU L"
+        )
+
+    def test_degat_ocr_a_nombre_de_mots_egal_reste_tolere(self) -> None:
+        assert name_matches("140G 1ARTE POMMES", "140G TARTE POMMES")
+        assert name_matches("OEUFS PPA LABEL ROUGE U BTE XS", "OEUFS PPA LABEL ROUGE U BTE X6")
+
+    def test_refuse_un_libelle_qui_ne_nomme_rien(self) -> None:
+        assert not name_matches("x EUR", "PREM Litiere AGGLO 12KG")
+        assert not name_matches("0,792 kg 2,65 kg", "POIRE CONFERENCE")
+
     def test_refuse_un_libelle_vide_de_sens(self) -> None:
         """Le prix imprimé sur sa propre ligne laisse un libellé qui ne
         nomme rien — c'est le défaut qui envoie un ticket entier dans la

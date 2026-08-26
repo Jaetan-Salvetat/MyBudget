@@ -6,8 +6,8 @@
 #   ./tool/models/publish.sh --dry-run  # ce qui serait publie, sans rien publier
 #
 # Un seul script, une seule release, une seule version : le quick-add
-# (modele ONNX + tokenizer) et les trois modeles du scan (classifieur de
-# lignes, tagger de roles, modele de lien) avancent ensemble. Ils sont
+# (modele ONNX + tokenizer) et les quatre modeles du scan (classifieur de
+# lignes, tagger de roles, modele de lien, tagger de spans) avancent ensemble. Ils sont
 # utilises ensemble, et une installation qui melangerait les versions
 # deciderait autrement que la reference mesuree.
 #

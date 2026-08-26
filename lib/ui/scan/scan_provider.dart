@@ -8,6 +8,7 @@ import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/label_link_asset.dart';
+import 'package:mybudget/core/services/scan/label_span_asset.dart';
 import 'package:mybudget/core/services/scan/line_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
@@ -47,6 +48,12 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
           as Map<String, dynamic>,
     ),
   );
+  final span = LabelSpanModel(
+    LineClassifier.fromJson(
+      jsonDecode(await rootBundle.loadString(await labelSpanAssetFromManifest()))
+          as Map<String, dynamic>,
+    ),
+  );
   final recognizer = MlKitReceiptLineRecognizer();
   ref.onDispose(recognizer.close);
   return LocalReceiptScanner(
@@ -54,6 +61,7 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
     classifier: classifier,
     tagger: tagger,
     link: link,
+    span: span,
   );
 }
 

@@ -1,21 +1,17 @@
-"""Rattachement du libellé à son article, décidé par le modèle de lien.
+"""Rattachement du libellé à son article : quelle ligne, puis quels mots.
 
-Les règles cherchent le libellé d'un article sur sa propre ligne, et à défaut
-sur la dernière ligne sans prix rencontrée. Quand le prix est imprimé sur sa
-propre ligne — pesée, quantité, code-barres — elles ramassent ce qui traînait
-autour : « 0,792 kg 2,65 €/kg » au lieu de « POIRE CONFERENCE ». Mesuré sur
-T1-test : la première cause d'article faux à montants justes.
+Les règles cherchaient le libellé d'un article sur sa propre ligne, et à
+défaut sur la dernière ligne sans prix rencontrée. Quand le prix est imprimé
+sur sa propre ligne — pesée, quantité, code-barres — elles ramassaient ce qui
+traînait autour : « 0,792 kg 2,65 €/kg » au lieu de « POIRE CONFERENCE ».
 
-**La décision revient au modèle, pas à un réglage.** La version précédente
-demandait au tagger de rôles si la ligne du dessus était un `item_label`, puis
-tranchait avec deux nombres choisis à la main : un recul d'une ligne, un seuil
-de confiance. Or la distance dépend du ticket — chez une enseigne le prix est
-sur la ligne du nom, chez une autre il vient après une ligne de pesée — et le
-corpus annote déjà la réponse. La question posée ici est « à quelle distance
-au-dessus est le libellé de cet article ? », et `train_link` l'apprend.
-
-Le modèle désigne donc seul la ligne ; les règles gardent la main quand il
-répond « sur la ligne du prix ».
+**Les deux décisions reviennent à des modèles, pas à des réglages.** La
+première — *quelle ligne* — était un recul d'une ligne et un seuil de
+confiance choisis à la main ; `train_link` l'apprend. La seconde — *quels
+mots de cette ligne* — était une coupe de colonne unique et quatre
+expressions régulières ; `train_span` l'apprend. Mesuré sur T1-test, 78 % des
+libellés faux venaient de cette seconde décision : un code article devant,
+une quantité ou un prix unitaire derrière, sur la bonne ligne.
 """
 
 from __future__ import annotations
@@ -23,10 +19,11 @@ from __future__ import annotations
 import joblib
 import numpy as np
 
-from line_classifier.train_link import LINK_MODEL_PATH
+from paths import LINK_MODEL_PATH
 from reference.line_features_all import featurize, window
 from reference.lines import PhysicalLine
-from reference.structure import ExtractedItem, _clean_name, _plausible_label
+from reference.spans_ml import label_of
+from reference.structure import ExtractedItem
 
 _model = None
 
@@ -52,23 +49,29 @@ def relabel(
     items: list[ExtractedItem],
     lines: list[PhysicalLine],
     offsets: np.ndarray,
+    probabilities: list[list[float]],
 ) -> list[ExtractedItem]:
-    """Donne à chaque article le libellé de la ligne que le modèle désigne.
+    """Donne à chaque article les mots que les modèles désignent.
 
-    Les lignes désignées sont consommées dans l'ordre des articles, chacune
-    une seule fois : deux articles ne partagent pas un nom."""
+    Les lignes déportées sont consommées dans l'ordre des articles, chacune
+    une seule fois : deux articles ne partagent pas un nom. La ligne du prix,
+    elle, appartient à son article — elle n'a pas à être réservée."""
     if not len(offsets):
         return items
     used: set[int] = set()
     for item in items:
         if item.line_index is None or item.line_index >= len(offsets):
             continue
-        candidate = item.line_index - int(offsets[item.line_index])
-        if candidate == item.line_index or candidate < 0 or candidate in used:
+        carrier = item.line_index - int(offsets[item.line_index])
+        if not 0 <= carrier < len(lines) or carrier >= len(probabilities):
             continue
-        label = _plausible_label(lines[candidate].text)
+        deported = carrier != item.line_index
+        if deported and carrier in used:
+            continue
+        label = label_of(lines[carrier], probabilities[carrier])
         if label is None:
             continue
-        item.name = _clean_name(label)
-        used.add(candidate)
+        item.name = label
+        if deported:
+            used.add(carrier)
     return items

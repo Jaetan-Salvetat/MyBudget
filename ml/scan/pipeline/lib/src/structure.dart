@@ -10,7 +10,7 @@ import 'dart:math' as math;
 import 'accent_fold.dart';
 import 'lines.dart';
 
-final RegExp _pricePattern = RegExp(r'^-?\d{1,4}[.,]\d{2}$');
+final RegExp pricePattern = RegExp(r'^-?\d{1,4}[.,]\d{2}$');
 final RegExp quantityPattern = RegExp(r'^(\d{1,2})[xX*](-?\d{1,4}[.,]\d{2})$');
 final RegExp weightPattern = RegExp(
   r'^\d{1,3}[.,]\d{1,3}\s?[Kk]?[Gg][xX*]\d{1,4}[.,]\d{1,2}.*$',
@@ -289,7 +289,7 @@ double? parsePrice(String text) {
     _trailingLetterPattern,
     (match) => match.group(1)!,
   );
-  if (!_pricePattern.hasMatch(cleaned)) {
+  if (!pricePattern.hasMatch(cleaned)) {
     final deglyphed = _deglyphed(cleaned);
     if (deglyphed == null) return null;
     cleaned = deglyphed;
@@ -328,7 +328,7 @@ String? _deglyphed(String text) {
   final candidate = text.split('').map((char) {
     return _glyphTranslation[char] ?? char;
   }).join();
-  return _pricePattern.hasMatch(candidate) ? candidate : null;
+  return pricePattern.hasMatch(candidate) ? candidate : null;
 }
 
 final RegExp _letterPattern = RegExp(r'\p{L}', unicode: true);
@@ -453,12 +453,6 @@ PricedWord? _splitPrice(PhysicalLine line) {
   return PricedWord(value, decimals);
 }
 
-String _labelOf(PhysicalLine line, Word priceWord) {
-  return line.words
-      .where((word) => !identical(word, priceWord))
-      .map((word) => word.text)
-      .join(' ');
-}
 
 /// Équivalent du NFD + suppression des diacritiques de la référence Python :
 /// couvre le latin de base et le latin étendu-A précomposés — l'OCR sort
@@ -564,6 +558,34 @@ double? _priceColumnLeft(List<PhysicalLine> lines) {
   return medianRight * 0.75;
 }
 
+/// Le libellé occupe la zone de gauche du ticket ; les colonnes de droite ne
+/// portent que des nombres — prix, devise, classe de TVA, quantité. La
+/// frontière n'est pas un réglage : elle est mesurée sur ce ticket-là, au bord
+/// gauche de ses mots-prix. Le quantile absorbe les prix imprimés plus à
+/// gauche que la colonne (remise en pourcentage, prix unitaire entre
+/// parenthèses) sans laisser un seul d'entre eux déplacer la frontière.
+const double labelColumnQuantile = 0.20;
+
+double? labelColumnLeft(List<PhysicalLine> merged) {
+  final lefts = <double>[];
+  for (final line in merged) {
+    final priced = rightmostPrice(line);
+    if (priced != null) lefts.add(priced.word.left);
+  }
+  if (lefts.isEmpty) return null;
+  lefts.sort();
+  return lefts[(lefts.length * labelColumnQuantile).floor()];
+}
+
+/// Ce que la ligne imprime à gauche de la colonne des nombres.
+String labelZone(PhysicalLine line, double? column) {
+  if (column == null) return line.text;
+  return line.words
+      .where((word) => word.left < column)
+      .map((word) => word.text)
+      .join(' ');
+}
+
 final RegExp _compactLabelPattern = RegExp(r'EUR|€|\s+');
 
 ExtractedReceipt extract(List<PhysicalLine> lines) {
@@ -571,6 +593,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
   final date = findDate(lines);
   final columnLeft = _priceColumnLeft(lines);
   final merged = [for (final line in lines) mergePriceFragments(line)];
+  final labelColumn = labelColumnLeft(merged);
   final (totalIndex, total) = _findFinalTotal(merged);
 
   final items = <ExtractedItem>[];
@@ -620,7 +643,7 @@ ExtractedReceipt extract(List<PhysicalLine> lines) {
       continue;
     }
 
-    final label = _labelOf(line, priced.word).trim();
+    final label = labelZone(line, labelColumn).trim();
 
     if (priced.price < 0 || _isDiscountLine(label)) {
       if (items.isNotEmpty) {

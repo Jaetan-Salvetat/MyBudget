@@ -188,4 +188,72 @@ void main() {
       expect(build(total: 9.0).verifiedTotal, isNull);
     });
   });
+
+  group('libellé désigné par la colonne', () {
+    test('la classe de TVA ne fait pas partie du nom', () {
+      final lines = receiptLines([
+        [('MAXI', 10)],
+        [('SAFE', 0), ('Maison', 5), ('toil', 12), ('399,00', 30), ('D', 38)],
+        [('Reduction', 0), ('-50,00', 30)],
+        [('TOTAL', 0), ('349,00', 30)],
+      ]);
+      final receipt = extract(lines);
+      expect(receipt.items.single.name, 'SAFE Maison toil');
+      expect(receipt.items.single.discount, 50.00);
+      expect(receipt.checksumOk, isTrue);
+    });
+
+    test('le chiffre de TVA ne fait pas partie du nom', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [('EMMENTAL', 0), ('RAPE', 9), ('1.22', 30), ('2', 38)],
+        [('POMME', 0), ('ROYAL', 6), ('GALA', 12), ('3.58', 30), ('2', 38)],
+        [('TOTAL', 0), ('4.80', 30)],
+      ]);
+      final receipt = extract(lines);
+      expect([for (final i in receipt.items) i.name], [
+        'EMMENTAL RAPE',
+        'POMME ROYAL GALA',
+      ]);
+      expect(receipt.checksumOk, isTrue);
+    });
+
+    test('une ligne de prix unitaire ne nomme aucun article', () {
+      final lines = receiptLines([
+        [('MAXI', 10)],
+        [('1', 8), ('x', 11), ('16,99', 24), ('EUR', 32)],
+        [('Art/Ean', 0), ('4047777102236', 8)],
+        [
+          ('PREM', 0),
+          ('Litiere', 6),
+          ('AGGLO', 15),
+          ('12KG', 22),
+          ('16,99', 30),
+          ('D', 38),
+        ],
+        [('Reduction', 0), ('-4,49', 30)],
+        [('TOTAL', 0), ('12,50', 30)],
+      ]);
+      final names = [for (final i in extract(lines).items) i.name];
+      expect(names, contains('PREM Litiere AGGLO 12KG'));
+      expect(names.any((name) => name.contains('EUR')), isFalse);
+    });
+
+    test('un nom qui occupe toute la zone de gauche reste entier', () {
+      final lines = receiptLines([
+        [('STORE', 10)],
+        [
+          ('CHOCO', 0),
+          ('EXCELLENCE', 6),
+          ('NR', 17),
+          ('85%', 20),
+          ('LINDT', 24),
+          ('1.19', 30),
+          ('2', 38),
+        ],
+        [('TOTAL', 0), ('1.19', 30)],
+      ]);
+      expect(extract(lines).items.single.name, 'CHOCO EXCELLENCE NR 85% LINDT');
+    });
+  });
 }

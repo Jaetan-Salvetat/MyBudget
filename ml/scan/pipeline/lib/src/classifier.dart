@@ -1,9 +1,10 @@
 /// Inférence pure Dart du classifieur de lignes (HistGradientBoosting
 /// exporté par `research/line_classifier/export.py`).
 ///
-/// Score brut par classe = baseline + Σ valeur de la feuille atteinte dans
-/// chaque arbre de l'itération ; probabilités par softmax. Aucune
-/// dépendance native : le modèle est un JSON embarqué.
+/// Score brut par sortie = baseline + Σ valeur de la feuille atteinte dans
+/// chaque arbre de l'itération ; probabilités par softmax, ou par sigmoïde
+/// quand le modèle est binaire et n'a qu'une sortie. Aucune dépendance
+/// native : le modèle est un JSON embarqué.
 library;
 
 import 'dart:math' as math;
@@ -123,8 +124,15 @@ class LineClassifier {
     return raw;
   }
 
+  /// Un modèle binaire n'a qu'une sortie brute et se lit à la sigmoïde ;
+  /// au-delà de deux classes, une sortie par classe et un softmax. C'est la
+  /// convention de sklearn, que `export.py` reproduit à l'identique.
   List<double> predictProba(List<double> features) {
     final raw = rawScores(features);
+    if (raw.length == 1) {
+      final probability = 1 / (1 + math.exp(-raw[0]));
+      return [1 - probability, probability];
+    }
     final peak = raw.reduce(math.max);
     final weights = [for (final value in raw) math.exp(value - peak)];
     final total = weights.fold(0.0, (sum, weight) => sum + weight);

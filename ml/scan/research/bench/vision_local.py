@@ -24,6 +24,7 @@ from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
 from reference.header_ml import date_of, role_probabilities, store_of
 from reference.labels_ml import label_offsets, relabel
 from reference.local_flow import CONFIRM, VERIFIED_STAGES, clustered_lines, decide_local
+from reference.spans_ml import label_probabilities
 from truth.golden import Verdict, best_reference
 from truth.references import alternatives
 
@@ -48,6 +49,7 @@ def _run_one(image: Path) -> dict:
     probabilities = role_probabilities(lines)
     outcome = decide_local(dump)
     offsets = label_offsets(lines)
+    spans = label_probabilities(lines)
     return {
         "doc": image.stem,
         "stage": outcome.stage,
@@ -56,7 +58,7 @@ def _run_one(image: Path) -> dict:
         "total": outcome.total,
         "items": [
             {"name": i.name, "amount": i.amount, "discount": i.discount}
-            for i in relabel(outcome.items, lines, offsets)
+            for i in relabel(outcome.items, lines, offsets, spans)
         ],
         "fullText": dump["fullText"],
     }

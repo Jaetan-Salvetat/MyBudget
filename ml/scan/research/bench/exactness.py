@@ -79,12 +79,20 @@ def _similar(left: str, right: str, threshold: float) -> bool:
 def name_matches(extracted: str, expected: str) -> bool:
     """Deux libellés désignent le même article.
 
-    Tolérant aux dégâts de l'OCR (« 120GENU » pour « 120GENV »), intolérant à
-    un libellé qui ne nomme rien : « EUR » ou un code isolé, ce que produit un
-    ticket dont le prix est imprimé sur sa propre ligne."""
-    return _similar(
-        normalize_name(extracted), normalize_name(expected), NAME_SIMILARITY_THRESHOLD
-    )
+    Tolérant aux dégâts de l'OCR (« 120GENU » pour « 120GENV ») et à un
+    libellé plus court que la vérité : l'OCR coupe une ligne, la colonne coupe
+    une référence, et ce qui manque ne trompe personne.
+
+    Intolérant à un **mot de plus** que la vérité. Une classe de TVA, une
+    quantité ou un code imprimé dans une autre colonne n'a pas sa place dans
+    un nom : c'est ce nom que l'utilisateur lit et que la catégorisation
+    reçoit. Le seuil de similarité seul ne sait pas les séparer — « 140G
+    1ARTE POMMES » (dégât OCR) tombe à 0,90 et « MPDC MARQUE PAG 2 20 1 »
+    (résidu de colonne) à 0,80. Le compte de mots, lui, tranche."""
+    left, right = normalize_name(extracted), normalize_name(expected)
+    if len(left.split()) > len(right.split()):
+        return False
+    return _similar(left, right, NAME_SIMILARITY_THRESHOLD)
 
 
 def store_matches(extracted: str | None, expected: str | None) -> bool:

@@ -26,6 +26,25 @@ LineClassifier tinyModel() {
   });
 }
 
+/// Un modèle binaire n'a qu'une sortie brute, comme sklearn l'exporte.
+LineClassifier binaryModel() {
+  return LineClassifier.fromJson({
+    'version': 'test',
+    'featureNames': ['x'],
+    'classes': [0, 1],
+    'baseline': [0.0],
+    'iterations': [
+      [
+        [
+          [0, 0.5, 1, 2, 0.0, 1, 0],
+          [0, 0.0, 0, 0, 2.0, 0, 1],
+          [0, 0.0, 0, 0, -2.0, 0, 1],
+        ],
+      ],
+    ],
+  });
+}
+
 void main() {
   test('raw scores sum baseline and leaves, threshold is inclusive', () {
     final model = tinyModel();
@@ -37,6 +56,12 @@ void main() {
     final probas = tinyModel().predictProba([0.0]);
     final expected = math.exp(1.0) / (math.exp(1.0) + math.exp(-1.0));
     expect(probas[0], closeTo(expected, 1e-12));
+    expect(probas[0] + probas[1], closeTo(1.0, 1e-12));
+  });
+
+  test('un modèle binaire se lit à la sigmoïde, pas au softmax', () {
+    final probas = binaryModel().predictProba([0.0]);
+    expect(probas[1], closeTo(1 / (1 + math.exp(-2.0)), 1e-12));
     expect(probas[0] + probas[1], closeTo(1.0, 1e-12));
   });
 
