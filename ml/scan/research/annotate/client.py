@@ -1,9 +1,13 @@
 """Appel du modèle d'annotation via OpenRouter.
 
 La clé vient de l'environnement (`OPENROUTER_API_KEY`) : elle ne doit jamais
-atterrir dans le dépôt. Le Batch API d'OpenRouter est text-only et refuse
-les images — l'annotation a besoin de la photo, donc appels unitaires,
-parallélisés côté appelant.
+atterrir dans le dépôt.
+
+Appels unitaires, parallélisés côté appelant. Le Batch API d'OpenRouter, à
+moitié prix, est hors de portée pour ce modèle : Vertex Gemini refuse toute
+image en lot (« its serializer has no image URL map »), et le lot n'accepte
+de toute façon que des URL publiques, jamais de base64. Mesuré le 2026-08-26,
+avec le reste du raisonnement dans `README.md`.
 """
 
 from __future__ import annotations

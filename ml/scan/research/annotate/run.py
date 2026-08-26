@@ -101,7 +101,7 @@ def _safe_process(image: Path, output: Path, stale_only: bool) -> str:
         return "échec technique"
 
 
-def _corpus_name(directory: Path) -> str:
+def corpus_name(directory: Path) -> str:
     """Nom du corpus. Les jeux FindIt rangent leurs images sous `<split>/img`
     : c'est le split qui identifie le corpus, pas le dossier feuille."""
     return directory.parent.name if directory.name == "img" else directory.name
@@ -118,7 +118,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     jobs = [
-        (image, ANNOTATIONS_DIR / _corpus_name(directory) / f"{image.stem}.json")
+        (image, ANNOTATIONS_DIR / corpus_name(directory) / f"{image.stem}.json")
         for directory in directories
         for image in sorted(directory.glob("*.jpg")) + sorted(directory.glob("*.png"))
     ]

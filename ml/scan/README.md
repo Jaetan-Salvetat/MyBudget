@@ -69,10 +69,21 @@ des échecs. Le niveau « photo correcte d'un ticket frais » est encadré par l
 tier synthétique photo (100%). Bonus : sur 15 tickets falsifiés du contest de
 fraude, le checksum rejette ceux dont les montants sont incohérents.
 
-Autres datasets évalués et écartés : SROIE/SRD (anglais), CORD (indonésien),
+Autres datasets évalués et écartés (revue refaite le 2026-08-26) :
+SROIE/SRD (anglais), **Find it again!** — L3i 2023, dont le nom trompe : c'est
+du SROIE anglophone, pas la suite du FindIt français —, CORD (indonésien),
 ReceiptSense/CORU (arabe-anglais), XFUND-fr (formulaires, pas des tickets),
-Shaip 15.9k reçus 5 langues dont FR (commercial payant). Rien d'autre de
-public en français.
+`jenswalter/receipts` sur Kaggle (7 fichiers FR, transport et restaurant),
+Wikimedia Commons (4 tickets FR exploitables), Roboflow (jeux de 75 à 200
+images, non-FR), Shaip 15.9k reçus 5 langues dont FR (commercial payant).
+
+**Open Prices** est la seule source publique de volume trouvée : les
+contributeurs d'Open Food Facts photographient leur ticket comme preuve de
+prix. 4 350 tickets français, 347 enseignes distinctes, dont 94 % datent de
+2024-2026 — là où FindIt est figé sur Carrefour La Rochelle 2016-2017. Et
+chaque ticket porte une vérité **externe** : le total et le nombre d'articles
+saisis par un humain, plus les prix unitaires. 1 122 ont un total déclaré,
+772 ont tous leurs articles saisis.
 
 Un corpus web US (40 photos ExpressExpense SRD) a servi de contrôle
 hors-domaine : 23/42 auto-validés, zéro faux positif vérifié à l'œil, échecs
@@ -1102,6 +1113,7 @@ sont. `research/fetch_data.sh` reconstruit tout :
 | Dataset | Source | Licence |
 |---|---|---|
 | Find it! (1000 tickets FR + transcriptions) | officiel : http://findit.univ-lr.fr/download-the-dataset/ (formulaire) ; miroir : `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 |
+| Open Prices (4 350 tickets FR photographiés, 2024-2026) | `research/corpus/open_prices.py` — dump quotidien sur data.gouv.fr | base ODbL, images CC BY-SA 4.0 |
 | Wikimedia Commons (1 ticket FR) | `Special:FilePath` — voir fetch_data.sh | libres |
 | Synthétique (120 tickets + ground truth) | `research/corpus/generate.py` (seed 42, déterministe) | interne |
 

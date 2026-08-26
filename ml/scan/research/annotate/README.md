@@ -168,3 +168,21 @@ au prochain `load()`.
 `--stale` ne rappelle le modèle que sur les tickets dont la provenance ne
 correspond pas au modèle et au prompt courants. Sans lui, un fichier déjà
 présent n'est jamais retouché.
+
+## Pourquoi pas le Batch API (mesuré le 2026-08-26)
+
+Le Batch API d'OpenRouter facture moitié prix sous 24 h. Il est inutilisable
+ici, pour deux raisons empilées :
+
+1. **Vertex Gemini refuse les images en lot.** Le lot échoue à la validation :
+   « Vertex Gemini does not support image inputs in batch because its
+   serializer has no image URL map; use the sync API. » Ce n'est pas une
+   limite du batch — `openai/gpt-5-mini:batch` et
+   `anthropic/claude-haiku-4.5:batch` acceptent la même image.
+2. **Le lot n'accepte que des URL publiques**, jamais de base64. Seul
+   `open_prices` en a ; les autres corpus sont locaux.
+
+Et l'enjeu est faible : une annotation coûte **0,0025 $** mesurée sur des
+tickets réels (≈ 2 300 jetons d'entrée, 550 de sortie). Le lot aurait
+économisé ~5 $ sur les 4 350 tickets d'`open_prices`, contre 24 h d'attente
+au lieu d'une heure et un annotateur différent du reste du corpus.

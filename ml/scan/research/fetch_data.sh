@@ -21,6 +21,9 @@ mkdir -p corpus/mixed
 curl -sL -o corpus/mixed/wm_creperie_tante_lucie.jpg \
   "https://commons.wikimedia.org/wiki/Special:FilePath/Tickets_de_caisse_de_la_crêperie_Tante_Lucie.jpg"
 
+echo "== Open Prices (tickets FR photographiés, ODbL / images CC BY-SA)"
+(cd ../research && uv run python -m corpus.open_prices)
+
 echo "== Sélections dérivées + corpus synthétique"
 (cd ../research && uv run python -m corpus.rebuild && uv run python -m corpus.generate)
 
