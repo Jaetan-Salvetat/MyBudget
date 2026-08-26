@@ -208,3 +208,35 @@ List<List<double>> featurizeAll(List<PhysicalLine> lines) {
   }
   return rows;
 }
+
+/// Le rattachement d'un libellé se juge sur ce que portent les lignes juste
+/// au-dessus du prix, pas sur la ligne seule : une fenêtre glissante donne au
+/// modèle les mêmes colonnes pour la ligne et ses voisines immédiates.
+const int linkContext = 3;
+
+/// Les colonnes de la fenêtre : celles de la ligne, puis celles de chaque
+/// ligne précédente, suffixées par leur recul.
+List<String> windowFeatureNames([int context = linkContext]) => [
+  for (var back = 0; back <= context; back++)
+    for (final name in featureNamesAll) back == 0 ? name : '${name}_back$back',
+];
+
+/// Les features de la ligne et des [context] lignes qui la précèdent,
+/// concaténées. Hors du ticket, la fenêtre est neutre.
+List<double> windowFeatures(
+  List<List<double>> rows,
+  int index, [
+  int context = linkContext,
+]) {
+  final width = rows.isEmpty ? 0 : rows.first.length;
+  final stacked = <double>[];
+  for (var back = 0; back <= context; back++) {
+    final source = index - back;
+    stacked.addAll(
+      source >= 0 && source < rows.length
+          ? rows[source]
+          : List<double>.filled(width, 0),
+    );
+  }
+  return stacked;
+}

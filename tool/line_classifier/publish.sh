@@ -12,12 +12,13 @@
 # deux, jamais du seul classifieur.
 #
 # Le classifieur de lignes etiquette les lignes a prix et guide le decodeur ;
-# le tagger de roles designe l'enseigne, la ligne de date et les libelles
-# d'articles.
+# le tagger de roles designe l'enseigne et la ligne de date ; le modele de
+# lien dit a quelle distance au-dessus se trouve le libelle d'un article.
 #
-# Sources par defaut : ml/scan/research/models/line_clf.json et line_roles.json,
-# produits par `uv run python -m line_classifier.export` et `...export_roles`.
-# Surchargeables par CLASSIFIER_SOURCE et TAGGER_SOURCE.
+# Sources par defaut : ml/scan/research/models/line_clf.json, line_roles.json
+# et label_link.json, produits par `uv run python -m line_classifier.export`,
+# `...export_roles` et `...export_link`. Surchargeables par CLASSIFIER_SOURCE,
+# TAGGER_SOURCE et LINK_SOURCE.
 #
 # Rien n'est a editer a la main ensuite : le nom de l'asset est lu dans le
 # manifeste par LocalReceiptScanner, et tool/line_classifier/lock.env est
@@ -31,6 +32,7 @@ source tool/line_classifier/lock.env
 
 CLASSIFIER_SOURCE="${CLASSIFIER_SOURCE:-ml/scan/research/models/line_clf.json}"
 TAGGER_SOURCE="${TAGGER_SOURCE:-ml/scan/research/models/line_roles.json}"
+LINK_SOURCE="${LINK_SOURCE:-ml/scan/research/models/label_link.json}"
 
 if [ $# -gt 1 ]; then
   echo "usage: ./tool/line_classifier/publish.sh [version]" >&2
@@ -48,8 +50,10 @@ if [ $# -eq 1 ]; then
 else
   CLASSIFIER_VERSION="$(version_of "$CLASSIFIER_ASSET" 'line_clf_v')"
   TAGGER_VERSION="$(version_of "${TAGGER_ASSET:-line_roles_v0.json}" 'line_roles_v')"
+  LINK_VERSION="$(version_of "${LINK_ASSET:-label_link_v0.json}" 'label_link_v')"
   CURRENT="$CLASSIFIER_VERSION"
   [ "$TAGGER_VERSION" -gt "$CURRENT" ] && CURRENT="$TAGGER_VERSION"
+  [ "$LINK_VERSION" -gt "$CURRENT" ] && CURRENT="$LINK_VERSION"
   VERSION="v$((CURRENT + 1))"
 fi
 
@@ -57,6 +61,8 @@ ASSET="line_clf_$VERSION.json"
 DESTINATION="assets/models/$ASSET"
 TAGGER_ASSET="line_roles_$VERSION.json"
 TAGGER_DESTINATION="assets/models/$TAGGER_ASSET"
+LINK_ASSET="label_link_$VERSION.json"
+LINK_DESTINATION="assets/models/$LINK_ASSET"
 RELEASE="scan-models-$VERSION"
 
 command -v gh > /dev/null || { echo "gh est requis" >&2; exit 69; }
@@ -93,14 +99,17 @@ publish_artifact() {
 
 publish_artifact "$CLASSIFIER_SOURCE" "$DESTINATION" 'line_clf_v*.json'
 publish_artifact "$TAGGER_SOURCE" "$TAGGER_DESTINATION" 'line_roles_v*.json'
+publish_artifact "$LINK_SOURCE" "$LINK_DESTINATION" 'label_link_v*.json'
 
 SHA="$(checksum "$DESTINATION")"
 SIZE="$(du -h "$DESTINATION" | cut -f1)"
 TAGGER_SHA="$(checksum "$TAGGER_DESTINATION")"
 TAGGER_SIZE="$(du -h "$TAGGER_DESTINATION" | cut -f1)"
+LINK_SHA="$(checksum "$LINK_DESTINATION")"
+LINK_SIZE="$(du -h "$LINK_DESTINATION" | cut -f1)"
 
 echo "Publication de $RELEASE..."
-gh release create "$RELEASE" "$DESTINATION" "$TAGGER_DESTINATION" \
+gh release create "$RELEASE" "$DESTINATION" "$TAGGER_DESTINATION" "$LINK_DESTINATION" \
   --title "Modeles du scan $VERSION" \
   --notes "Modeles du scan local. Les montants sont recopies de l'OCR, jamais
 generes.
@@ -108,12 +117,15 @@ generes.
 - **classifieur de lignes** : etiquette les lignes porteuses de prix
   (article / remise / total / paiement / bruit), guide le decodeur ;
 - **tagger de roles** : quatorze roles sur toutes les lignes, designe
-  l'enseigne, la ligne de date et les libelles d'articles.
+  l'enseigne et la ligne de date ;
+- **modele de lien** : a quelle distance au-dessus se trouve le libelle d'un
+  article, quand son prix est imprime seul.
 
 | | asset | taille | sha256 |
 |---|---|---|---|
 | classifieur | \`$ASSET\` | $SIZE | \`$SHA\` |
 | tagger | \`$TAGGER_ASSET\` | $TAGGER_SIZE | \`$TAGGER_SHA\` |
+| lien | \`$LINK_ASSET\` | $LINK_SIZE | \`$LINK_SHA\` |
 
 Recuperes au build par \`./tool/line_classifier/fetch.sh\`, epingles dans
 \`tool/line_classifier/lock.env\`."
@@ -131,6 +143,8 @@ CLASSIFIER_ASSET=$ASSET
 CLASSIFIER_SHA256=$SHA
 TAGGER_ASSET=$TAGGER_ASSET
 TAGGER_SHA256=$TAGGER_SHA
+LINK_ASSET=$LINK_ASSET
+LINK_SHA256=$LINK_SHA
 EOF
 
 echo

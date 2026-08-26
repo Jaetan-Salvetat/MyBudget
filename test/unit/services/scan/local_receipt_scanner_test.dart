@@ -54,6 +54,7 @@ void main() {
 
   late LineClassifier classifier;
   late RoleTagger tagger;
+  late LabelLinkModel link;
 
   setUpAll(() async {
     final asset = Directory('assets/models')
@@ -89,6 +90,23 @@ void main() {
             as Map<String, dynamic>,
       ),
     );
+
+    final linkAsset = Directory('assets/models')
+        .listSync()
+        .whereType<File>()
+        .map((file) => file.path)
+        .firstWhere(
+          (path) => RegExp(r'label_link_v\d+\.json$').hasMatch(path),
+          orElse: () => throw StateError(
+            'Aucun modèle de lien dans assets/models/ : '
+            'lancer ./tool/line_classifier/fetch.sh',
+          ),
+        );
+    link = LabelLinkModel(
+      LineClassifier.fromJson(
+        jsonDecode(await File(linkAsset).readAsString()) as Map<String, dynamic>,
+      ),
+    );
   });
 
   LocalReceiptScanner scannerOf(
@@ -99,6 +117,7 @@ void main() {
       recognizer: recognizer,
       classifier: classifier,
       tagger: tagger,
+      link: link,
       enhance: enhance,
     );
   }

@@ -200,6 +200,16 @@ def featurize(lines: list[PhysicalLine]) -> list[list[float]]:
 LINK_CONTEXT = 3
 
 
+def window_feature_names(context: int = LINK_CONTEXT) -> list[str]:
+    """Les colonnes de la fenêtre : celles de la ligne, puis celles de chaque
+    ligne précédente, suffixées par leur recul."""
+    return [
+        name if back == 0 else f"{name}_back{back}"
+        for back in range(context + 1)
+        for name in FEATURE_NAMES
+    ]
+
+
 def window(rows: list[list[float]], index: int, context: int = LINK_CONTEXT) -> list[float]:
     """Les features de la ligne et des `context` lignes qui la précèdent,
     concaténées. Hors du ticket, la fenêtre est neutre."""

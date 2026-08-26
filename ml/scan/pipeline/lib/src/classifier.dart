@@ -76,6 +76,7 @@ class LineClassifier {
   LineClassifier._(
     this.version,
     this.featureCount,
+    this.classes,
     this._baseline,
     this._iterations,
   );
@@ -95,6 +96,7 @@ class LineClassifier {
     return LineClassifier._(
       json['version'] as String,
       (json['featureNames'] as List<dynamic>).length,
+      [for (final value in json['classes'] as List<dynamic>) value as int],
       baseline,
       iterations,
     );
@@ -102,6 +104,10 @@ class LineClassifier {
 
   final String version;
   final int featureCount;
+
+  /// Les étiquettes du modèle, dans l'ordre des scores : `predictProba`
+  /// rend des probabilités par colonne, `classes` dit ce que chacune nomme.
+  final List<int> classes;
   final List<double> _baseline;
   final List<List<_Tree>> _iterations;
 
@@ -128,6 +134,9 @@ class LineClassifier {
   List<List<double>> predictProbaAll(List<List<double>> rows) => [
     for (final row in rows) predictProba(row),
   ];
+
+  /// L'étiquette la plus probable — `classes_[argmax]`, comme sklearn.
+  int predict(List<double> features) => classes[argmax(rawScores(features))];
 }
 
 /// Indice de la probabilité maximale, première occurrence en cas d'égalité

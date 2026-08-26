@@ -34,12 +34,14 @@ class LocalReceiptScanner {
   final ReceiptLineRecognizer _recognizer;
   final LineClassifier _classifier;
   final RoleTagger _tagger;
+  final LabelLinkModel _link;
   final ReceiptImageEnhancer _enhance;
 
   const LocalReceiptScanner({
     required this._recognizer,
     required this._classifier,
     required this._tagger,
+    required this._link,
     this._enhance = enhanceReceiptForRetry,
   });
 
@@ -86,13 +88,14 @@ class LocalReceiptScanner {
 
     if (outcome.items.isEmpty) throw const ScanNoItemsException();
 
-    // Le tagger travaille sur les lignes dont l'extraction retenue est issue
-    // — passe 1, retry ou fusion : `ExtractedItem.lineIndex` les indexe, et
-    // rattacher un libellé sur les lignes d'une autre passe désignerait
+    // Les modèles travaillent sur les lignes dont l'extraction retenue est
+    // issue — passe 1, retry ou fusion : `ExtractedItem.lineIndex` les indexe,
+    // et rattacher un libellé sur les lignes d'une autre passe désignerait
     // n'importe quoi.
     final lines = outcome.sourceLines.isEmpty ? pass1 : outcome.sourceLines;
     final roles = _tagger.probabilities(lines);
-    step('tagger de rôles (${lines.length} lignes)');
+    final offsets = _link.offsets(lines);
+    step('tagger de rôles et modèle de lien (${lines.length} lignes)');
 
     // Dès qu'on a dû aller en seconde passe, c'est elle qui porte la lecture
     // retenue : son enseigne et sa date priment, la première ne comble que
@@ -104,7 +107,7 @@ class LocalReceiptScanner {
       store: storeOf(lines, roles) ?? reference.store ?? fallback?.store,
       date: dateOf(lines, roles) ?? reference.date ?? fallback?.date,
       total: outcome.total,
-      items: relabel(outcome.items, lines, roles),
+      items: relabel(outcome.items, lines, offsets),
     );
   }
 

@@ -1,4 +1,5 @@
-"""Compare le tagger de rôles Dart à la référence Python, ligne à ligne.
+"""Compare le tagger de rôles et le modèle de lien Dart à la référence
+Python, ligne à ligne.
 
 Le portage est spécifié par cette égalité : mêmes features à 1e-9 près, même
 rôle prédit. Une colonne décalée ne se voit pas autrement — le modèle
@@ -18,9 +19,11 @@ import numpy as np
 
 from annotate.revalidate import _lines_of
 from annotate.run import ANNOTATIONS_DIR
+from line_classifier.export_link import EXPORT_PATH as LINK_EXPORT_PATH
 from line_classifier.export_roles import EXPORT_PATH
 from paths import PIPELINE_DIR
 from reference.header_ml import role_probabilities
+from reference.labels_ml import label_offsets
 from reference.line_features_all import featurize
 
 MAX_FEATURE_DRIFT = 1e-9
@@ -32,6 +35,7 @@ def _dart_output(directories: list[Path]) -> dict:
         "dart",
         "tool/roles_parity.dart",
         f"--model={EXPORT_PATH}",
+        f"--link={LINK_EXPORT_PATH}",
         *[str(directory) for directory in directories],
     ]
     result = subprocess.run(
@@ -55,6 +59,7 @@ def main(argv: list[str]) -> int:
     tickets = 0
     feature_mismatches = 0
     role_mismatches = 0
+    link_mismatches = 0
     worst_drift = 0.0
     for directory in directories:
         for path in sorted(directory.glob("*.json")):
@@ -88,11 +93,22 @@ def main(argv: list[str]) -> int:
                 ]
                 print(f"RÔLES {path.name}: lignes {differing[:5]}")
 
+            python_offsets = [int(value) for value in label_offsets(lines)]
+            if python_offsets != expected["labelOffsets"]:
+                link_mismatches += 1
+                differing = [
+                    i
+                    for i, (a, b) in enumerate(zip(python_offsets, expected["labelOffsets"]))
+                    if a != b
+                ]
+                print(f"LIEN {path.name}: lignes {differing[:5]}")
+
     print(f"\n=== {tickets} tickets")
     print(f"  écart max de features : {worst_drift:.2e}")
     print(f"  tickets aux features divergentes : {feature_mismatches}")
     print(f"  tickets aux rôles divergents     : {role_mismatches}")
-    return 1 if feature_mismatches or role_mismatches else 0
+    print(f"  tickets au lien divergent        : {link_mismatches}")
+    return 1 if feature_mismatches or role_mismatches or link_mismatches else 0
 
 
 if __name__ == "__main__":

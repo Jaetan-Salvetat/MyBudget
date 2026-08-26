@@ -19,9 +19,13 @@ import unicodedata
 
 from paths import PIPELINE_DIR
 
-# Latin-1 supplement, latin étendu A/B, latin étendu additionnel : tout ce
-# qu'un ticket européen ou une translittération peut porter.
-RANGES = ((0x00C0, 0x0250), (0x1E00, 0x1F00))
+# Latin-1 supplement, latin étendu A/B, grec, cyrillique, latin étendu
+# additionnel : tout ce qu'un ticket européen ou une translittération peut
+# porter. Le grec et le cyrillique ne sont pas théoriques — l'OCR rend
+# « okaïdi » avec un ï cyrillique (U+0457) et des enseignes translittérées,
+# et Python les repliait quand Dart les laissait tels quels : trois tickets
+# de T1 avaient des trigrammes divergents.
+RANGES = ((0x00C0, 0x0250), (0x0370, 0x0530), (0x1E00, 0x1F00))
 OUTPUT_PATH = PIPELINE_DIR / "lib" / "src" / "accent_fold.dart"
 
 HEADER = '''/// Repli des lettres accentuées vers leur lettre de base.
@@ -37,7 +41,14 @@ const Map<String, String> accentFold = {'''
 
 
 def folded(char: str) -> str | None:
-    decomposed = unicodedata.normalize("NFD", char)
+    """Ce que Python fait de ce caractère : majuscule, accents ôtés.
+
+    On part de la majuscule et non du caractère brut parce que la casse
+    n'est pas toujours une bijection : « ß » devient « SS » chez Python et
+    reste « ß » chez Dart, dont `toUpperCase` applique le mapping simple.
+    Sans entrée pour ces expansions, le repli diverge sur un caractère que
+    l'OCR sort pour de vrai (mesuré sur `t1test_1805`)."""
+    decomposed = unicodedata.normalize("NFD", char.upper())
     base = "".join(c for c in decomposed if not unicodedata.combining(c))
     return base if base and base != char else None
 

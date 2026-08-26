@@ -62,6 +62,7 @@ assets/models/*.onnx
 # tool/line_classifier/fetch.sh
 assets/models/line_clf_v*.json
 assets/models/line_roles_v*.json
+assets/models/label_link_v*.json
 # Source du tokenizer : sert seulement à régénérer tokenizer.bin
 assets/models/tokenizer.json
 

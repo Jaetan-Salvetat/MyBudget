@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Recupere les modeles du scan (classifieur de lignes + tagger de roles)
-# depuis les release assets GitHub.
+# Recupere les modeles du scan (classifieur de lignes, tagger de roles,
+# modele de lien) depuis les release assets GitHub.
 #
 #   ./tool/line_classifier/fetch.sh
 #
@@ -52,4 +52,5 @@ fetch_artifact() {
 }
 
 fetch_artifact "$CLASSIFIER_ASSET" "$CLASSIFIER_SHA256" 'line_clf_v*.json'
-fetch_artifact "$TAGGER_ASSET" "$TAGGER_SHA256" 'line_roles_v*.json' 
+fetch_artifact "$TAGGER_ASSET" "$TAGGER_SHA256" 'line_roles_v*.json'
+fetch_artifact "$LINK_ASSET" "$LINK_SHA256" 'label_link_v*.json'

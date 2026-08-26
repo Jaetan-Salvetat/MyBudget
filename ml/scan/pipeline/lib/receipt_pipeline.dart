@@ -4,6 +4,7 @@ export 'src/decode.dart';
 export 'src/flow.dart';
 export 'src/fuse_passes.dart';
 export 'src/invariants.dart';
+export 'src/label_link.dart';
 export 'src/line_features.dart';
 export 'src/line_features_all.dart';
 export 'src/lines.dart';

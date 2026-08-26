@@ -34,19 +34,12 @@ const List<String> roleNames = [
 
 const int roleStore = 0;
 const int roleDateLine = 1;
-const int roleItemLabel = 3;
 
-/// En-dessous, le modèle hésite : mieux vaut pas d'enseigne du tout qu'une
-/// ligne prise au hasard.
-/// Seuil de désignation d'une ligne pour un rôle. Pour le rattachement de
-/// libellé, 0,90 est la valeur calibrée par `bench.label_threshold` ; elle
-/// suit la précision du tagger et se rejoue à chaque réentraînement.
-const double minRoleProbability = 0.90;
+/// En-dessous, le modèle hésite : mieux vaut pas d'enseigne ni de date du
+/// tout qu'une ligne prise au hasard. Le rattachement du libellé ne passe
+/// plus par ce seuil — il a son propre modèle (`label_link.dart`).
+const double minRoleProbability = 0.5;
 
-/// Mesuré sur le corpus annoté : 96 % des libellés sont exactement une ligne
-/// au-dessus de leur prix (686 sur 717). Ratisser plus large ne récupère
-/// qu'une poignée de cas et rattache surtout du bruit.
-const int maxLabelLookback = 1;
 class RoleTagger {
   RoleTagger(this._model) {
     if (_model.classCount != roleNames.length) {
@@ -88,46 +81,4 @@ String? dateOf(List<PhysicalLine> lines, List<List<double>> probabilities) {
     if (found != null) return found;
   }
   return findDate(lines);
-}
-
-/// Donne à chaque article le libellé que le tagger lui désigne.
-///
-/// Les règles cherchent le libellé sur la ligne du prix ; quand le prix est
-/// imprimé seul — pesée, quantité, code-barres — elles ramassent ce qui
-/// traînait autour (« 0,792 kg 2,65 €/kg » au lieu de « POIRE CONFERENCE »).
-///
-/// **La décision revient au modèle, pas à un lexique.** Demander « ce libellé
-/// est-il faible ? » et répondre par une liste de mots non nommants (EUR, kg,
-/// Art, Montant…) est sans fin : chaque enseigne en apporte un nouveau. La
-/// question posée ici est « où est le libellé de cet article ? », et le
-/// corpus l'a annotée.
-///
-/// Les lignes désignées sont consommées dans l'ordre des articles, chacune
-/// une seule fois : deux articles ne partagent pas un nom.
-List<ExtractedItem> relabel(
-  List<ExtractedItem> items,
-  List<PhysicalLine> lines,
-  List<List<double>> probabilities,
-) {
-  if (probabilities.isEmpty) return items;
-  final used = <int>{};
-  for (final item in items) {
-    final source = item.lineIndex;
-    if (source == null) continue;
-    for (var offset = 1; offset <= maxLabelLookback; offset++) {
-      final candidate = source - offset;
-      if (candidate < 0) break;
-      if (used.contains(candidate) ||
-          probabilities[candidate][roleItemLabel] < minRoleProbability) {
-        continue;
-      }
-      final label = plausibleLabel(lines[candidate].text);
-      if (label != null) {
-        item.name = cleanName(label);
-        used.add(candidate);
-        break;
-      }
-    }
-  }
-  return items;
 }

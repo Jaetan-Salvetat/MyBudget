@@ -7,6 +7,7 @@ LineClassifier tinyModel() {
   return LineClassifier.fromJson({
     'version': 'test',
     'featureNames': ['x'],
+    'classes': [0, 1],
     'baseline': [0.0, 0.0],
     'iterations': [
       [
@@ -45,5 +46,11 @@ void main() {
 
   test('argmax returns first maximum', () {
     expect(argmax([0.2, 0.5, 0.5]), 1);
+  });
+
+  test('predict rend l\'étiquette du modèle, pas l\'indice du score', () {
+    final model = tinyModel();
+    expect(model.predict([0.0]), 0);
+    expect(model.predict([1.0]), 1);
   });
 }

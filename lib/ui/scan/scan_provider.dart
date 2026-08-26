@@ -7,6 +7,7 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/label_link_asset.dart';
 import 'package:mybudget/core/services/scan/line_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
@@ -22,7 +23,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
 
-/// Le flow local, gardé en vie : le classifieur de lignes et le moteur de
+/// Le flow local, gardé en vie : les modèles de lignes et le moteur de
 /// reconnaissance coûtent plus cher à recréer qu'à garder.
 @Riverpod(keepAlive: true)
 Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
@@ -40,12 +41,19 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
           as Map<String, dynamic>,
     ),
   );
+  final link = LabelLinkModel(
+    LineClassifier.fromJson(
+      jsonDecode(await rootBundle.loadString(await labelLinkAssetFromManifest()))
+          as Map<String, dynamic>,
+    ),
+  );
   final recognizer = MlKitReceiptLineRecognizer();
   ref.onDispose(recognizer.close);
   return LocalReceiptScanner(
     recognizer: recognizer,
     classifier: classifier,
     tagger: tagger,
+    link: link,
   );
 }
 

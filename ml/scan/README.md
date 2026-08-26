@@ -680,9 +680,10 @@ sur la ligne `date_line` avec repli sur le ticket entier.
 Le décodeur sous contrainte n'a pas été touché — c'est lui qui avait doublé
 les faux vérifiés.
 
-**Reste à porter en Dart** : le tagger, le modèle de lien et le rattachement
-des libellés. Le versionnement est prêt (`tool/line_classifier/`, asset lu
-dans le manifeste).
+Le tagger, le modèle de lien et le rattachement des libellés sont portés en
+Dart et branchés dans l'app (`pipeline/lib/src/label_link.dart`,
+`LocalReceiptScanner`). Les trois modèles portent la même version et vivent
+dans la même release (`tool/line_classifier/`, asset lu dans le manifeste).
 
 ### Le rattachement du libellé, appris (2026-08-26)
 
@@ -742,6 +743,28 @@ Un faux vérifié sur quatre disparaît de la même façon — c'était le golde
 
 `truth/golden.py` porte le critère et l'arbitrage, `truth/references.py` les
 lectures concurrentes, `truth.audit_golden` le rapport et la liste.
+
+### Portage Dart du modèle de lien (2026-08-26)
+
+`label_link.dart` refait l'inférence, `line_features_all.dart` la fenêtre,
+`export_link.py` le JSON portable (écart max export vs sklearn : 2,2e-16).
+`bench.roles_parity` compare désormais trois choses ligne à ligne — features,
+rôle, distance au libellé : **0 divergence sur 999 tickets** de T1.
+
+La parité étendue à T1 a fait tomber deux défauts qu'elle ne voyait pas
+avant, tous deux dans le repli d'accents Dart :
+
+- le cyrillique n'était pas replié (`okaïdi` avec un ï cyrillique, U+0457) ;
+- `ß` reste `ß` avec le `toUpperCase` de Dart, quand Python rend `SS`.
+
+`tool/generate_accent_fold.py` couvre maintenant le grec et le cyrillique, et
+dérive la table de la **majuscule** du caractère, ce qui capture les
+expansions de casse. 811 entrées au lieu de 572.
+
+Deux seuils divergeaient aussi : le Dart désignait l'enseigne et la ligne de
+date à 0,90 de confiance là où la référence Python — celle que le bench
+mesure — se contente de 0,5. L'app suivait donc une politique jamais
+mesurée ; elle suit maintenant la référence.
 
 ### Schéma à 14 rôles
 
