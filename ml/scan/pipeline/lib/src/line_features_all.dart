@@ -15,6 +15,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'line_features.dart';
 import 'lines.dart';
 import 'structure.dart';
 
@@ -30,7 +31,17 @@ final RegExp _letter = RegExp(r'\p{L}', unicode: true);
 final RegExp _digit = RegExp(r'\p{Nd}', unicode: true);
 final RegExp _upper = RegExp(r'\p{Lu}', unicode: true);
 
-const List<String> featureNamesAll = [
+/// Fenêtre du comptage de densité, de part et d'autre de la ligne.
+const int densityWindow = 3;
+
+/// Trigrammes de caractères hachés du texte de la ligne, chiffres masqués.
+///
+/// Les autres colonnes ne décrivent que la forme et la position : rien n'y dit
+/// ce que la ligne *raconte*. Or c'est le contenu qui sépare un nom de produit
+/// d'une raison sociale ou d'une mention de pied.
+const int trigramBuckets = 64;
+
+final List<String> featureNamesAll = [
   'rank_ratio', 'top_ratio', 'height_ratio', 'width_ratio', 'left_ratio',
   'word_count', 'char_count', 'digit_ratio', 'alpha_ratio', 'upper_ratio',
   'has_price', 'price_log', 'price_right_ratio', 'is_negative',
@@ -40,10 +51,29 @@ const List<String> featureNamesAll = [
   'prev_has_price', 'next_has_price', 'prev_is_total', 'next_is_total',
   'prev_height_ratio', 'next_height_ratio',
   'priced_rank_ratio', 'after_first_total',
+  // Où la ligne se situe par rapport à la zone des articles. Sans elles, une
+  // ligne sans prix n'a aucune position connue dans cette zone —
+  // `priced_rank_ratio` vaut -1 — et rien ne distingue le libellé d'un article
+  // d'une ligne d'en-tête.
+  'dist_prev_priced', 'dist_next_priced', 'in_priced_span', 'span_position',
+  'priced_density', 'next_priced_not_total',
+  ...[for (var b = 0; b < trigramBuckets; b++) 'tri_$b'],
 ];
 
 int _countMatches(String text, RegExp pattern) =>
     pattern.allMatches(text).length;
+
+double _pricedDensity(List<PricedWord?> prices, int index) {
+  final from = index - densityWindow < 0 ? 0 : index - densityWindow;
+  final to = index + densityWindow + 1 > prices.length
+      ? prices.length
+      : index + densityWindow + 1;
+  var count = 0;
+  for (var position = from; position < to; position++) {
+    if (prices[position] != null) count++;
+  }
+  return count / (2 * densityWindow + 1);
+}
 
 double _medianHeight(List<PhysicalLine> lines) {
   if (lines.isEmpty) return 1.0;
@@ -84,6 +114,23 @@ List<List<double>> featurizeAll(List<PhysicalLine> lines) {
 
   double heightRatioAt(int position) =>
       (merged[position].bottom - merged[position].top) / medianHeight;
+
+  final firstPriced = pricedRanks.isEmpty ? null : pricedRanks.first;
+  final lastPriced = pricedRanks.isEmpty ? null : pricedRanks.last;
+  final pricedSpan = firstPriced == null
+      ? 1.0
+      : ((lastPriced! - firstPriced) == 0 ? 1.0 : (lastPriced - firstPriced).toDouble());
+
+  double distanceToPriced(int index, int step) {
+    var position = index + step;
+    while (position >= 0 && position < merged.length) {
+      if (prices[position] != null) {
+        return (position - index).abs() / merged.length;
+      }
+      position += step;
+    }
+    return neighbourAbsent;
+  }
 
   final rows = <List<double>>[];
   for (var index = 0; index < merged.length; index++) {
@@ -148,6 +195,15 @@ List<List<double>> featurizeAll(List<PhysicalLine> lines) {
           ? pricedRanks.indexOf(index) / pricedRanks.length
           : neighbourAbsent,
       index > firstTotal ? 1.0 : 0.0,
+      distanceToPriced(index, -1),
+      distanceToPriced(index, 1),
+      firstPriced != null && index >= firstPriced && index <= lastPriced!
+          ? 1.0
+          : 0.0,
+      firstPriced != null ? (index - firstPriced) / pricedSpan : neighbourAbsent,
+      _pricedDensity(prices, index),
+      neighbourBool(1, (p) => prices[p] != null && !totals[p]),
+      ...hashedTrigrams(text, trigramBuckets),
     ]);
   }
   return rows;

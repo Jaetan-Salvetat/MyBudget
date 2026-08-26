@@ -6,8 +6,13 @@ date, ni le libellé d'un article dont le prix est imprimé plus bas — les
 trois postes d'erreur les plus coûteux de la métrique produit.
 
 Un seul modèle, pas un par champ : les rôles de ligne sont mutuellement
-exclusifs, les séparer fabriquerait des conflits à arbitrer, et 544 tickets
-ne nourrissent pas plusieurs modèles.
+exclusifs, les séparer fabriquerait des conflits à arbitrer, et le corpus ne
+nourrirait pas plusieurs modèles.
+
+L'entraînement prend aussi les tickets écartés pour un montant illisible :
+le checksum protège les montants, pas l'étiquetage des lignes, et leurs rôles
+restent exploitables. Mesuré, ils valent plus que le bruit qu'ils apportent
+(F1 d'`item_label` 0,801 → 0,825). Le jeu d'évaluation, lui, reste strict.
 
     uv run python -m line_classifier.train_roles
 """
@@ -54,7 +59,7 @@ def _model() -> HistGradientBoostingClassifier:
 
 
 def main() -> None:
-    train_receipts, test_receipts = load(), load(held_out=True)
+    train_receipts, test_receipts = load(roles_only=True), load(held_out=True)
     x_train, y_train = dataset(train_receipts)
     x_test, y_test = dataset(test_receipts)
     print(f"entraînement : {len(train_receipts)} tickets, {len(y_train)} lignes")

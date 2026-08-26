@@ -38,20 +38,15 @@ const int roleItemLabel = 3;
 
 /// En-dessous, le modèle hésite : mieux vaut pas d'enseigne du tout qu'une
 /// ligne prise au hasard.
-const double minRoleProbability = 0.5;
+/// Seuil de désignation d'une ligne pour un rôle. Pour le rattachement de
+/// libellé, 0,90 est la valeur calibrée par `bench.label_threshold` ; elle
+/// suit la précision du tagger et se rejoue à chaque réentraînement.
+const double minRoleProbability = 0.90;
 
-/// Un libellé peut être imprimé jusqu'à trois lignes au-dessus de son prix.
-const int maxLabelLookback = 3;
-const int minNamingLetters = 3;
-
-/// Ce qu'un ticket imprime à côté d'un prix sans que ça nomme quoi que ce
-/// soit : devise, régime de taxe, code de TVA en fin de ligne.
-const Set<String> nonNamingTokens = {
-  'EUR', 'EURO', 'EUROS', 'USD', 'HT', 'TTC', 'TVA', 'A', 'B', 'C', 'D', 'X',
-};
-
-final RegExp _nonLetters = RegExp(r'[^A-Za-zÀ-ÿ]+');
-
+/// Mesuré sur le corpus annoté : 96 % des libellés sont exactement une ligne
+/// au-dessus de leur prix (686 sur 717). Ratisser plus large ne récupère
+/// qu'une poignée de cas et rattache surtout du bruit.
+const int maxLabelLookback = 1;
 class RoleTagger {
   RoleTagger(this._model) {
     if (_model.classCount != roleNames.length) {
@@ -95,24 +90,20 @@ String? dateOf(List<PhysicalLine> lines, List<List<double>> probabilities) {
   return findDate(lines);
 }
 
-/// Un libellé qui ne nomme rien : « EUR », « A », un code-barres seul. Le
-/// prix était sur sa propre ligne et les règles ont ramassé ce qui traînait.
-bool namesNothing(String name) {
-  final words = name
-      .replaceAll(_nonLetters, ' ')
-      .toUpperCase()
-      .split(' ')
-      .where((word) => word.isNotEmpty && !nonNamingTokens.contains(word));
-  return words.fold(0, (sum, word) => sum + word.length) < minNamingLetters;
-}
-
-/// Remplace les libellés qui ne nomment rien par la ligne `item_label` la
-/// plus proche au-dessus, chacune ne servant qu'une fois — deux articles ne
-/// partagent pas un nom.
+/// Donne à chaque article le libellé que le tagger lui désigne.
 ///
-/// Corrige, n'arbitre pas : un libellé déjà parlant n'est jamais écrasé. Le
-/// tagger se trompe une fois sur six sur ce rôle, et le nom décide de la
-/// catégorie donc de la ligne de budget.
+/// Les règles cherchent le libellé sur la ligne du prix ; quand le prix est
+/// imprimé seul — pesée, quantité, code-barres — elles ramassent ce qui
+/// traînait autour (« 0,792 kg 2,65 €/kg » au lieu de « POIRE CONFERENCE »).
+///
+/// **La décision revient au modèle, pas à un lexique.** Demander « ce libellé
+/// est-il faible ? » et répondre par une liste de mots non nommants (EUR, kg,
+/// Art, Montant…) est sans fin : chaque enseigne en apporte un nouveau. La
+/// question posée ici est « où est le libellé de cet article ? », et le
+/// corpus l'a annotée.
+///
+/// Les lignes désignées sont consommées dans l'ordre des articles, chacune
+/// une seule fois : deux articles ne partagent pas un nom.
 List<ExtractedItem> relabel(
   List<ExtractedItem> items,
   List<PhysicalLine> lines,
@@ -122,7 +113,7 @@ List<ExtractedItem> relabel(
   final used = <int>{};
   for (final item in items) {
     final source = item.lineIndex;
-    if (source == null || !namesNothing(item.name)) continue;
+    if (source == null) continue;
     for (var offset = 1; offset <= maxLabelLookback; offset++) {
       final candidate = source - offset;
       if (candidate < 0) break;

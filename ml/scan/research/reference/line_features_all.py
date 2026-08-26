@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 
+from reference.line_features_v3 import hashed_trigrams
 from reference.lines import PhysicalLine
 from reference.structure import (
     DATE_PATTERN,
@@ -35,6 +36,19 @@ COUNT_WORDS = ("ARTICLE", "ARTICLES", "NOMBRE", "QTE")
 CURRENCY = re.compile(r"[€$]|\bEUR\b")
 NEIGHBOUR_ABSENT = -1.0
 
+# Fenêtre du comptage de densité, de part et d'autre de la ligne.
+DENSITY_WINDOW = 3
+
+# Trigrammes de caractères hachés du texte de la ligne, chiffres masqués.
+#
+# Les autres colonnes ne décrivent que la forme et la position : rien n'y dit
+# ce que la ligne *raconte*. Or c'est le contenu qui sépare « PREM Litière
+# AGGLO 12KG » d'une raison sociale ou d'une mention de pied — la confusion
+# qui plafonne la précision d'`item_label`. Le hachage apprend cette
+# distinction des données au lieu de la faire écrire dans un lexique, qu'il
+# faudrait rallonger à chaque enseigne.
+TRIGRAM_BUCKETS = 64
+
 FEATURE_NAMES = [
     "rank_ratio", "top_ratio", "height_ratio", "width_ratio", "left_ratio",
     "word_count", "char_count", "digit_ratio", "alpha_ratio", "upper_ratio",
@@ -45,7 +59,16 @@ FEATURE_NAMES = [
     "prev_has_price", "next_has_price", "prev_is_total", "next_is_total",
     "prev_height_ratio", "next_height_ratio",
     "priced_rank_ratio", "after_first_total",
+    # Où la ligne se situe par rapport à la zone des articles. Sans elles, une
+    # ligne sans prix n'a aucune position connue dans cette zone —
+    # `priced_rank_ratio` vaut -1 — et rien ne distingue le libellé d'un
+    # article d'une ligne d'en-tête : c'est la confusion qui plafonnait la
+    # précision d'`item_label`.
+    "dist_prev_priced", "dist_next_priced", "in_priced_span", "span_position",
+    "priced_density", "next_priced_not_total",
+    *[f"tri_{bucket}" for bucket in range(TRIGRAM_BUCKETS)],
 ]
+
 
 
 def _text_shape(text: str) -> tuple[float, float, float, int, int]:
@@ -84,6 +107,20 @@ def featurize(lines: list[PhysicalLine]) -> list[list[float]]:
     totals = [contains_total(line.text) for line in merged]
     first_total = next((i for i, is_total in enumerate(totals) if is_total), len(merged))
     priced_ranks = [i for i, price in enumerate(prices) if price is not None]
+
+    first_priced = priced_ranks[0] if priced_ranks else None
+    last_priced = priced_ranks[-1] if priced_ranks else None
+    priced_span = (
+        (last_priced - first_priced) or 1 if priced_ranks else 1
+    )
+
+    def _distance_to_priced(index: int, step: int) -> float:
+        position = index + step
+        while 0 <= position < len(merged):
+            if prices[position] is not None:
+                return abs(position - index) / len(merged)
+            position += step
+        return NEIGHBOUR_ABSENT
 
     rows = []
     for index, line in enumerate(merged):
@@ -133,5 +170,42 @@ def featurize(lines: list[PhysicalLine]) -> list[list[float]]:
             neighbour(+1, lambda p: (merged[p].bottom - merged[p].top) / median_height),
             (priced_ranks.index(index) / len(priced_ranks)) if index in priced_ranks else NEIGHBOUR_ABSENT,
             float(index > first_total),
+            _distance_to_priced(index, -1),
+            _distance_to_priced(index, +1),
+            float(
+                first_priced is not None
+                and first_priced <= index <= last_priced
+            ),
+            (index - first_priced) / priced_span if first_priced is not None else NEIGHBOUR_ABSENT,
+            sum(
+                1
+                for position in range(
+                    max(0, index - DENSITY_WINDOW),
+                    min(len(merged), index + DENSITY_WINDOW + 1),
+                )
+                if prices[position] is not None
+            )
+            / (2 * DENSITY_WINDOW + 1),
+            neighbour(
+                +1, lambda p: prices[p] is not None and not totals[p]
+            ),
+            *hashed_trigrams(text, TRIGRAM_BUCKETS),
         ])
     return rows
+
+
+# Le rattachement d'un libellé se juge sur ce que portent les lignes juste
+# au-dessus du prix, pas sur la ligne seule : une fenêtre glissante donne au
+# modèle les mêmes colonnes pour la ligne et ses voisines immédiates.
+LINK_CONTEXT = 3
+
+
+def window(rows: list[list[float]], index: int, context: int = LINK_CONTEXT) -> list[float]:
+    """Les features de la ligne et des `context` lignes qui la précèdent,
+    concaténées. Hors du ticket, la fenêtre est neutre."""
+    width = len(rows[0]) if rows else 0
+    stacked: list[float] = []
+    for back in range(context + 1):
+        source = index - back
+        stacked.extend(rows[source] if 0 <= source < len(rows) else [0.0] * width)
+    return stacked

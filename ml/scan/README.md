@@ -675,16 +675,40 @@ n'y a plus d'articles). Sur les 435 tickets d'évaluation, 10 448 lignes :
 93,4 % d'exactitude globale. **Le tagger désigne la ligne, le parsing lit le
 champ** : l'enseigne est la ligne argmax `store` (et rien du tout si le modèle
 hésite — mieux vaut pas d'enseigne qu'une ligne au hasard), la date est lue
-sur la ligne `date_line` avec repli sur le ticket entier, et un libellé qui ne
-nomme rien (« EUR », un code) prend la ligne `item_label` la plus proche
-au-dessus, chacune ne servant qu'une fois.
+sur la ligne `date_line` avec repli sur le ticket entier.
 
-Il corrige, il n'arbitre pas : un libellé déjà parlant n'est jamais écrasé.
 Le décodeur sous contrainte n'a pas été touché — c'est lui qui avait doublé
 les faux vérifiés.
 
-**Reste à porter en Dart** : le tagger et le rattachement des libellés. Le
-versionnement est prêt (`tool/line_classifier/`, asset lu dans le manifeste).
+**Reste à porter en Dart** : le tagger, le modèle de lien et le rattachement
+des libellés. Le versionnement est prêt (`tool/line_classifier/`, asset lu
+dans le manifeste).
+
+### Le rattachement du libellé, appris (2026-08-26)
+
+Le libellé se rattachait par une règle de distance : la ligne juste au-dessus,
+si le tagger la disait `item_label` avec au moins 0,90 de confiance. Deux
+nombres choisis à la main pour une question qui dépend du ticket — et le
+tagger n'a que 74,7 % de précision sur ce rôle, donc le seuil arbitrait entre
+réparer un libellé faux et écraser un libellé juste.
+
+`line_classifier/train_link.py` pose la question directement : **à quelle
+distance au-dessus est le libellé de cet article ?** La vérité est déjà dans
+le corpus (`label_index`), les features sont la fenêtre des trois lignes
+précédentes (`line_features_all.window`). Sur les 2 195 lignes d'article du
+jeu d'évaluation : **99,0 % d'exactitude** (87,6 % en répondant toujours « sur
+sa propre ligne »), et sur les libellés déportés — le cas qui casse — rappel
+96,6 % pour 96,9 % de précision, contre 82,7 / 74,7 au tagger.
+
+| T1-test | avant | après |
+|---|---|---|
+| tickets parfaits | 71,6 % | **72,8 %** |
+| articles faux | 112 | 105 |
+| vérifiés / faux vérifiés | 90,2 % / 4 | inchangés |
+
+Le gap « libellé rattaché au mauvais prix » passe de 40 à 33 tickets. Les 33
+restants ne sont plus un problème de rattachement : sur 26 d'entre eux le
+libellé attendu n'existe nulle part dans l'OCR, abîmé à la lecture.
 
 ### Schéma à 14 rôles
 

@@ -7,6 +7,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'accent_fold.dart';
 import 'lines.dart';
 
 final RegExp _pricePattern = RegExp(r'^-?\d{1,4}[.,]\d{2}$');
@@ -495,94 +496,11 @@ String _labelOf(PhysicalLine line, Word priceWord) {
 /// Équivalent du NFD + suppression des diacritiques de la référence Python :
 /// couvre le latin de base et le latin étendu-A précomposés — l'OCR sort
 /// n'importe quel diacritique sur un ticket dégradé (« TŤC », « Š »).
-const Map<String, String> _accentFold = {
-  'À': 'A',
-  'Á': 'A',
-  'Â': 'A',
-  'Ã': 'A',
-  'Ä': 'A',
-  'Å': 'A',
-  'Ā': 'A',
-  'Ă': 'A',
-  'Ą': 'A',
-  'Ç': 'C',
-  'Ć': 'C',
-  'Ĉ': 'C',
-  'Ċ': 'C',
-  'Č': 'C',
-  'Ď': 'D',
-  'È': 'E',
-  'É': 'E',
-  'Ê': 'E',
-  'Ë': 'E',
-  'Ē': 'E',
-  'Ĕ': 'E',
-  'Ė': 'E',
-  'Ę': 'E',
-  'Ě': 'E',
-  'Ĝ': 'G',
-  'Ğ': 'G',
-  'Ġ': 'G',
-  'Ģ': 'G',
-  'Ĥ': 'H',
-  'Ì': 'I',
-  'Í': 'I',
-  'Î': 'I',
-  'Ï': 'I',
-  'Ĩ': 'I',
-  'Ī': 'I',
-  'Ĭ': 'I',
-  'Į': 'I',
-  'İ': 'I',
-  'Ĵ': 'J',
-  'Ķ': 'K',
-  'Ĺ': 'L',
-  'Ļ': 'L',
-  'Ľ': 'L',
-  'Ñ': 'N',
-  'Ń': 'N',
-  'Ņ': 'N',
-  'Ň': 'N',
-  'Ò': 'O',
-  'Ó': 'O',
-  'Ô': 'O',
-  'Õ': 'O',
-  'Ö': 'O',
-  'Ō': 'O',
-  'Ŏ': 'O',
-  'Ő': 'O',
-  'Ŕ': 'R',
-  'Ŗ': 'R',
-  'Ř': 'R',
-  'Ś': 'S',
-  'Ŝ': 'S',
-  'Ş': 'S',
-  'Š': 'S',
-  'Ţ': 'T',
-  'Ť': 'T',
-  'Ù': 'U',
-  'Ú': 'U',
-  'Û': 'U',
-  'Ü': 'U',
-  'Ũ': 'U',
-  'Ū': 'U',
-  'Ŭ': 'U',
-  'Ů': 'U',
-  'Ű': 'U',
-  'Ų': 'U',
-  'Ŵ': 'W',
-  'Ý': 'Y',
-  'Ÿ': 'Y',
-  'Ŷ': 'Y',
-  'Ź': 'Z',
-  'Ż': 'Z',
-  'Ž': 'Z',
-};
 
 String foldAccents(String text) {
   final buffer = StringBuffer();
   for (final char in text.split('')) {
-    buffer.write(_accentFold[char] ?? char);
+    buffer.write(accentFold[char] ?? char);
   }
   return buffer.toString();
 }

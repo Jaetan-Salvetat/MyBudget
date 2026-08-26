@@ -22,7 +22,7 @@ from bench.flow import StageStats, TicketRun, count_edits
 from ocr.pipeline import dump_for
 from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
 from reference.header_ml import date_of, role_probabilities, store_of
-from reference.labels_ml import relabel
+from reference.labels_ml import label_offsets, relabel
 from reference.local_flow import CONFIRM, VERIFIED_STAGES, clustered_lines, decide_local
 
 SPLIT_DIRS = {"t1test": "T1-test", "t1train": "T1-train"}
@@ -45,6 +45,7 @@ def _run_one(image: Path) -> dict:
     lines = clustered_lines(dump)
     probabilities = role_probabilities(lines)
     outcome = decide_local(dump)
+    offsets = label_offsets(lines)
     return {
         "doc": image.stem,
         "stage": outcome.stage,
@@ -53,7 +54,7 @@ def _run_one(image: Path) -> dict:
         "total": outcome.total,
         "items": [
             {"name": i.name, "amount": i.amount, "discount": i.discount}
-            for i in relabel(outcome.items, lines, probabilities)
+            for i in relabel(outcome.items, lines, offsets)
         ],
         "fullText": dump["fullText"],
     }

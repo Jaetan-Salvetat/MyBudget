@@ -22,6 +22,13 @@ from reference.lines import PhysicalLine, Word
 
 HELD_OUT_CORPORA = ("photos_pixel", "T1-test")
 
+# Un ticket rejeté parce qu'un montant annoté est illisible sur sa ligne —
+# l'OCR a soudé un code au prix — garde des *rôles* plausibles : le checksum
+# protège les montants, pas l'étiquetage des lignes. Ces tickets sont donc
+# utilisables pour entraîner le tagger de rôles, et seulement pour lui : rien
+# de ce qui touche aux montants ne doit s'y fier.
+UNREADABLE_AMOUNT_REASON = "illisible"
+
 
 @dataclass(frozen=True)
 class AnnotatedReceipt:
@@ -31,6 +38,7 @@ class AnnotatedReceipt:
     roles: list[str]
     amounts: list[float | None]
     discounts: list[float | None]
+    label_indexes: list[int | None]
 
     def __post_init__(self) -> None:
         if not len(self.lines) == len(self.roles) == len(self.amounts):
@@ -62,12 +70,30 @@ def _receipt_of(record: dict, corpus: str) -> AnnotatedReceipt:
         roles=[entry["role"] for entry in entries],
         amounts=[entry.get("amount") for entry in entries],
         discounts=[entry.get("discount") for entry in entries],
+        label_indexes=[entry.get("label_index") for entry in entries],
     )
 
 
-def load(held_out: bool = False, root: Path = ANNOTATIONS_DIR) -> list[AnnotatedReceipt]:
+def _usable(record: dict, roles_only: bool) -> bool:
+    if "annotation" not in record or "lines" not in record:
+        return False
+    reason = record.get("reason")
+    if reason is None:
+        return True
+    return roles_only and UNREADABLE_AMOUNT_REASON in reason
+
+
+def load(
+    held_out: bool = False,
+    root: Path = ANNOTATIONS_DIR,
+    roles_only: bool = False,
+) -> list[AnnotatedReceipt]:
     """Les tickets annotés et acceptés. `held_out` sélectionne le jeu
-    d'évaluation au lieu du jeu d'entraînement."""
+    d'évaluation au lieu du jeu d'entraînement.
+
+    `roles_only` ajoute les tickets écartés pour un montant illisible : leurs
+    rôles restent exploitables. Réservé à l'entraînement du tagger — le jeu
+    d'évaluation, lui, reste strict."""
     receipts = []
     for corpus_dir in sorted(root.iterdir()):
         if not corpus_dir.is_dir():
@@ -76,7 +102,7 @@ def load(held_out: bool = False, root: Path = ANNOTATIONS_DIR) -> list[Annotated
             continue
         for path in sorted(corpus_dir.glob("*.json")):
             record = json.loads(path.read_text())
-            if record.get("reason") is not None or "annotation" not in record:
+            if not _usable(record, roles_only and not held_out):
                 continue
             receipts.append(_receipt_of(record, corpus_dir.name))
     return receipts

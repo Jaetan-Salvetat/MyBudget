@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Publie le classifieur de lignes du scan : asset versionne, release GitHub,
-# lock mis a jour.
+# Publie les modeles du scan : assets versionnes, release GitHub, lock mis a
+# jour.
 #
 #   ./tool/line_classifier/publish.sh            # version suivante d'apres lock.env
 #   ./tool/line_classifier/publish.sh v7         # version imposee
 #
-# Deux artefacts, publies ensemble parce qu'ils sont utilises ensemble :
-# le classifieur de lignes (etiquette les lignes a prix, guide le decodeur) et
-# le tagger de roles (designe enseigne, ligne de date et libelles d'articles).
-# Les separer laisserait l'app tourner avec un tagger d'une version et un
-# classifieur d'une autre.
+# Les deux modeles portent la MEME version et vivent dans la meme release :
+# ils sont utilises ensemble, et une app qui melangerait un tagger d'une
+# version avec un classifieur d'une autre deciderait autrement que la
+# reference. La version suivante est donc le successeur du plus avance des
+# deux, jamais du seul classifieur.
+#
+# Le classifieur de lignes etiquette les lignes a prix et guide le decodeur ;
+# le tagger de roles designe l'enseigne, la ligne de date et les libelles
+# d'articles.
 #
 # Sources par defaut : ml/scan/research/models/line_clf.json et line_roles.json,
 # produits par `uv run python -m line_classifier.export` et `...export_roles`.
@@ -33,23 +37,32 @@ if [ $# -gt 1 ]; then
   exit 64
 fi
 
+version_of() {
+  local asset="$1" prefix="$2"
+  local stripped="${asset#"$prefix"}"
+  echo "${stripped%.json}"
+}
+
 if [ $# -eq 1 ]; then
   VERSION="$1"
 else
-  CURRENT="${CLASSIFIER_ASSET#line_clf_v}"
-  VERSION="v$((${CURRENT%.json} + 1))"
+  CLASSIFIER_VERSION="$(version_of "$CLASSIFIER_ASSET" 'line_clf_v')"
+  TAGGER_VERSION="$(version_of "${TAGGER_ASSET:-line_roles_v0.json}" 'line_roles_v')"
+  CURRENT="$CLASSIFIER_VERSION"
+  [ "$TAGGER_VERSION" -gt "$CURRENT" ] && CURRENT="$TAGGER_VERSION"
+  VERSION="v$((CURRENT + 1))"
 fi
 
 ASSET="line_clf_$VERSION.json"
 DESTINATION="assets/models/$ASSET"
 TAGGER_ASSET="line_roles_$VERSION.json"
 TAGGER_DESTINATION="assets/models/$TAGGER_ASSET"
-RELEASE="line-clf-$VERSION"
+RELEASE="scan-models-$VERSION"
 
 command -v gh > /dev/null || { echo "gh est requis" >&2; exit 69; }
 
 # Republier sous un tag existant laisserait les installations deja a jour sur
-# l'ancien classifieur : l'app choisit son asset par son nom de fichier.
+# les anciens modeles : l'app choisit ses assets par leur nom de fichier.
 if gh release view "$RELEASE" > /dev/null 2>&1; then
   echo "La release $RELEASE existe deja : choisir une version superieure." >&2
   exit 1
@@ -88,7 +101,7 @@ TAGGER_SIZE="$(du -h "$TAGGER_DESTINATION" | cut -f1)"
 
 echo "Publication de $RELEASE..."
 gh release create "$RELEASE" "$DESTINATION" "$TAGGER_DESTINATION" \
-  --title "Classifieur de lignes $VERSION" \
+  --title "Modeles du scan $VERSION" \
   --notes "Modeles du scan local. Les montants sont recopies de l'OCR, jamais
 generes.
 
