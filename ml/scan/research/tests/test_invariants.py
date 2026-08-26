@@ -5,6 +5,7 @@ from reference.invariants import (
     TAX,
     TOTAL_LINE,
     Constraints,
+    _last_total_rank,
     constraints,
     payment_change_evidence,
     reference_ranks,
@@ -477,3 +478,69 @@ class TestFinalTotalBeforePayment:
             ]
         )
         assert 3 in reference_ranks(lines)
+
+
+class TestPositiveDiscountRecap:
+    def test_positive_recap_of_the_discounts_is_not_the_final_total(self):
+        lines = priced(
+            [
+                [("LITIERE", 0), ("16,99", 37)],
+                [("Reduction", 0), ("-4,49", 37)],
+                [("MAISON", 0), ("399,00", 37)],
+                [("Reduction", 0), ("-50,00", 37)],
+                [("TOTAL", 0), ("[2]", 6), ("EUR", 10), ("361,50", 37)],
+                [("Total", 0), ("remise:", 6), ("EUR", 14), ("54,49", 38)],
+            ]
+        )
+        structure = constraints(lines)
+        assert _last_total_rank(lines) == 4
+        assert structure.reference_ranks == {4}
+        assert 5 in structure.forced_ignore
+
+    def test_a_single_discount_above_never_makes_a_recap(self):
+        lines = priced(
+            [
+                [("LITIERE", 0), ("16,99", 37)],
+                [("Reduction", 0), ("-4,49", 37)],
+                [("TOTAL", 0), ("12,50", 37)],
+                [("PORT", 0), ("4,49", 38)],
+            ]
+        )
+        assert 3 not in constraints(lines).forced_ignore
+
+    def test_section_totals_are_not_mistaken_for_recaps(self):
+        lines = priced(
+            [
+                [("THON", 0), ("0,89", 38)],
+                [("REMISE", 0), ("-0,56", 37)],
+                [("TOTAL", 0), ("ALIMENTAIRE", 6), ("0,33", 38)],
+                [("SAVON", 0), ("3,99", 38)],
+                [("TOTAL", 0), ("A", 6), ("PAYER", 8), ("4,32", 38)],
+            ]
+        )
+        assert _last_total_rank(lines) == 4
+        assert 2 not in constraints(lines).forced_ignore
+
+
+class TestSelfEvidentTaxRow:
+    def test_a_row_carrying_its_own_ht_tax_ttc_triple_is_a_tax_row(self):
+        lines = priced(
+            [
+                [("LITIERE", 0), ("374,00", 37)],
+                [("TOTAL", 0), ("EUR", 6), ("374,00", 37)],
+                [("D", 0), ("20,", 2), ("62,33", 20), ("374,00", 29), ("311,67", 38)],
+                [("tot", 0), ("Vat", 4), ("62,33", 20), ("374,00", 29), ("311,67", 38)],
+            ]
+        )
+        structure = constraints(lines)
+        assert _last_total_rank(lines) == 1
+        assert {2, 3} <= structure.forced_ignore
+
+    def test_three_unrelated_amounts_stay_an_ordinary_line(self):
+        lines = priced(
+            [
+                [("PACK", 0), ("3,00", 20), ("4,00", 29), ("9,00", 38)],
+                [("TOTAL", 0), ("9,00", 38)],
+            ]
+        )
+        assert 0 not in constraints(lines).forced_ignore

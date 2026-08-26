@@ -68,8 +68,11 @@ def report(image: Path, show_lines: bool, dumps_dir: Path | None) -> None:
     print(f"  enseigne {receipt.store!r}  date {receipt.date!r}")
     print("\n".join(_stage_report(passes)))
     print(f"  → étage retenu : {outcome.stage}, total {outcome.total}")
-    for amount, discount in outcome.items:
-        print(f"      {amount:8.2f}" + (f"  remise {discount:.2f}" if discount else ""))
+    for item in outcome.items:
+        print(
+            f"      {item.amount:8.2f}  {item.name!r}"
+            + (f"  remise {item.discount:.2f}" if item.discount else "")
+        )
     if show_lines:
         for name, lines in zip(PASS_NAMES, passes):
             print(f"  --- lignes {name} ---")

@@ -73,23 +73,14 @@ LEADER_DOTS_PATTERN = re.compile(r"^[.…]+")
 
 DISCOUNT_WORDS = (
     "REMISE",
-    "AVANTAGE",
-    "RISTOURNE",
     "PROMO",
-    "FID",
-    "GRATUIT",
     "DISCOUNT",
-    "COUPON",
-    "SAVINGS",
 )
 TOTAL_WORDS = (
     "TOTAL",
     "TOT",
     "PAYER",
     "MONTANT DU",
-    "AMOUNT DUE",
-    "BALANCE DUE",
-    "TOT TTC",
     "NET A REGLER",
     "A REGLER",
     "DOIT",
@@ -102,10 +93,8 @@ FUZZY_TOTAL_TOKEN_LENGTHS = range(4, 7)
 SUBTOTAL_WORDS = (
     "SOUS-TOTAL",
     "SOUS TOTAL",
-    "SOUS TOT",
     "SUBTOTAL",
     "SUB-TOTAL",
-    "SUB TOTAL",
     "S/TOTAL",
     "S/TOT",
     "AMOUNT",
@@ -127,39 +116,19 @@ STOP_WORDS = (
     "ARTICLE(",
     "ARTICLES",
     "MERCI",
-    "BIENTOT",
     "TEL",
-    "SIRET",
     "CAISSE",
-    "TICKET",
     "TTC",
     "EMV",
     "SANS CONTACT",
-    "COUVERT",
     "VISITE",
-    "MWST",
-    "MUST",
     "INCL",
-    "DUPLICATA",
-    "DOCUMENT",
     "TAX",
-    "CASH",
-    "CHANGE",
-    "TIP",
-    "GRATUITY",
     "VISA",
     "MASTERCARD",
-    "DEBIT",
     "CREDIT",
-    "BALANCE",
-    "TEND",
-    "APPROVED",
-    "AUTH",
     "SERVER",
-    "GUEST",
-    "THANK",
     "WELCOME",
-    "CUMUL",
     "FIDELITE",
     "CARTE BLEUE",
     "TOTAUX",
@@ -172,11 +141,9 @@ STOP_WORDS = (
 
 EXCLUDED_TOTAL_WORDS = (
     "HT",
-    "H.T",
     "TVA",
     "TUA",
     "ELIGIBLE",
-    "POINTS",
     "FRANC",
     "FRF",
 )
@@ -198,7 +165,7 @@ PAYMENT_WORDS = (
     "PERCU",
     "RECU",
 )
-TVA_WORDS = ("TVA", "TUA", "TAX", "TAXE", "TAXES")
+TVA_WORDS = ("TVA", "TUA", "TAX")
 TAX_INCLUSIVE_WORDS = ("INCL",)
 MISSING_SEPARATOR_TOTAL_PATTERN = re.compile(r"(\d{3,6})\s*$")
 ARTICLE_COUNT_PATTERN = re.compile(r"(\d{1,3})ARTICLE")

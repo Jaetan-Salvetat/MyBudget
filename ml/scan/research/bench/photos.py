@@ -33,7 +33,7 @@ def _run_one(image: Path) -> dict:
         "image": image.name,
         "stage": outcome.stage,
         "total": outcome.total,
-        "items": [list(item) for item in outcome.items],
+        "items": [[item.name, item.amount, item.discount] for item in outcome.items],
         "store": receipt.store,
         "date": receipt.date,
         "rulesTotal": receipt.total,

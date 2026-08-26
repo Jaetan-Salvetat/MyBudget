@@ -76,14 +76,8 @@ final RegExp _leaderDotsPattern = RegExp(r'^[.…]+');
 
 const List<String> discountWords = [
   'REMISE',
-  'AVANTAGE',
-  'RISTOURNE',
   'PROMO',
-  'FID',
-  'GRATUIT',
   'DISCOUNT',
-  'COUPON',
-  'SAVINGS',
 ];
 
 const List<String> totalWords = [
@@ -91,9 +85,6 @@ const List<String> totalWords = [
   'TOT',
   'PAYER',
   'MONTANT DU',
-  'AMOUNT DUE',
-  'BALANCE DUE',
-  'TOT TTC',
   'NET A REGLER',
   'A REGLER',
   'DOIT',
@@ -109,10 +100,8 @@ const int fuzzyTotalMaxTokenLength = 6;
 const List<String> subtotalWords = [
   'SOUS-TOTAL',
   'SOUS TOTAL',
-  'SOUS TOT',
   'SUBTOTAL',
   'SUB-TOTAL',
-  'SUB TOTAL',
   'S/TOTAL',
   'S/TOT',
   'AMOUNT',
@@ -135,39 +124,19 @@ const List<String> stopWords = [
   'ARTICLE(',
   'ARTICLES',
   'MERCI',
-  'BIENTOT',
   'TEL',
-  'SIRET',
   'CAISSE',
-  'TICKET',
   'TTC',
   'EMV',
   'SANS CONTACT',
-  'COUVERT',
   'VISITE',
-  'MWST',
-  'MUST',
   'INCL',
-  'DUPLICATA',
-  'DOCUMENT',
   'TAX',
-  'CASH',
-  'CHANGE',
-  'TIP',
-  'GRATUITY',
   'VISA',
   'MASTERCARD',
-  'DEBIT',
   'CREDIT',
-  'BALANCE',
-  'TEND',
-  'APPROVED',
-  'AUTH',
   'SERVER',
-  'GUEST',
-  'THANK',
   'WELCOME',
-  'CUMUL',
   'FIDELITE',
   'CARTE BLEUE',
   'TOTAUX',
@@ -180,11 +149,9 @@ const List<String> stopWords = [
 
 const List<String> excludedTotalWords = [
   'HT',
-  'H.T',
   'TVA',
   'TUA',
   'ELIGIBLE',
-  'POINTS',
   'FRANC',
   'FRF',
 ];
@@ -206,7 +173,7 @@ const List<String> paymentWords = [
   'PERCU',
   'RECU',
 ];
-const List<String> tvaWords = ['TVA', 'TUA', 'TAX', 'TAXE', 'TAXES'];
+const List<String> tvaWords = ['TVA', 'TUA', 'TAX'];
 const List<String> taxInclusiveWords = ['INCL'];
 
 class ExtractedItem {

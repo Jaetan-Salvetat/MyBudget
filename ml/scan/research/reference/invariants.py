@@ -4,10 +4,14 @@ Trois familles de preuves arithmétiques, indépendantes du classifieur :
 
 - décomposition TVA : un montant HT et un montant de taxe à un taux légal
   (2,1 / 5,5 / 10 / 20 %) prouvent le TTC — leurs lignes ne sont jamais des
-  articles, leur somme est une référence ;
+  articles, leur somme est une référence. Une ligne qui porte les trois
+  montants à la fois (HT + taxe = TTC) est une table de TVA quel que soit le
+  mot qui la précède, « TVA » comme « Vat » comme rien du tout ;
 - espèces − rendu : deux lignes imprimées prouvent le montant réglé ;
-- récapitulatif de remises : une remise égale à la somme des remises
-  précédentes (« REMISE TOTALE ») ne compte pas deux fois ;
+- récapitulatif de remises : un montant égal, au signe près, à la somme des
+  remises qui le précèdent totalise des ristournes — qu'il soit imprimé
+  négatif (« REMISE TOTALE -5,10 ») ou positif (« Total remise: 58,98 ») —
+  et n'est donc jamais la somme due ;
 
 plus l'éligibilité des références : les totaux de rayon (« TOTAL
 ALIMENTAIRE ») précèdent toujours le total final, un sous-total ou un
@@ -37,6 +41,7 @@ TOTAL_LINE = "total_line"
 SECTIONS = "sections"
 MIN_BARE_SECTION_LINES = 2
 MIN_SECTIONS_FOR_EVIDENCE = 2
+MIN_RECAP_DISCOUNTS = 2
 
 TAX_RATES = (0.021, 0.055, 0.10, 0.20)
 TAX_TOLERANCE_CENTS = 1.0
@@ -79,13 +84,33 @@ def _is_rate_token(token: str) -> bool:
 MIN_TABLE_ROW_AMOUNTS = 2
 
 
+def _carries_its_own_tax_split(amounts: list[int]) -> bool:
+    """La ligne porte elle-même sa décomposition : deux de ses montants font
+    le troisième, et leur rapport est un taux de TVA légal. Aucune enseigne
+    n'imprime ça sur un article — et aucun mot n'est nécessaire pour le
+    voir, ce qui rend la lecture indépendante de « TVA », « VAT » ou « MWST »."""
+    for index, ttc in enumerate(amounts):
+        rest = amounts[:index] + amounts[index + 1 :]
+        for position, ht in enumerate(rest):
+            for tax in rest[position + 1 :]:
+                if ht + tax != ttc:
+                    continue
+                if _tax_matches(ht, tax) or _tax_matches(tax, ht):
+                    return True
+    return False
+
+
 def _is_tax_row(priced: PricedLine) -> bool:
-    """Lexique taxe, ou ligne de table TVA « taux HT taxe [TTC] » : un taux
-    seul ne suffit pas, 5,50 ou 20,00 sont aussi des prix d'article."""
+    """Lexique taxe, ligne de table TVA « taux HT taxe [TTC] » — un taux
+    seul ne suffit pas, 5,50 ou 20,00 sont aussi des prix d'article — ou
+    ligne portant sa propre décomposition HT + taxe = TTC."""
     if _contains(priced.line.text, TVA_WORDS):
         return True
+    amounts = _row_amounts(priced)
+    if _carries_its_own_tax_split(amounts):
+        return True
     has_rate = any(_is_rate_token(word.text) for word in priced.line.words)
-    return has_rate and len(_row_amounts(priced)) >= MIN_TABLE_ROW_AMOUNTS
+    return has_rate and len(amounts) >= MIN_TABLE_ROW_AMOUNTS
 
 
 def _row_amounts(priced: PricedLine) -> list[int]:
@@ -248,12 +273,42 @@ def _first_payment_rank(lines: list[PricedLine]) -> int | None:
     )
 
 
+def discount_recap_ranks(lines: list[PricedLine]) -> set[int]:
+    """Rangs dont le montant, au signe près, égale la somme des remises qui
+    les précèdent : un récapitulatif de ristournes, jamais une somme due.
+
+    Purement arithmétique — l'enseigne peut l'imprimer positif (« Total
+    remise: 58,98 ») comme négatif, avec ou sans le mot « total ». Deux
+    remises réelles au minimum : une seule remise recopiée plus bas serait
+    indiscernable d'un article au même prix."""
+    recaps: set[int] = set()
+    discounts: list[int] = []
+    for rank, priced in enumerate(lines):
+        cents = _cents(priced.price)
+        if cents == 0:
+            continue
+        if len(discounts) >= MIN_RECAP_DISCOUNTS and abs(cents) == sum(
+            abs(c) for c in discounts
+        ):
+            recaps.add(rank)
+            continue
+        if cents < 0:
+            discounts.append(cents)
+    return recaps
+
+
 def _last_total_rank(lines: list[PricedLine]) -> int | None:
     """Le total à payer est le dernier total lexical AVANT le premier
     paiement : un « Total bon immédiat » imprimé après la carte n'est pas
-    le total du ticket."""
+    le total du ticket. Un récapitulatif de remises ne compte jamais, quel
+    que soit le mot qui le précède."""
+    recaps = discount_recap_ranks(lines)
     ranks = [
-        rank for rank, priced in enumerate(lines) if _is_final_total_candidate(priced)
+        rank
+        for rank, priced in enumerate(lines)
+        if _is_final_total_candidate(priced)
+        and rank not in recaps
+        and not _carries_its_own_tax_split(_row_amounts(priced))
     ]
     if not ranks:
         return None
@@ -438,7 +493,9 @@ def _tax_rows(lines: list[PricedLine]) -> set[int]:
 def constraints(lines: list[PricedLine]) -> Constraints:
     tax, tax_ignored = tax_evidence(lines)
     summaries = summary_discount_ranks(lines)
-    forced = frozenset(tax_ignored | summaries | _tax_rows(lines))
+    forced = frozenset(
+        tax_ignored | summaries | _tax_rows(lines) | discount_recap_ranks(lines)
+    )
     sections = section_totals(lines, set(forced))
     evidences: list[Evidence] = []
     if tax is not None:

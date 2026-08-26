@@ -375,4 +375,64 @@ void main() {
       expect(result.referenceRanks, contains(1));
     });
   });
+
+  group('positive discount recap', () {
+    test('positive recap of the discounts is not the final total', () {
+      final lines = priced([
+        [('LITIERE', 0), ('16,99', 37)],
+        [('Reduction', 0), ('-4,49', 37)],
+        [('MAISON', 0), ('399,00', 37)],
+        [('Reduction', 0), ('-50,00', 37)],
+        [('TOTAL', 0), ('[2]', 6), ('EUR', 10), ('361,50', 37)],
+        [('Total', 0), ('remise:', 6), ('EUR', 14), ('54,49', 38)],
+      ]);
+      final result = constraints(lines);
+      expect(lastTotalRank(lines), 4);
+      expect(result.referenceRanks, {4});
+      expect(result.forcedIgnore, contains(5));
+    });
+
+    test('a single discount above never makes a recap', () {
+      final lines = priced([
+        [('LITIERE', 0), ('16,99', 37)],
+        [('Reduction', 0), ('-4,49', 37)],
+        [('TOTAL', 0), ('12,50', 37)],
+        [('PORT', 0), ('4,49', 38)],
+      ]);
+      expect(constraints(lines).forcedIgnore, isNot(contains(3)));
+    });
+
+    test('section totals are not mistaken for recaps', () {
+      final lines = priced([
+        [('THON', 0), ('0,89', 38)],
+        [('REMISE', 0), ('-0,56', 37)],
+        [('TOTAL', 0), ('ALIMENTAIRE', 6), ('0,33', 38)],
+        [('SAVON', 0), ('3,99', 38)],
+        [('TOTAL', 0), ('A', 6), ('PAYER', 8), ('4,32', 38)],
+      ]);
+      expect(lastTotalRank(lines), 4);
+      expect(constraints(lines).forcedIgnore, isNot(contains(2)));
+    });
+  });
+
+  group('self evident tax row', () {
+    test('a row carrying its own ht tax ttc triple is a tax row', () {
+      final lines = priced([
+        [('LITIERE', 0), ('374,00', 37)],
+        [('TOTAL', 0), ('EUR', 6), ('374,00', 37)],
+        [('D', 0), ('20,', 2), ('62,33', 20), ('374,00', 29), ('311,67', 38)],
+        [('tot', 0), ('Vat', 4), ('62,33', 20), ('374,00', 29), ('311,67', 38)],
+      ]);
+      expect(lastTotalRank(lines), 1);
+      expect(constraints(lines).forcedIgnore, containsAll([2, 3]));
+    });
+
+    test('three unrelated amounts stay an ordinary line', () {
+      final lines = priced([
+        [('PACK', 0), ('3,00', 20), ('4,00', 29), ('9,00', 38)],
+        [('TOTAL', 0), ('9,00', 38)],
+      ]);
+      expect(constraints(lines).forcedIgnore, isNot(contains(0)));
+    });
+  });
 }

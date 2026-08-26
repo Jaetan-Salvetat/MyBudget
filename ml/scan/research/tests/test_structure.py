@@ -681,3 +681,4 @@ class TestZeroAmountLines:
             ]
         )
         assert [i.amount for i in extract(lines).items] == [34.99]
+

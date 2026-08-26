@@ -2,11 +2,14 @@
 /// référence de `research/reference/invariants.py`.
 ///
 /// Trois familles de preuves arithmétiques, indépendantes du classifieur :
-/// décomposition TVA (HT + taxe à taux légal = TTC), espèces − rendu,
-/// récapitulatif de remises ; plus les totaux de rayon (somme courante des
-/// articles) et l'éligibilité des références (les totaux de rayon précèdent
-/// le total final, un sous-total ou un montant HT ne sert de référence que
-/// s'il clôt les articles). Tout est gated par le checksum.
+/// décomposition TVA (HT + taxe à taux légal = TTC, y compris quand une
+/// seule ligne porte les trois montants — aucun mot requis), espèces − rendu,
+/// récapitulatif de remises (un montant égal au signe près à la somme des
+/// remises qui le précèdent, imprimé négatif comme positif) ; plus les totaux
+/// de rayon (somme courante des articles) et l'éligibilité des références
+/// (les totaux de rayon précèdent le total final, un sous-total ou un montant
+/// HT ne sert de référence que s'il clôt les articles). Tout est gated par le
+/// checksum.
 library;
 
 import 'line_features.dart';
@@ -41,6 +44,7 @@ const Set<String> _ratePercentages = {
 const List<String> htWords = ['HT', 'H.T', 'NET', 'TTL', 'BASE'];
 const List<String> changeWords = ['RENDU', 'RENDRE', 'MONNAIE', 'CHANGE'];
 const int _minTableRowAmounts = 2;
+const int _minRecapDiscounts = 2;
 const int _minBareSectionLines = 2;
 const int _minSectionsForEvidence = 2;
 
@@ -80,12 +84,34 @@ bool _isRateToken(String token) {
       _ratePercentages.contains(token.substring(0, token.length - 1));
 }
 
-/// Lexique taxe, ou ligne de table TVA « taux HT taxe [TTC] » : un taux seul
-/// ne suffit pas, 5,50 ou 20,00 sont aussi des prix d'article.
+/// La ligne porte elle-même sa décomposition : deux de ses montants font le
+/// troisième, et leur rapport est un taux de TVA légal. Aucune enseigne
+/// n'imprime ça sur un article — et aucun mot n'est nécessaire pour le voir,
+/// ce qui rend la lecture indépendante de « TVA », « VAT » ou « MWST ».
+bool _carriesItsOwnTaxSplit(List<int> amounts) {
+  for (var index = 0; index < amounts.length; index++) {
+    final ttc = amounts[index];
+    final rest = [...amounts.sublist(0, index), ...amounts.sublist(index + 1)];
+    for (var position = 0; position < rest.length; position++) {
+      final ht = rest[position];
+      for (final tax in rest.sublist(position + 1)) {
+        if (ht + tax != ttc) continue;
+        if (_taxMatches(ht, tax) || _taxMatches(tax, ht)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+/// Lexique taxe, ligne de table TVA « taux HT taxe [TTC] » — un taux seul ne
+/// suffit pas, 5,50 ou 20,00 sont aussi des prix d'article — ou ligne portant
+/// sa propre décomposition HT + taxe = TTC.
 bool _isTaxRow(PricedLine priced) {
   if (containsEntry(priced.line.text, tvaWords)) return true;
+  final amounts = _rowAmounts(priced);
+  if (_carriesItsOwnTaxSplit(amounts)) return true;
   final hasRate = priced.line.words.any((word) => _isRateToken(word.text));
-  return hasRate && _rowAmounts(priced).length >= _minTableRowAmounts;
+  return hasRate && amounts.length >= _minTableRowAmounts;
 }
 
 List<int> _rowAmounts(PricedLine priced) {
@@ -290,13 +316,41 @@ int? _firstPaymentRank(List<PricedLine> lines) {
   return null;
 }
 
+/// Rangs dont le montant, au signe près, égale la somme des remises qui les
+/// précèdent : un récapitulatif de ristournes, jamais une somme due.
+///
+/// Purement arithmétique — l'enseigne peut l'imprimer positif (« Total
+/// remise: 58,98 ») comme négatif, avec ou sans le mot « total ». Deux remises
+/// réelles au minimum : une seule remise recopiée plus bas serait
+/// indiscernable d'un article au même prix.
+Set<int> discountRecapRanks(List<PricedLine> lines) {
+  final recaps = <int>{};
+  final discounts = <int>[];
+  for (final (rank, priced) in lines.indexed) {
+    final cents = _cents(priced.price);
+    if (cents == 0) continue;
+    final sum = discounts.fold(0, (total, c) => total + c.abs());
+    if (discounts.length >= _minRecapDiscounts && cents.abs() == sum) {
+      recaps.add(rank);
+      continue;
+    }
+    if (cents < 0) discounts.add(cents);
+  }
+  return recaps;
+}
+
 /// Le total à payer est le dernier total lexical AVANT le premier paiement :
 /// un « Total bon immédiat » imprimé après la carte n'est pas le total du
-/// ticket.
+/// ticket. Un récapitulatif de remises ne compte jamais, quel que soit le mot
+/// qui le précède.
 int? lastTotalRank(List<PricedLine> lines) {
+  final recaps = discountRecapRanks(lines);
   final ranks = [
     for (final (rank, priced) in lines.indexed)
-      if (_isFinalTotalCandidate(priced)) rank,
+      if (_isFinalTotalCandidate(priced) &&
+          !recaps.contains(rank) &&
+          !_carriesItsOwnTaxSplit(_rowAmounts(priced)))
+        rank,
   ];
   if (ranks.isEmpty) return null;
   final payment = _firstPaymentRank(lines);
@@ -498,7 +552,12 @@ Set<int> _taxRows(List<PricedLine> lines) => {
 Constraints constraints(List<PricedLine> lines) {
   final (tax, taxIgnored) = taxEvidence(lines);
   final summaries = summaryDiscountRanks(lines);
-  final forced = <int>{...taxIgnored, ...summaries, ..._taxRows(lines)};
+  final forced = <int>{
+    ...taxIgnored,
+    ...summaries,
+    ..._taxRows(lines),
+    ...discountRecapRanks(lines),
+  };
   final sections = sectionTotals(lines, forced);
   final evidences = <Evidence>[];
   if (tax != null) evidences.add(tax);
