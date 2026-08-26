@@ -2,7 +2,12 @@
 
 Format neutre, indépendant de l'architecture du modèle — chaque ticket est
 une séquence de lignes physiques (texte + géométrie) et la séquence de rôles
-correspondante. Seules les annotations qui ont franchi le filtre entrent.
+correspondante.
+
+Le filtre est rejoué ici, à chaque chargement : rien sur le disque ne dit
+si un ticket entre ou non. Le recalcul coûte l'équivalent de la lecture des
+fichiers, et il garantit que le corpus obéit toujours à la version courante
+des règles — un verdict stocké, lui, mentirait dès qu'on y touche.
 
 Séparation figée : les photos prises au téléphone et le split FindIt T1-test
 sont réservés à l'évaluation. Ils ne servent jamais à entraîner — le premier
@@ -12,13 +17,14 @@ vérité indépendante.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from annotate.run import ANNOTATIONS_DIR
+from annotate import record
 from annotate.schema import ROLES
-from reference.lines import PhysicalLine, Word
+from annotate.validate import Cause, rejection
+from paths import ANNOTATIONS_DIR
+from reference.lines import PhysicalLine
 
 HELD_OUT_CORPORA = ("photos_pixel", "T1-test")
 
@@ -27,7 +33,7 @@ HELD_OUT_CORPORA = ("photos_pixel", "T1-test")
 # protège les montants, pas l'étiquetage des lignes. Ces tickets sont donc
 # utilisables pour entraîner le tagger de rôles, et seulement pour lui : rien
 # de ce qui touche aux montants ne doit s'y fier.
-UNREADABLE_AMOUNT_REASON = "illisible"
+ROLES_ONLY_CAUSE = Cause.UNREADABLE_AMOUNT
 
 
 @dataclass(frozen=True)
@@ -45,42 +51,25 @@ class AnnotatedReceipt:
             raise ValueError(f"{self.name} : séquences de longueurs différentes")
 
 
-def _line_of(line: dict) -> PhysicalLine:
-    return PhysicalLine(
-        words=[
-            Word(
-                text=word["text"],
-                left=word["box"][0],
-                top=word["box"][1],
-                right=word["box"][2],
-                bottom=word["box"][3],
-                confidence=word["confidence"],
-            )
-            for word in line["words"]
-        ]
-    )
-
-
-def _receipt_of(record: dict, corpus: str) -> AnnotatedReceipt:
-    entries = sorted(record["annotation"]["lines"], key=lambda entry: entry["index"])
+def _receipt_of(stored: record.Record, corpus: str) -> AnnotatedReceipt:
     return AnnotatedReceipt(
-        name=record["image"],
+        name=stored.image,
         corpus=corpus,
-        lines=[_line_of(line) for line in record["lines"]],
-        roles=[entry["role"] for entry in entries],
-        amounts=[entry.get("amount") for entry in entries],
-        discounts=[entry.get("discount") for entry in entries],
-        label_indexes=[entry.get("label_index") for entry in entries],
+        lines=stored.lines,
+        roles=[entry["role"] for entry in stored.entries],
+        amounts=[entry.get("amount") for entry in stored.entries],
+        discounts=[entry.get("discount") for entry in stored.entries],
+        label_indexes=[entry.get("label_index") for entry in stored.entries],
     )
 
 
-def _usable(record: dict, roles_only: bool) -> bool:
-    if "annotation" not in record or "lines" not in record:
+def _usable(stored: record.Record, roles_only: bool) -> bool:
+    if not stored.lines:
         return False
-    reason = record.get("reason")
-    if reason is None:
+    verdict = rejection(stored.entries, stored.lines)
+    if verdict is None:
         return True
-    return roles_only and UNREADABLE_AMOUNT_REASON in reason
+    return roles_only and verdict.cause is ROLES_ONLY_CAUSE
 
 
 def load(
@@ -88,8 +77,8 @@ def load(
     root: Path = ANNOTATIONS_DIR,
     roles_only: bool = False,
 ) -> list[AnnotatedReceipt]:
-    """Les tickets annotés et acceptés. `held_out` sélectionne le jeu
-    d'évaluation au lieu du jeu d'entraînement.
+    """Les tickets annotés que le filtre accepte. `held_out` sélectionne le
+    jeu d'évaluation au lieu du jeu d'entraînement.
 
     `roles_only` ajoute les tickets écartés pour un montant illisible : leurs
     rôles restent exploitables. Réservé à l'entraînement du tagger — le jeu
@@ -101,10 +90,9 @@ def load(
         if (corpus_dir.name in HELD_OUT_CORPORA) != held_out:
             continue
         for path in sorted(corpus_dir.glob("*.json")):
-            record = json.loads(path.read_text())
-            if not _usable(record, roles_only and not held_out):
-                continue
-            receipts.append(_receipt_of(record, corpus_dir.name))
+            stored = record.read(path)
+            if _usable(stored, roles_only and not held_out):
+                receipts.append(_receipt_of(stored, corpus_dir.name))
     return receipts
 
 

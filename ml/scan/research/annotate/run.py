@@ -1,54 +1,45 @@
 """Annote un corpus de tickets et en fait la base d'entraînement.
 
 Pour chaque image : OCR local (page remise droite), lignes physiques,
-annotation par le modèle, puis filtre — la sortie garde tout, acceptée ou
-non, avec la raison du rejet. Le fichier par ticket sert de cache : relancer
-ne refait que ce qui manque.
+annotation par le modèle. La sortie garde tout, acceptée ou non — c'est le
+chargeur qui rejoue le filtre, pas ce script. Le fichier par ticket sert de
+cache : relancer ne refait que ce qui manque.
 
     OPENROUTER_API_KEY=... uv run python -m annotate.run <dossier>... [--workers N]
 
-`--force` réannote ce qui existe déjà : à réserver aux évolutions du schéma,
-c'est un appel payant par ticket.
+`--stale` ré-annote ce que le modèle ou le prompt courants n'ont pas produit,
+et rien d'autre : c'est un appel payant par ticket, donc il ne touche que ce
+qui le mérite. Les tickets annotés avant que la provenance n'existe comptent
+comme périmés — on ne sait pas ce qui les a produits.
 """
 
 from __future__ import annotations
 
-import json
 import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 from pathlib import Path
 
-from annotate.client import AnnotationError, annotate, preview_data_url
-from annotate.prompt import instructions, numbered_lines
-from annotate.validate import rejection_reason
+from annotate import record
+from annotate.client import MODEL, AnnotationError, annotate, preview_data_url
+from annotate.prompt import fingerprint, instructions, numbered_lines, positional
+from annotate.validate import rejection
 from ocr.pipeline import dump_for
-from paths import DATA_DIR
-from reference.lines import PhysicalLine
+from paths import ANNOTATIONS_DIR
 from reference.local_flow import clustered_lines
 
-ANNOTATIONS_DIR = DATA_DIR / "annotations"
 DEFAULT_WORKERS = 8
 ATTEMPTS = 3
+MALFORMED = "réponse hors contrat"
 
 
-def _serialize(lines: list[PhysicalLine]) -> list[dict]:
-    """Les lignes telles que le modèle les recevra à l'inférence : texte et
-    géométrie. Le dataset se reconstruit sans refaire l'OCR."""
-    return [
-        {
-            "text": line.text,
-            "words": [
-                {
-                    "text": word.text,
-                    "box": [word.left, word.top, word.right, word.bottom],
-                    "confidence": word.confidence,
-                }
-                for word in line.words
-            ],
-        }
-        for line in lines
-    ]
+def provenance() -> dict:
+    return {
+        "model": MODEL,
+        "prompt": fingerprint(),
+        "date": datetime.now(UTC).date().isoformat(),
+    }
 
 
 def _annotate_with_retry(prompt: str, lines_text: str, image_url: str) -> dict:
@@ -61,36 +52,50 @@ def _annotate_with_retry(prompt: str, lines_text: str, image_url: str) -> dict:
     raise last if last else AnnotationError("échec sans cause")
 
 
-def process(image: Path, output: Path, force: bool = False) -> str:
-    if output.exists() and not force:
-        return json.loads(output.read_text()).get("reason") or "accepté"
+def _needs_work(output: Path, stale_only: bool, current: dict) -> bool:
+    if not output.exists():
+        return True
+    return stale_only and record.is_stale(record.read(output), current)
+
+
+def process(image: Path, output: Path, stale_only: bool = False) -> str:
+    current = provenance()
+    if not _needs_work(output, stale_only, current):
+        stored = record.read(output)
+        verdict = rejection(stored.entries, stored.lines)
+        return str(verdict) if verdict else "accepté"
 
     dump = dump_for(image, with_retry=False)
     lines = clustered_lines(dump)
-    if not lines:
-        record = {"image": image.name, "reason": "aucune ligne lue"}
-    else:
+    entries: list[dict] | None = []
+    store = date_read = None
+    if lines:
         annotation = _annotate_with_retry(
             instructions(),
             numbered_lines(lines),
             preview_data_url(image, dump.get("rotationApplied", 0)),
         )
-        record = {
-            "image": image.name,
-            "source": image.parent.name,
-            "rotation": dump.get("rotationApplied", 0),
-            "lines": _serialize(lines),
-            "annotation": annotation,
-            "reason": rejection_reason(annotation, lines),
-        }
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(record, ensure_ascii=False))
-    return record.get("reason") or "accepté"
+        entries = positional(annotation, len(lines))
+        store, date_read = annotation.get("store"), annotation.get("date")
+        if entries is None:
+            return MALFORMED
+
+    record.write(
+        output,
+        image=image.name,
+        lines=lines,
+        entries=entries,
+        store=store,
+        date=date_read,
+        provenance=current,
+    )
+    verdict = rejection(entries, lines)
+    return str(verdict) if verdict else "accepté"
 
 
-def _safe_process(image: Path, output: Path, force: bool) -> str:
+def _safe_process(image: Path, output: Path, stale_only: bool) -> str:
     try:
-        return process(image, output, force)
+        return process(image, output, stale_only)
     except (AnnotationError, OSError, ValueError, KeyError) as error:
         print(f"  ÉCHEC {image.name} : {error}", file=sys.stderr)
         return "échec technique"
@@ -104,7 +109,7 @@ def _corpus_name(directory: Path) -> str:
 
 def main(argv: list[str]) -> int:
     workers = DEFAULT_WORKERS
-    force = "--force" in argv
+    stale_only = "--stale" in argv
     if "--workers" in argv:
         workers = int(argv[argv.index("--workers") + 1])
     directories = [Path(a) for a in argv if not a.startswith("--") and Path(a).is_dir()]
@@ -120,8 +125,8 @@ def main(argv: list[str]) -> int:
     outcomes: Counter[str] = Counter()
     done = 0
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        for reason in pool.map(lambda job: _safe_process(*job, force), jobs):
-            outcomes["accepté" if reason == "accepté" else "rejeté"] += 1
+        for reason in pool.map(lambda job: _safe_process(*job, stale_only), jobs):
+            outcomes[reason] += 1
             done += 1
             if done % 10 == 0:
                 print(f"  {done}/{len(jobs)}", flush=True)
@@ -129,7 +134,9 @@ def main(argv: list[str]) -> int:
     accepted = outcomes["accepté"]
     print(f"\n=== {len(jobs)} tickets annotés")
     print(f"  acceptés : {accepted} ({accepted / max(len(jobs), 1):.0%})")
-    print(f"  rejetés  : {outcomes['rejeté']}")
+    for reason, count in outcomes.most_common():
+        if reason != "accepté":
+            print(f"  {count:5}  {reason}")
     return 0
 
 

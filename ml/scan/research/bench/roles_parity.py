@@ -17,12 +17,11 @@ from pathlib import Path
 
 import numpy as np
 
-from annotate.revalidate import _lines_of
-from annotate.run import ANNOTATIONS_DIR
+from annotate import record
 from line_classifier.export_link import EXPORT_PATH as LINK_EXPORT_PATH
 from line_classifier.export_roles import EXPORT_PATH
 from line_classifier.export_span import EXPORT_PATH as SPAN_EXPORT_PATH
-from paths import PIPELINE_DIR
+from paths import ANNOTATIONS_DIR, PIPELINE_DIR
 from reference.header_ml import role_probabilities
 from reference.labels_ml import label_offsets
 from reference.line_features_all import featurize
@@ -73,8 +72,7 @@ def main(argv: list[str]) -> int:
             expected = dart.get(path.name)
             if expected is None:
                 continue
-            record = json.loads(path.read_text())
-            lines = _lines_of(record)
+            lines = record.read(path).lines
             if not lines:
                 continue
             tickets += 1

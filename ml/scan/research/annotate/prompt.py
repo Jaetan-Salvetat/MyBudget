@@ -4,11 +4,21 @@ Il reçoit la photo et les lignes physiques telles que le pipeline les
 reconstruit — pas le texte du ticket. C'est délibéré : l'annotation doit
 porter sur l'entrée réelle du classifieur, y compris quand le clustering a
 fusionné deux lignes du ticket.
+
+Ce module porte le contrat dans les deux sens : ce qu'on demande au modèle,
+et comment se lit sa réponse. Le modèle répond des entrées *indexées* ;
+`positional` vérifie que ces index forment bien une bijection sur les lignes
+et rend la séquence dans l'ordre, index retiré. Tout le reste du code ne
+connaît que cette forme-là.
 """
 
 from __future__ import annotations
 
+import hashlib
+
 from annotate.schema import ROLE_DESCRIPTIONS
+
+FINGERPRINT_LENGTH = 12
 
 INSTRUCTIONS = """Tu annotes un ticket de caisse pour entraîner un modèle.
 
@@ -47,7 +57,7 @@ Règles importantes :
 - tout ce qui suit le total et les moyens de paiement est `footer`.
 
 Réponds UNIQUEMENT avec un objet JSON :
-{{"lines": [{{"index": 0, "role": "header", "amount": null, "discount": null}}, ...],
+{{"lines": [{{"index": 0, "role": "header", "amount": null}}, ...],
   "store": "<enseigne lisible ou null>",
   "date": "<AAAA-MM-JJ ou null>"}}
 Une entrée par ligne numérotée, dans l'ordre, sans en omettre aucune."""
@@ -56,6 +66,32 @@ Une entrée par ligne numérotée, dans l'ordre, sans en omettre aucune."""
 def instructions() -> str:
     roles = "\n".join(f"- {role} : {text}" for role, text in ROLE_DESCRIPTIONS.items())
     return INSTRUCTIONS.format(roles=roles)
+
+
+def fingerprint() -> str:
+    """L'empreinte de ce qu'on demande au modèle. Toucher au prompt la change,
+    donc périme les annotations produites par l'ancien."""
+    digest = hashlib.sha256(instructions().encode()).hexdigest()
+    return digest[:FINGERPRINT_LENGTH]
+
+
+def positional(annotation: dict, line_count: int) -> list[dict] | None:
+    """Les entrées dans l'ordre des lignes, index retiré — ou None si le
+    modèle n'a pas rendu une entrée par ligne, exactement une fois."""
+    entries = annotation.get("lines")
+    if not isinstance(entries, list) or len(entries) != line_count:
+        return None
+    ordered: list[dict | None] = [None] * line_count
+    for entry in entries:
+        index = entry.get("index")
+        if not isinstance(index, int) or not 0 <= index < line_count:
+            return None
+        if ordered[index] is not None:
+            return None
+        ordered[index] = {
+            key: value for key, value in entry.items() if key != "index"
+        }
+    return [entry for entry in ordered if entry is not None]
 
 
 def numbered_lines(lines) -> str:

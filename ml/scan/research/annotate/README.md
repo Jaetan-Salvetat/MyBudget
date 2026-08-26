@@ -117,6 +117,31 @@ d'évaluation. Sont réservés à l'évaluation, définitivement :
 - **`photos_pixel`** — le seul terrain réaliste (téléphone, froissé, penché) ;
 - **`T1-test`** — porte une vérité golden indépendante.
 
+## Le format sur disque
+
+Un fichier JSON par ticket, écrit et relu par `record.py` seul :
+
+```json
+{"image": "10.jpg",
+ "provenance": {"model": "…", "prompt": "<empreinte>", "date": "…"},
+ "lines":  [{"words": [{"text": "PAIN", "box": [x, y, x, y], "confidence": 1.0}]}],
+ "annotation": {"lines": [{"role": "item", "amount": 2.50}], "store": "…", "date": "…"}}
+```
+
+L'entrée `i` décrit la ligne `i` : rien n'indexe, c'est le rang qui lie les
+deux séquences. Ne sont **pas** stockés les champs qui se déduisent — le
+texte d'une ligne (la jointure de ses mots), l'index d'une entrée (son rang)
+et le verdict du filtre. Ce dernier se recalcule au chargement, en 0,15 s
+pour tout le corpus : le stocker le laisserait mentir dès qu'une règle bouge,
+et décider de la composition du corpus en cherchant un mot dans une phrase
+française n'aurait survécu à aucune reformulation.
+
+La provenance, elle, ne se déduit de rien. Elle dit quel modèle et quelle
+version du prompt ont produit l'annotation, et c'est ce qui rend `--stale`
+possible. Les tickets migrés depuis l'ancien format portent `prompt: null` :
+le prompt de l'époque n'était noté nulle part, donc ils comptent tous comme
+périmés — c'est la seule lecture honnête.
+
 ## Le schéma
 
 12 rôles (`schema.py`). Seuls `item` et `discount` contribuent à la somme,
@@ -132,9 +157,14 @@ remise, et `label_index` quand son libellé est sur une autre ligne.
 
 ```bash
 OPENROUTER_API_KEY=... uv run python -m annotate.run <dossier>...  # annoter
-uv run python -m annotate.revalidate                              # rejouer le filtre
+OPENROUTER_API_KEY=... uv run python -m annotate.run --stale <d>   # ré-annoter le périmé
 uv run python -m annotate.audit t1train                           # confronter au golden
 ```
 
-`revalidate` rejoue le filtre sur les annotations déjà obtenues, sans
-rappeler le modèle : faire évoluer un garde-fou ne coûte rien.
+Faire évoluer un garde-fou ne coûte rien et ne demande aucune commande : le
+filtre étant rejoué au chargement, un `validate.py` modifié change le corpus
+au prochain `load()`.
+
+`--stale` ne rappelle le modèle que sur les tickets dont la provenance ne
+correspond pas au modèle et au prompt courants. Sans lui, un fichier déjà
+présent n'est jamais retouché.

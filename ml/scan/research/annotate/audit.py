@@ -15,20 +15,21 @@ import json
 import sys
 from collections import Counter
 
-from annotate.run import ANNOTATIONS_DIR
+from annotate import record
 from annotate.schema import DISCOUNT, ITEM
+from annotate.validate import rejection
 from bench.flow import count_edits
-from paths import GOLDEN_DIR
+from paths import ANNOTATIONS_DIR, GOLDEN_DIR
 
 SPLIT_DIRS = {"t1train": "T1-train", "t1test": "T1-test"}
 
 
-def annotated_items(annotation: dict) -> list[tuple[float, float]]:
+def annotated_items(entries: list[dict]) -> list[tuple[float, float]]:
     """Articles annotés, remise comprise — au format attendu par le scoreur
     du flow : la remise portée par une ligne `discount` revient à l'article
     qui la précède."""
     items: list[tuple[float, float]] = []
-    for entry in annotation["lines"]:
+    for entry in entries:
         amount = entry.get("amount") or 0.0
         if entry["role"] == ITEM:
             items.append((round(amount, 2), round(entry.get("discount") or 0.0, 2)))
@@ -47,8 +48,8 @@ def main(argv: list[str]) -> int:
     audited = 0
     faulty: list[tuple[str, int]] = []
     for path in sorted(directory.glob("*.json")):
-        record = json.loads(path.read_text())
-        if record.get("reason") is not None:
+        stored = record.read(path)
+        if rejection(stored.entries, stored.lines) is not None:
             continue
         golden_path = golden_dir / f"{path.stem}.json"
         if not golden_path.exists():
@@ -57,7 +58,7 @@ def main(argv: list[str]) -> int:
         expected = [
             round(float(item["amount"]), 2) for item in golden["receipt"]["items"]
         ]
-        wrong = count_edits(annotated_items(record["annotation"]), expected)
+        wrong = count_edits(annotated_items(stored.entries), expected)
         edits[wrong] += 1
         audited += 1
         if wrong:

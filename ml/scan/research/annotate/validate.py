@@ -13,17 +13,48 @@ contrôles indépendants la trient, et rien d'autre ne la protège :
 Une annotation fausse ne franchit quasiment jamais le second contrôle : se
 tromper de rôle décale la somme. C'est le même juge que le flow, appliqué
 à l'annotation au lieu de l'extraction.
+
+Le verdict est typé. Une seule cause de rejet laisse le ticket servir au
+tagger de rôles, et la distinguer par un enum plutôt que par le texte du
+message évite qu'une reformulation change silencieusement le corpus.
+
+Les entrées sont positionnelles : l'entrée `i` décrit la ligne `i`. Le
+retour du modèle, lui, est indexé — `prompt.positional` le remet dans cet
+ordre avant que le filtre ne le voie.
 """
 
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
+from enum import StrEnum
 
 from annotate.schema import DISCOUNT, ITEM, ROLES, SUBTOTAL, TOTAL
 from reference.lines import PhysicalLine
 from reference.structure import merge_price_fragments, parse_price
 
 TOLERANCE = 0.005
+
+
+class Cause(StrEnum):
+    """Pourquoi une annotation n'entre pas dans le corpus."""
+
+    MALFORMED = "annotation malformée"
+    UNREADABLE_AMOUNT = "montant illisible sur sa ligne"
+    NO_ITEM = "aucun article"
+    NO_REFERENCE = "aucune référence (total ou sous-total)"
+    SUM_MISMATCH = "somme ≠ référence imprimée"
+
+
+@dataclass(frozen=True)
+class Rejection:
+    cause: Cause
+    detail: str = ""
+
+    def __str__(self) -> str:
+        return f"{self.cause} : {self.detail}" if self.detail else str(self.cause)
+
+
 EMBEDDED_AMOUNT_PATTERN = re.compile(r"(?=(\d{1,4}[.,]\d{2}))")
 MISSING_SEPARATOR_PATTERN = re.compile(r"\b(\d{1,4})\s(\d{2})\b")
 
@@ -81,40 +112,36 @@ def _sum_and_references(
     return round(items_sum, 2), references, item_count
 
 
-def rejection_reason(annotation: dict, lines: list[PhysicalLine]) -> str | None:
-    """La raison du rejet, ou None quand l'annotation entre dans le corpus."""
-    entries = annotation.get("lines")
-    if not isinstance(entries, list):
-        return "pas de liste de lignes"
+def rejection(
+    entries: list[dict], lines: list[PhysicalLine]
+) -> Rejection | None:
+    """Le verdict du filtre, ou None quand l'annotation entre dans le corpus."""
     if len(entries) != len(lines):
-        return f"{len(entries)} lignes annotées pour {len(lines)} lues"
+        return Rejection(
+            Cause.MALFORMED, f"{len(entries)} lignes annotées pour {len(lines)} lues"
+        )
 
     # Le pipeline recolle les prix coupés au séparateur décimal avant de
     # lire quoi que ce soit : le filtre doit juger la même ligne que lui.
     merged = [merge_price_fragments(line) for line in lines]
 
-    seen = set()
-    for entry in entries:
-        index = entry.get("index")
-        if not isinstance(index, int) or not 0 <= index < len(lines):
-            return f"index hors ticket : {index}"
-        if index in seen:
-            return f"index annoté deux fois : {index}"
-        seen.add(index)
+    for index, entry in enumerate(entries):
         if entry.get("role") not in ROLES:
-            return f"rôle inconnu : {entry.get('role')}"
+            return Rejection(Cause.MALFORMED, f"rôle inconnu : {entry.get('role')}")
         for amount in _entry_amounts(entry):
             if not _readable(amount, merged[index]):
-                return f"montant {amount} illisible ligne {index}"
+                return Rejection(
+                    Cause.UNREADABLE_AMOUNT, f"montant {amount} ligne {index}"
+                )
 
     items_sum, references, item_count = _sum_and_references(entries)
     if item_count == 0:
-        return "aucun article"
+        return Rejection(Cause.NO_ITEM)
     if not references:
-        return "aucune référence (total ou sous-total)"
+        return Rejection(Cause.NO_REFERENCE)
     # Le total TTC en Europe, le sous-total hors taxe aux États-Unis : le
     # checksum du flow accepte l'un ou l'autre, le filtre aussi.
     if any(abs(items_sum - reference) < TOLERANCE for reference in references):
         return None
     printed = " ou ".join(f"{reference:.2f}" for reference in references)
-    return f"somme {items_sum:.2f} ≠ référence {printed}"
+    return Rejection(Cause.SUM_MISMATCH, f"{items_sum:.2f} ≠ {printed}")
