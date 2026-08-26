@@ -710,6 +710,39 @@ Le gap « libellé rattaché au mauvais prix » passe de 40 à 33 tickets. Les 3
 restants ne sont plus un problème de rattachement : sur 26 d'entre eux le
 libellé attendu n'existe nulle part dans l'OCR, abîmé à la lecture.
 
+### Le golden se juge lui-même (2026-08-26)
+
+Le golden est une annotation LLM sur image : il se trompe, et en silence. Il
+s'impose pourtant la même égalité que le pipeline — Σ(articles − remises) =
+total. **27 tickets de T1-test (5,4 %) n'y satisfont pas**, et 24 d'entre eux
+étaient comptés comme des échecs du pipeline.
+
+Deux chaînes indépendantes tranchent, et seulement si elles bouclent : la
+transcription officielle FindIt (texte parfait, aucun OCR) puis le corpus
+annoté (le ticket relu depuis l'image). Le reste sort du score —
+`data/golden/inconclusive.txt`, compté à part, jamais en échec.
+
+| | T1-test | T1-train |
+|---|---|---|
+| golden cohérent | 94,6 % | 95,0 % |
+| réparé par une chaîne indépendante | 2,0 % | 1,2 % |
+| aucune chaîne ne boucle | 3,4 % | 3,8 % |
+
+Sur les cinq tickets que la transcription tranche, **elle donne raison au
+pipeline** : `572`, `578` et `1075` déduisaient une remise que le golden avait
+oubliée, et l'analyse les portait au passif comme des « remises fantômes ».
+Un faux vérifié sur quatre disparaît de la même façon — c'était le golden.
+
+| T1-test | avant | après |
+|---|---|---|
+| tickets parfaits | 364/500 (72,8 %) | **365/483 (75,6 %)** |
+| — dont réparations réelles | | +4 tickets à corpus constant (73,6 %) |
+| — dont vérité manquante | | 17 tickets hors score |
+| faux vérifiés | 4 | 3 |
+
+`truth/golden.py` porte le critère et l'arbitrage, `truth/references.py` les
+lectures concurrentes, `truth.audit_golden` le rapport et la liste.
+
 ### Schéma à 14 rôles
 
 `store` et `date_line` sortent de `header` : les mesures montrent qu'ils

@@ -24,6 +24,8 @@ from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
 from reference.header_ml import date_of, role_probabilities, store_of
 from reference.labels_ml import label_offsets, relabel
 from reference.local_flow import CONFIRM, VERIFIED_STAGES, clustered_lines, decide_local
+from truth.golden import Verdict, best_reference
+from truth.references import alternatives
 
 SPLIT_DIRS = {"t1test": "T1-test", "t1train": "T1-train"}
 OUTPUT_DIR = RESULTS_DIR / "vision_local"
@@ -69,10 +71,14 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
     with ProcessPoolExecutor() as pool:
         for result in pool.map(_run_one, images):
             golden = json.loads((golden_dir / f"{result['doc']}.json").read_text())
-            expected = [
-                round(float(item["amount"]), 2)
-                for item in golden["receipt"]["items"]
-            ]
+            reference, verdict = best_reference(
+                golden["receipt"], alternatives(SPLIT_DIRS[split], result["doc"])
+            )
+            result["truth"] = verdict.value
+            if reference is None:
+                exact_runs.append(result)
+                continue
+            expected = [round(float(item["amount"]), 2) for item in reference["items"]]
             result["edits"] = count_edits(
                 [(i["amount"], i["discount"]) for i in result["items"]], expected
             )
@@ -85,7 +91,7 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
                     ExtractedName(i["name"], i["amount"], i["discount"])
                     for i in result["items"]
                 ],
-                golden,
+                {"receipt": reference},
             )
             result["wrong"] = exactness.wrong
             (OUTPUT_DIR / f"{split}_{result['doc']}.json").write_text(
@@ -104,15 +110,23 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
 
 
 def report_exactness(results: list[dict]) -> None:
-    """La métrique produit : un ticket ne compte que si tout est juste."""
-    exact = sum(1 for result in results if not result["wrong"])
-    print(f"\n=== tickets parfaits : {exact}/{len(results)} ({exact / len(results):.1%})")
+    """La métrique produit : un ticket ne compte que si tout est juste.
+
+    Les tickets sans vérité — golden bancal qu'aucune chaîne indépendante ne
+    tranche — sont comptés à part : les scorer mesurerait le golden."""
+    judged = [result for result in results if "wrong" in result]
+    unjudged = len(results) - len(judged)
+    repaired = sum(1 for r in judged if r["truth"] == Verdict.REPAIRED.value)
+    exact = sum(1 for result in judged if not result["wrong"])
+    print(f"\n=== tickets parfaits : {exact}/{len(judged)} ({exact / len(judged):.1%})")
+    print(f"  vérité : {len(judged) - repaired} golden, {repaired} réparés, "
+          f"{unjudged} sans vérité (hors score)")
     causes: Counter[str] = Counter()
-    for result in results:
+    for result in judged:
         for field in result["wrong"]:
             causes[field] += 1
     for field, count in causes.most_common():
-        print(f"  {field:<10} faux sur {count:>4} tickets ({count / len(results):.0%})")
+        print(f"  {field:<10} faux sur {count:>4} tickets ({count / len(judged):.0%})")
 
 
 def report(runs: list[TicketRun]) -> None:
