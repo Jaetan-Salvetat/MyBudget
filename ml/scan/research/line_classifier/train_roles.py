@@ -1,4 +1,4 @@
-"""Entraîne le tagger de rôles : toutes les lignes, les 14 rôles du corpus.
+"""Entraîne le tagger de rôles : toutes les lignes, 9 classes.
 
 Le classifieur historique (`train.py`) n'étiquette que les lignes porteuses
 de prix, en 5 classes : il ne peut désigner ni l'enseigne, ni la ligne de
@@ -8,6 +8,10 @@ trois postes d'erreur les plus coûteux de la métrique produit.
 Un seul modèle, pas un par champ : les rôles de ligne sont mutuellement
 exclusifs, les séparer fabriquerait des conflits à arbitrer, et le corpus ne
 nourrirait pas plusieurs modèles.
+
+Le corpus annote 14 rôles, le modèle en prédit 9 : six d'entre eux ne sont
+lus par aucun consommateur, et les distinguer coûtait 41 % des erreurs du
+tagger sans rien rapporter. La projection est dans `line_labels.py`.
 
 L'entraînement prend aussi les tickets écartés pour un montant illisible :
 le checksum protège les montants, pas l'étiquetage des lignes, et leurs rôles
@@ -25,11 +29,11 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import classification_report
 
 from annotate.dataset import AnnotatedReceipt, load
-from annotate.schema import ROLES
 from paths import ROLE_MODEL_PATH
 from reference.line_features_all import featurize
+from reference.line_labels import TAGGER_ROLES, tagger_role
 
-ROLE_INDEX = {role: index for index, role in enumerate(ROLES)}
+ROLE_INDEX = {role: index for index, role in enumerate(TAGGER_ROLES)}
 
 
 def dataset(receipts: list[AnnotatedReceipt]) -> tuple[np.ndarray, np.ndarray]:
@@ -40,7 +44,7 @@ def dataset(receipts: list[AnnotatedReceipt]) -> tuple[np.ndarray, np.ndarray]:
         if len(rows) != len(receipt.roles):
             continue
         features.extend(rows)
-        labels.extend(ROLE_INDEX[role] for role in receipt.roles)
+        labels.extend(ROLE_INDEX[tagger_role(role)] for role in receipt.roles)
     return np.array(features), np.array(labels)
 
 
@@ -72,7 +76,7 @@ def main() -> None:
             y_test,
             model.predict(x_test),
             labels=present,
-            target_names=[ROLES[i] for i in present],
+            target_names=[TAGGER_ROLES[i] for i in present],
             digits=3,
             zero_division=0,
         )

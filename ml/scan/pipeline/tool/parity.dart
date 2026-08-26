@@ -11,16 +11,26 @@ import 'dart:io';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 const String modelOption = '--model=';
+const String rolesOption = '--roles=';
 
 void main(List<String> args) {
-  final dirs = args.where((arg) => !arg.startsWith(modelOption)).toList();
+  final dirs = args
+      .where(
+        (arg) => !arg.startsWith(modelOption) && !arg.startsWith(rolesOption),
+      )
+      .toList();
   final modelPath = args
       .where((arg) => arg.startsWith(modelOption))
       .map((arg) => arg.substring(modelOption.length))
       .firstOrNull;
+  final rolesPath = args
+      .where((arg) => arg.startsWith(rolesOption))
+      .map((arg) => arg.substring(rolesOption.length))
+      .firstOrNull;
   if (dirs.isEmpty) {
     stderr.writeln(
-      'usage: dart tool/parity.dart [--model=path] <results_dir>...',
+      'usage: dart tool/parity.dart [--model=path] [--roles=path] '
+      '<results_dir>...',
     );
     exitCode = 2;
     return;
@@ -30,6 +40,14 @@ void main(List<String> args) {
       : LineClassifier.fromJson(
           jsonDecode(File(modelPath).readAsStringSync())
               as Map<String, dynamic>,
+        );
+  final tagger = rolesPath == null
+      ? null
+      : RoleTagger(
+          LineClassifier.fromJson(
+            jsonDecode(File(rolesPath).readAsStringSync())
+                as Map<String, dynamic>,
+          ),
         );
   final output = <String, Object?>{};
   for (final dirPath in dirs) {
@@ -46,7 +64,7 @@ void main(List<String> args) {
       final pass1 = clusteredLines(data);
       final entry = <String, Object?>{'pass1': receiptJson(extract(pass1))};
       if (classifier != null) {
-        entry['flow'] = _flowJson(data, pass1, classifier);
+        entry['flow'] = _flowJson(data, pass1, classifier, tagger);
       }
       output['$dirPath/${file.uri.pathSegments.last}'] = entry;
     }
@@ -58,6 +76,7 @@ Map<String, Object?> _flowJson(
   Map<String, dynamic> data,
   List<PhysicalLine> pass1,
   LineClassifier classifier,
+  RoleTagger? tagger,
 ) {
   final local = extract(pass1);
   var outcome = decideFirstPass(
@@ -65,6 +84,7 @@ Map<String, Object?> _flowJson(
     pass1,
     classifier,
     FlowPolicy.recommended,
+    tagger: tagger,
   );
   final retryData = data['ocrRetry'] as Map<String, dynamic>?;
   if (!outcome.verified && retryData != null) {
@@ -76,6 +96,7 @@ Map<String, Object?> _flowJson(
       retry,
       classifier,
       FlowPolicy.recommended,
+      tagger: tagger,
     );
   }
   return {

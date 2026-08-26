@@ -1,10 +1,15 @@
-/// Le tagger de rôles : quatorze rôles, toutes les lignes du ticket.
+/// Le tagger de rôles : neuf classes, toutes les lignes du ticket.
 ///
 /// Il *désigne* la ligne, il ne lit pas le champ. L'enseigne échouait à la
 /// sélection (`lines[0]` est souvent un slogan ou une adresse), la date à la
 /// lecture : le modèle règle la première, le parsing garde la seconde.
 ///
-/// Miroir de `ml/scan/research/reference/header_ml.py` et `labels_ml.py`.
+/// Le corpus annote quatorze rôles, le modèle n'en prédit que neuf : six
+/// d'entre eux — tax, change, summary, header, footer, noise — ne sont lus
+/// par aucun consommateur, et les distinguer coûtait 41 % des erreurs du
+/// tagger sans rien rapporter. Ils sont fondus dans `noise`.
+///
+/// Miroir de `ml/scan/research/reference/header_ml.py` et `line_labels.py`.
 library;
 
 import 'classifier.dart';
@@ -23,12 +28,7 @@ const List<String> roleNames = [
   'discount',
   'subtotal',
   'total',
-  'tax',
   'payment',
-  'change',
-  'summary',
-  'header',
-  'footer',
   'noise',
 ];
 
@@ -54,6 +54,12 @@ class RoleTagger {
   /// Probabilité de chaque rôle pour chaque ligne, dans l'ordre du ticket.
   List<List<double>> probabilities(List<PhysicalLine> lines) =>
       _model.predictProbaAll(featurizeAll(lines));
+
+  /// Le rôle le plus probable de chaque ligne — l'argmax, sans seuil : la
+  /// décision se juge au checksum, pas à une confiance choisie à la main.
+  List<String> roles(List<PhysicalLine> lines) => [
+    for (final row in probabilities(lines)) roleNames[argmax(row)],
+  ];
 }
 
 /// La ligne la plus probable pour ce rôle — un ticket n'en a qu'une.

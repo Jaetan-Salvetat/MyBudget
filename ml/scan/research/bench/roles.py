@@ -26,6 +26,7 @@ from annotate.dataset import load
 from annotate.schema import DISCOUNT, ITEM, SUBTOTAL, TOTAL
 from reference.decode_constrained import extract_constrained
 from reference.header_ml import predicted_roles
+from reference.line_labels import tagger_role
 from reference.structure import extract, merge_price_fragments
 from reference.structure_ml import extract_ml
 from reference.structure_roles import extract_roles
@@ -62,15 +63,18 @@ def report(corpus: str) -> None:
     for record in receipts:
         merged = [merge_price_fragments(line) for line in record.lines]
         predicted = predicted_roles(record.lines)
+        # Le tagger ne prédit pas les six rôles que personne ne lit : la
+        # vérité se compare dans son vocabulaire, pas dans celui du corpus.
+        annotated = [tagger_role(role) for role in record.roles]
 
         counts["chaîne actuelle"] += _chain_balances(record.lines, merged)
-        counts["rôles annotés (plafond)"] += _balances(merged, record.roles)
+        counts["rôles annotés (plafond)"] += _balances(merged, annotated)
         counts["rôles prédits"] += _balances(merged, predicted)
 
         wrong = wrong_on_amounts = 0
-        for index in range(min(len(predicted), len(record.roles))):
+        for index in range(min(len(predicted), len(annotated))):
             lines_total += 1
-            expected = record.roles[index]
+            expected = annotated[index]
             if predicted[index] == expected:
                 lines_right += 1
                 continue

@@ -28,6 +28,7 @@ String stageName(FlowStage stage) => switch (stage) {
   FlowStage.localRetry => 'local_retry',
   FlowStage.localMl => 'local_ml',
   FlowStage.localDp => 'local_dp',
+  FlowStage.localRoles => 'local_roles',
   FlowStage.localFused => 'local_fused',
   FlowStage.confirm => 'confirm',
 };

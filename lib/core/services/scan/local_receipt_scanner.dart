@@ -68,6 +68,7 @@ class LocalReceiptScanner {
       pass1,
       _classifier,
       FlowPolicy.recommended,
+      tagger: _tagger,
     );
     step('règles + classifieur');
 
@@ -83,6 +84,7 @@ class LocalReceiptScanner {
           retry,
           _classifier,
           FlowPolicy.recommended,
+          tagger: _tagger,
         );
         step('retry (2e OCR + étages)');
       }

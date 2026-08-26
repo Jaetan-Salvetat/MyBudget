@@ -19,6 +19,10 @@ photo → ML Kit → déskew + clustering → règles → checksum OK → valida
                           │ échec ↓
                           classifieur de lignes (V2) → re-checksum
                           │ échec ↓
+                          décodage sous contrainte → re-checksum
+                          │ échec ↓
+                          tagger de rôles → re-checksum
+                          │ échec ↓
                           écran de confirmation pré-rempli (échec DÉTECTÉ, jamais silencieux)
 ```
 
@@ -874,6 +878,96 @@ seule chose qui puisse faire tomber les 18,4 % d'erreurs silencieuses : un
 libellé sans invariant arithmétique n'a que sa probabilité comme garde-fou.
 Cela demande un modèle à part, pas une feature de plus.
 
+### Neuf rôles au lieu de quatorze, et le tagger entre dans le flow (2026-08-26)
+
+Le tagger de rôles existait depuis un moment et ne servait qu'à désigner
+l'enseigne et la date. La décision « cette ligne est-elle un article » — celle
+qu'il connaît le mieux — ne lui était jamais demandée, et les règles la
+prenaient par géométrie et lexiques.
+
+**Six des quatorze rôles ne sont lus par personne.** `structure_roles` lit
+item, item_label, discount, total, subtotal, payment ; `header_ml` lit store
+et date_line. Distinguer tax, change, summary, header, footer et noise
+n'apporte rien à aucun consommateur, et l'annotateur ne peut pas y être
+cohérent : mesuré sur T1-test, **41 % des erreurs du tagger sont des
+confusions entre ces six-là**. La projection est dans `line_labels.py`, à
+côté de celle du classifieur V2 ; le corpus, lui, garde ses quatorze rôles.
+
+| tagger, T1-test | 14 rôles | 9 classes |
+|---|---|---|
+| exactitude par ligne | 94,8 % | **96,9 %** |
+| tickets sans aucune erreur de rôle | 51,8 % | **66,3 %** |
+| tickets sans erreur sur les montants | 83,9 % | **84,8 %** |
+
+**Et le flow ne bouge presque pas** : 91,3 % → 91,8 % de checksum via les
+rôles. C'est le piège déjà rencontré une fois, et il tient toujours — un
+classifieur par ligne décide indépendamment ligne à ligne, alors qu'une seule
+erreur sur une ligne porteuse de montant casse le ticket entier. À 98,6 % de
+rappel sur `item` et cinq articles par ticket, un ticket sur vingt perd un
+article et c'est fini pour lui. **L'exactitude de rôles et l'exactitude du
+flow ne sont pas la même métrique.**
+
+### Les règles servent-elles encore ? Chaque étage, seul (2026-08-26)
+
+La chaîne n'est pas « les règles » : c'est un **ensemble de lectures que le
+checksum arbitre**. Les règles n'y sont qu'un votant. Chaque étage seul, puis
+les combinaisons :
+
+| étage seul | T1-test (scans à plat) | photos_pixel (vraies photos) |
+|---|---|---|
+| règles | 371 (89,4 %) | **4 (20,0 %)** |
+| classifieur V2 | 379 (91,3 %) | 12 (60,0 %) |
+| **décodeur sous contrainte** | **404 (97,3 %)** | 13 (65,0 %) |
+| rôles (9 classes) | 381 (91,8 %) | 11 (55,0 %) |
+| rôles annotés (plafond) | 409 (98,6 %) | 17 (85,0 %) |
+
+| combinaison | T1-test | photos_pixel |
+|---|---|---|
+| règles + V2 + décodeur | 408 (98,3 %) | 13 (65,0 %) |
+| **sans les règles** | 404 (97,3 %) | **13 (65,0 %)** |
+| **+ rôles** | 408 (98,3 %) | **15 (75,0 %)** |
+| tickets que seules les règles sauvent | 4 | **0** |
+| tickets que seuls les rôles sauvent | 0 | **2** |
+
+Sur les vraies photos, **les règles seules ne vérifient que 20 % des tickets
+et les retirer de la chaîne ne coûte aucun ticket**. Sur les scans à plat
+elles en sauvent encore 4 sur 415. Ce qui porte la chaîne aujourd'hui, ce
+n'est pas elles : c'est le décodeur sous contrainte, 97,3 % à lui seul.
+
+Elles restent en place quand même. Pas parce qu'elles sont bonnes — la preuve
+qu'elles sont inutiles repose sur **20 tickets annotés** et sur une comparaison
+**à une seule passe OCR**, quand la production leur en donne deux plus la
+fusion. L'argument pour les retirer sera la simplicité du code, et il se
+tranchera sur un corpus photo sérieux.
+
+### L'étage de rôles, branché en dernier (2026-08-26)
+
+`classifier_rescue` essaie désormais quatre seconds avis : argmax du
+classifieur, décodage sous contrainte, puis **structuration par les rôles**.
+Le tagger passe en dernier, et c'est délibéré : sur une même passe, un ticket
+qu'un étage antérieur fait boucler garde exactement la lecture qu'il avait. Il
+peut en revanche vérifier en passe 1 ce qu'un étage antérieur n'aurait vérifié
+qu'en passe 2 — l'étiquette d'étage change alors, jamais les montants.
+**Vérifié sur les 483 tickets de T1-test : 3 tickets gagnés, 0 lecture
+modifiée.**
+
+| T1-test | avant | après |
+|---|---|---|
+| vérifiés | 450 (93,2 %) | **452 (93,6 %)** |
+| tickets parfaits | 340 (70,4 %) | **342 (70,8 %)** |
+| erreurs silencieuses (tickets vérifiés) | 83 (18,4 %) | 84 (18,6 %) |
+| faux vérifiés | 1 | 1 |
+
+Le gain est nul sur les scans à plat et vaut +10 points sur les vraies photos.
+Le ticket silencieux supplémentaire est le risque assumé d'un étage qui
+vérifie plus : il n'apparaît que parce qu'un ticket de plus est vérifié.
+
+`structure_roles.dart` porte l'étage, `flow.dart` l'ajoute à
+`classifierRescue`, et `bench.parity` compare le flow complet ticket par
+ticket : **699 tickets, 0 divergence**. Il a fallu réparer ce bench au
+passage — il dépaquetait `outcome.items` comme des tuples depuis que
+`LocalOutcome` porte des `ExtractedItem`, et ne tournait donc plus.
+
 ### Le golden se juge lui-même (2026-08-26)
 
 Le golden est une annotation LLM sur image : il se trompe, et en silence. Il
@@ -929,7 +1023,11 @@ date à 0,90 de confiance là où la référence Python — celle que le bench
 mesure — se contente de 0,5. L'app suivait donc une politique jamais
 mesurée ; elle suit maintenant la référence.
 
-### Schéma à 14 rôles
+### Schéma à 14 rôles annotés
+
+Le corpus annote 14 rôles ; le tagger n'en prédit plus que 9 depuis
+2026-08-26 (voir plus haut) — six d'entre eux ne sont lus par personne. Ce qui
+suit décrit le vocabulaire d'**annotation**, qui n'a pas bougé.
 
 `store` et `date_line` sortent de `header` : les mesures montrent qu'ils
 échouent pour des raisons opposées — l'enseigne est une *sélection de ligne*
@@ -961,7 +1059,8 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
 échoue à la moindre divergence.
 
 - **`research/reference/`** — reconstruction des lignes (`lines.py`),
-  structuration (`structure.py`), invariants structurels (`invariants.py`),
+  structuration par les règles (`structure.py`) et par les rôles
+  (`structure_roles.py`), invariants structurels (`invariants.py`),
   fusion des passes (`fuse_passes.py`), décodage sous contrainte checksum
   (`decode_constrained.py`), features du classifieur (`line_features.py`,
   `line_features_v3.py`) et contrat de classes (`line_labels.py`),

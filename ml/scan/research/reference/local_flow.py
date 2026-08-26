@@ -1,7 +1,8 @@
 """Flow local complet rejoué depuis un dump OCR device (passe 1 + retry).
 
 Sur la passe 1 : règles (checksum) → classifieur argmax (re-checksum) →
-décodage sous contrainte. Si rien ne vérifie, seulement alors le retry
+décodage sous contrainte → tagger de rôles. Si rien ne vérifie, seulement
+alors le retry
 (2e OCR prétraité, l'étage cher) : règles (garde-fou) → classifieur →
 décodeur. Mesuré : même précision qu'en tentant le retry avant le
 classifieur, moitié moins de retries. C'est LA décision de référence : le
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 from reference.decode_constrained import extract_constrained
 from reference.flow import FlowPolicy, decide
 from reference.fuse_passes import fuse_passes
+from reference.header_ml import predicted_roles
 from reference.lines import PhysicalLine, Word, cluster_lines, deskew_words
 from reference.structure import (
     ExtractedItem,
@@ -24,6 +26,7 @@ from reference.structure import (
     merge_price_fragments,
 )
 from reference.structure_ml import extract_ml
+from reference.structure_roles import extract_roles
 
 POLICY = FlowPolicy(retry_must_not_lose_value=True, confirm_prefill="local")
 
@@ -31,9 +34,10 @@ LOCAL = "local"
 LOCAL_RETRY = "local_retry"
 LOCAL_ML = "local_ml"
 LOCAL_DP = "local_dp"
+LOCAL_ROLES = "local_roles"
 LOCAL_FUSED = "local_fused"
 CONFIRM = "confirm"
-VERIFIED_STAGES = (LOCAL, LOCAL_RETRY, LOCAL_ML, LOCAL_DP, LOCAL_FUSED)
+VERIFIED_STAGES = (LOCAL, LOCAL_RETRY, LOCAL_ML, LOCAL_DP, LOCAL_ROLES, LOCAL_FUSED)
 
 
 @dataclass(frozen=True)
@@ -92,8 +96,23 @@ def _passes(dump: dict) -> list[list[PhysicalLine]]:
 
 
 def classifier_rescue(
-    passes: list[list[PhysicalLine]], use_dp: bool = True
+    passes: list[list[PhysicalLine]],
+    use_dp: bool = True,
+    use_roles: bool = True,
 ) -> tuple[str, ExtractedReceipt] | None:
+    """Les seconds avis, du plus ancien au plus récent, tous jugés au
+    checksum.
+
+    Le tagger de rôles passe **en dernier**, et c'est délibéré : sur une même
+    passe, un ticket qu'un étage antérieur fait boucler garde exactement la
+    lecture qu'il avait. Il peut en revanche vérifier en passe 1 ce qu'un
+    étage antérieur n'aurait vérifié qu'en passe 2 — l'étiquette d'étage
+    change alors, jamais les montants. Mesuré sur les 483 tickets de T1-test :
+    3 tickets gagnés, **0 lecture modifiée**.
+
+    Le gain se joue ailleurs que sur les scans à plat : sur 20 photos réelles
+    annotées, où les règles seules ne vérifient que 20 % des tickets, l'étage
+    fait passer la chaîne de 65 % à 75 %."""
     merged_passes = [[merge_price_fragments(line) for line in p] for p in passes]
     for merged in merged_passes:
         receipt = extract_ml(merged)
@@ -104,6 +123,11 @@ def classifier_rescue(
             receipt = extract_constrained(merged)
             if receipt is not None and receipt.checksum_ok:
                 return LOCAL_DP, receipt
+    if use_roles:
+        for lines, merged in zip(passes, merged_passes):
+            receipt = extract_roles(merged, predicted_roles(lines))
+            if receipt is not None and receipt.checksum_ok:
+                return LOCAL_ROLES, receipt
     return None
 
 
@@ -125,12 +149,13 @@ def _decide_pass(
     rescue_passes: list[list[PhysicalLine]],
     use_ml: bool,
     use_dp: bool,
+    use_roles: bool = True,
 ) -> LocalOutcome:
     outcome = decide(local, retry, None, None, POLICY)
     if outcome.stage != CONFIRM or not use_ml:
         receipt = _receipt_of_stage(outcome.stage, local, retry)
         return LocalOutcome(outcome.stage, receipt.items, outcome.total)
-    rescued = classifier_rescue(rescue_passes, use_dp=use_dp)
+    rescued = classifier_rescue(rescue_passes, use_dp=use_dp, use_roles=use_roles)
     if rescued is None:
         receipt = _receipt_of_stage(CONFIRM, local, retry)
         return LocalOutcome(CONFIRM, receipt.items, outcome.total)
@@ -149,13 +174,20 @@ def fused_rescue(passes: list[list[PhysicalLine]]) -> ExtractedReceipt | None:
     return None
 
 
-def decide_local(dump: dict, use_ml: bool = True, use_dp: bool = True) -> LocalOutcome:
+def decide_local(
+    dump: dict,
+    use_ml: bool = True,
+    use_dp: bool = True,
+    use_roles: bool = True,
+) -> LocalOutcome:
     passes = _passes(dump)
     local = extract(passes[0])
-    outcome = _decide_pass(local, None, [passes[0]], use_ml, use_dp)
+    outcome = _decide_pass(local, None, [passes[0]], use_ml, use_dp, use_roles)
     if outcome.verified or len(passes) < 2:
         return outcome
-    outcome = _decide_pass(local, extract(passes[1]), [passes[1]], use_ml, use_dp)
+    outcome = _decide_pass(
+        local, extract(passes[1]), [passes[1]], use_ml, use_dp, use_roles
+    )
     if outcome.verified or not (use_ml and use_dp):
         return outcome
     receipt = fused_rescue(passes)

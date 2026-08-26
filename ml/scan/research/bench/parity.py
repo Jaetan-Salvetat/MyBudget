@@ -3,7 +3,7 @@
 Ticket par ticket : extraction de la passe 1 champ à champ (store, date,
 total, subtotal, payment, checksum, articles) et, avec `--model`, la
 décision du flow local complet (stage, total, articles retenus) rejouée
-avec le classifieur exporté. Zéro divergence attendue — le portage Dart est
+avec le classifieur et le tagger de rôles exportés. Zéro divergence attendue — le portage Dart est
 spécifié par cette égalité.
 """
 
@@ -18,7 +18,8 @@ from paths import DATA_DIR, MODELS_DIR, PIPELINE_DIR
 from reference.local_flow import decide_local
 from reference.structure import ExtractedReceipt, extract_from_result
 
-MODEL_PATH = MODELS_DIR / "line_clf_v3.json"
+MODEL_PATH = MODELS_DIR / "line_clf.json"
+ROLES_PATH = MODELS_DIR / "line_roles.json"
 
 DEFAULT_DIRS = [
     "results/device_fr",
@@ -49,7 +50,7 @@ def python_flow_json(dump_path: Path) -> dict:
     return {
         "stage": outcome.stage,
         "total": outcome.total,
-        "items": [{"amount": a, "discount": d} for a, d in outcome.items],
+        "items": [{"amount": a, "discount": d} for a, d in outcome.amounts],
     }
 
 
@@ -68,6 +69,7 @@ def main() -> None:
     command = ["dart", "tool/parity.dart", *absolute_dirs]
     if with_model:
         command.append(f"--model={MODEL_PATH}")
+        command.append(f"--roles={ROLES_PATH}")
     completed = subprocess.run(
         command, cwd=PIPELINE_DIR, capture_output=True, text=True, check=True
     )

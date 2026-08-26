@@ -14,9 +14,10 @@ from __future__ import annotations
 import joblib
 import numpy as np
 
-from annotate.schema import DATE_LINE, ROLES, STORE
+from annotate.schema import DATE_LINE, STORE
 from paths import ROLE_MODEL_PATH
 from reference.line_features_all import featurize
+from reference.line_labels import TAGGER_ROLES
 from reference.lines import PhysicalLine
 from reference.structure import _find_date
 
@@ -34,14 +35,14 @@ def role_probabilities(lines: list[PhysicalLine]) -> np.ndarray:
     """Probabilité de chaque rôle pour chaque ligne, dans l'ordre du ticket."""
     rows = featurize(lines)
     if not rows:
-        return np.zeros((0, len(ROLES)))
+        return np.zeros((0, len(TAGGER_ROLES)))
     return load_role_model().predict_proba(np.array(rows))
 
 
 def predicted_roles(lines: list[PhysicalLine]) -> list[str]:
     """Le rôle le plus probable de chaque ligne — l'argmax, sans seuil : la
     décision se juge au checksum, pas à une confiance choisie à la main."""
-    return [ROLES[int(row.argmax())] for row in role_probabilities(lines)]
+    return [TAGGER_ROLES[int(row.argmax())] for row in role_probabilities(lines)]
 
 
 def _best_line(
@@ -50,7 +51,7 @@ def _best_line(
     """La ligne la plus probable pour ce rôle — un ticket n'en a qu'une."""
     if not len(probabilities):
         return None
-    column = probabilities[:, ROLES.index(role)]
+    column = probabilities[:, TAGGER_ROLES.index(role)]
     best = int(column.argmax())
     return best if column[best] > 0.5 else None
 

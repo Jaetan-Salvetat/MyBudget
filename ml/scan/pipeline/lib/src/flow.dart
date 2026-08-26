@@ -13,9 +13,19 @@ import 'decode.dart';
 import 'fuse_passes.dart';
 import 'line_features.dart';
 import 'lines.dart';
+import 'role_tagger.dart';
 import 'structure.dart';
+import 'structure_roles.dart';
 
-enum FlowStage { local, localRetry, localMl, localDp, localFused, confirm }
+enum FlowStage {
+  local,
+  localRetry,
+  localMl,
+  localDp,
+  localRoles,
+  localFused,
+  confirm,
+}
 
 /// Stages dont la sortie a passé le checksum : badge « vérifié » côté UI.
 const Set<FlowStage> verifiedStages = {
@@ -23,6 +33,7 @@ const Set<FlowStage> verifiedStages = {
   FlowStage.localRetry,
   FlowStage.localMl,
   FlowStage.localDp,
+  FlowStage.localRoles,
   FlowStage.localFused,
 };
 
@@ -135,11 +146,19 @@ FlowOutcome decide(
   );
 }
 
-/// Sauvetage par le classifieur : argmax sur chaque passe, puis décodage
-/// sous contrainte sur chaque passe. Toute sortie repasse par le checksum.
+/// Sauvetage par les modèles : argmax du classifieur sur chaque passe, puis
+/// décodage sous contrainte, puis structuration par le tagger de rôles. Toute
+/// sortie repasse par le checksum.
+///
+/// Le tagger passe **en dernier**, et c'est délibéré : sur une même passe, un
+/// ticket qu'un étage antérieur fait boucler garde exactement la lecture qu'il
+/// avait. Mesuré sur T1-test : 3 tickets gagnés, 0 lecture modifiée. Le gain
+/// se joue sur les vraies photos, où les règles seules ne vérifient que 20 %
+/// des tickets — la chaîne y passe de 65 % à 75 %.
 Rescue classifierRescue(
   List<List<PhysicalLine>> passes,
   LineClassifier classifier,
+  RoleTagger? tagger,
 ) {
   return () {
     final mergedPasses = [for (final pass in passes) mergedLines(pass)];
@@ -153,6 +172,17 @@ Rescue classifierRescue(
       final receipt = extractConstrained(mergedPasses[index], classifier);
       if (receipt != null && receipt.checksumOk) {
         return (FlowStage.localDp, receipt, passes[index]);
+      }
+    }
+    if (tagger != null) {
+      for (var index = 0; index < mergedPasses.length; index++) {
+        final receipt = extractRoles(
+          mergedPasses[index],
+          tagger.roles(passes[index]),
+        );
+        if (receipt != null && receipt.checksumOk) {
+          return (FlowStage.localRoles, receipt, passes[index]);
+        }
       }
     }
     return null;
@@ -182,13 +212,14 @@ FlowOutcome decideFirstPass(
   ExtractedReceipt local,
   List<PhysicalLine> pass1,
   LineClassifier classifier,
-  FlowPolicy policy,
-) => decide(
+  FlowPolicy policy, {
+  RoleTagger? tagger,
+}) => decide(
   local,
   null,
   policy,
   localLines: pass1,
-  rescue: classifierRescue([pass1], classifier),
+  rescue: classifierRescue([pass1], classifier, tagger),
 );
 
 /// Après un retry : mêmes étages sur la passe prétraitée, puis fusion des
@@ -199,15 +230,16 @@ FlowOutcome decideRetryPass(
   List<PhysicalLine> pass1,
   List<PhysicalLine> retry,
   LineClassifier classifier,
-  FlowPolicy policy,
-) {
+  FlowPolicy policy, {
+  RoleTagger? tagger,
+}) {
   final outcome = decide(
     local,
     retryReceipt,
     policy,
     localLines: pass1,
     retryLines: retry,
-    rescue: classifierRescue([retry], classifier),
+    rescue: classifierRescue([retry], classifier, tagger),
   );
   if (outcome.verified) return outcome;
   final fused = fusedRescue(pass1, retry, classifier);
