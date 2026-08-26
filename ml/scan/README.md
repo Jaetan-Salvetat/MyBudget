@@ -74,10 +74,11 @@ ReceiptSense/CORU (arabe-anglais), XFUND-fr (formulaires, pas des tickets),
 Shaip 15.9k reçus 5 langues dont FR (commercial payant). Rien d'autre de
 public en français.
 
-Corpus web US (40 photos ExpressExpense SRD haute résolution + 2 FR Wikimedia) :
-23/42 auto-validés, zéro faux positif vérifié à l'œil. Échecs = hors-domaine
-(vocabulaire US `Food`/`TL`/`CC`, tickets longs froissés, photo à deux tickets,
-avis de rappel → 0 article, comportement juste).
+Un corpus web US (40 photos ExpressExpense SRD) a servi de contrôle
+hors-domaine : 23/42 auto-validés, zéro faux positif vérifié à l'œil, échecs
+tous imputables au vocabulaire US (`Food`/`TL`/`CC`). Il a été **retiré du
+corpus le 2026-08-26** — le scan ne vise que la France, et entraîner sur des
+tickets anglophones diluait la supervision sans rien apprendre d'utile.
 
 Latence OCR Pixel 8 Pro : médiane 312ms, p95 443ms.
 
@@ -1101,11 +1102,10 @@ sont. `research/fetch_data.sh` reconstruit tout :
 | Dataset | Source | Licence |
 |---|---|---|
 | Find it! (1000 tickets FR + transcriptions) | officiel : http://findit.univ-lr.fr/download-the-dataset/ (formulaire) ; miroir : `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 |
-| ExpressExpense SRD (200 photos US) | https://expressexpense.com/large-receipt-image-dataset-SRD.zip (MD5 `c8eb0f2d286da5ab742e7a5b59f15147`) | MIT, attribution |
-| Wikimedia Commons (2 tickets FR) | `Special:FilePath` — voir fetch_data.sh | libres |
+| Wikimedia Commons (1 ticket FR) | `Special:FilePath` — voir fetch_data.sh | libres |
 | Synthétique (120 tickets + ground truth) | `research/corpus/generate.py` (seed 42, déterministe) | interne |
 
-Les sélections dérivées (`selection_fr`, `selection_fr_big`, `selection_web`) se
+Les sélections dérivées (`selection_fr`, `selection_fr_big`) se
 reconstruisent à l'identique via `research/corpus/rebuild.py` (mêmes ids,
 mêmes noms de fichiers → caches et benchs restent comparables).
 

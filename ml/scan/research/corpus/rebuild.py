@@ -9,17 +9,12 @@ from __future__ import annotations
 
 import re
 import shutil
-from pathlib import Path
-
-from PIL import Image
 
 from paths import CORPUS_DIR, FINDIT_DIR
 
 GENUINE_SMALL = 50
 GENUINE_BIG_END = 300
 FORGED_COUNT = 15
-SRD_MIN_LONG_SIDE = 1200
-SRD_TOP_UP_TO = 40
 
 
 def rebuild_findit_selections() -> None:
@@ -43,28 +38,5 @@ def rebuild_findit_selections() -> None:
         f"selection_fr_big: {len(list(big.glob('*.jpg')))}")
 
 
-def rebuild_srd_selection(srd_dir: Path = Path("/tmp/srd")) -> None:
-    out = CORPUS_DIR / "selection_web"
-    out.mkdir(exist_ok=True)
-    sized = []
-    for image in sorted(srd_dir.glob("*.jpg")):
-        width, height = Image.open(image).size
-        sized.append((max(width, height), image))
-    sized.sort(reverse=True)
-    picked = [img for side, img in sized if side >= SRD_MIN_LONG_SIDE]
-    for _side, image in sized:
-        if len(picked) >= SRD_TOP_UP_TO:
-            break
-        if image not in picked:
-            picked.append(image)
-    for image in picked[:SRD_TOP_UP_TO]:
-        shutil.copy(image, out / f"srd_{image.name}")
-    print(f"selection_web (SRD): {len(list(out.glob('srd_*.jpg')))}")
-
-
 if __name__ == "__main__":
     rebuild_findit_selections()
-    if Path("/tmp/srd").exists():
-        rebuild_srd_selection()
-    else:
-        print("SRD absent de /tmp/srd — lancer fetch_datasets.sh d'abord")

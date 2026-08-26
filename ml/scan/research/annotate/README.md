@@ -52,18 +52,29 @@ Les deux seuls écarts sont des tickets de cantine où « Droit d'entrée +6,64 
 et « Participation −6,64 » sont annotés alors que le golden les ignore :
 effet net nul, lecture défendable, pas une hallucination.
 
-## Taux d'acceptation par corpus
+## Contenu du corpus
 
-1243 tickets annotés, **979 acceptés (79 %)**.
+Le corpus est **exclusivement français**, et ne garde que les tickets dont
+l'annotation est prouvée par le filtre. Une passe de nettoyage (2026-08-26) a
+retiré 166 entrées : les 41 tickets US de `selection_web`, un ticket suisse et
+quatre modèles de facture de `mixed`, deux photos qui n'étaient pas des
+tickets, et les 118 annotations qu'aucun checksum ne validait — ni total, ni
+article, ni somme retombant sur la référence. Ces dernières n'apprenaient
+rien : le filtre les écartait déjà au chargement. Le seul ticket FR de
+`selection_web` (Wikimedia, crêperie La Rochelle) a rejoint `mixed`.
 
-| Corpus | Acceptés | Nature |
+| Corpus | Retenus | Nature |
 |---|---|---|
-| FindIt T1-train | 417/500 (83 %) | scans à plat, OCR fiable |
-| FindIt T1-test | 415/500 (83 %) | idem, réservé à l'évaluation |
-| synthetic | 97/121 (80 %) | tickets générés |
-| selection_web | 24/42 (57 %) | scans web, tickets US inclus |
-| photos_pixel | 18/71 (25 %) | photos téléphone, papier froissé |
-| mixed | 6/11 | tickets et factures web |
+| FindIt T1-train | 472/500 | scans à plat, OCR fiable |
+| FindIt T1-test | 471/500 | idem, réservé à l'évaluation |
+| synthetic | 102/121 | tickets générés |
+| FindIt T2-train | 79/100 | scans à plat, second lot |
+| photos_pixel | 50/71 | photos téléphone, papier froissé |
+| mixed | 3/12 | tickets web |
+
+Les `Retenus` incluent les tickets écartés pour un montant illisible sur sa
+ligne : le checksum protège les montants, pas l'étiquetage, et leurs rôles
+restent exploitables pour le tagger (`load(roles_only=True)`).
 
 Les rejets des photos réelles ne sont pas des erreurs d'annotation : l'OCR
 lit `1,05` là où le ticket imprime `1,85`, ou ne lit rien. Ces tickets sont
@@ -73,13 +84,14 @@ d'évaluation, jamais d'entraînement.
 
 ## Le corpus
 
-**544 tickets d'entraînement, 12 386 lignes** — T1-train 417, synthetic 97,
-selection_web 24, mixed 6. **435 tickets d'évaluation, 10 448 lignes** —
-T1-test 415, photos_pixel 18.
+**586 tickets d'entraînement, 13 444 lignes** — T1-train 417, synthetic 97,
+T2-train 69, mixed 3. **435 tickets d'évaluation, 10 448 lignes** —
+T1-test 415, photos_pixel 20. Avec `roles_only`, l'entraînement monte à
+**656 tickets, 15 592 lignes**.
 
-Répartition à l'entraînement : item 2931, header 2797, footer 2636, store 575,
-total 548, date_line 535, item_label 509, payment 494, tax 442, noise 306,
-discount 186, subtotal 172, change 130, summary 125.
+Répartition à l'entraînement : item 3136, header 3047, footer 2938, store 620,
+total 591, date_line 576, payment 556, item_label 546, tax 460, noise 341,
+discount 186, subtotal 153, change 148, summary 146.
 
 `store`, `date_line` et `item_label` sont les rôles que l'ancien schéma ne
 savait pas exprimer, et ils portent les trois postes d'erreur les plus chers.

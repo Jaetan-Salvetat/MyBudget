@@ -30,7 +30,7 @@ from reference.spans_ml import label_of, label_probabilities
 from reference.word_features import featurize as featurize_words
 
 MAX_FEATURE_DRIFT = 1e-9
-DEFAULT_CORPORA = ("photos_pixel", "selection_web", "mixed")
+DEFAULT_CORPORA = ("photos_pixel", "mixed")
 
 
 def _dart_output(directories: list[Path]) -> dict:
