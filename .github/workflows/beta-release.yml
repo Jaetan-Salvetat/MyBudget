@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -69,14 +68,14 @@ jobs:
           echo "build=$BUILD" >> $GITHUB_OUTPUT
           echo "beta_version=$BETA_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Cache quick-add model
+      - name: Cache models
         uses: actions/cache@v4
         with:
-          path: assets/models/*.onnx
-          key: quick-add-model-${{ hashFiles('tool/model/lock.env') }}
+          path: assets/models
+          key: models-${{ hashFiles('tool/models/lock.env') }}
 
-      - name: Fetch quick-add model
-        run: ./tool/model/fetch.sh
+      - name: Fetch models
+        run: ./tool/models/fetch.sh
 
       - name: Build apk
         run: flutter build apk --flavor beta --release --no-tree-shake-icons --build-name=${{ steps.get_version.outputs.beta_version }} --build-number=${{ steps.get_version.outputs.build }}

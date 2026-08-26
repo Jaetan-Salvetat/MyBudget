@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer_format.dart';
 
-import '../../../tool/model/build_tokenizer_asset.dart';
+import '../../../tool/models/build_tokenizer_asset.dart';
 
 void main() {
   int uint32(Uint8List bytes, int offset) =>

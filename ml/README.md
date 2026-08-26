@@ -64,7 +64,7 @@ uv run python -m pytest                     # invariants du pipeline
 Déploiement dans l'app :
 
 ```bash
-cd ../.. && ./tool/model/publish.sh   # asset versionné + release GitHub + tool/model/lock.env
+cd ../.. && ./tool/models/publish.sh   # asset versionné + release GitHub + tool/models/lock.env
 ```
 
 ### Architecture du modèle

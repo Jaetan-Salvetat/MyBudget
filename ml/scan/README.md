@@ -682,8 +682,10 @@ les faux vérifiés.
 
 Le tagger, le modèle de lien et le rattachement des libellés sont portés en
 Dart et branchés dans l'app (`pipeline/lib/src/label_link.dart`,
-`LocalReceiptScanner`). Les trois modèles portent la même version et vivent
-dans la même release (`tool/line_classifier/`, asset lu dans le manifeste).
+`LocalReceiptScanner`). Les modèles du scan partagent désormais leur version
+et leur release avec ceux de l'ajout rapide : un seul `tool/models/publish.sh`
+les publie tous, un seul `fetch.sh` les récupère, et l'app lit chaque nom dans
+le manifeste des assets.
 
 ### Le rattachement du libellé, appris (2026-08-26)
 

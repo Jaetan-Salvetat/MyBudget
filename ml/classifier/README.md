@@ -21,7 +21,7 @@ training/train.py  ──►  output/best/            ← poids PyTorch, les deu
         ├──►  evaluation/receipts.py            ← libellés de tickets réels
         │
         ▼
-training/export_onnx.py  ──►  output/model.onnx  ──►  tool/model/publish.sh
+training/export_onnx.py  ──►  output/model.onnx  ──►  tool/models/publish.sh
 ```
 
 `serving/` porte le contrat d'entrée/sortie du modèle : tout module qui y vit a
@@ -165,7 +165,7 @@ seuil au-delà duquel l'app propose des suggestions plutôt qu'une réponse.
 ```bash
 uv run python -m training.export_onnx                    # → output/model.onnx (int8)
 uv run python -m evaluation.onnx                      # l'artefact livré, pas les poids
-cd ../.. && ./tool/model/publish.sh             # asset versionné + release + lock
+cd ../.. && ./tool/models/publish.sh             # asset versionné + release + lock
 ```
 
 `evaluation/onnx.py` rejoue les deux corpus à travers le graphe quantifié et compare
@@ -173,9 +173,9 @@ ses décisions à celles du modèle PyTorch. Un écart de quelques cas sur 451 e
 le bruit normal de l'int8 ; un effondrement signale une quantification ratée, et
 c'est la seule occasion de le voir avant les utilisateurs.
 
-`tool/model/publish.sh` régénère le tokenizer binaire, dépose
+`tool/models/publish.sh` régénère le tokenizer binaire, dépose
 `assets/models/model_v<N+1>.onnx`, crée la release GitHub et réécrit
-`tool/model/lock.env`. Le nom de l'asset est lu dans le manifeste par
+`tool/models/lock.env`. Le nom de l'asset est lu dans le manifeste par
 `QuickAddModelRunner` : **incrémenter la version est obligatoire**, sinon les
 installations existantes continuent de tourner sur le modèle extrait en cache.
 

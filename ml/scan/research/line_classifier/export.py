@@ -21,7 +21,7 @@ from reference.line_features_v3 import FEATURE_NAMES_V3
 from reference.structure_ml import MODEL_PATH, load_classifier
 
 # Sortie non versionnée, comme `output/model.onnx` côté quick-add : c'est
-# `tool/line_classifier/publish.sh` qui la dépose dans `assets/models/` sous
+# `tool/models/publish.sh` qui la dépose dans `assets/models/` sous
 # son numéro de version et crée la release. Écrire ici dans les assets
 # court-circuiterait ce versionnement, et l'app resterait sur l'ancien
 # classifieur en croyant l'avoir mis à jour.
@@ -89,7 +89,7 @@ def main() -> None:
     EXPORT_PATH.write_text(payload)
     size = EXPORT_PATH.stat().st_size / 1e6
     print(f"{MODEL_PATH.name} → {EXPORT_PATH} ({size:.1f} MB)")
-    print("Publier : ./tool/line_classifier/publish.sh")
+    print("Publier : ./tool/models/publish.sh")
     if "--check" in sys.argv:
         from annotate.dataset import load
         from line_classifier.dataset import labelled_lines

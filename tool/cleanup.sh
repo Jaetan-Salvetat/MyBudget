@@ -44,7 +44,8 @@ Sans argument, tous les projets de ml/ sont traites.
   --apply                supprime reellement (defaut : simulation)
   --keep-checkpoints N   conserve les N checkpoints trainer les plus recents
   --datasets             inclut train.jsonl / eval.jsonl (regenerables depuis entities.jsonl)
-  --backups              inclut les sauvegardes de runs precedents (output/best_*)
+  --backups              inclut les poids des runs qui ne sont pas livres
+                         (output/best_*, output/<run>/)
   --hf-cache             inclut le cache huggingface du backbone
   --raw                  inclut les datasets telecharges (scan/data/raw, cf fetch_data.sh)
   --min-free GO          s'arrete des que cet espace libre est atteint
@@ -168,15 +169,30 @@ collect_raw_datasets() {
   return 0
 }
 
+# Les checkpoints d'un run, ou qu'il vive : `output/checkpoint-*` pour un
+# entrainement lance a la racine, `output/<run>/checkpoint-*` pour un run
+# nomme. Ne chercher qu'a la racine laissait 1,6 Go sur le disque — un seul
+# checkpoint de `output/full_receipts/` pese autant que trois modeles livres.
 collect_trainer_checkpoints() {
   local output_dir="$1"
   [ -d "$output_dir" ] || return 0
+  local run_dir
+  while IFS= read -r run_dir; do
+    collect_checkpoints_of_run "$run_dir"
+  done < <(find "$output_dir" -type d -name 'checkpoint-*' -exec dirname {} \; | sort -u)
+  return 0
+}
+
+# Les N plus recents sont gardes par run, pas au total : conserver un
+# checkpoint global ne permettrait de reprendre qu'un seul entrainement.
+collect_checkpoints_of_run() {
+  local run_dir="$1"
   local steps=() path step total droppable index
   while IFS= read -r path; do
     step="${path##*/checkpoint-}"
     [[ "$step" =~ ^[0-9]+$ ]] || continue
     steps+=("$step	$path")
-  done < <(find "$output_dir" -maxdepth 1 -type d -name 'checkpoint-*')
+  done < <(find "$run_dir" -maxdepth 1 -type d -name 'checkpoint-*')
   total="${#steps[@]}"
   droppable=$((total - keep_checkpoints))
   [ "$droppable" -gt 0 ] || return 0
@@ -212,13 +228,26 @@ collect_derived_datasets() {
   return 0
 }
 
+# Les poids d'un run qui n'est pas celui livre : les sauvegardes `best_*`,
+# et les runs nommes (`output/receipts`, `output/full_receipts`…) que la
+# comparaison de variantes laisse derriere elle. Un demi-Go chacun, et rien
+# ne les distingue d'une sauvegarde une fois la variante tranchee.
 collect_run_backups() {
   local output_dir="$1"
   [ -d "$output_dir" ] || return 0
-  find "$output_dir" -maxdepth 1 -type d -name 'best_*' |
-    while IFS= read -r path; do
-      add_candidate "$LEVEL_BACKUP" "sauvegarde d'un run precedent" "$path"
-    done
+  local path
+  while IFS= read -r path; do
+    add_candidate "$LEVEL_BACKUP" "sauvegarde d'un run precedent" "$path"
+  done < <(find "$output_dir" -maxdepth 1 -type d -name 'best_*')
+  while IFS= read -r path; do
+    case "$(basename "$path")" in
+      best) continue ;;
+    esac
+    # Un run se reconnait a ses poids, directement ou dans son `best/`.
+    if [ -f "$path/model.safetensors" ] || [ -f "$path/best/model.safetensors" ]; then
+      add_candidate "$LEVEL_BACKUP" "poids d'un run alternatif" "$path"
+    fi
+  done < <(find "$output_dir" -maxdepth 1 -mindepth 1 -type d ! -name 'best_*')
   return 0
 }
 
@@ -265,7 +294,26 @@ available_kb="$(free_kb)"
 plan="$(mktemp)"
 trap 'rm -f "$candidates" "$plan"' EXIT
 
+# Un run et ses propres checkpoints sont deux candidats : garder les deux
+# compterait leur poids deux fois et supprimerait un dossier deja parti.
+# Le parent l'emporte, quel que soit son niveau.
+drop_nested() {
+  awk -F '\t' '
+    { paths[NR] = $4; lines[NR] = $0; count = NR }
+    END {
+      for (i = 1; i <= count; i++) {
+        nested = 0
+        for (j = 1; j <= count; j++) {
+          if (i != j && index(paths[i], paths[j] "/") == 1) { nested = 1; break }
+        }
+        if (!nested) print lines[i]
+      }
+    }
+  '
+}
+
 sort -t "$(printf '\t')" -k1,1n -k2,2nr "$candidates" |
+  drop_nested |
   awk -F '\t' -v target="$target_kb" -v available="$available_kb" '
     target > 0 && available + freed >= target { exit }
     { freed += $2; print }

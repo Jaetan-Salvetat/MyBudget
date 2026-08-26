@@ -65,7 +65,7 @@ void main() {
           (path) => RegExp(r'line_clf_v\d+\.json$').hasMatch(path),
           orElse: () => throw StateError(
             'Aucun classifieur dans assets/models/ : '
-            'lancer ./tool/line_classifier/fetch.sh',
+            'lancer ./tool/models/fetch.sh',
           ),
         );
     final json = await File(asset).readAsString();
@@ -81,7 +81,7 @@ void main() {
           (path) => RegExp(r'line_roles_v\d+\.json$').hasMatch(path),
           orElse: () => throw StateError(
             'Aucun tagger dans assets/models/ : '
-            'lancer ./tool/line_classifier/fetch.sh',
+            'lancer ./tool/models/fetch.sh',
           ),
         );
     tagger = RoleTagger(
@@ -99,7 +99,7 @@ void main() {
           (path) => RegExp(r'label_link_v\d+\.json$').hasMatch(path),
           orElse: () => throw StateError(
             'Aucun modèle de lien dans assets/models/ : '
-            'lancer ./tool/line_classifier/fetch.sh',
+            'lancer ./tool/models/fetch.sh',
           ),
         );
     link = LabelLinkModel(

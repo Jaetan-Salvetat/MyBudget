@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:mybudget/core/services/models/model_asset.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer_format.dart';
 
 typedef TokenizedInput = ({List<int> inputIds, List<int> attentionMask});
@@ -9,7 +10,11 @@ typedef TokenizedInput = ({List<int> inputIds, List<int> attentionMask});
 typedef _Symbol = ({String text, int id});
 
 class QuickAddTokenizer {
-  static const String assetPath = 'assets/models/tokenizer.bin';
+  /// Le tokenizer porte la version des modeles : il est publie avec eux et
+  /// doit correspondre au graphe ONNX qui consomme ses identifiants.
+  static final RegExp assetPattern = RegExp(
+    r'^assets/models/tokenizer_v\d+\.bin$',
+  );
 
   /// Le graphe ONNX accepte une longueur libre : on pade au plus petit palier
   /// qui contient la saisie plutot qu'au maximum, le modele ne calculant alors
@@ -40,6 +45,10 @@ class QuickAddTokenizer {
   Future<void> load() async {
     if (_loaded) return;
 
+    final assetPath = await modelAssetFromManifest(
+      assetPattern,
+      'tokenizer quick-add',
+    );
     final asset = await rootBundle.load(assetPath);
     final bytes = asset.buffer.asUint8List(
       asset.offsetInBytes,
