@@ -17,7 +17,7 @@ from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from bench.exactness import ExtractedName, receipt_exactness
+from bench.exactness import SILENT, ExtractedName, receipt_exactness
 from bench.flow import StageStats, TicketRun, count_edits
 from ocr.pipeline import dump_for
 from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
@@ -96,6 +96,8 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
                 {"receipt": reference},
             )
             result["wrong"] = exactness.wrong
+            result["silent"] = exactness.silent
+            result["counts"] = exactness.counts
             (OUTPUT_DIR / f"{split}_{result['doc']}.json").write_text(
                 json.dumps(result, ensure_ascii=False)
             )
@@ -112,10 +114,14 @@ def run(split: str, limit: int | None) -> list[TicketRun]:
 
 
 def report_exactness(results: list[dict]) -> None:
-    """La métrique produit : un ticket ne compte que si tout est juste.
+    """La métrique produit, à deux niveaux.
 
     Les tickets sans vérité — golden bancal qu'aucune chaîne indépendante ne
-    tranche — sont comptés à part : les scorer mesurerait le golden."""
+    tranche — sont comptés à part : les scorer mesurerait le golden.
+
+    Le second tableau est celui qui compte : un libellé posé sur le mauvais
+    article ou un article absent **sur un ticket vérifié** ne passe par aucun
+    écran de confirmation. Personne ne le verra."""
     judged = [result for result in results if "wrong" in result]
     unjudged = len(results) - len(judged)
     repaired = sum(1 for r in judged if r["truth"] == Verdict.REPAIRED.value)
@@ -124,11 +130,25 @@ def report_exactness(results: list[dict]) -> None:
     print(f"  vérité : {len(judged) - repaired} golden, {repaired} réparés, "
           f"{unjudged} sans vérité (hors score)")
     causes: Counter[str] = Counter()
+    articles: Counter[str] = Counter()
     for result in judged:
-        for field in result["wrong"]:
-            causes[field] += 1
+        causes.update(result["wrong"])
+        articles.update(result["counts"])
     for field, count in causes.most_common():
-        print(f"  {field:<10} faux sur {count:>4} tickets ({count / len(judged):.0%})")
+        detail = f", {articles[field]} articles" if field in articles else ""
+        print(f"  {field:<16} faux sur {count:>4} tickets "
+              f"({count / len(judged):.0%}{detail})")
+
+    verified = [r for r in judged if r["stage"] in VERIFIED_STAGES]
+    silent = [r for r in verified if r["silent"]]
+    print(f"\n=== ERREURS SILENCIEUSES sur les {len(verified)} tickets vérifiés")
+    print("  (aucun écran de confirmation ne les montre)")
+    print(f"  {len(silent)} tickets touchés ({len(silent) / len(verified):.1%})")
+    for field in SILENT:
+        tickets = sum(1 for r in verified if field in r["silent"])
+        count = sum(r["counts"].get(field, 0) for r in verified)
+        print(f"  {field:<16} {tickets:>4} tickets ({tickets / len(verified):5.1%}), "
+              f"{count:>4} articles")
 
 
 def report(runs: list[TicketRun]) -> None:

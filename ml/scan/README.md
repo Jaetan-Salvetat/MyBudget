@@ -789,6 +789,91 @@ une quantité fait partie du nom. Le remède n'est pas un meilleur classifieur,
 c'est de sortir la quantité du libellé et d'en faire un champ — la question
 disparaît alors des deux côtés, celui du modèle comme celui de la vérité.
 
+### Deux niveaux de gravité, et ce que le checksum ne voit pas (2026-08-26)
+
+La métrique comptait un ticket faux dès qu'un champ divergeait, tous à
+égalité. Ils ne le sont pas. Un **montant**, une **enseigne**, une **date**
+sont affichés en clair à côté d'un ticket que l'utilisateur a encore en main :
+il les relit et les corrige. Un **libellé posé sur le mauvais article** et un
+**article absent** ne se voient pas — la ligne a l'air normale, la somme tombe
+juste, rien n'attire l'œil. Ces deux-là partent silencieusement dans le budget.
+
+`bench/exactness.py` sépare donc les articles en quatre verdicts au lieu d'un.
+L'appariement va du plus sûr au moins sûr — couple (nom, montant) d'abord,
+puis montant seul, puis nom seul — et ce qui reste manque ou est en trop :
+
+| apparié par | verdict | gravité |
+|---|---|---|
+| montant, pas le nom | libellé faux | **silencieux** |
+| rien, côté attendu | article manquant | **silencieux** |
+| rien, côté extrait | article en trop | **silencieux** |
+| nom, pas le montant | montant faux | rattrapable |
+
+Le tableau qui compte est celui des tickets **vérifiés** : ceux-là ne passent
+par aucun écran de confirmation, donc personne ne relira rien.
+
+| T1-test, 450 tickets vérifiés | tickets | articles |
+|---|---|---|
+| **au moins une erreur silencieuse** | **83 (18,4 %)** | |
+| libellé sur le mauvais article | 73 (16,2 %) | 164 |
+| article manquant | 14 (3,1 %) | 25 |
+| article en trop | 3 (0,7 %) | 3 |
+
+**Le checksum contraint la somme, pas le libellé ni le nombre d'articles.** Il
+ne peut structurellement voir aucune des deux. Les 25 articles manquants ne
+sont d'ailleurs pas des produits perdus : 18 sont des articles à net 0,00 que
+`structure.py` jette (`if price == 0`) ou des lignes de remise repliées dans
+leur article — la somme tombe juste puisqu'ils valent zéro. **5 seulement sont
+de vraies fusions**, deux produits collés sur une ligne d'OCR.
+
+### Décodage joint lien × span : mesuré, abandonné (2026-08-26)
+
+Sur les 184 libellés faux, 35 (19 %) viennent d'une mauvaise distance prédite,
+et 27 d'entre eux sont « prédit 0, attendu 1 ou 2 » — le modèle place le
+libellé sur la ligne du prix alors qu'elle ne porte aucun nom :
+
+```
+ligne du prix : 1.29 EUR                    vraie ligne : ALIM TN 6011
+ligne du prix : Net 0.335kg*4.35€/kg 1.46   vraie ligne : EPINARD VRAC
+ligne du prix : Montant : 39.45             vraie ligne : Carburant : GAZOLE
+```
+
+L'idée : choisir la distance qui maximise `log p_lien(k) + score du meilleur
+intervalle sur la ligne i−k`, les probabilités des deux modèles, sans seuil.
+Un premier relevé semblait la soutenir — sur les erreurs, la vraie ligne score
+mieux que la choisie dans 83 % des cas (log-odds moyen, écart médian +0,8).
+
+**Ce relevé était trompeur** : il demandait si la vraie ligne score *mieux*,
+pas si elle peut *gagner*. Le modèle de lien est très confiant — `log p(0)`
+frôle 0 quand `log p(1)` vaut −7 — et aucun écart de span ne rattrape ça.
+Balayage du poids sur T1-train, 1 983 articles :
+
+| composition | bonne ligne |
+|---|---|
+| lien seul (actuel) | 1 960 (98,84 %) |
+| lien + 0,75 × log-odds moyen | 1 961 (98,89 %) |
+| lien + 2 × log-odds moyen | 1 955 (98,59 %) |
+| lien + 5 × log-odds moyen | 1 882 (94,91 %) |
+
+**+1 article, puis dégradation.** La cause est un défaut de conception du
+tagger de spans : il n'est entraîné que sur des lignes **porteuses** de
+libellé. Lui demander « cette ligne en porte-t-elle un ? » est une question
+qu'il n'a jamais vue, et son score sur une pesée ou un prix seul est hors
+distribution.
+
+Corrigé — négatifs ajoutés, les lignes que le lien aurait pu désigner à la
+place — le score devient exploitable mais le gain reste dérisoire : **99,04 %
+au mieux, +4 articles**, pour **4,4 points perdus sur le découpage** (96,0 % →
+91,6 % d'intervalles exacts), un même modèle ne servant pas deux questions.
+Revenu à l'état mesuré.
+
+Ce qu'il faut en retenir pour la suite : un score « cette ligne porte-t-elle
+un libellé ? » **est** apprenable, mais il ne sert pas à *choisir* la ligne —
+le lien a déjà raison à 98,8 %. Il servirait à **douter**, et le doute est la
+seule chose qui puisse faire tomber les 18,4 % d'erreurs silencieuses : un
+libellé sans invariant arithmétique n'a que sa probabilité comme garde-fou.
+Cela demande un modèle à part, pas une feature de plus.
+
 ### Le golden se juge lui-même (2026-08-26)
 
 Le golden est une annotation LLM sur image : il se trompe, et en silence. Il

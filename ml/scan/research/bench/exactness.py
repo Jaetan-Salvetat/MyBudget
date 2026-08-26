@@ -1,17 +1,26 @@
-"""La métrique produit : un ticket est bon, ou il ne l'est pas.
+"""La métrique produit : un ticket est bon, ou il ne l'est pas — et toutes les
+erreurs ne se valent pas.
 
 `count_edits` (bench/flow.py) compte des montants et ignore tout le reste. Il
 mesure ce que le checksum protège — la somme — et c'est son rôle. Mais
 l'utilisateur ne voit pas une somme : il voit une enseigne, une date, et une
-liste d'articles nommés. Le nom décide de la catégorie, donc de la ligne de
-budget ; la date décide du mois ; l'enseigne nomme la dépense. Une extraction
-dont les montants sont justes et les libellés décalés d'une ligne est comptée
-parfaite là-bas, et fausse ici.
+liste d'articles nommés. Une extraction dont les montants sont justes et les
+libellés décalés d'une ligne est comptée parfaite là-bas, et fausse ici.
 
 **Un ticket n'est exact que si tout l'est** : enseigne, date, total, et chaque
-article apparié sur (nom, montant net) sans article en trop ni manquant. Une
-seule erreur invalide le ticket entier — la moyenne d'erreurs cache justement
-ce qui compte, parce qu'une erreur unique suffit à fausser un budget.
+article apparié sur (nom, montant net) sans article en trop ni manquant.
+
+Mais l'exactitude seule guide mal. Un montant faux, une enseigne fausse, une
+date fausse **se voient** : ils sont affichés en clair à côté d'un ticket que
+l'utilisateur a encore en main, et se corrigent en deux gestes. Un libellé
+posé sur le mauvais article et un article absent, eux, **ne se voient pas** —
+la ligne a l'air normale, la somme tombe juste, et rien n'attire l'œil. Ces
+deux-là partent silencieusement dans le budget.
+
+D'où deux niveaux, comptés séparément : `silent` porte ce que l'utilisateur ne
+peut pas rattraper, et c'est lui qu'il faut faire tomber à zéro — sur les
+tickets *vérifiés* d'abord, puisque ceux-là ne passent par aucun écran de
+confirmation.
 """
 
 from __future__ import annotations
@@ -27,10 +36,18 @@ STORE_SIMILARITY_THRESHOLD = 0.6
 MIN_MEANINGFUL_LENGTH = 3
 NON_ALPHANUMERIC = re.compile(r"[^A-Z0-9]+")
 
+# Ce que l'utilisateur ne verra pas : le nom appartient à l'article d'à côté,
+# ou l'article n'est nulle part.
+LABEL = "libellé"
+MISSING = "article manquant"
+EXTRA = "article en trop"
+SILENT = (LABEL, MISSING, EXTRA)
+
+# Ce qu'il lit et corrige, ticket en main.
+AMOUNT = "montant"
 STORE = "enseigne"
 DATE = "date"
 TOTAL = "total"
-ITEMS = "articles"
 
 
 @dataclass(frozen=True)
@@ -46,13 +63,21 @@ class ExtractedName:
 
 @dataclass(frozen=True)
 class Exactness:
-    """Ce qui diverge, pour savoir où investir. `exact` est la métrique."""
+    """Ce qui diverge, pour savoir où investir.
+
+    `exact` est la métrique du ticket, `silent` la part que l'utilisateur ne
+    peut pas rattraper, `counts` le nombre d'articles par type d'erreur."""
 
     wrong: list[str] = field(default_factory=list)
+    counts: dict[str, int] = field(default_factory=dict)
 
     @property
     def exact(self) -> bool:
         return not self.wrong
+
+    @property
+    def silent(self) -> list[str]:
+        return [field_name for field_name in self.wrong if field_name in SILENT]
 
 
 def normalize_name(name: str | None) -> str:
@@ -107,31 +132,50 @@ def store_matches(extracted: str | None, expected: str | None) -> bool:
     return _similar(left, right, STORE_SIMILARITY_THRESHOLD)
 
 
-def items_match(
-    extracted: list[ExtractedName], expected: list[ExtractedName]
-) -> bool:
-    """Chaque article extrait s'apparie à un attendu sur (nom, montant net).
-
-    L'appariement se fait par montant puis par nom, et privilégie les couples
-    dont le nom concorde : deux articles au même prix ne doivent pas rendre un
-    ticket faux à cause de leur ordre."""
-    if len(extracted) != len(expected):
-        return False
-    remaining = list(expected)
-    for item in extracted:
+def _take(
+    items: list[ExtractedName],
+    candidates: list[ExtractedName],
+    fits,
+) -> int:
+    """Apparie et retire tout ce qui concorde, et rend le compte."""
+    paired = 0
+    for item in list(items):
         matched = next(
-            (
-                candidate
-                for candidate in remaining
-                if abs(candidate.net - item.net) < AMOUNT_EPSILON
-                and name_matches(item.name, candidate.name)
-            ),
-            None,
+            (candidate for candidate in candidates if fits(item, candidate)), None
         )
         if matched is None:
-            return False
-        remaining.remove(matched)
-    return not remaining
+            continue
+        items.remove(item)
+        candidates.remove(matched)
+        paired += 1
+    return paired
+
+
+def compare_items(
+    extracted: list[ExtractedName], expected: list[ExtractedName]
+) -> list[str]:
+    """Ce qui cloche sur les articles, un verdict par article.
+
+    L'appariement va du plus sûr au moins sûr : le couple complet d'abord —
+    deux articles au même prix ne doivent pas fabriquer deux libellés faux à
+    cause de leur ordre — puis le montant seul, puis le nom seul. Ce qui
+    reste d'un côté manque, ce qui reste de l'autre est en trop.
+
+    Un article apparié par son montant mais pas par son nom est un **libellé
+    faux** : la somme tombe juste et rien ne se voit. Apparié par son nom mais
+    pas par son montant, c'est un **montant faux** : le nom désigne la ligne à
+    relire."""
+    left, right = list(extracted), list(expected)
+    _take(left, right, lambda a, b: abs(a.net - b.net) < AMOUNT_EPSILON
+          and name_matches(a.name, b.name))
+    labels = _take(left, right, lambda a, b: abs(a.net - b.net) < AMOUNT_EPSILON)
+    amounts = _take(left, right, lambda a, b: name_matches(a.name, b.name))
+    return [
+        *[LABEL] * labels,
+        *[AMOUNT] * amounts,
+        *[EXTRA] * len(left),
+        *[MISSING] * len(right),
+    ]
 
 
 def receipt_exactness(
@@ -162,6 +206,9 @@ def receipt_exactness(
         )
         for item in expected["items"]
     ]
-    if not items_match(items, golden_items):
-        wrong.append(ITEMS)
-    return Exactness(wrong=wrong)
+    verdicts = compare_items(items, golden_items)
+    counts: dict[str, int] = {}
+    for verdict in verdicts:
+        counts[verdict] = counts.get(verdict, 0) + 1
+    wrong.extend(name for name in (LABEL, AMOUNT, EXTRA, MISSING) if name in counts)
+    return Exactness(wrong=wrong, counts=counts)
