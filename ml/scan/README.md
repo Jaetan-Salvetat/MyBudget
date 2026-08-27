@@ -1048,6 +1048,358 @@ ligne, le parsing garde la lecture du champ. Pas de second classifieur : les
 rôles de ligne sont mutuellement exclusifs, les découper fabriquerait des
 conflits à arbitrer, et 537 tickets ne nourrissent pas N modèles.
 
+## Le flow effondré, et la première mesure sur des photos réelles (2026-08-27)
+
+Trois choses tenaient ensemble sans qu'on l'ait vu : la cascade d'étages ne
+servait à rien, le second modèle de lignes non plus, et **rien ne mesurait ce
+que l'app voit**.
+
+### La cascade ne fabriquait pas de la fiabilité, mais de la confiance
+
+`bench/flows.py` pose les variantes côte à côte — mêmes lectures OCR, mêmes
+modèles de libellé, même vérité, seul l'étiquetage des lignes change :
+
+| variante | vérifiés | tickets parfaits | silencieux | montant faux (vérifiés) |
+|---|---|---|---|---|
+| cascade, 6 étages | 452 (94 %) | **341** | 83 (18 %) | **11** |
+| tagger + décodeur | 445 (92 %) | **341** | 79 (18 %) | **7** |
+| décodeur sur le V2 | 446 (92 %) | 341 | 78 (17 %) | 10 |
+| tagger, argmax seul | 413 (86 %) | 334 | 56 (14 %) | 7 |
+
+Six étages rendent le même nombre de tickets justes qu'un seul étiqueteur
+suivi d'un seul décodeur. Ils achètent sept badges « vérifié » et quatre
+tickets à montant faux. Supprimés : la cascade, la branche cloud
+(`reference/flow.py`), le classifieur V2 et ses features V2/V3,
+`structure_ml.py`, `line_classifier/train.py`. **−1 900 lignes.** Le tagger
+reste seul, et le DP décode ses probabilités (`reference/decode_roles.py`) —
+la case du tableau que personne n'avait remplie, parce que les deux modèles
+étaient nés dans deux étages différents.
+
+Les règles restent, hors du flow : elles ne servent plus qu'à construire la
+vérité depuis la transcription officielle FindIt, un texte parfait où aucun
+modèle ne doit intervenir.
+
+### L'enseigne : reconnaître au lieu de recopier
+
+`reference/store_gazetteer.py` — 315 noms appris de ce que les tickets
+impriment, filtrés par **discriminance** : un nom n'entre que si le trouver
+sur une ligne annonce vraiment cette enseigne. Aucune liste noire, le corpus
+écarte `TOTAL` (enseigne de station-service **et** mot le plus fréquent d'un
+ticket), `MARCHE`, `EXPRESS`, `LECLERC` nu. La reconnaissance prime sur la
+recopie, mais seulement parmi les lignes que le tagger juge plausibles — sur
+un ticket Hyper U, « Cours Maréchal Leclerc » est une rue et sort à 0,005.
+
+Enseignes justes 469 → 474 sur 500, zéro régression. En tickets parfaits :
++1. Les 25 restantes sont des commerces indépendants de 2017 qu'aucun
+répertoire ne contient, ou de l'OCR détruit.
+
+### Le libellé : le modèle ne connaissait qu'une enseigne
+
+Le modèle de span cause 78 % des libellés faux, et il était entraîné sur
+T1-train seul — 500 scans FindIt dont la moitié Carrefour. Mesuré sur
+T1-test : **10,7 % de libellés faux sur l'enseigne d'entraînement, 19,6 % sur
+toute autre.**
+
+Le corpus annoté ne pouvait pas le réparer : il portait le rôle, le montant,
+le `label_index` — pas le **nom**. Le schéma d'annotation le demande
+maintenant, recopié exactement tel que l'OCR l'a rendu (une correction rendrait
+l'alignement introuvable), plus la **quantité** en champ propre — ce qui lève
+l'ambiguïté du « nombre en tête » des deux côtés, modèle et vérité.
+
+4 350 tickets `open_prices` ré-annotés, 13 $. **99,1 % des noms s'alignent**
+sur un intervalle contigu de mots. La vérité de span passe de 2 108
+intervalles (FindIt) à **19 693 sur 337 enseignes**
+(`truth.spans.spans_from_annotation`). Entraîner sur la seule annotation
+dégrade T1-test (90,3 % d'intervalles exacts) : c'est le même écart de
+domaine vu de l'autre côté. Les deux sources réunies donnent 94,3 %, et
+surtout **+7 tickets parfaits** de bout en bout.
+
+### La tranche d'évaluation qui manquait
+
+`annotate.dataset.is_held_out` réserve 10 % d'`open_prices` à l'évaluation —
+tirage **par ticket** (les dix premières enseignes font la moitié du corpus,
+et c'est aussi là que les gens font leurs courses ; un tirage par enseigne
+mesurerait une tâche plus dure que la réalité) et **déterministe**, dérivé du
+nom seul. `bench/held_out.py` y applique la métrique produit, vérité annotée.
+
+| | T1-test (scans à plat, 2017) | open_prices (photos, 2024-2026) |
+|---|---|---|
+| tickets | 483 | 239 |
+| vérifiés | 91,9 % | **79,9 %** |
+| **tickets parfaits** | 71,8 % | **59,8 %** |
+| erreurs silencieuses | 15,8 % | 12,6 % |
+
+**59,8 % est le premier chiffre honnête sur le terrain réel.** Les douze
+points d'écart avec FindIt disent ce que le corpus de 2017 cachait.
+
+| départ du jour | fin |
+|---|---|
+| T1-test 340/483 (70,4 %), silencieux 18,6 % | 347/483 (71,8 %), silencieux 15,8 % |
+
+Où part le reste sur les photos réelles : libellé 24 tickets, enseigne 15,
+date 13, total 2, montant 2. Le libellé reste le premier poste, l'enseigne et
+la date passent devant les montants — l'inverse de ce que le checksum protège.
+
+## La métrique mesurait faux, et le bench a un plancher de bruit (2026-08-27, soir)
+
+Deux choses à 100 % conditionnent tout le reste — le libellé de chaque article
+et leur nombre. Mesurées correctement, elles n'étaient pas là où on les
+croyait.
+
+### Le nombre d'articles y est déjà
+
+Zéro `article manquant`, zéro `article en trop` sur les 191 tickets vérifiés
+d'`open_prices`. Le poste n'existe pas sur cette population.
+
+### Trois quarts des « libellés faux » n'en sont pas
+
+`name_matches` refuse un nom qui porte **un mot de plus** que la vérité, et
+`libellé` est dans `SILENT`. Or rendre `230G WASA FIBRES` là où la vérité dit
+`WASA FIBRES` ne cache rien : l'utilisateur a le bon produit sous les yeux, la
+catégorisation reçoit le bon produit, il n'a rien à relire. Ce n'est pas juste,
+mais ce n'est pas silencieux.
+
+`WIDE` sépare donc les deux gravités. L'inclusion inverse reste un libellé
+faux : un nom rogné (« YAOURT » pour « YAOURT MYRTILLE ») peut désigner un
+autre produit de la même famille, et rien ne permet de s'en apercevoir.
+
+| sur 191 tickets vérifiés | avant | après |
+|---|---|---|
+| tickets parfaits | 143 | **143** — inchangés |
+| erreurs silencieuses | 24 (12,6 %) | **6 (3,1 %)** |
+| dont `libellé large` | — | 18 |
+
+`exact` ne bouge pas : un nom large reste un ticket non parfait. Seule la
+gravité change, et 18 des 24 tickets sortent du poste qu'on cherchait à faire
+tomber.
+
+### La vérité joue à pile ou face sur la frontière du libellé
+
+Sur les 35 découpages faux, presque tous sont **un token de trop en tête ou en
+queue**. Et l'annotation ne tranche pas :
+
+```
+*230G WASA FIBRES   → nom attendu 'WASA FIBRES'
+*230G PAT BRISE SS  → nom attendu '230G PAT BRISE SS'
+```
+
+Même enseigne, même token, même structure. Sur les calibres en tête précédés
+de `*` : 386 gardés, **26 jetés** — 6 % que rien ne distingue. Aucun modèle ne
+peut apprendre une frontière placée au hasard une fois sur seize.
+
+C'est le mur du « nombre en tête », un cran plus bas, et le remède est le même
+que celui qui avait marché pour la quantité : **sortir le conditionnement du
+nom et en faire un champ** (`size`). La question disparaît des deux côtés.
+Empreinte du prompt `74a892c91368` → `ebe2ee818b9a` : tout le corpus est
+périmé.
+
+### Le bench a un plancher de bruit de ±2 tickets
+
+`HistGradientBoostingClassifier` découpe sa validation **par position**
+(`early_stopping=True, validation_fraction=0.15`). À code et données
+identiques, changer l'ordre des échantillons change le point d'arrêt, donc le
+modèle : 141 ou 143 tickets parfaits pour le même `train_span.py`.
+
+**Aucune décision ne doit se prendre sur moins de trois tickets d'écart.** Les
+5 ou 6 libellés faux qui restent sont sous la résolution de l'instrument qui
+les mesure.
+
+### Ce que le second passage de découpage a coûté, et pourquoi il est retiré
+
+Les 73 lignes mal découpées sont concentrées dans 38 tickets, et **92 % de ces
+tickets portent des lignes justes à côté des fausses** : une enseigne imprime
+la même mise en page partout. Un second passage consommait cette preuve — à
+l'abscisse de chaque mot, ce que le premier passage croit sur les autres
+lignes, pondéré par la netteté de chaque témoin, contexte hors-pli en 4 plis.
+
+| | T1-test, intervalles exacts | tickets parfaits | silencieux |
+|---|---|---|---|
+| un passage | 2 037 (94,0 %) | 143 | 6 |
+| deux passages, moyenne brute | 2 054 (94,8 %) | **140** | **8** |
+| deux passages, moyenne pondérée | 2 048 (94,6 %) | 143 | 5 |
+
+La moyenne brute noie le témoignage : sur une vraie photo, en-têtes, pieds et
+totaux sont assez nombreux pour dominer les lignes d'article. Pondérer par
+`max(p) − min(p)` de chaque ligne le répare. Mais le gain final — un ticket sur
+191 — est **sous le plancher de bruit**, et il ne justifiait ni un second
+modèle permanent ni son portage Dart. Retiré ; à réévaluer après la
+ré-annotation, quand la frontière cessera d'être tirée au sort.
+
+### La zone de libellé par ticket, mesurée et écartée
+
+Une coupe verticale unique par ticket — la tentation évidente quand on voit
+les erreurs groupées par mise en page — n'explique que **72,8 %** des tickets.
+L'imposer casserait 27 % de ce qui marche.
+
+### La cohérence de la vérité, mesurée puis écartée (2026-08-27, nuit)
+
+L'annotation tranche au hasard sur les calibres en frontière — 386 gardés
+contre 26 jetés, `*230G WASA FIBRES` sans, `*230G PAT BRISE SS` avec. C'est
+exactement la frontière que le découpage doit apprendre, et l'hypothèse était
+qu'aucun modèle ne peut franchir un pile-ou-face à 6 %.
+
+`annotate/split_size.py` la corrige sans relire une seule photo : couper un nom
+est une tâche de **texte**, donc 12 715 noms distincts au lieu de 5 500 images,
+et le reste du corpus reste identique — une seule variable change, la mesure
+est interprétable. Le découpage est confié à des agents par lots de 1 000 :
+la cohérence vient de là, le défaut d'origine étant un défaut d'appels
+**indépendants**. Un filtre de non-invention garde l'original dès que le nom
+ou le conditionnement n'est pas une suite contiguë de mots de la chaîne
+d'origine.
+
+| | incohérence sur la frontière |
+|---|---|
+| annotation d'origine | 26 / 412 (6,3 %) |
+| après découpe, corpus annoté | **3 / 223 (1,3 %)** |
+| après découpe, golden | **0** |
+
+Et le flow ne bouge pas — dans le mauvais sens :
+
+| sur 191 tickets vérifiés | référence | annotation corrigée | + golden corrigé |
+|---|---|---|---|
+| tickets parfaits | **143** | 130 | 127 |
+| libellé large | 18 | 31 | 34 |
+| **erreurs silencieuses** | **6** | **6** | **6** |
+
+**Les erreurs silencieuses n'ont pas bougé d'un ticket.** L'incohérence de la
+vérité était réelle, elle gênait la mesure du découpage, et elle ne causait
+aucun des libellés faux. Hypothèse mesurée, hypothèse fausse.
+
+Ce que la manœuvre a montré à la place : **le modèle de span ne suit pas une
+frontière qu'on déplace.** Vérité raccourcie sur 7 609 articles, il garde
+l'ancienne coupe — `SUCRE MORCEAUX 1 KG` là où la vérité dit
+`SUCRE MORCEAUX`, `#BOISSON RIZ NATURE 1L` pour `BOISSON RIZ NATURE`. Ses
+features portent pourtant `is_unit`, qui reconnaît `KG`, `G`, `L` : il a le
+signal et ne s'en sert pas. C'est une limite du modèle, pas de la supervision.
+
+Tout est revenu à l'état mesuré. Le corpus a servi de sonde, pas de livrable.
+
+Deux pièges méthodologiques rencontrés, à ne pas refaire :
+
+- **`train_span.labelled()` lit deux sources**, l'annotation *et* le golden.
+  N'en corriger qu'une les rend contradictoires sur la frontière en jeu :
+  l'intervalle exact sur T1-test tombe de 94,2 % à 88,7 % **sur une vérité qui
+  n'a pas bougé**. C'est ce juge à cible fixe qui a rattrapé l'erreur ; sans
+  lui, la chute des tickets parfaits se lisait comme un échec de la convention.
+- **le bench a un plancher de bruit de ±2 tickets** (voir plus haut) : la
+  comparaison n'a de sens qu'à partir de trois tickets d'écart.
+
+### Six leviers sur le découpage, et un facteur six à trouver (2026-08-27, nuit)
+
+La tranche d'évaluation passe de 10 % à **25 % d'`open_prices`** — 592 tickets
+au lieu de 239. C'est un préalable, pas un raffinement : à 239 le bench avait un
+plancher de bruit de ±2 tickets, et six tentatives successives ont toutes rendu
+entre −1 et +1. Un gain réel de 1 % vaut désormais 6 tickets contre un bruit de
+±3, au lieu de 2,4 contre ±2. Le seuil portant sur un hachage, élargir est un
+sur-ensemble : aucun ticket ne change de côté. Le découpage tient à 94,3 % sur
+T1-test malgré 15 % d'entraînement en moins.
+
+**Référence sur la tranche élargie** : 488 vérifiés (82,4 %), 365 tickets
+parfaits (61,7 %), 44 libellés larges, 19 silencieux (3,9 %).
+
+#### L'arithmétique du problème
+
+3 709 lignes étiquetées sur `open_prices`, **162 erreurs de découpage (4,4 %)**.
+Pour que les tickets soient propres il en faudrait ~26. **C'est une division par
+six**, et voici ce que six leviers ont donné :
+
+| levier | découpage | bench produit |
+|---|---|---|
+| reconstruction des lignes | sans objet — 99,67 % déjà contigus | — |
+| contexte du ticket (2 passages) | +11 lignes T1-test | −1 ticket |
+| seuils du décodeur relâchés | — | **+9 silencieux** |
+| cohérence de la vérité (calibre) | 6,3 % → 0 % d'incohérence | 0 |
+| identité lexicale des mots | ignorée par le modèle | −1 ticket |
+| **juge d'intervalles** | +11 T1-test, **+8 open_prices** | −1 ticket |
+
+#### Ce que le juge d'intervalles établit
+
+Il attaquait la cause mesurée le plus directement : **toutes les erreurs sont
+des frontières** (43 trop larges, 28 trop étroites, 3 décalées), et rien ne
+jugeait la frontière — `best_span` somme les log-odds de mots notés isolément,
+la frontière y émerge au lieu d'être décidée. Le juge note les intervalles
+candidats eux-mêmes, avec ce qu'aucun modèle par mot ne voit : la probabilité et
+la forme du mot **juste avant** le début et **juste après** la fin.
+
+Il gagne, et il gagne peu : **5 % des erreurs**. Prédire explicitement la
+frontière ne récupère qu'un vingtième de ce qui manque. C'est le résultat le
+plus informatif de la série — retiré, parce qu'un second modèle et son portage
+Dart ne se paient pas avec +0,2 point.
+
+#### Pourquoi ce n'est pas un problème d'information
+
+Le modèle se trompe **avec aplomb** : les mots qu'il ajoute à tort au nom, il
+les y croit à 0,93 de médiane, 2 % seulement sous 0,6. Et il ignore ce qu'on lui
+donne — un prior lexical de 0,07 appuyé sur 3 051 observations pour le mot `1`
+ne l'empêche pas de l'inclure. Un modèle sûr de lui qui se trompe, à qui l'on
+sert l'évidence et qui l'écarte, manque de **capacité**, pas d'entrée.
+
+Un GBDT sur features tabulaires plafonne ici autour de 95-96 % par ligne, qu'il
+note des mots ou des intervalles. La seule famille non essayée est
+l'étiqueteur de séquence, qui garde la densité du signal par mot *et* apprend
+les transitions — mais rien ne garantit le facteur six, et aucune mesure
+préalable ne peut le pré-valider comme celles de cette série.
+
+À dépense égale, l'enseigne (42 tickets) et la date (31) pèsent 73 contre 66
+pour les libellés, et personne ne les a regardées depuis que le tagger les
+désigne.
+
+### Ce que la vérité devient sans la ligne
+
+`truth/words.py` dit la vérité en mots : les mots qui écrivent le nom,
+le mot qui porte le montant — aucune ligne n'est construite. `bench/word_truth.py`
+la confronte à la formulation actuelle, sans modèle, en 13 s :
+
+| | ligne construite | mots du ticket |
+|---|---|---|
+| noms retrouvés | 99,67 % | 99,47 % |
+
+| montants | |
+|---|---|
+| regex, mot le plus à droite | 97,41 % |
+| **un mot du ticket le porte** | **100,00 %** |
+| un seul mot le porte (vérité sûre) | 78,57 % |
+
+La reconstruction des lignes n'est donc **pas** le goulot sur la population
+vérifiée. La lecture du montant, elle, laisse 2,6 points d'articles à une
+règle écrite à la main là où l'information est toujours présente.
+
+### Les seuils du décodeur, relâchés puis remis
+
+`DEFAULT_MIN_PROB = 0.02` et `DEFAULT_MIN_REFERENCE_PROB = 0.5` sont
+arbitraires — de 0,001 à 0,5, le résultat ne bouge pas. Mais les relâcher
+achète des tickets vérifiés en fabriquant du silence :
+
+| | vérifiés | parfaits | montant faux | silencieux |
+|---|---|---|---|---|
+| seuils actuels | 191 | 143 | 2 | 6 |
+| sans plancher de rôle | 203 | 145 | 7 | 15 |
+| les deux relâchés | 203 | 145 | 8 | 15 |
+
++12 vérifiés pour +2 justes, et **+9 erreurs silencieuses** : l'échange
+convertit des échecs détectés — qui partent à l'écran de confirmation — en
+échecs invisibles. Les remplacer par un modèle d'acceptation reste la bonne
+structure, mais il n'a rien à apporter tant que le silence vient des libellés,
+que l'arithmétique ne voit pas : le meilleur point atteignable sur les signaux
+du décodage est 192/2/7 contre 191/2/6.
+
+Et le doute sur le libellé lui-même ne se mesure pas : marge du span 4,74 en
+q1 sur 1 118 découpages justes contre 2,50 sur 8 faux — attraper les 8 demande
+d'en signaler ~280. `DEFAULT_MAX_REFERENCES = 4` est, lui, du code mort : à 32
+le résultat est identique.
+
+### Où part le temps de l'utilisateur
+
+| | tickets |
+|---|---|
+| écran de confirmation, ticket entier à relire | **48 (20 %)** |
+| une correction visible (enseigne 15, date 13) | 28 |
+| un libellé faux, invisible | 6 |
+
+Et sur les 48 : 35 (73 %) sont lisibles de bout en bout et le décodeur ne sait
+pas départager — 13 seulement sont un défaut de lecture.
+
+
 ## Contenu
 
 ```
@@ -1083,12 +1435,16 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
   l'instrument central), taxonomie des échecs (`failures.py`), diagnostics
   (`diagnose.py`), scoring d'un run device (`device_flow.py`), scoring
   synthétique (`score.py`), parité Dart↔Python (`parity.py`), bench
-  multi-étages historique (`flow.py`), benchmarks LLM/VLM (`gemma.py`,
-  `gemini.py`, `capacity.py`).
+  multi-étages historique (`flow.py`), récupérabilité de la vérité au niveau
+  du mot (`word_truth.py`), benchmarks LLM/VLM (`gemma.py`, `gemini.py`,
+  `capacity.py`).
+- **`research/annotate/`** — schéma et filtre du corpus annoté, prompt
+  d'annotation, découpe du conditionnement hors du nom (`split_size.py`).
 - **`research/truth/`** — vérité depuis les transcriptions (`transcript.py`),
   rôle réel de chaque ligne (`roles.py`), mots qui composent un libellé
-  (`spans.py`), sélection des tickets à vérité fiable (`selection.py`),
-  construction du golden (`annotate.py`).
+  (`spans.py`), vérité en mots sans ligne construite (`words.py`), sélection
+  des tickets à vérité fiable (`selection.py`), construction du golden
+  (`annotate.py`).
 - **`research/corpus/`** — générateur synthétique (`content.py`, `render.py`,
   `generate.py`), reconstruction des sélections (`rebuild.py`).
 - **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,

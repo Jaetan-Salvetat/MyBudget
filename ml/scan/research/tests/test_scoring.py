@@ -1,4 +1,4 @@
-from bench.flow import count_edits
+from bench.scoring import count_edits
 
 
 class TestCountEdits:

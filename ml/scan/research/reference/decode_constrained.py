@@ -27,18 +27,7 @@ from reference.invariants import (
     constraints,
 )
 from reference.line_features import PricedLine
-from reference.lines import PhysicalLine
-from reference.structure import ExtractedReceipt, _printed_count
-from reference.structure_ml import (
-    DISCOUNT,
-    IGNORE,
-    ITEM,
-    PAYMENT,
-    TOTAL,
-    load_classifier,
-    receipt_from_labels,
-    single_item_receipt,
-)
+from reference.line_labels import DISCOUNT, IGNORE, ITEM, PAYMENT, TOTAL
 
 CENTS_CAP = 500_000
 NEGATIVE_CAP = 50_000
@@ -532,35 +521,3 @@ def _with_chosen_amounts(
         else priced
         for priced, label, chosen in zip(lines, labels, cents)
     ]
-
-
-def extract_constrained(
-    merged: list[PhysicalLine],
-    alternatives: dict[int, int] | None = None,
-    **decode_params,
-) -> ExtractedReceipt | None:
-    model, featurize = load_classifier()
-    lines, rows = featurize(merged)
-    if not lines:
-        return None
-    probas = model.predict_proba(np.array(rows))
-    hypothesis = decode(
-        lines,
-        probas,
-        printed_count=_printed_count(merged),
-        alternatives=_rank_alternatives(lines, alternatives),
-        **decode_params,
-    )
-    if hypothesis is None:
-        return None
-    reference_total = hypothesis.reference_cents / 100
-    if hypothesis.single_item:
-        return single_item_receipt(merged, reference_total)
-    chosen = (
-        _with_chosen_amounts(lines, hypothesis.labels, hypothesis.cents)
-        if hypothesis.cents
-        else lines
-    )
-    return receipt_from_labels(
-        merged, chosen, hypothesis.labels, reference_total=reference_total
-    )

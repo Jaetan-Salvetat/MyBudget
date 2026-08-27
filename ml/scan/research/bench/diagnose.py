@@ -1,12 +1,12 @@
 """Diagnostic fin du mode local, rejoué depuis les dumps d'un run device.
 
-Pour chaque ticket : tous les étages exécutés (règles, classifieur, décodeur
-sur chaque passe), la vérité par ligne alignée sur le golden
+Pour chaque ticket : chaque lecture de l'image exécutée seule (passe 1,
+retry, fusion), la vérité par ligne alignée sur le golden
 (`line_truth.py`), la concordance entre étages, les noms d'articles, les
 dégâts OCR vus depuis la transcription, un test adversarial du décodeur
 (référence fausse → « vérifie » quand même ?) et une cause racine. Sortie :
 un enregistrement JSON par ticket (`results/diagnostics/<run>.jsonl`) et un
-rapport agrégé — matrices de confusion par étage, concordance, calibration
+rapport agrégé — matrices de confusion par lecture, concordance, calibration
 du niveau de confiance.
 """
 
@@ -19,19 +19,24 @@ from dataclasses import asdict, dataclass, field
 from difflib import SequenceMatcher
 from pathlib import Path
 
-import numpy as np
-
 from bench.device_flow import load_tickets
 from bench.failures import ocr_amounts
-from bench.flow import count_edits
+from bench.scoring import count_edits
 from paths import FINDIT_DIR, RESULTS_DIR
-from reference.decode_constrained import (
-    decode,
-    extract_constrained,
-    receipt_from_labels,
-)
+from reference.decode_constrained import decode
+from reference.decode_roles import decoder_probabilities
+from reference.decoded_receipt import receipt_from_labels
+from reference.line_features import priced_lines
 from reference.line_labels import CLASS_NAMES, ROLE_TO_CLASS
-from reference.local_flow import CONFIRM, clustered_lines, decide_local
+from reference.local_flow import (
+    CONFIRM,
+    FUSED,
+    PASS1,
+    RETRY,
+    decide_local,
+    read,
+    sources,
+)
 from reference.structure import (
     DISCOUNT_WORDS,
     PAYMENT_WORDS,
@@ -39,10 +44,7 @@ from reference.structure import (
     TVA_WORDS,
     ExtractedReceipt,
     _contains,
-    extract,
-    merge_price_fragments,
 )
-from reference.structure_ml import extract_ml, load_classifier
 from truth.roles import CONTRIBUTING_ROLES, ITEM, LineTruth, line_truth
 
 DIAGNOSTICS_DIR = RESULTS_DIR / "diagnostics"
@@ -58,8 +60,7 @@ LEXICON_PROBES = {
     "tva": TVA_WORDS,
     "discount": DISCOUNT_WORDS,
 }
-PASS_NAMES = ("p1", "retry")
-STAGE_KINDS = ("rules", "ml", "dp")
+READINGS = (PASS1, RETRY, FUSED)
 
 
 @dataclass
@@ -120,35 +121,25 @@ def name_similarity(extracted: str, golden: str) -> float:
     return SequenceMatcher(None, extracted.upper(), golden.upper()).ratio()
 
 
-def _rules_roles(raw_lines, priced) -> list[str]:
-    roles: dict[int, str] = {}
-    extract(raw_lines, roles=roles)
-    return [CLASS_NAMES[ROLE_TO_CLASS.get(roles.get(p.index), 4)] for p in priced]
-
-
 def _confusions(truths: list[LineTruth], predicted: list[str]) -> list[tuple[str, str]]:
     return [(t.role, p) for t, p in zip(truths, predicted)]
 
 
-def _ml_predictions(rows) -> list[str]:
-    model, _ = load_classifier()
-    return [CLASS_NAMES[int(p)] for p in model.predict(np.array(rows))]
+def _tagger_predictions(probas) -> list[str]:
+    return [CLASS_NAMES[int(row.argmax())] for row in probas]
 
 
-def _dp_predictions(lines, rows) -> list[str] | None:
-    model, _ = load_classifier()
-    hypothesis = decode(lines, model.predict_proba(np.array(rows)))
+def _dp_predictions(lines, probas) -> list[str] | None:
+    hypothesis = decode(lines, probas)
     if hypothesis is None:
         return None
     return [CLASS_NAMES[label] for label in hypothesis.labels]
 
 
-def adversarial_hits(lines, rows, golden_total: float) -> tuple[int, int]:
+def adversarial_hits(lines, probas, golden_total: float) -> tuple[int, int]:
     """Référence remplacée par une valeur fausse : une collision est une
     solution qui vérifie CETTE valeur fausse. Retrouver le vrai total par
     une autre source (table TVA, espèces − rendu) n'en est pas une."""
-    model, _ = load_classifier()
-    probas = model.predict_proba(np.array(rows))
     hits = 0
     tries = 0
     for offset in ADVERSARIAL_OFFSETS_CENTS:
@@ -235,9 +226,7 @@ def diagnose_ticket(ticket) -> TicketDiagnostic:
     dump = json.loads(ticket.dump_path.read_text())
     golden = ticket.golden
     expected = [round(float(i["amount"]), 2) for i in golden["receipt"]["items"]]
-    passes = {"p1": clustered_lines(dump)}
-    if "ocrRetry" in dump:
-        passes["retry"] = clustered_lines(dump["ocrRetry"])
+    readings = {source.name: source for source in sources(dump)}
 
     stages: dict[str, StageResult] = {}
     confusions: dict[str, list[tuple[str, str]]] = {}
@@ -245,29 +234,26 @@ def diagnose_ticket(ticket) -> TicketDiagnostic:
     ml_p1: list[str] = []
     similarities: list[float] = []
     adversarial = (0, 0)
-    _, featurize = load_classifier()
-    for pass_name, raw in passes.items():
-        merged = [merge_price_fragments(line) for line in raw]
-        stages[f"rules_{pass_name}"] = _stage(extract(raw), expected)
-        stages[f"ml_{pass_name}"] = _stage(extract_ml(merged), expected)
-        stages[f"dp_{pass_name}"] = _stage(extract_constrained(merged), expected)
-        lines, rows = featurize(merged)
-        if not lines:
+    for name, source in readings.items():
+        merged = source.merged
+        stages[name] = _stage(read(source), expected)
+        priced = priced_lines(merged)
+        if not priced:
             continue
-        truths = line_truth(merged, lines, golden)
-        ml_predicted = _ml_predictions(rows)
-        confusions[f"rules_{pass_name}"] = _confusions(truths, _rules_roles(raw, lines))
-        confusions[f"ml_{pass_name}"] = _confusions(truths, ml_predicted)
-        dp_predicted = _dp_predictions(lines, rows)
+        probas = decoder_probabilities(source.roles, priced)
+        truths = line_truth(merged, priced, golden)
+        tagger_predicted = _tagger_predictions(probas)
+        confusions[f"tagger_{name}"] = _confusions(truths, tagger_predicted)
+        dp_predicted = _dp_predictions(priced, probas)
         if dp_predicted is not None:
-            confusions[f"dp_{pass_name}"] = _confusions(truths, dp_predicted)
-        if pass_name == "p1":
-            truths_p1, ml_p1 = truths, ml_predicted
+            confusions[f"dp_{name}"] = _confusions(truths, dp_predicted)
+        if name == PASS1:
+            truths_p1, ml_p1 = truths, tagger_predicted
             adversarial = adversarial_hits(
-                lines, rows, round(float(golden["receipt"]["total"]), 2)
+                priced, probas, round(float(golden["receipt"]["total"]), 2)
             )
             receipt = receipt_from_labels(
-                merged, lines, [ROLE_TO_CLASS.get(t.role, 4) for t in truths]
+                merged, priced, [ROLE_TO_CLASS.get(t.role, 4) for t in truths]
             )
             if receipt is not None:
                 golden_names = [
@@ -319,7 +305,7 @@ def report(diagnostics: list[TicketDiagnostic]) -> None:
     total = len(diagnostics)
     print(f"=== diagnostic ({total} tickets)")
     print("\n--- étages (vérifiés / faux vérifiés)")
-    for stage in [f"{kind}_{p}" for p in PASS_NAMES for kind in STAGE_KINDS]:
+    for stage in READINGS:
         runs = [d.stages[stage] for d in diagnostics if stage in d.stages]
         if not runs:
             continue
@@ -360,7 +346,7 @@ def report(diagnostics: list[TicketDiagnostic]) -> None:
     for cause, count in Counter(d.root_cause for d in diagnostics).most_common():
         print(f"  {cause:<36}: {count}")
 
-    for stage in ("rules_p1", "ml_p1", "dp_p1"):
+    for stage in (f"tagger_{PASS1}", f"dp_{PASS1}"):
         pairs = [pair for d in diagnostics for pair in d.line_confusions.get(stage, [])]
         if pairs:
             print(

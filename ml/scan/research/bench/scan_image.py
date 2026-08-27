@@ -1,9 +1,9 @@
-"""Le flow local complet sur une image du disque, étage par étage.
+"""Le flow local sur une image du disque, lecture par lecture.
 
 Le bench principal rejoue des dumps device ; ici l'OCR tourne sur le Mac
 (Apple Vision, `ocr/`) pour diagnostiquer un ticket qu'aucun run device ne
-couvre. Sortie : les lignes physiques, ce que chaque étage a lu, et l'étage
-qui a tranché.
+couvre. Sortie : les lignes physiques, ce que chaque lecture de l'image
+prouve, et celle qui a tranché.
 
     uv run python -m bench.scan_image <image>... [--lines] [--json <dir>]
 """
@@ -15,16 +15,9 @@ import sys
 from pathlib import Path
 
 from ocr.pipeline import dump_for
-from reference.decode_constrained import extract_constrained
-from reference.local_flow import (
-    clustered_lines,
-    decide_local,
-    fused_rescue,
-)
-from reference.structure import ExtractedReceipt, extract, merge_price_fragments
-from reference.structure_ml import extract_ml
-
-PASS_NAMES = ("passe 1", "retry")
+from reference.header_ml import date_of, role_probabilities, store_of
+from reference.local_flow import decide_local, read, sources
+from reference.structure import ExtractedReceipt
 
 
 def _summary(receipt: ExtractedReceipt | None) -> str:
@@ -38,16 +31,10 @@ def _summary(receipt: ExtractedReceipt | None) -> str:
     )
 
 
-def _stage_report(passes: list[list]) -> list[str]:
-    report = []
-    for name, lines in zip(PASS_NAMES, passes):
-        merged = [merge_price_fragments(line) for line in lines]
-        report.append(f"  règles     [{name}] {_summary(extract(lines))}")
-        report.append(f"  classifieur[{name}] {_summary(extract_ml(merged))}")
-        report.append(f"  décodeur   [{name}] {_summary(extract_constrained(merged))}")
-    if len(passes) == 2:
-        report.append(f"  fusion              {_summary(fused_rescue(passes))}")
-    return report
+def _stage_report(dump: dict) -> list[str]:
+    """Ce que chaque lecture prouve, indépendamment — le flow s'arrête à la
+    première, ce rapport les montre toutes."""
+    return [f"  {source.name:<8} {_summary(read(source))}" for source in sources(dump)]
 
 
 def _lines_report(lines: list) -> list[str]:
@@ -60,23 +47,24 @@ def report(image: Path, show_lines: bool, dumps_dir: Path | None) -> None:
         dumps_dir.mkdir(parents=True, exist_ok=True)
         (dumps_dir / f"{image.name}.json").write_text(json.dumps(dump))
 
-    passes = [clustered_lines(dump), clustered_lines(dump["ocrRetry"])]
-    receipt = extract(passes[0])
     outcome = decide_local(dump)
+    roles = role_probabilities(outcome.lines)
 
     print(f"\n=== {image.name} ({dump['imageWidth']}x{dump['imageHeight']}) ===")
-    print(f"  enseigne {receipt.store!r}  date {receipt.date!r}")
-    print("\n".join(_stage_report(passes)))
-    print(f"  → étage retenu : {outcome.stage}, total {outcome.total}")
+    print(
+        f"  enseigne {store_of(outcome.lines, roles)!r}  "
+        f"date {date_of(outcome.lines, roles)!r}"
+    )
+    print("\n".join(_stage_report(dump)))
+    print(f"  → lecture retenue : {outcome.source}, total {outcome.total}")
     for item in outcome.items:
         print(
             f"      {item.amount:8.2f}  {item.name!r}"
             + (f"  remise {item.discount:.2f}" if item.discount else "")
         )
     if show_lines:
-        for name, lines in zip(PASS_NAMES, passes):
-            print(f"  --- lignes {name} ---")
-            print("\n".join(_lines_report(lines)))
+        print("  --- lignes retenues ---")
+        print("\n".join(_lines_report(outcome.lines)))
 
 
 def main(argv: list[str]) -> int:

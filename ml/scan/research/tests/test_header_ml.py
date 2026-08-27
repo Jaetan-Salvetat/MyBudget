@@ -8,6 +8,11 @@ import pytest
 from annotate.schema import DATE_LINE, ROLES, STORE
 from reference.header_ml import date_of, store_of
 from reference.lines import PhysicalLine, Word
+from reference.store_gazetteer import Gazetteer
+
+# Un répertoire de test, pour que ces cas ne dépendent pas de l'artefact
+# construit depuis le corpus.
+KNOWN = Gazetteer({"QUICK": "Quick", "CARREFOUR": "Carrefour"})
 
 
 def line(text: str) -> PhysicalLine:
@@ -33,13 +38,37 @@ LINES = [line("Burger Restaurant"), line("Quick"), line("Le 24/02/2017 a 10:49")
 def test_l_enseigne_est_la_ligne_designee_pas_la_premiere() -> None:
     """51 tickets sur 500 ont un slogan ou une adresse en première ligne."""
     scores = probabilities({STORE: 0.1}, {STORE: 0.9}, {})
-    assert store_of(LINES, scores) == "Quick"
+    assert store_of(LINES, scores, Gazetteer({})) == "Quick"
 
 
 def test_aucune_enseigne_si_le_tagger_hesite() -> None:
-    """Mieux vaut pas d'enseigne qu'une ligne prise au hasard."""
+    """Mieux vaut pas d'enseigne qu'une ligne prise au hasard — tant qu'aucun
+    nom connu n'est en vue."""
     scores = probabilities({STORE: 0.3}, {STORE: 0.4}, {})
-    assert store_of(LINES, scores) is None
+    assert store_of(LINES, scores, Gazetteer({})) is None
+
+
+def test_un_nom_connu_rattrape_l_hesitation() -> None:
+    """Le tagger hésite, mais la ligne nomme une enseigne du répertoire : ne
+    rien rendre serait perdre une information certaine."""
+    scores = probabilities({STORE: 0.3}, {STORE: 0.4}, {})
+    assert store_of(LINES, scores, KNOWN) == "Quick"
+
+
+def test_un_nom_connu_prime_sur_la_ligne_designee() -> None:
+    """Mesuré : le tagger désigne « -SP » quand la ligne d'à côté dit
+    « McDonald's ». Reconnaître bat recopier."""
+    scores = probabilities({STORE: 0.2}, {STORE: 0.8}, {})
+    lines = [line("Quick"), line("-SP"), line("Le 24/02/2017 a 10:49")]
+    assert store_of(lines, scores, KNOWN) == "Quick"
+
+
+def test_une_ligne_ecartee_par_le_tagger_ne_nomme_rien() -> None:
+    """« Cours Maréchal Leclerc » est une rue : sous le plancher de
+    plausibilité, un nom connu ne doit pas fabriquer une enseigne."""
+    scores = probabilities({STORE: 0.9}, {STORE: 0.001}, {})
+    lines = [line("HYPER U"), line("Cours Marechal Carrefour"), line("x")]
+    assert store_of(lines, scores, KNOWN) == "HYPER U"
 
 
 def test_la_date_est_lue_sur_la_ligne_designee() -> None:

@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 
 from reference.line_features import PricedLine
-from reference.line_features_v3 import (
+from reference.line_signals import (
     discount_summary,
     fuzzy_lexicon_similarity,
     tax_shaped,

@@ -1,18 +1,13 @@
-"""Features V3 du classifieur de lignes : V2 + signaux agnostiques au format.
+"""Les signaux qu'une ligne de ticket porte, sans modèle ni featuriseur.
 
-Trois familles ajoutées, toutes déterministes et portables :
+Ils décrivent des faits arithmétiques ou typographiques : ce prix est-il la
+somme d'un bloc au-dessus ? une fraction de TVA d'un autre ? ce libellé
+ressemble-t-il à un mot du lexique malgré l'OCR (`Tota1`, `TOT AL`, `LU.A`) ?
+Les featuriseurs — lignes, mots — s'en servent, la vérité de rôle aussi.
 
-- **arithmétique** : un total est un prix égal à la somme d'un bloc de lignes
-  au-dessus de lui ; une ligne TVA/HT est une fraction d'un autre prix ; un
-  paiement duplique le total. Ces relations ne dépendent d'aucun lexique ni
-  d'aucune enseigne ;
-- **lexiques flous** : similarité d'édition maximale entre les mots de la
-  ligne (ou des fenêtres du texte compacté) et les entrées d'un lexique —
-  résiste à « Tota1 », « TOT AL », « LU.A » ;
-- **forme lexicale** : trigrammes de caractères hachés du libellé, chiffres
-  repliés, pour que le modèle généralise au-delà des lexiques.
-
-Plus le contexte des lignes à prix voisines (±1 dans l'ordre des prix).
+Ils vivaient dans `line_features_v3`, à côté du featuriseur du classifieur
+V2/V3. Ce classifieur est mort — le tagger de rôles fait mieux ce qu'il
+faisait — mais les signaux, eux, sont indépendants du modèle qui les lit.
 """
 
 from __future__ import annotations
@@ -22,9 +17,6 @@ import re
 import unicodedata
 import zlib
 
-from reference.line_features import FEATURE_NAMES, PricedLine
-from reference.line_features import featurize as featurize_v2
-from reference.lines import PhysicalLine
 from reference.structure import (
     DISCOUNT_WORDS,
     PAYMENT_WORDS,
@@ -50,26 +42,6 @@ FUZZY_LEXICONS = {
     "fuzzy_tva": TVA_WORDS,
     "fuzzy_stop": STOP_WORDS,
 }
-
-EXTRA_FEATURE_NAMES = [
-    "block_sum_match",
-    "discount_summary",
-    "equals_prev_price",
-    "equals_other_count",
-    "tax_shaped",
-    "price_rank_desc",
-    "frac_priced_before",
-    *FUZZY_LEXICONS,
-    "prev_priced_fuzzy_total",
-    "next_priced_fuzzy_total",
-    "prev_priced_log_ratio",
-    "next_priced_log_ratio",
-    "prev_priced_block_sum",
-    "next_priced_block_sum",
-    *[f"tri_{bucket}" for bucket in range(HASH_BUCKETS)],
-]
-
-FEATURE_NAMES_V3 = [*FEATURE_NAMES, *EXTRA_FEATURE_NAMES]
 
 
 def block_sum_matches(cents: list[int], index: int) -> bool:
@@ -168,58 +140,3 @@ def _log_ratio(current: float, other: float | None) -> float:
     if other is None or other <= 0 or current <= 0:
         return 0.0
     return max(-PRICE_RATIO_CLIP, min(PRICE_RATIO_CLIP, math.log(current / other)))
-
-
-def _extra_rows(lines: list[PricedLine]) -> list[list[float]]:
-    cents = [round(priced.price * 100) for priced in lines]
-    absolute = [abs(c) for c in cents]
-    count = len(lines)
-    sorted_desc = sorted(absolute, reverse=True)
-    fuzzy_total = [
-        fuzzy_lexicon_similarity(priced.line.text, TOTAL_WORDS) for priced in lines
-    ]
-    block = [block_sum_matches(cents, index) for index in range(count)]
-    rows = []
-    for index, priced in enumerate(lines):
-        text = priced.line.text
-        prev_index = index - 1 if index > 0 else None
-        next_index = index + 1 if index + 1 < count else None
-        rows.append(
-            [
-                1.0 if block[index] else 0.0,
-                1.0 if discount_summary(cents, index) else 0.0,
-                1.0
-                if prev_index is not None and cents[prev_index] == cents[index]
-                else 0.0,
-                min(sum(1 for c in absolute if c == absolute[index]) - 1, 3) / 3.0,
-                1.0 if tax_shaped(cents[index], cents) else 0.0,
-                sorted_desc.index(absolute[index]) / max(count - 1, 1),
-                index / max(count - 1, 1),
-                *[
-                    fuzzy_lexicon_similarity(text, lexicon)
-                    for lexicon in FUZZY_LEXICONS.values()
-                ],
-                fuzzy_total[prev_index] if prev_index is not None else 0.0,
-                fuzzy_total[next_index] if next_index is not None else 0.0,
-                _log_ratio(
-                    absolute[index],
-                    absolute[prev_index] if prev_index is not None else None,
-                ),
-                _log_ratio(
-                    absolute[index],
-                    absolute[next_index] if next_index is not None else None,
-                ),
-                1.0 if prev_index is not None and block[prev_index] else 0.0,
-                1.0 if next_index is not None and block[next_index] else 0.0,
-                *hashed_trigrams(priced.label, HASH_BUCKETS),
-            ]
-        )
-    return rows
-
-
-def featurize(merged: list[PhysicalLine]) -> tuple[list[PricedLine], list[list[float]]]:
-    lines, rows = featurize_v2(merged)
-    if not lines:
-        return [], []
-    extras = _extra_rows(lines)
-    return lines, [row + extra for row, extra in zip(rows, extras)]

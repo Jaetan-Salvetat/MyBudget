@@ -18,8 +18,8 @@ from pathlib import Path
 
 from ocr.pipeline import dump_for
 from paths import CORPUS_DIR, RESULTS_DIR
-from reference.local_flow import clustered_lines, decide_local
-from reference.structure import extract
+from reference.header_ml import date_of, role_probabilities, store_of
+from reference.local_flow import decide_local
 
 PHOTOS_DIR = CORPUS_DIR / "photos_pixel"
 OUTPUT_DIR = RESULTS_DIR / "photos_pixel"
@@ -27,17 +27,15 @@ OUTPUT_DIR = RESULTS_DIR / "photos_pixel"
 
 def _run_one(image: Path) -> dict:
     dump = dump_for(image)
-    receipt = extract(clustered_lines(dump))
     outcome = decide_local(dump)
+    roles = role_probabilities(outcome.lines)
     return {
         "image": image.name,
-        "stage": outcome.stage,
+        "stage": outcome.source,
         "total": outcome.total,
         "items": [[item.name, item.amount, item.discount] for item in outcome.items],
-        "store": receipt.store,
-        "date": receipt.date,
-        "rulesTotal": receipt.total,
-        "rulesItems": len(receipt.items),
+        "store": store_of(outcome.lines, roles),
+        "date": date_of(outcome.lines, roles),
         "fullText": dump["fullText"],
         "retryText": dump["ocrRetry"]["fullText"],
     }

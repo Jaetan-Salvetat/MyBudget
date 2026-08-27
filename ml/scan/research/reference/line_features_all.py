@@ -1,6 +1,6 @@
 """Features de ligne, pour *toutes* les lignes d'un ticket.
 
-`line_features_v3` ne décrit que les lignes porteuses de prix : il fallait
+`line_features` ne décrivait que les lignes porteuses de prix : il fallait
 un prix pour calculer la plupart de ses colonnes. Or les trois postes
 d'erreur les plus coûteux vivent sur des lignes sans prix — l'enseigne, la
 ligne de date, et le libellé d'un article dont le prix est imprimé plus bas.
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 
-from reference.line_features_v3 import hashed_trigrams
+from reference.line_signals import hashed_trigrams
 from reference.lines import PhysicalLine
 from reference.structure import (
     DATE_PATTERN,
@@ -50,25 +50,51 @@ DENSITY_WINDOW = 3
 TRIGRAM_BUCKETS = 64
 
 FEATURE_NAMES = [
-    "rank_ratio", "top_ratio", "height_ratio", "width_ratio", "left_ratio",
-    "word_count", "char_count", "digit_ratio", "alpha_ratio", "upper_ratio",
-    "has_price", "price_log", "price_right_ratio", "is_negative",
-    "has_date", "has_currency", "has_letters_only",
-    "is_total", "is_subtotal", "is_tva", "is_payment", "is_discount",
-    "is_change", "is_count",
-    "prev_has_price", "next_has_price", "prev_is_total", "next_is_total",
-    "prev_height_ratio", "next_height_ratio",
-    "priced_rank_ratio", "after_first_total",
+    "rank_ratio",
+    "top_ratio",
+    "height_ratio",
+    "width_ratio",
+    "left_ratio",
+    "word_count",
+    "char_count",
+    "digit_ratio",
+    "alpha_ratio",
+    "upper_ratio",
+    "has_price",
+    "price_log",
+    "price_right_ratio",
+    "is_negative",
+    "has_date",
+    "has_currency",
+    "has_letters_only",
+    "is_total",
+    "is_subtotal",
+    "is_tva",
+    "is_payment",
+    "is_discount",
+    "is_change",
+    "is_count",
+    "prev_has_price",
+    "next_has_price",
+    "prev_is_total",
+    "next_is_total",
+    "prev_height_ratio",
+    "next_height_ratio",
+    "priced_rank_ratio",
+    "after_first_total",
     # Où la ligne se situe par rapport à la zone des articles. Sans elles, une
     # ligne sans prix n'a aucune position connue dans cette zone —
     # `priced_rank_ratio` vaut -1 — et rien ne distingue le libellé d'un
     # article d'une ligne d'en-tête : c'est la confusion qui plafonnait la
     # précision d'`item_label`.
-    "dist_prev_priced", "dist_next_priced", "in_priced_span", "span_position",
-    "priced_density", "next_priced_not_total",
+    "dist_prev_priced",
+    "dist_next_priced",
+    "in_priced_span",
+    "span_position",
+    "priced_density",
+    "next_priced_not_total",
     *[f"tri_{bucket}" for bucket in range(TRIGRAM_BUCKETS)],
 ]
-
 
 
 def _text_shape(text: str) -> tuple[float, float, float, int, int]:
@@ -105,14 +131,14 @@ def featurize(lines: list[PhysicalLine]) -> list[list[float]]:
     right = max(word.right for line in merged for word in line.words)
     width = (right - left) or 1.0
     totals = [contains_total(line.text) for line in merged]
-    first_total = next((i for i, is_total in enumerate(totals) if is_total), len(merged))
+    first_total = next(
+        (i for i, is_total in enumerate(totals) if is_total), len(merged)
+    )
     priced_ranks = [i for i, price in enumerate(prices) if price is not None]
 
     first_priced = priced_ranks[0] if priced_ranks else None
     last_priced = priced_ranks[-1] if priced_ranks else None
-    priced_span = (
-        (last_priced - first_priced) or 1 if priced_ranks else 1
-    )
+    priced_span = (last_priced - first_priced) or 1 if priced_ranks else 1
 
     def _distance_to_priced(index: int, step: int) -> float:
         position = index + step
@@ -137,60 +163,67 @@ def featurize(lines: list[PhysicalLine]) -> list[list[float]]:
                 return NEIGHBOUR_ABSENT
             return float(of(position))
 
-        rows.append([
-            index / len(merged),
-            (line.top - top) / span,
-            height,
-            (line_right - line_left) / width,
-            (line_left - left) / width,
-            float(len(line.words)),
-            float(chars),
-            digit_ratio,
-            alpha_ratio,
-            upper_ratio,
-            float(price is not None),
-            abs(price[0]) if price is not None else 0.0,
-            (price[1].right - left) / width if price is not None else 0.0,
-            float(price is not None and price[0] < 0),
-            float(_has_date(text)),
-            float(bool(CURRENCY.search(text))),
-            float(alpha > 0 and digit_ratio == 0),
-            float(totals[index]),
-            float(_contains(text, SUBTOTAL_WORDS)),
-            float(_contains(text, TVA_WORDS)),
-            float(_contains(text, PAYMENT_WORDS)),
-            float(_contains(text, DISCOUNT_WORDS)),
-            float(_contains(text, CHANGE_WORDS)),
-            float(_contains(text, COUNT_WORDS)),
-            neighbour(-1, lambda p: prices[p] is not None),
-            neighbour(+1, lambda p: prices[p] is not None),
-            neighbour(-1, lambda p: totals[p]),
-            neighbour(+1, lambda p: totals[p]),
-            neighbour(-1, lambda p: (merged[p].bottom - merged[p].top) / median_height),
-            neighbour(+1, lambda p: (merged[p].bottom - merged[p].top) / median_height),
-            (priced_ranks.index(index) / len(priced_ranks)) if index in priced_ranks else NEIGHBOUR_ABSENT,
-            float(index > first_total),
-            _distance_to_priced(index, -1),
-            _distance_to_priced(index, +1),
-            float(
-                first_priced is not None
-                and first_priced <= index <= last_priced
-            ),
-            (index - first_priced) / priced_span if first_priced is not None else NEIGHBOUR_ABSENT,
-            sum(
-                1
-                for position in range(
-                    max(0, index - DENSITY_WINDOW),
-                    min(len(merged), index + DENSITY_WINDOW + 1),
+        rows.append(
+            [
+                index / len(merged),
+                (line.top - top) / span,
+                height,
+                (line_right - line_left) / width,
+                (line_left - left) / width,
+                float(len(line.words)),
+                float(chars),
+                digit_ratio,
+                alpha_ratio,
+                upper_ratio,
+                float(price is not None),
+                abs(price[0]) if price is not None else 0.0,
+                (price[1].right - left) / width if price is not None else 0.0,
+                float(price is not None and price[0] < 0),
+                float(_has_date(text)),
+                float(bool(CURRENCY.search(text))),
+                float(alpha > 0 and digit_ratio == 0),
+                float(totals[index]),
+                float(_contains(text, SUBTOTAL_WORDS)),
+                float(_contains(text, TVA_WORDS)),
+                float(_contains(text, PAYMENT_WORDS)),
+                float(_contains(text, DISCOUNT_WORDS)),
+                float(_contains(text, CHANGE_WORDS)),
+                float(_contains(text, COUNT_WORDS)),
+                neighbour(-1, lambda p: prices[p] is not None),
+                neighbour(+1, lambda p: prices[p] is not None),
+                neighbour(-1, lambda p: totals[p]),
+                neighbour(+1, lambda p: totals[p]),
+                neighbour(
+                    -1, lambda p: (merged[p].bottom - merged[p].top) / median_height
+                ),
+                neighbour(
+                    +1, lambda p: (merged[p].bottom - merged[p].top) / median_height
+                ),
+                (priced_ranks.index(index) / len(priced_ranks))
+                if index in priced_ranks
+                else NEIGHBOUR_ABSENT,
+                float(index > first_total),
+                _distance_to_priced(index, -1),
+                _distance_to_priced(index, +1),
+                float(
+                    first_priced is not None and first_priced <= index <= last_priced
+                ),
+                (index - first_priced) / priced_span
+                if first_priced is not None
+                else NEIGHBOUR_ABSENT,
+                sum(
+                    1
+                    for position in range(
+                        max(0, index - DENSITY_WINDOW),
+                        min(len(merged), index + DENSITY_WINDOW + 1),
+                    )
+                    if prices[position] is not None
                 )
-                if prices[position] is not None
-            )
-            / (2 * DENSITY_WINDOW + 1),
-            neighbour(
-                +1, lambda p: prices[p] is not None and not totals[p]
-            ),
-            *hashed_trigrams(text, TRIGRAM_BUCKETS),
-        ])
+                / (2 * DENSITY_WINDOW + 1),
+                neighbour(+1, lambda p: prices[p] is not None and not totals[p]),
+                *hashed_trigrams(text, TRIGRAM_BUCKETS),
+            ]
+        )
     return rows
 
 
@@ -210,7 +243,9 @@ def window_feature_names(context: int = LINK_CONTEXT) -> list[str]:
     ]
 
 
-def window(rows: list[list[float]], index: int, context: int = LINK_CONTEXT) -> list[float]:
+def window(
+    rows: list[list[float]], index: int, context: int = LINK_CONTEXT
+) -> list[float]:
     """Les features de la ligne et des `context` lignes qui la précèdent,
     concaténées. Hors du ticket, la fenêtre est neutre."""
     width = len(rows[0]) if rows else 0

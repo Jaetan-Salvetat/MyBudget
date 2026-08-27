@@ -1,6 +1,6 @@
 from test_structure import receipt_lines
 
-from reference.line_features import featurize
+from reference.line_features import priced_lines
 from reference.structure import merge_price_fragments
 from truth.roles import (
     CHANGE,
@@ -32,7 +32,7 @@ def golden(items, total, discounts=None):
 
 def roles(rows, gold):
     merged = [merge_price_fragments(line) for line in receipt_lines(rows)]
-    lines, _ = featurize(merged)
+    lines = priced_lines(merged)
     return [(t.text.split()[0], t.role) for t in line_truth(merged, lines, gold)]
 
 
@@ -112,7 +112,7 @@ class TestLineTruth:
             [("TOTAL", 0), ("2,50", 38)],
         ]
         merged = [merge_price_fragments(line) for line in receipt_lines(rows)]
-        lines, _ = featurize(merged)
+        lines = priced_lines(merged)
         truths = line_truth(merged, lines, golden([("PAIN COMPLET", 2.5)], 2.5))
         assert truths[0].golden_name == "PAIN COMPLET"
         assert truths[1].golden_name is None

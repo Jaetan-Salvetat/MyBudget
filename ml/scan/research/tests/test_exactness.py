@@ -16,11 +16,14 @@ from bench.exactness import (
     EXTRA,
     LABEL,
     MISSING,
+    SILENT,
     STORE,
     TOTAL,
+    WIDE,
     ExtractedName,
     compare_items,
     name_matches,
+    name_widens,
     receipt_exactness,
     store_matches,
 )
@@ -142,6 +145,44 @@ class TestCompareItems:
         ne doit pas fabriquer deux libellés faux à cause de l'ordre."""
         got = [item("LAIT", 2.50), item("PAIN", 2.50)]
         assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 2.50)]) == []
+
+    def test_un_nom_qui_contient_le_nom_attendu_est_large_pas_faux(self) -> None:
+        """Le calibre ou le code de TVA ramassé en plus laisse l'utilisateur
+        devant le bon produit : rien ne lui est caché, donc rien à relire."""
+        got = [item("230G WASA FIBRES", 1.89)]
+        assert compare_items(got, [expected("WASA FIBRES", 1.89)]) == [WIDE]
+
+    def test_un_nom_large_n_est_pas_une_erreur_silencieuse(self) -> None:
+        assert WIDE not in SILENT
+        assert LABEL in SILENT
+
+    def test_un_nom_amput_e_reste_un_libelle_faux(self) -> None:
+        """L'inverse ne se vaut pas : un nom rogné peut désigner un autre
+        produit de la même famille, et l'utilisateur n'a aucun moyen de le
+        savoir."""
+        got = [item("YAOURT", 3.59)]
+        assert compare_items(got, [expected("YAOURT MYRTILLE", 3.59)]) == [LABEL]
+
+
+class TestNameWidens:
+    def test_le_nom_attendu_est_contenu_dans_le_rendu(self) -> None:
+        assert name_widens("230G WASA FIBRES", "WASA FIBRES")
+        assert name_widens("EMMENTAL RAPE 2", "EMMENTAL RAPE")
+
+    def test_un_nom_juste_n_elargit_rien(self) -> None:
+        assert not name_widens("WASA FIBRES", "WASA FIBRES")
+
+    def test_un_autre_produit_n_elargit_rien(self) -> None:
+        assert not name_widens("LESSIVE FEUILLE X80", "PAIN COMPLET")
+
+    def test_un_mot_coupe_en_deux_n_elargit_rien(self) -> None:
+        """« FIBRE » n'est pas « FIBRES » : l'inclusion se juge sur des mots
+        entiers, sinon tout préfixe passerait."""
+        assert not name_widens("WASA FIBRE", "WASA FIBRES")
+
+    def test_un_nom_vide_n_elargit_rien(self) -> None:
+        assert not name_widens("WASA FIBRES", "")
+        assert not name_widens("", "WASA FIBRES")
 
 
 GOLDEN = {

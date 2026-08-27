@@ -6,12 +6,18 @@ expressions régulières. Mesuré sur T1-test, 78 % des libellés faux venaient
 de là : un code article devant, une quantité ou un prix unitaire derrière,
 sur la bonne ligne.
 
-La vérité est l'alignement du libellé du golden sur les mots d'une ligne
+La vérité est l'alignement du nom de l'article sur les mots de sa ligne
 (`truth/spans.py`), et seuls les alignements sûrs entrent : ce que l'OCR a
-abîmé n'enseignerait qu'une frontière inventée. Elle se lit directement des
-images, sans passer par l'annotation de rôles — le corpus annoté rejette les
-tickets dont un montant est illisible, et ces tickets-là portent justement
-les découpages rares.
+abîmé n'enseignerait qu'une frontière inventée.
+
+Le nom vient de l'**annotation**. Tant qu'il n'y était pas, seul le golden
+FindIt en portait, et ce modèle n'avait donc vu qu'une chaîne de magasins.
+Mesuré sur T1-test avant ce changement : 10,7 % de libellés faux sur
+l'enseigne d'entraînement, **19,6 % sur toute autre**. Le découpage dépend
+des colonnes qu'imprime l'enseigne, et il en connaissait une.
+
+Les lignes viennent du corpus lui-même — aucun OCR à relancer : elles sont
+exactement ce que le modèle verra en production.
 
     uv run python -m line_classifier.train_span
 """
@@ -28,13 +34,14 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import classification_report
 
+from annotate.dataset import AnnotatedReceipt, load
 from ocr.pipeline import dump_for
 from paths import FINDIT_DIR, GOLDEN_DIR, MODELS_DIR, SPAN_MODEL_PATH
 from reference.local_flow import clustered_lines
 from reference.spans_ml import best_span
 from reference.word_features import featurize
 from truth.golden import balances
-from truth.spans import spans_from_golden
+from truth.spans import spans_from_annotation, spans_from_golden
 
 TRAIN_SPLIT = "T1-train"
 TEST_SPLIT = "T1-test"
@@ -49,7 +56,46 @@ class LabelledLine:
     span: tuple[int, int]
 
 
-def _lines_of(image: Path) -> list[LabelledLine]:
+def _lines_of(receipt: AnnotatedReceipt) -> list[LabelledLine]:
+    spans = spans_from_annotation(receipt)
+    if not spans:
+        return []
+    rows = featurize(receipt.lines)
+    return [
+        LabelledLine(
+            features=rows[index],
+            words=[word.text for word in receipt.lines[index].words],
+            span=(start, end),
+        )
+        for index, start, end in spans
+        if index < len(rows)
+    ]
+
+
+def labelled() -> list[LabelledLine]:
+    """Les deux sources réunies, et il faut les deux.
+
+    L'annotation apporte 337 enseignes mais ne couvre pas FindIt ; le golden
+    couvre FindIt et rien d'autre. Entraîné sur la seule annotation, le modèle
+    tombe à 90,3 % d'intervalles exacts sur T1-test là où le modèle FindIt
+    faisait 96,0 % — le même écart de domaine, vu de l'autre côté.
+
+    Sont pris aussi les tickets écartés pour un montant illisible : le
+    checksum protège les montants, pas les libellés, et ces tickets-là portent
+    justement les découpages rares."""
+    return [
+        *(line for receipt in load(roles_only=True) for line in _lines_of(receipt)),
+        *_golden_split(TRAIN_SPLIT),
+    ]
+
+
+def _golden_split(split: str) -> list[LabelledLine]:
+    images = sorted((FINDIT_DIR / split / "img").glob("*.jpg"))
+    with ProcessPoolExecutor() as pool:
+        return [line for batch in pool.map(_golden_lines_of, images) for line in batch]
+
+
+def _golden_lines_of(image: Path) -> list[LabelledLine]:
     golden_path = GOLDEN_DIR / image.parent.parent.name / f"{image.stem}.json"
     if not golden_path.exists():
         return []
@@ -68,13 +114,13 @@ def _lines_of(image: Path) -> list[LabelledLine]:
             span=(start, end),
         )
         for index, start, end in spans
+        if index < len(rows)
     ]
 
 
-def labelled(split: str) -> list[LabelledLine]:
-    images = sorted((FINDIT_DIR / split / "img").glob("*.jpg"))
-    with ProcessPoolExecutor() as pool:
-        return [line for batch in pool.map(_lines_of, images) for line in batch]
+def held_out() -> list[LabelledLine]:
+    """L'évaluation vient du golden de T1-test, jamais de l'annotation."""
+    return _golden_split(TEST_SPLIT)
 
 
 def dataset(lines: list[LabelledLine]) -> tuple[np.ndarray, np.ndarray]:
@@ -118,7 +164,7 @@ def _model() -> HistGradientBoostingClassifier:
 
 
 def main() -> None:
-    train, test = labelled(TRAIN_SPLIT), labelled(TEST_SPLIT)
+    train, test = labelled(), held_out()
     x_train, y_train = dataset(train)
     x_test, y_test = dataset(test)
     print(f"entraînement : {len(train)} lignes, {len(y_train)} mots")

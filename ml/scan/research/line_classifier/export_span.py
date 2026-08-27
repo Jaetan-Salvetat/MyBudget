@@ -15,7 +15,7 @@ import sys
 import joblib
 
 from line_classifier.export import export, predict_proba_exported
-from line_classifier.train_span import TEST_SPLIT, dataset, labelled
+from line_classifier.train_span import dataset, held_out
 from paths import MODELS_DIR, SPAN_MODEL_PATH
 from reference.word_features import FEATURE_NAMES
 
@@ -31,7 +31,7 @@ def main() -> int:
     print(f"{SPAN_MODEL_PATH.name} → {EXPORT_PATH} ({size:.1f} MB)")
 
     if "--check" in sys.argv:
-        x_test, _ = dataset(labelled(TEST_SPLIT))
+        x_test, _ = dataset(held_out())
         reference = model.predict_proba(x_test)
         worst = max(
             max(

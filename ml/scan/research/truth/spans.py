@@ -1,8 +1,14 @@
 """Vérité de span : les mots d'une ligne qui composent le libellé d'un article.
 
-Le corpus annoté dit *quelle ligne* porte le libellé, jamais *quels mots* : la
-question ne lui a jamais été posée. Le golden, lui, porte le libellé écrit —
-et l'aligner sur les mots de la ligne désignée reconstruit la réponse.
+L'annotation porte le nom de l'article, recopié tel que l'OCR l'a rendu ;
+l'aligner sur les mots de la ligne rend l'intervalle. C'est la source
+principale : elle couvre tous les corpus annotés, donc 337 enseignes.
+
+Avant qu'on demande le nom à l'annotateur, seul le golden FindIt en portait —
+et le modèle de span, entraîné là-dessus, ne connaissait qu'une chaîne. Mesuré
+sur T1-test : 10,7 % de libellés faux sur l'enseigne d'entraînement, 19,6 %
+sur toute autre. Les deux chemins golden restent, ils fournissent une vérité
+indépendante sur FindIt.
 
 L'alignement est délibérément strict. Un libellé n'est retenu que s'il se lit
 presque à l'identique sur la ligne : ce qui a été abîmé par l'OCR
@@ -104,6 +110,33 @@ def spans_of(
         if span is not None:
             found.append((carrier, *span))
     return found
+
+
+def spans_from_annotation(
+    receipt: AnnotatedReceipt,
+) -> list[tuple[int, int, int]]:
+    """Pour chaque article nommé par l'annotation, la ligne qui porte son
+    libellé et l'intervalle de mots qui l'écrit.
+
+    Aucun golden n'intervient : le nom vient de l'annotation, et le même
+    filtre d'alignement l'élimine s'il ne se lit pas sur la ligne. Un nom que
+    l'annotateur aurait corrigé au lieu de recopier ne s'aligne pas — c'est
+    ce qui protège la vérité d'un libellé inventé."""
+    found = []
+    for index, role in enumerate(receipt.roles):
+        if role != ITEM:
+            continue
+        expected = receipt.names[index]
+        if not expected:
+            continue
+        target = receipt.label_indexes[index]
+        carrier = index if target is None else target
+        if not 0 <= carrier < len(receipt.lines):
+            continue
+        span = align(receipt.lines[carrier], expected)
+        if span is not None:
+            found.append((carrier, *span))
+    return sorted(found)
 
 
 def spans_from_golden(

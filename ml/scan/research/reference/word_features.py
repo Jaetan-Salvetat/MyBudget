@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import re
 
-from reference.line_features_v3 import hashed_trigrams
+from reference.line_signals import hashed_trigrams
 from reference.lines import PhysicalLine, Word
 from reference.structure import (
     PRICE_PATTERN,
@@ -44,15 +44,37 @@ CURRENCY = re.compile(r"[€$]|\bEUR\b", re.IGNORECASE)
 TRIGRAM_BUCKETS = 16
 
 FEATURE_NAMES = [
-    "left_ratio", "right_ratio", "width_ratio", "height_ratio",
-    "word_index_ratio", "is_first", "is_last", "word_count",
-    "gap_before", "gap_after", "line_position",
-    "char_count", "digit_ratio", "alpha_ratio", "upper_ratio",
-    "is_pure_digits", "is_price_shaped", "is_count", "is_unit",
-    "has_currency", "confidence",
-    "is_price_word", "after_price", "dist_to_price",
-    "band_fill", "band_digit_ratio", "band_alpha_ratio", "band_price_ratio",
-    "line_has_price", "line_digit_ratio", "line_word_count_ratio",
+    "left_ratio",
+    "right_ratio",
+    "width_ratio",
+    "height_ratio",
+    "word_index_ratio",
+    "is_first",
+    "is_last",
+    "word_count",
+    "gap_before",
+    "gap_after",
+    "line_position",
+    "char_count",
+    "digit_ratio",
+    "alpha_ratio",
+    "upper_ratio",
+    "is_pure_digits",
+    "is_price_shaped",
+    "is_count",
+    "is_unit",
+    "has_currency",
+    "confidence",
+    "is_price_word",
+    "after_price",
+    "dist_to_price",
+    "band_fill",
+    "band_digit_ratio",
+    "band_alpha_ratio",
+    "band_price_ratio",
+    "line_has_price",
+    "line_digit_ratio",
+    "line_word_count_ratio",
     *[f"tri_{bucket}" for bucket in range(TRIGRAM_BUCKETS)],
 ]
 
@@ -125,48 +147,63 @@ def featurize(lines: list[PhysicalLine]) -> list[list[list[float]]]:
             band_shapes = [_shape(other.text) for other in band]
             previous = line.words[position - 1] if position else None
             following = (
-                line.words[position + 1]
-                if position + 1 < len(line.words)
-                else None
+                line.words[position + 1] if position + 1 < len(line.words) else None
             )
-            vectors.append([
-                (word.left - left) / width,
-                (word.right - left) / width,
-                (word.right - word.left) / width,
-                (word.bottom - word.top) / median_height,
-                position / len(line.words),
-                float(position == 0),
-                float(position == len(line.words) - 1),
-                float(len(line.words)),
-                (word.left - previous.right) / width if previous else NEIGHBOUR_ABSENT,
-                (following.left - word.right) / width if following else NEIGHBOUR_ABSENT,
-                (word.left - line_left) / line_width,
-                float(len(word.text)),
-                digit_ratio,
-                alpha_ratio,
-                upper_ratio,
-                float(word.text.isdigit()),
-                float(_is_price_shaped(word.text)),
-                float(bool(COUNT_PATTERN.match(word.text)
-                           or QUANTITY_PATTERN.match(word.text)
-                           or WEIGHT_PATTERN.match(word.text))),
-                float(bool(UNIT_PATTERN.match(word.text))),
-                float(bool(CURRENCY.search(word.text))),
-                word.confidence if word.confidence is not None else NEIGHBOUR_ABSENT,
-                float(price is not None and word.left < price.right
-                      and word.right > price.left),
-                float(price is not None and word.left >= price.right),
-                (price.left - word.right) / width if price is not None
-                else NEIGHBOUR_ABSENT,
-                len(band) / (len(lines) - 1) if len(lines) > 1 else 0.0,
-                sum(shape[0] for shape in band_shapes) / len(band) if band else 0.0,
-                sum(shape[1] for shape in band_shapes) / len(band) if band else 0.0,
-                sum(_is_price_shaped(other.text) for other in band) / len(band)
-                if band else 0.0,
-                float(price is not None),
-                line_digits,
-                len(line.words) / max_words,
-                *hashed_trigrams(word.text, TRIGRAM_BUCKETS),
-            ])
+            vectors.append(
+                [
+                    (word.left - left) / width,
+                    (word.right - left) / width,
+                    (word.right - word.left) / width,
+                    (word.bottom - word.top) / median_height,
+                    position / len(line.words),
+                    float(position == 0),
+                    float(position == len(line.words) - 1),
+                    float(len(line.words)),
+                    (word.left - previous.right) / width
+                    if previous
+                    else NEIGHBOUR_ABSENT,
+                    (following.left - word.right) / width
+                    if following
+                    else NEIGHBOUR_ABSENT,
+                    (word.left - line_left) / line_width,
+                    float(len(word.text)),
+                    digit_ratio,
+                    alpha_ratio,
+                    upper_ratio,
+                    float(word.text.isdigit()),
+                    float(_is_price_shaped(word.text)),
+                    float(
+                        bool(
+                            COUNT_PATTERN.match(word.text)
+                            or QUANTITY_PATTERN.match(word.text)
+                            or WEIGHT_PATTERN.match(word.text)
+                        )
+                    ),
+                    float(bool(UNIT_PATTERN.match(word.text))),
+                    float(bool(CURRENCY.search(word.text))),
+                    word.confidence
+                    if word.confidence is not None
+                    else NEIGHBOUR_ABSENT,
+                    float(
+                        price is not None
+                        and word.left < price.right
+                        and word.right > price.left
+                    ),
+                    float(price is not None and word.left >= price.right),
+                    (price.left - word.right) / width
+                    if price is not None
+                    else NEIGHBOUR_ABSENT,
+                    len(band) / (len(lines) - 1) if len(lines) > 1 else 0.0,
+                    sum(shape[0] for shape in band_shapes) / len(band) if band else 0.0,
+                    sum(shape[1] for shape in band_shapes) / len(band) if band else 0.0,
+                    sum(_is_price_shaped(other.text) for other in band) / len(band)
+                    if band
+                    else 0.0,
+                    float(price is not None),
+                    line_digits,
+                    len(line.words) / max_words,
+                    *hashed_trigrams(word.text, TRIGRAM_BUCKETS),
+                ]
+            )
         rows.append(vectors)
     return rows

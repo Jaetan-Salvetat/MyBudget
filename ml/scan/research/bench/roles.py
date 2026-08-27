@@ -2,7 +2,7 @@
 
 Trois lectures du même corpus annoté, comparées au checksum :
 
-- la **chaîne actuelle** — règles, puis classifieur de lignes, puis décodeur ;
+- la **chaîne actuelle** — le tagger de rôles, puis le décodeur ;
 - les **rôles annotés** — le plafond : ce que le corpus dit être la vérité ;
 - les **rôles prédits** — ce que le tagger rend aujourd'hui.
 
@@ -24,11 +24,10 @@ import sys
 
 from annotate.dataset import load
 from annotate.schema import DISCOUNT, ITEM, SUBTOTAL, TOTAL
-from reference.decode_constrained import extract_constrained
-from reference.header_ml import predicted_roles
+from reference.decode_roles import extract_role_constrained
+from reference.header_ml import predicted_roles, role_probabilities
 from reference.line_labels import tagger_role
-from reference.structure import extract, merge_price_fragments
-from reference.structure_ml import extract_ml
+from reference.structure import merge_price_fragments
 from reference.structure_roles import extract_roles
 
 HELD_OUT_CORPORA = ("T1-test", "photos_pixel")
@@ -38,10 +37,11 @@ TOP_CONFUSIONS = 6
 
 
 def _chain_balances(lines, merged) -> bool:
-    for receipt in (extract(lines), extract_ml(merged), extract_constrained(merged)):
-        if receipt is not None and receipt.checksum_ok:
-            return True
-    return False
+    """Ce que le flow prouve sur cette seule lecture : tagger puis décodeur."""
+    receipt = extract_role_constrained(
+        merged, role_probas=role_probabilities(lines)
+    )
+    return receipt is not None and receipt.checksum_ok
 
 
 def _balances(merged, roles) -> bool:

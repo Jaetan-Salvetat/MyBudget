@@ -18,12 +18,17 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from bench.exactness import SILENT, ExtractedName, receipt_exactness
-from bench.flow import StageStats, TicketRun, count_edits
+from bench.scoring import StageStats, TicketRun, count_edits
 from ocr.pipeline import dump_for
 from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
 from reference.header_ml import date_of, role_probabilities, store_of
 from reference.labels_ml import label_offsets, relabel
-from reference.local_flow import CONFIRM, VERIFIED_STAGES, clustered_lines, decide_local
+from reference.local_flow import (
+    CONFIRM,
+    VERIFIED_SOURCES,
+    clustered_lines,
+    decide_local,
+)
 from reference.spans_ml import label_probabilities
 from truth.golden import Verdict, best_reference
 from truth.references import alternatives
@@ -127,8 +132,10 @@ def report_exactness(results: list[dict]) -> None:
     repaired = sum(1 for r in judged if r["truth"] == Verdict.REPAIRED.value)
     exact = sum(1 for result in judged if not result["wrong"])
     print(f"\n=== tickets parfaits : {exact}/{len(judged)} ({exact / len(judged):.1%})")
-    print(f"  vérité : {len(judged) - repaired} golden, {repaired} réparés, "
-          f"{unjudged} sans vérité (hors score)")
+    print(
+        f"  vérité : {len(judged) - repaired} golden, {repaired} réparés, "
+        f"{unjudged} sans vérité (hors score)"
+    )
     causes: Counter[str] = Counter()
     articles: Counter[str] = Counter()
     for result in judged:
@@ -136,10 +143,12 @@ def report_exactness(results: list[dict]) -> None:
         articles.update(result["counts"])
     for field, count in causes.most_common():
         detail = f", {articles[field]} articles" if field in articles else ""
-        print(f"  {field:<16} faux sur {count:>4} tickets "
-              f"({count / len(judged):.0%}{detail})")
+        print(
+            f"  {field:<16} faux sur {count:>4} tickets "
+            f"({count / len(judged):.0%}{detail})"
+        )
 
-    verified = [r for r in judged if r["stage"] in VERIFIED_STAGES]
+    verified = [r for r in judged if r["stage"] in VERIFIED_SOURCES]
     silent = [r for r in verified if r["silent"]]
     print(f"\n=== ERREURS SILENCIEUSES sur les {len(verified)} tickets vérifiés")
     print("  (aucun écran de confirmation ne les montre)")
@@ -147,18 +156,20 @@ def report_exactness(results: list[dict]) -> None:
     for field in SILENT:
         tickets = sum(1 for r in verified if field in r["silent"])
         count = sum(r["counts"].get(field, 0) for r in verified)
-        print(f"  {field:<16} {tickets:>4} tickets ({tickets / len(verified):5.1%}), "
-              f"{count:>4} articles")
+        print(
+            f"  {field:<16} {tickets:>4} tickets ({tickets / len(verified):5.1%}), "
+            f"{count:>4} articles"
+        )
 
 
 def report(runs: list[TicketRun]) -> None:
-    stages = [*VERIFIED_STAGES, CONFIRM]
+    stages = [*VERIFIED_SOURCES, CONFIRM]
     stats = {stage: StageStats() for stage in stages}
     for run_ in runs:
         stats[run_.stage].add(run_)
     total = len(runs)
-    verified = sum(stats[stage].tickets for stage in VERIFIED_STAGES)
-    false_verified = [r for stage in VERIFIED_STAGES for r in stats[stage].faulty]
+    verified = sum(stats[stage].tickets for stage in VERIFIED_SOURCES)
+    false_verified = [r for stage in VERIFIED_SOURCES for r in stats[stage].faulty]
 
     print(f"\n=== mode local, OCR Apple Vision ({total} tickets)")
     for stage in stages:

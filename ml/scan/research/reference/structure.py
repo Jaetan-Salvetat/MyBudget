@@ -1,8 +1,20 @@
-"""Structure les lignes physiques d'un ticket en articles + prix + remises.
+"""Ce qu'on sait lire d'une ligne de ticket sans modèle.
 
-Règles géométriques et lexicales pures, sans modèle : l'objectif est de
-mesurer jusqu'où elles montent avant de décider si un classifieur de lignes
-est nécessaire.
+Deux choses cohabitent ici, et la frontière compte.
+
+**Les primitives**, que tout le reste utilise : lecture d'un prix malmené par
+l'OCR (`parse_price`, `merge_price_fragments`), lexiques du total, de la
+remise, du paiement, de la TVA — ils nourrissent les features de tous les
+modèles —, lecture de date, découpage de la zone de libellé.
+
+**`extract()`**, la structuration par règles géométriques et lexicales. Elle
+ne fait plus partie du flow : mesurée seule, elle ne vérifie que 89 % des
+scans à plat et **20 % des vraies photos**, et la retirer de la chaîne n'a
+coûté aucun ticket juste (`bench/flows.py`). Elle ne sert plus qu'à
+construire la vérité depuis la transcription officielle de FindIt
+(`truth/transcript.py`) — un texte parfait, sans dégât d'OCR, où les règles
+sont à leur aise et où aucun modèle n'a le droit d'intervenir : la vérité
+doit rester indépendante de ce qu'elle juge.
 """
 
 from __future__ import annotations

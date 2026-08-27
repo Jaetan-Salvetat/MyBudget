@@ -1,67 +1,103 @@
-"""Flow local complet rejoué depuis un dump OCR device (passe 1 + retry).
+"""Le flow local : une lecture du ticket, un étiqueteur, une somme prouvée.
 
-Sur la passe 1 : règles (checksum) → classifieur argmax (re-checksum) →
-décodage sous contrainte → tagger de rôles. Si rien ne vérifie, seulement
-alors le retry
-(2e OCR prétraité, l'étage cher) : règles (garde-fou) → classifieur →
-décodeur. Mesuré : même précision qu'en tentant le retry avant le
-classifieur, moitié moins de retries. C'est LA décision de référence : le
-bench la mesure, le portage Dart (`pipeline/lib/src/flow.dart`) la
-reproduit, `check_parity.py` vérifie l'égalité ticket par ticket.
+Il n'y a plus d'étages. La version précédente en enchaînait six — règles,
+argmax du classifieur V2, décodage sous contrainte, tagger de rôles, sur la
+passe 1 puis le retry puis leur fusion — chacun rattrapant ce que le
+précédent ratait, le checksum arbitrant. Mesuré sur 483 tickets à vérité
+golden (`bench/flows.py`), cet empilement rend **exactement le même nombre de
+tickets justes** qu'un seul étiqueteur suivi d'un seul décodeur : 341 contre
+341. Ce qu'il ajoutait, c'étaient sept tickets badgés « vérifié » de plus —
+et quatre tickets à montant faux de plus avec eux. Il fabriquait de la
+confiance, pas de la justesse.
+
+Ce qui reste :
+
+    lecture (passe 1 → retry → fusion, la suivante seulement si besoin)
+      → le tagger de rôles étiquette toutes les lignes
+      → le décodeur retient l'étiquetage le plus probable dont
+        Σ(articles − remises) tombe au centime sur une référence imprimée
+      → vérifié, ou écran de confirmation
+
+Le tagger est le seul modèle de lignes : il voit tout le ticket, il sort de
+2 827 tickets annotés depuis l'image sur 337 enseignes, et le classifieur V2
+qu'il remplace ne savait rien qu'il ne sache — même nombre de tickets justes,
+trois tickets à montant faux en moins.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from reference.decode_constrained import extract_constrained
-from reference.flow import FlowPolicy, decide
+import numpy as np
+
+from reference.decode_roles import extract_role_constrained
 from reference.fuse_passes import fuse_passes
-from reference.header_ml import predicted_roles
+from reference.header_ml import predicted_roles, role_probabilities
 from reference.lines import PhysicalLine, Word, cluster_lines, deskew_words
-from reference.structure import (
-    ExtractedItem,
-    ExtractedReceipt,
-    extract,
-    merge_price_fragments,
-)
-from reference.structure_ml import extract_ml
+from reference.structure import ExtractedItem, merge_price_fragments
 from reference.structure_roles import extract_roles
 
-POLICY = FlowPolicy(retry_must_not_lose_value=True, confirm_prefill="local")
-
-LOCAL = "local"
-LOCAL_RETRY = "local_retry"
-LOCAL_ML = "local_ml"
-LOCAL_DP = "local_dp"
-LOCAL_ROLES = "local_roles"
-LOCAL_FUSED = "local_fused"
+PASS1 = "passe1"
+RETRY = "retry"
+FUSED = "fusion"
 CONFIRM = "confirm"
-VERIFIED_STAGES = (LOCAL, LOCAL_RETRY, LOCAL_ML, LOCAL_DP, LOCAL_ROLES, LOCAL_FUSED)
+
+VERIFIED_SOURCES = (PASS1, RETRY, FUSED)
+
+
+class Source:
+    """Une lecture du ticket : les lignes telles que les modèles les ont
+    apprises, les mêmes avec les prix recollés, et — pour la fusion — les
+    montants que l'autre passe lit autrement.
+
+    Le tagger et le décodeur travaillent sur des lignes différentes et le rang
+    les aligne : `merge_price_fragments` recolle des mots *dans* une ligne,
+    jamais deux lignes entre elles."""
+
+    def __init__(
+        self,
+        name: str,
+        lines: list[PhysicalLine],
+        alternatives: dict[int, int] | None = None,
+    ) -> None:
+        self.name = name
+        self.lines = lines
+        self.merged = [merge_price_fragments(line) for line in lines]
+        self.alternatives = alternatives
+        self._roles: np.ndarray | None = None
+
+    @property
+    def roles(self) -> np.ndarray:
+        """Les probabilités de rôle, inférées une fois par lecture."""
+        if self._roles is None:
+            self._roles = role_probabilities(self.lines)
+        return self._roles
 
 
 @dataclass(frozen=True)
 class LocalOutcome:
-    """Les articles retenus, libellés compris.
+    """Ce que le flow a lu, et par quelle lecture.
 
-    Le libellé n'est pas décoratif : c'est lui qui décide de la catégorie, donc
-    de la ligne de budget. Le portage Dart le remonte depuis toujours
-    (`FlowOutcome.items` porte des `ExtractedItem`) ; la référence Python ne
-    gardait que les montants, et aucune mesure ne pouvait donc voir un libellé
-    rattaché au mauvais prix."""
+    `source` remplace l'ancien `stage` : il ne dit plus quel étage a sauvé le
+    ticket — il n'y en a qu'un — mais quelle lecture de l'image a porté la
+    somme prouvée. `CONFIRM` dit que rien ne l'a prouvée."""
 
-    stage: str
+    source: str
     items: list[ExtractedItem]
     total: float | None
+    lines: list[PhysicalLine]
 
     @property
     def verified(self) -> bool:
-        return self.stage in VERIFIED_STAGES
+        return self.source in VERIFIED_SOURCES
+
+    @property
+    def stage(self) -> str:
+        """Compatibilité des benchs historiques, qui comptent des étages."""
+        return self.source
 
     @property
     def amounts(self) -> list[tuple[float, float]]:
-        """Montants seuls — ce que compare le scoreur historique et la
-        vérification de parité avec le device."""
         return [(round(i.amount, 2), round(i.discount, 2)) for i in self.items]
 
 
@@ -88,109 +124,49 @@ def clustered_lines(dump: dict) -> list[PhysicalLine]:
     return cluster_lines(deskew_words(words, angle))
 
 
-def _passes(dump: dict) -> list[list[PhysicalLine]]:
-    passes = [clustered_lines(dump)]
-    if "ocrRetry" in dump:
-        passes.append(clustered_lines(dump["ocrRetry"]))
-    return passes
+def sources(dump: dict):
+    """Les lectures, de la moins chère à la plus chère. Générateur : le second
+    OCR ne coûte que sur les tickets que la passe 1 ne prouve pas."""
+    first = Source(PASS1, clustered_lines(dump))
+    yield first
+    if "ocrRetry" not in dump:
+        return
+    second = clustered_lines(dump["ocrRetry"])
+    yield Source(RETRY, second)
+    fused = fuse_passes(first.lines, second)
+    yield Source(FUSED, fused.lines, fused.alternatives)
 
 
-def classifier_rescue(
-    passes: list[list[PhysicalLine]],
-    use_dp: bool = True,
-    use_roles: bool = True,
-) -> tuple[str, ExtractedReceipt] | None:
-    """Les seconds avis, du plus ancien au plus récent, tous jugés au
-    checksum.
-
-    Le tagger de rôles passe **en dernier**, et c'est délibéré : sur une même
-    passe, un ticket qu'un étage antérieur fait boucler garde exactement la
-    lecture qu'il avait. Il peut en revanche vérifier en passe 1 ce qu'un
-    étage antérieur n'aurait vérifié qu'en passe 2 — l'étiquette d'étage
-    change alors, jamais les montants. Mesuré sur les 483 tickets de T1-test :
-    3 tickets gagnés, **0 lecture modifiée**.
-
-    Le gain se joue ailleurs que sur les scans à plat : sur 20 photos réelles
-    annotées, où les règles seules ne vérifient que 20 % des tickets, l'étage
-    fait passer la chaîne de 65 % à 75 %."""
-    merged_passes = [[merge_price_fragments(line) for line in p] for p in passes]
-    for merged in merged_passes:
-        receipt = extract_ml(merged)
-        if receipt is not None and receipt.checksum_ok:
-            return LOCAL_ML, receipt
-    if use_dp:
-        for merged in merged_passes:
-            receipt = extract_constrained(merged)
-            if receipt is not None and receipt.checksum_ok:
-                return LOCAL_DP, receipt
-    if use_roles:
-        for lines, merged in zip(passes, merged_passes):
-            receipt = extract_roles(merged, predicted_roles(lines))
-            if receipt is not None and receipt.checksum_ok:
-                return LOCAL_ROLES, receipt
-    return None
-
-
-def _receipt_of_stage(
-    stage: str, local: ExtractedReceipt, retry: ExtractedReceipt | None
-) -> ExtractedReceipt:
-    """Le ticket dont la décision a retenu les articles — `decide` ne rend que
-    des montants, les libellés se reprennent à la source."""
-    if stage == LOCAL_RETRY and retry is not None:
-        return retry
-    if stage == CONFIRM and retry is not None:
-        return retry
-    return local
-
-
-def _decide_pass(
-    local: ExtractedReceipt,
-    retry: ExtractedReceipt | None,
-    rescue_passes: list[list[PhysicalLine]],
-    use_ml: bool,
-    use_dp: bool,
-    use_roles: bool = True,
-) -> LocalOutcome:
-    outcome = decide(local, retry, None, None, POLICY)
-    if outcome.stage != CONFIRM or not use_ml:
-        receipt = _receipt_of_stage(outcome.stage, local, retry)
-        return LocalOutcome(outcome.stage, receipt.items, outcome.total)
-    rescued = classifier_rescue(rescue_passes, use_dp=use_dp, use_roles=use_roles)
-    if rescued is None:
-        receipt = _receipt_of_stage(CONFIRM, local, retry)
-        return LocalOutcome(CONFIRM, receipt.items, outcome.total)
-    stage, receipt = rescued
-    return LocalOutcome(stage, receipt.items, receipt.verified_total)
-
-
-def fused_rescue(passes: list[list[PhysicalLine]]) -> ExtractedReceipt | None:
-    """Dernier étage gratuit : les deux passes fusionnées ligne à ligne, le
-    décodeur arbitrant les montants qui diffèrent. Sortie re-checksummée."""
-    fused = fuse_passes(passes[0], passes[1])
-    merged = [merge_price_fragments(line) for line in fused.lines]
-    receipt = extract_constrained(merged, alternatives=fused.alternatives)
-    if receipt is not None and receipt.checksum_ok:
-        return receipt
-    return None
-
-
-def decide_local(
-    dump: dict,
-    use_ml: bool = True,
-    use_dp: bool = True,
-    use_roles: bool = True,
-) -> LocalOutcome:
-    passes = _passes(dump)
-    local = extract(passes[0])
-    outcome = _decide_pass(local, None, [passes[0]], use_ml, use_dp, use_roles)
-    if outcome.verified or len(passes) < 2:
-        return outcome
-    outcome = _decide_pass(
-        local, extract(passes[1]), [passes[1]], use_ml, use_dp, use_roles
+def read(source: Source):
+    """Le reçu que cette lecture prouve, ou rien."""
+    receipt = extract_role_constrained(
+        source.merged, alternatives=source.alternatives, role_probas=source.roles
     )
-    if outcome.verified or not (use_ml and use_dp):
-        return outcome
-    receipt = fused_rescue(passes)
-    if receipt is None:
-        return outcome
-    return LocalOutcome(LOCAL_FUSED, receipt.items, receipt.verified_total)
+    return receipt if receipt is not None and receipt.checksum_ok else None
+
+
+def _unverified(source: Source) -> LocalOutcome:
+    """Ce qu'on affiche quand aucune somme n'est prouvée : l'argmax du tagger,
+    tel quel. Il pré-remplit l'écran de confirmation — et n'est jamais badgé
+    vérifié."""
+    receipt = extract_roles(source.merged, predicted_roles(source.lines))
+    return LocalOutcome(
+        CONFIRM,
+        receipt.items if receipt is not None else [],
+        receipt.total if receipt is not None else None,
+        source.lines,
+    )
+
+
+def decide_local(dump: dict) -> LocalOutcome:
+    last = None
+    for source in sources(dump):
+        last = source
+        receipt = read(source)
+        if receipt is not None:
+            return LocalOutcome(
+                source.name, receipt.items, receipt.verified_total, source.lines
+            )
+    return (
+        _unverified(last) if last is not None else LocalOutcome(CONFIRM, [], None, [])
+    )

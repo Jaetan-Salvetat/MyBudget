@@ -18,7 +18,7 @@ from collections import Counter
 from annotate import record
 from annotate.schema import DISCOUNT, ITEM
 from annotate.validate import rejection
-from bench.flow import count_edits
+from bench.scoring import count_edits
 from paths import ANNOTATIONS_DIR, GOLDEN_DIR
 
 SPLIT_DIRS = {"t1train": "T1-train", "t1test": "T1-test"}

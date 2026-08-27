@@ -8,6 +8,8 @@ pas prédits, pour que le test ne mesure que la mise en reçu.
 
 from __future__ import annotations
 
+from test_structure import receipt_lines
+
 from annotate.schema import (
     DISCOUNT,
     FOOTER,
@@ -21,8 +23,6 @@ from annotate.schema import (
 )
 from reference.structure import merge_price_fragments
 from reference.structure_roles import extract_roles
-
-from test_structure import receipt_lines
 
 
 def receipt_of(rows, roles):

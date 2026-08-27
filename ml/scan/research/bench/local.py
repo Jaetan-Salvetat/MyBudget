@@ -21,11 +21,11 @@ import sys
 from pathlib import Path
 
 from bench.device_flow import load_tickets
-from bench.flow import StageStats, TicketRun, count_edits
+from bench.scoring import StageStats, TicketRun, count_edits
 from paths import RESULTS_DIR
-from reference.local_flow import VERIFIED_STAGES, decide_local
+from reference.local_flow import VERIFIED_SOURCES, decide_local
 
-LOCAL_STAGES = VERIFIED_STAGES
+LOCAL_STAGES = VERIFIED_SOURCES
 USE_DP = "--no-dp" not in sys.argv
 
 

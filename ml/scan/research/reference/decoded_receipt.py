@@ -1,22 +1,19 @@
-"""Structuration par classifieur de lignes — second avis gated checksum.
+"""Le reçu que décrit un étiquetage de lignes.
 
-Le modèle n'étiquette que les lignes porteuses de prix (article / remise /
-total / paiement / ignorer) ; les montants sont recopiés de l'OCR, les noms
-suivent la même mécanique de libellé que les règles. Toute sortie repasse
-par le checksum : le classifieur ne peut que sauver des tickets flagués,
-jamais en corrompre un validé.
+Le décodeur rend une étiquette par ligne chiffrée — article, remise,
+référence, paiement, ignoré. Ce module en fait un reçu : les montants sont
+**recopiés de l'OCR**, jamais recalculés, et un prix négatif est toujours une
+remise quel que soit son étiquette, parce qu'un article ne peut pas l'être.
+
+C'est tout ce qui reste de `structure_ml.py`, qui portait aussi le
+classifieur de lignes V2 et sa structuration — mesurés sans effet sur le
+nombre de tickets justes, supprimés.
 """
 
 from __future__ import annotations
 
-import joblib
-import numpy as np
-
-from paths import MODELS_DIR
-from reference.invariants import Constraints, constraints
 from reference.line_features import PricedLine
-from reference.line_features_v3 import featurize
-from reference.line_labels import DISCOUNT, IGNORE, ITEM, PAYMENT, TOTAL
+from reference.line_labels import DISCOUNT, ITEM, PAYMENT, TOTAL
 from reference.lines import PhysicalLine
 from reference.structure import (
     ExtractedItem,
@@ -27,21 +24,6 @@ from reference.structure import (
     _label_zone,
     _plausible_label,
 )
-
-# Sans numéro de version : la version d'un classifieur est celle de sa
-# release (`tool/line_classifier/lock.env`), pas celle du fichier de travail.
-MODEL_PATH = MODELS_DIR / "line_clf.joblib"
-
-_model = None
-
-
-def load_classifier():
-    """(modèle, featurizer) — les deux doivent toujours venir du même
-    artefact, sinon les colonnes de features se décalent en silence."""
-    global _model
-    if _model is None:
-        _model = joblib.load(MODEL_PATH)
-    return _model, featurize
 
 
 def _pending_labels(
@@ -77,11 +59,7 @@ def receipt_from_labels(
             label = DISCOUNT
         if label == ITEM:
             zone = _label_zone(priced.line, label_column).strip()
-            name = (
-                _plausible_label(zone)
-                or pending_by_index[priced.index]
-                or zone
-            )
+            name = _plausible_label(zone) or pending_by_index[priced.index] or zone
             items.append(
                 ExtractedItem(
                     name=_clean_name(name),
@@ -126,26 +104,3 @@ def single_item_receipt(merged: list[PhysicalLine], total: float) -> ExtractedRe
             ExtractedItem(name=_clean_name(store or ""), amount=total, discount=0.0)
         ],
     )
-
-
-def constrained_labels(labels: list[int], structure: Constraints) -> list[int]:
-    """Applique les invariants structurels à un étiquetage argmax : une ligne
-    exclue est ignorée, un total hors des rangs éligibles aussi."""
-    return [
-        IGNORE
-        if rank in structure.forced_ignore
-        or (label == TOTAL and rank not in structure.reference_ranks)
-        or (label == ITEM and rank in structure.soft_ignore)
-        else label
-        for rank, label in enumerate(labels)
-    ]
-
-
-def extract_ml(merged: list[PhysicalLine]) -> ExtractedReceipt | None:
-    model, featurize = load_classifier()
-    lines, rows = featurize(merged)
-    if not lines:
-        return None
-    predictions = [int(p) for p in model.predict(np.array(rows))]
-    labels = constrained_labels(predictions, constraints(lines))
-    return receipt_from_labels(merged, lines, labels)

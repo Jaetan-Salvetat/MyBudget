@@ -42,6 +42,35 @@ cette même ligne, en valeur absolue. Sinon omets le champ.
 Si une ligne `item` a son libellé sur une autre ligne, donne `label_index`
 : le numéro de cette ligne. Sinon omets le champ.
 
+Pour chaque ligne `item`, donne aussi `name` : les mots qui NOMMENT le
+produit, pris sur cette ligne — ou sur la ligne `label_index` quand le
+libellé est ailleurs.
+
+RECOPIE-LES EXACTEMENT tels que l'OCR les a rendus, même abîmés
+(« 120GENV » reste « 120GENV »). Ne corrige rien, ne complète rien, ne
+réordonne rien, ne change pas la casse. Ce sont des mots CONSÉCUTIFS de la
+ligne, et rien d'autre : cette valeur sert à retrouver leur position, une
+correction la rendrait introuvable. Si aucun mot de la ligne ne nomme le
+produit, mets null.
+
+N'appartiennent PAS au nom : le prix, un prix unitaire, une quantité, un
+code article ou de rayon (« 583877 », « SANDW 6015 »), une pesée
+(« 0,335kg*4,35€/kg »), un code TVA isolé en fin de ligne.
+
+Quand le nombre d'unités est imprimé (« 3 X 1,33 », « 2x », un « 1 » en tête
+de ligne), donne-le dans `quantity` — jamais dans `name`. Sinon omets le
+champ.
+
+Quand le conditionnement est imprimé (« 250G », « 1L », « 33CL », « 6X100G »,
+« 1/2 », « 1KG »), donne-le dans `size` — jamais dans `name`. Le nom est le
+produit, son format est un champ : « *230G WASA FIBRES » donne `name`
+« WASA FIBRES » et `size` « 230G » ; « BAGUETTE 250G » donne `name`
+« BAGUETTE » et `size` « 250G ». Recopie le conditionnement tel qu'il est
+imprimé, sans l'astérisque ni le code qui le précède. Sinon omets le champ.
+
+Un POURCENTAGE n'est pas un conditionnement : il décrit le produit et reste
+dans le nom (« CHOC NOIR 74% », « EMMENTAL 29% TRANCHES », « CREME 30%MG »).
+
 Règles importantes :
 - `store` est la ligne qui porte le NOM de l'enseigne (celui du logo), une
   seule par ticket ; un slogan (« Burger Restaurant »), une adresse ou une
@@ -57,7 +86,9 @@ Règles importantes :
 - tout ce qui suit le total et les moyens de paiement est `footer`.
 
 Réponds UNIQUEMENT avec un objet JSON :
-{{"lines": [{{"index": 0, "role": "header", "amount": null}}, ...],
+{{"lines": [{{"index": 0, "role": "header", "amount": null}},
+            {{"index": 4, "role": "item", "amount": 2.5, "name": "PAIN CEREALES",
+              "quantity": 1, "size": "400G"}}, ...],
   "store": "<enseigne lisible ou null>",
   "date": "<AAAA-MM-JJ ou null>"}}
 Une entrée par ligne numérotée, dans l'ordre, sans en omettre aucune."""

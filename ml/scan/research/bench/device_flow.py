@@ -22,9 +22,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from bench.flow import StageStats, TicketRun, count_edits
+from bench.scoring import StageStats, TicketRun, count_edits
 from paths import GOLDEN_DIR, RESULTS_DIR
-from reference.local_flow import CONFIRM, VERIFIED_STAGES, decide_local
+from reference.local_flow import CONFIRM, VERIFIED_SOURCES, decide_local
 from reference.structure import extract_from_result
 
 GOLDEN_DIRS = {
@@ -157,7 +157,7 @@ def _device_outcome(
 
 
 def score(tickets: list[DeviceTicket]) -> None:
-    stats = {stage: StageStats() for stage in [*VERIFIED_STAGES, CONFIRM]}
+    stats = {stage: StageStats() for stage in [*VERIFIED_SOURCES, CONFIRM]}
     for ticket in tickets:
         stage, got, _total = _device_outcome(ticket)
         expected = [
@@ -174,12 +174,12 @@ def score(tickets: list[DeviceTicket]) -> None:
         )
 
     total = len(tickets)
-    verified = sum(stats[stage].tickets for stage in VERIFIED_STAGES)
+    verified = sum(stats[stage].tickets for stage in VERIFIED_SOURCES)
     retry_used = sum(1 for t in tickets if t.flow["retryUsed"])
-    false_accepts = [run for stage in VERIFIED_STAGES for run in stats[stage].faulty]
+    false_accepts = [run for stage in VERIFIED_SOURCES for run in stats[stage].faulty]
 
     print(f"\n=== flow on-device ({total} tickets)")
-    for stage in [*VERIFIED_STAGES, CONFIRM]:
+    for stage in [*VERIFIED_SOURCES, CONFIRM]:
         stage_stats = stats[stage]
         if not stage_stats.tickets:
             continue
@@ -208,9 +208,7 @@ def score(tickets: list[DeviceTicket]) -> None:
 
 
 def main() -> None:
-    results_dir = (
-        RESULTS_DIR / (sys.argv[1] if len(sys.argv) > 1 else "device_flow")
-    )
+    results_dir = RESULTS_DIR / (sys.argv[1] if len(sys.argv) > 1 else "device_flow")
     tickets = load_tickets(results_dir)
     if not tickets:
         print(f"aucun ticket exploitable dans {results_dir}")

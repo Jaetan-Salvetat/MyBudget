@@ -16,14 +16,18 @@ from annotate.dataset import AnnotatedReceipt, load, role_counts
 RECORD = {
     "image": "ticket.jpg",
     "lines": [
-        {"words": [
-            {"text": "PAIN", "box": [0, 0, 10, 10], "confidence": 0.9},
-            {"text": "2,50", "box": [20, 0, 30, 10], "confidence": 0.9},
-        ]},
-        {"words": [
-            {"text": "TOTAL", "box": [0, 20, 10, 30], "confidence": 0.9},
-            {"text": "2,50", "box": [20, 20, 30, 30], "confidence": 0.9},
-        ]},
+        {
+            "words": [
+                {"text": "PAIN", "box": [0, 0, 10, 10], "confidence": 0.9},
+                {"text": "2,50", "box": [20, 0, 30, 10], "confidence": 0.9},
+            ]
+        },
+        {
+            "words": [
+                {"text": "TOTAL", "box": [0, 20, 10, 30], "confidence": 0.9},
+                {"text": "2,50", "box": [20, 20, 30, 30], "confidence": 0.9},
+            ]
+        },
     ],
     "annotation": {
         "lines": [{"role": "item", "amount": 2.50}, {"role": "total", "amount": 2.50}],
@@ -66,7 +70,38 @@ def test_separe_le_jeu_reserve_a_l_evaluation(tmp_path) -> None:
 
 def test_refuse_des_sequences_desynchronisees() -> None:
     with pytest.raises(ValueError, match="longueurs différentes"):
-        AnnotatedReceipt("t", "c", [], ["item"], [1.0], [None], [None])
+        AnnotatedReceipt(
+            "t",
+            "c",
+            [],
+            ["item"],
+            [1.0],
+            [None],
+            [None],
+            [None],
+            [None],
+            [None],
+            None,
+            None,
+        )
+
+
+def test_charge_le_conditionnement(tmp_path) -> None:
+    """Le format sort du nom et devient un champ : c'est ce qui rend la
+    frontière du libellé décidable, des deux côtés."""
+    record = json.loads(json.dumps(RECORD))
+    record["annotation"]["lines"][0] |= {"name": "PAIN", "size": "400G"}
+    write(tmp_path, "mixed", "a.json", record)
+    receipt = load(root=tmp_path)[0]
+    assert receipt.names[0] == "PAIN"
+    assert receipt.sizes == ["400G", None]
+
+
+def test_un_ticket_annote_sans_conditionnement_reste_lisible(tmp_path) -> None:
+    """Le corpus déjà annoté n'a pas le champ : il se charge quand même, le
+    conditionnement simplement inconnu."""
+    write(tmp_path, "mixed", "a.json", RECORD)
+    assert load(root=tmp_path)[0].sizes == [None, None]
 
 
 def test_compte_les_roles(tmp_path) -> None:
@@ -79,9 +114,14 @@ def test_charge_la_ligne_du_libelle_rattache(tmp_path) -> None:
     """Le corpus dit quel article porte son libellé ailleurs : c'est la
     vérité du modèle de lien."""
     record = json.loads(json.dumps(RECORD))
-    record["lines"].insert(0, {"words": [
-        {"text": "PAIN", "box": [0, 0, 10, 10], "confidence": 0.9},
-    ]})
+    record["lines"].insert(
+        0,
+        {
+            "words": [
+                {"text": "PAIN", "box": [0, 0, 10, 10], "confidence": 0.9},
+            ]
+        },
+    )
     record["annotation"]["lines"] = [
         {"role": "item_label"},
         {"role": "item", "amount": 2.50, "label_index": 0},
@@ -93,9 +133,15 @@ def test_charge_la_ligne_du_libelle_rattache(tmp_path) -> None:
 
 
 def test_ignore_un_ticket_sans_ligne_lue(tmp_path) -> None:
-    write(tmp_path, "mixed", "a.json", {
-        "image": "vide.jpg", "lines": [],
-        "annotation": {"lines": [], "store": None, "date": None},
-        "provenance": RECORD["provenance"],
-    })
+    write(
+        tmp_path,
+        "mixed",
+        "a.json",
+        {
+            "image": "vide.jpg",
+            "lines": [],
+            "annotation": {"lines": [], "store": None, "date": None},
+            "provenance": RECORD["provenance"],
+        },
+    )
     assert load(root=tmp_path) == []

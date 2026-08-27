@@ -1,7 +1,7 @@
 """La métrique produit : un ticket est bon, ou il ne l'est pas — et toutes les
 erreurs ne se valent pas.
 
-`count_edits` (bench/flow.py) compte des montants et ignore tout le reste. Il
+`count_edits` (bench/scoring.py) compte des montants et ignore tout le reste. Il
 mesure ce que le checksum protège — la somme — et c'est son rôle. Mais
 l'utilisateur ne voit pas une somme : il voit une enseigne, une date, et une
 liste d'articles nommés. Une extraction dont les montants sont justes et les
@@ -48,6 +48,17 @@ AMOUNT = "montant"
 STORE = "enseigne"
 DATE = "date"
 TOTAL = "total"
+
+# Le nom attendu, plus quelque chose : un calibre, un code de TVA, un préfixe
+# d'enseigne. Ce n'est pas juste — le nom doit être le nom — mais ce n'est pas
+# silencieux non plus : l'utilisateur a le bon produit sous les yeux et la
+# catégorisation reçoit le bon produit. Rien ne lui est caché, donc il n'a rien
+# à relire, et c'est ce que `SILENT` mesure.
+#
+# L'inclusion inverse n'en est pas : un nom rogné (« YAOURT » pour « YAOURT
+# MYRTILLE ») peut désigner un autre produit de la même famille, et rien ne
+# permet de s'en apercevoir. Elle reste un libellé faux.
+WIDE = "libellé large"
 
 
 @dataclass(frozen=True)
@@ -120,6 +131,21 @@ def name_matches(extracted: str, expected: str) -> bool:
     return _similar(left, right, NAME_SIMILARITY_THRESHOLD)
 
 
+def name_widens(extracted: str, expected: str) -> bool:
+    """Le nom rendu porte tout le nom attendu, et davantage.
+
+    L'inclusion se juge sur des **mots entiers** : « WASA FIBRE » ne contient
+    pas « WASA FIBRES », et laisser passer un préfixe ferait de tout nom
+    tronqué un nom large."""
+    left, right = normalize_name(extracted).split(), normalize_name(expected).split()
+    if not left or not right or len(left) <= len(right):
+        return False
+    return any(
+        left[start : start + len(right)] == right
+        for start in range(len(left) - len(right) + 1)
+    )
+
+
 def store_matches(extracted: str | None, expected: str | None) -> bool:
     """L'enseigne est lue sur un logo déformé et le golden la nomme
     proprement (« city » pour « CARREFOUR CITY ») : on accepte qu'un nom soit
@@ -164,13 +190,32 @@ def compare_items(
     Un article apparié par son montant mais pas par son nom est un **libellé
     faux** : la somme tombe juste et rien ne se voit. Apparié par son nom mais
     pas par son montant, c'est un **montant faux** : le nom désigne la ligne à
-    relire."""
+    relire.
+
+    Entre les deux passes de nom, celle des noms **larges** : le nom attendu y
+    est tout entier, avec un calibre ou un code en plus. Elle passe avant
+    l'appariement au montant seul, sinon deux articles au même prix se
+    voleraient leur nom et fabriqueraient deux libellés faux là où il n'y a
+    qu'un nom trop large."""
     left, right = list(extracted), list(expected)
-    _take(left, right, lambda a, b: abs(a.net - b.net) < AMOUNT_EPSILON
-          and name_matches(a.name, b.name))
+    _take(
+        left,
+        right,
+        lambda a, b: (
+            abs(a.net - b.net) < AMOUNT_EPSILON and name_matches(a.name, b.name)
+        ),
+    )
+    wide = _take(
+        left,
+        right,
+        lambda a, b: (
+            abs(a.net - b.net) < AMOUNT_EPSILON and name_widens(a.name, b.name)
+        ),
+    )
     labels = _take(left, right, lambda a, b: abs(a.net - b.net) < AMOUNT_EPSILON)
     amounts = _take(left, right, lambda a, b: name_matches(a.name, b.name))
     return [
+        *[WIDE] * wide,
         *[LABEL] * labels,
         *[AMOUNT] * amounts,
         *[EXTRA] * len(left),
@@ -210,5 +255,7 @@ def receipt_exactness(
     counts: dict[str, int] = {}
     for verdict in verdicts:
         counts[verdict] = counts.get(verdict, 0) + 1
-    wrong.extend(name for name in (LABEL, AMOUNT, EXTRA, MISSING) if name in counts)
+    wrong.extend(
+        name for name in (LABEL, WIDE, AMOUNT, EXTRA, MISSING) if name in counts
+    )
     return Exactness(wrong=wrong, counts=counts)

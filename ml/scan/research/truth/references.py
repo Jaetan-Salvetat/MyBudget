@@ -13,7 +13,6 @@ Aucune n'est réputée juste : `truth.golden` ne retient que celle qui boucle.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from annotate.schema import DISCOUNT, ITEM, ITEM_LABEL, TOTAL
 from paths import DATA_DIR, FINDIT_DIR
@@ -56,18 +55,21 @@ def receipt_from_annotation(record: dict) -> dict | None:
     items: list[dict] = []
     total: float | None = None
     pending: str | None = None
-    for row in annotation["lines"]:
+    for index, row in enumerate(annotation["lines"]):
         role, amount = row["role"], row.get("amount")
         if role == ITEM_LABEL:
-            pending = _label_of_line(lines[row["index"]])
+            pending = _label_of_line(lines[index])
             continue
         if role == ITEM:
             if amount is not None:
                 target = row.get("label_index")
-                named = (
+                # Le nom annoté prime : il est recopié des mots de la ligne,
+                # là où `_label_of_line` redécoupe la ligne par une règle —
+                # et c'est précisément ce découpage qu'on veut juger.
+                named = row.get("name") or (
                     _label_of_line(lines[target])
                     if target is not None and 0 <= target < len(lines)
-                    else pending or _label_of_line(lines[row["index"]])
+                    else pending or _label_of_line(lines[index])
                 )
                 items.append(
                     {
