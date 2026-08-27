@@ -14,7 +14,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from llm.gemini import call_gemini
+from llm.gemini import CALL_ERRORS, call_gemini
 from llm.structure import parse_llm_receipt
 from paths import CORPUS_DIR, RESULTS_DIR
 from truth.selection import truth_backed_receipts
@@ -38,7 +38,7 @@ def _process(entry, api_key: str) -> str | None:
         return None
     try:
         raw = call_gemini(_image_path(name), api_key)
-    except Exception as error:
+    except CALL_ERRORS as error:
         return f"FAIL {name}: {error}"
     cache_file.write_text(json.dumps(raw, ensure_ascii=False))
     return None

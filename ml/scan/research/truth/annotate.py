@@ -13,10 +13,10 @@ import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date
+from datetime import UTC, datetime
 from pathlib import Path
 
-from llm.gemini import MODEL, call_gemini
+from llm.gemini import CALL_ERRORS, MODEL, call_gemini
 from llm.structure import parse_llm_receipt
 from paths import FINDIT_DIR, GOLDEN_DIR, RESULTS_DIR
 from truth.transcript import extract_from_transcript
@@ -62,13 +62,13 @@ def _annotate_one(entry: tuple[str, str], api_key: str) -> str | None:
         image = FINDIT_DIR / split / "img" / f"{doc_id}.jpg"
         try:
             annotation = call_gemini(image, api_key)
-        except Exception as error:
+        except CALL_ERRORS as error:
             return f"FAIL {split}/{doc_id}: {error}"
         provenance = "api"
     record = {
         "source": f"raw/findit/{split}/img/{doc_id}.jpg",
         "annotator": MODEL,
-        "annotated_on": date.today().isoformat(),
+        "annotated_on": datetime.now(UTC).date().isoformat(),
         "provenance": provenance,
         "transcript_agrees": _cross_check(split, doc_id, annotation),
         "receipt": annotation,

@@ -9,30 +9,33 @@ La catégorisation (BERT) est hors scope de cette étude.
 **Décision produit : le scan est LOCAL ou CLOUD, réglage exclusif — jamais
 d'escalade automatique.** Le mode cloud (flow VLM existant) ne bouge pas ;
 tout ce dossier vise le mode local, qui doit être l'option recommandée
-(cible ~99 % de validation directe sur tickets frais). Architecture du mode
-local, chaque étage mesuré :
+(cible ~99 % de validation directe sur tickets frais).
+
+> **La cascade d'étages décrite dans les sections datées de ce README a été
+> retirée** — voir « La cascade ne fabriquait pas de la fiabilité, mais de la
+> confiance ». La référence Python (`reference/local_flow.py`) n'a plus qu'un
+> étiqueteur et un décodeur ; les sections antérieures restent pour la trace
+> des mesures qui ont mené là, pas comme description du flow courant.
+
+Architecture du mode local :
 
 ```
-photo → ML Kit → déskew + clustering → règles → checksum OK → validation directe
-                          │ échec ↓
-                          prétraitement + 2e OCR → règles → checksum (garde-fou)
-                          │ échec ↓
-                          classifieur de lignes (V2) → re-checksum
-                          │ échec ↓
-                          décodage sous contrainte → re-checksum
-                          │ échec ↓
-                          tagger de rôles → re-checksum
-                          │ échec ↓
+photo → ML Kit → déskew + clustering → tagger de rôles sur TOUTES les lignes
+                          ↓
+        décodage sous contrainte : l'étiquetage le plus probable dont
+        Σ(articles − remises) tombe au centime sur une référence imprimée
+                          ↓                          │ rien ne prouve la somme ↓
+                     vérifié              prétraitement + 2e OCR, puis fusion
+                                                     │ échec ↓
                           écran de confirmation pré-rempli (échec DÉTECTÉ, jamais silencieux)
 ```
 
-- **Règles** : géométrie + lexiques, 0 invention structurelle, ~0,4 s.
-- **Classifieur de lignes (V2, actif)** : second avis gated par checksum —
-  étiquette les lignes porteuses de prix (article/remise/total/paiement/
-  bruit), montants recopiés de l'OCR, hallucination impossible. Il ne peut
-  que sauver des tickets flagués, jamais corrompre un validé.
+- **Tagger de rôles** : quatorze rôles, toutes les lignes, montants recopiés
+  de l'OCR — hallucination structurellement impossible.
+- **Règles** : hors du flow. Elles ne servent plus qu'à construire la vérité
+  depuis la transcription officielle FindIt.
 - Éliminé par les données : OCR à entraîner, modèle end-to-end image→JSON
-  embarqué, LLM génératif on-device (voir benchmark plus bas).
+  embarqué, LLM génératif on-device, et la cascade elle-même.
 
 Mesures sur 120 tickets synthétiques français (ground truth exact) + 7 tickets
 réels, exécutées sur Pixel 8 Pro et émulateur (sorties identiques) :
@@ -176,12 +179,14 @@ Décisions de calibration issues du bench :
 - Écartés par les données : tolérance 2 centimes, exemption colonne des
   prix négatifs, cross-check de totaux.
 
-## Classifieur de lignes V2 (2026-08-24, actif)
+## Classifieur de lignes V2 (2026-08-24, retiré du flow)
 
-`research/reference/line_features.py` (32 features déterministes par ligne porteuse
-de prix : géométrie, lexiques, contexte ±1 ligne — portables en Dart) +
-`research/line_classifier/train.py` (HistGradientBoosting) +
-`research/reference/structure_ml.py` (structuration depuis les labels, re-checksum).
+**Remplacé par le tagger de rôles** ; `line_classifier/train.py`,
+`reference/structure_ml.py` et les features V2/V3 n'existent plus côté Python.
+Section conservée pour la leçon d'étiquetage ci-dessous, qui a servi au tagger.
+
+Il s'appuyait sur 32 features déterministes par ligne porteuse de prix
+(géométrie, lexiques, contexte ±1 ligne) et un HistGradientBoosting.
 
 - **98,7 % d'accuracy lignes sur T1-test** ; +53 tickets sauvés sur 1000
   (+25 sur T1-test jamais vu à l'entraînement → généralise).
@@ -1486,14 +1491,15 @@ ml/scan/
 ├── research/            # la recherche, en Python
 │   ├── reference/       #   le pipeline de référence — tout ce qui a un miroir Dart
 │   ├── truth/           #   vérité terrain : transcriptions, rôles de ligne, golden
+│   ├── annotate/        #   corpus annoté par VLM : prompt, appel, schéma, filtre
 │   ├── corpus/          #   génération du synthétique, reconstruction des sélections
-│   ├── line_classifier/ #   entraînement et export du classifieur de lignes
-│   ├── llm/             #   LLM/VLM comme annotateur : structuration, client Gemini
-│   ├── bench/           #   la mesure : parité, scoring, diagnostics, benchmarks
-│   ├── models/          #   artefacts du classifieur de lignes (versionnés)
+│   ├── line_classifier/ #   entraînement et export des modèles (rôles, lien, span)
+│   ├── llm/             #   VLM comme annotateur : contrat JSON, client Gemini
+│   ├── ocr/             #   OCR Mac (Apple Vision) pour diagnostiquer hors device
+│   ├── bench/           #   la mesure : parité, diagnostics, benchmarks
+│   ├── models/          #   artefacts entraînés (non versionnés)
 │   └── tests/           #   invariants du pipeline de référence
 ├── pipeline/            # package Dart receipt_pipeline — le portage livré
-├── harness/             # banc Flutter on-device
 └── data/                # corpus, datasets, dumps OCR (gitignoré sauf golden/)
 ```
 
@@ -1501,42 +1507,41 @@ ml/scan/
 module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
 échoue à la moindre divergence.
 
-- **`research/reference/`** — reconstruction des lignes (`lines.py`),
-  structuration par les règles (`structure.py`) et par les rôles
-  (`structure_roles.py`), invariants structurels (`invariants.py`),
-  fusion des passes (`fuse_passes.py`), décodage sous contrainte checksum
-  (`decode_constrained.py`), features du classifieur (`line_features.py`,
-  `line_features_v3.py`) et contrat de classes (`line_labels.py`),
-  structuration par classifieur (`structure_ml.py`), features par mot et
-  découpage du libellé (`word_features.py`, `spans_ml.py`), politique de flow
-  (`flow.py`, `local_flow.py`).
+- **`research/reference/`** — reconstruction des lignes (`lines.py`), le flow
+  local (`local_flow.py`), tagger de rôles (`header_ml.py`) et décodage sous
+  contrainte de ses probabilités (`decode_roles.py`, `decode_constrained.py`,
+  `decoded_receipt.py`, `line_labels.py`), structuration par les rôles
+  (`structure_roles.py`), fusion des passes (`fuse_passes.py`), invariants
+  structurels (`invariants.py`), lien et découpage du libellé
+  (`word_features.py`, `spans_ml.py`, `labels_ml.py`), répertoire d'enseignes
+  (`store_gazetteer.py`), règles hors flow (`structure.py`).
 - **`research/bench/`** — bench du mode local rejoué des dumps (`local.py`,
   l'instrument central), taxonomie des échecs (`failures.py`), diagnostics
-  (`diagnose.py`), scoring d'un run device (`device_flow.py`), scoring
-  synthétique (`score.py`), parité Dart↔Python (`parity.py`), bench
-  multi-étages historique (`flow.py`), récupérabilité de la vérité au niveau
-  du mot (`word_truth.py`), benchmarks LLM/VLM (`gemma.py`, `gemini.py`,
-  `capacity.py`).
-- **`research/annotate/`** — schéma et filtre du corpus annoté, prompt
-  d'annotation, découpe du conditionnement hors du nom (`split_size.py`).
+  (`diagnose.py`), scoring d'un run device (`device_flow.py`), comparaison
+  des variantes de flow (`flows.py`), tranche d'évaluation réservée
+  (`held_out.py`), exactitude stricte (`exactness.py`), parité Dart↔Python
+  (`parity.py`, `roles_parity.py`), plafond VLM cloud (`gemini.py`), OCR Mac
+  sur une image (`scan_image.py`, `photos.py`, `vision_local.py`),
+  récupérabilité de la vérité au niveau du mot (`word_truth.py`).
+- **`research/annotate/`** — prompt et appel du VLM annotateur (`prompt.py`,
+  `client.py`, `run.py`), schéma et filtre du corpus (`schema.py`,
+  `validate.py`, `record.py`, `dataset.py`), confrontation au golden
+  (`audit.py`), découpe du conditionnement hors du nom (`split_size.py`).
 - **`research/truth/`** — vérité depuis les transcriptions (`transcript.py`),
   rôle réel de chaque ligne (`roles.py`), mots qui composent un libellé
   (`spans.py`), vérité en mots sans ligne construite (`words.py`), sélection
-  des tickets à vérité fiable (`selection.py`), construction du golden
-  (`annotate.py`).
+  des tickets à vérité fiable (`selection.py`), construction et santé du
+  golden (`annotate.py`, `golden.py`, `audit_golden.py`, `references.py`).
 - **`research/corpus/`** — générateur synthétique (`content.py`, `render.py`,
-  `generate.py`), reconstruction des sélections (`rebuild.py`).
+  `generate.py`), reconstruction des sélections (`rebuild.py`), archivage
+  d'Open Prices (`open_prices.py`).
 - **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,
-  line_features, classifier, decode, flow, sérialisation) + tests +
-  `tool/parity.dart`.
-- **`harness/`** — banc Flutter on-device : mode « Suite complète » (flow
-  local sur images poussées via `adb push` dans `files/input/`, prioritaire
-  sur `assets/corpus/` ; `adb pull` de `files/results/`) et mode « Scanner
-  un ticket » (caméra).
+  role_tagger, decode, flow, label_link, label_span, store_gazetteer,
+  sérialisation) + tests + outils de parité (`tool/*.dart`).
 - **`data/golden/`** — golden dataset **versionné** : 1000 annotations JSON.
   `data/raw/findit/` (dataset Find it!), `data/corpus/` (synthétique et
-  sélections d'images), `data/results/` (sorties OCR par device, caches LLM)
-  sont gitignorés.
+  sélections d'images), `data/annotations/` (corpus annoté),
+  `data/results/` (sorties OCR par device, caches VLM) sont gitignorés.
 - **`VERIFICATION.md`** — spec d'implémentation app du système de vérification.
 
 ## Datasets : sources et reconstruction
@@ -1570,6 +1575,12 @@ Les sélections dérivées (`selection_fr`, `selection_fr_big`) se
 reconstruisent à l'identique via `research/corpus/rebuild.py` (mêmes ids,
 mêmes noms de fichiers → caches et benchs restent comparables).
 
-Reproduire les mesures : l'OCR device se relance en poussant les images dans
-`files/input/` du harnais (`adb push`), les benchs se rejouent gratuitement
-depuis les caches de `data/results/` et le golden.
+Reproduire les mesures : les benchs se rejouent gratuitement depuis les
+caches de `data/results/` et le golden.
+
+**Le harnais Flutter on-device qui produisait ces dumps n'existe plus** (il a
+été supprimé lors de la réorganisation de `ml/`). `data/results/device_flow`
+— 1000 dumps OCR, l'entrée de `bench/local.py` — est donc un artefact figé
+et gitignoré : sans lui, aucun bench du mode local ne tourne, et rien dans
+le dépôt ne sait le régénérer. À réoutiller avant toute reprise de la
+mesure device.

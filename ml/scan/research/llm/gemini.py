@@ -33,6 +33,13 @@ Règles :
 - Ne recopie que des montants imprimés, n'invente jamais un chiffre."""
 
 
+# Ce que `call_gemini` peut lever et qu'un appelant en lot doit rattraper pour
+# rapporter le ticket en échec sans perdre les autres : image illisible ou
+# réseau (OSError), corps non-JSON ou tronqué (ValueError), réponse bien
+# formée mais sans le champ attendu (KeyError). Tout le reste est un bug.
+CALL_ERRORS = (OSError, ValueError, KeyError)
+
+
 def call_gemini(image_path: Path, api_key: str) -> dict:
     encoded = base64.b64encode(image_path.read_bytes()).decode()
     payload = {

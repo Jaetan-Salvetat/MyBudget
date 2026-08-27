@@ -79,3 +79,8 @@ ml/scan/harness/assets/corpus/
 # Artefacts d'entrainement du scan : regeneres par line_classifier.train*,
 # livres a l'app en release (tool/models/)
 ml/scan/research/models/
+
+# Dart pipeline (ml/scan) build artefacts
+ml/scan/pipeline/build/
+ml/scan/research/.pytest_cache/
+ml/scan/research/.ruff_cache/
