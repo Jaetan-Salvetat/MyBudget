@@ -1,183 +1,131 @@
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:test/test.dart';
 
-ExtractedReceipt receipt(List<double> amounts, double? total) {
-  return ExtractedReceipt(
-    store: null,
-    date: null,
-    total: total,
-    subtotal: null,
-    payment: null,
-    items: [
-      for (final (index, amount) in amounts.indexed)
-        ExtractedItem(name: 'ART$index', amount: amount, discount: 0.0),
-    ],
-  );
-}
+import 'support.dart';
 
-List<(double, double)> amounts(FlowOutcome outcome) => [
+/// Un tagger de rôles parfait : chaque ligne reçoit le rôle qu'on lui donne,
+/// à probabilité 1. Le flow ne connaît que cette signature, donc sa politique
+/// de lecture se teste sans embarquer de modèle.
+RoleInference tagger(List<String> roles) => (lines) => [
+  for (final (index, _) in lines.indexed)
+    [
+      for (final name in roleNames)
+        name == (index < roles.length ? roles[index] : 'noise') ? 1.0 : 0.0,
+    ],
+];
+
+const List<String> itemItemTotal = ['item', 'item', 'total'];
+
+List<PhysicalLine> receipt(String first, String second, String total) =>
+    receiptLines([
+      [('PAIN', 0), (first, 20)],
+      [('LAIT', 0), (second, 20)],
+      [('TOTAL', 0), (total, 20)],
+    ]);
+
+List<(double, double)> amounts(LocalOutcome outcome) => [
   for (final item in outcome.items) (item.amount, item.discount),
 ];
 
-const strict = FlowPolicy();
-
 void main() {
-  group('local stages', () {
-    test('local checksum ok is verified', () {
-      final outcome = decide(receipt([2.0, 3.0], 5.0), null, strict);
-      expect(outcome.stage, FlowStage.local);
+  group('la passe 1 suffit', () {
+    test('une somme prouvée est vérifiée', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '5,00'),
+        tagger(itemItemTotal),
+      );
+      expect(outcome.source, ReadSource.pass1);
       expect(outcome.verified, isTrue);
+      expect(outcome.total, 5.0);
       expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
     });
 
-    test('retry rescues failed first pass', () {
-      final outcome = decide(
-        receipt([2.0], 5.0),
-        receipt([2.0, 3.0], 5.0),
-        strict,
-      );
-      expect(outcome.stage, FlowStage.localRetry);
-    });
-
-    test('confirm prefills with retry when tried', () {
-      final outcome = decide(
-        receipt([2.0], 9.0),
-        receipt([2.0, 3.0], 10.0),
-        strict,
-      );
-      expect(outcome.stage, FlowStage.confirm);
-      expect(outcome.verified, isFalse);
-      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
-    });
-
-    test('confirm prefills with local without retry', () {
-      final outcome = decide(receipt([2.0], 9.0), null, strict);
-      expect(outcome.stage, FlowStage.confirm);
-      expect(amounts(outcome), [(2.0, 0.0)]);
-    });
-  });
-
-  group('retry value guard', () {
-    const policy = FlowPolicy(retryMustNotLoseValue: true);
-
-    test('retry losing value goes to confirm', () {
-      final outcome = decide(
-        receipt([7.05, 5.5, 9.9], 9.9),
-        receipt([7.05, 5.5], 12.55),
-        policy,
-      );
-      expect(outcome.stage, FlowStage.confirm);
-    });
-
-    test('retry with equal value still validates', () {
-      final outcome = decide(
-        receipt([2.0, 3.0], 6.0),
-        receipt([2.0, 3.0], 5.0),
-        policy,
-      );
-      expect(outcome.stage, FlowStage.localRetry);
-    });
-
-    test('guard off keeps previous behaviour', () {
-      final outcome = decide(
-        receipt([7.05, 5.5, 9.9], 9.9),
-        receipt([7.05, 5.5], 12.55),
-        strict,
-      );
-      expect(outcome.stage, FlowStage.localRetry);
-    });
-  });
-
-  group('rescue', () {
-    test('rescue is not consulted when rules verify', () {
-      var called = false;
-      decide(
-        receipt([2.0], 2.0),
-        null,
-        strict,
-        rescue: () {
-          called = true;
-          return null;
+    test('la seconde lecture n\'est pas demandée', () async {
+      var asked = false;
+      await decideLocal(
+        receipt('2,00', '3,00', '5,00'),
+        tagger(itemItemTotal),
+        secondPass: () async {
+          asked = true;
+          return receipt('2,00', '3,00', '5,00');
         },
       );
-      expect(called, isFalse);
+      expect(asked, isFalse);
     });
+  });
 
-    test('rescue outcome is used when rules fail', () {
-      final outcome = decide(
-        receipt([2.0], 9.0),
-        null,
-        strict,
-        rescue: () => (FlowStage.localDp, receipt([2.0, 7.0], 9.0), const []),
+  group('escalade', () {
+    test('le retry rattrape une passe 1 qui ne prouve rien', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '9,00'),
+        tagger(itemItemTotal),
+        secondPass: () async => receipt('2,00', '3,00', '5,00'),
       );
-      expect(outcome.stage, FlowStage.localDp);
+      expect(outcome.source, ReadSource.retry);
       expect(outcome.verified, isTrue);
-      expect(amounts(outcome), [(2.0, 0.0), (7.0, 0.0)]);
-    });
-
-    test('rescue returning null falls through to confirm', () {
-      final outcome = decide(
-        receipt([2.0], 9.0),
-        null,
-        strict,
-        rescue: () => null,
-      );
-      expect(outcome.stage, FlowStage.confirm);
-    });
-  });
-
-  group('retry value guard', () {
-    const guarded = FlowPolicy(retryMustNotLoseValue: true);
-
-    test('retry losing a spurious item on the same total validates', () {
-      final outcome = decide(
-        receipt([5.0, 32.49, 137.11], 142.11),
-        receipt([5.0, 137.11], 142.11),
-        guarded,
-      );
-      expect(outcome.stage, FlowStage.localRetry);
-    });
-
-    test('retry losing value on a different total goes to confirm', () {
-      final outcome = decide(
-        receipt([7.05, 5.5, 9.9], 9.9),
-        receipt([7.05, 5.5], 12.55),
-        guarded,
-      );
-      expect(outcome.stage, FlowStage.confirm);
-    });
-  });
-
-  group('verified total is displayed', () {
-    test('payment verified receipt reports the payment as total', () {
-      final local = ExtractedReceipt(
-        store: null,
-        date: null,
-        total: 9.99,
-        subtotal: null,
-        payment: 5.0,
-        items: [
-          ExtractedItem(name: 'A', amount: 2.0, discount: 0.0),
-          ExtractedItem(name: 'B', amount: 3.0, discount: 0.0),
-        ],
-        printedCount: 2,
-      );
-      final outcome = decide(local, null, strict);
-      expect(outcome.stage, FlowStage.local);
       expect(outcome.total, 5.0);
     });
 
-    test('confirm keeps the read total as prefill', () {
-      final outcome = decide(receipt([2.0], 9.0), null, strict);
-      expect(outcome.stage, FlowStage.confirm);
-      expect(outcome.total, 9.0);
+    test('la fusion rattrape ce qu\'aucune passe ne prouve seule', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,OO', '5,00'),
+        tagger(itemItemTotal),
+        secondPass: () async => receipt('2,OO', '3,00', '5,00'),
+      );
+      expect(outcome.source, ReadSource.fused);
+      expect(outcome.verified, isTrue);
+      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
     });
   });
 
-  group('stage names', () {
-    test('fused stage serializes to the python name', () {
-      expect(stageName(FlowStage.localFused), 'local_fused');
-      expect(verifiedStages, contains(FlowStage.localFused));
+  group('rien ne prouve la somme', () {
+    test('sans seconde lecture, la passe 1 pré-remplit la confirmation',
+        () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '9,00'),
+        tagger(itemItemTotal),
+      );
+      expect(outcome.source, ReadSource.confirm);
+      expect(outcome.verified, isFalse);
+      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
+      expect(outcome.total, 9.0);
     });
+
+    test('une seconde lecture impossible ne fait pas perdre la première',
+        () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '9,00'),
+        tagger(itemItemTotal),
+        secondPass: () async => null,
+      );
+      expect(outcome.source, ReadSource.confirm);
+      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
+    });
+
+    test('la confirmation part de la dernière lecture', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '9,00'),
+        tagger(itemItemTotal),
+        secondPass: () async => receipt('2,00', '4,00', '9,00'),
+      );
+      expect(outcome.source, ReadSource.confirm);
+      expect(outcome.verified, isFalse);
+    });
+  });
+
+  test('les rôles retenus sont ceux de la lecture retenue', () async {
+    final outcome = await decideLocal(
+      receipt('2,00', '3,00', '5,00'),
+      tagger(itemItemTotal),
+    );
+    expect(outcome.lines.length, 3);
+    expect(predictedRoles(outcome.roles), itemItemTotal);
+  });
+
+  test('les noms de lecture sont le contrat Python', () {
+    expect(sourceName(ReadSource.pass1), 'passe1');
+    expect(sourceName(ReadSource.retry), 'retry');
+    expect(sourceName(ReadSource.fused), 'fusion');
+    expect(sourceName(ReadSource.confirm), 'confirm');
   });
 }

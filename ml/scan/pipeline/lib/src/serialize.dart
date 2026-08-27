@@ -21,14 +21,11 @@ Map<String, Object?> receiptJson(ExtractedReceipt receipt) {
   };
 }
 
-/// Noms de stage au format des scripts Python (snake_case) : le nom d'enum
-/// Dart n'est pas le contrat.
-String stageName(FlowStage stage) => switch (stage) {
-  FlowStage.local => 'local',
-  FlowStage.localRetry => 'local_retry',
-  FlowStage.localMl => 'local_ml',
-  FlowStage.localDp => 'local_dp',
-  FlowStage.localRoles => 'local_roles',
-  FlowStage.localFused => 'local_fused',
-  FlowStage.confirm => 'confirm',
+/// Noms de lecture au format de `reference/local_flow.py` : le nom d'enum
+/// Dart n'est pas le contrat, `bench/parity.py` compare ces chaînes-là.
+String sourceName(ReadSource source) => switch (source) {
+  ReadSource.pass1 => 'passe1',
+  ReadSource.retry => 'retry',
+  ReadSource.fused => 'fusion',
+  ReadSource.confirm => 'confirm',
 };

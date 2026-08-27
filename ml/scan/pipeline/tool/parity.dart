@@ -1,8 +1,8 @@
-/// Rejoue le pipeline Dart sur des dumps OCR du harnais et écrit, par
-/// ticket, l'extraction de la passe 1 et — si un modèle est fourni — la
-/// décision du flow local complet (règles → retry → classifieur → décodeur),
-/// pour comparaison champ à champ avec la version Python
-/// (research/bench/parity.py).
+/// Rejoue le pipeline Dart sur des dumps OCR et écrit, par ticket,
+/// l'extraction par les règles de la passe 1 et — si le tagger est fourni —
+/// la décision du flow local (tagger de rôles → décodeur, sur la passe 1
+/// puis le retry puis leur fusion), pour comparaison champ à champ avec la
+/// version Python (research/bench/parity.py).
 library;
 
 import 'dart:convert';
@@ -10,37 +10,19 @@ import 'dart:io';
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-const String modelOption = '--model=';
 const String rolesOption = '--roles=';
 
-void main(List<String> args) {
-  final dirs = args
-      .where(
-        (arg) => !arg.startsWith(modelOption) && !arg.startsWith(rolesOption),
-      )
-      .toList();
-  final modelPath = args
-      .where((arg) => arg.startsWith(modelOption))
-      .map((arg) => arg.substring(modelOption.length))
-      .firstOrNull;
+Future<void> main(List<String> args) async {
+  final dirs = args.where((arg) => !arg.startsWith(rolesOption)).toList();
   final rolesPath = args
       .where((arg) => arg.startsWith(rolesOption))
       .map((arg) => arg.substring(rolesOption.length))
       .firstOrNull;
   if (dirs.isEmpty) {
-    stderr.writeln(
-      'usage: dart tool/parity.dart [--model=path] [--roles=path] '
-      '<results_dir>...',
-    );
+    stderr.writeln('usage: dart tool/parity.dart [--roles=path] <results_dir>...');
     exitCode = 2;
     return;
   }
-  final classifier = modelPath == null
-      ? null
-      : LineClassifier.fromJson(
-          jsonDecode(File(modelPath).readAsStringSync())
-              as Map<String, dynamic>,
-        );
   final tagger = rolesPath == null
       ? null
       : RoleTagger(
@@ -63,8 +45,8 @@ void main(List<String> args) {
       if (data is! Map<String, dynamic> || data['blocks'] == null) continue;
       final pass1 = clusteredLines(data);
       final entry = <String, Object?>{'pass1': receiptJson(extract(pass1))};
-      if (classifier != null) {
-        entry['flow'] = _flowJson(data, pass1, classifier, tagger);
+      if (tagger != null) {
+        entry['flow'] = await _flowJson(data, pass1, tagger);
       }
       output['$dirPath/${file.uri.pathSegments.last}'] = entry;
     }
@@ -72,35 +54,21 @@ void main(List<String> args) {
   stdout.writeln(jsonEncode(output));
 }
 
-Map<String, Object?> _flowJson(
+Future<Map<String, Object?>> _flowJson(
   Map<String, dynamic> data,
   List<PhysicalLine> pass1,
-  LineClassifier classifier,
-  RoleTagger? tagger,
-) {
-  final local = extract(pass1);
-  var outcome = decideFirstPass(
-    local,
-    pass1,
-    classifier,
-    FlowPolicy.recommended,
-    tagger: tagger,
-  );
+  RoleTagger tagger,
+) async {
   final retryData = data['ocrRetry'] as Map<String, dynamic>?;
-  if (!outcome.verified && retryData != null) {
-    final retry = clusteredLines(retryData);
-    outcome = decideRetryPass(
-      local,
-      extract(retry),
-      pass1,
-      retry,
-      classifier,
-      FlowPolicy.recommended,
-      tagger: tagger,
-    );
-  }
+  final outcome = await decideLocal(
+    pass1,
+    tagger.probabilities,
+    secondPass: retryData == null
+        ? null
+        : () async => clusteredLines(retryData),
+  );
   return {
-    'stage': stageName(outcome.stage),
+    'stage': sourceName(outcome.source),
     'total': outcome.total,
     'items': [
       for (final item in outcome.items)

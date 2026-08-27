@@ -178,11 +178,13 @@ gh release create "$RELEASE" "${RELEASE_FILES[@]}" \
 
 - **quick_add** : le classifieur ONNX de l'ajout rapide ;
 - **tokenizer** : son tokenizer, au format binaire lu par l'app ;
-- **line_clf** : etiquette les lignes a prix du scan et guide le decodeur ;
-- **line_roles** : quatorze roles sur toutes les lignes, designe l'enseigne
-  et la ligne de date ;
+- **line_roles** : neuf roles sur toutes les lignes du ticket ; il designe
+  l'enseigne et la ligne de date, et c'est lui que le decodeur sous
+  contrainte lit pour prouver la somme ;
 - **label_link** : a quelle distance au-dessus se trouve le libelle d'un
-  article, quand son prix est imprime seul.
+  article, quand son prix est imprime seul ;
+- **label_span** : quels mots de cette ligne composent le libelle ;
+- **store_gazetteer** : le repertoire des enseignes apprises du corpus.
 
 | modele | asset | taille | sha256 |
 |---|---|---|---|

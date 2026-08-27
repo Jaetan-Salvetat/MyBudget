@@ -18,7 +18,7 @@ library;
 
 import 'dart:math' as math;
 
-import 'line_features.dart';
+import 'line_signals.dart';
 import 'lines.dart';
 import 'structure.dart';
 

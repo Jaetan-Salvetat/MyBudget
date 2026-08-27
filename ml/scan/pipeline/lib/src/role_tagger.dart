@@ -70,10 +70,16 @@ class RoleTagger {
 
   /// Le rôle le plus probable de chaque ligne — l'argmax, sans seuil : la
   /// décision se juge au checksum, pas à une confiance choisie à la main.
-  List<String> roles(List<PhysicalLine> lines) => [
-    for (final row in probabilities(lines)) roleNames[argmax(row)],
-  ];
+  List<String> roles(List<PhysicalLine> lines) =>
+      predictedRoles(probabilities(lines));
 }
+
+/// Les rôles argmax de probabilités déjà inférées. L'inférence est l'étage
+/// cher du flow : un appelant qui l'a déjà payée ne doit pas la repayer pour
+/// nommer les rôles.
+List<String> predictedRoles(List<List<double>> probabilities) => [
+  for (final row in probabilities) roleNames[argmax(row)],
+];
 
 /// La ligne la plus probable pour ce rôle — un ticket n'en a qu'une.
 int? bestLineFor(List<List<double>> probabilities, int role) {

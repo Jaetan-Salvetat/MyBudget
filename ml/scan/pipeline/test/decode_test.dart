@@ -569,22 +569,5 @@ void main() {
       expect(receipt.total, 14.7);
       expect(receipt.checksumOk, isTrue);
     });
-
-    test('constrained labels drop forced ignore and ineligible totals', () {
-      const structure = Constraints(
-        forcedIgnore: {1},
-        referenceRanks: {3},
-        evidences: [],
-      );
-      expect(
-        constrainedLabels([
-          labelItem,
-          labelItem,
-          labelTotal,
-          labelTotal,
-        ], structure),
-        [labelItem, labelIgnore, labelIgnore, labelTotal],
-      );
-    });
   });
 }

@@ -9,7 +9,6 @@ import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/label_link_asset.dart';
 import 'package:mybudget/core/services/scan/label_span_asset.dart';
-import 'package:mybudget/core/services/scan/line_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
@@ -29,12 +28,6 @@ part 'scan_provider.g.dart';
 /// reconnaissance coûtent plus cher à recréer qu'à garder.
 @Riverpod(keepAlive: true)
 Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
-  final classifier = LineClassifier.fromJson(
-    jsonDecode(
-          await rootBundle.loadString(await lineClassifierAssetFromManifest()),
-        )
-        as Map<String, dynamic>,
-  );
   final tagger = RoleTagger(
     LineClassifier.fromJson(
       jsonDecode(
@@ -75,7 +68,6 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
   ref.onDispose(recognizer.close);
   return LocalReceiptScanner(
     recognizer: recognizer,
-    classifier: classifier,
     tagger: tagger,
     link: link,
     span: span,

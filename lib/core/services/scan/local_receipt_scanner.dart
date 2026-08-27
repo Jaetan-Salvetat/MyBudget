@@ -6,33 +6,33 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 typedef ReceiptImageEnhancer = Future<Uint8List> Function(Uint8List bytes);
 
-/// Ce que le flow local a lu d'un ticket. [stage] dit par quel étage la somme
-/// a été vérifiée ; il n'autorise rien, il informe l'écran d'édition.
+/// Ce que le flow local a lu d'un ticket. [source] dit quelle lecture de
+/// l'image a porté la somme prouvée ; elle n'autorise rien, elle informe
+/// l'écran d'édition.
 class LocalReceiptScan {
   const LocalReceiptScan({
-    required this.stage,
+    required this.source,
     required this.store,
     required this.date,
     required this.total,
     required this.items,
   });
 
-  final FlowStage stage;
+  final ReadSource source;
   final String? store;
   final String? date;
   final double? total;
   final List<ExtractedItem> items;
 
-  bool get verified => verifiedStages.contains(stage);
+  bool get verified => verifiedSources.contains(source);
 }
 
-/// Le flow local complet sur une photo. Passe 1 : règles, puis classifieur
-/// (argmax, décodage sous contrainte). Si rien ne vérifie, seulement alors la
-/// seconde passe prétraitée — l'étage cher — avec les mêmes étages, puis la
-/// fusion des deux passes.
+/// Le flow local complet sur une photo : le tagger de rôles étiquette toutes
+/// les lignes, le décodeur retient l'étiquetage dont la somme retombe au
+/// centime. Si rien ne prouve la somme, seulement alors la seconde passe
+/// prétraitée — l'étage cher — puis la fusion des deux lectures.
 class LocalReceiptScanner {
   final ReceiptLineRecognizer _recognizer;
-  final LineClassifier _classifier;
   final RoleTagger _tagger;
   final LabelLinkModel _link;
   final LabelSpanModel _span;
@@ -46,7 +46,6 @@ class LocalReceiptScanner {
 
   const LocalReceiptScanner({
     required this._recognizer,
-    required this._classifier,
     required this._tagger,
     required this._link,
     required this._span,
@@ -69,58 +68,29 @@ class LocalReceiptScanner {
     step('OCR passe 1 (${pass1.length} lignes)');
     if (pass1.isEmpty) throw const ScanUnreadableException();
 
-    final local = extract(pass1);
-    var outcome = decideFirstPass(
-      local,
+    final outcome = await decideLocal(
       pass1,
-      _classifier,
-      FlowPolicy.recommended,
-      tagger: _tagger,
+      _tagger.probabilities,
+      secondPass: () => _retryLines(imageBytes),
     );
-    step('règles + classifieur');
-
-    ExtractedReceipt? retryReceipt;
-    if (!outcome.verified) {
-      final retry = await _retryLines(imageBytes);
-      if (retry != null && retry.isNotEmpty) {
-        retryReceipt = extract(retry);
-        outcome = decideRetryPass(
-          local,
-          retryReceipt,
-          pass1,
-          retry,
-          _classifier,
-          FlowPolicy.recommended,
-          tagger: _tagger,
-        );
-        step('retry (2e OCR + étages)');
-      }
-    }
+    step('tagger de rôles + décodeur (${outcome.source.name})');
 
     if (outcome.items.isEmpty) throw const ScanNoItemsException();
 
-    // Les modèles travaillent sur les lignes dont l'extraction retenue est
-    // issue — passe 1, retry ou fusion : `ExtractedItem.lineIndex` les indexe,
-    // et rattacher un libellé sur les lignes d'une autre passe désignerait
-    // n'importe quoi.
-    final lines = outcome.sourceLines.isEmpty ? pass1 : outcome.sourceLines;
-    final roles = _tagger.probabilities(lines);
+    // Les modèles de libellé travaillent sur les lignes de la lecture
+    // retenue — passe 1, retry ou fusion : `ExtractedItem.lineIndex` les
+    // indexe, et rattacher un libellé sur les lignes d'une autre lecture
+    // désignerait n'importe quoi. Les rôles, eux, sont déjà payés.
+    final lines = outcome.lines;
+    final roles = outcome.roles;
     final offsets = _link.offsets(lines);
     final spans = _span.probabilities(lines);
-    step('tagger de rôles, lien et spans (${lines.length} lignes)');
+    step('lien et spans (${lines.length} lignes)');
 
-    // Dès qu'on a dû aller en seconde passe, c'est elle qui porte la lecture
-    // retenue : son enseigne et sa date priment, la première ne comble que
-    // ce qu'elle n'a pas lu.
-    final reference = retryReceipt ?? local;
-    final fallback = retryReceipt == null ? null : local;
     return LocalReceiptScan(
-      stage: outcome.stage,
-      store:
-          storeOf(lines, roles, gazetteer: _gazetteer) ??
-          reference.store ??
-          fallback?.store,
-      date: dateOf(lines, roles) ?? reference.date ?? fallback?.date,
+      source: outcome.source,
+      store: storeOf(lines, roles, gazetteer: _gazetteer),
+      date: dateOf(lines, roles),
       total: outcome.total,
       items: relabel(outcome.items, lines, offsets, spans),
     );

@@ -1,9 +1,8 @@
-/// Structuration par classifieur de lignes et décodage sous contrainte
-/// checksum. Portage de référence de `structure_ml.py` et
-/// `decode_constrained.py`.
+/// Décodage sous contrainte checksum. Portage de référence de
+/// `decode_constrained.py` et `decoded_receipt.py`.
 ///
-/// Le classifieur n'étiquette que les lignes porteuses de prix ; les
-/// montants sont recopiés de l'OCR, jamais générés. Le décodeur cherche
+/// Le décodeur ne voit que les lignes porteuses de prix, et les montants
+/// sont recopiés de l'OCR, jamais générés. Le décodeur cherche
 /// l'étiquetage le plus probable dont la somme (articles − remises) retombe
 /// exactement sur une référence : subset-sum exact en centimes. Les
 /// références viennent de plusieurs sources indépendantes — lignes total du
@@ -15,11 +14,18 @@ library;
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'classifier.dart';
 import 'invariants.dart';
 import 'line_features.dart';
 import 'lines.dart';
 import 'structure.dart';
+
+/// Les cinq classes que le décodeur combine — miroir de `line_labels.py`.
+/// Les neuf rôles du tagger s'y projettent (`decode_roles.dart`).
+const int labelItem = 0;
+const int labelDiscount = 1;
+const int labelTotal = 2;
+const int labelPayment = 3;
+const int labelIgnore = 4;
 
 const int centsCap = 500000;
 const int negativeCap = 50000;
@@ -675,38 +681,8 @@ ExtractedReceipt singleItemReceipt(List<PhysicalLine> merged, double total) {
   );
 }
 
-/// Applique les invariants structurels à un étiquetage argmax : une ligne
-/// exclue est ignorée, un total hors des rangs éligibles aussi, un total de
-/// rayon détecté par l'arithmétique n'est pas un article.
-List<int> constrainedLabels(List<int> labels, Constraints structure) => [
-  for (final (rank, label) in labels.indexed)
-    if (structure.forcedIgnore.contains(rank) ||
-        (label == labelTotal && !structure.referenceRanks.contains(rank)) ||
-        (label == labelItem && structure.softIgnore.contains(rank)))
-      labelIgnore
-    else
-      label,
-];
-
-/// Structuration par l'argmax du classifieur, sous invariants.
-ExtractedReceipt? extractMl(
-  List<PhysicalLine> merged,
-  LineClassifier classifier,
-) {
-  final (lines, rows) = featurize(merged);
-  if (lines.isEmpty) return null;
-  final predictions = [
-    for (final row in rows) argmax(classifier.predictProba(row)),
-  ];
-  return receiptFromLabels(
-    merged,
-    lines,
-    constrainedLabels(predictions, constraints(lines)),
-  );
-}
-
 /// Alternatives indexées par ligne fusionnée → par rang de ligne chiffrée.
-Map<int, int> _rankAlternatives(
+Map<int, int> rankAlternatives(
   List<PricedLine> lines,
   Map<int, int> alternatives,
 ) => {
@@ -732,31 +708,3 @@ List<PricedLine> withChosenAmounts(
     else
       priced,
 ];
-
-/// Structuration par décodage sous contrainte checksum.
-ExtractedReceipt? extractConstrained(
-  List<PhysicalLine> merged,
-  LineClassifier classifier, {
-  Map<int, int> alternatives = const {},
-}) {
-  final (lines, rows) = featurize(merged);
-  if (lines.isEmpty) return null;
-  final hypothesis = decodeConstrained(
-    lines,
-    classifier.predictProbaAll(rows),
-    printedCount: printedCount(merged),
-    alternatives: _rankAlternatives(lines, alternatives),
-  );
-  if (hypothesis == null) return null;
-  final referenceTotal = hypothesis.referenceCents / 100;
-  if (hypothesis.singleItem) return singleItemReceipt(merged, referenceTotal);
-  final chosen = hypothesis.cents.isEmpty
-      ? lines
-      : withChosenAmounts(lines, hypothesis.labels, hypothesis.cents);
-  return receiptFromLabels(
-    merged,
-    chosen,
-    hypothesis.labels,
-    referenceTotal: referenceTotal,
-  );
-}

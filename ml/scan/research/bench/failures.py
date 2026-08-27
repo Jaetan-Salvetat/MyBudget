@@ -12,7 +12,7 @@ chaque ticket `confirm` pour dire où investir :
 - `total_non_lu` : les articles sont là mais aucune référence (total,
   sous-total, CB) n'a été lue — à attaquer côté récupération du total ;
 - `structuration` : tout est dans l'OCR, la référence est lue, mais
-  l'extraction ne mappe pas — à attaquer côté règles / classifieur V2.
+  l'étiquetage ne mappe pas — à attaquer côté tagger de rôles / décodeur.
 
 Signale aussi les quasi-réussites : |somme − total| = exactement un article
 manqué.
@@ -25,8 +25,10 @@ import re
 import sys
 from collections import Counter
 
-from bench.device_flow import EXCLUDED_PATH, STAGE_NAMES, load_tickets
+from bench.device_flow import EXCLUDED_PATH, load_tickets
 from paths import RESULTS_DIR
+from reference.local_flow import decide_local
+from reference.structure import extract_from_result
 
 AMOUNT_PATTERN = re.compile(r"\d{1,4}[.,]\d{2}")
 EPSILON = 0.005
@@ -96,7 +98,7 @@ def write_excluded(tickets) -> None:
     print(f"{sum(1 for _, r in reasons if r)} tickets exclus -> {EXCLUDED_PATH}")
 
 
-def classify(ticket) -> tuple[str, bool]:
+def classify(ticket, outcome) -> tuple[str, bool]:
     golden = ticket.golden
     if not golden_checksummable(golden):
         return "golden_non_checksummable", False
@@ -104,12 +106,17 @@ def classify(ticket) -> tuple[str, bool]:
     expected = golden_amounts(golden)
     missing_in_ocr = missing_ocr_amounts(ticket)
 
-    best = ticket.flow.get("retry") or ticket.flow["pass1"]
+    # « Une référence a-t-elle été lue ? » est une question sur le texte, pas
+    # sur le modèle : les règles la lisent hors du flow, et c'est la seule
+    # lecture qui ne dépende d'aucun étiquetage.
+    printed = extract_from_result(ticket.dump_path)
     no_reference = (
-        best["total"] is None and best["subtotal"] is None and best["payment"] is None
+        printed.total is None
+        and printed.subtotal is None
+        and printed.payment is None
     )
 
-    items_sum = round(sum(i["amount"] - i["discount"] for i in best["items"]), 2)
+    items_sum = round(sum(a - d for a, d in outcome.amounts), 2)
     golden_total = round(float(golden["receipt"]["total"]), 2)
     delta = round(golden_total - items_sum, 2)
     near_miss = any(abs(a - delta) < EPSILON for a in expected)
@@ -134,22 +141,27 @@ def main() -> None:
         f"checksummables ({(len(tickets) - ceiling_fail) / len(tickets):.1%})"
     )
 
-    confirms = [t for t in tickets if STAGE_NAMES[t.flow["stage"]] == "confirm"]
+    outcomes = {
+        t.name: decide_local(json.loads(t.dump_path.read_text())) for t in tickets
+    }
+    confirms = [t for t in tickets if not outcomes[t.name].verified]
     categories: Counter[str] = Counter()
     near_misses: Counter[str] = Counter()
     examples: dict[str, list[str]] = {}
     for ticket in confirms:
-        category, near = classify(ticket)
+        category, near = classify(ticket, outcomes[ticket.name])
         categories[category] += 1
         if near:
             near_misses[category] += 1
         examples.setdefault(category, []).append(ticket.name)
 
-    auto = len(tickets) - len(confirms)
+    proved = len(tickets) - len(confirms)
     print(
-        f"local direct : {auto}/{len(tickets)} ({auto / len(tickets):.1%}), "
+        f"somme prouvée : {proved}/{len(tickets)} ({proved / len(tickets):.1%}), "
         f"confirm : {len(confirms)}"
     )
+    if not confirms:
+        return
     print("\nrépartition des confirm :")
     for category, count in categories.most_common():
         near = near_misses.get(category, 0)

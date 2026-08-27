@@ -52,28 +52,11 @@ final List<List<(String, int)>> _brokenReceipt = [
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late LineClassifier classifier;
   late RoleTagger tagger;
   late LabelLinkModel link;
   late LabelSpanModel span;
 
   setUpAll(() async {
-    final asset = Directory('assets/models')
-        .listSync()
-        .whereType<File>()
-        .map((file) => file.path)
-        .firstWhere(
-          (path) => RegExp(r'line_clf_v\d+\.json$').hasMatch(path),
-          orElse: () => throw StateError(
-            'Aucun classifieur dans assets/models/ : '
-            'lancer ./tool/models/fetch.sh',
-          ),
-        );
-    final json = await File(asset).readAsString();
-    classifier = LineClassifier.fromJson(
-      jsonDecode(json) as Map<String, dynamic>,
-    );
-
     final taggerAsset = Directory('assets/models')
         .listSync()
         .whereType<File>()
@@ -133,7 +116,6 @@ void main() {
   }) {
     return LocalReceiptScanner(
       recognizer: recognizer,
-      classifier: classifier,
       tagger: tagger,
       link: link,
       span: span,
@@ -142,22 +124,21 @@ void main() {
   }
 
   group('LocalReceiptScanner', () {
-    test('un ticket que les règles vérifient ne déclenche pas la 2e passe',
-        () async {
+    test('une somme prouvée dès la passe 1 ne déclenche pas la 2e', () async {
       final recognizer = _ScriptedRecognizer([
         receiptLinesOf(_verifiedReceipt),
       ]);
 
       final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.stage, FlowStage.local);
+      expect(scan.source, ReadSource.pass1);
       expect(scan.verified, isTrue);
       expect(scan.total, 5.0);
       expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
       expect(recognizer.received, [_photo]);
     });
 
-    test('un checksum en échec relance une passe sur l\'image prétraitée',
+    test('une somme non prouvée relance une passe sur l\'image prétraitée',
         () async {
       final recognizer = _ScriptedRecognizer([
         receiptLinesOf(_brokenReceipt),
@@ -166,7 +147,7 @@ void main() {
 
       final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.stage, FlowStage.localRetry);
+      expect(scan.source, ReadSource.retry);
       expect(recognizer.received, [_photo, _enhanced]);
     });
 
@@ -181,7 +162,7 @@ void main() {
       ).scan(_photo);
 
       expect(scan.verified, isFalse);
-      expect(scan.stage, FlowStage.confirm);
+      expect(scan.source, ReadSource.confirm);
       expect([for (final item in scan.items) item.amount], [2.0]);
     });
 

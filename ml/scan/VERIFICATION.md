@@ -8,12 +8,10 @@ entre les deux. Les chiffres viennent de `research/bench/local.py`
 (1000 tickets FindIt, vérité golden).
 
 > **Décision produit 2026-08-24 : jamais de validation directe.** Tout scan
-> atterrit sur l'écran d'édition pré-rempli ; les étages et le checksum
-> décrits ici servent uniquement à *afficher* un niveau de confiance (badge
-> « vérifié » / bandeau d'alerte avec delta). Le texte ci-dessous parle
-> encore de « validation directe » : lire « vérifié ». Réécriture complète
-> prévue avec le refactor du flow (étage classifieur + décodeur dans
-> `decide()`).
+> atterrit sur l'écran d'édition pré-rempli ; le checksum décrit ici sert
+> uniquement à *afficher* un niveau de confiance (badge « vérifié » /
+> bandeau d'alerte avec delta). Le texte parle parfois de « validation
+> directe » : lire « vérifié ».
 
 ## Le principe
 
@@ -22,7 +20,7 @@ imprimé`. Le pipeline ne valide automatiquement une extraction que si cette
 égalité tombe juste (au demi-centime). Ses erreurs sont des articles
 manqués, jamais des montants inventés — donc un checksum qui passe est un
 signal fort, et un checksum qui échoue est **toujours détecté**, jamais
-silencieux. Tout raffinement (retry, classifieur, référence de secours) ne
+silencieux. Tout raffinement (retry, fusion, référence de secours) ne
 peut que *sauver* des tickets flagués : le checksum reste le juge final.
 
 Références acceptées pour l'égalité :
@@ -40,36 +38,47 @@ total lu qui ne colle pas** (faux positifs mesurés sinon).
 
 ## Le flow de décision
 
+Il n'y a **plus d'étages** : un étiqueteur, un décodeur, et trois lectures
+de l'image de la moins chère à la plus chère.
+
 ```
-photo → OCR → règles → checksum OK ?                       → LOCAL     : vérifié
-  non → classifieur argmax → re-checksum OK ?              → LOCAL_ML  : vérifié
-  non → décodage sous contrainte → checksum OK ?           → LOCAL_DP  : vérifié
-  non → prétraitement (autocontrast+unsharp+2400px) → 2e OCR
-        → règles (somme retry ≥ somme passe 1) ?           → LOCAL_RETRY
-        → classifieur → décodeur sur la 2e passe           → LOCAL_ML / LOCAL_DP
-  non →                                                      CONFIRM   : non vérifié, bandeau
+photo → OCR → tagger de rôles (toutes les lignes)
+            → décodage sous contrainte : l'étiquetage le plus probable dont
+              Σ(articles − remises) tombe sur une référence imprimée
+                                                    → PASSE1  : vérifié
+  non → prétraitement (autocontrast+unsharp+2400px) → 2e OCR, mêmes modèles
+                                                    → RETRY   : vérifié
+  non → fusion ligne à ligne des deux lectures      → FUSION  : vérifié
+  non →                                               CONFIRM : non vérifié, bandeau
 ```
 
-Tout atterrit sur l'écran d'édition pré-rempli ; le stage pilote seulement
-badge vs bandeau. Le retry est l'étage cher (2e OCR) : mesuré, le lancer
-après le classifieur divise les retries par deux à précision égale.
+Tout atterrit sur l'écran d'édition pré-rempli ; la lecture retenue pilote
+seulement badge vs bandeau. Le retry est l'étage cher (2e OCR) : il n'est
+demandé que si la passe 1 ne prouve rien.
+
+La cascade à six étages qui précédait a été retirée : mesurée sur 483
+tickets à vérité golden, elle rendait **le même nombre de tickets justes**
+(341 contre 341) pour sept badges « vérifié » et **quatre tickets à montant
+faux** de plus. Elle fabriquait de la confiance, pas de la justesse.
 
 Paramètres calibrés (ne pas changer sans re-bencher) :
 - tolérance checksum : **0,005 €** strict ;
-- **garde-fou retry** : un retry dont la somme d'articles est inférieure à
-  celle de la passe 1 est refusé même si son checksum passe (collision de
-  substitution : article perdu + total mal lu qui retombe pile) ;
-- pré-remplissage CONFIRM : la meilleure passe locale (retry si tenté,
-  sinon passe 1).
+- pré-remplissage CONFIRM : l'argmax du tagger sur la dernière lecture.
 
 ## Garanties mesurées (pire-cas FindIt, 1000 tickets)
 
-| Étage | Part | Faux montants validés |
+Sur le corpus de travail sain (899 tickets, `bench/local.py`, 2026-08-27) :
+
+| Lecture | Part | Faux montants vérifiés |
 |---|---|---|
-| LOCAL (règles) | ~71 % | 0 |
-| LOCAL_RETRY | ~2 % | 0 |
-| LOCAL_ML (classifieur V2) | ~5 % | 0 |
-| CONFIRM | ~21 % | — (l'utilisateur vérifie) |
+| PASSE1 | 90,7 % | 2* |
+| RETRY | 4,0 % | 0 |
+| FUSION | 0,4 % | 0 |
+| CONFIRM | 4,9 % | — (l'utilisateur vérifie) |
+
+\* `t1test_1181` et `t1train_1657`, 1 correction chacun, golden
+« gemini-seul » (non double-validé) — probablement des conventions
+d'annotation, à auditer.
 
 Ce corpus est une borne basse (thermiques 2017 pâlis, formats cantine/
 balance) : le tier « photo correcte d'un ticket frais » est à 100 % de
@@ -83,9 +92,9 @@ la photo — la capture app doit soigner résolution et focus.
 
 ## Mapping UI
 
-| Étage | Écran | Message |
+| Lecture | Écran | Message |
 |---|---|---|
-| LOCAL / LOCAL_RETRY / LOCAL_ML / LOCAL_DP / LOCAL_FUSED | Aucun intermédiaire : la dépense part en création directe (flow `validateAndCreate` existant) | Optionnel : badge « Vérifié — la somme des articles correspond au total du ticket » |
+| PASSE1 / RETRY / FUSION | Aucun intermédiaire : la dépense part en création directe (flow `validateAndCreate` existant) | Optionnel : badge « Vérifié — la somme des articles correspond au total du ticket » |
 | CONFIRM | Écran d'édition existant, pré-rempli | Bandeau expliquant **pourquoi** (voir ci-dessous) |
 
 Bandeau CONFIRM — deux cas à distinguer :
@@ -99,22 +108,20 @@ Bandeau CONFIRM — deux cas à distinguer :
 Erreurs techniques (différentes d'un checksum KO) :
 - image indéchiffrable / OCR vide → message reprise photo (« Ticket
   illisible — rapproche-toi et évite les reflets ») ;
-- échec technique du retry ou du classifieur → on continue avec les passes
-  disponibles, jamais d'erreur montrée pour ça.
+- échec technique de la seconde lecture → on continue avec la première,
+  jamais d'erreur montrée pour ça.
 
 Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
 états ne doit produire d'erreur dans ce mode.
 
 ## Invariants (à préserver dans l'app)
 
-1. Le checksum est le seul juge : aucune sortie (règles, retry, classifieur)
-   ne s'auto-valide sans lui.
+1. Le checksum est le seul juge : aucune lecture ne s'auto-valide sans lui.
 2. Jamais d'auto-validation sur une référence de secours quand un total a
    été lu et ne colle pas (seule exception : CB + compteur d'articles).
-3. Le retry ne se substitue à la passe 1 que s'il ne perd pas de valeur.
-4. Le classifieur n'étiquette que des lignes : les montants sont recopiés de
-   l'OCR, jamais générés — y compris en fusion des passes (`local_fused`),
-   où chaque montant alternatif vient de l'autre passe OCR.
+3. Le tagger n'étiquette que des lignes : les montants sont recopiés de
+   l'OCR, jamais générés — y compris en fusion des lectures, où chaque
+   montant alternatif vient de l'autre passe OCR.
 4b. Les invariants structurels (`research/reference/invariants.py`) ferment l'espace
    de recherche sans modèle : ligne de taxe ou HT jamais article,
    récapitulatif de remises ignoré, total de rayon = somme courante, total
@@ -131,5 +138,6 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
    ni le checksum ni la décision d'étage, et une catégorie douteuse ne doit
    pas déclencher CONFIRM.
 6. Tout changement de lexique, de règle ou de modèle passe par : tests du
-   package (`dart test`) + parité (`bench/parity.py`) + bench
-   (`bench/local.py`, faux validés à zéro) avant merge.
+   package (`dart test`) + parité (`bench/parity.py --flow`, zéro
+   divergence) + bench (`bench/local.py`, faux vérifiés à zéro) avant
+   merge.

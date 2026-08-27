@@ -1,5 +1,9 @@
-/// Inférence pure Dart du classifieur de lignes (HistGradientBoosting
-/// exporté par `research/line_classifier/export.py`).
+/// Inférence pure Dart d'un HistGradientBoosting exporté par
+/// `research/line_classifier/export.py`.
+///
+/// Un seul runtime pour tous les modèles de lignes et de mots — tagger de
+/// rôles, modèle de lien, tagger de spans : ils ne diffèrent que par leurs
+/// features et leurs classes, jamais par le calcul.
 ///
 /// Score brut par sortie = baseline + Σ valeur de la feuille atteinte dans
 /// chaque arbre de l'itération ; probabilités par softmax, ou par sigmoïde
@@ -9,12 +13,6 @@ library;
 
 import 'dart:math' as math;
 import 'dart:typed_data';
-
-const int labelItem = 0;
-const int labelDiscount = 1;
-const int labelTotal = 2;
-const int labelPayment = 3;
-const int labelIgnore = 4;
 
 class _Tree {
   _Tree({

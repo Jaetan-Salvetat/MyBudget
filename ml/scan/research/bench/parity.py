@@ -1,10 +1,10 @@
 """Compare le pipeline Dart (tool/parity.dart) à la référence Python.
 
-Ticket par ticket : extraction de la passe 1 champ à champ (store, date,
-total, subtotal, payment, checksum, articles) et, avec `--model`, la
-décision du flow local complet (stage, total, articles retenus) rejouée
-avec le classifieur et le tagger de rôles exportés. Zéro divergence attendue — le portage Dart est
-spécifié par cette égalité.
+Ticket par ticket : extraction par les règles de la passe 1, champ à champ
+(store, date, total, subtotal, payment, checksum, articles) et, avec
+`--flow`, la décision du flow local (lecture retenue, total, articles) rejouée
+avec le tagger de rôles exporté. Zéro divergence attendue — le portage Dart
+est spécifié par cette égalité.
 """
 
 from __future__ import annotations
@@ -18,7 +18,6 @@ from paths import DATA_DIR, MODELS_DIR, PIPELINE_DIR
 from reference.local_flow import decide_local
 from reference.structure import ExtractedReceipt, extract_from_result
 
-MODEL_PATH = MODELS_DIR / "line_clf.json"
 ROLES_PATH = MODELS_DIR / "line_roles.json"
 
 DEFAULT_DIRS = [
@@ -63,12 +62,11 @@ def _report(key: str, field: str, python: dict, dart: dict) -> None:
 
 
 def main() -> None:
-    with_model = "--model" in sys.argv
-    dirs = [a for a in sys.argv[1:] if a != "--model"] or DEFAULT_DIRS
+    with_flow = "--flow" in sys.argv
+    dirs = [a for a in sys.argv[1:] if a != "--flow"] or DEFAULT_DIRS
     absolute_dirs = [str(DATA_DIR / d) for d in dirs]
     command = ["dart", "tool/parity.dart", *absolute_dirs]
-    if with_model:
-        command.append(f"--model={MODEL_PATH}")
+    if with_flow:
         command.append(f"--roles={ROLES_PATH}")
     completed = subprocess.run(
         command, cwd=PIPELINE_DIR, capture_output=True, text=True, check=True

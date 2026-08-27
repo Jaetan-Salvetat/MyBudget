@@ -1084,6 +1084,44 @@ Les règles restent, hors du flow : elles ne servent plus qu'à construire la
 vérité depuis la transcription officielle FindIt, un texte parfait où aucun
 modèle ne doit intervenir.
 
+### Le portage Dart suit (2026-08-27)
+
+La référence Python avait retiré la cascade ; le package Dart la faisait
+encore tourner, et l'app avec lui. Le portage est aligné :
+
+- `flow.dart` est le miroir de `local_flow.py` — trois lectures (passe 1,
+  retry, fusion), un tagger, un décodeur, plus aucun étage. Le tagger est
+  injecté (`RoleInference`), donc la politique de lecture se teste sans
+  modèle ;
+- `decode_roles.dart` porte le repli des neuf rôles sur les cinq classes du
+  décodeur ;
+- supprimés : le classifieur V2 (`extractMl`, `extractConstrained`,
+  `constrainedLabels`), ses 32+19+64 features (`line_features.dart` tombe de
+  362 à 50 lignes), l'asset `line_clf_v8.json` et son entrée de registre.
+  `line_signals.dart` recueille les signaux qui lui survivaient
+  (`hashedTrigrams` et son CRC), consommés par les featuriseurs de lignes et
+  de mots ;
+- `LocalReceiptScan.stage` devient `source` (`ReadSource.pass1|retry|fused|
+  confirm`), et les rôles inférés pour prouver la somme sont réutilisés pour
+  l'enseigne, la date et les libellés au lieu d'être recalculés.
+
+Parité vérifiée sur **1 619 tickets** (`bench/parity.py --flow` sur
+device_flow, device_fr, device_fr_big, device_web, emulator_all) :
+**0 divergence**.
+
+Mesure du flow courant sur le corpus sain (899 tickets, modèles réexportés
+le 2026-08-27) :
+
+| | somme prouvée | faux montants vérifiés |
+|---|---|---|
+| cascade 6 étages + modèles du 26/08 | 85,5 % | 2 |
+| **tagger + décodeur, modèles du 27/08** | **95,1 %** | **2*** |
+
+Répartition : passe 1 815, retry 36, fusion 4. Les 44 confirmations
+restantes se classent en 34 structuration et 10 total non lu
+(`bench/failures.py`). \* les deux mêmes tickets qu'avant, tous deux à
+golden « gemini-seul ».
+
 ### L'enseigne : reconnaître au lieu de recopier
 
 `reference/store_gazetteer.py` — 315 noms appris de ce que les tickets
@@ -1536,8 +1574,9 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
   `generate.py`), reconstruction des sélections (`rebuild.py`), archivage
   d'Open Prices (`open_prices.py`).
 - **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,
-  role_tagger, decode, flow, label_link, label_span, store_gazetteer,
-  sérialisation) + tests + outils de parité (`tool/*.dart`).
+  role_tagger, decode, decode_roles, flow, label_link, label_span,
+  store_gazetteer, sérialisation) + tests + outils de parité
+  (`tool/*.dart`).
 - **`data/golden/`** — golden dataset **versionné** : 1000 annotations JSON.
   `data/raw/findit/` (dataset Find it!), `data/corpus/` (synthétique et
   sélections d'images), `data/annotations/` (corpus annoté),

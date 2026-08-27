@@ -13,12 +13,7 @@ le tagger fait mieux ce qu'il faisait.
 from __future__ import annotations
 
 from reference.lines import PhysicalLine
-from reference.structure import (
-    TOTAL_WORDS,
-    _contains,
-    _rightmost_price,
-    merge_price_fragments,
-)
+from reference.structure import _rightmost_price, merge_price_fragments
 
 
 class PricedLine:
@@ -44,19 +39,6 @@ def priced_lines(merged: list[PhysicalLine]) -> list[PricedLine]:
         if priced is not None:
             result.append(PricedLine(index, line, priced[0], priced[1]))
     return result
-
-
-def _page_width(merged: list[PhysicalLine]) -> float:
-    rights = [w.right for line in merged for w in line.words]
-    return max(rights) if rights else 1.0
-
-
-def _last_total_index(merged: list[PhysicalLine]) -> int:
-    last = -1
-    for index, line in enumerate(merged):
-        if _contains(line.text, TOTAL_WORDS):
-            last = index
-    return last
 
 
 def merged_lines(raw_lines: list[PhysicalLine]) -> list[PhysicalLine]:

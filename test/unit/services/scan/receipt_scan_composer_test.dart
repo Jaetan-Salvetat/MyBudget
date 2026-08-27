@@ -22,11 +22,11 @@ class _ScriptedLineClassifier implements ReceiptLineClassifier {
 LocalReceiptScan scanOf({
   String? store = 'CARREFOUR',
   String? date = '2026-08-01',
-  FlowStage stage = FlowStage.local,
+  ReadSource source = ReadSource.pass1,
   List<(String, double, double)> items = const [('PAIN', 2.0, 0.0)],
 }) {
   return LocalReceiptScan(
-    stage: stage,
+    source: source,
     store: store,
     date: date,
     total: 2.0,
@@ -112,7 +112,7 @@ void main() {
       final verified = await composerOf(const {}).compose(scanOf());
       final flagged = await composerOf(
         const {},
-      ).compose(scanOf(stage: FlowStage.confirm));
+      ).compose(scanOf(source: ReadSource.confirm));
 
       expect(verified.verified, isTrue);
       expect(flagged.verified, isFalse);

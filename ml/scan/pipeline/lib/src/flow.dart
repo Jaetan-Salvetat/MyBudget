@@ -1,248 +1,165 @@
-/// Politique de décision du flow scan local.
+/// Le flow local : une lecture du ticket, un étiqueteur, une somme prouvée.
 ///
-/// règles (checksum) → classifieur argmax (re-checksum) → décodage sous
-/// contrainte → retry prétraité (mêmes étages, garde-fou) → fusion des deux
-/// passes → non vérifié. Le stage
-/// n'est qu'un niveau d'information affiché à l'utilisateur : tout scan
-/// atterrit sur l'écran d'édition pré-rempli (voir ml/scan/VERIFICATION.md).
-/// Logique pure, sans I/O, alignée sur `ml/scan/research/reference/local_flow.py`.
+/// Il n'y a plus d'étages. La version précédente en enchaînait six — règles,
+/// argmax du classifieur V2, décodage sous contrainte, tagger de rôles, sur
+/// la passe 1 puis le retry puis leur fusion — chacun rattrapant ce que le
+/// précédent ratait, le checksum arbitrant. Mesuré sur 483 tickets à vérité
+/// golden (`bench/flows.py`), cet empilement rend **exactement le même
+/// nombre de tickets justes** qu'un seul étiqueteur suivi d'un seul
+/// décodeur : 341 contre 341. Ce qu'il ajoutait, c'étaient sept tickets
+/// badgés « vérifié » de plus — et quatre tickets à montant faux de plus avec
+/// eux. Il fabriquait de la confiance, pas de la justesse.
+///
+/// Ce qui reste :
+///
+///     lecture (passe 1 → retry → fusion, la suivante seulement si besoin)
+///       → le tagger de rôles étiquette toutes les lignes
+///       → le décodeur retient l'étiquetage le plus probable dont
+///         Σ(articles − remises) tombe au centime sur une référence imprimée
+///       → vérifié, ou écran de confirmation
+///
+/// Miroir de `ml/scan/research/reference/local_flow.py`.
 library;
 
-import 'classifier.dart';
-import 'decode.dart';
+import 'decode_roles.dart';
 import 'fuse_passes.dart';
 import 'line_features.dart';
 import 'lines.dart';
-import 'role_tagger.dart';
+import 'role_tagger.dart' show predictedRoles;
 import 'structure.dart';
 import 'structure_roles.dart';
 
-enum FlowStage {
-  local,
-  localRetry,
-  localMl,
-  localDp,
-  localRoles,
-  localFused,
-  confirm,
-}
+/// Quelle lecture de l'image a porté la somme prouvée. Ce n'est plus un
+/// étage — il n'y en a qu'un — et [ReadSource.confirm] dit que rien ne l'a
+/// prouvée.
+enum ReadSource { pass1, retry, fused, confirm }
 
-/// Stages dont la sortie a passé le checksum : badge « vérifié » côté UI.
-const Set<FlowStage> verifiedStages = {
-  FlowStage.local,
-  FlowStage.localRetry,
-  FlowStage.localMl,
-  FlowStage.localDp,
-  FlowStage.localRoles,
-  FlowStage.localFused,
+const Set<ReadSource> verifiedSources = {
+  ReadSource.pass1,
+  ReadSource.retry,
+  ReadSource.fused,
 };
 
-class FlowPolicy {
-  const FlowPolicy({
-    this.tolerance = 0.005,
-    this.retryMustNotLoseValue = false,
-  });
+/// L'étiquetage des lignes par le tagger de rôles — `RoleTagger.probabilities`
+/// en production. Le flow ne connaît que cette signature : la politique de
+/// lecture se teste sans modèle, et le modèle se change sans la toucher.
+typedef RoleInference = List<List<double>> Function(List<PhysicalLine> lines);
 
-  /// Politique retenue par le bench : garde-fou retry actif, tolérance
-  /// stricte.
-  static const FlowPolicy recommended = FlowPolicy(retryMustNotLoseValue: true);
+/// Une lecture du ticket : les lignes telles que les modèles les ont
+/// apprises, les mêmes avec les prix recollés, et — pour la fusion — les
+/// montants que l'autre passe lit autrement.
+///
+/// Le tagger et le décodeur travaillent sur des lignes différentes et le rang
+/// les aligne : [mergePriceFragments] recolle des mots *dans* une ligne,
+/// jamais deux lignes entre elles.
+class ReceiptRead {
+  ReceiptRead(
+    this.source,
+    this.lines,
+    this._inferRoles, {
+    this.alternatives = const {},
+  }) : merged = mergedLines(lines);
 
-  final double tolerance;
-  final bool retryMustNotLoseValue;
+  final ReadSource source;
+  final List<PhysicalLine> lines;
+  final List<PhysicalLine> merged;
+  final Map<int, int> alternatives;
+  final RoleInference _inferRoles;
+
+  List<List<double>>? _roles;
+
+  /// Les probabilités de rôle, inférées une fois par lecture — c'est l'étage
+  /// cher, et la fusion en redemande.
+  List<List<double>> get roles => _roles ??= _inferRoles(lines);
 }
 
-class FlowOutcome {
-  const FlowOutcome({
-    required this.stage,
+/// Ce que le flow a lu, et par quelle lecture.
+class LocalOutcome {
+  const LocalOutcome({
+    required this.source,
     required this.items,
     required this.total,
-    required this.sourceLines,
+    required this.lines,
+    required this.roles,
   });
 
-  final FlowStage stage;
+  final ReadSource source;
   final List<ExtractedItem> items;
   final double? total;
 
-  /// Les lignes dont l'extraction retenue est issue. `ExtractedItem.lineIndex`
-  /// les indexe : le flow peut retenir la passe 1, le retry ou leur fusion,
-  /// et rien d'autre ne dit laquelle. Sans elles, rattacher un libellé
-  /// désignerait la ligne d'une autre passe.
-  final List<PhysicalLine> sourceLines;
+  /// Les lignes dont l'extraction retenue est issue, et les rôles inférés
+  /// dessus. `ExtractedItem.lineIndex` les indexe : rattacher un libellé sur
+  /// les lignes d'une autre lecture désignerait n'importe quoi.
+  final List<PhysicalLine> lines;
+  final List<List<double>> roles;
 
-  bool get verified => verifiedStages.contains(stage);
+  bool get verified => verifiedSources.contains(source);
 }
 
-/// Sauvetage à la demande d'un ticket que les règles n'ont pas vérifié :
-/// n'est appelé que si local et retry ont échoué.
-typedef Rescue = (FlowStage, ExtractedReceipt, List<PhysicalLine>)? Function();
-
-/// Un retry qui somme moins que la passe 1 a perdu des articles : son
-/// checksum peut passer par collision de substitution sur le total (vu sur
-/// corpus), on l'envoie en confirmation plutôt que de valider en silence.
-bool _retryLosesValue(
-  ExtractedReceipt local,
-  ExtractedReceipt retry,
-  FlowPolicy policy,
-) {
-  if (!policy.retryMustNotLoseValue) return false;
-  if (_sameTotal(local, retry, policy)) return false;
-  return retry.itemsSum < local.itemsSum - policy.tolerance;
+/// Le reçu que cette lecture prouve, ou `null`.
+ExtractedReceipt? readReceipt(ReceiptRead read) {
+  final receipt = extractRoleConstrained(
+    read.merged,
+    read.roles,
+    alternatives: read.alternatives,
+  );
+  return receipt != null && receipt.checksumOk ? receipt : null;
 }
 
-/// Même total lu par les deux passes : la référence n'a pas bougé, la
-/// valeur perdue était un article parasite de la passe 1, pas une collision.
-bool _sameTotal(
-  ExtractedReceipt local,
-  ExtractedReceipt retry,
-  FlowPolicy policy,
-) {
-  final localTotal = local.total;
-  final retryTotal = retry.total;
-  return localTotal != null &&
-      retryTotal != null &&
-      (localTotal - retryTotal).abs() <= policy.tolerance;
-}
-
-/// Un étage vérifié affiche la référence qui a réellement vérifié la somme ;
-/// la confirmation pré-remplit avec le total lu, faux ou non.
-FlowOutcome _outcome(
-  FlowStage stage,
-  ExtractedReceipt receipt,
-  List<PhysicalLine> sourceLines,
-) => FlowOutcome(
-  stage: stage,
-  items: receipt.items,
-  total: verifiedStages.contains(stage) ? receipt.verifiedTotal : receipt.total,
-  sourceLines: sourceLines,
-);
-
-FlowOutcome decide(
-  ExtractedReceipt local,
-  ExtractedReceipt? retry,
-  FlowPolicy policy, {
-  // Vide par défaut : un appelant qui ne fournit pas les lignes obtient un
-  // résultat sans `sourceLines`, donc pas de rattachement de libellé — jamais
-  // un rattachement sur les lignes d'une autre passe. Les tests de décision
-  // pure s'en passent, le flow de l'app les fournit.
-  List<PhysicalLine> localLines = const [],
-  List<PhysicalLine>? retryLines,
-  Rescue? rescue,
-}) {
-  if (local.checksumOk) return _outcome(FlowStage.local, local, localLines);
-  if (retry != null &&
-      retry.checksumOk &&
-      !_retryLosesValue(local, retry, policy)) {
-    return _outcome(FlowStage.localRetry, retry, retryLines ?? localLines);
-  }
-  if (rescue != null) {
-    final rescued = rescue();
-    if (rescued != null) return _outcome(rescued.$1, rescued.$2, rescued.$3);
-  }
-  final fallback = retry ?? local;
-  return _outcome(
-    FlowStage.confirm,
-    fallback,
-    retry != null ? (retryLines ?? localLines) : localLines,
+/// Ce qu'on affiche quand aucune somme n'est prouvée : l'argmax du tagger,
+/// tel quel. Il pré-remplit l'écran de confirmation — et n'est jamais badgé
+/// vérifié.
+LocalOutcome unverified(ReceiptRead read) {
+  final receipt = extractRoles(read.merged, predictedRoles(read.roles));
+  return LocalOutcome(
+    source: ReadSource.confirm,
+    items: receipt?.items ?? const [],
+    total: receipt?.total,
+    lines: read.lines,
+    roles: read.roles,
   );
 }
 
-/// Sauvetage par les modèles : argmax du classifieur sur chaque passe, puis
-/// décodage sous contrainte, puis structuration par le tagger de rôles. Toute
-/// sortie repasse par le checksum.
-///
-/// Le tagger passe **en dernier**, et c'est délibéré : sur une même passe, un
-/// ticket qu'un étage antérieur fait boucler garde exactement la lecture qu'il
-/// avait. Mesuré sur T1-test : 3 tickets gagnés, 0 lecture modifiée. Le gain
-/// se joue sur les vraies photos, où les règles seules ne vérifient que 20 %
-/// des tickets — la chaîne y passe de 65 % à 75 %.
-Rescue classifierRescue(
-  List<List<PhysicalLine>> passes,
-  LineClassifier classifier,
-  RoleTagger? tagger,
-) {
-  return () {
-    final mergedPasses = [for (final pass in passes) mergedLines(pass)];
-    for (var index = 0; index < mergedPasses.length; index++) {
-      final receipt = extractMl(mergedPasses[index], classifier);
-      if (receipt != null && receipt.checksumOk) {
-        return (FlowStage.localMl, receipt, passes[index]);
-      }
-    }
-    for (var index = 0; index < mergedPasses.length; index++) {
-      final receipt = extractConstrained(mergedPasses[index], classifier);
-      if (receipt != null && receipt.checksumOk) {
-        return (FlowStage.localDp, receipt, passes[index]);
-      }
-    }
-    if (tagger != null) {
-      for (var index = 0; index < mergedPasses.length; index++) {
-        final receipt = extractRoles(
-          mergedPasses[index],
-          tagger.roles(passes[index]),
-        );
-        if (receipt != null && receipt.checksumOk) {
-          return (FlowStage.localRoles, receipt, passes[index]);
-        }
-      }
-    }
-    return null;
-  };
-}
+LocalOutcome _verified(ReceiptRead read, ExtractedReceipt receipt) =>
+    LocalOutcome(
+      source: read.source,
+      items: receipt.items,
+      total: receipt.verifiedTotal,
+      lines: read.lines,
+      roles: read.roles,
+    );
 
-/// Dernier étage gratuit : les deux passes fusionnées ligne à ligne, le
-/// décodeur arbitrant les montants qui diffèrent. Sortie re-checksummée.
-(ExtractedReceipt, List<PhysicalLine>)? fusedRescue(
+/// La seconde lecture de l'image, prétraitée. Elle ne coûte que sur les
+/// tickets que la passe 1 ne prouve pas : le flow ne la demande qu'alors.
+typedef SecondPass = Future<List<PhysicalLine>?> Function();
+
+/// Les lectures, de la moins chère à la plus chère, jusqu'à ce que l'une
+/// prouve la somme.
+Future<LocalOutcome> decideLocal(
   List<PhysicalLine> pass1,
-  List<PhysicalLine> retry,
-  LineClassifier classifier,
-) {
-  final fused = fusePasses(pass1, retry);
-  final receipt = extractConstrained(
-    mergedLines(fused.lines),
-    classifier,
-    alternatives: fused.alternatives,
+  RoleInference inferRoles, {
+  SecondPass? secondPass,
+}) async {
+  final first = ReceiptRead(ReadSource.pass1, pass1, inferRoles);
+  final proved = readReceipt(first);
+  if (proved != null) return _verified(first, proved);
+  if (secondPass == null) return unverified(first);
+
+  final retryLines = await secondPass();
+  if (retryLines == null || retryLines.isEmpty) return unverified(first);
+
+  final retry = ReceiptRead(ReadSource.retry, retryLines, inferRoles);
+  final retryProved = readReceipt(retry);
+  if (retryProved != null) return _verified(retry, retryProved);
+
+  final fusion = fusePasses(pass1, retryLines);
+  final fused = ReceiptRead(
+    ReadSource.fused,
+    fusion.lines,
+    inferRoles,
+    alternatives: fusion.alternatives,
   );
-  if (receipt != null && receipt.checksumOk) return (receipt, fused.lines);
-  return null;
-}
-
-/// Passe 1 seule : règles, puis classifieur (argmax, décodage sous
-/// contrainte). Miroir de `decide_local` avant retry.
-FlowOutcome decideFirstPass(
-  ExtractedReceipt local,
-  List<PhysicalLine> pass1,
-  LineClassifier classifier,
-  FlowPolicy policy, {
-  RoleTagger? tagger,
-}) => decide(
-  local,
-  null,
-  policy,
-  localLines: pass1,
-  rescue: classifierRescue([pass1], classifier, tagger),
-);
-
-/// Après un retry : mêmes étages sur la passe prétraitée, puis fusion des
-/// deux passes si rien ne vérifie. Miroir de `decide_local` après retry.
-FlowOutcome decideRetryPass(
-  ExtractedReceipt local,
-  ExtractedReceipt retryReceipt,
-  List<PhysicalLine> pass1,
-  List<PhysicalLine> retry,
-  LineClassifier classifier,
-  FlowPolicy policy, {
-  RoleTagger? tagger,
-}) {
-  final outcome = decide(
-    local,
-    retryReceipt,
-    policy,
-    localLines: pass1,
-    retryLines: retry,
-    rescue: classifierRescue([retry], classifier, tagger),
-  );
-  if (outcome.verified) return outcome;
-  final fused = fusedRescue(pass1, retry, classifier);
-  if (fused == null) return outcome;
-  return _outcome(FlowStage.localFused, fused.$1, fused.$2);
+  final fusedProved = readReceipt(fused);
+  if (fusedProved != null) return _verified(fused, fusedProved);
+  return unverified(fused);
 }
