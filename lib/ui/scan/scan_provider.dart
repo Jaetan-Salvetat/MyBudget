@@ -14,6 +14,7 @@ import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.da
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
 import 'package:mybudget/core/services/scan/role_tagger_asset.dart';
+import 'package:mybudget/core/services/scan/store_gazetteer_asset.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
@@ -54,6 +55,22 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
           as Map<String, dynamic>,
     ),
   );
+  // Le répertoire n'est pas indispensable au flow : s'il manque de la
+  // release, on scanne sans, et l'enseigne redevient la ligne désignée.
+  Gazetteer? gazetteer;
+  try {
+    gazetteer = Gazetteer(
+      (jsonDecode(
+                await rootBundle.loadString(
+                  await storeGazetteerAssetFromManifest(),
+                ),
+              )
+              as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, value as String)),
+    );
+  } on StateError catch (error) {
+    debugPrint('[scan] répertoire d\'enseignes absent : $error');
+  }
   final recognizer = MlKitReceiptLineRecognizer();
   ref.onDispose(recognizer.close);
   return LocalReceiptScanner(
@@ -62,6 +79,7 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
     tagger: tagger,
     link: link,
     span: span,
+    gazetteer: gazetteer,
   );
 }
 

@@ -1284,7 +1284,7 @@ Deux pièges méthodologiques rencontrés, à ne pas refaire :
 - **le bench a un plancher de bruit de ±2 tickets** (voir plus haut) : la
   comparaison n'a de sens qu'à partir de trois tickets d'écart.
 
-### Six leviers sur le découpage, et un facteur six à trouver (2026-08-27, nuit)
+### Huit leviers sur le découpage, et un facteur six à trouver (2026-08-27, nuit)
 
 La tranche d'évaluation passe de 10 % à **25 % d'`open_prices`** — 592 tickets
 au lieu de 239. C'est un préalable, pas un raffinement : à 239 le bench avait un
@@ -1301,7 +1301,7 @@ parfaits (61,7 %), 44 libellés larges, 19 silencieux (3,9 %).
 
 3 709 lignes étiquetées sur `open_prices`, **162 erreurs de découpage (4,4 %)**.
 Pour que les tickets soient propres il en faudrait ~26. **C'est une division par
-six**, et voici ce que six leviers ont donné :
+six**, et voici ce que huit leviers ont donné :
 
 | levier | découpage | bench produit |
 |---|---|---|
@@ -1325,6 +1325,85 @@ Il gagne, et il gagne peu : **5 % des erreurs**. Prédire explicitement la
 frontière ne récupère qu'un vingtième de ce qui manque. C'est le résultat le
 plus informatif de la série — retiré, parce qu'un second modèle et son portage
 Dart ne se paient pas avec +0,2 point.
+
+#### Les étiqueteurs de séquence, sondés en Python seul
+
+C'est la formulation que le domaine utilise pour le parsing de tickets, donc
+elle méritait mieux qu'un raisonnement. Deux sondes, décodage `best_span`
+inchangé pour que les chiffres soient comparables, critère d'arrêt posé
+d'avance à 98 % :
+
+| | intervalle exact, open_prices |
+|---|---|
+| GBDT par mot (référence) | 95,8 % |
+| GBDT par intervalle | 95,8 % |
+| BiGRU sur caractères, **depuis zéro** | 95,7 % |
+| **`jhu-clsp/mmBERT-small` pré-entraîné** | **96,1 %** |
+
+La première sonde ne prouvait rien : un modèle entraîné depuis zéro sur 16 538
+lignes surapprend franchement (perte 17,7 → 0,9, évaluation plate) et ce n'est
+pas ce que le domaine fait — LayoutLM, LiLT, BROS sont pré-entraînés sur des
+millions de pages.
+
+La seconde affine l'encodeur que **l'app embarque déjà** pour l'ajout rapide
+(`model_v8.onnx`, 142 Mo, `flutter_onnxruntime`) : le portage n'est donc pas un
+obstacle pour cette famille, contrairement à un réseau écrit à la main. Elle
+gagne **+0,3 point** — et se dégrade dès la deuxième époque, 16 538 lignes
+étant peu pour un affinage.
+
+Un vrai LayoutLM (ticket entier au lieu de la ligne, positions 2D au lieu de
+features concaténées) ferait mieux que 96,1 %. Il ne fera pas 99,3 %.
+
+#### La métrique et le produit ne veulent pas la même chose
+
+Toutes les tentatives ci-dessus optimisent une exactitude **symétrique** : un
+mot manqué et un mot en trop y coûtent pareil. Le produit dit autre chose —
+*du bruit autour du vrai libellé vaut mieux que perdre une partie du libellé*.
+Sous cette préférence, le découpage n'est pas à 95,7 % mais à **98,3 %**, et la
+cible n'est pas 162 lignes mais 63 :
+
+| | lignes | |
+|---|---|---|
+| exact | 3 550 | 95,7 % |
+| trop large — le vrai nom est dedans | 95 | 2,6 % — acceptable |
+| **rogné — des mots du nom manquent** | **59** | **1,6 %** |
+| décalé | 4 | 0,1 % |
+
+`class_weight="balanced"` traite pourtant les deux à égalité. Le corriger — un
+poids, pas un modèle de plus — donne le premier gain net de la série, et il
+améliore **les deux** axes à la fois, ce qui signe un objectif faux plutôt
+qu'un compromis :
+
+| coût du mot manqué | exact | large | rogné | acceptable |
+|---|---|---|---|---|
+| ×1 (actuel) | 3 550 | 95 | 60 | 98,3 % |
+| ×5 | **3 562** | 108 | 36 | 98,9 % |
+| ×12 | 3 557 | 120 | 29 | 99,1 % |
+| ×40 | 3 517 | 171 | 19 | 99,4 % |
+
+**Et le bench produit le refuse** : à ×5, 359 tickets parfaits contre 365, pour
+un seul silencieux de moins. La cause est dans `bench/exactness.py` :
+
+```python
+if len(left.split()) > len(right.split()):
+    return False              # un mot de TROP → refusé
+return _similar(left, right, 0.75)   # un mot de MOINS → accepté
+```
+
+**La métrique tolère le rognage et refuse l'excès — l'inverse exact de la
+préférence produit.** La plupart des 60 rognés passaient déjà pour justes ;
+pousser vers l'inclusion convertit des noms acceptés en noms refusés.
+
+Les deux positions sont défendables et ne portent pas sur le même risque : la
+métrique protège l'utilisateur qui relit (`WASA` désigne encore le bon
+produit), la préférence protège la **catégorisation**, qui reçoit ce nom en
+entrée. Tant que la question n'est pas tranchée, tout gain sur le découpage
+peut être un gain contre le produit.
+
+Elle se tranche par la mesure, pas par l'intuition : passer au classifieur de
+catégories les deux variantes d'un même nom — tronqué et bruité — et regarder
+laquelle dégrade le plus la catégorie prédite. Rien n'a été modifié en
+attendant.
 
 #### Pourquoi ce n'est pas un problème d'information
 

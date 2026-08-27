@@ -11,6 +11,7 @@ export 'src/line_features_all.dart';
 export 'src/lines.dart';
 export 'src/role_tagger.dart';
 export 'src/serialize.dart';
+export 'src/store_gazetteer.dart';
 export 'src/structure.dart';
 export 'src/structure_roles.dart';
 export 'src/word_features.dart';

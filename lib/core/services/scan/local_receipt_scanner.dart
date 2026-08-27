@@ -38,12 +38,19 @@ class LocalReceiptScanner {
   final LabelSpanModel _span;
   final ReceiptImageEnhancer _enhance;
 
+  /// Le répertoire d'enseignes est **optionnel** : sans lui, `storeOf`
+  /// retombe sur la ligne que le tagger désigne, recopiée telle quelle —
+  /// exactement le comportement d'avant son portage. Le code peut donc
+  /// précéder l'asset sans casser l'app.
+  final Gazetteer? _gazetteer;
+
   const LocalReceiptScanner({
     required this._recognizer,
     required this._classifier,
     required this._tagger,
     required this._link,
     required this._span,
+    this._gazetteer,
     this._enhance = enhanceReceiptForRetry,
   });
 
@@ -109,7 +116,10 @@ class LocalReceiptScanner {
     final fallback = retryReceipt == null ? null : local;
     return LocalReceiptScan(
       stage: outcome.stage,
-      store: storeOf(lines, roles) ?? reference.store ?? fallback?.store,
+      store:
+          storeOf(lines, roles, gazetteer: _gazetteer) ??
+          reference.store ??
+          fallback?.store,
       date: dateOf(lines, roles) ?? reference.date ?? fallback?.date,
       total: outcome.total,
       items: relabel(outcome.items, lines, offsets, spans),

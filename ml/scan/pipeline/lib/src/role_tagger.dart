@@ -15,6 +15,7 @@ library;
 import 'classifier.dart';
 import 'line_features_all.dart';
 import 'lines.dart';
+import 'store_gazetteer.dart';
 import 'structure.dart';
 
 /// Ordre des rôles, contrat partagé avec `annotate/schema.py`. Un décalage
@@ -34,6 +35,18 @@ const List<String> roleNames = [
 
 const int roleStore = 0;
 const int roleDateLine = 1;
+/// `structure_roles.dart` porte déjà `roleItem` comme nom de rôle ; ici
+/// c'est la colonne du modèle, d'où le suffixe.
+const int roleItemIndex = 2;
+
+/// Au-delà, une ligne qui nomme une enseigne parle d'autre chose : une pub
+/// fidélité, un site web en pied de ticket.
+const int headerFallbackLines = 12;
+
+/// On ne cherche un nom connu que parmi les lignes que le tagger n'a pas
+/// écartées. Une adresse sort à des probabilités de l'ordre de 0,005 — sous ce
+/// plancher, on fabriquerait des enseignes.
+const double recognitionMinProbability = 0.05;
 
 /// En-dessous, le modèle hésite : mieux vaut pas d'enseigne ni de date du
 /// tout qu'une ligne prise au hasard. Le rattachement du libellé ne passe
@@ -72,7 +85,51 @@ int? bestLineFor(List<List<double>> probabilities, int role) {
   return probabilities[best][role] > minRoleProbability ? best : null;
 }
 
-String? storeOf(List<PhysicalLine> lines, List<List<double>> probabilities) {
+/// L'en-tête s'arrête au premier article : après, une enseigne nommée est une
+/// publicité ou une adresse web, jamais le logo.
+int headerZone(List<PhysicalLine> lines, List<List<double>> probabilities) {
+  for (var index = 0; index < probabilities.length; index++) {
+    if (argmax(probabilities[index]) == roleItemIndex) return index;
+  }
+  return lines.length < headerFallbackLines ? lines.length : headerFallbackLines;
+}
+
+/// Le premier nom connu porté par une ligne plausible de l'en-tête.
+String? _recognizedStore(
+  List<PhysicalLine> lines,
+  List<List<double>> probabilities,
+  Gazetteer gazetteer,
+) {
+  final end = headerZone(lines, probabilities);
+  final ranked = [for (var index = 0; index < end; index++) index]
+    ..sort(
+      (a, b) => probabilities[b][roleStore].compareTo(probabilities[a][roleStore]),
+    );
+  for (final index in ranked) {
+    if (probabilities[index][roleStore] < recognitionMinProbability) return null;
+    final found = gazetteer.match(lines[index].text);
+    if (found != null) return found;
+  }
+  return null;
+}
+
+/// L'enseigne de la ligne que le tagger désigne, rendue sous sa graphie connue
+/// quand le répertoire l'y reconnaît.
+///
+/// Reconnaître prime sur recopier : quand le modèle désigne `-SP` et qu'une
+/// autre ligne de l'en-tête dit « McDonald's », c'est la seconde qui a raison.
+/// Sans répertoire, on retombe sur la ligne désignée telle quelle — c'est ce
+/// que faisait le Dart avant le portage, et ça coûtait cinq enseignes sur 500.
+String? storeOf(
+  List<PhysicalLine> lines,
+  List<List<double>> probabilities, {
+  Gazetteer? gazetteer,
+}) {
+  if (probabilities.isEmpty) return null;
+  if (gazetteer != null) {
+    final found = _recognizedStore(lines, probabilities, gazetteer);
+    if (found != null) return found;
+  }
   final index = bestLineFor(probabilities, roleStore);
   return index == null ? null : lines[index].text;
 }
