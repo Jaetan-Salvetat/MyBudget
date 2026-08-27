@@ -1106,9 +1106,23 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
 
 ## Datasets : sources et reconstruction
 
-Les images ne sont **pas versionnées** (poids ~2GB + licence FindIt
-recherche-only, redistribution interdite) ; seules les annotations golden le
-sont. `research/fetch_data.sh` reconstruit tout :
+Ni les images ni le corpus annoté ne sont versionnés — seul le golden FindIt
+l'est, parce qu'il est curé à la main et irremplaçable. Le reste se récupère
+par deux chemins, et la distinction compte :
+
+- **`./tool/scan_data/fetch.sh`** — ce qui ne se reconstruit pas, épinglé par
+  sha256 dans `tool/scan_data/lock.env` : le corpus annoté (~12 Mo, suffit à
+  entraîner) et les images déjà triées de `photos_pixel`, `open_prices` et
+  `mixed` (~4,2 Go, en morceaux car GitHub plafonne à 2 Gio par asset).
+  `--annotations` ne prend que la première.
+- **`research/fetch_data.sh`** — ce qui est déterministe : FindIt, les
+  sélections dérivées, le synthétique.
+
+`open_prices` est archivé plutôt que retéléchargé parce que c'est un jeu
+**vivant** : son dump grossit chaque jour et un contributeur peut supprimer sa
+preuve. Un re-fetch rendrait un autre corpus que celui sur lequel les
+annotations ont été faites. Pour l'agrandir délibérément :
+`uv run python -m corpus.open_prices`, puis republier.
 
 | Dataset | Source | Licence |
 |---|---|---|

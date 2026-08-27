@@ -65,6 +65,7 @@ rien : le filtre les écartait déjà au chargement. Le seul ticket FR de
 
 | Corpus | Retenus | Nature |
 |---|---|---|
+| open_prices | 3 119/4 350 | photos de contributeurs, 2024-2026, 347 enseignes |
 | FindIt T1-train | 472/500 | scans à plat, OCR fiable |
 | FindIt T1-test | 471/500 | idem, réservé à l'évaluation |
 | synthetic | 102/121 | tickets générés |
@@ -84,14 +85,18 @@ d'évaluation, jamais d'entraînement.
 
 ## Le corpus
 
-**586 tickets d'entraînement, 13 444 lignes** — T1-train 417, synthetic 97,
-T2-train 69, mixed 3. **435 tickets d'évaluation, 10 448 lignes** —
-T1-test 415, photos_pixel 20. Avec `roles_only`, l'entraînement monte à
-**656 tickets, 15 592 lignes**.
+**2 827 tickets d'entraînement, 68 678 lignes** — open_prices 2 241,
+T1-train 417, synthetic 97, T2-train 69, mixed 3. **435 tickets d'évaluation,
+10 448 lignes** — T1-test 415, photos_pixel 20. Avec `roles_only`,
+l'entraînement monte à **3 775 tickets, 95 070 lignes**.
 
-Répartition à l'entraînement : item 3136, header 3047, footer 2938, store 620,
-total 591, date_line 576, payment 556, item_label 546, tax 460, noise 341,
-discount 186, subtotal 153, change 148, summary 146.
+Répartition à l'entraînement : header 17 344, item 17 079, footer 11 348,
+tax 3 273, noise 3 284, total 2 857, store 2 689, date_line 2 467, payment
+2 374, item_label 2 214, summary 1 639, subtotal 896, discount 712,
+change 502.
+
+`open_prices` a multiplié le jeu par 4,8 et corrigé le déséquilibre qui
+inquiétait : `discount` passe de 186 à 712 occurrences.
 
 `store`, `date_line` et `item_label` sont les rôles que l'ancien schéma ne
 savait pas exprimer, et ils portent les trois postes d'erreur les plus chers.
@@ -168,6 +173,27 @@ au prochain `load()`.
 `--stale` ne rappelle le modèle que sur les tickets dont la provenance ne
 correspond pas au modèle et au prompt courants. Sans lui, un fichier déjà
 présent n'est jamais retouché.
+
+## Ce que vaut la vérité externe d'Open Prices (mesuré le 2026-08-26)
+
+Chaque ticket Open Prices porte un total saisi par un contributeur, sans OCR
+dans la boucle. Confronté à ce que le flow lit, sur les 700 tickets acceptés
+qui en ont un : **668 coïncident (95,4 %)**.
+
+Les 32 écarts ne sont pas 32 erreurs de lecture. Quatre ont été ouverts et
+regardés à l'image, et **les quatre donnent tort au contributeur** :
+
+| ticket | lu | déclaré | ce que le ticket imprime |
+|---|---|---|---|
+| op_0112909 | 4,00 | 16,45 | `Sous-Total 16.45` puis `Total 4.00€` après remise |
+| op_0044869 | 11,72 | 20,22 | `MONTANT DU 11,72` ; 20,22 est l'espèce tendue |
+| op_0062015 | 11,08 | 7,51 | `Total 11,08€` ; 7,51 est le prix d'un article |
+| op_0037815 | 13,19 | 16,16 | `TOTAL A PAYER 13,19` ; 16,16 est le total avant remises |
+
+**Ce total déclaré est donc un signal bruité, pas un golden.** Il désigne
+tantôt le sous-total, tantôt l'espèce tendue, tantôt un article isolé. Il ne
+peut pas servir de vérité d'évaluation ; il sert de **crible** — un désaccord
+vaut la peine d'être ouvert, et l'ouvrir instruit dans les deux sens.
 
 ## Pourquoi pas le Batch API (mesuré le 2026-08-26)
 

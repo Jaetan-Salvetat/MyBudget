@@ -16,15 +16,18 @@ if [ ! -d raw/findit/T1-test ]; then
   cp -R /tmp/findit/FindIt-Dataset-Train/T2-Train raw/findit/T2-train
 fi
 
-echo "== Wikimedia Commons (ticket FR)"
-mkdir -p corpus/mixed
-curl -sL -o corpus/mixed/wm_creperie_tante_lucie.jpg \
-  "https://commons.wikimedia.org/wiki/Special:FilePath/Tickets_de_caisse_de_la_crêperie_Tante_Lucie.jpg"
-
-echo "== Open Prices (tickets FR photographiés, ODbL / images CC BY-SA)"
-(cd ../research && uv run python -m corpus.open_prices)
-
 echo "== Sélections dérivées + corpus synthétique"
 (cd ../research && uv run python -m corpus.rebuild && uv run python -m corpus.generate)
 
-echo "Terminé. Les dumps OCR se régénèrent via le harnais (voir ../README.md)."
+echo
+echo "Ce script ne reconstruit QUE ce qui est déterministe : FindIt, les"
+echo "sélections dérivées et le synthétique (seed 42)."
+echo
+echo "  photos_pixel, open_prices et mixed → ./tool/scan_data/fetch.sh"
+echo
+echo "Elles ne se reconstruisent pas : open_prices est un jeu vivant dont le"
+echo "dump grossit chaque jour, donc un re-fetch rendrait un AUTRE corpus que"
+echo "celui sur lequel les annotations ont été faites. Pour l'agrandir"
+echo "délibérément : uv run python -m corpus.open_prices, puis republier."
+echo
+echo "Les dumps OCR se régénèrent via le harnais (voir ../README.md)."
