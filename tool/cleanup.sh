@@ -5,8 +5,8 @@
 #   ./tool/cleanup.sh --apply         # a la fin d'un entrainement
 #   ./tool/cleanup.sh --min-free 50 --apply   # en cours de run, disque plein
 #
-# L'etat cible est celui decrit par ml/README.md : output/best, un model.onnx a
-# jour, dataset/entities.jsonl et dataset/cache. Tout le reste se regenere.
+# L'etat cible est celui decrit par ml/README.md : output/best et son model.onnx
+# a jour, dataset/entities.jsonl et dataset/cache. Tout le reste se regenere.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -51,7 +51,7 @@ Sans argument, tous les projets de ml/ sont traites.
   --min-free GO          s'arrete des que cet espace libre est atteint
   -h, --help             affiche cette aide
 
-Jamais touches : output/best, output/model.onnx a jour, dataset/entities.jsonl,
+Jamais touches : output/best et son model.onnx a jour, dataset/entities.jsonl,
 dataset/cache, scan/data/golden, scan/data/results (dumps device, une nuit de
 run), .venv. Les checkpoints sont epargnes si un entrainement tourne.
 EOF
@@ -205,12 +205,16 @@ collect_checkpoints_of_run() {
   return 0
 }
 
+# L'export vit avec les poids dont il sort. Celui reste a la racine de output/
+# date du temps ou l'un et l'autre se choisissaient separement : c'est ce
+# decouplage qui a fait publier cinq versions du meme modele perime.
 collect_stale_exports() {
   local output_dir="$1"
   local weights="$output_dir/best/model.safetensors" artefact name
   [ -f "$weights" ] || return 0
   for name in "${EXPORT_NAMES[@]}"; do
-    artefact="$output_dir/$name"
+    add_candidate "$LEVEL_STALE" "export onnx hors de output/best" "$output_dir/$name"
+    artefact="$output_dir/best/$name"
     [ -f "$artefact" ] || continue
     if [ "$(mtime "$artefact")" -lt "$(mtime "$weights")" ]; then
       add_candidate "$LEVEL_STALE" "export onnx perime" "$artefact"

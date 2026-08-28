@@ -114,7 +114,7 @@ def test_keep_checkpoints_preserves_the_most_recent_steps(tmp_path: Path) -> Non
 
 def test_stale_onnx_export_is_removed_but_a_fresh_one_is_kept(tmp_path: Path) -> None:
     tree = make_tree(tmp_path)
-    export = write(tree["output"] / "model.onnx", 135)
+    export = write(tree["output"] / "best" / "model.onnx", 135)
     weights = tree["output"] / "best" / "model.safetensors"
 
     subprocess.run(["touch", "-t", "202601010000", str(export)], check=True)
@@ -122,10 +122,21 @@ def test_stale_onnx_export_is_removed_but_a_fresh_one_is_kept(tmp_path: Path) ->
     run(tree, "--apply")
     assert not export.exists()
 
-    export = write(tree["output"] / "model.onnx", 135)
+    export = write(tree["output"] / "best" / "model.onnx", 135)
     subprocess.run(["touch", "-t", "202603010000", str(export)], check=True)
     run(tree, "--apply")
     assert export.exists()
+
+
+def test_an_export_left_outside_the_weights_is_removed(tmp_path: Path) -> None:
+    tree = make_tree(tmp_path)
+    orphan = write(tree["output"] / "model.onnx", 135)
+    write(tree["output"] / "best" / "model.onnx", 135)
+
+    run(tree, "--apply")
+
+    assert not orphan.exists()
+    assert (tree["output"] / "best" / "model.onnx").exists()
 
 
 def test_backups_flag_is_required_to_drop_previous_runs(tmp_path: Path) -> None:

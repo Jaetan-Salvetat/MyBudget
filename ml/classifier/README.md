@@ -21,7 +21,7 @@ training/train.py  ──►  output/best/            ← poids PyTorch, les deu
         ├──►  evaluation/receipts.py            ← libellés de tickets réels
         │
         ▼
-training/export_onnx.py  ──►  output/model.onnx  ──►  tool/models/publish.sh
+training/export_onnx.py  ──►  output/best/model.onnx  ──►  publish.sh
 ```
 
 `serving/` porte le contrat d'entrée/sortie du modèle : tout module qui y vit a
@@ -163,7 +163,7 @@ seuil au-delà duquel l'app propose des suggestions plutôt qu'une réponse.
 ## 5. Exporter et déployer
 
 ```bash
-uv run python -m training.export_onnx                    # → output/model.onnx (int8)
+uv run python -m training.export_onnx                    # → output/best/model.onnx (int8)
 uv run python -m evaluation.onnx                      # l'artefact livré, pas les poids
 cd ../.. && ./tool/models/publish.sh             # asset versionné + release + lock
 ```
@@ -172,6 +172,13 @@ cd ../.. && ./tool/models/publish.sh             # asset versionné + release + 
 ses décisions à celles du modèle PyTorch. Un écart de quelques cas sur 451 est
 le bruit normal de l'int8 ; un effondrement signale une quantification ratée, et
 c'est la seule occasion de le voir avant les utilisateurs.
+
+L'export atterrit toujours à côté des poids qu'il encode (`MODEL_DIR`), et
+`registry.env` ne publie que `output/best/model.onnx`. Livrer un autre run se
+fait en en faisant `output/best` — il n'y a pas de chemin d'export à choisir.
+`publish.sh` affiche pour chaque modèle sa source, sa date et `INCHANGE` quand
+le sha ne bouge pas depuis la version précédente : c'est ce qui manquait quand
+cinq releases ont republié le même quick-add.
 
 `tool/models/publish.sh` régénère le tokenizer binaire, dépose
 `assets/models/model_v<N+1>.onnx`, crée la release GitHub et réécrit

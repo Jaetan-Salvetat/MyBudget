@@ -14,12 +14,11 @@ import onnxruntime as ort
 import torch
 from transformers import AutoTokenizer
 
-from paths import EXPORT_DIR, MODEL_DIR, QUICK_ADD_CORPUS, WORLD_CORPUS
+from paths import MODEL_DIR, ONNX_PATH, QUICK_ADD_CORPUS, WORLD_CORPUS
 from taxonomy import LABELS, canonical
 from training.train import MAX_LENGTH, BudgetClassifier
 
 MODEL_PATH = MODEL_DIR
-ONNX_PATH = EXPORT_DIR / "model.onnx"
 CORPORA = (WORLD_CORPUS, QUICK_ADD_CORPUS)
 
 TYPE_LABELS = ["expense", "income"]

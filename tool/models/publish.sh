@@ -23,7 +23,8 @@
 # dans le manifeste des assets, et tool/models/lock.env est reecrit ici.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Surchargeable pour que les tests exercent le script sur un depot factice.
+ROOT="${MODELS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 cd "$ROOT"
 
 source tool/models/registry.env
@@ -50,6 +51,21 @@ checksum() {
     sha256sum "$1" | cut -d' ' -f1
   else
     shasum -a 256 "$1" | cut -d' ' -f1
+  fi
+}
+
+file_date() {
+  stat -f '%Sm' -t '%Y-%m-%d %H:%M' "$1" 2> /dev/null || stat -c '%y' "$1" | cut -c1-16
+}
+
+# Le seul endroit ou se voit un export oublie : le sha de ce qu'on s'apprete a
+# publier, confronte a celui de la version precedente. Le quick-add est reste
+# cinq versions sur les memes octets parce que rien ne le disait.
+verdict() {
+  local sha="$1" previous="$2"
+  if [ -z "$previous" ]; then echo "premiere version"
+  elif [ "$sha" = "$previous" ]; then echo "INCHANGE"
+  else echo "nouveau"
   fi
 }
 
@@ -90,6 +106,7 @@ else
   VERSION="$((CURRENT + 1))"
 fi
 RELEASE="models-v$VERSION"
+RELEASE_PREVIOUS="models-v$CURRENT"
 
 # Republier sous un tag existant laisserait les installations deja a jour sur
 # les anciens modeles : l'app choisit ses assets par leur nom de fichier.
@@ -100,9 +117,11 @@ fi
 
 TOKENIZER_SOURCE="${TOKENIZER_SOURCE:-$TOKENIZER_SOURCE_DEFAULT}"
 echo "$([ "$DRY_RUN" -eq 1 ] && echo 'Essai a blanc' || echo 'Publication') de $RELEASE :"
+echo
 RELEASE_FILES=()
 NOTES_ROWS=()
 LOCK_ROWS=()
+UNCHANGED=()
 
 for entry in "${MODELS[@]}"; do
   id="$(id_of "$entry")"
@@ -113,53 +132,72 @@ for entry in "${MODELS[@]}"; do
   glob="${pattern//%s/v*}"
   source="$(source_override "$id")"
   [ -n "$source" ] || source="$(source_of "$entry")"
+  upper="$(echo "$id" | tr '[:lower:]' '[:upper:]')"
+  previous_name="${upper}_SHA256"
+  previous="${!previous_name:-}"
 
-  if [ "$DRY_RUN" -eq 1 ]; then
-    if [ -n "$source" ] && [ -f "$source" ]; then
-      echo "  $id -> $asset (depuis $source)"
-    else
-      existing="$(find "$ASSETS_DIR" -name "$glob" | head -n 1)"
-      [ -n "$existing" ] || { echo "  $id : ni source ni asset" >&2; exit 66; }
-      echo "  $id -> $asset (report de $(basename "$existing"))"
-    fi
-    continue
-  fi
-
+  # Le tokenizer n'a pas de source d'entrainement : il se regenere depuis
+  # celui des poids livres, et n'existe donc qu'une fois le dart passe.
   if [ "$id" = "tokenizer" ] && [ -f "$TOKENIZER_SOURCE" ]; then
-    echo "Regeneration du tokenizer depuis $TOKENIZER_SOURCE..."
+    if [ "$DRY_RUN" -eq 1 ]; then
+      printf '  %-16s %-24s %-16s regenere depuis %s\n' "$id" "$asset" "" "$TOKENIZER_SOURCE"
+      continue
+    fi
+    echo "  Regeneration du tokenizer depuis $TOKENIZER_SOURCE..."
     dart run tool/models/build_tokenizer_asset.dart "$TOKENIZER_SOURCE" "$destination.tmp"
     source="$destination.tmp"
   fi
 
   if [ -n "$source" ] && [ -f "$source" ]; then
-    # Un seul exemplaire dans le manifeste : l'app refuse de choisir.
-    find "$ASSETS_DIR" -name "$glob" -delete
-    # Copie, jamais deplacement : la sortie d'entrainement reste ou elle est.
-    # Seul le tokenizer intermediaire, genere ici, est deplace.
-    if [ "$source" = "$destination.tmp" ]; then
-      mv "$source" "$destination"
-    else
-      cp "$source" "$destination"
+    origin="$source ($(file_date "$source"))"
+    sha="$(checksum "$source")"
+    if [ "$DRY_RUN" -eq 0 ]; then
+      # Un seul exemplaire dans le manifeste : l'app refuse de choisir.
+      find "$ASSETS_DIR" -name "$glob" -delete
+      # Copie, jamais deplacement : la sortie d'entrainement reste ou elle est.
+      # Seul le tokenizer intermediaire, genere ici, est deplace.
+      if [ "$source" = "$destination.tmp" ]; then
+        mv "$source" "$destination"
+      else
+        cp "$source" "$destination"
+      fi
     fi
-    echo "  $id : depuis $source"
   else
     existing="$(find "$ASSETS_DIR" -name "$glob" | head -n 1)"
     if [ -z "$existing" ]; then
       echo "Ni sortie d'entrainement ni asset pour $id : rien a publier." >&2
       exit 66
     fi
+    origin="report de $(basename "$existing")"
+    sha="$(checksum "$existing")"
     # Reporte sous la nouvelle version : meme contenu, version commune.
-    [ "$existing" != "$destination" ] && mv "$existing" "$destination"
-    echo "  $id : report de $(basename "$existing") (inchange)"
+    if [ "$DRY_RUN" -eq 0 ] && [ "$existing" != "$destination" ]; then
+      mv "$existing" "$destination"
+    fi
   fi
 
-  sha="$(checksum "$destination")"
+  state="$(verdict "$sha" "$previous")"
+  [ "$state" = "INCHANGE" ] && UNCHANGED+=("$id")
+  printf '  %-16s %-24s %-16s %s\n' "$id" "$asset" "$state" "$origin"
+
+  [ "$DRY_RUN" -eq 1 ] && continue
+
   size="$(du -h "$destination" | cut -f1)"
-  upper="$(echo "$id" | tr '[:lower:]' '[:upper:]')"
   RELEASE_FILES+=("$destination")
   NOTES_ROWS+=("| \`$id\` | \`$asset\` | $size | \`$sha\` |")
   LOCK_ROWS+=("${upper}_ASSET=$asset" "${upper}_SHA256=$sha")
 done
+
+# Un modele reentraine dont les octets ne bougent pas est un export qui n'a
+# pas ete refait, ou une source qui pointe ailleurs que le run qu'on croit
+# publier. Rien ne l'interdit — les modeles non reentraines sont reportes tels
+# quels — mais ca ne doit pas passer sans etre lu.
+if [ "${#UNCHANGED[@]}" -gt 0 ]; then
+  echo
+  echo "INCHANGES depuis $RELEASE_PREVIOUS : ${UNCHANGED[*]}"
+  echo "Attendu pour un modele non reentraine. Sinon, la source de registry.env"
+  echo "pointe un export perime : verifier la date affichee ci-dessus."
+fi
 
 # La source HuggingFace est archivee avec les modeles : elle ne vit plus dans
 # le depot, et c'est elle qui permet de regenerer le tokenizer binaire.

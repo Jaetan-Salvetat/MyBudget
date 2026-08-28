@@ -17,7 +17,7 @@ ml/
 ```
 scan/data/golden  ──────────────►  classifier/corpus/receipts   vérité terrain → corpus
 scan/research/reference  ───────►  (libellés d'articles)        sortie OCR → entrée modèle
-classifier/output/model.onnx  ──►  assets/  ──►  lib/ + scan/pipeline
+classifier/output/best/model.onnx ►  assets/  ──►  lib/ + scan/pipeline
 classifier/serving/  ═══ parité ═══  scan/pipeline/lib/src/categorize.dart
 ```
 
@@ -56,7 +56,7 @@ uv run python -m training.train             # → output/best/ (~2 h sur MPS)
 uv run python -m evaluation.world           # connaissance monde
 uv run python -m evaluation.quick_add       # non-régression quick-add
 uv run python -m evaluation.receipts --cascade   # libellés de tickets (scan)
-uv run python -m training.export_onnx       # → output/model.onnx
+uv run python -m training.export_onnx       # → output/best/model.onnx
 uv run python -m evaluation.onnx            # justesse et fidélité de l'export int8
 uv run python -m pytest                     # invariants du pipeline
 ```
@@ -126,10 +126,16 @@ gitignorés. Après un run il ne doit rester dans `classifier/` que :
 
 ```
 output/best/          ~600 Mo   poids PyTorch du modèle retenu
-output/model.onnx     ~135 Mo   export int8 déployé dans assets/
+output/best/model.onnx ~135 Mo  son export int8, déployé dans assets/
 dataset/entities.jsonl  ~8 Mo   base de connaissance fusionnée
 dataset/cache/         ~20 Mo   sources téléchargées, réutilisables
 ```
+
+L'ONNX vit dans le dossier des poids dont il sort, et `registry.env` ne
+désigne que celui-là : livrer un autre run consiste à en faire `output/best`,
+jamais à publier un export posé ailleurs. Un export et des poids qui se
+choisissent séparément divergent — cinq versions du quick-add ont été publiées
+depuis un export périmé avant que ce lien ne soit rendu structurel.
 
 `output/best/` est le seul exemplaire des poids du modèle livré : sans lui,
 ré-exporter l'ONNX impose un ré-entraînement, dont le résultat ne sera pas

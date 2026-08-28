@@ -19,7 +19,11 @@ ENTITIES_PATH = DATASET_DIR / "entities.jsonl"
 
 OUTPUT_DIR = Path(os.environ.get("CLASSIFIER_OUTPUT", CLASSIFIER_DIR / "output"))
 MODEL_DIR = Path(os.environ.get("CLASSIFIER_MODEL", CLASSIFIER_DIR / "output" / "best"))
-EXPORT_DIR = Path(os.environ.get("CLASSIFIER_EXPORT_DIR", CLASSIFIER_DIR / "output"))
+
+# L'ONNX vit avec les poids dont il sort, et n'a pas de reglage propre : un
+# export et des poids qui se choisissent separement finissent par diverger, et
+# c'est ce qui a fait publier cinq versions du meme modele perime.
+ONNX_PATH = MODEL_DIR / "model.onnx"
 
 EVAL_DATA_DIR = CLASSIFIER_DIR / "evaluation" / "data"
 WORLD_CORPUS = EVAL_DATA_DIR / "world.json"
