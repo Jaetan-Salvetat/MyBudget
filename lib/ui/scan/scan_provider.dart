@@ -84,6 +84,24 @@ Future<ReceiptScanComposer> receiptScanComposer(Ref ref) async {
   );
 }
 
+/// La trace de la dernière lecture, pour l'inspecteur de scan.
+///
+/// Délibérément hors de [ReceiptScanResultModel] : le modèle décrit ce que
+/// l'utilisateur valide, la trace explique comment on y est arrivé. Les mêler
+/// ferait voyager des détails de pipeline jusque dans la création de dépense.
+///
+/// Gardée en vie : elle est écrite pendant le scan, alors que personne ne
+/// l'écoute — l'inspecteur ne s'ouvre qu'après. Auto-disposée, elle serait
+/// détruite dans la foulée et l'écran n'aurait jamais rien à montrer. Ce
+/// qu'elle retient est la dernière lecture, remplacée au scan suivant.
+@Riverpod(keepAlive: true)
+class ScanTrace extends _$ScanTrace {
+  @override
+  List<ReadTrace> build() => const [];
+
+  void record(List<ReadTrace> trace) => state = trace;
+}
+
 @riverpod
 class ScanNotifier extends _$ScanNotifier {
   final ReceiptStorageService _storageService = ReceiptStorageService();
@@ -103,6 +121,7 @@ class ScanNotifier extends _$ScanNotifier {
       final composer = await ref.read(receiptScanComposerProvider.future);
       debugPrint('[scan] chargement des modèles : ${watch.elapsedMilliseconds} ms');
       final read = await scanner.scan(imageBytes);
+      ref.read(scanTraceProvider.notifier).record(read.trace);
       final beforeCategories = watch.elapsedMilliseconds;
       state = AsyncData(await composer.compose(read));
       debugPrint(

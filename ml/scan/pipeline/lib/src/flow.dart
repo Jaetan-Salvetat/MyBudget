@@ -73,6 +73,31 @@ class ReceiptRead {
   List<List<double>> get roles => _roles ??= _inferRoles(lines);
 }
 
+/// Ce qu'une lecture a produit, gardé pour pouvoir l'expliquer.
+///
+/// Le flow en tente jusqu'à trois et n'en retient qu'une ; les deux autres
+/// disparaissaient sans laisser de trace, et avec elles la seule chose qui
+/// dit *pourquoi* la retenue l'a emporté. Rien ici n'est calculé pour
+/// l'occasion : ce sont les objets que le décodage a déjà produits.
+class ReadTrace {
+  const ReadTrace({
+    required this.source,
+    required this.lines,
+    required this.merged,
+    required this.roles,
+    required this.decoding,
+  });
+
+  final ReadSource source;
+  final List<PhysicalLine> lines;
+  final List<PhysicalLine> merged;
+  final List<List<double>> roles;
+  final ReceiptDecoding decoding;
+
+  /// La somme est-elle retombée sur une référence imprimée ?
+  bool get proved => decoding.receipt != null && decoding.receipt!.checksumOk;
+}
+
 /// Ce que le flow a lu, et par quelle lecture.
 class LocalOutcome {
   const LocalOutcome({
@@ -81,6 +106,7 @@ class LocalOutcome {
     required this.total,
     required this.lines,
     required this.roles,
+    this.trace = const [],
   });
 
   final ReadSource source;
@@ -93,8 +119,26 @@ class LocalOutcome {
   final List<PhysicalLine> lines;
   final List<List<double>> roles;
 
+  /// Les lectures tentées, dans l'ordre, jusqu'à celle qui a été retenue.
+  /// Rien ne s'en sert pour décider — c'est de quoi rendre la décision
+  /// lisible après coup.
+  final List<ReadTrace> trace;
+
   bool get verified => verifiedSources.contains(source);
 }
+
+/// Ce que le décodeur fait de cette lecture.
+ReadTrace traceOf(ReceiptRead read) => ReadTrace(
+  source: read.source,
+  lines: read.lines,
+  merged: read.merged,
+  roles: read.roles,
+  decoding: decodeRoleConstrained(
+    read.merged,
+    read.roles,
+    alternatives: read.alternatives,
+  ),
+);
 
 /// Le reçu que cette lecture prouve, ou `null`.
 ExtractedReceipt? readReceipt(ReceiptRead read) {
@@ -109,7 +153,7 @@ ExtractedReceipt? readReceipt(ReceiptRead read) {
 /// Ce qu'on affiche quand aucune somme n'est prouvée : l'argmax du tagger,
 /// tel quel. Il pré-remplit l'écran de confirmation — et n'est jamais badgé
 /// vérifié.
-LocalOutcome unverified(ReceiptRead read) {
+LocalOutcome unverified(ReceiptRead read, {List<ReadTrace> trace = const []}) {
   final receipt = extractRoles(read.merged, predictedRoles(read.roles));
   return LocalOutcome(
     source: ReadSource.confirm,
@@ -117,17 +161,22 @@ LocalOutcome unverified(ReceiptRead read) {
     total: receipt?.total,
     lines: read.lines,
     roles: read.roles,
+    trace: trace,
   );
 }
 
-LocalOutcome _verified(ReceiptRead read, ExtractedReceipt receipt) =>
-    LocalOutcome(
-      source: read.source,
-      items: receipt.items,
-      total: receipt.verifiedTotal,
-      lines: read.lines,
-      roles: read.roles,
-    );
+LocalOutcome _verified(
+  ReceiptRead read,
+  ExtractedReceipt receipt,
+  List<ReadTrace> trace,
+) => LocalOutcome(
+  source: read.source,
+  items: receipt.items,
+  total: receipt.verifiedTotal,
+  lines: read.lines,
+  roles: read.roles,
+  trace: trace,
+);
 
 /// La seconde lecture de l'image, prétraitée. Elle ne coûte que sur les
 /// tickets que la passe 1 ne prouve pas : le flow ne la demande qu'alors.
@@ -140,17 +189,30 @@ Future<LocalOutcome> decideLocal(
   RoleInference inferRoles, {
   SecondPass? secondPass,
 }) async {
+  final trace = <ReadTrace>[];
+
+  /// Décode la lecture, l'archive, et rend le reçu seulement s'il prouve la
+  /// somme. Une seule inférence et un seul décodage par lecture : la trace
+  /// recueille ce que le flow calculait déjà.
+  LocalOutcome? attempt(ReceiptRead read) {
+    final step = traceOf(read);
+    trace.add(step);
+    return step.proved ? _verified(read, step.decoding.receipt!, trace) : null;
+  }
+
   final first = ReceiptRead(ReadSource.pass1, pass1, inferRoles);
-  final proved = readReceipt(first);
-  if (proved != null) return _verified(first, proved);
-  if (secondPass == null) return unverified(first);
+  final proved = attempt(first);
+  if (proved != null) return proved;
+  if (secondPass == null) return unverified(first, trace: trace);
 
   final retryLines = await secondPass();
-  if (retryLines == null || retryLines.isEmpty) return unverified(first);
+  if (retryLines == null || retryLines.isEmpty) {
+    return unverified(first, trace: trace);
+  }
 
   final retry = ReceiptRead(ReadSource.retry, retryLines, inferRoles);
-  final retryProved = readReceipt(retry);
-  if (retryProved != null) return _verified(retry, retryProved);
+  final retryProved = attempt(retry);
+  if (retryProved != null) return retryProved;
 
   final fusion = fusePasses(pass1, retryLines);
   final fused = ReceiptRead(
@@ -159,7 +221,7 @@ Future<LocalOutcome> decideLocal(
     inferRoles,
     alternatives: fusion.alternatives,
   );
-  final fusedProved = readReceipt(fused);
-  if (fusedProved != null) return _verified(fused, fusedProved);
-  return unverified(fused);
+  final fusedProved = attempt(fused);
+  if (fusedProved != null) return fusedProved;
+  return unverified(fused, trace: trace);
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -15,6 +16,7 @@ import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
+import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
 import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
@@ -91,7 +93,24 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final hasData = result != null && result.items.isNotEmpty;
 
     return FrostedScaffold(
-      appBar: FrostedTopBar(title: 'Scanner un ticket'),
+      appBar: FrostedTopBar(
+        title: 'Scanner un ticket',
+        // Le détail de chaque étage du flow n'a d'intérêt que pour qui
+        // développe le scan, et il montre des données brutes : il ne sort pas
+        // des builds de debug.
+        actions: [
+          if (kDebugMode && !isLoading)
+            IconButton(
+              icon: const Icon(Symbols.bug_report_rounded),
+              tooltip: 'Inspecter le scan',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ScanInspectorScreen(),
+                ),
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: hasData ? _buildBottomBar(context, result) : null,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),

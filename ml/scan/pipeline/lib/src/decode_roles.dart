@@ -70,6 +70,27 @@ List<double> _folded(List<double> row) {
   return folded;
 }
 
+/// Ce que le décodeur a fait de cette lecture, et pas seulement ce qu'il en a
+/// tiré.
+///
+/// Le reçu seul ne dit ni quelles lignes portaient un montant, ni lesquelles
+/// la laxité a ouvertes, ni quel étiquetage a fait retomber la somme. Quand
+/// une extraction surprend, c'est exactement ce qui manque pour comprendre —
+/// et rien de tout ça ne coûte à calculer, c'est déjà fait.
+class ReceiptDecoding {
+  const ReceiptDecoding({
+    required this.laxRanks,
+    required this.priced,
+    required this.hypothesis,
+    required this.receipt,
+  });
+
+  final Set<int> laxRanks;
+  final List<PricedLine> priced;
+  final Hypothesis? hypothesis;
+  final ExtractedReceipt? receipt;
+}
+
 /// Le reçu que ce ticket prouve, ou `null` si aucune somme ne retombe.
 ///
 /// [merged] porte les prix recollés, et [roleProbabilities] décrit les lignes
@@ -79,16 +100,47 @@ ExtractedReceipt? extractRoleConstrained(
   List<PhysicalLine> merged,
   List<List<double>> roleProbabilities, {
   Map<int, int> alternatives = const {},
+}) => decodeRoleConstrained(
+  merged,
+  roleProbabilities,
+  alternatives: alternatives,
+).receipt;
+
+/// Le même décodage, avec ce qu'il a traversé.
+ReceiptDecoding decodeRoleConstrained(
+  List<PhysicalLine> merged,
+  List<List<double>> roleProbabilities, {
+  Map<int, int> alternatives = const {},
 }) {
-  final priced = pricedLines(merged, laxRanks: laxRanks(roleProbabilities));
-  if (priced.isEmpty) return null;
+  final lax = laxRanks(roleProbabilities);
+  final priced = pricedLines(merged, laxRanks: lax);
+  if (priced.isEmpty) {
+    return ReceiptDecoding(
+      laxRanks: lax,
+      priced: priced,
+      hypothesis: null,
+      receipt: null,
+    );
+  }
   final hypothesis = decodeConstrained(
     priced,
     decoderProbabilities(roleProbabilities, priced),
     printedCount: printedCount(merged),
     alternatives: rankAlternatives(priced, alternatives),
   );
-  if (hypothesis == null) return null;
+  return ReceiptDecoding(
+    laxRanks: lax,
+    priced: priced,
+    hypothesis: hypothesis,
+    receipt: hypothesis == null ? null : _receiptOf(merged, priced, hypothesis),
+  );
+}
+
+ExtractedReceipt? _receiptOf(
+  List<PhysicalLine> merged,
+  List<PricedLine> priced,
+  Hypothesis hypothesis,
+) {
   final referenceTotal = hypothesis.referenceCents / 100;
   if (hypothesis.singleItem) return singleItemReceipt(merged, referenceTotal);
   final chosen = hypothesis.cents.isEmpty

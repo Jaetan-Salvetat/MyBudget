@@ -14,6 +14,11 @@ from pathlib import Path
 
 MIN_VERTICAL_OVERLAP_RATIO = 0.4
 
+# En deçà, l'écart entre deux paquets de résidus s'explique par le bruit des
+# boîtes ; au-delà, il vaut un interligne, donc deux lignes imprimées. Balayé
+# sur le corpus, voir ml/scan/README.md.
+BASELINE_SPLIT_RATIO = 0.6
+
 
 @dataclass(frozen=True)
 class Word:
@@ -129,7 +134,61 @@ def _vertical_overlap_ratio(word: Word, line: PhysicalLine) -> float:
     return overlap / min(word.height, line.bottom - line.top)
 
 
-def cluster_lines(words: list[Word]) -> list[PhysicalLine]:
+def _baseline_residuals(words: list[Word]) -> list[float]:
+    """Écart vertical de chaque mot à la droite ajustée sur le groupe.
+
+    Un ticket photographié n'est pas plat : l'inclinaison varie le long de la
+    bande, et un angle médian unique ne la redresse pas partout. Ajuster une
+    droite par groupe absorbe ce qu'il en reste, quelle que soit la pente."""
+    xs = [(w.left + w.right) / 2 for w in words]
+    ys = [w.center_y for w in words]
+    mean_x = sum(xs) / len(xs)
+    mean_y = sum(ys) / len(ys)
+    variance = sum((x - mean_x) ** 2 for x in xs)
+    slope = (
+        0.0
+        if variance == 0
+        else sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys)) / variance
+    )
+    return [y - (mean_y + slope * (x - mean_x)) for x, y in zip(xs, ys)]
+
+
+def _median_height(words: list[Word]) -> float:
+    heights = sorted(w.bottom - w.top for w in words)
+    return heights[len(heights) // 2]
+
+
+def split_baselines(words: list[Word]) -> list[list[Word]]:
+    """Redécoupe un groupe qui recouvre plusieurs lignes imprimées.
+
+    Le regroupement compare chaque mot à l'enveloppe verticale du groupe, et
+    cette enveloppe grandit à mesure qu'elle absorbe des mots inclinés :
+    au-delà d'une certaine pente elle atteint la ligne d'à côté et l'avale.
+    Deux lignes imprimées collées laissent alors leurs mots sur deux lignes de
+    base parallèles, et les résidus se séparent en deux paquets distants d'un
+    interligne.
+
+    Une ligne imprimée seule, elle, a des résidus resserrés quelle que soit son
+    inclinaison — c'est la pente qui les absorbe, pas le seuil. Et deux mots ne
+    se séparent jamais : la droite passe exactement par eux."""
+    if len(words) < 2:
+        return [words]
+    residuals = _baseline_residuals(words)
+    gap = BASELINE_SPLIT_RATIO * _median_height(words)
+    order = sorted(range(len(words)), key=lambda index: residuals[index])
+    groups: list[list[Word]] = [[]]
+    previous = None
+    for index in order:
+        if previous is not None and residuals[index] - residuals[previous] > gap:
+            groups.append([])
+        groups[-1].append(words[index])
+        previous = index
+    return groups
+
+
+def cluster_lines(words: list[Word], split: bool = True) -> list[PhysicalLine]:
+    """`split=False` rend le regroupement d'avant la séparation — il ne sert
+    qu'à montrer, en test, ce que la séparation répare."""
     ordered = sorted(words, key=lambda w: w.center_y)
     lines: list[list[Word]] = []
     for word in ordered:
@@ -143,8 +202,9 @@ def cluster_lines(words: list[Word]) -> list[PhysicalLine]:
         if not placed:
             lines.append([word])
     result = [
-        PhysicalLine(words=sorted(line_words, key=lambda w: w.left))
+        PhysicalLine(words=sorted(group, key=lambda w: w.left))
         for line_words in lines
+        for group in (split_baselines(line_words) if split else [line_words])
     ]
     result.sort(key=lambda line: line.top)
     return result

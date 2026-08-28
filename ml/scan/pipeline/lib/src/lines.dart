@@ -10,6 +10,11 @@ import 'dart:math' as math;
 
 const double minVerticalOverlapRatio = 0.4;
 
+/// En deçà, l'écart entre deux paquets de résidus s'explique par le bruit des
+/// boîtes ; au-delà, il vaut un interligne, donc deux lignes imprimées. Balayé
+/// sur le corpus, voir `ml/scan/README.md`.
+const double baselineSplitRatio = 0.6;
+
 class Word {
   const Word({
     required this.text,
@@ -108,7 +113,69 @@ List<T> _stableSortedBy<T>(List<T> values, double Function(T) key) {
   return [for (final entry in indexed) entry.value];
 }
 
-List<PhysicalLine> clusterLines(List<Word> words) {
+/// Écart vertical de chaque mot à la droite ajustée sur le groupe.
+///
+/// Un ticket photographié n'est pas plat : l'inclinaison varie le long de la
+/// bande, et un angle médian unique ne la redresse pas partout. Ajuster une
+/// droite par groupe absorbe ce qu'il en reste, quelle que soit la pente.
+List<double> _baselineResiduals(List<Word> words) {
+  final xs = [for (final word in words) (word.left + word.right) / 2];
+  final ys = [for (final word in words) word.centerY];
+  final meanX = xs.reduce((a, b) => a + b) / xs.length;
+  final meanY = ys.reduce((a, b) => a + b) / ys.length;
+  var variance = 0.0;
+  var covariance = 0.0;
+  for (var index = 0; index < words.length; index++) {
+    variance += (xs[index] - meanX) * (xs[index] - meanX);
+    covariance += (xs[index] - meanX) * (ys[index] - meanY);
+  }
+  final slope = variance == 0 ? 0.0 : covariance / variance;
+  return [
+    for (var index = 0; index < words.length; index++)
+      ys[index] - (meanY + slope * (xs[index] - meanX)),
+  ];
+}
+
+double _medianHeight(List<Word> words) {
+  final heights = [for (final word in words) word.bottom - word.top]..sort();
+  return heights[heights.length ~/ 2];
+}
+
+/// Redécoupe un groupe qui recouvre plusieurs lignes imprimées.
+///
+/// Le regroupement compare chaque mot à l'enveloppe verticale du groupe, et
+/// cette enveloppe grandit à mesure qu'elle absorbe des mots inclinés :
+/// au-delà d'une certaine pente elle atteint la ligne d'à côté et l'avale.
+/// Deux lignes imprimées collées laissent alors leurs mots sur deux lignes de
+/// base parallèles, et les résidus se séparent en deux paquets distants d'un
+/// interligne.
+///
+/// Une ligne imprimée seule, elle, a des résidus resserrés quelle que soit son
+/// inclinaison — c'est la pente ajustée qui les absorbe, pas le seuil. Et deux
+/// mots ne se séparent jamais : la droite passe exactement par eux.
+List<List<Word>> splitBaselines(List<Word> words) {
+  if (words.length < 2) return [words];
+  final residuals = _baselineResiduals(words);
+  final gap = baselineSplitRatio * _medianHeight(words);
+  final order = _stableSortedBy(
+    [for (var index = 0; index < words.length; index++) index],
+    (index) => residuals[index],
+  );
+  final groups = <List<Word>>[[]];
+  int? previous;
+  for (final index in order) {
+    if (previous != null && residuals[index] - residuals[previous] > gap) {
+      groups.add([]);
+    }
+    groups.last.add(words[index]);
+    previous = index;
+  }
+  return groups;
+}
+
+/// [split] à faux rend le regroupement d'avant la séparation — il ne sert qu'à
+/// montrer, en test, ce que la séparation répare.
+List<PhysicalLine> clusterLines(List<Word> words, {bool split = true}) {
   final ordered = _stableSortedBy(words, (word) => word.centerY);
   final clusters = <List<Word>>[];
   for (final word in ordered) {
@@ -127,7 +194,8 @@ List<PhysicalLine> clusterLines(List<Word> words) {
   }
   final result = [
     for (final clusterWords in clusters)
-      PhysicalLine(words: _stableSortedBy(clusterWords, (w) => w.left)),
+      for (final group in split ? splitBaselines(clusterWords) : [clusterWords])
+        PhysicalLine(words: _stableSortedBy(group, (w) => w.left)),
   ];
   return _stableSortedBy(result, (line) => line.top);
 }

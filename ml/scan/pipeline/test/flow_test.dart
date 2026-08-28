@@ -6,13 +6,14 @@ import 'support.dart';
 /// Un tagger de rôles parfait : chaque ligne reçoit le rôle qu'on lui donne,
 /// à probabilité 1. Le flow ne connaît que cette signature, donc sa politique
 /// de lecture se teste sans embarquer de modèle.
-RoleInference tagger(List<String> roles) => (lines) => [
-  for (final (index, _) in lines.indexed)
-    [
-      for (final name in roleNames)
-        name == (index < roles.length ? roles[index] : 'noise') ? 1.0 : 0.0,
-    ],
-];
+RoleInference tagger(List<String> roles) =>
+    (lines) => [
+      for (final (index, _) in lines.indexed)
+        [
+          for (final name in roleNames)
+            name == (index < roles.length ? roles[index] : 'noise') ? 1.0 : 0.0,
+        ],
+    ];
 
 const List<String> itemItemTotal = ['item', 'item', 'total'];
 
@@ -79,28 +80,32 @@ void main() {
   });
 
   group('rien ne prouve la somme', () {
-    test('sans seconde lecture, la passe 1 pré-remplit la confirmation',
-        () async {
-      final outcome = await decideLocal(
-        receipt('2,00', '3,00', '9,00'),
-        tagger(itemItemTotal),
-      );
-      expect(outcome.source, ReadSource.confirm);
-      expect(outcome.verified, isFalse);
-      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
-      expect(outcome.total, 9.0);
-    });
+    test(
+      'sans seconde lecture, la passe 1 pré-remplit la confirmation',
+      () async {
+        final outcome = await decideLocal(
+          receipt('2,00', '3,00', '9,00'),
+          tagger(itemItemTotal),
+        );
+        expect(outcome.source, ReadSource.confirm);
+        expect(outcome.verified, isFalse);
+        expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
+        expect(outcome.total, 9.0);
+      },
+    );
 
-    test('une seconde lecture impossible ne fait pas perdre la première',
-        () async {
-      final outcome = await decideLocal(
-        receipt('2,00', '3,00', '9,00'),
-        tagger(itemItemTotal),
-        secondPass: () async => null,
-      );
-      expect(outcome.source, ReadSource.confirm);
-      expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
-    });
+    test(
+      'une seconde lecture impossible ne fait pas perdre la première',
+      () async {
+        final outcome = await decideLocal(
+          receipt('2,00', '3,00', '9,00'),
+          tagger(itemItemTotal),
+          secondPass: () async => null,
+        );
+        expect(outcome.source, ReadSource.confirm);
+        expect(amounts(outcome), [(2.0, 0.0), (3.0, 0.0)]);
+      },
+    );
 
     test('la confirmation part de la dernière lecture', () async {
       final outcome = await decideLocal(
@@ -120,6 +125,65 @@ void main() {
     );
     expect(outcome.lines.length, 3);
     expect(predictedRoles(outcome.roles), itemItemTotal);
+  });
+
+  group('trace', () {
+    test(
+      'une somme prouvée dès la passe 1 n\'archive qu\'une lecture',
+      () async {
+        final outcome = await decideLocal(
+          receipt('2,00', '3,00', '5,00'),
+          tagger(itemItemTotal),
+          secondPass: () async => receipt('2,00', '3,00', '5,00'),
+        );
+        expect(
+          [for (final step in outcome.trace) step.source],
+          [ReadSource.pass1],
+        );
+        expect(outcome.trace.single.proved, isTrue);
+      },
+    );
+
+    test(
+      'les trois lectures tentées sont archivées, la retenue en dernier',
+      () async {
+        final outcome = await decideLocal(
+          receipt('2,00', '3,00', '9,00'),
+          tagger(itemItemTotal),
+          secondPass: () async => receipt('2,00', '3,00', '9,00'),
+        );
+        expect(
+          [for (final step in outcome.trace) step.source],
+          [ReadSource.pass1, ReadSource.retry, ReadSource.fused],
+        );
+        expect([
+          for (final step in outcome.trace) step.proved,
+        ], everyElement(isFalse));
+      },
+    );
+
+    test('la trace porte ce que le décodeur a vu de chaque ligne', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '5,00'),
+        tagger(itemItemTotal),
+      );
+      final decoding = outcome.trace.single.decoding;
+      expect([for (final line in decoding.priced) line.index], [0, 1, 2]);
+      expect(decoding.laxRanks, {0, 1, 2});
+      expect(decoding.hypothesis?.referenceCents, 500);
+    });
+
+    test('une lecture sans seconde passe archive la seule tentée', () async {
+      final outcome = await decideLocal(
+        receipt('2,00', '3,00', '9,00'),
+        tagger(itemItemTotal),
+      );
+      expect(outcome.source, ReadSource.confirm);
+      expect(
+        [for (final step in outcome.trace) step.source],
+        [ReadSource.pass1],
+      );
+    });
   });
 
   test('les noms de lecture sont le contrat Python', () {

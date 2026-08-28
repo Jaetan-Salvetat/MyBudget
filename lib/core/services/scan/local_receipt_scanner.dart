@@ -16,6 +16,7 @@ class LocalReceiptScan {
     required this.date,
     required this.total,
     required this.items,
+    this.trace = const [],
   });
 
   final ReadSource source;
@@ -23,6 +24,11 @@ class LocalReceiptScan {
   final String? date;
   final double? total;
   final List<ExtractedItem> items;
+
+  /// Ce que chaque lecture tentée a produit. Rien ne s'en sert pour décider :
+  /// c'est ce qu'affiche l'inspecteur de scan, et la seule façon de savoir
+  /// pourquoi un article n'est pas là sans rejouer la photo à la main.
+  final List<ReadTrace> trace;
 
   bool get verified => verifiedSources.contains(source);
 }
@@ -93,6 +99,7 @@ class LocalReceiptScanner {
       date: dateOf(lines, roles),
       total: outcome.total,
       items: relabel(outcome.items, lines, offsets, spans),
+      trace: outcome.trace,
     );
   }
 
