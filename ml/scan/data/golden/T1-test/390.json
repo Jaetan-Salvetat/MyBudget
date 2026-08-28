@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/390.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-19",
+  "total": 4.63,
+  "items": [
+   {
+    "name": "*PIM'S FRAMBOISE LU",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "*SALAD  PATE JBON",
+    "amount": 3.32,
+    "discount": 0
+   }
+  ]
+ }
+}

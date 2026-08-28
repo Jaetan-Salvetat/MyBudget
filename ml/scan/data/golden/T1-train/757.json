@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/757.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2016-12-18",
+  "total": 54.17,
+  "items": [
+   {
+    "name": "EVIAN SNOW E.MIN.6X1",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "CHABRIOR MADELEINE C",
+    "amount": 2.08,
+    "discount": 0
+   },
+   {
+    "name": "TOP BUDGET BISCOTTES",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "MERLU ENTIER",
+    "amount": 12.2,
+    "discount": 0
+   },
+   {
+    "name": "CAISS. POT AU FEU**",
+    "amount": 4.22,
+    "discount": 0
+   },
+   {
+    "name": "JORD.C.CRISP S.ERABL",
+    "amount": 3.7,
+    "discount": 0
+   },
+   {
+    "name": "IVORIA PEANUT ET CHO",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "CHOUK CHINOIS PIECE",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "NAVET BLANC VRAC",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "pomme moche granny",
+    "amount": 2.92,
+    "discount": 0
+   },
+   {
+    "name": "CREVETTES ROSES CUIT",
+    "amount": 4.3,
+    "discount": 0
+   },
+   {
+    "name": "CAISS. POT AU FEU**",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "IVORIA BLOC NOIR NOI",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "AMANDE DE MER",
+    "amount": 3.62,
+    "discount": 0
+   },
+   {
+    "name": "FORET NOIRE 2X90GR",
+    "amount": 4.35,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/608.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BRICO DEPOT",
+  "date": "2017-07-04",
+  "total": 15.65,
+  "items": [
+   {
+    "name": "POTEAU T VERT 30X1200",
+    "amount": 15.65,
+    "discount": 0
+   }
+  ]
+ }
+}

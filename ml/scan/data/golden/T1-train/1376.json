@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1376.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Citadium Caumartin",
+  "date": "2017-02-25",
+  "total": 55.0,
+  "items": [
+   {
+    "name": "ARTICLE (c) VANESSA WU 118091201",
+    "amount": 55.0,
+    "discount": 0
+   }
+  ]
+ }
+}

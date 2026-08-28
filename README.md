@@ -61,39 +61,48 @@ Une version **beta** est aussi disponible pour tester les nouveautés en avant-p
 
 ## Développement
 
-**Prérequis** : Flutter 3.47.1, Git LFS (`brew install git-lfs && git lfs install`), JDK 17.
+**Prérequis** : Flutter 3.47.1, JDK 17.
 
 ```bash
 git clone https://github.com/Jaetan-Salvetat/MyBudget.git
 cd MyBudget
-git lfs pull            # tokenizer de l'ajout rapide (~11 Mo)
 flutter pub get
-./tool/fetch_model.sh   # modèle du quick add (~142 Mo)
+./tool/models/fetch.sh   # tous les modèles embarqués (~160 Mo)
 flutter run --flavor dev
 ```
 
-`./tool/fetch_model.sh` n'est pas optionnel. Le modèle ONNX vit dans les
+`./tool/models/fetch.sh` n'est pas optionnel. Les modèles vivent dans les
 [release assets](https://github.com/Jaetan-Salvetat/MyBudget/releases) plutôt que dans le dépôt :
-142 Mo par version que LFS facturerait en stockage et en bande passante à chaque checkout de CI.
-Sans lui, le build passe et l'APK se construit — mais l'app échoue au premier ajout rapide, parce
-que `assets/models/` est déclaré comme dossier dans `pubspec.yaml` et qu'un fichier manquant ne
-casse rien à la compilation. Le script vérifie l'empreinte SHA-256 décrite dans `tool/model.lock`
-et sort en erreur si elle ne correspond pas.
+160 Mo par version que LFS facturerait en stockage et en bande passante à chaque checkout de CI.
+Sans eux, le build passe et l'APK se construit — mais l'app échoue au premier ajout rapide ou au
+premier ticket scanné, parce que `assets/models/` est déclaré comme dossier dans `pubspec.yaml`
+et qu'un fichier manquant ne casse rien à la compilation. Le script vérifie chaque empreinte
+SHA-256 décrite dans `tool/models/lock.env` et sort en erreur si l'une ne correspond pas.
 
-### Publier un nouveau modèle
+Cinq modèles, une seule version, une seule release : le classifieur ONNX de l'ajout rapide et son
+tokenizer, et les trois modèles du scan local (classifieur de lignes, tagger de rôles, modèle de
+lien). Ils sont utilisés ensemble et mesurés ensemble — une installation qui mélangerait les
+versions déciderait autrement que la référence.
 
-Après un ré-entraînement (`ml/quick_add/`) :
+### Publier de nouveaux modèles
+
+Après un ré-entraînement (`ml/classifier/` pour l'ajout rapide, `ml/scan/` pour le scan) :
 
 ```bash
-cd ml/quick_add && python export_onnx.py && cd ../..
-./tool/publish_model.sh          # ou ./tool/publish_model.sh v5 pour imposer la version
+./tool/models/publish.sh          # ou ./tool/models/publish.sh v9 pour imposer la version
 flutter test
 ```
 
-Le script régénère `tokenizer.bin` depuis le tokenizer d'entraînement, dépose le modèle sous la
-version suivante, crée la release GitHub avec le modèle et la source du tokenizer, et réécrit
-`tool/model.lock`. Il refuse de publier sur un tag existant. Restent à committer : `tool/model.lock`
-et `assets/models/tokenizer.bin`.
+Un seul script pour les cinq. Chacun est repris de sa sortie d'entraînement si elle existe, et
+**reporté tel quel sous la nouvelle version** sinon : ré-entraîner un seul modèle suffit, les
+autres suivent sans être régénérés. Le script régénère le tokenizer binaire depuis le tokenizer
+d'entraînement, crée la release GitHub avec les cinq assets et la source du tokenizer, et réécrit
+`tool/models/lock.env`. Il refuse de publier sur un tag existant. Reste à committer :
+`tool/models/lock.env`.
+
+De l'autre côté, `fetch.sh` ne retélécharge que ce qui a changé : un modèle déjà présent dont
+l'empreinte correspond est simplement renommé sous la nouvelle version — faire avancer la version
+commune ne coûte pas 142 Mo de trafic pour un modèle inchangé.
 
 Aucun code n'est à éditer : `QuickAddModelRunner` lit le nom du modèle dans le manifeste des
 assets, et échoue avec un message explicite si `assets/models/` n'en contient aucun — ou plusieurs.

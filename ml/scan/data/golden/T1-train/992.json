@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/992.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Netto",
+  "date": "2016-12-08",
+  "total": 6.11,
+  "items": [
+   {
+    "name": "NETTO SIROP FRAMBOIS",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "NETTO SAC POUBELLE 2",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "ADHESIF TRANSPARENT",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "NETTO MOULINE LEG.VA",
+    "amount": 1.22,
+    "discount": 0
+   }
+  ]
+ }
+}

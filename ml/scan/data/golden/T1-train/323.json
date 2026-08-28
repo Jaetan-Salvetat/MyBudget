@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/323.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-22",
+  "total": 8.64,
+  "items": [
+   {
+    "name": "*180G QUINOA BOULG",
+    "amount": 2.77,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 2.07,
+    "discount": 0
+   },
+   {
+    "name": "*WRAP POULET CURRY",
+    "amount": 3.8,
+    "discount": 0
+   }
+  ]
+ }
+}

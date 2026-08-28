@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/288.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-30",
+  "total": 7.9,
+  "items": [
+   {
+    "name": "*350G PT SALE LENT.",
+    "amount": 3.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 1.76,
+    "discount": 0.0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

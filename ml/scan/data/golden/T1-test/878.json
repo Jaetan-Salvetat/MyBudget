@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/878.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Restaurant McDonald's Paris Place d'Italie",
+  "date": "2017-06-19",
+  "total": 2.0,
+  "items": [
+   {
+    "name": "Dbl Expresso",
+    "amount": 2.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1555.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "L'HEURE DU MARCHE",
+  "date": "2017-01-14",
+  "total": 15.85,
+  "items": [
+   {
+    "name": "OLIVE VERTES DENOY. VRAC",
+    "amount": 4.24,
+    "discount": 0
+   },
+   {
+    "name": "ANANAS SWEET TRANCHE",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "OSSAU IRATY FERMIER",
+    "amount": 6.6,
+    "discount": 0
+   },
+   {
+    "name": "TOMME CATALANE",
+    "amount": 2.02,
+    "discount": 0
+   }
+  ]
+ }
+}

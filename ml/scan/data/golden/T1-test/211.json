@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/211.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour LYON LA PART DIEU",
+  "date": "2016-12-30",
+  "total": 22.45,
+  "items": [
+   {
+    "name": "6 PURE ACT.SPOT CTRL",
+    "amount": 7.05,
+    "discount": 0.0
+   },
+   {
+    "name": "6 KIT FRENCH MINUTE",
+    "amount": 5.5,
+    "discount": 0.0
+   },
+   {
+    "name": "6 CRF KIT NETTOY TV",
+    "amount": 9.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

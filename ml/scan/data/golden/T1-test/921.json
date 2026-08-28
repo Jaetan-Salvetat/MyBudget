@@ -1,0 +1,109 @@
+{
+ "source": "dataset_findit/T1-test/img/921.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-30",
+  "total": 47.08,
+  "items": [
+   {
+    "name": "HUILE DE TOURNESOL PET 1L ECO controls",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "* LES EXQUIS THON,80G",
+    "amount": 6.08,
+    "discount": 0
+   },
+   {
+    "name": "* CAFE 100% ARABICA BRESIL,250G",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "ESSUIE TOUT X3=9 #.C",
+    "amount": 2.16,
+    "discount": 0
+   },
+   {
+    "name": "ESSUIE TOUT X3=9 #.C",
+    "amount": 2.16,
+    "discount": 0
+   },
+   {
+    "name": "Annulation : ESSUIE TOUT X3=9 #.C",
+    "amount": -2.16,
+    "discount": 0
+   },
+   {
+    "name": "LOTUS CONFORT X 12 ROULEAUX,1P",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "CHAVROUX BUCHE 180G",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "SAINT AGUR PORTION,135G",
+    "amount": 1.87,
+    "discount": 0
+   },
+   {
+    "name": "* CREME FRAICHE,50CL",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "* COULOMMIERS 24% 350G CROISES,3",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN X.510G+15%GT",
+    "amount": 1.67,
+    "discount": 0
+   },
+   {
+    "name": "* TYROLIA CAPPUCCINO TROFIC,340G",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "ROTI PORC CAISSETTE,1KG,BOUCHE",
+    "amount": 10.89,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "LAITUE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "LOT CONCOMBRES",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "LOT MELON",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 3 MEUNIERS 250G",
+    "amount": 2.72,
+    "discount": 0
+   }
+  ]
+ }
+}

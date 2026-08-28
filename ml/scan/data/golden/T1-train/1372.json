@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/1372.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-02-16",
+  "total": 36.35,
+  "items": [
+   {
+    "name": "CHOCO DES.NOIR HACHETTE.2X205G",
+    "amount": 15.0,
+    "discount": 0.0
+   },
+   {
+    "name": "COMPRESSE STERILEX60",
+    "amount": 4.95,
+    "discount": 0.0
+   },
+   {
+    "name": "SOLUTION ANTISEPT.C.GOUTTE",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTAL DOUX EMMI 1/8",
+    "amount": 2.97,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTA RAPE 28% 3X70G CROISES",
+    "amount": 1.39,
+    "discount": 0.0
+   },
+   {
+    "name": "BUCHE STE MAURE",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "JBON SUP SC ETOUFFE 8TR",
+    "amount": 4.5,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE DE SESAME,BOULANGERI",
+    "amount": 2.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

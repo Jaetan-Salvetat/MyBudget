@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/167.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-01-17",
+  "total": 3.87,
+  "items": [
+   {
+    "name": "*2 TR LE SUPERIEUR",
+    "amount": 1.85,
+    "discount": 0.0
+   },
+   {
+    "name": "*4MOUSS.CHOC.NR CRF",
+    "amount": 1.18,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   }
+  ]
+ }
+}

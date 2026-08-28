@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-train/img/951.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-24",
+  "total": 49.26,
+  "items": [
+   {
+    "name": "LITIERE SILICE POUR CHAT U 5L",
+    "amount": 3.73,
+    "discount": 0
+   },
+   {
+    "name": "375G RATATOUILLE C",
+    "amount": 2.08,
+    "discount": 0
+   },
+   {
+    "name": "VELOUTE TOMATES KNORR 3X175ML",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "DOUCEUR 8 LEGUMES KNOR.3X175ML",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "PETIT POIS E.F.CAROTTE BTE",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "RATATOUILLE U OUV.FACILE 1/2",
+    "amount": 0.57,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGNON BLANC PIED COUPE",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "POIVRON PANACHE SACHET 500G",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTE",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "PAIN MIE SANDWICH NAT.U 550G",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "TABOULE A L'ORIENTAL U 300G",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "PATE A TARTE FEUILLETEE U 230G",
+    "amount": 0.65,
+    "discount": 0
+   },
+   {
+    "name": "ŒUFS P.AIR MOYEN X12",
+    "amount": 2.64,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT VANILLE X2",
+    "amount": 4.3,
+    "discount": 0
+   },
+   {
+    "name": "JUS POMMES ANDROS",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "250G BEUR BAR 1/2SEL",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "CREME FRAICHE FLUIDE 30%MG40CL",
+    "amount": 1.63,
+    "discount": 0
+   },
+   {
+    "name": "FLT MERLU BLC MEUNIERE U 220G",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "AIGUILLETTES POULET BLANC U X6",
+    "amount": 2.82,
+    "discount": 0
+   },
+   {
+    "name": "TARTARE FACON BRAS",
+    "amount": 4.05,
+    "discount": 0
+   },
+   {
+    "name": "SAUCISSE AUX HERBES",
+    "amount": 3.47,
+    "discount": 0
+   },
+   {
+    "name": "TROPICANA P/P ORANGE SP VER.1L",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "EAU MINER.EVIAN 2L",
+    "amount": 1.89,
+    "discount": 0
+   }
+  ]
+ }
+}

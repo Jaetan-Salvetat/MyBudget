@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/595.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour contact",
+  "date": "2017-01-13",
+  "total": 9.47,
+  "items": [
+   {
+    "name": "*1L LT 1/2EC LACTEL",
+    "amount": 0.86,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNON BQ 250G",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*HARICO.VER.BONDUEL",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1L PJ MULTIFRU",
+    "amount": 1.93,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE RONDE FILET 1",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

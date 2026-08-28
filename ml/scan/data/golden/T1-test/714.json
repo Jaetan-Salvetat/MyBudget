@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-test/img/714.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "L'Eau Vive",
+  "date": "2017-03-18",
+  "total": 52.26,
+  "items": [
+   {
+    "name": "POKI BIO 4 PARFUMS 8",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "POKI BIO POIRE 8x90G",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "COOL FRUIT POM/PECH/",
+    "amount": 3.25,
+    "discount": 0
+   },
+   {
+    "name": "GOURDES POM FRAISE 4",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "GOURDES POM FRAISE 4",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "COOL FRUIT POM/PECH/",
+    "amount": 3.25,
+    "discount": 0
+   },
+   {
+    "name": "CAFE SELECTIO GR 500",
+    "amount": 7.65,
+    "discount": 0
+   },
+   {
+    "name": "GRAINES DE CHIA 250",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS CHOCO",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS CHOCO",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANIL",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANIL",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "FARINE NOIX COCO 400",
+    "amount": 5.9,
+    "discount": 0
+   },
+   {
+    "name": "POIRE GUYOT",
+    "amount": 3.45,
+    "discount": 0
+   },
+   {
+    "name": "BANANES",
+    "amount": 2.19,
+    "discount": 0
+   }
+  ]
+ }
+}

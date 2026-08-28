@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/685.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA POSTE",
+  "date": "2017-03-27",
+  "total": 7.3,
+  "items": [
+   {
+    "name": "1 Carnet(s) timbres verts",
+    "amount": 7.3,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/318.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-16",
+  "total": 5.44,
+  "items": [
+   {
+    "name": "*MINI PENNE PESTO",
+    "amount": 3.37,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 2.07,
+    "discount": 0
+   }
+  ]
+ }
+}

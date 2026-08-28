@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/964.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SNCF",
+  "date": "2016-04-03",
+  "total": 29.2,
+  "items": [
+   {
+    "name": "Transport/Prestation",
+    "amount": 29.2,
+    "discount": 0
+   }
+  ]
+ }
+}

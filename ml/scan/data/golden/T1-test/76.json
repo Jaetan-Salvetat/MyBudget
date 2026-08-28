@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/76.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-19",
+  "total": 7.28,
+  "items": [
+   {
+    "name": "* 250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*2X30CL VELOUT.PDT.",
+    "amount": 1.27,
+    "discount": 0.0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.79,
+    "discount": 0.0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.4,
+    "discount": 0.0
+   },
+   {
+    "name": "*TARTIFLETTE CRF",
+    "amount": 3.82,
+    "discount": 0.0
+   }
+  ]
+ }
+}

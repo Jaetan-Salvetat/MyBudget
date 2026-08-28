@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/1285.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEADER PRICE EXPRESS",
+  "date": "2017-01-29",
+  "total": 6.39,
+  "items": [
+   {
+    "name": "6 OEUFS GROS LP",
+    "amount": 0.91,
+    "discount": 0
+   },
+   {
+    "name": "MECHOUIA",
+    "amount": 2.73,
+    "discount": 0
+   },
+   {
+    "name": "EAU SOURCE",
+    "amount": 0.19,
+    "discount": 0
+   },
+   {
+    "name": "F & L TX MOY",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "F & L TX RED",
+    "amount": 1.01,
+    "discount": 0
+   },
+   {
+    "name": "F & L TX MOY",
+    "amount": 0.35,
+    "discount": 0
+   }
+  ]
+ }
+}

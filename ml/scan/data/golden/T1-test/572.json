@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/572.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-28",
+  "total": 14.33,
+  "items": [
+   {
+    "name": "*300G BATONN.SURIMI",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*4T JAMB SUP.TSR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUFS PLEIN AIR",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "6X2BAR.BUENO WHITE",
+    "amount": 3.59,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "*BRK 1L LAIT UHT PL",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "*JAMBONNEAU 1/2",
+    "amount": 2.83,
+    "discount": 0
+   }
+  ]
+ }
+}

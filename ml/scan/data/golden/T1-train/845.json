@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/845.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-14",
+  "total": 28.2,
+  "items": [
+   {
+    "name": "LA PIUMA",
+    "amount": 15.9,
+    "discount": 0
+   },
+   {
+    "name": "COCA COLA",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "VERGER DU MIDI",
+    "amount": 6.9,
+    "discount": 0
+   },
+   {
+    "name": "CAFE",
+    "amount": 1.9,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
+import 'package:mybudget/core/services/models/model_asset.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -66,27 +66,8 @@ class QuickAddModelRunner {
     _session = await _ort.createSessionFromAsset(assetPath);
   }
 
-  /// Un modele absent du bundle ne se voit pas a la compilation : `pubspec.yaml`
-  /// declare `assets/models/` comme dossier, pas fichier par fichier. Oublier
-  /// `tool/fetch_model.sh` produirait donc une app qui echoue seulement au
-  /// premier ajout rapide — autant le dire ici, et clairement.
-  static Future<String> _assetFromManifest() async {
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final models = manifest
-        .listAssets()
-        .where(assetPattern.hasMatch)
-        .toList(growable: false);
-
-    if (models.isEmpty) {
-      throw StateError(
-        'Aucun modele dans assets/models/ : lancer ./tool/fetch_model.sh',
-      );
-    }
-    if (models.length > 1) {
-      throw StateError('Plusieurs modeles dans assets/models/ : $models');
-    }
-    return models.first;
-  }
+  static Future<String> _assetFromManifest() =>
+      modelAssetFromManifest(assetPattern, 'modele quick-add');
 
   /// Les extractions des versions precedentes pesent autant que le modele :
   /// les laisser dans le cache doublerait l'espace occupe a chaque mise a

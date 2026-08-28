@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-train/img/511.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-04",
+  "total": 38.16,
+  "items": [
+   {
+    "name": "2 GOUSSES VANILLE",
+    "amount": 4.47,
+    "discount": 0
+   },
+   {
+    "name": "220G CACAHUETE GRI",
+    "amount": 1.32,
+    "discount": 0
+   },
+   {
+    "name": "250G BEURRIER DS P",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "DLE CONCENTRE TOMA",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "EXC NR 70% MILD",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "FARINE BLE T45",
+    "amount": 0.53,
+    "discount": 0
+   },
+   {
+    "name": "*OLIVE PROVENCAL",
+    "amount": 2.7,
+    "discount": 0
+   },
+   {
+    "name": "*P. FEUILLETEE 235G",
+    "amount": 1.02,
+    "discount": 0
+   },
+   {
+    "name": "*PCE POMELOS CHINOI",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "TEISSEIR.GRENADINE",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "75ML DENT PRO COMP",
+    "amount": 3.6,
+    "discount": 0
+   },
+   {
+    "name": "SHAMPOING ELSEVE",
+    "amount": 2.56,
+    "discount": 0
+   },
+   {
+    "name": "X6 RLX P.H CONF.",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "ZIPPER MM 3L",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "CP100 COMPACTES",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "GANTS TRAVAUX T7",
+    "amount": 5.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/345.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-08",
+  "total": 5.98,
+  "items": [
+   {
+    "name": "*CAROT.RAP.CRF 300G",
+    "amount": 0.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOUSSE AU CHOCOLAT",
+    "amount": 3.11,
+    "discount": 0.0
+   },
+   {
+    "name": "*TABOULE POULET ROT",
+    "amount": 2.17,
+    "discount": 0.0
+   }
+  ]
+ }
+}

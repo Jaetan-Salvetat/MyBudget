@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/859.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SEPHORA LA ROCHELLE TEMPLE",
+  "date": "2017-03-18",
+  "total": 10.95,
+  "items": [
+   {
+    "name": "206226 - SEPHORA CREAM STAIN 3",
+    "amount": 10.95,
+    "discount": 0
+   }
+  ]
+ }
+}

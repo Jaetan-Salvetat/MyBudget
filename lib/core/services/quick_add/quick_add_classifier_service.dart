@@ -68,6 +68,17 @@ class QuickAddClassifierService implements QuickAddEngine {
     );
   }
 
+  /// Catégorie brute d'un texte déjà normalisé. Le scan passe des libellés de
+  /// caisse, pas une saisie utilisateur : ni montant ni date à en extraire,
+  /// seule la tête catégorie est lue.
+  Future<({String slug, double confidence})> categoryOf(String text) async {
+    final output = await _modelRunner.run(_tokenizer.encode(text));
+    return (
+      slug: QuickAddLabels.categories[output.category.index],
+      confidence: output.category.confidence,
+    );
+  }
+
   List<String> _suggestionsFor(List<int> indices) {
     return indices
         .map((index) => QuickAddLabels.categories[index])

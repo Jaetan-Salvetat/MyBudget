@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1098.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 5.67,
+  "items": [
+   {
+    "name": "BROCOLIS",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "ENDIVES",
+    "amount": 2.16,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "ECHALOTE",
+    "amount": 0.56,
+    "discount": 0
+   }
+  ]
+ }
+}

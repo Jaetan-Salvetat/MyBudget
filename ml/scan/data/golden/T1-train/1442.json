@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1442.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2015-10-21",
+  "total": 9.9,
+  "items": [
+   {
+    "name": "COUPE CHRYSANTHEME",
+    "amount": 9.9,
+    "discount": 0
+   }
+  ]
+ }
+}

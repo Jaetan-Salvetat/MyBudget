@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/750.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BRIOCHE DOREE",
+  "date": "2016-06-24",
+  "total": 3.5,
+  "items": [
+   {
+    "name": "1 Cappuccino Moyen",
+    "amount": 3.5,
+    "discount": 0
+   }
+  ]
+ }
+}

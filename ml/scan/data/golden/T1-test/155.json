@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/155.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-12",
+  "total": 8.46,
+  "items": [
+   {
+    "name": "*250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*DENTIFRI.VADEMECUM",
+    "amount": 2.33,
+    "discount": 0.0
+   },
+   {
+    "name": "*PLAQUETTE BEURRE D",
+    "amount": 2.08,
+    "discount": 0.0
+   }
+  ]
+ }
+}

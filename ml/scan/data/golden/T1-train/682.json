@@ -1,0 +1,139 @@
+{
+ "source": "dataset_findit/T1-train/img/682.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-03",
+  "total": 50.73,
+  "items": [
+   {
+    "name": "CHILI CON CARNE 300G",
+    "amount": 3.13,
+    "discount": 0
+   },
+   {
+    "name": "PLET RISOTTO 280G",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVES ROUGES U BIO 200G",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "PIZZ'OO CHEV/LAR 200G",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "LINGET.DEMAQ.NIVEA",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "FARCE A TOMATE",
+    "amount": 2.59,
+    "discount": 0
+   },
+   {
+    "name": "BRUSCHETTA OCEANE 270G",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "CHIFFON.JBON MONT.VPF USAV100G",
+    "amount": 2.36,
+    "discount": 0
+   },
+   {
+    "name": "MN CHEVRE FRAIS 15% COUP.6X20G",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "TIRAMISU SPECULOOS USAV.2X100G",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "CHEVRE CHAUD X 4",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "LIEGEOIS POM/ABRIC X4",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "CREME FR.EP.15% BRIDELICE 10CL",
+    "amount": 0.51,
+    "discount": 0
+   },
+   {
+    "name": "FLT MERLU BLC MEUNIERE U 220G",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "SENS.FRT CRAN/FRAMB.LINDT 150G",
+    "amount": 3.79,
+    "discount": 0
+   },
+   {
+    "name": "ASPERGES VERTES EN BOCAL",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "MADELEINET.CHOC NOIR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTES FENDUES",
+    "amount": 1.28,
+    "discount": 0
+   },
+   {
+    "name": "TARTE THON,TOMAT.MOUTARD.U400G",
+    "amount": 2.3,
+    "discount": 0
+   },
+   {
+    "name": "NECTAR OR./PECH./ABRI.BIO 1,5L",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "1,5L VOLVIC JUICY FRTS RGES",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "POIVRON ROUGE",
+    "amount": 0.96,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGN.BLC P/COUPE A FARCIR",
+    "amount": 0.43,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE ILE DE RE",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "PAIN CHOCOLAT PB SELECTION X2",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

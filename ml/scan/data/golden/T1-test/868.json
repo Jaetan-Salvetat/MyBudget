@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/868.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "NOZ ST JEAN D'ANGELY",
+  "date": "2017-06-09",
+  "total": 13.66,
+  "items": [
+   {
+    "name": "TAMPON FLUO PONGE",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SUN RINCAGE 720ML",
+    "amount": 2.79,
+    "discount": 0.0
+   },
+   {
+    "name": "DET.OXYGEN ACT",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SUPER GLUE 5 G AVE",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "50% DIVERS ARTICLE",
+    "amount": 3.8,
+    "discount": 1.9
+   },
+   {
+    "name": "LINT ROLLER 50SHEE",
+    "amount": 1.49,
+    "discount": 0.0
+   }
+  ]
+ }
+}

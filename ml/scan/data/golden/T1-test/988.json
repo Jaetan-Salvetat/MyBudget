@@ -1,0 +1,104 @@
+{
+ "source": "dataset_findit/T1-test/img/988.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "GIE FERME DE LA VARENNE",
+  "date": "2016-12-17",
+  "total": 51.08,
+  "items": [
+   {
+    "name": "JUS DE POMME 1L",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "NAVET VRAC",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "NAVET VRAC",
+    "amount": 0.41,
+    "discount": 0
+   },
+   {
+    "name": "HUITRES FINES CLAIRES KG",
+    "amount": 5.69,
+    "discount": 0
+   },
+   {
+    "name": "CHOUX BRUXELLE",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTE VRAC LEGUE",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "COURGE SPAGHETTI",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "COURGE MUSQUEE DE P",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE D'AGNEAU",
+    "amount": 5.32,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE FUMEE",
+    "amount": 2.64,
+    "discount": 0
+   },
+   {
+    "name": "FROM BUCHE CENDREE",
+    "amount": 4.95,
+    "discount": 0
+   },
+   {
+    "name": "VB BASSE COTE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "JAMBON BLANC",
+    "amount": 3.38,
+    "discount": 0
+   },
+   {
+    "name": "VB BASSE COTE",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "COPPA",
+    "amount": 2.01,
+    "discount": 0
+   },
+   {
+    "name": "SAUCISSON SEC 220045",
+    "amount": 5.03,
+    "discount": 0
+   },
+   {
+    "name": "ENDIVES",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "OEUFS GROS CALIBRE *6",
+    "amount": 1.8,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,124 @@
+{
+ "source": "dataset_findit/T1-train/img/1459.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2016-12-23",
+  "total": 85.5,
+  "items": [
+   {
+    "name": "BISCUIT TENTATION DELACRE 150G",
+    "amount": 2.24,
+    "discount": 0
+   },
+   {
+    "name": "SUCRE BLANC POUDRE ECO+\r",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "FARINE DE BLE T55 ECO+,1KG",
+    "amount": 0.44,
+    "discount": 0
+   },
+   {
+    "name": "* GAUFRETTES ENROBEES CHOCO.,150",
+    "amount": 0.74,
+    "discount": 0
+   },
+   {
+    "name": "CROISSANT DE LUNE,125G",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "PETIT ECOLIER CHOC.FIN LU 150G",
+    "amount": 3.39,
+    "discount": 0
+   },
+   {
+    "name": "CHOCAPIC COEUR FONDANT 360 G",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "* AOC ST EMILION 15,75CL",
+    "amount": 8.3,
+    "discount": 0
+   },
+   {
+    "name": "* AOC ST EMILION 15,75CL",
+    "amount": 8.3,
+    "discount": 0
+   },
+   {
+    "name": "* AOC ST EMILION 15,75CL",
+    "amount": 8.3,
+    "discount": 0
+   },
+   {
+    "name": "BRIQUETTE DE PEYRET",
+    "amount": 6.52,
+    "discount": 0
+   },
+   {
+    "name": "BEURRE SURGERES DOUX",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "* OEUFS FRAIS BIOLOGIQUE X10 MR",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "POMME GOLDEN",
+    "amount": 3.02,
+    "discount": 0
+   },
+   {
+    "name": "POMME ROUGE",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "FILET DINDE",
+    "amount": 16.24,
+    "discount": 0
+   },
+   {
+    "name": "* ALLUMET LARD FUMES 2X100G VPF",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "* LED STAND 11-75W B22 DP BLX1,1",
+    "amount": 5.95,
+    "discount": 0
+   },
+   {
+    "name": "ECOCLASSIC SPHERIQUE 42W B22 2",
+    "amount": 4.59,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCHE NANTERRE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "PAVE WOLKORUM",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE DE SESAME,BOULANGERI",
+    "amount": 2.0,
+    "discount": 0
+   }
+  ]
+ }
+}

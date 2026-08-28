@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/918.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BRICOMARCHÉ",
+  "date": "2014-11-12",
+  "total": 29.61,
+  "items": [
+   {
+    "name": "ENDUIT REBOUC POUDRE",
+    "amount": 2.38,
+    "discount": 0
+   },
+   {
+    "name": "COLLE TS PAPIERS PEI",
+    "amount": 8.61,
+    "discount": 0
+   },
+   {
+    "name": "P.M1PLAF ACRY MAT BL",
+    "amount": 18.62,
+    "discount": 0
+   }
+  ]
+ }
+}

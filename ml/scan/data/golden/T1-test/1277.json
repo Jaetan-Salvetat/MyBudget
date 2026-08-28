@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1277.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "espace culturel E.Leclerc",
+  "date": "2017-02-23",
+  "total": 42.78,
+  "items": [
+   {
+    "name": "BIENVENUE BEBE",
+    "amount": 6.6,
+    "discount": 0
+   },
+   {
+    "name": "CART HP N 21 BLK 5ML",
+    "amount": 36.18,
+    "discount": 0
+   }
+  ]
+ }
+}

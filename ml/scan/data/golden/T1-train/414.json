@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/414.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-11-12",
+  "total": 12.77,
+  "items": [
+   {
+    "name": "*1L LT 1/2EC LACTEL",
+    "amount": 0.93,
+    "discount": 0
+   },
+   {
+    "name": "*240G BROWNIES INDI",
+    "amount": 2.26,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA FR",
+    "amount": 2.08,
+    "discount": 0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.2,
+    "discount": 0
+   },
+   {
+    "name": "*LIQUIDE VSL CITRON",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "*OEUFS BIO X6 RDF",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*RIZ LONG GRAIN U.B",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "*TROPICANA ORANGE",
+    "amount": 2.11,
+    "discount": 0
+   }
+  ]
+ }
+}

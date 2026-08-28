@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-train/img/476.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-05-14",
+  "total": 22.68,
+  "items": [
+   {
+    "name": "*1/5 THON ENTIER",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "250G M.GR.A TARTIN",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*400G FROMAGE FONDU",
+    "amount": 2.21,
+    "discount": 0
+   },
+   {
+    "name": "*850G YAB SAV FRAI",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "BISC.CHOCO LAIT CF",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "*BQ PECHE 3F -1EURO",
+    "amount": 1.98,
+    "discount": 0
+   },
+   {
+    "name": "*DANAO ORANGE BAN/F",
+    "amount": 2.24,
+    "discount": 0
+   },
+   {
+    "name": "FOURRE RD CHOC.CRF",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN MIE CARREFOUR",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "SARDINE ATLANTIQUE",
+    "amount": 2.93,
+    "discount": 0
+   },
+   {
+    "name": "X50 BANANE P.PRIX",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT FRUITS RGES",
+    "amount": 1.88,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/443.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-14",
+  "total": 16.92,
+  "items": [
+   {
+    "name": "*32 DOS SENSEO INT.",
+    "amount": 5.82,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAFE / SOLUBLE /",
+    "amount": 5.04,
+    "discount": 0.0
+   },
+   {
+    "name": "*POISSON ANDALOUSE",
+    "amount": 3.85,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMME ROYAL GALA",
+    "amount": 0.88,
+    "discount": 0.0
+   },
+   {
+    "name": "*YRT DE BREBIS NATU",
+    "amount": 1.33,
+    "discount": 0.0
+   }
+  ]
+ }
+}

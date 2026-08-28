@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/688.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "okaïdi",
+  "date": "2017-03-18",
+  "total": 115.92,
+  "items": [
+   {
+    "name": "3604276094458 Jupe NIIMPORTOU OKF GE 4",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275421972 OKF PER PANT SKINNY fa 2",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275430868 OKFBP2/P3 TS ALEXIA E1 6",
+    "amount": 5.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275323665 LOT 3 BOXERS BESS E17 5",
+    "amount": 8.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275099270 SS VET/ LOT 3 slips PL 5",
+    "amount": 8.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275430943 OKFBP2/P3 TS ADELE E17 6",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275258042 OKF PER SKINNY DENIM B 5",
+    "amount": 21.99,
+    "discount": 0
+   },
+   {
+    "name": "3604275247176 OKF FOCUS TABLE PULL A 6",
+    "amount": 24.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/185.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-02-22",
+  "total": 7.91,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*300G CHILI CON CARNE",
+    "amount": 3.37,
+    "discount": 0.0
+   },
+   {
+    "name": "*80G CHOC NOIR 80%",
+    "amount": 1.08,
+    "discount": 0.0
+   },
+   {
+    "name": "*LAQUE FORTE 300ML CR",
+    "amount": 1.86,
+    "discount": 0.0
+   }
+  ]
+ }
+}

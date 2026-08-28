@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1413.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Phie LAFAYETTE CROIX MORIN",
+  "date": "2016-12-06",
+  "total": 19.04,
+  "items": [
+   {
+    "name": "MITOSYL 150G X2",
+    "amount": 9.89,
+    "discount": 0
+   },
+   {
+    "name": "STERIMAR AD 100ML",
+    "amount": 4.21,
+    "discount": 0
+   },
+   {
+    "name": "DERMO NETTOYANT 500ML MUSTELA",
+    "amount": 4.94,
+    "discount": 0
+   }
+  ]
+ }
+}

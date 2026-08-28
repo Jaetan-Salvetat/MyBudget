@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1404.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "JOUECLUB SAINTES",
+  "date": "2016-12-27",
+  "total": 9.8,
+  "items": [
+   {
+    "name": "PDOH 4 POTS ASST",
+    "amount": 4.9,
+    "discount": 0.0
+   },
+   {
+    "name": "PDOH 4 POTS ASST",
+    "amount": 4.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

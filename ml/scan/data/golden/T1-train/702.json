@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/702.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ZARA - LA ROCHELLE",
+  "date": "2017-03-24",
+  "total": 25.99,
+  "items": [
+   {
+    "name": "BLOUSON",
+    "amount": 25.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

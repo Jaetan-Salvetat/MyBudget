@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/302.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-28",
+  "total": 9.58,
+  "items": [
+   {
+    "name": "*300G CAROTTES RAPE",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "*MOUSSE AU CHOCOLAT",
+    "amount": 6.22,
+    "discount": 0
+   },
+   {
+    "name": "*TABOULE VOLAILLE",
+    "amount": 1.7,
+    "discount": 0
+   }
+  ]
+ }
+}

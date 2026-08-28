@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/338.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-29",
+  "total": 5.39,
+  "items": [
+   {
+    "name": "*BISC.PT DEJ.CRF",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "*BQ TOMATE CERISE BIO",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "*CAROT.RAPE/TABOULE",
+    "amount": 1.95,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/530.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-04-28",
+  "total": 7.89,
+  "items": [
+   {
+    "name": "*1.5L EAU SRCE CRIS",
+    "amount": 0.21,
+    "discount": 0.0
+   },
+   {
+    "name": "*135G CHIPS EXTRA CRA",
+    "amount": 1.12,
+    "discount": 0.0
+   },
+   {
+    "name": "*150G PT ECOLIER CHOC",
+    "amount": 1.43,
+    "discount": 0.0
+   },
+   {
+    "name": "*175G PALET S/GLUT.",
+    "amount": 3.39,
+    "discount": 0.0
+   },
+   {
+    "name": "*200G MAXI POULET CRU",
+    "amount": 1.74,
+    "discount": 0.0
+   }
+  ]
+ }
+}

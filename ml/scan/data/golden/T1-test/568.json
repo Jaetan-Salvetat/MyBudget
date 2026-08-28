@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/568.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-06-10",
+  "total": 12.51,
+  "items": [
+   {
+    "name": "*ABRICOT MOYEN VRAC",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0.0
+   },
+   {
+    "name": "*CERISE BQ 600G",
+    "amount": 4.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*PECHE JAUNE VRAC",
+    "amount": 1.93,
+    "discount": 0.0
+   },
+   {
+    "name": "*PET 2L TROPICANA",
+    "amount": 3.49,
+    "discount": 0.0
+   }
+  ]
+ }
+}

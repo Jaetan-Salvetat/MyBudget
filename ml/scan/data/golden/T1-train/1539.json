@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1539.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "FRANCESCA",
+  "date": "2017-02-04",
+  "total": 3.1,
+  "items": [
+   {
+    "name": "1 THE",
+    "amount": 3.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

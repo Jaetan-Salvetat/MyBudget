@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/579.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-08",
+  "total": 27.93,
+  "items": [
+   {
+    "name": "*2KG ORANGE DES.CEE",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCHE TRANCHEE",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "*CAMEMBER.LANQUETO",
+    "amount": 2.28,
+    "discount": 0
+   },
+   {
+    "name": "CRM FRAICH.EPAISSE",
+    "amount": 0.83,
+    "discount": 0
+   },
+   {
+    "name": "*DOLCE PIZZA CAPRI",
+    "amount": 4.69,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL RAPE ENTR",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "*PET 2L TROPICANA",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA CRUST 580G",
+    "amount": 5.6,
+    "discount": 0
+   },
+   {
+    "name": "24 MOUCH ETUI COMP",
+    "amount": 2.24,
+    "discount": 0
+   }
+  ]
+ }
+}

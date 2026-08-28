@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/912.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-18",
+  "total": 1.66,
+  "items": [
+   {
+    "name": "CAROTTES",
+    "amount": 0.96,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE DE CAMPAGNE",
+    "amount": 0.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

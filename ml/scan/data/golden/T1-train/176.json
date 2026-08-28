@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/176.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CONTACT LA ROCHELLE",
+  "date": "2017-01-04",
+  "total": 3.6,
+  "items": [
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 2.16,
+    "discount": 0
+   },
+   {
+    "name": "*TARTARE AFH 6 PORT",
+    "amount": 1.44,
+    "discount": 0
+   }
+  ]
+ }
+}

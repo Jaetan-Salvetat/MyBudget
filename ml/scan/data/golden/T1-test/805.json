@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/805.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PRIMEURS 17",
+  "date": "2017-07-08",
+  "total": 9.17,
+  "items": [
+   {
+    "name": "abricot",
+    "amount": 3.71,
+    "discount": 0
+   },
+   {
+    "name": "brugnon blanc",
+    "amount": 3.66,
+    "discount": 0
+   },
+   {
+    "name": "peche jaune",
+    "amount": 1.8,
+    "discount": 0
+   }
+  ]
+ }
+}

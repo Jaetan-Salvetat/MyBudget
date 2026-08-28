@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/831.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "L'ATELIER",
+  "date": "2017-06-17",
+  "total": 78.88,
+  "items": [
+   {
+    "name": "PALM SPRINGS 28",
+    "amount": 49.0,
+    "discount": 0
+   },
+   {
+    "name": "2103 HEIN QUOI XS",
+    "amount": 34.99,
+    "discount": 0
+   },
+   {
+    "name": "TALHA SS TEE XS",
+    "amount": 14.99,
+    "discount": 0
+   }
+  ]
+ }
+}

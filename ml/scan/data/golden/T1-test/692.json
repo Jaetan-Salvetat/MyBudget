@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-test/img/692.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-24",
+  "total": 35.09,
+  "items": [
+   {
+    "name": "NECTAR OR./PECH./ABRI.BIO 1,5L",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "VOLVIC JUICY FRAISE 1,5L",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "COUPE GRIFFE",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "MULTICROQ.CHATON POULET U 2KG",
+    "amount": 2.86,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT GRECQUE BIO VRAI 2X125G",
+    "amount": 2.57,
+    "discount": 0
+   },
+   {
+    "name": "MN CHEVRE FRAIS 15% COUP.6X20G",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "FR.PAS.CHEV.PYRAMIDE 11%U 150G",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "TARTE FINE PLT ROTI TOMAT.250G",
+    "amount": 4.3,
+    "discount": 0
+   },
+   {
+    "name": "280G ST JAC.FOND.POIR",
+    "amount": 4.11,
+    "discount": 0
+   },
+   {
+    "name": "EMINCES PLT/DUO PUREES FM 300G",
+    "amount": 3.28,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGN.BLC P/COUPE A FARCIR",
+    "amount": 0.52,
+    "discount": 0
+   },
+   {
+    "name": "MADELEINET.CHOC NOIR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "MADEL.CHOC.NOIR",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTES FENDUES",
+    "amount": 1.26,
+    "discount": 0
+   },
+   {
+    "name": "1 X ESCALOPE *** A GRILLER",
+    "amount": 1.87,
+    "discount": 0
+   }
+  ]
+ }
+}

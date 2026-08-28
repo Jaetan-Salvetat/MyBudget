@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/379.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-31",
+  "total": 5.63,
+  "items": [
+   {
+    "name": "*320G  LDE STOCKHOL",
+    "amount": 4.23,
+    "discount": 0.0
+   },
+   {
+    "name": "*Y.GOURMAND RHUBARB",
+    "amount": 1.4,
+    "discount": 0.0
+   }
+  ]
+ }
+}

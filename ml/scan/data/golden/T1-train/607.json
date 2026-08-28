@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/607.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CROCBOOK",
+  "date": "2017-07-15",
+  "total": 17.0,
+  "items": [
+   {
+    "name": "LOISIR",
+    "amount": 6.0,
+    "discount": 0.0
+   },
+   {
+    "name": "EDUCATIF",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "HISTOIRE",
+    "amount": 5.0,
+    "discount": 0.0
+   },
+   {
+    "name": "LOISIR",
+    "amount": 4.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

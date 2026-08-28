@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1243.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA GRAND RIVE",
+  "date": "2016-12-14",
+  "total": 45.9,
+  "items": [
+   {
+    "name": "GRIMBERGEN 33CL",
+    "amount": 5.5,
+    "discount": 0
+   },
+   {
+    "name": "THON ROSSINI",
+    "amount": 29.9,
+    "discount": 0
+   },
+   {
+    "name": "BABA AU RHUM",
+    "amount": 10.5,
+    "discount": 0
+   }
+  ]
+ }
+}

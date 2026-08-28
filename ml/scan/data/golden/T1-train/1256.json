@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1256.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BAGEL CORNER",
+  "date": "2017-03-17",
+  "total": 8.5,
+  "items": [
+   {
+    "name": "1 MENU DELI DESSERT",
+    "amount": 8.5,
+    "discount": 0.0
+   },
+   {
+    "name": "1 DELI SAUMON 150G MULTI",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1 MINUTE MAID POMME",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1 DONUT CHOCOLAT",
+    "amount": 0.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

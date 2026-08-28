@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/997.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Joel JOLY CHARCUTERIE TRAITEUR",
+  "date": "2016-11-18",
+  "total": 3.51,
+  "items": [
+   {
+    "name": "0,260 kg x 13,50 EURO/kg",
+    "amount": 3.51,
+    "discount": 0.0
+   }
+  ]
+ }
+}

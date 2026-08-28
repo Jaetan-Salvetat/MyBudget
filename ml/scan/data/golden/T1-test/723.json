@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/723.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "vertbaudet",
+  "date": "2017-05-13",
+  "total": 49.48,
+  "items": [
+   {
+    "name": "913589373 024 JG- Sandales ouver",
+    "amount": 38.99,
+    "discount": 6.0
+   },
+   {
+    "name": "913699225 018 4P- Nu pieds blanc",
+    "amount": 32.99,
+    "discount": 16.5
+   }
+  ]
+ }
+}

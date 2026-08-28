@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/49.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-01-30",
+  "total": 11.15,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 1.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROTTE",
+    "amount": 0.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*OIGNON JAUNE",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*POTIMARRON",
+    "amount": 2.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*SCE BASILIC",
+    "amount": 1.64,
+    "discount": 0.0
+   },
+   {
+    "name": "*TAILLEFINE MURE/MY",
+    "amount": 1.56,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATE ALLONGEE",
+    "amount": 1.52,
+    "discount": 0.0
+   }
+  ]
+ }
+}

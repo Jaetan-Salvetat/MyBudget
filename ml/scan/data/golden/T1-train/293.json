@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/293.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-23",
+  "total": 52.31,
+  "items": [
+   {
+    "name": "*GUIGNETTE ROUGE",
+    "amount": 7.95,
+    "discount": 0
+   },
+   {
+    "name": "*GUIGNETTE VERT 75CL",
+    "amount": 23.85,
+    "discount": 0
+   },
+   {
+    "name": "*LA ROCHELOISE BLONDE",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "*PINEAU BLANC MONR.",
+    "amount": 8.06,
+    "discount": 0
+   },
+   {
+    "name": "*T BIERE X4",
+    "amount": 8.5,
+    "discount": 0
+   }
+  ]
+ }
+}

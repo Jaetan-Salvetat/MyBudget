@@ -24,7 +24,6 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
@@ -107,17 +106,12 @@ void main() {
     );
   });
 
-  Future<void> pumpBar(
-    WidgetTester tester, {
-    bool focused = true,
-    bool scanAvailable = false,
-  }) {
+  Future<void> pumpBar(WidgetTester tester, {bool focused = true}) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
           expenseRepositoryProvider.overrideWithValue(expenseRepository),
           revenueRepositoryProvider.overrideWithValue(revenueRepository),
-          receiptScanAvailableProvider.overrideWithValue(scanAvailable),
           accountProvider.overrideWith(
             () => FakeAccountNotifier([accountOf(1, 'Courant')]),
           ),
@@ -157,18 +151,8 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
   });
 
-  testWidgets('keeps the send button when no key can read a receipt', (
-    tester,
-  ) async {
-    await pumpBar(tester, focused: false);
-    await tester.pumpAndSettle();
-
-    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
-  });
-
   testWidgets('offers the scan while there is nothing to send', (tester) async {
-    await pumpBar(tester, focused: false, scanAvailable: true);
+    await pumpBar(tester, focused: false);
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
@@ -177,7 +161,7 @@ void main() {
   testWidgets('gives the send button back as soon as a draft exists', (
     tester,
   ) async {
-    await pumpBar(tester, scanAvailable: true);
+    await pumpBar(tester);
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'mc do 12');
@@ -287,8 +271,9 @@ void main() {
     await tester.pump(QuickAddBarState.sentFlash);
     await tester.pumpAndSettle();
 
+    // Le brouillon est reparti à vide : le bouton redevient le raccourci scan.
     expect(find.byIcon(Symbols.check_rounded), findsNothing);
-    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
 
     await tester.pump(QuickAddRecentSubmissions.retention);
     await tester.pumpAndSettle();

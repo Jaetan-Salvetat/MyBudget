@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/563.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-22",
+  "total": 2.67,
+  "items": [
+   {
+    "name": "360G PAINS CHOCO.",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   },
+   {
+    "name": "CRM FRAICH.EPAISSE",
+    "amount": 0.83,
+    "discount": 0
+   }
+  ]
+ }
+}

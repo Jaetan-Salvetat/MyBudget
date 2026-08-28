@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/686.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE DANTON",
+  "date": "2017-03-01",
+  "total": 23.8,
+  "items": [
+   {
+    "name": "PLAT DU JOUR 1",
+    "amount": 14.3,
+    "discount": 0.0
+   },
+   {
+    "name": "OEUFS/OMELETTE 2",
+    "amount": 7.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SUP SALADE",
+    "amount": 2.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

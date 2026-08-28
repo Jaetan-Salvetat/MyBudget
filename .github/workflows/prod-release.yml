@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -56,14 +55,14 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Cache quick-add model
+      - name: Cache models
         uses: actions/cache@v4
         with:
-          path: assets/models/*.onnx
-          key: quick-add-model-${{ hashFiles('tool/model.lock') }}
+          path: assets/models
+          key: models-${{ hashFiles('tool/models/lock.env') }}
 
-      - name: Fetch quick-add model
-        run: ./tool/fetch_model.sh
+      - name: Fetch models
+        run: ./tool/models/fetch.sh
 
       - name: Build apk
         run: flutter build apk --flavor prod --release --no-tree-shake-icons

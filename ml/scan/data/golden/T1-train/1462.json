@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1462.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2016-12-20",
+  "total": 6.76,
+  "items": [
+   {
+    "name": "BS BLONVILLIERS POUD",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "YOPLAIT CR.FRAI EPAI",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "SURGERES BEURRE DOUX",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "POIREAU VRAC",
+    "amount": 2.06,
+    "discount": 0
+   }
+  ]
+ }
+}

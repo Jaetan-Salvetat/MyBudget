@@ -1,6 +1,6 @@
 # Quick-Add — optimisations perf
 
-Mesures CPU Mac (int8, `eval_corpus.json`, 157 cas). Le device physique reste à mesurer.
+Mesures CPU Mac (int8, `evaluation/data/quick_add.json`, 157 cas). Le device physique reste à mesurer.
 
 Point de départ, premier appel à l'ajout rapide :
 
@@ -55,8 +55,8 @@ fusionne que des tokens du vocabulaire, ce que la génération confirme (0 fusio
 
 Le déport sur un isolate devient inutile : 8,7 ms sur le thread UI ne se voient pas.
 
-Régénération après ré-entraînement :
-`dart run tool/build_tokenizer_asset.dart <tokenizer.json> assets/models/tokenizer.bin`.
+Régénération après ré-entraînement : `./tool/models/publish.sh` s'en charge — il appelle
+`dart run tool/models/build_tokenizer_asset.dart <tokenizer.json> <asset versionné>`.
 
 Validation : `test/fixtures/tokenizer_golden.json` capture l'encodage de 168 entrées avec
 l'implémentation JSON d'origine (corpus complet + cas limites : chaînes vides, non-ASCII, CJK,
@@ -71,22 +71,25 @@ le quota, 1 Go/mois en gratuit.
 
 Le modèle vit maintenant dans les release assets, qui ne sont pas facturés :
 
-- `tool/model.lock` — dépôt, release, nom de l'asset, SHA-256. Versionné, donc un vieux commit
+- `tool/models/lock.env` — dépôt, release, nom de l'asset, SHA-256. Versionné, donc un vieux commit
   récupère le modèle qu'il attend.
-- `tool/fetch_model.sh` — télécharge si absent ou non conforme, vérifie l'empreinte, sort en erreur
+- `tool/models/fetch.sh` — télécharge si absent ou non conforme, vérifie l'empreinte, sort en erreur
   sinon. Appelé par les deux workflows de release avant `flutter build`, avec un `actions/cache`
-  clé sur `tool/model.lock`.
-- `tool/publish_model.sh` — régénère le tokenizer, dépose le modèle sous la version suivante, crée
-  la release, réécrit le lock. Refuse un tag existant.
+  clé sur `tool/models/lock.env`.
+- `tool/models/publish.sh` — régénère le tokenizer, dépose **les cinq modèles** sous une version
+  commune, crée la release, réécrit le lock. Refuse un tag existant. Un modèle sans sortie
+  d'entraînement fraîche est reporté tel quel ; `fetch.sh` le renomme au lieu de le retélécharger.
 - `QuickAddModelRunner` lit le nom du modèle dans le manifeste des assets plutôt que dans une
-  constante : publier n'a qu'un endroit à mettre à jour, et un modèle absent — `fetch_model.sh`
+  constante : publier n'a qu'un endroit à mettre à jour, et un modèle absent — `tool/models/fetch.sh`
   oublié — échoue avec un message explicite au lieu de casser chez l'utilisateur.
-- `assets/models/*.onnx` et `assets/models/tokenizer.json` passent dans `.gitignore`.
+- `assets/models/*.onnx`, `assets/models/tokenizer_v*.bin` et `assets/models/tokenizer.json`
+  passent dans `.gitignore`.
 - `ci.yml` n'a besoin de rien : aucun test ne charge le vrai ONNX,
   `quick_add_model_runner_test.dart` mocke `OnnxRuntime`.
 
-LFS ne porte plus que `tokenizer.bin`, 11 MB. Les ~440 MB déjà dans l'historique LFS y restent :
-seuls les futurs modèles échappent au quota.
+LFS ne porte plus rien : le tokenizer a rejoint la release avec les autres modèles (2026-08-26),
+et `.gitattributes` a disparu. Les ~440 MB déjà dans l'historique LFS y restent : seuls les futurs
+modèles échappent au quota.
 
 Piège à connaître : `pubspec.yaml` déclare `assets/models/` comme dossier, pas fichier par fichier.
 Un modèle absent ne casse donc pas le build — l'APK part sans modèle et l'app échoue au premier

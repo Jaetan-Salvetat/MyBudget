@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/312.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-03",
+  "total": 7.83,
+  "items": [
+   {
+    "name": "*115G GAL.MAIS BIO",
+    "amount": 0.91,
+    "discount": 0.0
+   },
+   {
+    "name": "*CRF SALADE SAUMON",
+    "amount": 3.32,
+    "discount": 0.0
+   },
+   {
+    "name": "*DESS.FRTS POM/PEC/",
+    "amount": 1.68,
+    "discount": 0.0
+   },
+   {
+    "name": "*VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0.0
+   }
+  ]
+ }
+}

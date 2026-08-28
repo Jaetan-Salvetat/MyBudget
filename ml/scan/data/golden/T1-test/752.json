@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/752.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2016-07-23",
+  "total": 13.52,
+  "items": [
+   {
+    "name": "SCHOKOBONS KINDER SACHET 200G",
+    "amount": 5.76,
+    "discount": 0
+   },
+   {
+    "name": "SOUF.MAIS CACAHU.MENGUY'S 250G",
+    "amount": 2.32,
+    "discount": 0
+   },
+   {
+    "name": "BANANE CAVENDISH BIO P/PRIX",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "JUS ABC POMME U DRIQUE 1L",
+    "amount": 0.93,
+    "discount": 0
+   },
+   {
+    "name": "CR.FRAICHE EP.30% YOPLAIT 480G",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "PATE BRISEE AU BEURRE U 230G",
+    "amount": 0.97,
+    "discount": 0
+   }
+  ]
+ }
+}

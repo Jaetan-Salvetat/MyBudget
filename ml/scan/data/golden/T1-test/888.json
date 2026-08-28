@@ -1,0 +1,109 @@
+{
+ "source": "dataset_findit/T1-test/img/888.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-06-17",
+  "total": 74.83,
+  "items": [
+   {
+    "name": "CHOCOLAT POUDRE NESTLE",
+    "amount": 8.13,
+    "discount": 0.0
+   },
+   {
+    "name": "MIEL DE NOS TERROIRS POT 1KG",
+    "amount": 12.9,
+    "discount": 0.0
+   },
+   {
+    "name": "CHAIR DE CRABE 103G",
+    "amount": 5.28,
+    "discount": 0.0
+   },
+   {
+    "name": "CREVETTES COCKTAIL PNE,121G",
+    "amount": 3.8,
+    "discount": 0.0
+   },
+   {
+    "name": "BEANS IN TOMATO HEINZ 415G",
+    "amount": 4.86,
+    "discount": 0.0
+   },
+   {
+    "name": "PAPIER CUISSON NATUREL 10M",
+    "amount": 6.02,
+    "discount": 0.0
+   },
+   {
+    "name": "FILM ETIRABLE 30M ELEMBAL",
+    "amount": 2.24,
+    "discount": 0.0
+   },
+   {
+    "name": "4 VERIT KNACKS D'ALSACE",
+    "amount": 4.64,
+    "discount": 0.0
+   },
+   {
+    "name": "POITRINE NAT TCHE FIN TRA,200G",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "POITRINE NATURE 4TR P FIXE VPF",
+    "amount": 2.85,
+    "discount": 0.0
+   },
+   {
+    "name": "DES DE JAMBON 2X75,2X75G",
+    "amount": 0.97,
+    "discount": 0.0
+   },
+   {
+    "name": "EMINCES DE POULET GRILLE 2X75G",
+    "amount": 1.89,
+    "discount": 0.0
+   },
+   {
+    "name": "GRANDE MORTADELLE IGP FE",
+    "amount": 2.85,
+    "discount": 0.0
+   },
+   {
+    "name": "LAIT UHT CHAR.POITOU BRIK,6X1L",
+    "amount": 4.26,
+    "discount": 0.0
+   },
+   {
+    "name": "CAMEMBERT RUSTIQUE AFFINE,260G",
+    "amount": 2.16,
+    "discount": 0.0
+   },
+   {
+    "name": "CR CHOC EX.NR,4X100G",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "12 OEUFS PPA REGIONS,1P",
+    "amount": 2.79,
+    "discount": 0.0
+   },
+   {
+    "name": "LIEGEOIS CHOCO 4X100G DELISSE,",
+    "amount": 0.96,
+    "discount": 0.0
+   },
+   {
+    "name": "VIE PRATIQUE H.S JARDIN",
+    "amount": 4.55,
+    "discount": 0.0
+   }
+  ]
+ }
+}

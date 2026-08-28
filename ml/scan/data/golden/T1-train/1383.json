@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/1383.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PYLONES TARDIEU",
+  "date": "2017-02-25",
+  "total": 38.5,
+  "items": [
+   {
+    "name": "X ZIPPER - BK",
+    "amount": 14.5,
+    "discount": 0
+   },
+   {
+    "name": "X HEROES - CABLE NOI",
+    "amount": 12.0,
+    "discount": 0
+   },
+   {
+    "name": "X HEROES - CABLE MUL",
+    "amount": 12.0,
+    "discount": 0
+   }
+  ]
+ }
+}

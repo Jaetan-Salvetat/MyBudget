@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/886.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA BOUCHERIE RESTAURANT",
+  "date": "2017-06-22",
+  "total": 29.15,
+  "items": [
+   {
+    "name": "1664 25 cl",
+    "amount": 3.8,
+    "discount": 0.0
+   },
+   {
+    "name": "MAQ RUSTIQUE 220",
+    "amount": 16.9,
+    "discount": 0.0
+   },
+   {
+    "name": "PAVLOVA",
+    "amount": 6.5,
+    "discount": 0.0
+   },
+   {
+    "name": "EXPRESSO",
+    "amount": 1.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

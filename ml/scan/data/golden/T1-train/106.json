@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-train/img/106.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-08-08",
+  "total": 32.0,
+  "items": [
+   {
+    "name": "250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1L LAIT ECREME",
+    "amount": 2.79,
+    "discount": 0.0
+   },
+   {
+    "name": "500G CRUESLI CHOCO",
+    "amount": 2.53,
+    "discount": 0.0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.2,
+    "discount": 0.0
+   },
+   {
+    "name": "6T BON PARIS ETOUF",
+    "amount": 3.53,
+    "discount": 0.0
+   },
+   {
+    "name": "6X OEUFS PPA FQC",
+    "amount": 1.96,
+    "discount": 0.0
+   },
+   {
+    "name": "BETTERAVE S/V 250G",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "BISC.PT DEJ.CRF",
+    "amount": 1.64,
+    "discount": 0.0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTAL RAPE 100G",
+    "amount": 1.94,
+    "discount": 0.0
+   },
+   {
+    "name": "GALETTE QUINOA TOM",
+    "amount": 2.81,
+    "discount": 0.0
+   },
+   {
+    "name": "MELON CHARENTAIS PET",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "MOZZARELLA CRF",
+    "amount": 1.64,
+    "discount": 0.0
+   },
+   {
+    "name": "NECTARINE A CHAIR JA",
+    "amount": 3.22,
+    "discount": 0.0
+   },
+   {
+    "name": "TOMATE GRAPPE",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "X6 KNACKI ORIGINAL",
+    "amount": 1.54,
+    "discount": 0.0
+   }
+  ]
+ }
+}

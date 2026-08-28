@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/765.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "MAISONS DU MONDE",
+  "date": "2017-01-21",
+  "total": 39.99,
+  "items": [
+   {
+    "name": "ETLE LUMI. BS GM",
+    "amount": 39.99,
+    "discount": 0
+   }
+  ]
+ }
+}

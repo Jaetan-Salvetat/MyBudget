@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/847.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": null,
+  "date": "2017-06-12",
+  "total": 14.0,
+  "items": [
+   {
+    "name": "MxBO RoyalBacon",
+    "amount": 8.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Nugget 9",
+    "amount": 6.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

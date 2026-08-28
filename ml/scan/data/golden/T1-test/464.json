@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/464.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-02",
+  "total": 6.87,
+  "items": [
+   {
+    "name": "*2X125G YRT BREBIS",
+    "amount": 1.61,
+    "discount": 0
+   },
+   {
+    "name": "*300G POULET TIKKA",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN VOLLKORNBROT",
+    "amount": 2.11,
+    "discount": 0
+   }
+  ]
+ }
+}

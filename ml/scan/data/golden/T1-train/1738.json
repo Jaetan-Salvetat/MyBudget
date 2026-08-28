@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1738.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "AUSTERLITZ CAFE",
+  "date": "2014-11-06",
+  "total": 6.5,
+  "items": [
+   {
+    "name": "PTI DEJ.FRANCAIS",
+    "amount": 6.5,
+    "discount": 0
+   }
+  ]
+ }
+}

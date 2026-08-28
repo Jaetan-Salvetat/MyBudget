@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1608.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "RIA DE NIORT",
+  "date": "2017-03-22",
+  "total": 5.77,
+  "items": [
+   {
+    "name": "1 FRITTO MISTO",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "1 PATES",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "1 PATISSERIE",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "1 ADM/BASSIN SEVRE NIO",
+    "amount": 2.31,
+    "discount": 0
+   },
+   {
+    "name": "1 SUBV/BASSIN SEVRE NI",
+    "amount": -1.22,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/976.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "MADE ILE",
+  "date": "2016-03-22",
+  "total": 29.0,
+  "items": [
+   {
+    "name": "312 DC2356",
+    "amount": 29.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

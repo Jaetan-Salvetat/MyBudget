@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/127.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-07",
+  "total": 7.91,
+  "items": [
+   {
+    "name": "200G TZATZIKI CRF",
+    "amount": 1.93,
+    "discount": 0.0
+   },
+   {
+    "name": "75 BDJ ROS CAF ML",
+    "amount": 3.78,
+    "discount": 0.0
+   },
+   {
+    "name": "MELON CHARENTAIS GRO",
+    "amount": 2.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

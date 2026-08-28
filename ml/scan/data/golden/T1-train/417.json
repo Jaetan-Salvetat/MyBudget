@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/417.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-16",
+  "total": 3.39,
+  "items": [
+   {
+    "name": "*4X115G RIZ AU LAIT",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "*P.J.MULTIFRUITS 1L",
+    "amount": 1.96,
+    "discount": 0
+   }
+  ]
+ }
+}

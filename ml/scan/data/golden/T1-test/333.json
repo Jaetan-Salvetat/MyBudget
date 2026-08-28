@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/333.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-20",
+  "total": 11.18,
+  "items": [
+   {
+    "name": "*72 LING.BB FRESH",
+    "amount": 1.96,
+    "discount": 0.0
+   },
+   {
+    "name": "*BOULGOUR LENTILLE",
+    "amount": 3.04,
+    "discount": 0.0
+   },
+   {
+    "name": "*CHIFFONNADE JB SEC",
+    "amount": 2.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*NECTARINE A CHAIR JA",
+    "amount": 1.38,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 2.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

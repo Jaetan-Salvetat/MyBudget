@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1593.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "GAMM VERT - ST JEAN D'ANGELY",
+  "date": "2017-04-08",
+  "total": 5.95,
+  "items": [
+   {
+    "name": "GLAEUIL VARIE X 50 GV 12/14",
+    "amount": 5.95,
+    "discount": 0
+   }
+  ]
+ }
+}

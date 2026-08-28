@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-test/img/957.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2015-10-26",
+  "total": 56.9,
+  "items": [
+   {
+    "name": "POELEE BASQUAISE D'AUCY 2X580G",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "CAFE MAXWELL HOUSE",
+    "amount": 4.16,
+    "discount": 0
+   },
+   {
+    "name": "EXCELL.NOIR 70% LINDT 2X100G",
+    "amount": 4.6,
+    "discount": 0
+   },
+   {
+    "name": "1/2 CONFIT AUBERGI",
+    "amount": 2.25,
+    "discount": 0
+   },
+   {
+    "name": "200G CROQU'SOJA",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "DELICEREAL.SARRAZ.",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT POM/NAT.695G",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "POELEE LEGUM.PARIS.D'AUCY 265G",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE TOMATE CERIS",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "QUENELLE.VEAU/FINANCIERE U 1/2",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "SALSIFIS BOITE 1/2",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "SEL IODE BALEINE SALIERE 125G",
+    "amount": 0.4,
+    "discount": 0
+   },
+   {
+    "name": "FRO.PAS.CAPRICE DIEUX 30% 300G",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "TROP.ANAN/CITR/VRT",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "PETITS FILOUS FRT RGE",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE BECHAMEL",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "EMMENT.PAST.RAPE 28%MG U 200G",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "SHP.CH.SECS OLIVE P/OLIV.250ML",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "PAP.TOILETTE COMPACT U ECO.X4",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "BROC PICHET 1L 80102 P",
+    "amount": 2.09,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE FILET 1,5KG",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "PILE U PUISSANCE LR6 X4",
+    "amount": 3.09,
+    "discount": 0
+   },
+   {
+    "name": "TENDRE NX SUP.SEL RED.6TR.180G",
+    "amount": 3.12,
+    "discount": 0
+   },
+   {
+    "name": "PANES CHEVRE/EPINARD GAULOISX2",
+    "amount": 2.12,
+    "discount": 0
+   }
+  ]
+ }
+}

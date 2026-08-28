@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1778.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ECOMALIN",
+  "date": "2016-08-31",
+  "total": 14.5,
+  "items": [
+   {
+    "name": "X FILET DE HARENGS DOU",
+    "amount": 14.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

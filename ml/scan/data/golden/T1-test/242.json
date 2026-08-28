@@ -1,0 +1,129 @@
+{
+ "source": "dataset_findit/T1-test/img/242.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-02",
+  "total": 40.42,
+  "items": [
+   {
+    "name": "12 OEUFS PPA MOYEN",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "250G MIEL ORANGER",
+    "amount": 2.65,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*300G LT ECR.REGILA",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "*550G MAXI JAC COMP",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE MOYENNE",
+    "amount": 2.17,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FR.POMM/BANAN",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "*FLT 500G ECHALOTE",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "KG CUISSE PLT BLC",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "KG CUISSE PLT BLC",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 3.71,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*LENTILLES CRF",
+    "amount": 0.45,
+    "discount": 0
+   },
+   {
+    "name": "*LITCHI VRAC",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE FEUILLE",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "*PASTIN MULTICEREAL",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 1.01,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE IMP",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "6RLX PAP.HYG.2PL.O",
+    "amount": 1.78,
+    "discount": 0
+   }
+  ]
+ }
+}

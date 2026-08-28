@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/321.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-02",
+  "total": 0.06,
+  "items": [
+   {
+    "name": "*180G QUINOA BOULG",
+    "amount": 2.77,
+    "discount": 0
+   },
+   {
+    "name": "*INNOCENT MANG/PASS",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "*SALADE SAUMON FUME",
+    "amount": 3.09,
+    "discount": 0
+   }
+  ]
+ }
+}

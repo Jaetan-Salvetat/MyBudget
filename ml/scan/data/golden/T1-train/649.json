@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/649.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-06-17",
+  "total": 5.42,
+  "items": [
+   {
+    "name": "BLE PRE-CUIT 10 MIN",
+    "amount": 1.14,
+    "discount": 0.0
+   },
+   {
+    "name": "15SACS POUB.NF ENVIRON.50L,15P",
+    "amount": 1.85,
+    "discount": 0.0
+   },
+   {
+    "name": "DEO REXONA WOMEN MUSC ATO 200M",
+    "amount": 2.43,
+    "discount": 0.0
+   }
+  ]
+ }
+}

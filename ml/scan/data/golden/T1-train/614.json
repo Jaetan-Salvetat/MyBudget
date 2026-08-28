@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/614.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-04-28",
+  "total": 16.18,
+  "items": [
+   {
+    "name": "MUGUET 3 GRIFFES",
+    "amount": 11.6,
+    "discount": 0
+   },
+   {
+    "name": "PAIN BATARD CEREALES SELECT*",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "DEMI BAGUETTE X1",
+    "amount": 0.29,
+    "discount": 0
+   },
+   {
+    "name": "FRO.PAST.PT BRIE 32% B.VU 500G",
+    "amount": 2.69,
+    "discount": 0
+   }
+  ]
+ }
+}

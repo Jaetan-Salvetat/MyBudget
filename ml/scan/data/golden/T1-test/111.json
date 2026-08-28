@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/111.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-10-20",
+  "total": 9.61,
+  "items": [
+   {
+    "name": "50ML DEO BIL.NAT.P",
+    "amount": 3.91,
+    "discount": 0
+   },
+   {
+    "name": "PIZZ.CHEV.CRF 440G",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA 4SAISONS CRF",
+    "amount": 2.72,
+    "discount": 0
+   }
+  ]
+ }
+}

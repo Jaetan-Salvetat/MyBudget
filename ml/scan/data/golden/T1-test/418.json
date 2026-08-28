@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/418.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-07",
+  "total": 3.96,
+  "items": [
+   {
+    "name": "* 250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*50 CL EAU",
+    "amount": 0.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*P.J.MULTIFRUITS 1L",
+    "amount": 1.96,
+    "discount": 0.0
+   }
+  ]
+ }
+}

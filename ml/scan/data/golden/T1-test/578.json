@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/578.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-03-19",
+  "total": 4.51,
+  "items": [
+   {
+    "name": "*3X35G CABECOU",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "400G CROISSANTS CR",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "75 IGP OC RGE MILL",
+    "amount": 3.57,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   },
+   {
+    "name": "*BUCHE DE CHEVRE",
+    "amount": 3.21,
+    "discount": 0
+   },
+   {
+    "name": "MADELEINES COQUILL",
+    "amount": 2.6,
+    "discount": 0
+   }
+  ]
+ }
+}

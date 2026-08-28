@@ -1,0 +1,139 @@
+{
+ "source": "dataset_findit/T1-train/img/923.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SIMPLY ST JEAN DE BRAYE",
+  "date": "2017-02-26",
+  "total": 63.56,
+  "items": [
+   {
+    "name": "H COFFRET SNACK ASS",
+    "amount": 0.79,
+    "discount": 0
+   },
+   {
+    "name": "BISCUITS",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "H ASPERGE BLANCHE MOYE",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "H AUCHAN ASPERGE MOY.V",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "H AUCHAN ASPERGE MOY.V",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "H FUSILLI 500G SS/GLUT",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "H MINI CAKE CHOCO SS/G",
+    "amount": 3.08,
+    "discount": 0
+   },
+   {
+    "name": "H MINICAK FRAI.S/GLUX6",
+    "amount": 3.23,
+    "discount": 0
+   },
+   {
+    "name": "PAIN AU GRAINE S/GLU",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "CRISTALINE 6X 1L5",
+    "amount": 1.02,
+    "discount": 0
+   },
+   {
+    "name": "H LAIT 1/2 ECREME AUCH",
+    "amount": 4.68,
+    "discount": 0
+   },
+   {
+    "name": "H POMMES NOISETTES AUC",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "H POMMES NOISETTES AUC",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "MAGNUM MINI BLC AMAN",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "MAGNUM MINI DOUBLE X",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "FRUIT DOR 100% VEGET",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL PORTION AUC",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE AUCHAN",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "H PETIT BRIE AUCHAN 50",
+    "amount": 3.61,
+    "discount": 0
+   },
+   {
+    "name": "FE SELLES SUR CHER A",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "FE ST.NECTAIRE FERMI",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "LE SAINT DE BRAYE",
+    "amount": 3.63,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "TROPICANA TONIC BREA",
+    "amount": 2.65,
+    "discount": 0
+   },
+   {
+    "name": "BOEUFX2 STEACK**A GR",
+    "amount": 4.56,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/237.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-11",
+  "total": 12.19,
+  "items": [
+   {
+    "name": "*PAIN 6 CEREALES",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "BANDE CIRE BLONDEP",
+    "amount": 4.79,
+    "discount": 0.0
+   },
+   {
+    "name": "COLLANT DIM",
+    "amount": 5.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

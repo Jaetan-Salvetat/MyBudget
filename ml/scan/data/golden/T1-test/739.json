@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-test/img/739.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 28.64,
+  "items": [
+   {
+    "name": "AIL",
+    "amount": 0.88,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVE CRUE",
+    "amount": 0.39,
+    "discount": 0
+   },
+   {
+    "name": "SALADE",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "POMMES",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "MACHE",
+    "amount": 1.58,
+    "discount": 0
+   },
+   {
+    "name": "OIGNON",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "CHOUX",
+    "amount": 0.87,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTE",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "CHOU FLEUR",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "POIREAU",
+    "amount": 2.27,
+    "discount": 0
+   },
+   {
+    "name": "PATATE DOUCE",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "BLETTE",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE",
+    "amount": 3.4,
+    "discount": 0
+   }
+  ]
+ }
+}

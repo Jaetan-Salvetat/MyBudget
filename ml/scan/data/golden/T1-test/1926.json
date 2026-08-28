@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-test/img/1926.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Netto",
+  "date": "2017-01-31",
+  "total": 12.21,
+  "items": [
+   {
+    "name": "PATURAGES RAPE 3 FRO",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "NETTO MELANGE RAISIN",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "ORANGE DESSERT VRAC",
+    "amount": 0.56,
+    "discount": 0
+   },
+   {
+    "name": "KIWI VERT PIECE",
+    "amount": 1.12,
+    "discount": 0
+   },
+   {
+    "name": "FENOUIL VRAC",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUFS PLEIN AIR X",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "NETTO FARINE MENAG.T",
+    "amount": 0.45,
+    "discount": 0
+   },
+   {
+    "name": "NETTO CHOUX FLEURS K",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "NETTO MELANGE EXOTIQ",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "NETTO HAR VERT EF 1/",
+    "amount": 0.54,
+    "discount": 0
+   },
+   {
+    "name": "NETTO HARICO.BLC PRE",
+    "amount": 0.45,
+    "discount": 0
+   },
+   {
+    "name": "NETTO HARICOT ROUGE",
+    "amount": 0.56,
+    "discount": 0
+   }
+  ]
+ }
+}

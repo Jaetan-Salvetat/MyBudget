@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/482.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-05",
+  "total": 3.92,
+  "items": [
+   {
+    "name": "*1L PERRIER MENTHE",
+    "amount": 0.92,
+    "discount": 0.0
+   },
+   {
+    "name": "*DWICH TOMATE MOZZA",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "RESTAURATION",
+    "amount": 1.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/371.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-17",
+  "total": 5.4,
+  "items": [
+   {
+    "name": "*CAROT RAP.CRF 300G",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "*MOUSS  IRRES.CHOCO",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "*TABOULE VOLAILLE",
+    "amount": 1.7,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/709.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA HALLE",
+  "date": "2017-03-18",
+  "total": 15.0,
+  "items": [
+   {
+    "name": "SOCQUETTES/INVISIBLES 048535735112 310",
+    "amount": 7.5,
+    "discount": 0.0
+   },
+   {
+    "name": "MI-CHAUSSETTES 048555735467 310",
+    "amount": 7.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/271.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-11",
+  "total": 8.61,
+  "items": [
+   {
+    "name": "*KINDER SCHOKOBONS",
+    "amount": 3.43,
+    "discount": 0
+   },
+   {
+    "name": "*MLG OLIVE NOIR/VER",
+    "amount": 2.23,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

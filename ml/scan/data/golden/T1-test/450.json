@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/450.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-22",
+  "total": 4.86,
+  "items": [
+   {
+    "name": "COOKIES BIG CHUNK",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "*CRF SALADE SAUMON",
+    "amount": 3.32,
+    "discount": 0
+   }
+  ]
+ }
+}

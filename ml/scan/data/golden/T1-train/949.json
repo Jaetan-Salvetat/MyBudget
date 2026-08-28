@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/949.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Les 4 Sergents",
+  "date": "2017-02-22",
+  "total": 135.0,
+  "items": [
+   {
+    "name": "LA FORMULE",
+    "amount": 16.0,
+    "discount": 0.0
+   },
+   {
+    "name": "MENU BORIS",
+    "amount": 54.0,
+    "discount": 0.0
+   },
+   {
+    "name": "KIR AU VIN BLANC",
+    "amount": 12.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Cht de Beaulon 5ans bl",
+    "amount": 7.0,
+    "discount": 0.0
+   },
+   {
+    "name": "DESSERT DU MARCHE",
+    "amount": 6.0,
+    "discount": 0.0
+   },
+   {
+    "name": "MAREUIL BLANC 2014",
+    "amount": 28.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CAFE",
+    "amount": 12.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/104.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-11-17",
+  "total": 13.71,
+  "items": [
+   {
+    "name": "*250G RAVIOLI CEPES",
+    "amount": 3.28,
+    "discount": 0.0
+   },
+   {
+    "name": "*4X125G VELOUTE NAT",
+    "amount": 1.03,
+    "discount": 0.0
+   },
+   {
+    "name": "*6 OEUFS BIO LOUE",
+    "amount": 3.26,
+    "discount": 0.0
+   },
+   {
+    "name": "*CD LAIT COCO CRF",
+    "amount": 1.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*LEVURE CHIMIQUE",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMME GOLDEN GROSSE",
+    "amount": 2.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*SUCRE POUDRE",
+    "amount": 1.49,
+    "discount": 0.0
+   }
+  ]
+ }
+}

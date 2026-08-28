@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/193.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-02-27",
+  "total": 7.29,
+  "items": [
+   {
+    "name": "*AVOCAT MAP X2",
+    "amount": 4.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE ROCHELAISE",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*BIO BANANE",
+    "amount": 1.39,
+    "discount": 0.0
+   }
+  ]
+ }
+}

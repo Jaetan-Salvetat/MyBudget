@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/975.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Restaurant McDonald's",
+  "date": "2016-04-06",
+  "total": 7.7,
+  "items": [
+   {
+    "name": "MxBO Roy.Deluxe",
+    "amount": 7.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

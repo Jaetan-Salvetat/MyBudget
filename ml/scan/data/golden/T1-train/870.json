@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/870.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "monop'station",
+  "date": "2017-06-11",
+  "total": 9.65,
+  "items": [
+   {
+    "name": "50CL EVIAN",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "OREO CLASS.ROULEAU",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "PRESSE",
+    "amount": 5.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-train/img/683.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-05-26",
+  "total": 91.9,
+  "items": [
+   {
+    "name": "TWINUTS ORIGINAL BACON,150G",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "CHIPS VINAIGRE,125G",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "MINI-FLUT TOM OLV ORI,100G",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "MENTHE S.S,3X25G",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "CAMEMB.ENT. 21%MG,250G",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "AGNEAU K7 COTE*** A GRILLER",
+    "amount": 8.79,
+    "discount": 0
+   },
+   {
+    "name": "AGNEAU K7 COTE** A GRILLER",
+    "amount": 8.61,
+    "discount": 0
+   },
+   {
+    "name": "RADIS",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "BANANES",
+    "amount": 1.62,
+    "discount": 0
+   },
+   {
+    "name": "CITRON VERT",
+    "amount": 0.42,
+    "discount": 0
+   },
+   {
+    "name": "PECHES BLANCHES OU JAUNES",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE MELI MELO",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "OLIVES VERTES CASS/PERSIL-AIL",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE MARA DES BOIS",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "1664 BLANCHE 12X25CL 5D,3L",
+    "amount": 7.56,
+    "discount": 0
+   },
+   {
+    "name": "JOKER PUR JUS D'ORANGE PULPE.1",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "SANGRIA,150CL",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "COCKTAIL SS ALCOOL PINA COLADA",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "RHUM HAVANA CLUB 40D-ANEJO SP",
+    "amount": 16.33,
+    "discount": 0
+   },
+   {
+    "name": "AILES DE POULET AU PAPRIKA",
+    "amount": 5.3,
+    "discount": 0
+   },
+   {
+    "name": "SAUCISSON ST AGAUNE,200G",
+    "amount": 3.78,
+    "discount": 0
+   },
+   {
+    "name": "BAGUET/ANCIENNE",
+    "amount": 0.58,
+    "discount": 0
+   },
+   {
+    "name": "BOX GRILLE SIMPLE 57 X30.1P",
+    "amount": 14.9,
+    "discount": 0
+   }
+  ]
+ }
+}

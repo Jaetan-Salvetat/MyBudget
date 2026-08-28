@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1484.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-02-24",
+  "total": 4.08,
+  "items": [
+   {
+    "name": "EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 4.08,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/99.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-10",
+  "total": 3.21,
+  "items": [
+   {
+    "name": "*GENOISE FRAMBOISE",
+    "amount": 1.16,
+    "discount": 0.0
+   },
+   {
+    "name": "*MILKA MCX DAIM",
+    "amount": 2.05,
+    "discount": 0.0
+   }
+  ]
+ }
+}

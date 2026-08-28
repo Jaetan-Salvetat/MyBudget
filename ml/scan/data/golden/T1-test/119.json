@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/119.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-06-08",
+  "total": 2.5,
+  "items": [
+   {
+    "name": "CIDRE BOUCHE BRUT",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

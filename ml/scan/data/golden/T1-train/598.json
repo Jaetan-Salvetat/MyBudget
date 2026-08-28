@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/598.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR SAINT BRIEUC",
+  "date": "2017-06-17",
+  "total": 1.56,
+  "items": [
+   {
+    "name": "(4) 10 x 15 cm",
+    "amount": 1.56,
+    "discount": 0
+   }
+  ]
+ }
+}

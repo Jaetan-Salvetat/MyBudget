@@ -1,0 +1,139 @@
+{
+ "source": "dataset_findit/T1-test/img/473.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-06-17",
+  "total": 61.19,
+  "items": [
+   {
+    "name": "*1/2 TRANC.THON CRF",
+    "amount": 3.36,
+    "discount": 0
+   },
+   {
+    "name": "100EUF.BIO MOY.CRF",
+    "amount": 3.1,
+    "discount": 0
+   },
+   {
+    "name": "12XOEUF PL AIR CRF",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "*340G CORNED BEEF",
+    "amount": 2.28,
+    "discount": 0
+   },
+   {
+    "name": "75 IGP ATLANT MILL",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "*8X125G ACTIVIA PAN",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE CARREFOUR",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "BF  CUISSE A/OS",
+    "amount": 4.78,
+    "discount": 0
+   },
+   {
+    "name": "*CERISE",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "DARNE THON BLANC",
+    "amount": 11.23,
+    "discount": 0
+   },
+   {
+    "name": "FOIE VOLAILLE",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "GRILLADE",
+    "amount": 7.16,
+    "discount": 0
+   },
+   {
+    "name": "*HAR.COCO PL",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "HARIC BLC CUIT",
+    "amount": 1.47,
+    "discount": 0
+   },
+   {
+    "name": "KG PILONS PLT BLC",
+    "amount": 4.1,
+    "discount": 0
+   },
+   {
+    "name": "*LARDONS NAT.CRF X2",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN 400GR",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSERVATION",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "*PECHE PLATE",
+    "amount": 3.85,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "STEAK X2 PP",
+    "amount": 2.79,
+    "discount": 0
+   },
+   {
+    "name": "THE ANGLAIS TETLEY",
+    "amount": 2.67,
+    "discount": 0
+   },
+   {
+    "name": "2 SAVONS DX LPO",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "CREME LAVANTE PECH",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "X31 T2 NB PAMPERS",
+    "amount": 8.5,
+    "discount": 0
+   }
+  ]
+ }
+}

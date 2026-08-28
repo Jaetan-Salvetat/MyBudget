@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/696.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PATÀPAIN",
+  "date": "2017-03-16",
+  "total": 2.9,
+  "items": [
+   {
+    "name": "Pain tourné Origine",
+    "amount": 2.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/434.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-15",
+  "total": 4.56,
+  "items": [
+   {
+    "name": "*320G FLDE STOCKHOL",
+    "amount": 4.23,
+    "discount": 0.0
+   },
+   {
+    "name": "BANANE",
+    "amount": 0.33,
+    "discount": 0.0
+   }
+  ]
+ }
+}

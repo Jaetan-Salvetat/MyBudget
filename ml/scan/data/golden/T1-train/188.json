@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/188.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF CITY MAISONS LAFFITTE",
+  "date": "2017-02-04",
+  "total": 10.98,
+  "items": [
+   {
+    "name": "*10L HYGIENE PLUS C",
+    "amount": 5.79,
+    "discount": 0
+   },
+   {
+    "name": "*12 RLX P.HY.3P CRF",
+    "amount": 4.39,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE",
+    "amount": 0.8,
+    "discount": 0
+   }
+  ]
+ }
+}

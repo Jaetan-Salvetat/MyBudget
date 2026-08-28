@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/841.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Restaurant McDonald's",
+  "date": "2017-06-15",
+  "total": 9.1,
+  "items": [
+   {
+    "name": "MX McWrap Ba.Cro",
+    "amount": 9.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

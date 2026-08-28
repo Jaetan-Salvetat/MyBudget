@@ -1,0 +1,199 @@
+{
+ "source": "dataset_findit/T1-test/img/221.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-04-10",
+  "total": 83.88,
+  "items": [
+   {
+    "name": "1/2 CONFIT AUBERGI",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "1/2 QUENEL.VOLAIL.",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "1/2 TAJINE/LEG.GRI",
+    "amount": 3.16,
+    "discount": 0
+   },
+   {
+    "name": "200G CROQ'SOJA",
+    "amount": 2.64,
+    "discount": 0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "300G BISCOTTE COMP",
+    "amount": 1.27,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "6X OEUFS PPA FQC",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "70CL SIROP MENTHE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "ANDROS POMME NAT.",
+    "amount": 3.49,
+    "discount": 0
+   },
+   {
+    "name": "BLE 12X25CL BIERE",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "BQ 500G FRAISE",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "BRK SQR 1L PJ POMM",
+    "amount": 3.08,
+    "discount": 0
+   },
+   {
+    "name": "CAFE MAXWELL HOUSE",
+    "amount": 4.42,
+    "discount": 0
+   },
+   {
+    "name": "CAPRICE DES DIEUX",
+    "amount": 2.83,
+    "discount": 0
+   },
+   {
+    "name": "CEL 500G COQUILLET",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "CEL 500G TORTI PAN",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "CORDON BLEU DINDE",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "GALETTE NATURE 250",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "JAMBON SUPERIEUR",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "KIRI CREME X 12",
+    "amount": 2.28,
+    "discount": 0
+   },
+   {
+    "name": "LINDT NOIR 85%",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "NOIX DE CAJOU VICO",
+    "amount": 5.29,
+    "discount": 0
+   },
+   {
+    "name": "P. FEUILLETEE 235G",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "P.FEUILLETEE MARIE",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "PIZ L'OVALE CHEVRE",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "POMME GALA MOYENNE",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "QUENEL VOLAI.PJEAN",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "SALSIFIS BONDUELLE",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "XTREM CHOCO NOISET",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "YAOUR.BRAS.NAT.CRF",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "50ML DEO BIL.S/SEL",
+    "amount": 3.47,
+    "discount": 0
+   },
+   {
+    "name": "DENTIFRICE BIO",
+    "amount": 2.87,
+    "discount": 0
+   },
+   {
+    "name": "UD SH AMANDE LOTUS",
+    "amount": 2.74,
+    "discount": 0
+   }
+  ]
+ }
+}

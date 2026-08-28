@@ -56,7 +56,31 @@ ml/**/dataset/
 ml/**/.dart_tool/
 ml/**/__pycache__/
 
-# Modèle quick-add : hors dépôt, récupéré via ./tool/fetch_model.sh
+# Les modèles embarqués vivent dans les release assets, pas dans le dépôt :
+# LFS facturerait leur stockage et leur bande passante à chaque run de CI.
+# Publiés et récupérés d'un bloc par tool/models/{publish,fetch}.sh, épinglés
+# dans tool/models/lock.env.
 assets/models/*.onnx
-# Source du tokenizer : sert seulement à régénérer tokenizer.bin
+assets/models/tokenizer_v*.bin
+assets/models/line_clf_v*.json
+assets/models/line_roles_v*.json
+assets/models/label_link_v*.json
+assets/models/label_span_v*.json
+# Source du tokenizer : sert seulement à régénérer le tokenizer binaire
 assets/models/tokenizer.json
+
+# ML scan : datasets, corpus et sorties OCR volumineux. Seul le golden FindIt
+# est versionné : curé à la main, stable, irremplaçable. Le corpus annoté, lui,
+# est une sortie de modèle réécrite en bloc à chaque évolution du prompt ou du
+# format — il vit en release asset, épinglé par tool/scan_annotations/lock.env.
+ml/scan/data/*
+!ml/scan/data/golden/
+ml/scan/harness/assets/corpus/
+# Artefacts d'entrainement du scan : regeneres par line_classifier.train*,
+# livres a l'app en release (tool/models/)
+ml/scan/research/models/
+
+# Dart pipeline (ml/scan) build artefacts
+ml/scan/pipeline/build/
+ml/scan/research/.pytest_cache/
+ml/scan/research/.ruff_cache/

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/943.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PHARMACIE DE BEAULIEU",
+  "date": "2017-01-20",
+  "total": 37.57,
+  "items": [
+   {
+    "name": "AVENT TET SILIC DEB VAR 2 W",
+    "amount": 5.73,
+    "discount": 0
+   },
+   {
+    "name": "NOVALAC AR 1 LAIT PDR800G ****",
+    "amount": 31.84,
+    "discount": 0
+   }
+  ]
+ }
+}

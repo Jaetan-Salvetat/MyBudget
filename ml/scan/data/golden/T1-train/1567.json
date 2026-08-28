@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/1567.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "castorama",
+  "date": "2016-10-06",
+  "total": 37.75,
+  "items": [
+   {
+    "name": "TOURILLON SAP RAB",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "TABLETTE MELAM",
+    "amount": 6.45,
+    "discount": 0
+   },
+   {
+    "name": "CONNECTEUR RAPIDE",
+    "amount": 11.9,
+    "discount": 0
+   },
+   {
+    "name": "FICHE 16A MALE AVEC",
+    "amount": 4.6,
+    "discount": 0
+   },
+   {
+    "name": "4 SUPPORTS ADHÉSIFS",
+    "amount": 6.25,
+    "discount": 0
+   },
+   {
+    "name": "FICHE 16A MALE AVEC",
+    "amount": 4.6,
+    "discount": 0
+   }
+  ]
+ }
+}

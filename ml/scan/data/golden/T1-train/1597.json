@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/1597.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-03",
+  "total": 28.65,
+  "items": [
+   {
+    "name": "* LES EXQUIS THON 80G LYCAT,80G",
+    "amount": 5.32,
+    "discount": 0
+   },
+   {
+    "name": "* CAFE 100% ARABICA BRESIL,250G",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "UHT BK CHARENTE POITOU",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "* CREME DESSERT CAFE X4 DELISSE,",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "* CREME DESSERT CHOCO X4 DELISSE",
+    "amount": 0.76,
+    "discount": 0
+   },
+   {
+    "name": "AGNEAU 3X GIGOT*** TRANCHE",
+    "amount": 8.75,
+    "discount": 0
+   },
+   {
+    "name": "* LA TRADITIONNELLE VPF,300G",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE PLUS",
+    "amount": 3.6,
+    "discount": 0
+   }
+  ]
+ }
+}

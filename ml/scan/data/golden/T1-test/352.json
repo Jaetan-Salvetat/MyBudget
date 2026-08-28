@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/352.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-21",
+  "total": 3.61,
+  "items": [
+   {
+    "name": "*CITRON JAUNE",
+    "amount": 0.67,
+    "discount": 0
+   },
+   {
+    "name": "*EVIAN NEW 1.5L",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "*JUS DE CITRON BIO",
+    "amount": 1.76,
+    "discount": 0
+   }
+  ]
+ }
+}

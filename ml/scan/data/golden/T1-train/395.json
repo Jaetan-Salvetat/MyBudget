@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/395.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-10",
+  "total": 6.81,
+  "items": [
+   {
+    "name": "*350G SAUCE PROVENC",
+    "amount": 1.48,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNONS BRUNS 25",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*MOZZA BOULE GALBAN",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "*PAT.PIZZA CRF 260G",
+    "amount": 1.26,
+    "discount": 0
+   }
+  ]
+ }
+}

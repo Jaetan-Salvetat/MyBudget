@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/1163.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LIDL",
+  "date": "2017-04-12",
+  "total": 23.37,
+  "items": [
+   {
+    "name": "Poire Vrac",
+    "amount": 1.44,
+    "discount": 0.0
+   },
+   {
+    "name": "Hybrides /Grand sach",
+    "amount": 0.65,
+    "discount": 0.0
+   },
+   {
+    "name": "Semences fleurs et l",
+    "amount": 0.29,
+    "discount": 0.0
+   },
+   {
+    "name": "Pommes bicolores 2 k",
+    "amount": 2.49,
+    "discount": 0.0
+   },
+   {
+    "name": "Citron vert",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "Pistaches non salées",
+    "amount": 3.49,
+    "discount": 0.0
+   },
+   {
+    "name": "Epongesvegetales gr",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "Essui-tout 3 plis",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "Serviettes b 0283546",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "Serviette ba 0283545",
+    "amount": 7.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/917.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "ISEO BISTROT DE LA MER",
+  "date": "2017-05-25",
+  "total": 82.4,
+  "items": [
+   {
+    "name": "MENU BISTROT 3",
+    "amount": 45.0,
+    "discount": 0.0
+   },
+   {
+    "name": "MENU ISEO 3",
+    "amount": 24.9,
+    "discount": 0.0
+   },
+   {
+    "name": "OCEANE BIST",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "PERRIER",
+    "amount": 3.9,
+    "discount": 0.0
+   },
+   {
+    "name": "RICARD",
+    "amount": 3.8,
+    "discount": 0.0
+   },
+   {
+    "name": "PINEAU ROUGE",
+    "amount": 4.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/422.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-13",
+  "total": 16.16,
+  "items": [
+   {
+    "name": "*320G SALADE ANTIBE",
+    "amount": 3.74,
+    "discount": 0.0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.35,
+    "discount": 0.0
+   },
+   {
+    "name": "*BISC.SOJA ORANGE",
+    "amount": 2.04,
+    "discount": 0.0
+   },
+   {
+    "name": "*COUNTRY CRISP NOIX",
+    "amount": 3.69,
+    "discount": 0.0
+   },
+   {
+    "name": "*MELON CHARENTAIS GRO",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*NARTA DEO PROT.5",
+    "amount": 3.32,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMME ROYAL GALA",
+    "amount": 0.52,
+    "discount": 0.0
+   }
+  ]
+ }
+}

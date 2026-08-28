@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/577.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-13",
+  "total": 13.3,
+  "items": [
+   {
+    "name": "2X500G+1GT PEN C/R",
+    "amount": 2.58,
+    "discount": 0.0
+   },
+   {
+    "name": "*4 TR. LE ROTI DE P",
+    "amount": 2.97,
+    "discount": 0.0
+   },
+   {
+    "name": "400G CROISSANTS CR",
+    "amount": 1.78,
+    "discount": 0.0
+   },
+   {
+    "name": "*4T JAMB SUP.TSR",
+    "amount": 2.29,
+    "discount": 0.0
+   },
+   {
+    "name": "*JAMBONNEAU 1/2",
+    "amount": 2.83,
+    "discount": 0.0
+   },
+   {
+    "name": "*PAIN 400GR",
+    "amount": 0.85,
+    "discount": 0.0
+   }
+  ]
+ }
+}

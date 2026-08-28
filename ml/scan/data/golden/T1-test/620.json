@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/620.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-04-13",
+  "total": 20.16,
+  "items": [
+   {
+    "name": "PAIN PAVE MULTI-CEREALES",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "STE MAURE SOIGNON BUCH.23%200G",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "REBLOCH.AOP LT CRU 28%MG USAV.",
+    "amount": 3.18,
+    "discount": 0
+   },
+   {
+    "name": "TOMME NOIRE PYREN.IGP PAST.28%",
+    "amount": 2.84,
+    "discount": 0
+   },
+   {
+    "name": "SCHOKOBONS KINDER SACHET 500G",
+    "amount": 6.99,
+    "discount": 1.75
+   },
+   {
+    "name": "HAMB.GEANT COMPLET JACQUET X4",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "STEAK HACHE 15%MAT.GR U 3X125G",
+    "amount": 3.75,
+    "discount": 0
+   }
+  ]
+ }
+}

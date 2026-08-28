@@ -1,0 +1,134 @@
+{
+ "source": "dataset_findit/T1-test/img/667.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SIMPLY ST JEAN DE BRAYE",
+  "date": "2017-05-14",
+  "total": 49.16,
+  "items": [
+   {
+    "name": "H AUCHAN HARICOT BLC",
+    "amount": 0.62,
+    "discount": 0
+   },
+   {
+    "name": "H AUCHAN HARICOT VERT",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "H EPINARDS HACHE AUCHA",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "H HARICOT BLANC AUCHAN",
+    "amount": 0.67,
+    "discount": 0
+   },
+   {
+    "name": "H HARICOT VERT EXT FIN",
+    "amount": 0.64,
+    "discount": 0
+   },
+   {
+    "name": "H PETIT POIS CAROT265G",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "PUR JUS POMM",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "CAB ANJOU CHANAU ROS",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "CASTILLON CT BDX GAI",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "IGP ATLANTIQUE OCEAN",
+    "amount": 4.25,
+    "discount": 0
+   },
+   {
+    "name": "H LAIT BIO1/2ECREME AU",
+    "amount": 5.64,
+    "discount": 0
+   },
+   {
+    "name": "H LAIT BIO1/2ECREME AU",
+    "amount": 5.64,
+    "discount": 0
+   },
+   {
+    "name": "H BRIE 200G",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE ZIP AU",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "H EMMENTAL RAPE ZIP AU",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "LE BON BRIE COEUR LI",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 1.88,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE 500GR FRANCE",
+    "amount": 2.65,
+    "discount": 0
+   },
+   {
+    "name": "RADIS ROSE BOTTE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "H PUR JUS ORANGE AUCHA",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "H PUR JUS ORANGE AUCHA",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "TPP PAMPLEMOUSSE ROS",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "BETTERAVE X2",
+    "amount": 1.85,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/1008.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Quick",
+  "date": "2016-12-18",
+  "total": 12.33,
+  "items": [
+   {
+    "name": "1 M GIANT",
+    "amount": 6.75,
+    "discount": 0
+   },
+   {
+    "name": "2 KETCHUP gratuit",
+    "amount": 0.0,
+    "discount": 0
+   },
+   {
+    "name": "1 MAYO gratuite",
+    "amount": 0.0,
+    "discount": 0
+   },
+   {
+    "name": "1 CUP BASILIC 0 Eur",
+    "amount": 0.0,
+    "discount": 0
+   },
+   {
+    "name": "1 SAL IRRESIST PLT",
+    "amount": 6.95,
+    "discount": 0
+   },
+   {
+    "name": "1 SCE VIN BALSAMIQ 0",
+    "amount": 0.0,
+    "discount": 0
+   }
+  ]
+ }
+}

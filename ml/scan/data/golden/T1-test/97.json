@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/97.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-01-24",
+  "total": 2.54,
+  "items": [
+   {
+    "name": "*EAU CRISTALINE",
+    "amount": 0.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*TRIPLE CLUB POULET",
+    "amount": 2.04,
+    "discount": 0.0
+   }
+  ]
+ }
+}

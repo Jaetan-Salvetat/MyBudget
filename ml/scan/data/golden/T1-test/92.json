@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/92.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-05",
+  "total": 6.72,
+  "items": [
+   {
+    "name": "*320G SLD.MANHATTAN",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.27,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 0.73,
+    "discount": 0
+   },
+   {
+    "name": "*POMME GOLDEN GROSSE",
+    "amount": 1.14,
+    "discount": 0
+   }
+  ]
+ }
+}

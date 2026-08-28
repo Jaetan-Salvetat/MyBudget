@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/862.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-05-26",
+  "total": 16.15,
+  "items": [
+   {
+    "name": "FILET MIGNON DE PORC X2",
+    "amount": 14.45,
+    "discount": 0
+   },
+   {
+    "name": "ALLUM.FUME.HERTA 2X102G",
+    "amount": 1.7,
+    "discount": 0
+   }
+  ]
+ }
+}

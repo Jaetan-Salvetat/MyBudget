@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/63.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-05",
+  "total": 4.32,
+  "items": [
+   {
+    "name": "*4X125G VELOUTE NAT",
+    "amount": 1.03,
+    "discount": 0
+   },
+   {
+    "name": "*AVOCAT",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*POIRES 0.99",
+    "amount": 0.99,
+    "discount": 0
+   }
+  ]
+ }
+}

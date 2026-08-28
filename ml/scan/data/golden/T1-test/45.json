@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/45.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-01",
+  "total": 7.72,
+  "items": [
+   {
+    "name": "*BAGUETTE PERENE CERE",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 1.32,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*TAB CHO NR CRF BIO",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*TABOULE VOLAILLE",
+    "amount": 1.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

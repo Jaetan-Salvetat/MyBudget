@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1772.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TOYS'R'US LA ROCHELLE",
+  "date": "2016-12-10",
+  "total": 43.98,
+  "items": [
+   {
+    "name": "PIC PIRATE 034487",
+    "amount": 22.99,
+    "discount": 0
+   },
+   {
+    "name": "CROQUE CAROTTE 612952",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "OFFRE 1E CARTE FID 234400",
+    "amount": 1.0,
+    "discount": 0
+   }
+  ]
+ }
+}

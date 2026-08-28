@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/674.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PATAPAIN",
+  "date": "2017-05-02",
+  "total": 1.3,
+  "items": [
+   {
+    "name": "Baguette tournée Origine",
+    "amount": 1.3,
+    "discount": 0.0
+   }
+  ]
+ }
+}

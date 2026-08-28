@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1384.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Cultura",
+  "date": "2017-02-13",
+  "total": 31.5,
+  "items": [
+   {
+    "name": "MILZA / HISTOIRE DE L' ITA x1",
+    "amount": 15.0,
+    "discount": 0.0
+   },
+   {
+    "name": "GALLOIS / ET SI TU N'EXIST x1",
+    "amount": 16.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

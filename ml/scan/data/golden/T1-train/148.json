@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/148.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-06",
+  "total": 5.28,
+  "items": [
+   {
+    "name": "PIM'S FRAMBOISE LU",
+    "amount": 1.46,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE PATE JBON",
+    "amount": 3.82,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/262.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-29",
+  "total": 1.6,
+  "items": [
+   {
+    "name": "*BEURR PLAQ D-SEL",
+    "amount": 1.6,
+    "discount": 0
+   }
+  ]
+ }
+}

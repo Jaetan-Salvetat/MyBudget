@@ -1,0 +1,199 @@
+{
+ "source": "dataset_findit/T1-train/img/207.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2017-01-27",
+  "total": 142.11,
+  "items": [
+   {
+    "name": "400G CREPE JAMBON",
+    "amount": 5.0,
+    "discount": 0.0
+   },
+   {
+    "name": "X6 PERLES DE COCO",
+    "amount": 4.29,
+    "discount": 0.0
+   },
+   {
+    "name": "SCE SOJA SUCREE KI",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCE WOK KIKOMAN",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCE POUR NEMS",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "HAKAO RAVIOLI SAUC",
+    "amount": 4.5,
+    "discount": 0.0
+   },
+   {
+    "name": "2X75CL CIDRE BRUT",
+    "amount": 5.0,
+    "discount": 2.0
+   },
+   {
+    "name": "PDA BAGUETTE SESAM",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "PAELLA CHAUD",
+    "amount": 6.2,
+    "discount": 0.0
+   },
+   {
+    "name": "KG PLT LABEL.R DOR",
+    "amount": 7.03,
+    "discount": 0.0
+   },
+   {
+    "name": "240G JBN SUP DD4",
+    "amount": 4.3,
+    "discount": 0.0
+   },
+   {
+    "name": "BONDUELL.MELI-MELO",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "1L COURGET.PARMESA",
+    "amount": 5.1,
+    "discount": 0.0
+   },
+   {
+    "name": "1L POTIR.LT COCO",
+    "amount": 4.8,
+    "discount": 0.0
+   },
+   {
+    "name": "CLEMENVILLA 2KG",
+    "amount": 3.95,
+    "discount": 0.0
+   },
+   {
+    "name": "ORANGE MALTAISE",
+    "amount": 1.66,
+    "discount": 0.0
+   },
+   {
+    "name": "POIRE ABATE MDD VR",
+    "amount": 4.01,
+    "discount": 0.0
+   },
+   {
+    "name": "LITCHI",
+    "amount": 0.77,
+    "discount": 0.0
+   },
+   {
+    "name": "CITRON JAUNE VRAC",
+    "amount": 3.42,
+    "discount": 0.0
+   },
+   {
+    "name": "AUBERG FLT 500G",
+    "amount": 2.95,
+    "discount": 0.0
+   },
+   {
+    "name": "PCE POIVRON FLOU",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "NAVET BOULE OR",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "PCE BROCOLI FILME",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 4.36,
+    "discount": 0.0
+   },
+   {
+    "name": "LITIERE MINERALE",
+    "amount": 1.42,
+    "discount": 0.0
+   },
+   {
+    "name": "VITTEL X675CL",
+    "amount": 2.04,
+    "discount": 0.0
+   },
+   {
+    "name": "C.COLA LIGHT X4",
+    "amount": 2.62,
+    "discount": 0.0
+   },
+   {
+    "name": "CAFE AMERICANO",
+    "amount": 4.59,
+    "discount": 0.0
+   },
+   {
+    "name": "36 DOS.SENSEO DOUX",
+    "amount": 3.68,
+    "discount": 0.0
+   },
+   {
+    "name": "TAILLEFINE BRASSE",
+    "amount": 2.35,
+    "discount": 0.0
+   },
+   {
+    "name": "BOIS.PAST. GRENADE",
+    "amount": 2.99,
+    "discount": 0.0
+   },
+   {
+    "name": "200G MELANGE GOURM",
+    "amount": 1.9,
+    "discount": 0.0
+   },
+   {
+    "name": "GIRASOLI GORGONZOL",
+    "amount": 5.98,
+    "discount": 0.0
+   },
+   {
+    "name": "MOULE MANQUE 24CM",
+    "amount": 11.9,
+    "discount": 2.38
+   },
+   {
+    "name": "HERBE A CHAT",
+    "amount": 2.99,
+    "discount": 0.0
+   },
+   {
+    "name": "CHAUSSON FEMME TEX",
+    "amount": 9.99,
+    "discount": 0.0
+   },
+   {
+    "name": "CHAUSSON HOMME TEX",
+    "amount": 9.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

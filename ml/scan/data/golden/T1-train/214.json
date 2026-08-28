@@ -1,0 +1,199 @@
+{
+ "source": "dataset_findit/T1-train/img/214.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-11-25",
+  "total": 123.61,
+  "items": [
+   {
+    "name": "10ST SUCRE VANILLE",
+    "amount": 2.35,
+    "discount": 0.0
+   },
+   {
+    "name": "125G PL BEUR DX PR",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "*16X VELOUTE NATURE",
+    "amount": 3.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*18X50G DANONINO PA",
+    "amount": 2.29,
+    "discount": 0.0
+   },
+   {
+    "name": "1KG POT NUTELLA",
+    "amount": 4.79,
+    "discount": 0.0
+   },
+   {
+    "name": "1L MARTINI ROSATO",
+    "amount": 7.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*1L PET JUS DE POM",
+    "amount": 2.1,
+    "discount": 0.0
+   },
+   {
+    "name": "*1L REVEIL FRUITE",
+    "amount": 2.03,
+    "discount": 0.0
+   },
+   {
+    "name": "300G BISCOTT.CRF",
+    "amount": 0.72,
+    "discount": 0.0
+   },
+   {
+    "name": "450G SUCRE GLACE",
+    "amount": 1.47,
+    "discount": 0.0
+   },
+   {
+    "name": "*500G PAIN DE MIE",
+    "amount": 1.09,
+    "discount": 0.0
+   },
+   {
+    "name": "*ANDROS POMME NATUR",
+    "amount": 1.85,
+    "discount": 0.0
+   },
+   {
+    "name": "*ANDROS POMME/POIRE",
+    "amount": 1.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 200G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*BRIOCHE TRESSEE 70",
+    "amount": 5.65,
+    "discount": 0.0
+   },
+   {
+    "name": "*CHOUQUETTE X10",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CONFITUR.MYRTILLES",
+    "amount": 2.03,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMMENTAL RAPE CRF",
+    "amount": 2.82,
+    "discount": 0.0
+   },
+   {
+    "name": "*FLT 1KG CLEMENTINE",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "GALETTE LOT X 2",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "HARRYS BRIOCHE TR.",
+    "amount": 2.19,
+    "discount": 0.0
+   },
+   {
+    "name": "KINDER SCHOKOBONS",
+    "amount": 5.95,
+    "discount": 0.0
+   },
+   {
+    "name": "LEFFE BIERE BLONDE",
+    "amount": 10.5,
+    "discount": 0.0
+   },
+   {
+    "name": "LT2X205G NESTLE NR",
+    "amount": 3.75,
+    "discount": 0.0
+   },
+   {
+    "name": "OEUFS BIO LOUE",
+    "amount": 2.94,
+    "discount": 0.0
+   },
+   {
+    "name": "PLANTA FIN DOUX 25",
+    "amount": 0.93,
+    "discount": 0.0
+   },
+   {
+    "name": "Q.FILTRE MAXWELL H",
+    "amount": 4.83,
+    "discount": 0.0
+   },
+   {
+    "name": "*T.CERISE PX ROND",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "THE AGRUMES LIPTON",
+    "amount": 1.71,
+    "discount": 0.0
+   },
+   {
+    "name": "*TROPICANA ORANGE",
+    "amount": 3.35,
+    "discount": 0.0
+   },
+   {
+    "name": "*XTREM CHOCO NOISET",
+    "amount": 5.96,
+    "discount": 0.0
+   },
+   {
+    "name": "1L DEBOUCH.DESTOP",
+    "amount": 1.97,
+    "discount": 0.0
+   },
+   {
+    "name": "2 SAVONS DX LPO",
+    "amount": 2.12,
+    "discount": 0.0
+   },
+   {
+    "name": "3L LESSIVE VEGETAL",
+    "amount": 11.08,
+    "discount": 0.0
+   },
+   {
+    "name": "4 RLX P.H.CRF ECOP",
+    "amount": 2.26,
+    "discount": 0.0
+   },
+   {
+    "name": "50ML DEO BIL.NAT.P",
+    "amount": 8.08,
+    "discount": 0.0
+   },
+   {
+    "name": "750ML ASS.ARBRE VT",
+    "amount": 2.93,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,1687 @@
+# Scan local — étude OCR + structuration
+
+Objectif : passer d'une photo de ticket à des données fiables (articles, prix,
+remises, total, date) 100% on-device, avec un signal de confiance exploitable.
+La catégorisation (BERT) est hors scope de cette étude.
+
+## Verdict (2026-08-24)
+
+**Décision produit : le scan est LOCAL ou CLOUD, réglage exclusif — jamais
+d'escalade automatique.** Le mode cloud (flow VLM existant) ne bouge pas ;
+tout ce dossier vise le mode local, qui doit être l'option recommandée
+(cible ~99 % de validation directe sur tickets frais).
+
+> **La cascade d'étages décrite dans les sections datées de ce README a été
+> retirée** — voir « La cascade ne fabriquait pas de la fiabilité, mais de la
+> confiance ». La référence Python (`reference/local_flow.py`) n'a plus qu'un
+> étiqueteur et un décodeur ; les sections antérieures restent pour la trace
+> des mesures qui ont mené là, pas comme description du flow courant.
+
+Architecture du mode local :
+
+```
+photo → ML Kit → déskew + clustering → tagger de rôles sur TOUTES les lignes
+                          ↓
+        décodage sous contrainte : l'étiquetage le plus probable dont
+        Σ(articles − remises) tombe au centime sur une référence imprimée
+                          ↓                          │ rien ne prouve la somme ↓
+                     vérifié              prétraitement + 2e OCR, puis fusion
+                                                     │ échec ↓
+                          écran de confirmation pré-rempli (échec DÉTECTÉ, jamais silencieux)
+```
+
+- **Tagger de rôles** : quatorze rôles, toutes les lignes, montants recopiés
+  de l'OCR — hallucination structurellement impossible.
+- **Règles** : hors du flow. Elles ne servent plus qu'à construire la vérité
+  depuis la transcription officielle FindIt.
+- Éliminé par les données : OCR à entraîner, modèle end-to-end image→JSON
+  embarqué, LLM génératif on-device, et la cascade elle-même.
+
+Mesures sur 120 tickets synthétiques français (ground truth exact) + 7 tickets
+réels, exécutées sur Pixel 8 Pro et émulateur (sorties identiques) :
+
+| Niveau | Recall articles | Précision | Remises | Checksum |
+|---|---|---|---|---|
+| clean (scan net) | 100% (344/344) | 100% | 58/58 | 40/40 |
+| photo (rotation, perspective, ombre, flou) | 100% (348/348) | 100% | 63/63 | 40/40 |
+| hard (thermique pâli + froissé + flou fort) | 96,9% (372/384) | 100% | 71/72 | 35/40 |
+
+Tickets réels : 5/5 photos exploitables parfaites (dont un froissé et un
+incliné). Les 2 échecs sont des thumbnails web 200-250px, résolution qu'aucune
+photo de téléphone ne produit.
+
+**Corpus français réel — dataset Find it! (ICPR 2018, L3i La Rochelle, miroir
+Kaggle `srjpdl/findit-dataset`, copié dans `data/raw/findit/`)** : seul
+dataset public de tickets de caisse français. 1000 tickets T1 (500 train +
+500 test) ~1752×3390, chacun avec sa **transcription texte exacte** — c'est
+elle qui fournit le ground truth article par article (via
+`truth/transcript.py` : même structuration appliquée au texte parfait,
+fiable quand son propre checksum passe).
+
+Résultat central, mesuré sur 250 vrais tickets à vérité fiable :
+
+- **recall articles 97,9%** (1327/1356), **précision 99,0%**
+- **0 article faux sur les tickets auto-validés** — les 13 divergences sont
+  toutes sur des tickets flagués par le checksum → écran de confirmation
+- auto-validation stricte : ~74% (ce corpus est un pire-cas : tickets
+  thermiques de 2017 déjà pâlis, formats profonds type cantine
+  subventionnée, balance de marché, promo Yves Rocher)
+
+Le retry avec prétraitement (autocontrast + unsharp + upscale) récupère ~10%
+des échecs. Le niveau « photo correcte d'un ticket frais » est encadré par le
+tier synthétique photo (100%). Bonus : sur 15 tickets falsifiés du contest de
+fraude, le checksum rejette ceux dont les montants sont incohérents.
+
+Autres datasets évalués et écartés (revue refaite le 2026-08-26) :
+SROIE/SRD (anglais), **Find it again!** — L3i 2023, dont le nom trompe : c'est
+du SROIE anglophone, pas la suite du FindIt français —, CORD (indonésien),
+ReceiptSense/CORU (arabe-anglais), XFUND-fr (formulaires, pas des tickets),
+`jenswalter/receipts` sur Kaggle (7 fichiers FR, transport et restaurant),
+Wikimedia Commons (4 tickets FR exploitables), Roboflow (jeux de 75 à 200
+images, non-FR), Shaip 15.9k reçus 5 langues dont FR (commercial payant).
+
+**Open Prices** est la seule source publique de volume trouvée : les
+contributeurs d'Open Food Facts photographient leur ticket comme preuve de
+prix. 4 350 tickets français, 347 enseignes distinctes, dont 94 % datent de
+2024-2026 — là où FindIt est figé sur Carrefour La Rochelle 2016-2017. Et
+chaque ticket porte une vérité **externe** : le total et le nombre d'articles
+saisis par un humain, plus les prix unitaires. 1 122 ont un total déclaré,
+772 ont tous leurs articles saisis.
+
+Un corpus web US (40 photos ExpressExpense SRD) a servi de contrôle
+hors-domaine : 23/42 auto-validés, zéro faux positif vérifié à l'œil, échecs
+tous imputables au vocabulaire US (`Food`/`TL`/`CC`). Il a été **retiré du
+corpus le 2026-08-26** — le scan ne vise que la France, et entraîner sur des
+tickets anglophones diluait la supervision sans rien apprendre d'utile.
+
+Latence OCR Pixel 8 Pro : médiane 312ms, p95 443ms.
+
+## Benchmark des « cerveaux » de structuration (2026-08-24)
+
+Trois candidats, même entrée mesurée, mêmes 250 tickets réels à vérité
+terrain, même métrique — corrections utilisateur par ticket :
+
+| Cerveau | Corr./ticket | Articles faux | Hallucinations | Latence |
+|---|---|---|---|---|
+| Règles + ML Kit (local, gratuit) | 0,17 (88% à zéro) | 3,1% | 0 (structurel) | 0,3s Pixel |
+| Gemma 3n E2B sur texte OCR (classe on-device, 2GB) | 0,80 | 18% | oui (montants doublés/inventés) | 6,4s sur Mac M |
+| **Gemini 3.7 Flash sur image (cloud)** | **0,00 (250/250)** | **0/1356** | **0** | ~6s, ~0,08¢/scan |
+
+Conclusions :
+- Le flow photo→VLM→JSON est **parfait avec un modèle de classe cloud** — et
+  c'est déjà le flow du scan distant existant, il suffit d'un bon modèle.
+- La même idée **embarquée** (2GB) est pire que les règles ET hallucine :
+  la « compréhension » ne survit pas à la taille on-device aujourd'hui.
+- Le run Gemini valide aussi la vérité terrain (accord indépendant 250/250).
+
+Sondes « capacité vs entraînement » (50 tickets, même protocole) :
+
+| Variante | Corr./ticket | Inventions de chiffres |
+|---|---|---|
+| gemma3n:e2b base | 0,70 | 5 |
+| gemma3n:e2b + few-shot | 0,46 (−34%) | 4 |
+| gemma3:4b (2× plus gros) | 1,28 (pire) | 18 |
+
+Lecture : les erreurs de *tâche* (mauvaise colonne, doublage quantité,
+oublis ≈ 88% des erreurs) cèdent à l'entraînement (few-shot −34%, un
+fine-tuning ferait mieux). Les **inventions pures de chiffres ne cèdent ni
+aux exemples ni à la taille** — elles sont structurelles au décodage
+génératif (quantization Q4 comprise). Un génératif on-device fine-tuné
+resterait donc au-dessus de zéro invention, notre barre. Si un « modèle qui
+comprend » doit tourner en local un jour, c'est un **classifieur de lignes**
+(sortie = étiquettes, montants recopiés de l'OCR, hallucination
+structurellement impossible), entraînable sur le golden.
+
+## Mode local — bench & calibration (2026-08-24)
+
+L'instrument central est **`research/bench/local.py`** : il rejoue le flow
+local complet (règles → retry → classifieur V2) depuis les dumps OCR d'un
+run device — une modification de règles ou de modèle se mesure en secondes
+sur 1000 vrais tickets, sans retoucher au téléphone. Métriques : validation
+directe, faux auto-validés (la barre : 0 montant faux), corrections/ticket
+en confirmation. `research/bench/failures.py` classe chaque échec
+(structuration / total non lu / montants absents de l'OCR / golden non
+checksummable) pour dire où investir.
+
+**Corpus de travail sain (2026-08-24)** : les tickets structurellement
+ingagnables sont exclus des benchs via `data/golden/excluded.txt` (101
+tickets : 52 golden non-checksummables — cantine subventionnée, balance —
+et 49 aux montants absents de l'OCR, dont `t1test_68`, l'unique vrai faux
+validé historique). Liste régénérable :
+`bench/failures.py device_flow --write-excluded` ; filtrée par
+`load_tickets`, donc par tous les benchs. Le plafond du corpus restant est
+100 % — chaque échec est attaquable côté règles/modèle.
+
+État sur les 899 tickets FindIt du corpus sain (pire-cas : thermiques 2017
+pâlis), vérité golden (historique mesuré sur les 1000 bruts, plafond 94,8 %,
+avec 78,6 % au dernier état) :
+
+| Étape | Checksum OK (sur corpus sain) | Faux montants validés |
+|---|---|---|
+| Règles + calibration (TUA, TOT, INCL, fallbacks, MERCI) | 79,9 % | 1* |
+| **+ classifieur V2** | **85,5 %** | 2* |
+| Restant : 130 — structuration + total non lu uniquement | | |
+
+\* `t1train_1869` et `t1train_1657` : 1 correction chacun, golden
+« gemini-seul » (non double-validé) — à auditer, probablement conventions.
+
+Décisions de calibration issues du bench :
+
+- **Garde-fou retry** : un retry dont la somme d'articles est inférieure à
+  celle de la passe 1 est refusé même si son checksum passe (collision de
+  substitution observée : article 9,90 perdu + total 22,45 lu 12,55).
+- **Références de secours gated `total is None`** : table TVA (somme des
+  TTC), compteur « N ARTICLE(S) » + ligne CB, total sans séparateur
+  (« 2790 »), prix orphelin de fin de ticket. Un fallback ne doit JAMAIS
+  outrepasser un total lu qui ne colle pas (faux positif observé sinon).
+- Lexiques : `TUA` (V→U), `TOT` abrégé, `A RENDRE`, total « TVA INCL »
+  non exclu, frontières de mot (`MERCI` matchait dans `COMMERCIALE`).
+- Écartés par les données : tolérance 2 centimes, exemption colonne des
+  prix négatifs, cross-check de totaux.
+
+## Classifieur de lignes V2 (2026-08-24, retiré du flow)
+
+**Remplacé par le tagger de rôles** ; `line_classifier/train.py`,
+`reference/structure_ml.py` et les features V2/V3 n'existent plus côté Python.
+Section conservée pour la leçon d'étiquetage ci-dessous, qui a servi au tagger.
+
+Il s'appuyait sur 32 features déterministes par ligne porteuse de prix
+(géométrie, lexiques, contexte ±1 ligne) et un HistGradientBoosting.
+
+- **98,7 % d'accuracy lignes sur T1-test** ; +53 tickets sauvés sur 1000
+  (+25 sur T1-test jamais vu à l'entraînement → généralise).
+- L'étiquetage est automatique et c'est LA leçon : rôles joués par les
+  règles sur les tickets checksum-validés (vérité confirmée) + labels
+  correctifs alignés golden sur les échecs, lignes incertaines **exclues**.
+  Étiqueter « ignore » une ligne d'article au montant abîmé par l'OCR
+  apprend au modèle à jeter des articles (première version : 62 %
+  d'accuracy pour cette raison).
+- Branché en second avis : uniquement sur les tickets que règles+retry
+  flaguent, sortie re-checksummée. Zéro faux montant introduit.
+- À faire pour l'app : portage de l'inférence en Dart pur (arbres
+  transpilables ou petit MLP à poids constants — pas de TFLite).
+
+La spec d'implémentation app (mapping UI, messages d'erreur, invariants) :
+**`VERIFICATION.md`**.
+
+## Intelligence sans hallucination : décodage sous contrainte + V3 (2026-08-24)
+
+Réponse à la crainte « le système est bête » sans LLM ni VLM : toute
+l'intelligence porte sur **l'étiquetage** de lignes existantes, jamais sur
+le contenu — les montants sont recopiés de l'OCR, l'hallucination est
+structurellement impossible. Discipline : modèles et seuils calibrés sur
+**T1-train**, T1-test intouché = seule mesure de généralisation.
+
+| Étape (corpus sain, 899) | T1-train | T1-test | Faux (test) |
+|---|---|---|---|
+| Départ : règles + retry + V2 argmax | 85,4 % | 85,7 % | 0 |
+| + décodage sous contrainte (`decode_constrained.py`) | 86,9 % | 87,5 % | 0 |
+| + V3 (features arithmétiques, lexiques flous, trigrammes) | 89,4 % | 87,7 % | 0 |
+| + lexiques paiement/total étendus + étiquetage correctif total/paiement | 91,1 % | 91,7 % | 3 |
+| + invariants structurels (rien après la référence, négatif ≠ article) | 92,0 % | 92,4 % | 1* |
+| **+ paiement en référence sans flip (vote de deux signaux)** | **92,5 %** | **92,6 %** | **1*** |
+
+\* `t1test_1181` : paire subvention 14,12 / −14,12 à net zéro (format
+cantine), aucun montant faux dans la somme. Total corpus : **832/899
+(92,5 %)**, contre 769/899 (85,5 %) en début de chantier.
+
+Les mécanismes, du plus rentable au moins :
+
+1. **Le checksum devient un guide, plus seulement un juge**
+   (`decode_constrained.py`) : le classifieur sort des probabilités par
+   ligne ; on cherche l'étiquetage le plus probable dont Σ(articles −
+   remises) tombe exactement sur une référence imprimée — subset-sum exact
+   en centimes par programmation dynamique, `min_prob` 0,02 (jamais forcer
+   un rôle que le modèle juge impossible), référence total à P ≥ 0,5.
+   Invariants de ticket encodés dans l'espace de recherche : aucune ligne à
+   0 centime en article, **rien ne compte après la ligne de référence**
+   (la monnaie rendue après un paiement en espèces n'est jamais un
+   article — cause des 3 faux observés avant), **un prix négatif n'est
+   jamais un article**, un paiement ne sert de référence qu'en dernier
+   recours et **sans aucun flip** (les articles selon l'argmax doivent
+   tomber pile dessus : modèle + ligne imprimée contre un total lu faux).
+2. **Le vrai goulot était l'étiquetage d'entraînement**, pas le modèle :
+   l'étiquetage correctif sur tickets échoués n'attribuait jamais
+   TOTAL/PAYMENT, donc le modèle n'avait jamais vu une ligne total garblée
+   étiquetée total. Et le lexique paiement ne connaissait que la CB —
+   espèces, chèque, paiement, règlement, perçu, reçu n'existaient pas ; NET
+   A REGLER, DOIT, PRIX TTC, MONTANT TTC non plus côté total. C'est
+   l'étape qui rapporte +4 points sur test.
+3. **V3** (`line_features_v3.py`) : signaux agnostiques au format — ce
+   prix est-il la somme d'un bloc au-dessus ? une fraction TVA/HT d'un
+   autre prix ? la somme des remises précédentes (récap « avantages ») ?
+   dupliqué ailleurs ? — plus similarité d'édition aux lexiques (résiste à
+   `Tota1`, `TOT AL`, `LU.A`) et trigrammes hachés du libellé. Régularisé
+   (early stopping, feuilles ≥ 20) pour des probabilités exploitables :
+   log-loss test 0,26 → 0,07, lignes fausses à P ≥ 0,99 : 52 → 8. Le gain
+   propre de V3 sur test est modeste (+1) mais il rend le décodeur
+   efficace.
+
+Diagnostic des 33 restants de test (`scratchpad`, reproductible) : 11 ont un
+montant golden **jamais parsé** comme prix (`27C 27.90`, `€ 49 56`),
+~15 une référence trop garblée pour tout lexique (`E SPECES 23.O0`,
+`Cartes Berc1TES`, `DOLT`, `TO'AL`) ou nue (`61.59 EUR`), 3 des remises
+informatives propres à un format (`Nouveau prix 49,90 -5,10`). Plus de
+levier générique : la suite est côté parsing OCR, ou côté modèle de
+séquence / encodeur layout-aware entraîné sur golden + synthétique.
+
+
+## Flow V3 porté en Dart & diagnostics (2026-08-24, soir)
+
+- **Ordre des étages mesuré** (899 dumps) : classifieur avant le retry.
+  Passe 1 : règles → classifieur argmax → décodeur ; si rien ne vérifie,
+  retry (2e OCR, l'étage cher) → règles → classifieur → décodeur. Même
+  précision (832/899), **94 retries au lieu de 198**. Référence Python :
+  `research/reference/local_flow.py` (`decide_local`), miroir Dart `flow.dart`
+  (`decide` + `classifierRescue`), harnais `local_flow.dart`.
+- **Portage Dart complet** : lexiques et règles de calibration
+  (`structure.dart`), features V2+V3 (`line_features.dart`, CRC-32 et
+  Levenshtein inclus), inférence du classifieur depuis un JSON exporté
+  (`classifier.dart`, `research/line_classifier/export.py`, écart vs
+  sklearn 4e-16), décodeur DP (`decode.dart`). **Parité flow complet
+  Python↔Dart : 1000 dumps, 0 divergence** (`bench/parity.py --model`).
+  Tie-breaking du décodeur déterministe des deux côtés (tri stable des
+  références, ordre fixe des labels).
+  Plage du DP bornée à `[−D, cible + D]` (D = capacité de remise des lignes
+  dont P(remise) passe le seuil) : élagage exact, sans quoi le décodeur en
+  Dart pur prenait 30 s par ticket sur un S9+.
+- **Harnais** : modèle en asset (`assets/models/line_clf_v3.json`),
+  `--dart-define=AUTO_SUITE=true` lance la suite sans interaction (pilotage
+  adb), chaque ticket de la liste ouvre un détail (résultat / image zoomable
+  / texte OCR des deux passes), stats de session en direct (étages, taux
+  vérifié, retries, latences) accessibles depuis chaque écran.
+- **`research/bench/diagnose.py`** — le système de vérification côté test :
+  tous les étages sur tous les tickets, **vérité par ligne** alignée sur le
+  golden (`truth/roles.py` : item / discount / total / payment / tva /
+  subtotal / quantity / discount_summary / change / ignore) → matrices de
+  confusion par étage ; **concordance** entre étages vérifiés (un désaccord
+  = collision détectable sans golden) ; **calibration** du taux de faux par
+  niveau de confiance affichable ; noms d'articles vs golden ; dégâts OCR
+  vs transcription ; **test adversarial du décodeur** (référence remplacée
+  par une valeur fausse). Sortie `results/diagnostics/<run>.jsonl` +
+  rapport (`--report=<jsonl>` rejoue le rapport sans recalcul).
+
+Premiers enseignements (899 tickets) :
+
+| Signal disponible sans golden | Tickets | Faux affichés |
+|---|---|---|
+| ≥ 3 méthodes vérifiées concordantes | 745 | 0 |
+| 2 méthodes concordantes | 52 | 1 (paire net zéro) |
+| 1 seule méthode | 17 | 0 |
+| **désaccord entre méthodes vérifiées** | 19 | **2** |
+| aucune | 66 | — |
+
+- Le **décodeur seul** vérifie 796/899 mais avec 5 faux : c'est l'étage
+  risqué, la cascade le masque. **Adversarial : 21 % des références
+  fausses trouvent quand même une solution** (574/2686) — un total mal lu
+  par l'OCR a une chance sur cinq d'être « vérifié » à tort par le décodeur
+  seul.
+- La concordance est le signal manquant : les 2 vrais faux affichés sont
+  dans les 19 « désaccord ». Proposition : « vérifié » = ≥ 2 méthodes
+  d'accord ; 1 méthode ou désaccord → bandeau « à relire ».
+- Confusions dominantes du classifieur (argmax, 899 tickets) : lignes
+  `ignore` promues article 56, `tva` promues article 54, `total` lues
+  article 40, `payment` ignorées 49 — la cible du prochain entraînement.
+- Noms d'articles : similarité médiane 0,95 vs golden, 5,8 % sous 0,6 —
+  premier chiffre sur les libellés, jamais mesurés avant.
+- Causes racines des 67 non vérifiés : 32 parasites promus par le
+  classifieur, 20 références non reconnues, 8 références jamais parsées en
+  prix, 4 articles manqués, 3 totaux illisibles.
+
+## Vers 99 % : invariants arithmétiques & fusion des passes (2026-08-25)
+
+Objectif fiabilité (pas de latence) : **832 → 858/899 (95,4 %)**, faux
+vérifiés 3 → **2** (les deux paires subvention à net zéro, golden
+« gemini-seul »). Méthode : lecture ligne à ligne des 67 échecs, puis
+uniquement des règles *structurelles* — jamais de règle par ticket, aucun
+seuil déplacé, aucun golden ni exclusion touchés. Tout reste gated par le
+checksum au centime et `min_prob`.
+
+| Étape | Vérifiés | Faux |
+|---|---|---|
+| Départ (V3 + DP, parité Dart) | 832 (92,5 %) | 3 |
+| Parsing + lexiques (VISA, S/TOT, CARTES BANCAIRES, SANS CONTACT ; `17 ,00`, `17;00`, `7.074` sur ligne total ; TOTAL flou à 1 édition) + ré-entraînement V3 | 841 | 5* |
+| + `invariants.py` + références multi-sources dans le décodeur | 849 | 3 |
+| + garde-fou retry assoupli (même total lu) | 850 | 3 |
+| + fusion des passes (`fuse_passes.py`) | 854 | 3 |
+| + totaux de rayon arithmétiques, Σ rayons | 856 | 3 |
+| + taxes jamais article, total intermédiaire éligible s'il clôt les articles, total final avant le premier paiement | 858 | 3 |
+| + ligne 0 € jamais article (règles) | **858 (95,4 %)** | **2** |
+
+Par split (modèle entraîné sur T1-train uniquement) : **T1-train 432/451
+(95,8 %)**, **T1-test 426/448 (95,1 %)** — l'écart train/test reste faible,
+les règles n'ont pas surappris le corpus.
+
+\* Leçon : les lexiques nourrissent les features V3 (similarité floue) —
+changer un lexique sans ré-entraîner déplace les probabilités
+(« Totaux: » passé de P(total) 0,24 à 0,76). Tout changement de lexique =
+`line_classifier/train.py --v3` + `line_classifier/export.py`.
+
+Les mécanismes (`research/reference/invariants.py`, sans modèle, portables en Dart) :
+
+1. **Décomposition TVA** : un HT et une taxe à taux légal (2,1/5,5/10/20 %,
+   ±1 centime) prouvent le TTC — sur une ligne de table (`B 20,00% 6,13
+   1,22 7,35`, `1> 5.50 0.56 10.04`), ou HT lexical (`HT`, `H.T`, `NET`,
+   `TTL`) + ligne TVA. Multi-taux sommés. Les lignes consommées ne sont
+   jamais des articles ; toute ligne à lexique taxe (`TVA`, `TUA`, `TAX`)
+   non plus. Un taux seul (`5,50`, `20,00`) n'est pas une ligne de taxe :
+   ce sont aussi des prix.
+2. **Espèces − rendu** = montant réglé (le plus grand paiement avant la
+   ligne de rendu ; `Rendu Espèces` est un rendu, pas un paiement).
+3. **Récap de remises** : une remise égale à la somme des remises réelles
+   précédentes est un récapitulatif (`REMISE TOTALE`, `TOTAL REMISE
+   IMMEDIATE`) — si elle porte le mot total ou si ≥ 2 remises la précèdent
+   (deux remises identiques ne sont pas un récap).
+4. **Totaux de rayon** : une ligne égale à la somme courante des articles
+   depuis le rayon précédent (≥ 2 articles sans lexique, 1 avec) est un
+   sous-total — ignorable même si le classifieur dit article
+   (`ALINENTAIRE 9.05`). Σ des rayons = référence quand ils couvrent tous
+   les articles (`Total Soins 12,55` + `Total Non Alimentaire 9.90` =
+   22,45 alors que le total à payer est illisible).
+5. **Éligibilité des références** : jamais un montant HT ; le total final =
+   dernier total lexical **avant le premier paiement** (`Total Bon
+   immédiat 3.72` imprimé après la CB n'est pas le total) ; avant lui, un
+   sous-total ou total intermédiaire seulement s'il clôt les articles (ni
+   article ni remise après lui, pas de rayon différent avant) — `Net Total`
+   US suivi de taxes oui, `SOUS TOTAL` suivi de `REMISE` non, `TOTAL
+   ALIMENTAIRE` suivi d'articles non.
+6. **Références multi-sources** (`decode_constrained.py`) : lignes total du
+   classifieur (P ≥ 0,5, rangs éligibles), dernier total lexical (même à
+   P faible : `TO'AL Euro`, `OTAL REGLEMENT`), TVA, espèces − rendu, Σ
+   rayons — fusionnées par montant, chaque source d'accord ajoute un bonus.
+   Une référence virtuelle (sans ligne) coupe à la première ligne qui la
+   prouve.
+7. **Ticket mono-article** (parking, carburant) : montant prouvé par une
+   source arithmétique ET une autre, aucun candidat article, compteur
+   d'articles absent ou 1 → l'unique achat porte le montant et le nom de
+   l'enseigne. Refusé sinon (`2 ARTICLE(S) TOTAL 4.70` avec articles
+   illisibles reste en confirmation).
+8. **Fusion des passes** (`fuse_passes.py`, étage `local_fused`) : lignes
+   de la passe brute et de la passe prétraitée alignées par position
+   verticale ; ligne non chiffrée remplacée par la lecture de l'autre
+   passe, ligne absente insérée, montant différent → **alternative** que
+   le DP arbitre (pénalité log 0,5). Rien d'inventé : chaque montant vient
+   d'une passe OCR. +4 tickets Carrefour (`S2.75e` lu 52,75 d'un côté,
+   2,75 de l'autre).
+9. **Affichage** : `verified_total` = la référence qui a réellement
+   vérifié la somme (jamais un total lu qui ne colle pas — cas paiement +
+   compteur d'articles où le total lu était une ligne TVA).
+
+Validité, mesurée avant de conclure :
+
+- **Adversarial** (référence remplacée par un montant faux) : **20,1 %**
+  de collisions sur la valeur fausse (21,4 % avant) — le décodeur n'a pas
+  été fragilisé par les candidats supplémentaires. La métrique de
+  `diagnose.py` a été corrigée : retrouver le *vrai* total par une autre
+  source (table TVA, espèces − rendu) n'est pas une collision (brut : 42 %).
+- **Concordance** : 4 tickets `local_fused` sans autre méthode d'accord,
+  0 faux ; tous les vérifiés à ≥ 2 méthodes : 0 faux hors les 2 net-zéro.
+- **Hold-out jamais regardé** : synthétique 120 identique (100/100/97,9 %,
+  précision 100 %) ; `device_fr_big` 208 → 211 vérifiés (+3, dont
+  `0697` récupéré par la règle « total avant paiement ») ; `device_web`
+  (US, hors domaine) 152 → 148 : 3 pertes sont des **corrections** (taxe
+  ou remise avalée en silence avant : `srd_1123`, `srd_1126`,
+  `invoice_with_discount`), 1 est une taxe sans lexique (`IL Sales`), et
+  le total affiché devient le sous-total vérifié (hors taxe) — sémantique
+  US à traiter avec la locale, pas ici.
+
+**Plafond réaliste sur FindIt.** Les 41 restants : ~12 sans aucune ligne
+chiffrée ou aux articles illisibles dans les deux passes (`t1test_740`,
+`t1train_1738`, `981`, `1274`, `530`, `84`, `450`, `139`…), 4 carburant
+(volume en litres pris pour un article, total sans lexique), 3 lignes TVA
+imprimées incohérentes avec le total (`t1test_741`), 1 ticket photographié
+en double (`483`), 1 échange à article négatif (`770`), ~10 Carrefour à
+lignes fusionnées par le clustering (deux prix sur une ligne : `3.75e
+2.94€`) ou articles manqués par les deux passes, 1 montant à 50 % non
+imprimé (`868`). Sans meilleure OCR (ou image), le gisement générique
+restant est le clustering des tickets inclinés (lignes à deux prix) — ~5
+tickets. Le **99 % est une cible pour photos fraîches** (tier synthétique
+photo : 100 %), pas pour ce corpus pire-cas.
+
+**Portage Dart (2026-08-25)** : `pipeline/` porte tout le chapitre —
+`invariants.dart`, `fuse_passes.dart`, décodeur à références multiples,
+alternatives et mono-article (`decode.dart`), `verifiedTotal`, lexiques et
+parsing (`structure.dart`), étage `FlowStage.localFused`, orchestration
+partagée `decideFirstPass` / `decideRetryPass` (outil de parité et harnais
+utilisent le même code), modèle ré-exporté dans l'asset du harnais.
+**Parité `bench/parity.py --model` : 1000/1000 sur `device_flow`, 699/699
+sur fr / fr_big / fr_enhanced / web / emulator_all, 0 divergence.** 183
+tests Dart. Harnais : la page « Stats de session » se met à jour en direct
+(le builder renvoyait un widget `const` identique, jamais reconstruit —
+remplacé par un `SessionSnapshot` immuable par notification).
+
+## Portage Dart & banc on-device (2026-08-24)
+
+- **`pipeline/`** : package Dart pur `receipt_pipeline` — portage de
+  `lines.py` + `structure.py` + `flow.py`, 46 tests portés. Parité vérifiée
+  champ à champ contre Python sur 699 dumps OCR (FindIt, enhanced, web,
+  synthétique) : **0 divergence** (`research/bench/parity.py` +
+  `pipeline/tool/parity.dart`).
+- **`harness/`** devient un banc à deux modes : « Suite complète »
+  (images via `adb push` dans `files/input/`, flow local complet par ticket,
+  dump OCR historique + section `flow`) et « Scanner un ticket » (photo →
+  flow local → résultat structuré à l'écran). Le prétraitement retry
+  (autocontrast + unsharp + upscale 2400 px) est embarqué en Dart.
+- **`research/bench/device_flow.py`** score un run de suite tel qu'exécuté
+  sur le device : parité device ↔ Python par ticket, métriques vs golden.
+  Nommage des images poussées : `t1test_<doc>.jpg` / `t1train_<doc>.jpg`.
+
+Runs 1000 tickets golden : S9+ (2018) et Pixel 8 Pro — **OCR strictement
+identique sur 99,7 % des images, 0 décision divergente** : le moteur ML Kit
+est constant inter-devices, la seule variable réelle est la qualité de la
+photo (capteur, focus). Latence pipeline S9+ : médiane 404 ms, p95 1,2 s.
+Dumps : `data/results/device_flow[_pixel]/` (gitignorés), corpus de replay
+de `bench/local.py`.
+
+Parité connue : l'APK d'avant le fix des diacritiques a produit 1 dump
+divergent (`t1train_790`, « TŤC ») — corrigé dans le package (table de
+repli latin étendu-A), APK reconstruit.
+
+## Golden dataset
+
+`data/golden/T1-{test,train}/` : 1000 tickets FR annotés (enseigne, date,
+total, articles/prix/remises) par Gemini 3.7 Flash sur image, dont **734
+double-validés** par accord avec l'extraction depuis transcription (chaîne
+indépendante) ; 8 désaccords audités = conventions de représentation, zéro
+erreur de montant. Sert de référence gratuite à tous les benchmarks et
+d'assiette d'entraînement. Coût de construction : ~0,60 $.
+
+Note historique : l'étude avait d'abord conclu à une escalade cloud sur
+échec de checksum ; la décision produit finale (2026-08-24) est **deux
+modes exclusifs** — le local doit tenir seul (voir Verdict). Note : la
+Batch API OpenRouter (-75%) est text-only, les images passent en sync.
+
+## Les trois découvertes qui conditionnent l'architecture
+
+1. **La précision est structurellement à 100%.** Le pipeline ne sort jamais un
+   prix faux : les erreurs sont des articles manqués, jamais des montants
+   inventés (contrairement à un modèle génératif). Les chiffres imprimés
+   survivent bien mieux que les lettres à la dégradation.
+
+2. **Le ticket contient sa propre somme de contrôle.** `Σ(articles − remises)
+   = total imprimé` détecte 100% des extractions imparfaites sur nos corpus.
+   C'est le signal de confiance produit : checksum OK → validation directe,
+   sinon écran de vérification.
+
+3. **Le déskew est obligatoire.** ML Kit lit très bien un ticket incliné, mais
+   ses boîtes sont en coordonnées image : à 4° d'inclinaison la colonne des
+   prix dérive d'1,5 ligne et les prix s'apparient au mauvais article. Rotation
+   des centres de boîtes par l'angle médian (fourni par ML Kit) → recall photo
+   passe de 87% à 100%.
+
+## Pièges rencontrés (à reproduire dans l'implémentation Dart)
+
+- Ne jamais utiliser les lignes/blocs de ML Kit : re-clusteriser les *éléments*
+  (mots) par chevauchement vertical après déskew.
+- Prix éclatés par l'OCR : `-1, 00`, `5. 16` (fusion des fragments adjacents),
+  `54 50` sur les totaux en gras (recollage restreint aux lignes TOTAL, sinon
+  les numéros de fax deviennent des prix).
+- Points de conduite Carrefour (`....14,90`), suffixes `€`/`EUR`, séparateur
+  décimal `.` ou `,`.
+- Lexiques (remise, total, stop) à matcher aussi sur texte compacté
+  (`Monna ie`, `TOTALA PAYER`) mais seulement pour les entrées ≥5 caractères
+  (sinon `HT` matche dans `MENTHE`).
+- Remise = prix négatif rattaché à l'article précédent, ou libellé *commençant*
+  par le lexique — `(promotion)` dans un nom d'article n'est pas une remise.
+- Entrées courtes du lexique en frontière de mot obligatoire : `TEL` matchait
+  dans `TORTELL.PESTO` et supprimait des articles.
+- Sous-totaux par rayon (`TOTAL ALIMENTAIRE`, `TOTAL BEAUTE`) : le total à
+  payer est le DERNIER montant « total » du ticket, pas le premier ; les
+  articles s'arrêtent à cette ligne (tue aussi les pubs fidélité post-total).
+- Ligne CB/CARTE = référence de checksum de secours UNIQUEMENT si aucun total
+  n'est lu — sinon elle crée des faux positifs sur extraction incomplète.
+- Total soudé au libellé par l'OCR (`TOTAL A PAYER14.59€`) : regex embarquée
+  sur la ligne entière en secours.
+- `T.V.A.10%` avec points échappe au lexique → variante sans points dans le
+  matching, sinon la ligne TVA devient un article et double la somme.
+- `HT` interdit en stop word : il tue `75CL HT MEDOC` (Haut-Médoc) ; les
+  lignes TVA/TOTAL HT sont déjà couvertes par TVA et TOTAL.
+- Format code-barres bricolage (`3177810004089 3.13 15.65 2` sous le libellé) :
+  ligne 100% numérique avec un code 8-14 chiffres → rattacher au libellé
+  précédent.
+- Prix mutilés `e3.16e` (strip des lettres € des deux côtés) et soudés
+  `SSP2.49€` (préfixe lettres ≤5 uniquement, sinon les numéros de version
+  `V.2.16.0.70` deviennent des prix).
+- Retry avec prétraitement (autocontrast + unsharp + upscale 2400px) quand le
+  checksum échoue : récupère ~10% des échecs pour une seconde passe OCR.
+- Ligne quantité (`3 X 1,33   3,99`) : le libellé est sur la ligne précédente,
+  le prix de droite est le montant total.
+- Dates éclatées (`202 6`, `o9`) : compacter et normaliser o→0 avant regex ;
+  formats `/` et `.`.
+- R8/proguard : le plugin ML Kit référence les recognizers chinois/devanagari
+  absents (`-dontwarn` pour le build) ET le shrinking strip des classes du
+  recognizer → NPE runtime sur chaque `processImage` en release. Fix mesuré :
+  règles keep `com.google.mlkit.**`, `com.google.android.odml.**`,
+  `com.google.android.gms.internal.mlkit_vision_text_common.**`
+  (cf. harness/android/app/proguard-rules.pro) ; parité release AOT vérifiée.
+
+## Limite connue
+
+Froissage + fondu forts : deux lignes adjacentes peuvent se chevaucher
+verticalement et fusionner au clustering (5/40 en hard, 0/80 ailleurs, toujours
+signalé par le checksum). Piste si besoin : clustering par colonne avec suivi
+local de pente, ou classifieur de lignes léger — à ne faire que si les photos
+réelles le justifient.
+
+## Prochaines étapes
+
+1. ~~Portage Dart du chapitre « Vers 99 % »~~ **fait** (parité
+   1000/1000). Reste : relancer la suite device (S9+ / Pixel) pour mesurer
+   la latence du nouveau flow (fusion + DP à alternatives).
+2. **Niveau de confiance par concordance** : n'afficher « vérifié »
+   qu'avec ≥ 2 méthodes d'accord ; durcir le décodeur (adversarial
+   20 %) : nombre de flips, marge de log-prob.
+3. Au-delà de 95 % : clustering des tickets inclinés (lignes à deux prix),
+   puis modèle de séquence / encodeur layout-aware (classe BERT, golden +
+   synthétique).
+4. **Intégration app (mode LOCAL uniquement)** : brancher `receipt_pipeline`
+   (sans clé API, sans cooldown, offline), sortie vers
+   `ReceiptScanResultModel` — écran d'édition et `validateAndCreate`
+   inchangés. Le mode cloud existant ne bouge pas. Spec : `VERIFICATION.md`.
+5. **BERT** sur les libellés extraits — augmentation « style ticket » du
+   dataset quick-add, calibrée sur les 1000 tickets réels du golden.
+6. Fil rouge : valider sur des photos fraîches prises au téléphone via le
+   mode « Scanner un ticket » du harnais (le corpus FindIt est un pire-cas
+   scanné, pas le scénario nominal — la capture app devra soigner
+   résolution/focus, seule vraie variable inter-devices).
+
+## Photos réelles, métrique stricte & corpus annoté (2026-08-25)
+
+Le point 6 des étapes ci-dessus est tombé : 71 photos de tickets prises au
+téléphone (Intermarché, Noz, Maxi Zoo, Gifi…) mesurées de bout en bout. Elles
+invalident deux hypothèses de toute l'étude, et une troisième est tombée en
+mesurant correctement.
+
+**L'orientation.** 54 % des photos ont leur texte à ±90° — un ticket long se
+photographie en paysage. Le clustering raisonne en recouvrement vertical et
+n'a aucun sens avant d'avoir retiré ce quart de tour ; sans correction, le
+ticket entier devient une seule ligne. Corrigé côté recherche (`ocr/`, page
+remise d'aplomb avant structuration), **pas encore dans l'app**.
+
+**Le corpus FindIt n'est pas un pire-cas.** Orientation corrigée, le flow ne
+vérifie que 35 % de ces photos contre 90,4 % sur FindIt. C'est un cas facile
+déguisé : mono-enseigne, scanné à plat.
+
+**Le checksum ne mesure pas ce que l'utilisateur voit.** `count_edits`
+comparait des montants, sans ordre, et **ni les libellés, ni l'enseigne, ni la
+date**. Or le nom décide de la catégorie donc de la ligne de budget, la date
+décide du mois. `bench/exactness.py` pose la métrique produit : un ticket ne
+compte que si **tout** est juste — enseigne, date, total, et chaque article
+apparié sur (nom, montant net), sans article en trop ni manquant.
+
+| Sur T1-test (500 tickets) | au départ | après cette passe |
+|---|---|---|
+| « vérifiés » (checksum) | 90,4 % | 90,2 % |
+| **tickets parfaits** | **51,0 %** | **69,0 %** |
+
+Deux tolérances, et seulement deux, pour mesurer le rattachement et pas l'OCR :
+les libellés se comparent par similarité (`120GENU` vaut `120GENV`) mais un
+libellé qui ne nomme rien (`EUR`, un code) ne s'apparie à rien ; l'enseigne
+accepte l'inclusion (`city` vaut `CARREFOUR CITY`, l'OCR ne lit que le logo).
+
+Le flow Python jetait les libellés (`LocalOutcome` ne portait que des
+montants) là où le Dart les remonte depuis toujours : aucune mesure ne
+*pouvait* voir un libellé rattaché au mauvais prix.
+
+### Où part le reste
+
+| Poste | Au départ | Maintenant | Ce qui a changé |
+|---|---|---|---|
+| articles | 131 (26 %) | 124 (25 %) | libellés faibles rattachés par le tagger |
+| date | 153 (31 %) | **19 (4 %)** | lecture reprise + ligne désignée par le tagger |
+| enseigne | 58 (12 %) | **32 (6 %)** | ligne désignée par le tagger, plus `lines[0]` |
+| total | 26 (5 %) | 26 (5 %) | inchangé |
+
+La date était le premier poste ; sa lecture a été reprise et figée par 38
+tests — année sur deux ou quatre chiffres, séparateurs `/ . -`, jour et mois
+sur un chiffre, mois en toutes lettres ou abrégés et accentués, numéros de
+téléphone masqués (séparateur obligatoire **et identique** : sinon le masque
+avale les codes de caisse, et une date encadrée de séparateurs est rejetée).
+
+Reste dans les 124 articles faux : **66 libellés qui nomment le mauvais
+produit** (le tagger ne corrige que ceux qui ne nomment rien), 44 montants
+faux, 14 écarts de comptage.
+
+### Ce qui casse, mesuré sur un ticket lisible et bien orienté
+
+Sur un Maxi Zoo dont l'OCR est quasi parfait, `Total remise: EUR 58,98` est
+pris pour le total — « REMISE » n'est pas dans `EXCLUDED_TOTAL_WORDS`. Comme
+`total_index` sert **aussi** de borne à la zone articles, cette borne descend
+en bas du ticket et `Achat différé` / `Montant net` entrent comme articles.
+Un seul défaut, deux symptômes, et le décodeur retombe sur la référence fausse
+en comptant quatre fois le même 16,99 → sortie fausse **badgée vérifiée**.
+
+Racine commune : les règles supposent qu'une ligne porte un article, ce qui
+est vrai chez Carrefour et faux dès qu'une enseigne imprime le prix deux fois.
+
+### Le classifieur ne pouvait pas rattraper ça
+
+`train.py` prenait les décisions des règles pour vérité sur les 77 % de
+tickets qu'elles validaient : le modèle était leur élève, entraîné sur une
+seule enseigne, et n'étiquetait que les lignes porteuses de prix.
+
+Le corpus annoté le remplace : tickets annotés depuis l'image, filtrés par
+checksum (`research/annotate/README.md`), fiabilité prouvée contre le golden
+FindIt — **412/414 sur T1-train (99,5 %) et 413/413 sur T1-test (100 %)**. Le
+jeu d'évaluation — `T1-test` et `photos_pixel` — ne sert jamais à entraîner.
+
+Réentraîné dessus, le classifieur gagne beaucoup **sur les rôles** :
+
+| | exactitude | `discount` | `total` | `payment` | `ignore` |
+|---|---|---|---|---|---|
+| supervisé par les règles | 93,9 % | 61,4 % | 81,7 % | 88,1 % | 91,6 % |
+| supervisé par le corpus | **96,7 %** | **79,5 %** | **97,2 %** | **95,1 %** | 89,8 % |
+
+**Et rien sur le flow** : 90,2 % de vérifiés inchangés, et les faux vérifiés
+passent de 2 à 4. La cause, vue sur `t1test_722` : le golden a `2,40 + 0,10`,
+le décodeur retient `1,55 + 0,95` — même somme, mauvais montants. Le
+subset-sum a plusieurs solutions exactes et seules les probabilités du
+classifieur les départagent ; un classifieur *différent*, même meilleur, en
+choisit simplement une autre. **La métrique de rôles et celle du flow ne sont
+pas alignées** — le goulot n'est pas la qualité du classifieur, c'est que le
+décodeur accepte une combinaison ambiguë. Rien n'a été publié : la barre reste
+zéro montant faux.
+
+### Le tagger de rôles
+
+Un seul modèle, toutes les lignes, 14 classes (`line_classifier/train_roles.py`,
+features de `line_features_all.py` — géométrie relative, forme du texte,
+lexiques, et le voisinage immédiat qui permet d'apprendre qu'après le total il
+n'y a plus d'articles). Sur les 435 tickets d'évaluation, 10 448 lignes :
+
+| `item` | `total` | `date_line` | `store` | `payment` | `item_label` | `discount` |
+|---|---|---|---|---|---|---|
+| 98,5 % | 96,4 % | 95,0 % | 93,0 % | 92,1 % | 82,7 % | 76,6 % |
+
+93,4 % d'exactitude globale. **Le tagger désigne la ligne, le parsing lit le
+champ** : l'enseigne est la ligne argmax `store` (et rien du tout si le modèle
+hésite — mieux vaut pas d'enseigne qu'une ligne au hasard), la date est lue
+sur la ligne `date_line` avec repli sur le ticket entier.
+
+Le décodeur sous contrainte n'a pas été touché — c'est lui qui avait doublé
+les faux vérifiés.
+
+Le tagger, le modèle de lien et le rattachement des libellés sont portés en
+Dart et branchés dans l'app (`pipeline/lib/src/label_link.dart`,
+`LocalReceiptScanner`). Les modèles du scan partagent désormais leur version
+et leur release avec ceux de l'ajout rapide : un seul `tool/models/publish.sh`
+les publie tous, un seul `fetch.sh` les récupère, et l'app lit chaque nom dans
+le manifeste des assets.
+
+### Le rattachement du libellé, appris (2026-08-26)
+
+Le libellé se rattachait par une règle de distance : la ligne juste au-dessus,
+si le tagger la disait `item_label` avec au moins 0,90 de confiance. Deux
+nombres choisis à la main pour une question qui dépend du ticket — et le
+tagger n'a que 74,7 % de précision sur ce rôle, donc le seuil arbitrait entre
+réparer un libellé faux et écraser un libellé juste.
+
+`line_classifier/train_link.py` pose la question directement : **à quelle
+distance au-dessus est le libellé de cet article ?** La vérité est déjà dans
+le corpus (`label_index`), les features sont la fenêtre des trois lignes
+précédentes (`line_features_all.window`). Sur les 2 195 lignes d'article du
+jeu d'évaluation : **99,0 % d'exactitude** (87,6 % en répondant toujours « sur
+sa propre ligne »), et sur les libellés déportés — le cas qui casse — rappel
+96,6 % pour 96,9 % de précision, contre 82,7 / 74,7 au tagger.
+
+| T1-test | avant | après |
+|---|---|---|
+| tickets parfaits | 71,6 % | **72,8 %** |
+| articles faux | 112 | 105 |
+| vérifiés / faux vérifiés | 90,2 % / 4 | inchangés |
+
+Le gap « libellé rattaché au mauvais prix » passe de 40 à 33 tickets. Les 33
+restants ne sont plus un problème de rattachement : sur 26 d'entre eux le
+libellé attendu n'existe nulle part dans l'OCR, abîmé à la lecture.
+
+### Le découpage du libellé, appris (2026-08-26)
+
+Le rattachement désigne la bonne ligne ; le libellé restait découpé dedans par
+une règle — une coupe verticale unique, le quantile 0,9 des prix
+(`_label_column_left`), plus quatre expressions régulières de nettoyage
+(`_clean_name`). Mesuré sur les 186 libellés faux de T1-test, **78 % venaient
+de ce découpage** et non du rattachement ni de l'OCR :
+
+| cause | articles | tickets perdus *uniquement* pour ça |
+|---|---|---|
+| découpage du libellé | 146 (78 %) | 69 (14,3 %) |
+| rattachement à la mauvaise ligne | 21 (11 %) | 14 (2,9 %) |
+| libellé absent de l'OCR | 19 (10 %) | 14 (2,9 %) |
+
+Sur les 103 résidus, 88 sont des tokens purement numériques : un code article
+(`583877 DIAMOND TAPIS`), un code rayon (`SANDW 6015`), une quantité
+(`*AVOCAT 2x`), un prix unitaire (`CVDC CARTE VITRIN 4.40 1`). Un ticket
+imprime trois à cinq colonnes et leurs frontières changent d'une enseigne à
+l'autre : **une coupe scalaire ne peut pas les exprimer.**
+
+La colonne devient donc une feature *par mot* (`reference/word_features.py`) :
+géométrie relative, forme du token, et surtout la **bande verticale** — ce que
+les autres lignes du ticket impriment à cette abscisse. Un mot dont la bande
+est numérique appartient à une colonne ; le même mot ailleurs appartient au
+nom.
+
+Le décodage (`reference/spans_ml.py`) impose ce qu'un libellé est par nature —
+un intervalle **contigu** de mots portant des lettres — et rien de plus.
+L'intervalle retenu est celui de log-odds maximale : un mot n'y entre que s'il
+rapporte plus qu'il ne coûte. Aucun seuil.
+
+La vérité vient de l'alignement du libellé du golden sur les mots d'une ligne
+(`truth/spans.py`), au-dessus de 0,95 de ressemblance : ce que l'OCR a abîmé
+n'enseignerait qu'une frontière inventée, et le filtre joue ici le rôle que le
+checksum joue pour les montants. Elle se lit directement des images sans
+passer par l'annotation de rôles — celle-ci rejette les tickets dont un
+montant est illisible, et ce sont eux qui portent les découpages rares : 1 516
+lignes d'entraînement en passant par elle, **2 108** sans.
+
+A/B à vérité et flow identiques, seul le rattachement du libellé change :
+
+| T1-test (483 tickets jugés) | avant | après |
+|---|---|---|
+| tickets parfaits | 307 (63,6 %) | **340 (70,4 %)** |
+| articles faux | 148 | **118** |
+| enseigne / date / total faux | 28 / 19 / 18 | inchangés |
+| vérifiés / faux vérifiés | 93,2 % / 1 | inchangés |
+
+Le tagger rend le bon intervalle sur **96,0 %** des 2 166 lignes du jeu
+d'évaluation. Comme le classifieur de lignes, il ne touche à aucun montant :
+un libellé ne peut ni sauver ni corrompre un checksum.
+
+`export_span.py` rend le JSON portable, et `line_classifier/export.py` gagne
+au passage le cas **binaire** — une seule sortie brute, lue à la sigmoïde là
+où un modèle multiclasse passe au softmax. `bench.roles_parity` compare
+désormais cinq choses : features de ligne, features de mot, rôle, distance au
+libellé et **libellé découpé** — 0 divergence sur 999 tickets de T1, écart max
+de features de mot 5,6e-16.
+
+**Le nombre en tête reste ouvert, et il n'est pas de notre côté.** Sur les 207
+lignes de T1-test qui commencent par un entier, le golden garde ce nombre dans
+le libellé 146 fois et l'exclut 61 fois — « 1 MxBO Filet-Fish » d'un côté,
+« 1 M GIANT » → « M GIANT » de l'autre, sur des tickets de même famille. La
+décision est cohérente *par ticket* (98 tickets cohérents contre 1), donc
+l'annotateur suit quelque chose ; mais aucune géométrie disponible ne le
+sépare : bande numérique, dispersion des bords de colonne, écart au mot
+suivant rapporté à l'écart habituel du ticket — tous mesurés, tous confondus
+entre les deux cas (dispersion du bord droit 0,073 contre 0,054, écart 0,0056
+contre 0,0060). Deux tentatives de features et un rééquilibrage des classes
+plus tard, le modèle exclut 25 % de ce qu'il devrait exclure.
+
+C'est une limite de la **référence**, pas du modèle : le golden ne dit pas si
+une quantité fait partie du nom. Le remède n'est pas un meilleur classifieur,
+c'est de sortir la quantité du libellé et d'en faire un champ — la question
+disparaît alors des deux côtés, celui du modèle comme celui de la vérité.
+
+### Deux niveaux de gravité, et ce que le checksum ne voit pas (2026-08-26)
+
+La métrique comptait un ticket faux dès qu'un champ divergeait, tous à
+égalité. Ils ne le sont pas. Un **montant**, une **enseigne**, une **date**
+sont affichés en clair à côté d'un ticket que l'utilisateur a encore en main :
+il les relit et les corrige. Un **libellé posé sur le mauvais article** et un
+**article absent** ne se voient pas — la ligne a l'air normale, la somme tombe
+juste, rien n'attire l'œil. Ces deux-là partent silencieusement dans le budget.
+
+`bench/exactness.py` sépare donc les articles en quatre verdicts au lieu d'un.
+L'appariement va du plus sûr au moins sûr — couple (nom, montant) d'abord,
+puis montant seul, puis nom seul — et ce qui reste manque ou est en trop :
+
+| apparié par | verdict | gravité |
+|---|---|---|
+| montant, pas le nom | libellé faux | **silencieux** |
+| rien, côté attendu | article manquant | **silencieux** |
+| rien, côté extrait | article en trop | **silencieux** |
+| nom, pas le montant | montant faux | rattrapable |
+
+Le tableau qui compte est celui des tickets **vérifiés** : ceux-là ne passent
+par aucun écran de confirmation, donc personne ne relira rien.
+
+| T1-test, 450 tickets vérifiés | tickets | articles |
+|---|---|---|
+| **au moins une erreur silencieuse** | **83 (18,4 %)** | |
+| libellé sur le mauvais article | 73 (16,2 %) | 164 |
+| article manquant | 14 (3,1 %) | 25 |
+| article en trop | 3 (0,7 %) | 3 |
+
+**Le checksum contraint la somme, pas le libellé ni le nombre d'articles.** Il
+ne peut structurellement voir aucune des deux. Les 25 articles manquants ne
+sont d'ailleurs pas des produits perdus : 18 sont des articles à net 0,00 que
+`structure.py` jette (`if price == 0`) ou des lignes de remise repliées dans
+leur article — la somme tombe juste puisqu'ils valent zéro. **5 seulement sont
+de vraies fusions**, deux produits collés sur une ligne d'OCR.
+
+### Décodage joint lien × span : mesuré, abandonné (2026-08-26)
+
+Sur les 184 libellés faux, 35 (19 %) viennent d'une mauvaise distance prédite,
+et 27 d'entre eux sont « prédit 0, attendu 1 ou 2 » — le modèle place le
+libellé sur la ligne du prix alors qu'elle ne porte aucun nom :
+
+```
+ligne du prix : 1.29 EUR                    vraie ligne : ALIM TN 6011
+ligne du prix : Net 0.335kg*4.35€/kg 1.46   vraie ligne : EPINARD VRAC
+ligne du prix : Montant : 39.45             vraie ligne : Carburant : GAZOLE
+```
+
+L'idée : choisir la distance qui maximise `log p_lien(k) + score du meilleur
+intervalle sur la ligne i−k`, les probabilités des deux modèles, sans seuil.
+Un premier relevé semblait la soutenir — sur les erreurs, la vraie ligne score
+mieux que la choisie dans 83 % des cas (log-odds moyen, écart médian +0,8).
+
+**Ce relevé était trompeur** : il demandait si la vraie ligne score *mieux*,
+pas si elle peut *gagner*. Le modèle de lien est très confiant — `log p(0)`
+frôle 0 quand `log p(1)` vaut −7 — et aucun écart de span ne rattrape ça.
+Balayage du poids sur T1-train, 1 983 articles :
+
+| composition | bonne ligne |
+|---|---|
+| lien seul (actuel) | 1 960 (98,84 %) |
+| lien + 0,75 × log-odds moyen | 1 961 (98,89 %) |
+| lien + 2 × log-odds moyen | 1 955 (98,59 %) |
+| lien + 5 × log-odds moyen | 1 882 (94,91 %) |
+
+**+1 article, puis dégradation.** La cause est un défaut de conception du
+tagger de spans : il n'est entraîné que sur des lignes **porteuses** de
+libellé. Lui demander « cette ligne en porte-t-elle un ? » est une question
+qu'il n'a jamais vue, et son score sur une pesée ou un prix seul est hors
+distribution.
+
+Corrigé — négatifs ajoutés, les lignes que le lien aurait pu désigner à la
+place — le score devient exploitable mais le gain reste dérisoire : **99,04 %
+au mieux, +4 articles**, pour **4,4 points perdus sur le découpage** (96,0 % →
+91,6 % d'intervalles exacts), un même modèle ne servant pas deux questions.
+Revenu à l'état mesuré.
+
+Ce qu'il faut en retenir pour la suite : un score « cette ligne porte-t-elle
+un libellé ? » **est** apprenable, mais il ne sert pas à *choisir* la ligne —
+le lien a déjà raison à 98,8 %. Il servirait à **douter**, et le doute est la
+seule chose qui puisse faire tomber les 18,4 % d'erreurs silencieuses : un
+libellé sans invariant arithmétique n'a que sa probabilité comme garde-fou.
+Cela demande un modèle à part, pas une feature de plus.
+
+### Neuf rôles au lieu de quatorze, et le tagger entre dans le flow (2026-08-26)
+
+Le tagger de rôles existait depuis un moment et ne servait qu'à désigner
+l'enseigne et la date. La décision « cette ligne est-elle un article » — celle
+qu'il connaît le mieux — ne lui était jamais demandée, et les règles la
+prenaient par géométrie et lexiques.
+
+**Six des quatorze rôles ne sont lus par personne.** `structure_roles` lit
+item, item_label, discount, total, subtotal, payment ; `header_ml` lit store
+et date_line. Distinguer tax, change, summary, header, footer et noise
+n'apporte rien à aucun consommateur, et l'annotateur ne peut pas y être
+cohérent : mesuré sur T1-test, **41 % des erreurs du tagger sont des
+confusions entre ces six-là**. La projection est dans `line_labels.py`, à
+côté de celle du classifieur V2 ; le corpus, lui, garde ses quatorze rôles.
+
+| tagger, T1-test | 14 rôles | 9 classes |
+|---|---|---|
+| exactitude par ligne | 94,8 % | **96,9 %** |
+| tickets sans aucune erreur de rôle | 51,8 % | **66,3 %** |
+| tickets sans erreur sur les montants | 83,9 % | **84,8 %** |
+
+**Et le flow ne bouge presque pas** : 91,3 % → 91,8 % de checksum via les
+rôles. C'est le piège déjà rencontré une fois, et il tient toujours — un
+classifieur par ligne décide indépendamment ligne à ligne, alors qu'une seule
+erreur sur une ligne porteuse de montant casse le ticket entier. À 98,6 % de
+rappel sur `item` et cinq articles par ticket, un ticket sur vingt perd un
+article et c'est fini pour lui. **L'exactitude de rôles et l'exactitude du
+flow ne sont pas la même métrique.**
+
+### Les règles servent-elles encore ? Chaque étage, seul (2026-08-26)
+
+La chaîne n'est pas « les règles » : c'est un **ensemble de lectures que le
+checksum arbitre**. Les règles n'y sont qu'un votant. Chaque étage seul, puis
+les combinaisons :
+
+| étage seul | T1-test (scans à plat) | photos_pixel (vraies photos) |
+|---|---|---|
+| règles | 371 (89,4 %) | **4 (20,0 %)** |
+| classifieur V2 | 379 (91,3 %) | 12 (60,0 %) |
+| **décodeur sous contrainte** | **404 (97,3 %)** | 13 (65,0 %) |
+| rôles (9 classes) | 381 (91,8 %) | 11 (55,0 %) |
+| rôles annotés (plafond) | 409 (98,6 %) | 17 (85,0 %) |
+
+| combinaison | T1-test | photos_pixel |
+|---|---|---|
+| règles + V2 + décodeur | 408 (98,3 %) | 13 (65,0 %) |
+| **sans les règles** | 404 (97,3 %) | **13 (65,0 %)** |
+| **+ rôles** | 408 (98,3 %) | **15 (75,0 %)** |
+| tickets que seules les règles sauvent | 4 | **0** |
+| tickets que seuls les rôles sauvent | 0 | **2** |
+
+Sur les vraies photos, **les règles seules ne vérifient que 20 % des tickets
+et les retirer de la chaîne ne coûte aucun ticket**. Sur les scans à plat
+elles en sauvent encore 4 sur 415. Ce qui porte la chaîne aujourd'hui, ce
+n'est pas elles : c'est le décodeur sous contrainte, 97,3 % à lui seul.
+
+Elles restent en place quand même. Pas parce qu'elles sont bonnes — la preuve
+qu'elles sont inutiles repose sur **20 tickets annotés** et sur une comparaison
+**à une seule passe OCR**, quand la production leur en donne deux plus la
+fusion. L'argument pour les retirer sera la simplicité du code, et il se
+tranchera sur un corpus photo sérieux.
+
+### L'étage de rôles, branché en dernier (2026-08-26)
+
+`classifier_rescue` essaie désormais quatre seconds avis : argmax du
+classifieur, décodage sous contrainte, puis **structuration par les rôles**.
+Le tagger passe en dernier, et c'est délibéré : sur une même passe, un ticket
+qu'un étage antérieur fait boucler garde exactement la lecture qu'il avait. Il
+peut en revanche vérifier en passe 1 ce qu'un étage antérieur n'aurait vérifié
+qu'en passe 2 — l'étiquette d'étage change alors, jamais les montants.
+**Vérifié sur les 483 tickets de T1-test : 3 tickets gagnés, 0 lecture
+modifiée.**
+
+| T1-test | avant | après |
+|---|---|---|
+| vérifiés | 450 (93,2 %) | **452 (93,6 %)** |
+| tickets parfaits | 340 (70,4 %) | **342 (70,8 %)** |
+| erreurs silencieuses (tickets vérifiés) | 83 (18,4 %) | 84 (18,6 %) |
+| faux vérifiés | 1 | 1 |
+
+Le gain est nul sur les scans à plat et vaut +10 points sur les vraies photos.
+Le ticket silencieux supplémentaire est le risque assumé d'un étage qui
+vérifie plus : il n'apparaît que parce qu'un ticket de plus est vérifié.
+
+`structure_roles.dart` porte l'étage, `flow.dart` l'ajoute à
+`classifierRescue`, et `bench.parity` compare le flow complet ticket par
+ticket : **699 tickets, 0 divergence**. Il a fallu réparer ce bench au
+passage — il dépaquetait `outcome.items` comme des tuples depuis que
+`LocalOutcome` porte des `ExtractedItem`, et ne tournait donc plus.
+
+### Le golden se juge lui-même (2026-08-26)
+
+Le golden est une annotation LLM sur image : il se trompe, et en silence. Il
+s'impose pourtant la même égalité que le pipeline — Σ(articles − remises) =
+total. **27 tickets de T1-test (5,4 %) n'y satisfont pas**, et 24 d'entre eux
+étaient comptés comme des échecs du pipeline.
+
+Deux chaînes indépendantes tranchent, et seulement si elles bouclent : la
+transcription officielle FindIt (texte parfait, aucun OCR) puis le corpus
+annoté (le ticket relu depuis l'image). Le reste sort du score —
+`data/golden/inconclusive.txt`, compté à part, jamais en échec.
+
+| | T1-test | T1-train |
+|---|---|---|
+| golden cohérent | 94,6 % | 95,0 % |
+| réparé par une chaîne indépendante | 2,0 % | 1,2 % |
+| aucune chaîne ne boucle | 3,4 % | 3,8 % |
+
+Sur les cinq tickets que la transcription tranche, **elle donne raison au
+pipeline** : `572`, `578` et `1075` déduisaient une remise que le golden avait
+oubliée, et l'analyse les portait au passif comme des « remises fantômes ».
+Un faux vérifié sur quatre disparaît de la même façon — c'était le golden.
+
+| T1-test | avant | après |
+|---|---|---|
+| tickets parfaits | 364/500 (72,8 %) | **365/483 (75,6 %)** |
+| — dont réparations réelles | | +4 tickets à corpus constant (73,6 %) |
+| — dont vérité manquante | | 17 tickets hors score |
+| faux vérifiés | 4 | 3 |
+
+`truth/golden.py` porte le critère et l'arbitrage, `truth/references.py` les
+lectures concurrentes, `truth.audit_golden` le rapport et la liste.
+
+### Portage Dart du modèle de lien (2026-08-26)
+
+`label_link.dart` refait l'inférence, `line_features_all.dart` la fenêtre,
+`export_link.py` le JSON portable (écart max export vs sklearn : 2,2e-16).
+`bench.roles_parity` compare désormais trois choses ligne à ligne — features,
+rôle, distance au libellé : **0 divergence sur 999 tickets** de T1.
+
+La parité étendue à T1 a fait tomber deux défauts qu'elle ne voyait pas
+avant, tous deux dans le repli d'accents Dart :
+
+- le cyrillique n'était pas replié (`okaïdi` avec un ï cyrillique, U+0457) ;
+- `ß` reste `ß` avec le `toUpperCase` de Dart, quand Python rend `SS`.
+
+`tool/generate_accent_fold.py` couvre maintenant le grec et le cyrillique, et
+dérive la table de la **majuscule** du caractère, ce qui capture les
+expansions de casse. 811 entrées au lieu de 572.
+
+Deux seuils divergeaient aussi : le Dart désignait l'enseigne et la ligne de
+date à 0,90 de confiance là où la référence Python — celle que le bench
+mesure — se contente de 0,5. L'app suivait donc une politique jamais
+mesurée ; elle suit maintenant la référence.
+
+### Schéma à 14 rôles annotés
+
+Le corpus annote 14 rôles ; le tagger n'en prédit plus que 9 depuis
+2026-08-26 (voir plus haut) — six d'entre eux ne sont lus par personne. Ce qui
+suit décrit le vocabulaire d'**annotation**, qui n'a pas bougé.
+
+`store` et `date_line` sortent de `header` : les mesures montrent qu'ils
+échouent pour des raisons opposées — l'enseigne est une *sélection de ligne*
+ratée, la date une *lecture* ratée sur la bonne ligne. Le modèle désigne la
+ligne, le parsing garde la lecture du champ. Pas de second classifieur : les
+rôles de ligne sont mutuellement exclusifs, les découper fabriquerait des
+conflits à arbitrer, et 537 tickets ne nourrissent pas N modèles.
+
+## Le flow effondré, et la première mesure sur des photos réelles (2026-08-27)
+
+Trois choses tenaient ensemble sans qu'on l'ait vu : la cascade d'étages ne
+servait à rien, le second modèle de lignes non plus, et **rien ne mesurait ce
+que l'app voit**.
+
+### La cascade ne fabriquait pas de la fiabilité, mais de la confiance
+
+`bench/flows.py` pose les variantes côte à côte — mêmes lectures OCR, mêmes
+modèles de libellé, même vérité, seul l'étiquetage des lignes change :
+
+| variante | vérifiés | tickets parfaits | silencieux | montant faux (vérifiés) |
+|---|---|---|---|---|
+| cascade, 6 étages | 452 (94 %) | **341** | 83 (18 %) | **11** |
+| tagger + décodeur | 445 (92 %) | **341** | 79 (18 %) | **7** |
+| décodeur sur le V2 | 446 (92 %) | 341 | 78 (17 %) | 10 |
+| tagger, argmax seul | 413 (86 %) | 334 | 56 (14 %) | 7 |
+
+Six étages rendent le même nombre de tickets justes qu'un seul étiqueteur
+suivi d'un seul décodeur. Ils achètent sept badges « vérifié » et quatre
+tickets à montant faux. Supprimés : la cascade, la branche cloud
+(`reference/flow.py`), le classifieur V2 et ses features V2/V3,
+`structure_ml.py`, `line_classifier/train.py`. **−1 900 lignes.** Le tagger
+reste seul, et le DP décode ses probabilités (`reference/decode_roles.py`) —
+la case du tableau que personne n'avait remplie, parce que les deux modèles
+étaient nés dans deux étages différents.
+
+Les règles restent, hors du flow : elles ne servent plus qu'à construire la
+vérité depuis la transcription officielle FindIt, un texte parfait où aucun
+modèle ne doit intervenir.
+
+### Le portage Dart suit (2026-08-27)
+
+La référence Python avait retiré la cascade ; le package Dart la faisait
+encore tourner, et l'app avec lui. Le portage est aligné :
+
+- `flow.dart` est le miroir de `local_flow.py` — trois lectures (passe 1,
+  retry, fusion), un tagger, un décodeur, plus aucun étage. Le tagger est
+  injecté (`RoleInference`), donc la politique de lecture se teste sans
+  modèle ;
+- `decode_roles.dart` porte le repli des neuf rôles sur les cinq classes du
+  décodeur ;
+- supprimés : le classifieur V2 (`extractMl`, `extractConstrained`,
+  `constrainedLabels`), ses 32+19+64 features (`line_features.dart` tombe de
+  362 à 50 lignes), l'asset `line_clf_v8.json` et son entrée de registre.
+  `line_signals.dart` recueille les signaux qui lui survivaient
+  (`hashedTrigrams` et son CRC), consommés par les featuriseurs de lignes et
+  de mots ;
+- `LocalReceiptScan.stage` devient `source` (`ReadSource.pass1|retry|fused|
+  confirm`), et les rôles inférés pour prouver la somme sont réutilisés pour
+  l'enseigne, la date et les libellés au lieu d'être recalculés.
+
+Parité vérifiée sur **1 619 tickets** (`bench/parity.py --flow` sur
+device_flow, device_fr, device_fr_big, device_web, emulator_all) :
+**0 divergence**.
+
+Mesure du flow courant sur le corpus sain (899 tickets, modèles réexportés
+le 2026-08-27) :
+
+| | somme prouvée | faux montants vérifiés |
+|---|---|---|
+| cascade 6 étages + modèles du 26/08 | 85,5 % | 2 |
+| **tagger + décodeur, modèles du 27/08** | **95,1 %** | **2*** |
+
+Répartition : passe 1 815, retry 36, fusion 4. Les 44 confirmations
+restantes se classent en 34 structuration et 10 total non lu
+(`bench/failures.py`). \* les deux mêmes tickets qu'avant, tous deux à
+golden « gemini-seul ».
+
+### L'enseigne : reconnaître au lieu de recopier
+
+`reference/store_gazetteer.py` — 315 noms appris de ce que les tickets
+impriment, filtrés par **discriminance** : un nom n'entre que si le trouver
+sur une ligne annonce vraiment cette enseigne. Aucune liste noire, le corpus
+écarte `TOTAL` (enseigne de station-service **et** mot le plus fréquent d'un
+ticket), `MARCHE`, `EXPRESS`, `LECLERC` nu. La reconnaissance prime sur la
+recopie, mais seulement parmi les lignes que le tagger juge plausibles — sur
+un ticket Hyper U, « Cours Maréchal Leclerc » est une rue et sort à 0,005.
+
+Enseignes justes 469 → 474 sur 500, zéro régression. En tickets parfaits :
++1. Les 25 restantes sont des commerces indépendants de 2017 qu'aucun
+répertoire ne contient, ou de l'OCR détruit.
+
+### Le libellé : le modèle ne connaissait qu'une enseigne
+
+Le modèle de span cause 78 % des libellés faux, et il était entraîné sur
+T1-train seul — 500 scans FindIt dont la moitié Carrefour. Mesuré sur
+T1-test : **10,7 % de libellés faux sur l'enseigne d'entraînement, 19,6 % sur
+toute autre.**
+
+Le corpus annoté ne pouvait pas le réparer : il portait le rôle, le montant,
+le `label_index` — pas le **nom**. Le schéma d'annotation le demande
+maintenant, recopié exactement tel que l'OCR l'a rendu (une correction rendrait
+l'alignement introuvable), plus la **quantité** en champ propre — ce qui lève
+l'ambiguïté du « nombre en tête » des deux côtés, modèle et vérité.
+
+4 350 tickets `open_prices` ré-annotés, 13 $. **99,1 % des noms s'alignent**
+sur un intervalle contigu de mots. La vérité de span passe de 2 108
+intervalles (FindIt) à **19 693 sur 337 enseignes**
+(`truth.spans.spans_from_annotation`). Entraîner sur la seule annotation
+dégrade T1-test (90,3 % d'intervalles exacts) : c'est le même écart de
+domaine vu de l'autre côté. Les deux sources réunies donnent 94,3 %, et
+surtout **+7 tickets parfaits** de bout en bout.
+
+### La tranche d'évaluation qui manquait
+
+`annotate.dataset.is_held_out` réserve 10 % d'`open_prices` à l'évaluation —
+tirage **par ticket** (les dix premières enseignes font la moitié du corpus,
+et c'est aussi là que les gens font leurs courses ; un tirage par enseigne
+mesurerait une tâche plus dure que la réalité) et **déterministe**, dérivé du
+nom seul. `bench/held_out.py` y applique la métrique produit, vérité annotée.
+
+| | T1-test (scans à plat, 2017) | open_prices (photos, 2024-2026) |
+|---|---|---|
+| tickets | 483 | 239 |
+| vérifiés | 91,9 % | **79,9 %** |
+| **tickets parfaits** | 71,8 % | **59,8 %** |
+| erreurs silencieuses | 15,8 % | 12,6 % |
+
+**59,8 % est le premier chiffre honnête sur le terrain réel.** Les douze
+points d'écart avec FindIt disent ce que le corpus de 2017 cachait.
+
+| départ du jour | fin |
+|---|---|
+| T1-test 340/483 (70,4 %), silencieux 18,6 % | 347/483 (71,8 %), silencieux 15,8 % |
+
+Où part le reste sur les photos réelles : libellé 24 tickets, enseigne 15,
+date 13, total 2, montant 2. Le libellé reste le premier poste, l'enseigne et
+la date passent devant les montants — l'inverse de ce que le checksum protège.
+
+## La métrique mesurait faux, et le bench a un plancher de bruit (2026-08-27, soir)
+
+Deux choses à 100 % conditionnent tout le reste — le libellé de chaque article
+et leur nombre. Mesurées correctement, elles n'étaient pas là où on les
+croyait.
+
+### Le nombre d'articles y est déjà
+
+Zéro `article manquant`, zéro `article en trop` sur les 191 tickets vérifiés
+d'`open_prices`. Le poste n'existe pas sur cette population.
+
+### Trois quarts des « libellés faux » n'en sont pas
+
+`name_matches` refuse un nom qui porte **un mot de plus** que la vérité, et
+`libellé` est dans `SILENT`. Or rendre `230G WASA FIBRES` là où la vérité dit
+`WASA FIBRES` ne cache rien : l'utilisateur a le bon produit sous les yeux, la
+catégorisation reçoit le bon produit, il n'a rien à relire. Ce n'est pas juste,
+mais ce n'est pas silencieux.
+
+`WIDE` sépare donc les deux gravités. L'inclusion inverse reste un libellé
+faux : un nom rogné (« YAOURT » pour « YAOURT MYRTILLE ») peut désigner un
+autre produit de la même famille, et rien ne permet de s'en apercevoir.
+
+| sur 191 tickets vérifiés | avant | après |
+|---|---|---|
+| tickets parfaits | 143 | **143** — inchangés |
+| erreurs silencieuses | 24 (12,6 %) | **6 (3,1 %)** |
+| dont `libellé large` | — | 18 |
+
+`exact` ne bouge pas : un nom large reste un ticket non parfait. Seule la
+gravité change, et 18 des 24 tickets sortent du poste qu'on cherchait à faire
+tomber.
+
+### La vérité joue à pile ou face sur la frontière du libellé
+
+Sur les 35 découpages faux, presque tous sont **un token de trop en tête ou en
+queue**. Et l'annotation ne tranche pas :
+
+```
+*230G WASA FIBRES   → nom attendu 'WASA FIBRES'
+*230G PAT BRISE SS  → nom attendu '230G PAT BRISE SS'
+```
+
+Même enseigne, même token, même structure. Sur les calibres en tête précédés
+de `*` : 386 gardés, **26 jetés** — 6 % que rien ne distingue. Aucun modèle ne
+peut apprendre une frontière placée au hasard une fois sur seize.
+
+C'est le mur du « nombre en tête », un cran plus bas, et le remède est le même
+que celui qui avait marché pour la quantité : **sortir le conditionnement du
+nom et en faire un champ** (`size`). La question disparaît des deux côtés.
+Empreinte du prompt `74a892c91368` → `ebe2ee818b9a` : tout le corpus est
+périmé.
+
+### Le bench a un plancher de bruit de ±2 tickets
+
+`HistGradientBoostingClassifier` découpe sa validation **par position**
+(`early_stopping=True, validation_fraction=0.15`). À code et données
+identiques, changer l'ordre des échantillons change le point d'arrêt, donc le
+modèle : 141 ou 143 tickets parfaits pour le même `train_span.py`.
+
+**Aucune décision ne doit se prendre sur moins de trois tickets d'écart.** Les
+5 ou 6 libellés faux qui restent sont sous la résolution de l'instrument qui
+les mesure.
+
+### Ce que le second passage de découpage a coûté, et pourquoi il est retiré
+
+Les 73 lignes mal découpées sont concentrées dans 38 tickets, et **92 % de ces
+tickets portent des lignes justes à côté des fausses** : une enseigne imprime
+la même mise en page partout. Un second passage consommait cette preuve — à
+l'abscisse de chaque mot, ce que le premier passage croit sur les autres
+lignes, pondéré par la netteté de chaque témoin, contexte hors-pli en 4 plis.
+
+| | T1-test, intervalles exacts | tickets parfaits | silencieux |
+|---|---|---|---|
+| un passage | 2 037 (94,0 %) | 143 | 6 |
+| deux passages, moyenne brute | 2 054 (94,8 %) | **140** | **8** |
+| deux passages, moyenne pondérée | 2 048 (94,6 %) | 143 | 5 |
+
+La moyenne brute noie le témoignage : sur une vraie photo, en-têtes, pieds et
+totaux sont assez nombreux pour dominer les lignes d'article. Pondérer par
+`max(p) − min(p)` de chaque ligne le répare. Mais le gain final — un ticket sur
+191 — est **sous le plancher de bruit**, et il ne justifiait ni un second
+modèle permanent ni son portage Dart. Retiré ; à réévaluer après la
+ré-annotation, quand la frontière cessera d'être tirée au sort.
+
+### La zone de libellé par ticket, mesurée et écartée
+
+Une coupe verticale unique par ticket — la tentation évidente quand on voit
+les erreurs groupées par mise en page — n'explique que **72,8 %** des tickets.
+L'imposer casserait 27 % de ce qui marche.
+
+### La cohérence de la vérité, mesurée puis écartée (2026-08-27, nuit)
+
+L'annotation tranche au hasard sur les calibres en frontière — 386 gardés
+contre 26 jetés, `*230G WASA FIBRES` sans, `*230G PAT BRISE SS` avec. C'est
+exactement la frontière que le découpage doit apprendre, et l'hypothèse était
+qu'aucun modèle ne peut franchir un pile-ou-face à 6 %.
+
+`annotate/split_size.py` la corrige sans relire une seule photo : couper un nom
+est une tâche de **texte**, donc 12 715 noms distincts au lieu de 5 500 images,
+et le reste du corpus reste identique — une seule variable change, la mesure
+est interprétable. Le découpage est confié à des agents par lots de 1 000 :
+la cohérence vient de là, le défaut d'origine étant un défaut d'appels
+**indépendants**. Un filtre de non-invention garde l'original dès que le nom
+ou le conditionnement n'est pas une suite contiguë de mots de la chaîne
+d'origine.
+
+| | incohérence sur la frontière |
+|---|---|
+| annotation d'origine | 26 / 412 (6,3 %) |
+| après découpe, corpus annoté | **3 / 223 (1,3 %)** |
+| après découpe, golden | **0** |
+
+Et le flow ne bouge pas — dans le mauvais sens :
+
+| sur 191 tickets vérifiés | référence | annotation corrigée | + golden corrigé |
+|---|---|---|---|
+| tickets parfaits | **143** | 130 | 127 |
+| libellé large | 18 | 31 | 34 |
+| **erreurs silencieuses** | **6** | **6** | **6** |
+
+**Les erreurs silencieuses n'ont pas bougé d'un ticket.** L'incohérence de la
+vérité était réelle, elle gênait la mesure du découpage, et elle ne causait
+aucun des libellés faux. Hypothèse mesurée, hypothèse fausse.
+
+Ce que la manœuvre a montré à la place : **le modèle de span ne suit pas une
+frontière qu'on déplace.** Vérité raccourcie sur 7 609 articles, il garde
+l'ancienne coupe — `SUCRE MORCEAUX 1 KG` là où la vérité dit
+`SUCRE MORCEAUX`, `#BOISSON RIZ NATURE 1L` pour `BOISSON RIZ NATURE`. Ses
+features portent pourtant `is_unit`, qui reconnaît `KG`, `G`, `L` : il a le
+signal et ne s'en sert pas. C'est une limite du modèle, pas de la supervision.
+
+Tout est revenu à l'état mesuré. Le corpus a servi de sonde, pas de livrable.
+
+Deux pièges méthodologiques rencontrés, à ne pas refaire :
+
+- **`train_span.labelled()` lit deux sources**, l'annotation *et* le golden.
+  N'en corriger qu'une les rend contradictoires sur la frontière en jeu :
+  l'intervalle exact sur T1-test tombe de 94,2 % à 88,7 % **sur une vérité qui
+  n'a pas bougé**. C'est ce juge à cible fixe qui a rattrapé l'erreur ; sans
+  lui, la chute des tickets parfaits se lisait comme un échec de la convention.
+- **le bench a un plancher de bruit de ±2 tickets** (voir plus haut) : la
+  comparaison n'a de sens qu'à partir de trois tickets d'écart.
+
+### Huit leviers sur le découpage, et un facteur six à trouver (2026-08-27, nuit)
+
+La tranche d'évaluation passe de 10 % à **25 % d'`open_prices`** — 592 tickets
+au lieu de 239. C'est un préalable, pas un raffinement : à 239 le bench avait un
+plancher de bruit de ±2 tickets, et six tentatives successives ont toutes rendu
+entre −1 et +1. Un gain réel de 1 % vaut désormais 6 tickets contre un bruit de
+±3, au lieu de 2,4 contre ±2. Le seuil portant sur un hachage, élargir est un
+sur-ensemble : aucun ticket ne change de côté. Le découpage tient à 94,3 % sur
+T1-test malgré 15 % d'entraînement en moins.
+
+**Référence sur la tranche élargie** : 488 vérifiés (82,4 %), 365 tickets
+parfaits (61,7 %), 44 libellés larges, 19 silencieux (3,9 %).
+
+#### L'arithmétique du problème
+
+3 709 lignes étiquetées sur `open_prices`, **162 erreurs de découpage (4,4 %)**.
+Pour que les tickets soient propres il en faudrait ~26. **C'est une division par
+six**, et voici ce que huit leviers ont donné :
+
+| levier | découpage | bench produit |
+|---|---|---|
+| reconstruction des lignes | sans objet — 99,67 % déjà contigus | — |
+| contexte du ticket (2 passages) | +11 lignes T1-test | −1 ticket |
+| seuils du décodeur relâchés | — | **+9 silencieux** |
+| cohérence de la vérité (calibre) | 6,3 % → 0 % d'incohérence | 0 |
+| identité lexicale des mots | ignorée par le modèle | −1 ticket |
+| **juge d'intervalles** | +11 T1-test, **+8 open_prices** | −1 ticket |
+
+#### Ce que le juge d'intervalles établit
+
+Il attaquait la cause mesurée le plus directement : **toutes les erreurs sont
+des frontières** (43 trop larges, 28 trop étroites, 3 décalées), et rien ne
+jugeait la frontière — `best_span` somme les log-odds de mots notés isolément,
+la frontière y émerge au lieu d'être décidée. Le juge note les intervalles
+candidats eux-mêmes, avec ce qu'aucun modèle par mot ne voit : la probabilité et
+la forme du mot **juste avant** le début et **juste après** la fin.
+
+Il gagne, et il gagne peu : **5 % des erreurs**. Prédire explicitement la
+frontière ne récupère qu'un vingtième de ce qui manque. C'est le résultat le
+plus informatif de la série — retiré, parce qu'un second modèle et son portage
+Dart ne se paient pas avec +0,2 point.
+
+#### Les étiqueteurs de séquence, sondés en Python seul
+
+C'est la formulation que le domaine utilise pour le parsing de tickets, donc
+elle méritait mieux qu'un raisonnement. Deux sondes, décodage `best_span`
+inchangé pour que les chiffres soient comparables, critère d'arrêt posé
+d'avance à 98 % :
+
+| | intervalle exact, open_prices |
+|---|---|
+| GBDT par mot (référence) | 95,8 % |
+| GBDT par intervalle | 95,8 % |
+| BiGRU sur caractères, **depuis zéro** | 95,7 % |
+| **`jhu-clsp/mmBERT-small` pré-entraîné** | **96,1 %** |
+
+La première sonde ne prouvait rien : un modèle entraîné depuis zéro sur 16 538
+lignes surapprend franchement (perte 17,7 → 0,9, évaluation plate) et ce n'est
+pas ce que le domaine fait — LayoutLM, LiLT, BROS sont pré-entraînés sur des
+millions de pages.
+
+La seconde affine l'encodeur que **l'app embarque déjà** pour l'ajout rapide
+(`model_v8.onnx`, 142 Mo, `flutter_onnxruntime`) : le portage n'est donc pas un
+obstacle pour cette famille, contrairement à un réseau écrit à la main. Elle
+gagne **+0,3 point** — et se dégrade dès la deuxième époque, 16 538 lignes
+étant peu pour un affinage.
+
+Un vrai LayoutLM (ticket entier au lieu de la ligne, positions 2D au lieu de
+features concaténées) ferait mieux que 96,1 %. Il ne fera pas 99,3 %.
+
+#### La métrique et le produit ne veulent pas la même chose
+
+Toutes les tentatives ci-dessus optimisent une exactitude **symétrique** : un
+mot manqué et un mot en trop y coûtent pareil. Le produit dit autre chose —
+*du bruit autour du vrai libellé vaut mieux que perdre une partie du libellé*.
+Sous cette préférence, le découpage n'est pas à 95,7 % mais à **98,3 %**, et la
+cible n'est pas 162 lignes mais 63 :
+
+| | lignes | |
+|---|---|---|
+| exact | 3 550 | 95,7 % |
+| trop large — le vrai nom est dedans | 95 | 2,6 % — acceptable |
+| **rogné — des mots du nom manquent** | **59** | **1,6 %** |
+| décalé | 4 | 0,1 % |
+
+`class_weight="balanced"` traite pourtant les deux à égalité. Le corriger — un
+poids, pas un modèle de plus — donne le premier gain net de la série, et il
+améliore **les deux** axes à la fois, ce qui signe un objectif faux plutôt
+qu'un compromis :
+
+| coût du mot manqué | exact | large | rogné | acceptable |
+|---|---|---|---|---|
+| ×1 (actuel) | 3 550 | 95 | 60 | 98,3 % |
+| ×5 | **3 562** | 108 | 36 | 98,9 % |
+| ×12 | 3 557 | 120 | 29 | 99,1 % |
+| ×40 | 3 517 | 171 | 19 | 99,4 % |
+
+**Et le bench produit le refuse** : à ×5, 359 tickets parfaits contre 365, pour
+un seul silencieux de moins. La cause est dans `bench/exactness.py` :
+
+```python
+if len(left.split()) > len(right.split()):
+    return False              # un mot de TROP → refusé
+return _similar(left, right, 0.75)   # un mot de MOINS → accepté
+```
+
+**La métrique tolère le rognage et refuse l'excès — l'inverse exact de la
+préférence produit.** La plupart des 60 rognés passaient déjà pour justes ;
+pousser vers l'inclusion convertit des noms acceptés en noms refusés.
+
+Les deux positions sont défendables et ne portent pas sur le même risque : la
+métrique protège l'utilisateur qui relit (`WASA` désigne encore le bon
+produit), la préférence protège la **catégorisation**, qui reçoit ce nom en
+entrée. Tant que la question n'est pas tranchée, tout gain sur le découpage
+peut être un gain contre le produit.
+
+Elle se tranche par la mesure, pas par l'intuition : passer au classifieur de
+catégories les deux variantes d'un même nom — tronqué et bruité — et regarder
+laquelle dégrade le plus la catégorie prédite. Rien n'a été modifié en
+attendant.
+
+#### Pourquoi ce n'est pas un problème d'information
+
+Le modèle se trompe **avec aplomb** : les mots qu'il ajoute à tort au nom, il
+les y croit à 0,93 de médiane, 2 % seulement sous 0,6. Et il ignore ce qu'on lui
+donne — un prior lexical de 0,07 appuyé sur 3 051 observations pour le mot `1`
+ne l'empêche pas de l'inclure. Un modèle sûr de lui qui se trompe, à qui l'on
+sert l'évidence et qui l'écarte, manque de **capacité**, pas d'entrée.
+
+Un GBDT sur features tabulaires plafonne ici autour de 95-96 % par ligne, qu'il
+note des mots ou des intervalles. La seule famille non essayée est
+l'étiqueteur de séquence, qui garde la densité du signal par mot *et* apprend
+les transitions — mais rien ne garantit le facteur six, et aucune mesure
+préalable ne peut le pré-valider comme celles de cette série.
+
+À dépense égale, l'enseigne (42 tickets) et la date (31) pèsent 73 contre 66
+pour les libellés, et personne ne les a regardées depuis que le tagger les
+désigne.
+
+### Ce que la vérité devient sans la ligne
+
+`truth/words.py` dit la vérité en mots : les mots qui écrivent le nom,
+le mot qui porte le montant — aucune ligne n'est construite. `bench/word_truth.py`
+la confronte à la formulation actuelle, sans modèle, en 13 s :
+
+| | ligne construite | mots du ticket |
+|---|---|---|
+| noms retrouvés | 99,67 % | 99,47 % |
+
+| montants | |
+|---|---|
+| regex, mot le plus à droite | 97,41 % |
+| **un mot du ticket le porte** | **100,00 %** |
+| un seul mot le porte (vérité sûre) | 78,57 % |
+
+La reconstruction des lignes n'est donc **pas** le goulot sur la population
+vérifiée. La lecture du montant, elle, laisse 2,6 points d'articles à une
+règle écrite à la main là où l'information est toujours présente.
+
+### Les seuils du décodeur, relâchés puis remis
+
+`DEFAULT_MIN_PROB = 0.02` et `DEFAULT_MIN_REFERENCE_PROB = 0.5` sont
+arbitraires — de 0,001 à 0,5, le résultat ne bouge pas. Mais les relâcher
+achète des tickets vérifiés en fabriquant du silence :
+
+| | vérifiés | parfaits | montant faux | silencieux |
+|---|---|---|---|---|
+| seuils actuels | 191 | 143 | 2 | 6 |
+| sans plancher de rôle | 203 | 145 | 7 | 15 |
+| les deux relâchés | 203 | 145 | 8 | 15 |
+
++12 vérifiés pour +2 justes, et **+9 erreurs silencieuses** : l'échange
+convertit des échecs détectés — qui partent à l'écran de confirmation — en
+échecs invisibles. Les remplacer par un modèle d'acceptation reste la bonne
+structure, mais il n'a rien à apporter tant que le silence vient des libellés,
+que l'arithmétique ne voit pas : le meilleur point atteignable sur les signaux
+du décodage est 192/2/7 contre 191/2/6.
+
+Et le doute sur le libellé lui-même ne se mesure pas : marge du span 4,74 en
+q1 sur 1 118 découpages justes contre 2,50 sur 8 faux — attraper les 8 demande
+d'en signaler ~280. `DEFAULT_MAX_REFERENCES = 4` est, lui, du code mort : à 32
+le résultat est identique.
+
+### Où part le temps de l'utilisateur
+
+| | tickets |
+|---|---|
+| écran de confirmation, ticket entier à relire | **48 (20 %)** |
+| une correction visible (enseigne 15, date 13) | 28 |
+| un libellé faux, invisible | 6 |
+
+Et sur les 48 : 35 (73 %) sont lisibles de bout en bout et le décodeur ne sait
+pas départager — 13 seulement sont un défaut de lecture.
+
+
+## La regex de prix décidait avant le modèle (2026-08-28)
+
+Le tagger étiquetait `item` des lignes que le décodeur ne voyait jamais. Sur
+les 100 articles que la tranche d'évaluation perdait (rappel 97,3 %), **93
+étaient perdus avant qu'un modèle soit consulté** : `_rightmost_price` exige un
+montant en token isolé, et tout ce qui a un caractère collé lui échappe.
+
+```
+'CARRE FOURRE A T1 2.15Eur'             la devise, 3 lettres — la règle n'en tolérait qu'une
+'0.858kg x 2.69Eur/kg 2.31(2)'          la classe de TVA entre parenthèses
+'SHEBA SOUPE FILETS POULET 160G 2.342'  un chiffre parasite, toléré sur les seules lignes total
+'OIGNON / SAC (1KG) 2 x 0.85EUR = 1.70EUR'
+```
+
+Le modèle n'a pas besoin du prix pour décider : sur ces 93 lignes, le tagger
+dit `item` **91 fois sur 93**, et la distribution est identique quand on lui
+rend le prix lisible. Treize des 38 colonnes non-trigrammes sortent pourtant de
+cette regex — elle pollue le vecteur sans changer le verdict. C'était un filtre
+en aval, pas une aide à la décision.
+
+**Ce qui change.** La lecture du prix passe après l'étiquetage, et sa largeur
+est gouvernée par le rôle prédit : une ligne à qui le tagger donne un rôle
+porteur de montant (`ROLE_TO_DECODER_CLASS`, la même table lue à l'envers) et
+qu'aucune lecture stricte n'atteint propose **tous** ses montants plausibles.
+Le décodeur retient celui qui fait retomber la somme, chaque candidat payant
+son rang (½ par cran). Ça supprime au passage le dernier gate lexical de la
+lecture : `_trailing_junk_price` n'est plus réservé aux lignes que
+`contains_total` reconnaît.
+
+**Ce qui ne change pas.** Quand la lecture stricte aboutit, elle reste la
+seule. Rouvrir une ligne déjà lisible a été essayé et mesuré : le décodeur s'en
+sert pour retomber sur la bonne somme avec quatre montants faux (t1train_214,
+prix unitaire au lieu du prix ligne) — un faux auto-validé de plus. La laxité
+ne sert qu'à rendre lisible ce qui ne l'était pas.
+
+| | avant | après |
+|---|---|---|
+| rappel articles (held-out) | 97,3 % (3632/3732) | **99,8 % (3723/3732)** |
+| tickets vérifiés | 488 (82,4 %) | **508 (85,8 %)** |
+| tickets parfaits | 364 (61,5 %) | **383 (64,7 %)** |
+| erreurs silencieuses | 18 (3,7 %) | 19 (3,7 %) |
+| `bench.local` somme prouvée | 855/899 | **860/899** |
+| **`bench.local` faux auto-validés** | **2** | **2** |
+
+Les 9 articles encore perdus : 6 sont une vraie erreur du tagger, 3 n'ont aucun
+montant lisible même lâchement. Ces trois-là **disparaissent silencieusement** —
+les garder avec un montant vide demande un montant nullable de bout en bout
+(pipeline → `ScannedItemModel` → écran d'édition → création de transaction),
+pour 0,08 % des articles, sur des tickets qui partent de toute façon à l'écran
+de confirmation. Non fait.
+
+Parité Dart : 699 tickets, 0 divergence, dont 25 tickets où la laxité gagne 52
+lignes.
+
+Ce qui reste décidé par le code et non par un modèle, après ce changement :
+la lecture de la date (`_find_date` : sur 29 dates fausses, **28 ont la bonne
+ligne désignée par le tagger** — c'est la regex qui échoue), l'éligibilité des
+références et les invariants (`invariants.py`, 9 lexiques), l'imputation d'une
+remise à l'article précédent, et le libellé de repli quand `label_link` et
+`label_span` ne rendent rien.
+
+
+## Contenu
+
+```
+ml/scan/
+├── research/            # la recherche, en Python
+│   ├── reference/       #   le pipeline de référence — tout ce qui a un miroir Dart
+│   ├── truth/           #   vérité terrain : transcriptions, rôles de ligne, golden
+│   ├── annotate/        #   corpus annoté par VLM : prompt, appel, schéma, filtre
+│   ├── corpus/          #   génération du synthétique, reconstruction des sélections
+│   ├── line_classifier/ #   entraînement et export des modèles (rôles, lien, span)
+│   ├── llm/             #   VLM comme annotateur : contrat JSON, client Gemini
+│   ├── ocr/             #   OCR Mac (Apple Vision) pour diagnostiquer hors device
+│   ├── bench/           #   la mesure : parité, diagnostics, benchmarks
+│   ├── models/          #   artefacts entraînés (non versionnés)
+│   └── tests/           #   invariants du pipeline de référence
+├── pipeline/            # package Dart receipt_pipeline — le portage livré
+└── data/                # corpus, datasets, dumps OCR (gitignoré sauf golden/)
+```
+
+`research/reference/` est le seul dossier lié par contrat au Dart : chaque
+module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
+échoue à la moindre divergence.
+
+- **`research/reference/`** — reconstruction des lignes (`lines.py`), le flow
+  local (`local_flow.py`), tagger de rôles (`header_ml.py`) et décodage sous
+  contrainte de ses probabilités (`decode_roles.py`, `decode_constrained.py`,
+  `decoded_receipt.py`, `line_labels.py`), structuration par les rôles
+  (`structure_roles.py`), fusion des passes (`fuse_passes.py`), invariants
+  structurels (`invariants.py`), lien et découpage du libellé
+  (`word_features.py`, `spans_ml.py`, `labels_ml.py`), répertoire d'enseignes
+  (`store_gazetteer.py`), règles hors flow (`structure.py`).
+- **`research/bench/`** — bench du mode local rejoué des dumps (`local.py`,
+  l'instrument central), taxonomie des échecs (`failures.py`), diagnostics
+  (`diagnose.py`), scoring d'un run device (`device_flow.py`), comparaison
+  des variantes de flow (`flows.py`), tranche d'évaluation réservée
+  (`held_out.py`), exactitude stricte (`exactness.py`), parité Dart↔Python
+  (`parity.py`, `roles_parity.py`), plafond VLM cloud (`gemini.py`), OCR Mac
+  sur une image (`scan_image.py`, `photos.py`, `vision_local.py`),
+  récupérabilité de la vérité au niveau du mot (`word_truth.py`).
+- **`research/annotate/`** — prompt et appel du VLM annotateur (`prompt.py`,
+  `client.py`, `run.py`), schéma et filtre du corpus (`schema.py`,
+  `validate.py`, `record.py`, `dataset.py`), confrontation au golden
+  (`audit.py`), découpe du conditionnement hors du nom (`split_size.py`).
+- **`research/truth/`** — vérité depuis les transcriptions (`transcript.py`),
+  rôle réel de chaque ligne (`roles.py`), mots qui composent un libellé
+  (`spans.py`), vérité en mots sans ligne construite (`words.py`), sélection
+  des tickets à vérité fiable (`selection.py`), construction et santé du
+  golden (`annotate.py`, `golden.py`, `audit_golden.py`, `references.py`).
+- **`research/corpus/`** — générateur synthétique (`content.py`, `render.py`,
+  `generate.py`), reconstruction des sélections (`rebuild.py`), archivage
+  d'Open Prices (`open_prices.py`).
+- **`pipeline/`** — package Dart `receipt_pipeline` (lines, structure,
+  role_tagger, decode, decode_roles, flow, label_link, label_span,
+  store_gazetteer, sérialisation) + tests + outils de parité
+  (`tool/*.dart`).
+- **`data/golden/`** — golden dataset **versionné** : 1000 annotations JSON.
+  `data/raw/findit/` (dataset Find it!), `data/corpus/` (synthétique et
+  sélections d'images), `data/annotations/` (corpus annoté),
+  `data/results/` (sorties OCR par device, caches VLM) sont gitignorés.
+- **`VERIFICATION.md`** — spec d'implémentation app du système de vérification.
+
+## Datasets : sources et reconstruction
+
+Ni les images ni le corpus annoté ne sont versionnés — seul le golden FindIt
+l'est, parce qu'il est curé à la main et irremplaçable. Le reste se récupère
+par deux chemins, et la distinction compte :
+
+- **`./tool/scan_data/fetch.sh`** — ce qui ne se reconstruit pas, épinglé par
+  sha256 dans `tool/scan_data/lock.env` : le corpus annoté (~12 Mo, suffit à
+  entraîner) et les images déjà triées de `photos_pixel`, `open_prices` et
+  `mixed` (~4,2 Go, en morceaux car GitHub plafonne à 2 Gio par asset).
+  `--annotations` ne prend que la première.
+- **`research/fetch_data.sh`** — ce qui est déterministe : FindIt, les
+  sélections dérivées, le synthétique.
+
+`open_prices` est archivé plutôt que retéléchargé parce que c'est un jeu
+**vivant** : son dump grossit chaque jour et un contributeur peut supprimer sa
+preuve. Un re-fetch rendrait un autre corpus que celui sur lequel les
+annotations ont été faites. Pour l'agrandir délibérément :
+`uv run python -m corpus.open_prices`, puis republier.
+
+| Dataset | Source | Licence |
+|---|---|---|
+| Find it! (1000 tickets FR + transcriptions) | officiel : http://findit.univ-lr.fr/download-the-dataset/ (formulaire) ; miroir : `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 |
+| Open Prices (4 350 tickets FR photographiés, 2024-2026) | `research/corpus/open_prices.py` — dump quotidien sur data.gouv.fr | base ODbL, images CC BY-SA 4.0 |
+| Wikimedia Commons (1 ticket FR) | `Special:FilePath` — voir fetch_data.sh | libres |
+| Synthétique (120 tickets + ground truth) | `research/corpus/generate.py` (seed 42, déterministe) | interne |
+
+Les sélections dérivées (`selection_fr`, `selection_fr_big`) se
+reconstruisent à l'identique via `research/corpus/rebuild.py` (mêmes ids,
+mêmes noms de fichiers → caches et benchs restent comparables).
+
+Reproduire les mesures : les benchs se rejouent gratuitement depuis les
+caches de `data/results/` et le golden.
+
+**Le harnais Flutter on-device qui produisait ces dumps n'existe plus** (il a
+été supprimé lors de la réorganisation de `ml/`). `data/results/device_flow`
+— 1000 dumps OCR, l'entrée de `bench/local.py` — est donc un artefact figé
+et gitignoré : sans lui, aucun bench du mode local ne tourne, et rien dans
+le dépôt ne sait le régénérer. À réoutiller avant toute reprise de la
+mesure device.

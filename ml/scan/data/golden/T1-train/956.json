@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/956.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MONOPRIX",
+  "date": "2016-09-27",
+  "total": 19.32,
+  "items": [
+   {
+    "name": "COTE MONTPEZAT CAS",
+    "amount": 7.9,
+    "discount": 0
+   },
+   {
+    "name": "PT SABLES PARMES.M",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "200G SCHOKOBONS KD",
+    "amount": 2.86,
+    "discount": 0
+   },
+   {
+    "name": "EXCELL.NR ORGE INT",
+    "amount": 1.81,
+    "discount": 0.09
+   },
+   {
+    "name": "100G EXC LT CARA",
+    "amount": 1.61,
+    "discount": 0.08
+   },
+   {
+    "name": "CREAT.MOUS.CHOC.NR",
+    "amount": 2.82,
+    "discount": 0
+   }
+  ]
+ }
+}

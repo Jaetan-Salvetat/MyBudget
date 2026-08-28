@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/291.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-13",
+  "total": 17.83,
+  "items": [
+   {
+    "name": "*100G MONACO EMMENT",
+    "amount": 1.12,
+    "discount": 0
+   },
+   {
+    "name": "*125G NOI.CAJOU CRF",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*CHIPS POULET BRAIS",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*GUIGNETTE VERT 75CL",
+    "amount": 7.95,
+    "discount": 0
+   },
+   {
+    "name": "*PETIT BATON BERGER",
+    "amount": 2.61,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

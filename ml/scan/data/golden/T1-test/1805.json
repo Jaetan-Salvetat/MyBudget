@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1805.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Restaurant McDonald's",
+  "date": "2017-08-17",
+  "total": 5.65,
+  "items": [
+   {
+    "name": "MaxiMcFirstPoiss",
+    "amount": 5.65,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-train/img/654.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Primark France SAS",
+  "date": "2017-06-05",
+  "total": 83.0,
+  "items": [
+   {
+    "name": "6306001 5PK WOODEN HANGE",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "6856749 CROCHET FRONT VE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "0040740 CROCHET FRONT VE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "6856722 CROCHET FRONT VE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "0040713 CROCHET FRONT VE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "7674003 COLD SHOULDER SH",
+    "amount": 11.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1788912 EMBROID PEPLUM C",
+    "amount": 11.0,
+    "discount": 0.0
+   },
+   {
+    "name": "2564805 DBL LAYER CROSSB",
+    "amount": 8.0,
+    "discount": 0.0
+   },
+   {
+    "name": "0770523 BORDER PRINT CLD",
+    "amount": 9.0,
+    "discount": 0.0
+   },
+   {
+    "name": "3811510 3/4 SLV EMBROIDE",
+    "amount": 15.0,
+    "discount": 0.0
+   },
+   {
+    "name": "2564823 DBL LAYER CROSSB",
+    "amount": 8.0,
+    "discount": 0.0
+   },
+   {
+    "name": "2622969 7PK TRAINER LINE",
+    "amount": 3.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

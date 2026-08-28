@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/203.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2014-09-24",
+  "total": 13.92,
+  "items": [
+   {
+    "name": "350G COUSCOUS",
+    "amount": 3.5,
+    "discount": 0.0
+   },
+   {
+    "name": "4X120G PAN.EXT.MAN",
+    "amount": 2.25,
+    "discount": 0.0
+   },
+   {
+    "name": "200G DELICE JAMBON",
+    "amount": 1.26,
+    "discount": 0.0
+   },
+   {
+    "name": "200G SALADE L'ORIG",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "4X100G SSA POMME P",
+    "amount": 1.54,
+    "discount": 0.0
+   },
+   {
+    "name": "270G 30 TR BISCOTT",
+    "amount": 1.22,
+    "discount": 0.0
+   },
+   {
+    "name": "4 TR BLANC POULET",
+    "amount": 2.35,
+    "discount": 0.0
+   }
+  ]
+ }
+}

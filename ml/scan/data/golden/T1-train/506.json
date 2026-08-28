@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/506.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-25",
+  "total": 13.7,
+  "items": [
+   {
+    "name": "125G SABLES NOISET",
+    "amount": 1.26,
+    "discount": 0
+   },
+   {
+    "name": "*400G PAIN MIE S/GL",
+    "amount": 4.7,
+    "discount": 0
+   },
+   {
+    "name": "*POMME ARIANE VRAC",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "TOP KENYA ROSES X9",
+    "amount": 6.0,
+    "discount": 0
+   }
+  ]
+ }
+}

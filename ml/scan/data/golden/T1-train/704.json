@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/704.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "AUCHAN SAINT-JEAN",
+  "date": "2017-03-30",
+  "total": 10.16,
+  "items": [
+   {
+    "name": "04 ANANAS EN MORCEAU",
+    "amount": 3.26,
+    "discount": 0.0
+   },
+   {
+    "name": "02 *BQ 300G RIZ SAUTE AU POUL",
+    "amount": 6.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

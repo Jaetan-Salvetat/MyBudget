@@ -1,0 +1,22 @@
+[project]
+name = "scan-research"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "numpy>=2.5.2",
+    "pillow>=12.3.0",
+    "pyarrow>=22.0.0",
+    "scikit-learn>=1.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyobjc-framework-quartz>=12.2.2",
+    "pyobjc-framework-vision>=12.2.2",
+    "pytest>=9.1.1",
+    "ruff>=0.16.4",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

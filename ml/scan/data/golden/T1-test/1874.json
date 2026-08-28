@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1874.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-01-07",
+  "total": 10.29,
+  "items": [
+   {
+    "name": "CAMPAGNIERE GALETT",
+    "amount": 9.5,
+    "discount": 0
+   },
+   {
+    "name": "PRINTILIGNE SPE LAIT",
+    "amount": 0.79,
+    "discount": 0
+   }
+  ]
+ }
+}

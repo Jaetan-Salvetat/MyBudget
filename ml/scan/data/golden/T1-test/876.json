@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/876.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-08",
+  "total": 20.85,
+  "items": [
+   {
+    "name": "STELLA ARTOIS 50CL",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "2 MOJITO",
+    "amount": 11.45,
+    "discount": 0
+   }
+  ]
+ }
+}

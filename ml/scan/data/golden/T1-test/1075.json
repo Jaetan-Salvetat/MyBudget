@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1075.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MONOPRIX",
+  "date": "2017-05-05",
+  "total": 9.56,
+  "items": [
+   {
+    "name": "TAB CHOC.NR.FRUITE",
+    "amount": 1.93,
+    "discount": 0
+   },
+   {
+    "name": "TAB CHOC.NR.FRUITE",
+    "amount": 1.93,
+    "discount": 0
+   },
+   {
+    "name": "3X100G NR EXTRA PO",
+    "amount": 2.07,
+    "discount": 0
+   },
+   {
+    "name": "DELICHOC NOIR 150G",
+    "amount": 1.62,
+    "discount": 0
+   },
+   {
+    "name": "COOKIES DARK CHOCO",
+    "amount": 3.65,
+    "discount": 0
+   }
+  ]
+ }
+}

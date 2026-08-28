@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/309.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-27",
+  "total": 6.06,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 0.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROT.RAPE/TABOULE",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*FOZZA CHORIZO POIV",
+    "amount": 2.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*SABLES TOUT CHOCO",
+    "amount": 1.51,
+    "discount": 0.0
+   }
+  ]
+ }
+}

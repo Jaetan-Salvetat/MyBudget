@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1249.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PAUL",
+  "date": "2017-04-22",
+  "total": 1.5,
+  "items": [
+   {
+    "name": "2 MINI PAIN CHOC",
+    "amount": 1.5,
+    "discount": 0
+   }
+  ]
+ }
+}

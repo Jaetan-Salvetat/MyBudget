@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-train/img/348.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-18",
+  "total": 22.78,
+  "items": [
+   {
+    "name": "*16 MINI BLINIS CRF",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "*180G FETA BIO CRF",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "*200G HOUMMOUS CRF",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "*4X115G LES 2 VACHE",
+    "amount": 1.81,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNONS BRUNS 25",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*COMCOMBRE BIO",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*COOKIE CHOCO/NOUGA",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "*COUSCOUS SEMI COMP",
+    "amount": 1.58,
+    "discount": 0
+   },
+   {
+    "name": "*FRUITS ET LEGUMES",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*LT 1/2E.BIO CRF 1L",
+    "amount": 1.05,
+    "discount": 0
+   },
+   {
+    "name": "*MOZZARELLA BIO CRF",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1.25L EAU GAZ",
+    "amount": 0.57,
+    "discount": 0
+   },
+   {
+    "name": "*ROQUETTE 125G CRF",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATES GRAPPE COCKT",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1580.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "Newrest Wagons-Lits France",
+  "date": "2017-05-24",
+  "total": 5.2,
+  "items": [
+   {
+    "name": "1  x Pause sucrée 5€20",
+    "amount": 5.2,
+    "discount": 0.0
+   },
+   {
+    "name": "1  x ESPRESSO ILLY",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1  x COOKIES CHOCO M&A",
+    "amount": 0.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

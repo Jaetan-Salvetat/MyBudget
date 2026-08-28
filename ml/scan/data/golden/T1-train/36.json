@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/36.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-01",
+  "total": 7.45,
+  "items": [
+   {
+    "name": "*285G BROWNIES PEPI",
+    "amount": 2.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*FOUGASSETTE CHEVRE",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*SDW GOURM CLUB PLT",
+    "amount": 2.59,
+    "discount": 0.0
+   }
+  ]
+ }
+}

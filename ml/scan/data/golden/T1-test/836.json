@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/836.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SEPHORA CHAMPS ELYSEES",
+  "date": "2017-07-09",
+  "total": 7.9,
+  "items": [
+   {
+    "name": "338173 - SEPHORA FACE MASK MASK 22G",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "338172 - SEPHORA FACE MASK MASK 22G",
+    "amount": 3.95,
+    "discount": 0
+   }
+  ]
+ }
+}

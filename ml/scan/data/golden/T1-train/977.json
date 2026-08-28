@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/977.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Les Blés D'Or",
+  "date": "2016-10-15",
+  "total": 19.0,
+  "items": [
+   {
+    "name": "BAGUETTE",
+    "amount": 19.0,
+    "discount": 0
+   }
+  ]
+ }
+}

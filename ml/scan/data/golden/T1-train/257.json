@@ -1,0 +1,324 @@
+{
+ "source": "dataset_findit/T1-train/img/257.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-06-11",
+  "total": 146.0,
+  "items": [
+   {
+    "name": "1/2 CANNELLONI CRF",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "1/2 CONFIT AUBERGI",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "100G CHOC NOIR FEV",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "190G SCE POIVRONS",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "1KG COQUILLETTE P.",
+    "amount": 0.87,
+    "discount": 0
+   },
+   {
+    "name": "1KG RIZ INCOLLABLE",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "200G CROQ'SOJA",
+    "amount": 2.16,
+    "discount": 10.65
+   },
+   {
+    "name": "250G RAVIOLI PLT P",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "250G TORTELL.PESTO",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "300G BISCOTT.CRF",
+    "amount": 0.72,
+    "discount": 0
+   },
+   {
+    "name": "400G SAUCE OLIVES",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "420G CASSOULET",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "4X100G PPC CHOCO",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "500G TORSADE CRF",
+    "amount": 0.48,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUF BIO CAL.MOY",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "6T BON PARIS ETOUF",
+    "amount": 3.37,
+    "discount": 0
+   },
+   {
+    "name": "72CL SALSIFIS CRF",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "80G CHOC NOIR 80%",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "8X125G VELOUTE NAT",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "ANDROS POMME POIRE",
+    "amount": 1.35,
+    "discount": 0
+   },
+   {
+    "name": "BQ 1KG ABRICOT PP",
+    "amount": 4.59,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE PIECE",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "CORDON BLEU DINDE",
+    "amount": 2.22,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 2.84,
+    "discount": 0
+   },
+   {
+    "name": "FARCI DU POITOU",
+    "amount": 3.45,
+    "discount": 0
+   },
+   {
+    "name": "FROMAGE DE BREBIS",
+    "amount": 1.52,
+    "discount": 0
+   },
+   {
+    "name": "GALETTE PANEE 200G",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "GARNITURE POULET",
+    "amount": 2.3,
+    "discount": 0
+   },
+   {
+    "name": "JBON SEC SUP.4T CF",
+    "amount": 2.51,
+    "discount": 0
+   },
+   {
+    "name": "KIRI CREME X 12",
+    "amount": 2.17,
+    "discount": 0
+   },
+   {
+    "name": "LT2X205G NESTLE NR",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "MOZZARELLA CRF",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "NECTA.JAUNE GROS",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "PAVE CARREFOUR",
+    "amount": 1.75,
+    "discount": 0
+   },
+   {
+    "name": "PCE 250G BETTERAVE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "PCE MELON MOYEN",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "PETIT DEJEUNER CHO",
+    "amount": 2.24,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 25",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE CRF",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "QUENEL VOLAI.PJEAN",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE PASTA LEGUME",
+    "amount": 2.56,
+    "discount": 0
+   },
+   {
+    "name": "SAUCIS.LENTILL.CRF",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "SPECIAL K FEUIL.CH",
+    "amount": 2.58,
+    "discount": 0
+   },
+   {
+    "name": "ST NECTAIRE FERMIE",
+    "amount": 3.65,
+    "discount": 0
+   },
+   {
+    "name": "TABOUL.ORIENT.300G",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "TARTE FLAMBEE GRAT",
+    "amount": 2.08,
+    "discount": 0
+   },
+   {
+    "name": "TARTINE CACAO CER.",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "TOMA.CERISE MELANG",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE GRAPPE",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "XTREM CHOCO NOISET",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "15 ETUI MINI MOUCH",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "BTE 90 MOUCHOIRS",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "X2 DEO BIL.S/S PIV",
+    "amount": 6.88,
+    "discount": 3.44
+   },
+   {
+    "name": "BALAI FROTT",
+    "amount": 2.65,
+    "discount": 0
+   },
+   {
+    "name": "LOT 3 SLIPS TEX",
+    "amount": 8.9,
+    "discount": 0
+   },
+   {
+    "name": "LOT 3 SLIPS TEX",
+    "amount": 8.9,
+    "discount": 0
+   },
+   {
+    "name": "LOT BOXER X3",
+    "amount": 13.1,
+    "discount": 0
+   },
+   {
+    "name": "LOT BOXER X3",
+    "amount": 13.1,
+    "discount": 0
+   },
+   {
+    "name": "SERPILLIERE SUP BL",
+    "amount": 3.2,
+    "discount": 0
+   }
+  ]
+ }
+}

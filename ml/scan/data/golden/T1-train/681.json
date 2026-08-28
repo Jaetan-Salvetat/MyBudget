@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/681.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BURGER KING RESTAURANTS",
+  "date": "2017-06-02",
+  "total": 19.0,
+  "items": [
+   {
+    "name": "MU GRD CRUNCHY CHICKEN BBQ",
+    "amount": 8.7,
+    "discount": 0.0
+   },
+   {
+    "name": "MU MOY XXL DOUBLE BACON CHS",
+    "amount": 8.7,
+    "discount": 0.0
+   },
+   {
+    "name": "CHS BURGER",
+    "amount": 1.6,
+    "discount": 0.0
+   }
+  ]
+ }
+}

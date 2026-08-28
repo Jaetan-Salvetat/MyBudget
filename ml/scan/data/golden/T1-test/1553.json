@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-test/img/1553.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BIOCOOP REGAIN",
+  "date": "2017-01-14",
+  "total": 87.3,
+  "items": [
+   {
+    "name": "RICE DRINK NATURE X6",
+    "amount": 8.7,
+    "discount": 0.0
+   },
+   {
+    "name": "PROTEGE SLIPS",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SOJADE NATURE X4",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "OEUF*10 CALI53 63",
+    "amount": 4.05,
+    "discount": 0.0
+   },
+   {
+    "name": "OIGNON JAUNE",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "RIZ BASM 1/2 COMPL VRAC",
+    "amount": 3.1,
+    "discount": 0.0
+   },
+   {
+    "name": "NOIX DE CAJOU VRAC",
+    "amount": 11.63,
+    "discount": 0.0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 8.4,
+    "discount": 0.0
+   },
+   {
+    "name": "TOFU LACTOFERMENTE AU TAMARI",
+    "amount": 3.1,
+    "discount": 0.0
+   },
+   {
+    "name": "HUILE COCO DESODORISEE",
+    "amount": 9.5,
+    "discount": 0.0
+   },
+   {
+    "name": "NOIX DU BRESIL VRAC",
+    "amount": 13.72,
+    "discount": 0.0
+   },
+   {
+    "name": "GEL PUR ALOES",
+    "amount": 11.2,
+    "discount": 0.0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "DESSERT VANILLE TANTE HELENE",
+    "amount": 2.45,
+    "discount": 0.0
+   },
+   {
+    "name": "COOL FRUITS ROUGE",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "COOL FRUIT JAUNE",
+    "amount": 1.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

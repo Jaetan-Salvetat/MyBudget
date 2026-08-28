@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/900.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-15",
+  "total": 5.44,
+  "items": [
+   {
+    "name": "GAZPACHO U 1L",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "SECR.MOUS.CHOC.LT LAITIE.4X59G",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "CHARCUTERIE LS DATE COURTE",
+    "amount": 2.09,
+    "discount": 0
+   }
+  ]
+ }
+}

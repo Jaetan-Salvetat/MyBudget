@@ -1,0 +1,79 @@
+{
+ "source": "dataset_findit/T1-test/img/200.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-01-03",
+  "total": 26.01,
+  "items": [
+   {
+    "name": "*200G COOKIE NOISET",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*37CL HARICOT VRT",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "*BLE 6X25CL BIERE",
+    "amount": 4.25,
+    "discount": 0
+   },
+   {
+    "name": "*CEL 500G TORTI PAN",
+    "amount": 0.86,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL RAPE CRF",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "*GNOCCHI A POELER",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "*MATIN LEGER 1/2ECR",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "*MC CAIN FRIT'UP",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1L PERRIER NEW",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "*PLAQUETTE BEURRE D",
+    "amount": 1.04,
+    "discount": 0
+   },
+   {
+    "name": "*PP WOVEN SHOPPING",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "*SHP CLASSIC H.S",
+    "amount": 4.86,
+    "discount": 0
+   },
+   {
+    "name": "*STK HACHE 5%MG X4",
+    "amount": 5.33,
+    "discount": 0
+   }
+  ]
+ }
+}

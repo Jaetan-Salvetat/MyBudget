@@ -1,0 +1,39 @@
+# tickets sans vérité : ni le golden, ni la transcription, ni le corpus
+# annoté ne bouclent (truth.audit_golden). Comptés à part, jamais comme
+# des échecs du pipeline.
+T1-test/1005
+T1-test/1048
+T1-test/1188
+T1-test/166
+T1-test/245
+T1-test/25
+T1-test/470
+T1-test/556
+T1-test/645
+T1-test/724
+T1-test/777
+T1-test/826
+T1-test/831
+T1-test/876
+T1-test/893
+T1-test/958
+T1-test/988
+T1-train/1064
+T1-train/1109
+T1-train/1133
+T1-train/146
+T1-train/164
+T1-train/1662
+T1-train/168
+T1-train/321
+T1-train/476
+T1-train/478
+T1-train/520
+T1-train/534
+T1-train/542
+T1-train/547
+T1-train/571
+T1-train/579
+T1-train/790
+T1-train/795
+T1-train/965

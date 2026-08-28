@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1731.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BRICO E.Leclerc ELECTRO BRICO JARDI E.LECLERC SAPIAC",
+  "date": "2014-12-06",
+  "total": 18.9,
+  "items": [
+   {
+    "name": "EPICEA COUPE 2M/2.50M VERT",
+    "amount": 18.9,
+    "discount": 0
+   }
+  ]
+ }
+}

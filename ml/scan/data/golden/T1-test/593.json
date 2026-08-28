@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/593.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF EXP ORLEANS BOURGOGNE",
+  "date": "2017-05-18",
+  "total": 2.44,
+  "items": [
+   {
+    "name": "*300G PRINCE LAIT C",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "*BP 1L LAIT 1/2ECRE",
+    "amount": 0.93,
+    "discount": 0
+   }
+  ]
+ }
+}

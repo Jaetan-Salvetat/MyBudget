@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/421.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-28",
+  "total": 7.9,
+  "items": [
+   {
+    "name": "*200G TABOULE ORIEN",
+    "amount": 1.37,
+    "discount": 0
+   },
+   {
+    "name": "*320G SALADE ANTIBE",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.34,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*POMME CHANTECLERC",
+    "amount": 1.15,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/245.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-02",
+  "total": 32.84,
+  "items": [
+   {
+    "name": "*200G CHIPS NAT CRF",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*450G CALIN 3.2% MG",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "*CABECOU AU LARDON",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*CABECOU AU LARDON",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*CERVELAS 200G",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "*FEUILLE DE CHENE",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "SAUM.FUME NORVEGE",
+    "amount": 8.0,
+    "discount": 0
+   },
+   {
+    "name": "*SCISS.COCKTAIL CRF",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*TAILLEFINE FRT RGE",
+    "amount": 1.87,
+    "discount": 0
+   },
+   {
+    "name": "3X240 ALLUMETTES",
+    "amount": 0.83,
+    "discount": 0
+   },
+   {
+    "name": "SACS 24+SYNTH",
+    "amount": 7.5,
+    "discount": 0
+   }
+  ]
+ }
+}

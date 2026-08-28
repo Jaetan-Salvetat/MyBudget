@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/299.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-30",
+  "total": 2.54,
+  "items": [
+   {
+    "name": "*BAGUE'TE PERENE CERE",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "*DUO TERRIN+MOUS.CD",
+    "amount": 1.39,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/1122.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CAMAÏEU",
+  "date": "2017-01-12",
+  "total": 66.4,
+  "items": [
+   {
+    "name": "2600017772099 AMINICART T.U",
+    "amount": 11.49,
+    "discount": 0
+   },
+   {
+    "name": "2250018001980 PROMANTIC M",
+    "amount": 27.99,
+    "discount": 0
+   },
+   {
+    "name": "2200017748881 CITIZEN IMP 38",
+    "amount": 12.99,
+    "discount": 0
+   },
+   {
+    "name": "2250017693742 PBOUM L",
+    "amount": 12.99,
+    "discount": 0
+   },
+   {
+    "name": "2250017770641 PCLOWN M",
+    "amount": 14.99,
+    "discount": 0
+   }
+  ]
+ }
+}

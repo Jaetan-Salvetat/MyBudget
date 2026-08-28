@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-train/img/494.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-07",
+  "total": 35.85,
+  "items": [
+   {
+    "name": "3L HUILE TOURNESOL",
+    "amount": 4.07,
+    "discount": 0
+   },
+   {
+    "name": "400G AMANDES CRUES",
+    "amount": 5.45,
+    "discount": 0
+   },
+   {
+    "name": "500G SEL FIN FLUOR",
+    "amount": 0.48,
+    "discount": 0
+   },
+   {
+    "name": "58CL CORNICHONS",
+    "amount": 2.47,
+    "discount": 0
+   },
+   {
+    "name": "*750G 0% MG REGILAI",
+    "amount": 4.47,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE RONDELLES",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNONS EMINCE",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "CREVET.CUITE 60/80",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL CRF 250G",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 6.75,
+    "discount": 0
+   },
+   {
+    "name": "*POI.EXT.FIN.CRF1KG",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "THE VERT MENTHE",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "600G LESSIVE CARF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESODORISANT LAVAN",
+    "amount": 0.59,
+    "discount": 0
+   }
+  ]
+ }
+}

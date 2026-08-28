@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1856.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "pimkie",
+  "date": "2017-01-28",
+  "total": 7.0,
+  "items": [
+   {
+    "name": "*98505216038000001 Chaussures 38",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*99810616000000001 Autres accessoires",
+    "amount": 3.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

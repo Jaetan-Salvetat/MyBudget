@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/311.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-28",
+  "total": 7.49,
+  "items": [
+   {
+    "name": "*CHILI CON CARNE CR",
+    "amount": 3.37,
+    "discount": 0
+   },
+   {
+    "name": "*INNOCENT MANG/PASS",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0
+   }
+  ]
+ }
+}

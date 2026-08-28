@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/509.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-08",
+  "total": 4.1,
+  "items": [
+   {
+    "name": "*PAIN CEREALES BIO",
+    "amount": 2.25,
+    "discount": 0.0
+   },
+   {
+    "name": "*PASTIN CAMP.400G",
+    "amount": 1.85,
+    "discount": 0.0
+   }
+  ]
+ }
+}

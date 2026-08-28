@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/478.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-05-07",
+  "total": 35.58,
+  "items": [
+   {
+    "name": "*200G COEUR COMPLIC",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "*850G YAB SAV FRAI",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "*900ML JUS POM/FRAM",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE EXTRA",
+    "amount": 0.63,
+    "discount": 0
+   },
+   {
+    "name": "*DANAO ORANGE BAN/F",
+    "amount": 2.24,
+    "discount": 0
+   },
+   {
+    "name": "VACHE QUI RIT X 8",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "*YAOURTS FRUITS MIX",
+    "amount": 1.88,
+    "discount": 0
+   }
+  ]
+ }
+}

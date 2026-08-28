@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/517.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-01",
+  "total": 40.98,
+  "items": [
+   {
+    "name": "*2E AGE MILUM 6M-1A",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "*2X200G PDT/BF/TOM",
+    "amount": 2.61,
+    "discount": 0
+   },
+   {
+    "name": "*CAR/SEM/DINDE X2",
+    "amount": 1.83,
+    "discount": 0
+   },
+   {
+    "name": "*MPPP CAR/POT/H.VT",
+    "amount": 2.26,
+    "discount": 0
+   },
+   {
+    "name": "X48 SENSEO CORSE",
+    "amount": 5.45,
+    "discount": 0
+   },
+   {
+    "name": "12 RLX P.HY.3P CRF",
+    "amount": 3.66,
+    "discount": 0
+   },
+   {
+    "name": "6 SACHET WC NET",
+    "amount": 4.12,
+    "discount": 0
+   },
+   {
+    "name": "SERUM PHYSIOLOGIQ.",
+    "amount": 9.15,
+    "discount": 2.28
+   },
+   {
+    "name": "SERUM PHYSIOLOGIQ.",
+    "amount": 3.05,
+    "discount": 0.77
+   },
+   {
+    "name": "WCN 30 LINGETTES D",
+    "amount": 2.0,
+    "discount": 0
+   }
+  ]
+ }
+}

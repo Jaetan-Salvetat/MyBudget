@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/1487.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-01-23",
+  "total": 8.09,
+  "items": [
+   {
+    "name": "POIS CASSES VIVIEN PAILLE 500G",
+    "amount": 1.07,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 0.68,
+    "discount": 0.0
+   },
+   {
+    "name": "OIGNON JAUNE ECO+ ESPAGNE",
+    "amount": 0.79,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE 3 MEUNIERS 250G",
+    "amount": 0.65,
+    "discount": 0.0
+   },
+   {
+    "name": "* SOCQ MOTIF",
+    "amount": 1.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

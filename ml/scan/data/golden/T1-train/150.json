@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/150.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-11-09",
+  "total": 4.27,
+  "items": [
+   {
+    "name": "280G TAB PLT ORIEN",
+    "amount": 3.11,
+    "discount": 0.0
+   },
+   {
+    "name": "BARQUET.ABRICOT LU",
+    "amount": 1.16,
+    "discount": 0.0
+   }
+  ]
+ }
+}

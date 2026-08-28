@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/606.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA GALETTIERE",
+  "date": "2017-07-14",
+  "total": 28.3,
+  "items": [
+   {
+    "name": "LA BAYONNE",
+    "amount": 9.5,
+    "discount": 0
+   },
+   {
+    "name": "LA FERMIERE",
+    "amount": 9.2,
+    "discount": 0
+   },
+   {
+    "name": "**sup champignons",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "CAFE CHOC",
+    "amount": 6.1,
+    "discount": 0
+   },
+   {
+    "name": "1 BOULE",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

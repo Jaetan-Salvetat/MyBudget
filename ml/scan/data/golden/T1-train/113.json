@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/113.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-05-27",
+  "total": 5.4,
+  "items": [
+   {
+    "name": "200G TOMATE CERISE B",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "3X1/4 MAIS CRF",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "4 KNACKI HERTA",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "6 RLX P.H.2PLI CRF",
+    "amount": 1.49,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/613.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SATORIZ Le bio pour tous",
+  "date": "2017-03-15",
+  "total": 21.4,
+  "items": [
+   {
+    "name": "un FARINE T 65 5kg",
+    "amount": 7.3,
+    "discount": 0
+   },
+   {
+    "name": "un PAPIER CUISSON",
+    "amount": 4.4,
+    "discount": 0
+   },
+   {
+    "name": "un BOULGOUR ORGE 3",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "un KAOKA NOIR ECLA",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "un KAOKA AU LAIT 1",
+    "amount": 2.3,
+    "discount": 0
+   },
+   {
+    "name": "un COOK POIVRE NOI",
+    "amount": 3.95,
+    "discount": 0
+   }
+  ]
+ }
+}

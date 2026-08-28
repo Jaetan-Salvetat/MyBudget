@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/742.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TABLAPIZZA LA ROCHELLE",
+  "date": "2016-11-24",
+  "total": 44.4,
+  "items": [
+   {
+    "name": "1 Audacieuse",
+    "amount": 11.9,
+    "discount": 0.0
+   },
+   {
+    "name": "2 Legumes Grilles",
+    "amount": 19.8,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Gratin Coquill.",
+    "amount": 12.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

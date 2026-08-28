@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/278.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-14",
+  "total": 6.44,
+  "items": [
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 1.12,
+    "discount": 0.0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*TAGLIAT.CARBONARA",
+    "amount": 2.52,
+    "discount": 0.0
+   }
+  ]
+ }
+}

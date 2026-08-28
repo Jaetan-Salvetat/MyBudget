@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/143.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-02-25",
+  "total": 5.43,
+  "items": [
+   {
+    "name": "CLUB COMPLT JBN/FR",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "FOUGASSETTE CHEVRE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "GENOISE FRAMBOISE",
+    "amount": 1.16,
+    "discount": 0
+   }
+  ]
+ }
+}

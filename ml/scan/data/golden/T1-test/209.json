@@ -1,0 +1,104 @@
+{
+ "source": "dataset_findit/T1-test/img/209.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2016-11-07",
+  "total": 51.13,
+  "items": [
+   {
+    "name": "VEAU TENDRON**",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "200G SAINT ALBRAY",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "320G PORT SALUT",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "LANGUE SAUCE PIQ",
+    "amount": 3.78,
+    "discount": 0
+   },
+   {
+    "name": "SAC ISOTHERME",
+    "amount": 0.12,
+    "discount": 0
+   },
+   {
+    "name": "TAGLIAT. FRTS MER",
+    "amount": 12.51,
+    "discount": 0
+   },
+   {
+    "name": "HARRYS BRIOCHE TR.",
+    "amount": 2.02,
+    "discount": 0
+   },
+   {
+    "name": "DEMAE RAMEN PLT AI",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "350G PAINS LAIT",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "CITRON 4FRUITS",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "ST SOUP.PASSE POIR",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "SPE DOUCEUR 9 LEG.",
+    "amount": 0.94,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE GRAPPE FRAN",
+    "amount": 2.09,
+    "discount": 0
+   },
+   {
+    "name": "KRISPROLLS 400G",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "VELOUTE DE COURGET",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "BRANDAD.MORUE 1KG",
+    "amount": 7.9,
+    "discount": 0
+   },
+   {
+    "name": "2KG ORANGE DES.CEE",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "SODA POMME CRF",
+    "amount": 0.87,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/741.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "L'EPI DE BLE",
+  "date": "2016-10-21",
+  "total": 27.3,
+  "items": [
+   {
+    "name": "G.MEDITERRANEE",
+    "amount": 9.1,
+    "discount": 0
+   },
+   {
+    "name": "VEGETARIENNE",
+    "amount": 9.1,
+    "discount": 0
+   },
+   {
+    "name": "G.TARTIFLETTE",
+    "amount": 9.1,
+    "discount": 0
+   }
+  ]
+ }
+}

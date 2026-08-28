@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/405.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-20",
+  "total": 3.9,
+  "items": [
+   {
+    "name": "* 250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*BP 1L LAIT 1/2ECRE",
+    "amount": 1.72,
+    "discount": 0
+   },
+   {
+    "name": "*COOKIES TT CHOCO",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.2,
+    "discount": 0
+   }
+  ]
+ }
+}

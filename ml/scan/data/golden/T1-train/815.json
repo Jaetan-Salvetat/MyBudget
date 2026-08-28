@@ -1,0 +1,184 @@
+{
+ "source": "dataset_findit/T1-train/img/815.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-05-08",
+  "total": 84.6,
+  "items": [
+   {
+    "name": "75CL BORDEAUX RG 14",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "COCA COLA PET 1,5L",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "HACHE P.BOEUF 15%MAT.GR U 350G",
+    "amount": 3.75,
+    "discount": 0
+   },
+   {
+    "name": "AIGUILLETTE POULETX8",
+    "amount": 3.62,
+    "discount": 0
+   },
+   {
+    "name": "2 X STEACK ** A GRILLER",
+    "amount": 3.89,
+    "discount": 0
+   },
+   {
+    "name": "SAUMON ATLANTIQ.POIREAU.U 400G",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "TARTE AUX POIREAUX U 400G",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "CERVELAS QUAL.SUPER.HERTA 400G",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "TORTELLINI BOEUF 300G",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "ALLUMETTES NATURE HERTA 2X102G",
+    "amount": 1.72,
+    "discount": 0
+   },
+   {
+    "name": "TAGLIATELLE LUSTUCRU 355G",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA JBN CHAMPIGNONS U 200G",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "LE FLEURIER 1/2 SEL 52%MG 500G",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "CR.FRAICHE EP.30% YOPLAIT 50CL",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "EMMENT.PAST.RAPE 29%MG U 200G",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "PATE A TARTINER NUTELLA 750G",
+    "amount": 3.99,
+    "discount": 0
+   },
+   {
+    "name": "THON ENT.LISTAO NATUREL U 215G",
+    "amount": 1.83,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE PELEE AU JUS 4/4",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "COUDES RAYES CUI.RAP.PANZ.500G",
+    "amount": 1.13,
+    "discount": 0
+   },
+   {
+    "name": "210G TOMAT.BASILIC",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "LAMES HYDRO 3 WILKINSON X5",
+    "amount": 10.9,
+    "discount": 0
+   },
+   {
+    "name": "SHP.2EN1 CLASSIC HEAD&SH.255ML",
+    "amount": 3.4,
+    "discount": 0
+   },
+   {
+    "name": "DEO.FEM.PROT.&CARE NIVEA 200ML",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "DCH.POLY.MONOI&TIAR.USHU.250ML",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "TAMPONS APPLICAT.NORMAL U X20",
+    "amount": 1.88,
+    "discount": 0
+   },
+   {
+    "name": "X6 PAP.TOILET.DECORE 2 PLIS U",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA SAVOYARDE 650G",
+    "amount": 5.95,
+    "discount": 0
+   },
+   {
+    "name": "FUET NATURE 160G",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCHE TRANC.CREME L.F.D.500G",
+    "amount": 2.01,
+    "discount": 0
+   },
+   {
+    "name": "P.DE MIE PUR MIE NATURE U 500G",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGNON PIED COUPE BQ.500G",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "LIQ.VSL ANTI-ODEURS U FL.500ML",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "POT STD CLASSICA 18X15,5CM",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "POT STD CLASSICA 15,5X13,5CM",
+    "amount": 0.6,
+    "discount": 0
+   }
+  ]
+ }
+}

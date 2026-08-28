@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1602.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "RIA DE NIORT",
+  "date": "2017-03-28",
+  "total": 3.82,
+  "items": [
+   {
+    "name": "ASSIETTE BUFFET",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "YAOURT NATURE",
+    "amount": 0.31,
+    "discount": 0
+   },
+   {
+    "name": "AVOCAT MAYO",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "ADM/BASSIN SEVRE NIO",
+    "amount": 2.31,
+    "discount": 0
+   },
+   {
+    "name": "SUBV/BASSIN SEVRE NI",
+    "amount": -1.22,
+    "discount": 0
+   }
+  ]
+ }
+}

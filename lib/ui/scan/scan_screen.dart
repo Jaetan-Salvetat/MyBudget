@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,23 +10,20 @@ import 'package:intl/intl.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
+import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
 import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
-  final AiImageAttachment image;
+  final Uint8List imageBytes;
 
-  const ScanScreen({required this.image, super.key});
+  const ScanScreen({required this.imageBytes, super.key});
 
   @override
   ConsumerState<ScanScreen> createState() => _ScanScreenState();
@@ -37,8 +36,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   late final AnimationController _pulseController;
   int _statusMessageIndex = 0;
   Timer? _statusTimer;
-  Timer? _countdownTimer;
-  int _countdownSeconds = 0;
 
   static const _statusMessages = [
     'Analyse du ticket en cours...',
@@ -62,16 +59,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.listenManual(scanProvider, (_, next) {
-        if (next is AsyncError) {
-          final error = next.error;
-          if (error is ScanException && error.retryAfterSeconds > 0) {
-            _startCountdown(error.retryAfterSeconds);
-          }
-        } else if (next is AsyncData && next.value != null) {
+        if (next is AsyncData && next.value != null) {
           _initSelectedAccount();
         }
       });
-      ref.read(scanProvider.notifier).scanReceipt(widget.image);
+      ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
       _startStatusRotation();
     });
   }
@@ -89,7 +81,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     _scanLineController.dispose();
     _pulseController.dispose();
     _statusTimer?.cancel();
-    _countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -102,7 +93,24 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final hasData = result != null && result.items.isNotEmpty;
 
     return FrostedScaffold(
-      appBar: FrostedTopBar(title: 'Scanner un ticket'),
+      appBar: FrostedTopBar(
+        title: 'Scanner un ticket',
+        // Le détail de chaque étage du flow n'a d'intérêt que pour qui
+        // développe le scan, et il montre des données brutes : il ne sort pas
+        // des builds de debug.
+        actions: [
+          if (kDebugMode && !isLoading)
+            IconButton(
+              icon: const Icon(Symbols.bug_report_rounded),
+              tooltip: 'Inspecter le scan',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ScanInspectorScreen(),
+                ),
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: hasData ? _buildBottomBar(context, result) : null,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),
@@ -129,7 +137,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           child: Stack(
             children: [
               Image.memory(
-                widget.image.bytes,
+                widget.imageBytes,
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -196,56 +204,25 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final IconData icon;
     final String title;
     final String subtitle;
-    final bool hasCooldown;
 
     switch (scanError) {
-      case ScanCooldownException():
-        icon = Symbols.timer_rounded;
+      case ScanUnreadableException():
+        icon = Symbols.no_photography_rounded;
         title = scanError.message;
-        subtitle = 'Vous pourrez réessayer dans un instant';
-        hasCooldown = true;
-      case ScanRateLimitException():
-        icon = Symbols.cloud_off_rounded;
+        subtitle = 'Reprenez la photo bien à plat, ticket entier dans le cadre';
+      case ScanNoItemsException():
+        icon = Symbols.receipt_long_rounded;
         title = scanError.message;
-        subtitle = 'Réessayez dans quelques instants';
-        hasCooldown = true;
-      case ScanServiceUnavailableException():
-        icon = Symbols.cloud_off_rounded;
-        title = scanError.message;
-        subtitle = 'Réessayez dans quelques instants';
-        hasCooldown = true;
-      case ScanMissingApiKeyException():
-        icon = Symbols.key_off_rounded;
-        title = scanError.message;
-        subtitle = 'Elle restera sur cet appareil et servira aussi à '
-            'l\'ajout rapide.';
-        hasCooldown = false;
-      case ScanInvalidApiKeyException():
-        icon = Symbols.key_off_rounded;
-        title = scanError.message;
-        subtitle = 'Vérifiez la clé enregistrée, ou posez-en une autre.';
-        hasCooldown = false;
-      case ScanOfflineException():
-        icon = Symbols.wifi_off_rounded;
-        title = scanError.message;
-        subtitle = 'Le scan a besoin du réseau pour lire le ticket';
-        hasCooldown = false;
+        subtitle = 'Vérifiez que la partie articles du ticket est visible';
       case ScanGenericException():
         icon = Symbols.error_rounded;
         title = scanError.message;
         subtitle = '';
-        hasCooldown = false;
       default:
         icon = Symbols.error_rounded;
         title = 'Une erreur est survenue';
         subtitle = '$scanError';
-        hasCooldown = false;
     }
-
-    final canRetry = !hasCooldown || _countdownSeconds <= 0;
-    final needsKey =
-        scanError is ScanMissingApiKeyException ||
-        scanError is ScanInvalidApiKeyException;
 
     return Center(
       key: const ValueKey('error'),
@@ -254,13 +231,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: hasCooldown
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
-            ),
+            Icon(icon, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               title,
@@ -275,28 +246,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
               textAlign: TextAlign.center,
             ),
-            if (hasCooldown && _countdownSeconds > 0) ...[
-              const SizedBox(height: 16),
-              Text(
-                _formatCountdown(_countdownSeconds),
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
             const SizedBox(height: 24),
-            if (needsKey)
-              FrostedButton.filled(
-                label: 'Ajouter une clé',
-                icon: Symbols.key_rounded,
-                onPressed: _openApiKeyScreen,
-              )
-            else
-              FrostedButton.filled(
-                label: 'Réessayer',
-                onPressed: canRetry ? _retry : null,
-              ),
+            FrostedButton.filled(label: 'Réessayer', onPressed: _retry),
           ],
         ),
       ),
@@ -311,46 +262,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     }
   }
 
-  void _startCountdown(int seconds) {
-    if (_countdownTimer?.isActive ?? false) return;
-    _countdownSeconds = seconds;
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        _countdownSeconds--;
-        if (_countdownSeconds <= 0) {
-          _countdownTimer?.cancel();
-        }
-      });
-    });
-  }
-
-  /// La clé se saisit là où elle manque : l'utilisateur n'a pas à deviner
-  /// quel écran de réglages la porte. Le scan repart dès qu'elle est posée.
-  Future<void> _openApiKeyScreen() async {
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
-    );
-    if (!mounted) return;
-    final provider = ref.read(selectedAiProviderProvider);
-    if (await ref.read(apiKeyServiceProvider).has(provider)) {
-      _retry();
-    }
-  }
-
   void _retry() {
-    _countdownTimer?.cancel();
-    _countdownSeconds = 0;
     setState(() => _statusMessageIndex = 0);
     _statusTimer?.cancel();
     _startStatusRotation();
-    ref.read(scanProvider.notifier).scanReceipt(widget.image);
-  }
-
-  String _formatCountdown(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-    return '$m:${s.toString().padLeft(2, '0')}';
+    ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
   }
 
   Widget _buildEmptyView(BuildContext context) {
@@ -415,6 +331,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       ),
       children: [
         _buildHeaderCard(context, result, dateFormat),
+        if (!result.verified) ...[
+          const SizedBox(height: 16),
+          _buildUnverifiedBanner(context),
+        ],
         const SizedBox(height: 16),
         if (accounts.isNotEmpty)
           FrostedDropdown<int>(
@@ -451,6 +371,36 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
   }
 
+  /// La somme des articles n'est retombée sur aucun montant imprimé : la
+  /// lecture est partielle. On le dit franchement plutôt que de laisser
+  /// valider un ticket incomplet en croyant qu'il est juste.
+  Widget _buildUnverifiedBanner(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return FrostedCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              Symbols.rule_rounded,
+              color: theme.colorScheme.error,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Le total du ticket ne correspond pas aux articles lus : '
+                'vérifiez les montants avant de valider.',
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeaderCard(
     BuildContext context,
     ReceiptScanResultModel result,
@@ -467,7 +417,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.memory(
-                widget.image.bytes,
+                widget.imageBytes,
                 height: 60,
                 width: 60,
                 fit: BoxFit.cover,
@@ -826,7 +776,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     try {
       final count = await ref
           .read(scanProvider.notifier)
-          .validateAndCreate(_selectedAccountId!, widget.image.bytes);
+          .validateAndCreate(_selectedAccountId!, widget.imageBytes);
 
       if (context.mounted) {
         FrostedSnackbar.show(

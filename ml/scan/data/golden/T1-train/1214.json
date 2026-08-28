@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1214.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-06-10",
+  "total": 6.24,
+  "items": [
+   {
+    "name": "T.BUDGET BIERE BLD24",
+    "amount": 6.24,
+    "discount": 0.0
+   }
+  ]
+ }
+}

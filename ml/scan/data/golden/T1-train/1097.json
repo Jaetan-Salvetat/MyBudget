@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/1097.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA GALETTIERE CREPERIE",
+  "date": "2017-05-13",
+  "total": 22.2,
+  "items": [
+   {
+    "name": "LA CABECOU",
+    "amount": 10.9,
+    "discount": 0.0
+   },
+   {
+    "name": "PINEAU DES CHARENTES",
+    "amount": 3.3,
+    "discount": 0.0
+   },
+   {
+    "name": "GOURMANDE/CHOC",
+    "amount": 8.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

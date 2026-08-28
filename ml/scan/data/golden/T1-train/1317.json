@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/1317.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-04-04",
+  "total": 20.06,
+  "items": [
+   {
+    "name": "CAMPANIERE PAIN POLK",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "PAIN SPECIAL COMPLET",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "PAIN CHOCOLAT P.BEUR",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "PPBYR MINI SPLUME FU",
+    "amount": 3.85,
+    "discount": 0
+   },
+   {
+    "name": "PPBYR MINI SPLUME FU",
+    "amount": 3.85,
+    "discount": 0
+   },
+   {
+    "name": "VEET CRM DEPIL PX NO",
+    "amount": 4.94,
+    "discount": 0
+   },
+   {
+    "name": "ALWAYS PROTEGE SLIP",
+    "amount": 1.77,
+    "discount": 0
+   }
+  ]
+ }
+}

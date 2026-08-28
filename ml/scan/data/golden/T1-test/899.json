@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/899.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "GÉMO",
+  "date": "2017-06-09",
+  "total": 24.99,
+  "items": [
+   {
+    "name": "MARO BEIGE",
+    "amount": 24.99,
+    "discount": 0
+   }
+  ]
+ }
+}

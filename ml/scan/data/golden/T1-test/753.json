@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/753.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BOUCHERIE D ANTAN",
+  "date": null,
+  "total": 76.82,
+  "items": [
+   {
+    "name": "Divers",
+    "amount": 19.43,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 4.22,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 4.29,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 12.47,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 18.69,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 5.12,
+    "discount": 0
+   },
+   {
+    "name": "Divers",
+    "amount": 12.6,
+    "discount": 0
+   }
+  ]
+ }
+}

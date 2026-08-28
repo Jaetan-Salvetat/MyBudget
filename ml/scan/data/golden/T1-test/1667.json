@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1667.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "GRANDE BRASSERIE WAUX HALL",
+  "date": "2017-02-19",
+  "total": 62.6,
+  "items": [
+   {
+    "name": "1 1/2 STELLA",
+    "amount": 3.1,
+    "discount": 0
+   },
+   {
+    "name": "3 FORMULE ARDOISE",
+    "amount": 55.5,
+    "discount": 0
+   },
+   {
+    "name": "2 MORGAN RESTO",
+    "amount": 4.0,
+    "discount": 0
+   }
+  ]
+ }
+}

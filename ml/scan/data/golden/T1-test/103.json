@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/103.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-26",
+  "total": 4.3,
+  "items": [
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*FOUGASSETTE BLEU&NOI",
+    "amount": 2.7,
+    "discount": 0
+   }
+  ]
+ }
+}

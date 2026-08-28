@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/419.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-07",
+  "total": 9.89,
+  "items": [
+   {
+    "name": "*320G SAL.MONTMARTRE",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.27,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 1.66,
+    "discount": 0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*POMME CHANTECLERC",
+    "amount": 1.42,
+    "discount": 0
+   }
+  ]
+ }
+}

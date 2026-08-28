@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/297.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-03",
+  "total": 14.61,
+  "items": [
+   {
+    "name": "*BANANI",
+    "amount": 0.32,
+    "discount": 0.0
+   },
+   {
+    "name": "*BENTO EDOGAWA",
+    "amount": 11.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROT JUS CITRON",
+    "amount": 1.48,
+    "discount": 0.0
+   },
+   {
+    "name": "*PECHE PLATE",
+    "amount": 1.06,
+    "discount": 0.0
+   }
+  ]
+ }
+}

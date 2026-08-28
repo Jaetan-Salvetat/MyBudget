@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-test/img/697.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-01-07",
+  "total": 76.67,
+  "items": [
+   {
+    "name": "GALLIAGEST 2EME AGE,900G",
+    "amount": 14.38,
+    "discount": 0
+   },
+   {
+    "name": "P'TIT GOURMAND VANILLE.12X100G",
+    "amount": 4.13,
+    "discount": 1.24
+   },
+   {
+    "name": "P'TIT GOURMAND SEMOULE.12X100G",
+    "amount": 4.13,
+    "discount": 1.24
+   },
+   {
+    "name": "P'TIT GOURMAND CHOCOLAT.12X100",
+    "amount": 4.13,
+    "discount": 1.24
+   },
+   {
+    "name": "BEURRE TENDRE DOUX PRESIDENT",
+    "amount": 2.01,
+    "discount": 0
+   },
+   {
+    "name": "JUS PAMPLEMOUS.ROSE TROPICANA1",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "3ESC.DINDE EXTRA FINE VOLANDRY",
+    "amount": 4.63,
+    "discount": 0
+   },
+   {
+    "name": "PATE FEUIL.S/GLUTEN,280G",
+    "amount": 13.98,
+    "discount": 0
+   },
+   {
+    "name": "BODY ML X7 FILLE P 12M,1P",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "2 TETINES +12M PETIT DEJ AIR C",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "GOUPILLON 2EN1 COL LARGE XXL",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "REH BAS RENOJUNIOR BOX",
+    "amount": 5.9,
+    "discount": 0
+   },
+   {
+    "name": "BAVOIR X2 1 IMP+ 1 UNI",
+    "amount": 5.5,
+    "discount": 0
+   },
+   {
+    "name": "COUVERTS INOX CUIL+FOURCH+COUT",
+    "amount": 3.95,
+    "discount": 0
+   }
+  ]
+ }
+}

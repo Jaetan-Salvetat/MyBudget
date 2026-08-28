@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/367.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-25",
+  "total": 20.85,
+  "items": [
+   {
+    "name": "*380G GNOCCHI NATUR",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "*4 OEUFS BIO GROS",
+    "amount": 1.58,
+    "discount": 0.0
+   },
+   {
+    "name": "*4X 95G LES 2 VACHE",
+    "amount": 1.67,
+    "discount": 0.0
+   },
+   {
+    "name": "*500G SPAGHETTI BIO",
+    "amount": 1.25,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*BQ TOMATE CERISE BIO",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*BRIOCHE TRANCHEE",
+    "amount": 1.91,
+    "discount": 0.0
+   },
+   {
+    "name": "*CONCOMBRE",
+    "amount": 0.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMMENT.RAP.BIO CRF",
+    "amount": 1.25,
+    "discount": 0.0
+   },
+   {
+    "name": "*LT 1/2E.BIO CRF 1L",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOZZARELLA CRF",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*PET 1 25L EAU GAZ",
+    "amount": 0.57,
+    "discount": 0.0
+   },
+   {
+    "name": "*POIVRON DOUX BIO",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*ROQUETTE 125G CRF",
+    "amount": 1.77,
+    "discount": 0.0
+   },
+   {
+    "name": "*SUCRE BLONVILLIERS",
+    "amount": 2.32,
+    "discount": 0.0
+   }
+  ]
+ }
+}

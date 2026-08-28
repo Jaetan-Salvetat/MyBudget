@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1537.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SPL LE VOYAGE A NANTES",
+  "date": "2016-12-04",
+  "total": 9.9,
+  "items": [
+   {
+    "name": "CVDC CARTE VITRIN",
+    "amount": 4.4,
+    "discount": 0.0
+   },
+   {
+    "name": "MPDC MARQUE PAG",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "CP1 CARTE POSTAL",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CP BUXIN POLAROID",
+    "amount": 1.3,
+    "discount": 0.0
+   }
+  ]
+ }
+}

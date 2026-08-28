@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1432.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Marionnaud",
+  "date": "2016-12-19",
+  "total": 67.27,
+  "items": [
+   {
+    "name": "WELCOME PACK+CARTE F",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CN16 KENZ.H.EDT100ML",
+    "amount": 80.9,
+    "discount": 20.23
+   },
+   {
+    "name": "MASQ.TISSU WRAP COUP",
+    "amount": 3.9,
+    "discount": 0.97
+   },
+   {
+    "name": "BODY WRAP PIED.HYD.R",
+    "amount": 4.9,
+    "discount": 1.23
+   }
+  ]
+ }
+}

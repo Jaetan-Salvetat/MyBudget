@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/157.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-10-14",
+  "total": 7.39,
+  "items": [
+   {
+    "name": "110 MOUCHOIR CRF.",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE FEUILLE E",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "SALADE PATE JBON",
+    "amount": 3.82,
+    "discount": 0
+   }
+  ]
+ }
+}

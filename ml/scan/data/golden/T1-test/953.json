@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/953.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LEROY MERLIN PUILBOREAU",
+  "date": "2016-01-02",
+  "total": 61.83,
+  "items": [
+   {
+    "name": "PANNEAU FIBRE MDF 3MM 244X122 M2 DECOUPE",
+    "amount": 8.26,
+    "discount": 0
+   },
+   {
+    "name": "6 PILES ALCALINES AAA HIGH ENERGY VARTA",
+    "amount": 6.9,
+    "discount": 0
+   },
+   {
+    "name": "PANIER DOUCHE PLAY BLEU ATOLL 4",
+    "amount": 4.99,
+    "discount": 0
+   },
+   {
+    "name": "RESERVE ROULEAUX NATHEO LAQUE BLANC",
+    "amount": 29.9,
+    "discount": 0
+   },
+   {
+    "name": "POT TOPF TERRE CUITE D30 H25",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "SOUCOUPE TOPF TERRE CUITE D32",
+    "amount": 2.22,
+    "discount": 0
+   },
+   {
+    "name": "SOUCOUPE TOPF TERRE CUITE D24",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "LAVE PONT PLASTIQUE DOUBLE DOUILLE !!!",
+    "amount": 4.1,
+    "discount": 0
+   }
+  ]
+ }
+}

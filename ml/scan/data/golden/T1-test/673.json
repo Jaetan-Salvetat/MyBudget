@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/673.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA FOIR'FOUILLE",
+  "date": "2017-01-07",
+  "total": 7.68,
+  "items": [
+   {
+    "name": "416399 PELLE BALAYETTE 2 AS",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "001102 SAC DE CONGELAT",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "386413 VOILAGE ORGANZA X2 G",
+    "amount": 4.99,
+    "discount": 0
+   }
+  ]
+ }
+}

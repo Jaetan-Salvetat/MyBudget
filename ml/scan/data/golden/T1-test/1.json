@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-28",
+  "total": 5.15,
+  "items": [
+   {
+    "name": "*140G TARTE POMMES",
+    "amount": 1.81,
+    "discount": 0
+   },
+   {
+    "name": "*350G PT SALE LENT.",
+    "amount": 3.34,
+    "discount": 0
+   }
+  ]
+ }
+}

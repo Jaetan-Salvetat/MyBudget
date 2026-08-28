@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1263.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Netto",
+  "date": "2017-02-11",
+  "total": 2.82,
+  "items": [
+   {
+    "name": "*U.DOUX A/SHP OLIVE",
+    "amount": 4.04,
+    "discount": 1.22
+   }
+  ]
+ }
+}

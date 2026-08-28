@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1902.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U SAINT AUBIN D'AUBIGNE",
+  "date": "2017-01-21",
+  "total": 1.9,
+  "items": [
+   {
+    "name": "QUEST FRANCE",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "YAOURTS NATURE BIEN VU 8X125G",
+    "amount": 0.95,
+    "discount": 0
+   }
+  ]
+ }
+}

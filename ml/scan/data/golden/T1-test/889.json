@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/889.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-14",
+  "total": 23.1,
+  "items": [
+   {
+    "name": "ORANGINA",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "CAFE",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "LA VERDE",
+    "amount": 13.8,
+    "discount": 0
+   },
+   {
+    "name": "COUPE 2 BOULES",
+    "amount": 3.9,
+    "discount": 0
+   }
+  ]
+ }
+}

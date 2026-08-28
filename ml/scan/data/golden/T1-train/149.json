@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-train/img/149.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-10-28",
+  "total": 25.19,
+  "items": [
+   {
+    "name": "205G DESSERT NOIR",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "500G COQUILL.CRF",
+    "amount": 0.59,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "BISC.PT DEJ.CRF",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "CABECOU AU LARDON",
+    "amount": 2.48,
+    "discount": 0
+   },
+   {
+    "name": "CAKE APERITI LEGUM",
+    "amount": 2.88,
+    "discount": 0
+   },
+   {
+    "name": "FLAMMEKUECHE SURG.",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "MINI BATON BERGER",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "MINIZZA BELIN",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "NEMS PORC+SAUCE",
+    "amount": 2.98,
+    "discount": 0
+   },
+   {
+    "name": "PLAQUETTE BEURRE D",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "SAC POIGN",
+    "amount": 0.15,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE JAUNE BQ 250G",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

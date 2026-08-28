@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/136.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-10-19",
+  "total": 18.48,
+  "items": [
+   {
+    "name": "1/2 LUNE AUB/MOZZA",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "740G COMP.POMM.MCX",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "BISC.PT DEJ.CRF",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "CORDON BLEU DINDE",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "KIRI CREME X 8",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "MUESLI QUINOA BIO",
+    "amount": 3.29,
+    "discount": 0
+   },
+   {
+    "name": "POIRE COMICE",
+    "amount": 2.07,
+    "discount": 0
+   },
+   {
+    "name": "SUCRE POUDRE",
+    "amount": 1.56,
+    "discount": 0
+   }
+  ]
+ }
+}

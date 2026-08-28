@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/400.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-05-05",
+  "total": 2.96,
+  "items": [
+   {
+    "name": "*BANANE BIO",
+    "amount": 2.96,
+    "discount": 0
+   }
+  ]
+ }
+}

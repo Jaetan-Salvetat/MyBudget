@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1534.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "INTERMARCHE",
+  "date": "2008-09-22",
+  "total": 37.94,
+  "items": [
+   {
+    "name": "DELAGNE CHAMP.BRUT 1",
+    "amount": 16.3,
+    "discount": 0
+   },
+   {
+    "name": "DELAGNE CHAMP.BRUT 1",
+    "amount": 16.3,
+    "discount": 0
+   },
+   {
+    "name": "BM CROQUANT NOIX COC",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "BONNE MAMAN SPECULOS",
+    "amount": 1.98,
+    "discount": 0
+   },
+   {
+    "name": "B.MAMAN SABLE TOUT C",
+    "amount": 1.67,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/55.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-08",
+  "total": 5.3,
+  "items": [
+   {
+    "name": "125G SNACK CURL CA",
+    "amount": 0.43,
+    "discount": 0
+   },
+   {
+    "name": "KINDER SCHOKOBONS",
+    "amount": 4.87,
+    "discount": 0
+   }
+  ]
+ }
+}

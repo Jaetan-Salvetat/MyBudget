@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-test/img/581.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2017-01-04",
+  "total": 29.39,
+  "items": [
+   {
+    "name": "4 PDT CONSERV.BLCHE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "4 PDA BAGUETTE RUSTI",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "4 MUFFINS DOUBLE CHO",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "4 BANANE OPEN TOP VR",
+    "amount": 1.37,
+    "discount": 0
+   },
+   {
+    "name": "4 6X1L UHT 1/2EC LAC",
+    "amount": 4.86,
+    "discount": 0
+   },
+   {
+    "name": "6 OREILLER 65 FERME",
+    "amount": 12.9,
+    "discount": 0
+   },
+   {
+    "name": "6 OREILLER MOELLEUX",
+    "amount": 11.9,
+    "discount": 11.9
+   },
+   {
+    "name": "6 CABAS PIECES JAUNE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "6 SAC A PAIN LUDIK",
+    "amount": 2.9,
+    "discount": 0
+   }
+  ]
+ }
+}

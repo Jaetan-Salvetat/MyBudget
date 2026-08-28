@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/32.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-21",
+  "total": 3.88,
+  "items": [
+   {
+    "name": "*CRISTALINE 1.5L",
+    "amount": 0.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*MAXI POULET CRUDIT",
+    "amount": 1.74,
+    "discount": 0.0
+   },
+   {
+    "name": "*TRIAN PLT ROTI MAYO",
+    "amount": 1.94,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/748.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "FRANCK PROVOST",
+  "date": "2016-12-17",
+  "total": 24.0,
+  "items": [
+   {
+    "name": "1 OLEO ACTIVE MASQUE 17",
+    "amount": 24.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

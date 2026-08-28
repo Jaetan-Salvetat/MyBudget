@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/238.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-09-20",
+  "total": 4.86,
+  "items": [
+   {
+    "name": "*CHAIR A SAUCISSE",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "TUBE 70G HARISSA",
+    "amount": 0.98,
+    "discount": 0.0
+   },
+   {
+    "name": "*YAOURT AROM.VANILL",
+    "amount": 1.89,
+    "discount": 0.0
+   }
+  ]
+ }
+}

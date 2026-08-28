@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/978.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "La Grande Récré",
+  "date": "2016-05-28",
+  "total": 14.95,
+  "items": [
+   {
+    "name": "BROUETTE JARDIN GARNIE",
+    "amount": 14.95,
+    "discount": 0
+   }
+  ]
+ }
+}

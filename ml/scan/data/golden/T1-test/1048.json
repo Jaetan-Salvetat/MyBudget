@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1048.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CDOS",
+  "date": "2014-06-19",
+  "total": 5.0,
+  "items": [
+   {
+    "name": "1 PAIN",
+    "amount": 0.2,
+    "discount": 0.0
+   },
+   {
+    "name": "1 ADMISSION C.G.",
+    "amount": 0.8,
+    "discount": 0.0
+   },
+   {
+    "name": "1 SUBV FT",
+    "amount": -4.24,
+    "discount": 0.0
+   }
+  ]
+ }
+}

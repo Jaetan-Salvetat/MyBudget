@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/144.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-26",
+  "total": 6.26,
+  "items": [
+   {
+    "name": "1/2 BAGUETTE 125G",
+    "amount": 0.46,
+    "discount": 0
+   },
+   {
+    "name": "320G SLDE ROMA JBN",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "POMME GOLDEN GROSSE",
+    "amount": 1.66,
+    "discount": 0
+   }
+  ]
+ }
+}

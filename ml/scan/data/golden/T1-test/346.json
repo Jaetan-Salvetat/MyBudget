@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/346.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-12",
+  "total": 6.57,
+  "items": [
+   {
+    "name": "*250ML KIWI POMMES",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "*320G SLDE ROMA JBN",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*PECHE PLATE",
+    "amount": 0.63,
+    "discount": 0
+   }
+  ]
+ }
+}

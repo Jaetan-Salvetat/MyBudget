@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/932.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "JOUECLUB LAGORD",
+  "date": "2016-12-28",
+  "total": 10.99,
+  "items": [
+   {
+    "name": "Confidential_Mi",
+    "amount": 10.99,
+    "discount": 0
+   }
+  ]
+ }
+}

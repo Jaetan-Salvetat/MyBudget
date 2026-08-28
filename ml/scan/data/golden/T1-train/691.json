@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/691.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PICARD SURGELES SAS",
+  "date": "2016-12-28",
+  "total": 62.0,
+  "items": [
+   {
+    "name": "Risotto cèpes",
+    "amount": 3.2,
+    "discount": 0.0
+   },
+   {
+    "name": "Colin provencal",
+    "amount": 2.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*Gnocchis pesto",
+    "amount": 2.85,
+    "discount": 0.0
+   },
+   {
+    "name": "Haché Pi x10 5%",
+    "amount": 10.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet pestoFE",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Parm.poulet FE",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*Chili Carne FE",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Tartiflette FE",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet/pâte FE",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "F. merlu 400g",
+    "amount": 6.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*Trio riz camar",
+    "amount": 2.9,
+    "discount": 0.0
+   },
+   {
+    "name": "*Poulet cury FE",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Riz italienne",
+    "amount": 2.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*Riz basma lég",
+    "amount": 2.45,
+    "discount": 0.0
+   },
+   {
+    "name": "Filet poulet 1k",
+    "amount": 12.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

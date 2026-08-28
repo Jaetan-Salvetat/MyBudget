@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/919.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BRICOMARCHÉ",
+  "date": "2014-11-15",
+  "total": 7.35,
+  "items": [
+   {
+    "name": "P.PEINT DUPLEX WISH.",
+    "amount": 7.35,
+    "discount": 0
+   }
+  ]
+ }
+}

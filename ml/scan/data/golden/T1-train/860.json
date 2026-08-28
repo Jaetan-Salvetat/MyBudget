@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/860.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SAGA COSMETICS",
+  "date": "2017-03-18",
+  "total": 20.0,
+  "items": [
+   {
+    "name": "BB CREME PURE ACTIVE MED",
+    "amount": 5.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SHP OIL NUTRITIVE 250 ML",
+    "amount": 2.5,
+    "discount": 0.0
+   },
+   {
+    "name": "APSHP EXPERT LISS 750ML",
+    "amount": 4.5,
+    "discount": 0.0
+   },
+   {
+    "name": "SHP EXPERT BRILLANCE CHX",
+    "amount": 4.5,
+    "discount": 0.0
+   },
+   {
+    "name": "GD ZERO % PEAUX NORMALS",
+    "amount": 3.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

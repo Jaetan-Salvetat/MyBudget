@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/230.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-01",
+  "total": 1.47,
+  "items": [
+   {
+    "name": "*BIO BANANE SACHET",
+    "amount": 1.47,
+    "discount": 0
+   }
+  ]
+ }
+}

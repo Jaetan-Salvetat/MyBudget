@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/433.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-03",
+  "total": 21.35,
+  "items": [
+   {
+    "name": "*250G RAVIOLE COMTE",
+    "amount": 3.19,
+    "discount": 0.0
+   },
+   {
+    "name": "*300G PIEMONTAI.JBN",
+    "amount": 1.57,
+    "discount": 0.0
+   },
+   {
+    "name": "*8XDOS SENSEO CAPP.",
+    "amount": 2.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*HARRYS AMS NATURE",
+    "amount": 1.16,
+    "discount": 0.0
+   },
+   {
+    "name": "*MAQUEREAUX SAUPIQU",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAUMON FUME NORVEG",
+    "amount": 6.44,
+    "discount": 0.0
+   },
+   {
+    "name": "*TABOULE VOLAILLE",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*TERRINE CANARD CRF",
+    "amount": 1.66,
+    "discount": 0.0
+   }
+  ]
+ }
+}

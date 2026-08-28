@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-test/img/1157.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "E.LECLERC",
+  "date": "2017-02-03",
+  "total": 42.92,
+  "items": [
+   {
+    "name": "LAIT ENT CONC SUCRE,397G",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "COTES DE PORC ECHINE CAISSETTE",
+    "amount": 4.78,
+    "discount": 0
+   },
+   {
+    "name": "COTES DE PORC 1ERE CAISSETTE",
+    "amount": 4.41,
+    "discount": 0
+   },
+   {
+    "name": "VIANDE BOVINE BOURGUIGNON** A",
+    "amount": 9.1,
+    "discount": 0
+   },
+   {
+    "name": "CHAUSSEE AUX MOINES 25%MG 450G",
+    "amount": 2.77,
+    "discount": 0
+   },
+   {
+    "name": "BUCHE CHEVRE,400G",
+    "amount": 3.31,
+    "discount": 0
+   },
+   {
+    "name": "LEVURE DE BOULANGERIE",
+    "amount": 0.6,
+    "discount": 0
+   },
+   {
+    "name": "MICHE D'ANTAN",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "COURGES BUTTERNUT",
+    "amount": 3.4,
+    "discount": 0
+   },
+   {
+    "name": "AVOCAT",
+    "amount": 4.4,
+    "discount": 0
+   },
+   {
+    "name": "KAKI PERSIMON ESPAGNE",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "CHAMPIGNON BLANCS PIED COUPE",
+    "amount": 0.87,
+    "discount": 0
+   },
+   {
+    "name": "POMME ROYAL GALA",
+    "amount": 3.58,
+    "discount": 0
+   },
+   {
+    "name": "TOPINAMBOUR FRANCE",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "CHOUX BROCOLI FILME PVC 0.99",
+    "amount": 0.99,
+    "discount": 0
+   }
+  ]
+ }
+}

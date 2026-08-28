@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/612.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-02-28",
+  "total": 10.39,
+  "items": [
+   {
+    "name": "JB INFUSION DETOX BIO JARD.30G",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "MILKA CAKE AND CHOC LU 175G",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "PAP.TOILETTE COMPACT U NAT.X4",
+    "amount": 2.31,
+    "discount": 0
+   },
+   {
+    "name": "JUS CAROTTES U BIO BOCAL 75CL",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "JUS LEGUMES SALE U BIO 75CL",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

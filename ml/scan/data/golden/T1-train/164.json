@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/164.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-01",
+  "total": 77.68,
+  "items": [
+   {
+    "name": "240G SALADE SAUMON",
+    "amount": 4.42,
+    "discount": 0.0
+   },
+   {
+    "name": "4X100G DESS.PANACHE",
+    "amount": 8.34,
+    "discount": 0.0
+   },
+   {
+    "name": "VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0.0
+   }
+  ]
+ }
+}
