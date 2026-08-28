@@ -91,6 +91,21 @@ void main() {
       verify(() => tokenizer.encode('courses carrefour')).called(1);
     });
 
+    test('sends the canonical form to the model, keeps the typed name', () async {
+      when(() => runner.run(any())).thenAnswer(
+        (_) async => outputFor(
+          typeIndex: 0,
+          category: 'alimentation.supermarche',
+          recurrenceIndex: 0,
+        ),
+      );
+
+      final result = await classifier.classify('Père &Fils 20€');
+
+      verify(() => tokenizer.encode('pere & fils')).called(1);
+      expect(result.name, 'Père &Fils');
+    });
+
     test('classifies a one-time expense', () async {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(

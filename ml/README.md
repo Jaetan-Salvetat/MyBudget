@@ -18,7 +18,7 @@ ml/
 scan/data/golden  ──────────────►  classifier/corpus/receipts   vérité terrain → corpus
 scan/research/reference  ───────►  (libellés d'articles)        sortie OCR → entrée modèle
 classifier/output/best/model.onnx ►  assets/  ──►  lib/ + scan/pipeline
-classifier/serving/  ═══ parité ═══  scan/pipeline/lib/src/categorize.dart
+classifier/serving/  ═══ parité ═══  scan/pipeline/lib/src/normalize.dart
 ```
 
 Acyclique, et c'est l'invariant à tenir : le scan alimente le classifieur en
@@ -39,11 +39,11 @@ classifier/
 ├── taxonomy.py           # les 80 classes, contrat modèle ↔ app
 ├── knowledge/            # moisson de la connaissance monde → dataset/entities.jsonl
 ├── corpus/
-│   ├── quick_add/        #   phrasé utilisateur : exemples curés + génération
+│   ├── quick_add/        #   phrasé utilisateur français : exemples curés + génération
 │   └── receipts/         #   style caisse : lexique, déformation, vérité FindIt
 ├── serving/              # contrat d'entrée/sortie — miroir Dart obligatoire
 ├── training/             # entraînement, finetune, export ONNX int8
-├── evaluation/           # world / quick_add / receipts / fidélité de l'ONNX
+├── evaluation/           # world / generalization / quick_add / receipts / ONNX
 └── tests/                # invariants du pipeline
 ```
 
@@ -53,7 +53,8 @@ uv run python -m knowledge.build            # → dataset/entities.jsonl (~28 60
 uv run python -m corpus.quick_add.build     # → dataset/train.jsonl + eval.jsonl
 uv run python -m corpus.receipts.build      # → dataset/receipts_*.jsonl
 uv run python -m training.train             # → output/best/ (~2 h sur MPS)
-uv run python -m evaluation.world           # connaissance monde
+uv run python -m evaluation.world           # mémorisation
+uv run python -m evaluation.generalization  # entités jamais vues — la mesure qui décide
 uv run python -m evaluation.quick_add       # non-régression quick-add
 uv run python -m evaluation.receipts --cascade   # libellés de tickets (scan)
 uv run python -m training.export_onnx       # → output/best/model.onnx

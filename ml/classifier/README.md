@@ -25,7 +25,8 @@ training/export_onnx.py  ──►  output/best/model.onnx  ──►  publish.s
 ```
 
 `serving/` porte le contrat d'entrée/sortie du modèle : tout module qui y vit a
-son miroir exact dans `ml/scan/pipeline/lib/src/categorize.dart`, vérifié par
+son miroir exact dans `ml/scan/pipeline/lib/src/` (`normalize.dart`,
+`categorize.dart`), vérifié par
 la fixture de parité.
 
 ## 0. Prérequis
@@ -98,11 +99,31 @@ Deux invariants portent la valeur de l'évaluation, tous deux sous test :
   Les 4 800 compagnies aériennes de Wikidata écraseraient sinon les dix
   libellés de pension alimentaire.
 
+**La tournure est française, le monde ne l'est pas.** L'app ne sert que des
+utilisateurs francophones : tout le budget de phrase va au français. Les noms
+d'entités, eux, restent internationaux — un utilisateur français tape Netflix,
+Ikea et Zalando, et la base moissonnée est à dominante US/GB. C'est la langue
+de la formulation qui est monolingue, jamais celle des entités.
+
+Le corpus générait auparavant une variante sur deux en anglais. À budget de
+formes identique, l'abandon de l'anglais double la quantité de français sans
+ajouter une ligne : 124 332 exemples, tous français, contre ~62 000 avant.
+
 Chaque entité produit d'abord son **nom nu** — la forme la plus tapée — puis
-des variantes : préfixes (« payé », « paid for »), suffixes temporels,
+des variantes : préfixes (« payé », « j'ai claqué »), suffixes temporels,
 contextes, et un montant dans 15 % des cas. En production le montant est retiré
 du texte par `PriceParserService` avant la classification ; l'entraînement
 reflète cela.
+
+**Le corpus est écrit dans la forme exacte que l'app envoie au modèle.** Chaque
+libellé passe par `normalize_query` : minuscules, accents repliés, ponctuation
+décollée. « Father & Son », « father &son » et « FATHER&SON » sont la même
+chaîne avant d'atteindre le tokenizer, et le modèle ne dépense pas une once de
+capacité à retenir cette équivalence. Le port Dart (`normalizeQuery`, dans
+`ml/scan/pipeline`) est appliqué par `QuickAddClassifierService` avant le
+tokenizer et par `normalizeReceiptLine` pour le scan ; la parité est vérifiée
+sur 3 022 noms d'entités et 3 845 libellés golden par
+`ml/scan/pipeline/test/normalization_test.dart`.
 
 Ordre de grandeur attendu : ~124 000 exemples d'entraînement, ~8 300
 d'évaluation, entre 780 et 6 000 exemples par classe.
@@ -122,6 +143,18 @@ uv run python -m training.train
 | padding | dynamique, au plus long du lot | la saisie médiane fait quelques tokens ; bourrer à 64 multipliait le calcul par dix |
 | échantillonnage | `LengthGroupedSampler` | rend au padding dynamique le gain qu'un mélange uniforme lui reprend |
 | sélection | `category_f1` macro | l'accuracy récompenserait le déséquilibre des classes |
+| bruit de frappe | 30 % des exemples, une faute, à la volée | voir plus bas |
+
+**La faute de frappe est ajoutée au moment où le lot part dans le modèle, jamais
+écrite dans le corpus.** Générer `aamazon` dans `train.jsonl` ferait apprendre
+`aamazon` en plus d'`amazon` : une entrée de dictionnaire de plus, l'inverse de
+ce qu'on cherche. Corrompre dans le collateur donne une faute différente à
+chaque epoch — le modèle ne voit jamais deux fois la même et n'a rien à en
+retenir sinon que le bruit ne compte pas. `training/corruption.py` ne porte que
+les fautes qui survivent à la normalisation (lettre doublée, omise, touche
+AZERTY voisine, insertion) : la casse, les accents et la ponctuation sont déjà
+traités en amont, les faire apprendre serait payer deux fois. L'évaluation lit
+le texte propre (`get_eval_dataloader` retire le bruit).
 
 Environ 2 h sur Apple Silicon (MPS) pour ~19 400 pas. `save_total_limit=1` borne
 les checkpoints de reprise ; le meilleur est copié dans `output/best/`.
@@ -133,9 +166,20 @@ sont là pour ça et peuvent être supprimés une fois `output/best/` écrit.
 ## 4. Évaluer
 
 ```bash
-uv run python -m evaluation.world    # connaissance monde, 294 cas écrits à la main
-uv run python -m evaluation.quick_add    # non-régression sur evaluation/data/quick_add.json, 157 cas
+uv run python -m evaluation.world           # mémorisation, 166 cas écrits à la main
+uv run python -m evaluation.generalization  # entités jamais vues, 8 307 exemples
+uv run python -m evaluation.quick_add       # non-régression, 153 cas
+uv run python -m evaluation.robustness      # ce que coûte une faute de frappe
 ```
+
+**Sans `evaluation/generalization.py`, la grille ment.** `world.py` affiche
+`couverture de la base : 100%` : chacun de ses cas a son entité dans
+`entities.jsonl`, sa ligne « Généralisation » porte sur un cas. Le 96 % qu'il
+annonce vaut pour les noms de la base, pas pour ce qu'un utilisateur tape. Le
+seul corpus où la question se pose est `dataset/eval.jsonl`, dont la coupe est
+faite par entité : mesuré à **66,3 %** sur le modèle livré, contre les 96 %
+affichés par `world.py`. Un modèle qui passe `world` sans passer
+`generalization` n'a fait que mémoriser.
 
 `evaluation/world.py` sépare deux questions que la moyenne confond :
 
@@ -150,15 +194,54 @@ généralisation`. Le rapport affiche aussi la calibration (ECE) et la précisio
 sur les 70/80/90 % de prédictions les plus confiantes — c'est ce qui décide du
 seuil au-delà duquel l'app propose des suggestions plutôt qu'une réponse.
 
+`evaluation/robustness.py` répond à la seule question que les trois autres ne
+posent pas : ce qui reste quand l'utilisateur écrit mal. Chaque opérateur est
+appliqué au texte brut, puis le même texte passe par `normalize_query` — l'écart
+entre les deux colonnes est ce que la règle déterministe rend, et que le modèle
+n'a pas à apprendre. Les opérateurs d'évaluation sont tenus à l'écart de ceux de
+l'entraînement : mesurer un modèle avec le bruit qu'on lui a servi ne mesure que
+sa mémoire.
+
+Relevé sur le modèle v11 (livré avant ce chantier, ni normalisation à
+l'inférence ni bruit à l'entraînement), 2 000 entités jamais vues :
+
+| Opérateur | brut | normalisé |
+|---|---|---|
+| (aucun) | 72,2 % | 70,3 % |
+| majuscules | **32,7 %** | 70,3 % |
+| accents ajoutés | 49,5 % | 70,3 % |
+| accents retirés | 69,8 % | 70,3 % |
+| ponctuation collée | 61,6 % | 64,4 % |
+| transposition | 46,9 % | 43,8 % |
+| touche qwerty | 49,6 % | 45,6 % |
+| espace perdu | 58,8 % | 55,0 % |
+| phonétique | 55,6 % | 52,9 % |
+| lettre doublée / omise / voisine | ~50 % | ~46 % |
+
+Le coût n'était pas là où on le croyait : les accents retirés ne coûtaient que
+2 points, les majuscules en coûtaient 40. Une saisie en capitales était
+quasiment illisible pour le modèle, et une règle de trois lignes la répare
+entièrement. Ce que la normalisation ne peut pas rendre — la lettre qui ripe,
+l'espace perdu — coûte encore ~22 points ; c'est ce que la corruption à la volée
+doit récupérer, et le seul endroit où le modèle a quelque chose à apprendre.
+
 **Seuils d'acceptation avant publication :**
 
-| Mesure | Cible |
-|---|---|
-| mémorisation | ≥ 97 % |
-| généralisation | ≥ 80 % |
-| `evaluation/quick_add.py`, niveau `app` | ≥ 95 % |
-| type (dépense/revenu) | 100 % |
-| ECE | ≤ 5 % |
+| Mesure | Où | Cible |
+|---|---|---|
+| mémorisation | `world.py` | ≥ 97 % |
+| **entités jamais vues, catégorie stricte** | `generalization.py` | **> 66,3 %**, la valeur du modèle livré |
+| entités jamais vues, à la famille près | `generalization.py` | > 68,7 % |
+| justesse sur les 50 % plus confiants | `generalization.py` | ≥ 93 % |
+| niveau `app` | `quick_add.py` | ≥ 95 % |
+| type (dépense/revenu) | `world.py` | 100 % |
+| ECE | `world.py` | ≤ 5 % |
+| une faute de frappe | `robustness.py` | chute < 10 points sous le propre |
+| casse et accents | `robustness.py` | égal au propre, à 1 point près |
+
+La ligne qui décide est celle des entités jamais vues : c'est la seule qui
+mesure ce que le modèle fera d'un nom qu'un utilisateur invente ou d'une
+enseigne que la moisson n'a pas vue.
 
 ## 5. Exporter et déployer
 
@@ -247,8 +330,9 @@ uv run python -m serving.parity_fixture   # parité Dart de la normalisation
 ```
 
 - `serving/normalize.py` : ce que l'app applique avant le modèle (retrait
-  des marqueurs, contenances, compteurs, codes ; minuscules). Miroir Dart
-  dans `ml/scan/pipeline/lib/src/categorize.dart`, parité vérifiée sur les
+  des marqueurs, contenances, compteurs, codes), puis la même forme canonique
+  qu'une saisie tapée. Miroir Dart dans
+  `ml/scan/pipeline/lib/src/normalize.dart`, parité vérifiée sur les
   3 845 lignes des golden ;
 - `corpus/receipts/style.py` : déforme un nom de produit comme une caisse
   (abréviations `PLT`/`JBN`/`1/2ECR`, troncature 16-26 caractères,
@@ -307,12 +391,35 @@ décision n'est pas prise.
   supervisé n'y touche presque pas. Une passe de masked language modeling sur
   le corpus d'entités avant le fine-tuning est le levier théorique le plus
   direct, pour environ une heure de calcul supplémentaire.
-- **Élagage du vocabulaire.** 256 000 tokens pour deux langues cibles : le
-  réduire à ~64 000 ferait passer l'asset de 140 Mo à ~50 Mo et densifierait
-  les embeddings restants.
-- **Gazetteer embarqué.** Une table nom → classe (2-5 Mo) devant le modèle
-  mettrait les enseignes connues à ~100 % sans dépendre de la mémorisation,
-  régénérée par le même pipeline à chaque release.
+- **Gazetteer embarqué, avec appariement flou.** Une table nom → classe
+  (2-5 Mo) devant le modèle mettrait les enseignes connues à ~100 % sans
+  dépendre de la mémorisation, et une distance d'édition y traiterait
+  `aamazon` → Amazon — ce que le modèle fait structurellement mal, `amazon`
+  tenant en un token quand `aamazon` part en trois morceaux sans rapport.
+  `store_gazetteer` fait déjà ça côté scan pour les enseignes sorties de l'OCR.
+- **Normalisation en amont du tokenizer** pour le quick-add : accents, casse,
+  espaces autour de la ponctuation. `father &son` = `father & son` ne se
+  règle pas dans le modèle. `serving/normalize.py` le fait pour le scan, le
+  quick-add n'a pas d'équivalent.
+- **Calibration par température** sur un jeu tenu à part, pour que le seuil de
+  confiance de l'app veuille dire quelque chose.
+
+### Pistes fermées par la mesure (2026-08-28)
+
+- **Changer de backbone.** Banc d'essai à recette identique, 1 epoch, jugé sur
+  les entités jamais vues : mmBERT-small 65,2 %, mmBERT-base 67,6 %,
+  EuroBERT-210m 53,6 %. La capacité vaut **+2,4 points pour 2,8× l'encodeur et
+  +148 Mo d'asset**, quand les données en valent +4,8 gratuitement (65,2 % à
+  1 epoch → 70,0 % à 5 epochs avec le corpus ticket). Rejouer le banc :
+  `uv run python -m training.bakeoff <repo> [<repo>…]`.
+- **Élagage du vocabulaire.** Les 256 000 tokens ne sont pas du gras : mesurée
+  sur 4 000 noms d'entités, la fragmentation de mmBERT est la meilleure de tous
+  les candidats — 3,11 tokens par nom et 40,9 % des noms en ≤2 tokens, contre
+  3,83 / 22,1 % pour EuroBERT, 4,14 / 17,8 % pour ModernBERT, 4,27 / 17,9 % pour
+  CamemBERTv2. C'est ce vocabulaire qui fait survivre les noms de marque
+  entiers, et c'est l'écart de tokenisation qui explique la chute d'EuroBERT.
+  Le réduire aux 32 827 tokens que voit le corpus dégraderait exactement le cas
+  qui échoue.
 - **Calibration par température** sur un jeu tenu à part, pour que le seuil de
   confiance de l'app veuille dire quelque chose.
 

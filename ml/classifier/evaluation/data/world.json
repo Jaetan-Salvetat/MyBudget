@@ -6,2352 +6,1162 @@
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "courses Intermarché 62",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Grand Frais légumes",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Tesco shop",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "Sainsbury's 43",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "weekly shop at Aldi",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "Naturalia",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Nicolas caviste",
       "type": "expense",
       "category": "alimentation.epicerie",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "boucherie du coin 18",
       "type": "expense",
       "category": "alimentation.epicerie",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
+      "axis": "local_business"
     },
     {
       "input": "fromagerie Lemoine",
       "type": "expense",
       "category": "alimentation.epicerie",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
-    },
-    {
-      "input": "corner shop milk",
-      "type": "expense",
-      "category": "alimentation.epicerie",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "local_business"
     },
     {
       "input": "marché de Wazemmes",
       "type": "expense",
       "category": "alimentation.marche",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
+      "axis": "local_business"
     },
     {
       "input": "panier AMAP",
       "type": "expense",
       "category": "alimentation.marche",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "farmers market veg",
-      "type": "expense",
-      "category": "alimentation.marche",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "boulangerie Ange",
       "type": "expense",
       "category": "alimentation.boulangerie",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Marie Blachère",
       "type": "expense",
       "category": "alimentation.boulangerie",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "deux baguettes",
       "type": "expense",
       "category": "alimentation.boulangerie",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Greggs",
-      "type": "expense",
-      "category": "alimentation.boulangerie",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "sourdough loaf",
-      "type": "expense",
-      "category": "alimentation.boulangerie",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Hippopotamus",
       "type": "expense",
       "category": "restauration.restaurant",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Buffalo Grill 38",
       "type": "expense",
       "category": "restauration.restaurant",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Nando's",
-      "type": "expense",
-      "category": "restauration.restaurant",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "Wagamama with Sarah",
-      "type": "expense",
-      "category": "restauration.restaurant",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "Le Bistrot des Halles",
       "type": "expense",
       "category": "restauration.restaurant",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
-    },
-    {
-      "input": "dinner out with the team",
-      "type": "expense",
-      "category": "restauration.restaurant",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "local_business"
     },
     {
       "input": "sushi ce soir",
       "type": "expense",
       "category": "restauration.restaurant",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Five Guys",
-      "type": "expense",
-      "category": "restauration.fast_food",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "O'Tacos",
       "type": "expense",
       "category": "restauration.fast_food",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Domino's Pizza",
-      "type": "expense",
-      "category": "restauration.fast_food",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "grec frites",
       "type": "expense",
       "category": "restauration.fast_food",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "fish and chips",
-      "type": "expense",
-      "category": "restauration.fast_food",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "Pret A Manger",
-      "type": "expense",
-      "category": "restauration.fast_food",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "pinte au pub",
       "type": "expense",
       "category": "restauration.bar",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Wetherspoons",
-      "type": "expense",
-      "category": "restauration.bar",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "cocktails last night",
-      "type": "expense",
-      "category": "restauration.bar",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "apéro chez Marco",
       "type": "expense",
       "category": "restauration.bar",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Costa Coffee",
-      "type": "expense",
-      "category": "restauration.cafe",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "Café Nero",
-      "type": "expense",
-      "category": "restauration.cafe",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Columbus Café",
       "type": "expense",
       "category": "restauration.cafe",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "flat white",
-      "type": "expense",
-      "category": "restauration.cafe",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "petit noir au comptoir",
       "type": "expense",
       "category": "restauration.cafe",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Uber Eats 24",
       "type": "expense",
       "category": "restauration.livraison",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Deliveroo order",
-      "type": "expense",
-      "category": "restauration.livraison",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Just Eat vendredi",
       "type": "expense",
       "category": "restauration.livraison",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "DoorDash",
-      "type": "expense",
-      "category": "restauration.livraison",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Total Access plein",
       "type": "expense",
       "category": "transport.essence",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "plein de gasoil 78",
       "type": "expense",
       "category": "transport.essence",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "petrol at Shell",
-      "type": "expense",
-      "category": "transport.essence",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "filled up the car",
-      "type": "expense",
-      "category": "transport.essence",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "recharge Ionity",
       "type": "expense",
       "category": "transport.essence",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "pass Navigo",
       "type": "expense",
       "category": "transport.transport_commun",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Oyster top up",
-      "type": "expense",
-      "category": "transport.transport_commun",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "ticket de tram",
       "type": "expense",
       "category": "transport.transport_commun",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "monthly travelcard",
-      "type": "expense",
-      "category": "transport.transport_commun",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Lime trottinette",
       "type": "expense",
       "category": "transport.transport_commun",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "Uber course 17",
       "type": "expense",
       "category": "transport.taxi_vtc",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Bolt ride",
-      "type": "expense",
-      "category": "transport.taxi_vtc",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "taxi jusqu'à la gare",
       "type": "expense",
       "category": "transport.taxi_vtc",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Lyft airport",
-      "type": "expense",
-      "category": "transport.taxi_vtc",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "parking Indigo 12",
       "type": "expense",
       "category": "transport.parking",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "horodateur 2,40",
       "type": "expense",
       "category": "transport.parking",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "car park 4 hours",
-      "type": "expense",
-      "category": "transport.parking",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "péage A7",
       "type": "expense",
       "category": "transport.peage",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "badge Ulys",
       "type": "expense",
       "category": "transport.peage",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Dartford crossing",
-      "type": "expense",
-      "category": "transport.peage",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Norauto pneus",
       "type": "expense",
       "category": "transport.entretien_vehicule",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Kwik Fit",
-      "type": "expense",
-      "category": "transport.entretien_vehicule",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "vidange garage",
       "type": "expense",
       "category": "transport.entretien_vehicule",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "MOT test",
-      "type": "expense",
-      "category": "transport.entretien_vehicule",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Garage Lefevre réparation",
       "type": "expense",
       "category": "transport.entretien_vehicule",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
+      "axis": "local_business"
     },
     {
       "input": "loyer 850",
       "type": "expense",
       "category": "logement.loyer",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "rent for June",
-      "type": "expense",
-      "category": "logement.loyer",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "caution appartement",
       "type": "expense",
       "category": "logement.loyer",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "charges de copro",
       "type": "expense",
       "category": "logement.charges",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "council tax",
-      "type": "expense",
-      "category": "logement.charges",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "facture EDF 94",
       "type": "expense",
       "category": "logement.energie",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Octopus Energy",
-      "type": "expense",
-      "category": "logement.energie",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "British Gas bill",
-      "type": "expense",
-      "category": "logement.energie",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "granulés de bois",
       "type": "expense",
       "category": "logement.energie",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "facture Veolia",
       "type": "expense",
       "category": "logement.eau",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Thames Water",
-      "type": "expense",
-      "category": "logement.eau",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Leroy Merlin peinture",
       "type": "expense",
       "category": "logement.travaux",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "B&Q",
-      "type": "expense",
-      "category": "logement.travaux",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "Screwfix",
-      "type": "expense",
-      "category": "logement.travaux",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "plombier dépannage 120",
       "type": "expense",
       "category": "logement.travaux",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Plomberie Renard",
       "type": "expense",
       "category": "logement.travaux",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
+      "axis": "local_business"
     },
     {
       "input": "Doctolib consultation",
       "type": "expense",
       "category": "sante_beaute.medecin",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "rendez-vous dermato",
       "type": "expense",
       "category": "sante_beaute.medecin",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "dentist appointment",
-      "type": "expense",
-      "category": "sante_beaute.medecin",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "séance kiné",
       "type": "expense",
       "category": "sante_beaute.medecin",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Cabinet dentaire Morel",
       "type": "expense",
       "category": "sante_beaute.medecin",
       "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "fr"
+      "axis": "local_business"
     },
     {
       "input": "Doliprane et Smecta",
       "type": "expense",
       "category": "sante_beaute.pharmacie",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "pharmacie de garde",
       "type": "expense",
       "category": "sante_beaute.pharmacie",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Boots prescription",
-      "type": "expense",
-      "category": "sante_beaute.pharmacie",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "ibuprofen",
-      "type": "expense",
-      "category": "sante_beaute.pharmacie",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Alain Afflelou lunettes",
       "type": "expense",
       "category": "sante_beaute.pharmacie",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "coupe chez le coiffeur",
       "type": "expense",
       "category": "sante_beaute.coiffeur",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Franck Provost",
       "type": "expense",
       "category": "sante_beaute.coiffeur",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "barber 15",
-      "type": "expense",
-      "category": "sante_beaute.coiffeur",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "Toni & Guy",
-      "type": "expense",
-      "category": "sante_beaute.coiffeur",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "Nocibé parfum",
       "type": "expense",
       "category": "sante_beaute.esthetique",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "épilation institut",
       "type": "expense",
       "category": "sante_beaute.esthetique",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "nail appointment",
-      "type": "expense",
-      "category": "sante_beaute.esthetique",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "Rituals",
-      "type": "expense",
-      "category": "sante_beaute.esthetique",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "place de ciné",
       "type": "expense",
       "category": "loisirs.cinema_sortie",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Pathé Wepler",
       "type": "expense",
       "category": "loisirs.cinema_sortie",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Odeon cinema",
-      "type": "expense",
-      "category": "loisirs.cinema_sortie",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "concert ticket",
-      "type": "expense",
-      "category": "loisirs.cinema_sortie",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "escape game entre potes",
       "type": "expense",
       "category": "loisirs.cinema_sortie",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Steam soldes",
       "type": "expense",
       "category": "loisirs.jeux_video",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Xbox Game Pass",
-      "type": "expense",
-      "category": "loisirs.jeux_video",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "Nintendo eShop",
-      "type": "expense",
-      "category": "loisirs.jeux_video",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "V-Bucks Fortnite",
       "type": "expense",
       "category": "loisirs.jeux_video",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "Basic Fit 24,99",
       "type": "expense",
       "category": "loisirs.sport",
       "recurrence": "fixe",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "PureGym membership",
-      "type": "expense",
-      "category": "loisirs.sport",
-      "recurrence": "fixe",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "cours de padel",
       "type": "expense",
       "category": "loisirs.sport",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "new running shoes",
-      "type": "expense",
-      "category": "loisirs.sport",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Decathlon 62",
       "type": "expense",
       "category": "loisirs.sport",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "abonnement Le Monde",
       "type": "expense",
       "category": "loisirs.livre_presse",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Waterstones",
-      "type": "expense",
-      "category": "loisirs.livre_presse",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "manga tome 12",
       "type": "expense",
       "category": "loisirs.livre_presse",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Audible subscription",
-      "type": "expense",
-      "category": "loisirs.livre_presse",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Netflix 13,49",
       "type": "expense",
       "category": "loisirs.streaming",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "Disney+ abonnement",
       "type": "expense",
       "category": "loisirs.streaming",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Paramount Plus",
-      "type": "expense",
-      "category": "loisirs.streaming",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "Crunchyroll",
-      "type": "expense",
-      "category": "loisirs.streaming",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Spotify famille",
       "type": "expense",
       "category": "loisirs.musique",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "Deezer",
       "type": "expense",
       "category": "loisirs.musique",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Apple Music",
-      "type": "expense",
-      "category": "loisirs.musique",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "vinyle occasion",
       "type": "expense",
       "category": "loisirs.musique",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Adobe Creative Cloud",
-      "type": "expense",
-      "category": "numerique.logiciel_service",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Notion abonnement",
       "type": "expense",
       "category": "numerique.logiciel_service",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Figma",
-      "type": "expense",
-      "category": "numerique.logiciel_service",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "NordVPN 3,29",
       "type": "expense",
       "category": "numerique.logiciel_service",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Microsoft 365",
-      "type": "expense",
-      "category": "numerique.logiciel_service",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "ChatGPT Plus",
-      "type": "expense",
-      "category": "numerique.ia",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "abonnement Claude",
       "type": "expense",
       "category": "numerique.ia",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Midjourney",
-      "type": "expense",
-      "category": "numerique.ia",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "crédits API OpenAI",
       "type": "expense",
       "category": "numerique.ia",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "OVH hébergement",
       "type": "expense",
       "category": "numerique.hebergement_domaine",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "renouvellement nom de domaine",
       "type": "expense",
       "category": "numerique.hebergement_domaine",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Hetzner server",
-      "type": "expense",
-      "category": "numerique.hebergement_domaine",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "Namecheap domain",
-      "type": "expense",
-      "category": "numerique.hebergement_domaine",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Google One 2To",
       "type": "expense",
       "category": "numerique.stockage_cloud",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "iCloud+ 2,99",
       "type": "expense",
       "category": "numerique.stockage_cloud",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Dropbox plan",
-      "type": "expense",
-      "category": "numerique.stockage_cloud",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "forfait Free 19,99",
       "type": "expense",
       "category": "numerique.telecom",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "box SFR",
       "type": "expense",
       "category": "numerique.telecom",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Vodafone bill",
-      "type": "expense",
-      "category": "numerique.telecom",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "giffgaff top up",
-      "type": "expense",
-      "category": "numerique.telecom",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Zara 60",
       "type": "expense",
       "category": "shopping.vetements",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Uniqlo pull",
       "type": "expense",
       "category": "shopping.vetements",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Primark",
-      "type": "expense",
-      "category": "shopping.vetements",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "new trainers from JD Sports",
-      "type": "expense",
-      "category": "shopping.vetements",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "Zalando commande",
       "type": "expense",
       "category": "shopping.vetements",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "AirPods 180",
       "type": "expense",
       "category": "shopping.electronique",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "Boulanger lave-linge",
       "type": "expense",
       "category": "shopping.electronique",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Currys laptop",
-      "type": "expense",
-      "category": "shopping.electronique",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "câble USB-C",
       "type": "expense",
       "category": "shopping.electronique",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "iPhone 15",
-      "type": "expense",
-      "category": "shopping.electronique",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Ikea 250",
       "type": "expense",
       "category": "shopping.mobilier_deco",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "Maisons du Monde canapé",
       "type": "expense",
       "category": "shopping.mobilier_deco",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Dunelm bedding",
-      "type": "expense",
-      "category": "shopping.mobilier_deco",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "nouveau matelas",
       "type": "expense",
       "category": "shopping.mobilier_deco",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "retrait DAB 100",
       "type": "expense",
       "category": "finance.retrait_dab",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "cash withdrawal 50",
-      "type": "expense",
-      "category": "finance.retrait_dab",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "frais de tenue de compte",
       "type": "expense",
       "category": "finance.frais_bancaires",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Revolut Premium",
-      "type": "expense",
-      "category": "finance.frais_bancaires",
-      "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "en"
-    },
-    {
-      "input": "overdraft fee",
-      "type": "expense",
-      "category": "finance.frais_bancaires",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "impôts 350",
       "type": "expense",
       "category": "finance.impots_taxes",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "taxe foncière",
       "type": "expense",
       "category": "finance.impots_taxes",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "URSSAF trimestre",
       "type": "expense",
       "category": "finance.impots_taxes",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "HMRC self assessment",
-      "type": "expense",
-      "category": "finance.impots_taxes",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "amende 135",
       "type": "expense",
       "category": "finance.amende",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "PV stationnement",
       "type": "expense",
       "category": "finance.amende",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "speeding fine",
-      "type": "expense",
-      "category": "finance.amende",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "assurance habitation MAIF",
       "type": "expense",
       "category": "finance.assurance_habitation",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "home insurance",
-      "type": "expense",
-      "category": "finance.assurance_habitation",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "assurance auto Matmut",
       "type": "expense",
       "category": "finance.assurance_auto",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "car insurance renewal",
-      "type": "expense",
-      "category": "finance.assurance_auto",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "mutuelle 45",
       "type": "expense",
       "category": "finance.assurance_sante",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Alan santé",
       "type": "expense",
       "category": "finance.assurance_sante",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "virement livret A",
       "type": "expense",
       "category": "finance.epargne_investissement",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Trade Republic achat ETF",
       "type": "expense",
       "category": "finance.epargne_investissement",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "monthly ISA contribution",
-      "type": "expense",
-      "category": "finance.epargne_investissement",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "mensualité crédit auto",
       "type": "expense",
       "category": "finance.credit_pret",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Klarna 3x",
       "type": "expense",
       "category": "finance.credit_pret",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "mortgage payment",
-      "type": "expense",
-      "category": "finance.credit_pret",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "frais de scolarité",
       "type": "expense",
       "category": "famille_education.scolarite",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "school fees",
-      "type": "expense",
-      "category": "famille_education.scolarite",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "fournitures de rentrée",
       "type": "expense",
       "category": "famille_education.fournitures",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "school uniform",
-      "type": "expense",
-      "category": "famille_education.fournitures",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Udemy cours",
       "type": "expense",
       "category": "famille_education.formation",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "auto-école permis",
       "type": "expense",
       "category": "famille_education.formation",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "driving lessons",
-      "type": "expense",
-      "category": "famille_education.formation",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "Coursera certificate",
-      "type": "expense",
-      "category": "famille_education.formation",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "crèche 320",
       "type": "expense",
       "category": "famille_education.garde_enfant",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "nounou du mercredi",
       "type": "expense",
       "category": "famille_education.garde_enfant",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "childminder",
-      "type": "expense",
-      "category": "famille_education.garde_enfant",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "cantine du mois",
       "type": "expense",
       "category": "famille_education.cantine",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "school dinner money",
-      "type": "expense",
-      "category": "famille_education.cantine",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "cours de danse de Léa",
       "type": "expense",
       "category": "famille_education.activites_enfants",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Lego pour Tom",
       "type": "expense",
       "category": "famille_education.activites_enfants",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
-    },
-    {
-      "input": "swimming lessons",
-      "type": "expense",
-      "category": "famille_education.activites_enfants",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "product"
     },
     {
       "input": "pension alimentaire 300",
       "type": "expense",
       "category": "famille_education.pension_alimentaire",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "child maintenance",
-      "type": "expense",
-      "category": "famille_education.pension_alimentaire",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "billet Ouigo",
       "type": "expense",
       "category": "voyage.transport_longue_distance",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "vol Transavia",
       "type": "expense",
       "category": "voyage.transport_longue_distance",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "Ryanair flight",
-      "type": "expense",
-      "category": "voyage.transport_longue_distance",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Flixbus Lyon",
       "type": "expense",
       "category": "voyage.transport_longue_distance",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "train ticket to Manchester",
-      "type": "expense",
-      "category": "voyage.transport_longue_distance",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Airbnb week-end",
       "type": "expense",
       "category": "voyage.hebergement",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "Ibis Budget",
       "type": "expense",
       "category": "voyage.hebergement",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
-    },
-    {
-      "input": "Premier Inn",
-      "type": "expense",
-      "category": "voyage.hebergement",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
+      "axis": "brand_physical"
     },
     {
       "input": "camping 3 nuits",
       "type": "expense",
       "category": "voyage.hebergement",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "location Europcar",
       "type": "expense",
       "category": "voyage.location_vehicule",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "car hire Sixt",
-      "type": "expense",
-      "category": "voyage.location_vehicule",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "entrée du Louvre",
       "type": "expense",
       "category": "voyage.activite_visite",
       "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "fr"
+      "axis": "brand_physical"
     },
     {
       "input": "GetYourGuide excursion",
       "type": "expense",
       "category": "voyage.activite_visite",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "forfait ski",
       "type": "expense",
       "category": "voyage.activite_visite",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "museum entry",
-      "type": "expense",
-      "category": "voyage.activite_visite",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "cadeau anniversaire Julie",
       "type": "expense",
       "category": "divers.cadeau_offert",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Interflora bouquet",
       "type": "expense",
       "category": "divers.cadeau_offert",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "birthday present for mum",
-      "type": "expense",
-      "category": "divers.cadeau_offert",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "croquettes Royal Canin",
       "type": "expense",
       "category": "divers.animaux",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "vétérinaire 75",
       "type": "expense",
       "category": "divers.animaux",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Pets at Home",
-      "type": "expense",
-      "category": "divers.animaux",
-      "recurrence": "ponctuel",
-      "axis": "brand_physical",
-      "lang": "en"
-    },
-    {
-      "input": "cat litter",
-      "type": "expense",
-      "category": "divers.animaux",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "clopes 12",
       "type": "expense",
       "category": "divers.tabac_jeux",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "e-liquide vape",
       "type": "expense",
       "category": "divers.tabac_jeux",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "Betclic pari",
       "type": "expense",
       "category": "divers.tabac_jeux",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "lottery ticket",
-      "type": "expense",
-      "category": "divers.tabac_jeux",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "don Croix-Rouge",
       "type": "expense",
       "category": "divers.don",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "Restos du Coeur",
       "type": "expense",
       "category": "divers.don",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "monthly charity donation",
-      "type": "expense",
-      "category": "divers.don",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "pressing 3 chemises",
       "type": "expense",
       "category": "divers.autre",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "timbres La Poste",
       "type": "expense",
       "category": "divers.autre",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "dry cleaning",
-      "type": "expense",
-      "category": "divers.autre",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "salaire 2500",
       "type": "income",
       "category": "salaire.salaire_net",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "paye du mois",
       "type": "income",
       "category": "salaire.salaire_net",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "monthly salary",
-      "type": "income",
-      "category": "salaire.salaire_net",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "payday 2100",
-      "type": "income",
-      "category": "salaire.salaire_net",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "prime de fin d'année",
       "type": "income",
       "category": "salaire.prime",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "annual bonus",
-      "type": "income",
-      "category": "salaire.prime",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "pourboires du service",
       "type": "income",
       "category": "salaire.prime",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "facture client Malt",
       "type": "income",
       "category": "salaire.freelance",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "mission freelance 800",
       "type": "income",
       "category": "salaire.freelance",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "invoice paid by client",
-      "type": "income",
-      "category": "salaire.freelance",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "pension de retraite",
       "type": "income",
       "category": "salaire.retraite",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "state pension",
-      "type": "income",
-      "category": "salaire.retraite",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "allocations CAF",
       "type": "income",
       "category": "aide_allocation.allocation_familiale",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "child benefit",
-      "type": "income",
-      "category": "aide_allocation.allocation_familiale",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "indemnités France Travail",
       "type": "income",
       "category": "aide_allocation.chomage",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "universal credit",
-      "type": "income",
-      "category": "aide_allocation.chomage",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "APL 210",
       "type": "income",
       "category": "aide_allocation.aide_logement",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "housing benefit",
-      "type": "income",
-      "category": "aide_allocation.aide_logement",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "bourse du CROUS",
       "type": "income",
       "category": "aide_allocation.bourse",
       "recurrence": "fixe",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "student grant",
-      "type": "income",
-      "category": "aide_allocation.bourse",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "virement reçu de papa",
       "type": "income",
       "category": "transfert.virement_recu",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "bank transfer in",
-      "type": "income",
-      "category": "transfert.virement_recu",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "remboursement sécu 23",
       "type": "income",
       "category": "transfert.remboursement_sante",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "remboursement Ameli",
       "type": "income",
       "category": "transfert.remboursement_sante",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "insurance refund",
-      "type": "income",
-      "category": "transfert.remboursement_sante",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "Marc m'a remboursé 30",
       "type": "income",
       "category": "transfert.remboursement_ami",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "Sam paid me back",
-      "type": "income",
-      "category": "transfert.remboursement_ami",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "remboursement d'impôts",
       "type": "income",
       "category": "transfert.remboursement_impots",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "tax refund",
-      "type": "income",
-      "category": "transfert.remboursement_impots",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "vendu sur Leboncoin 80",
       "type": "income",
       "category": "exceptionnel.vente_occasion",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
+      "axis": "service_online"
     },
     {
       "input": "vente Vinted",
       "type": "income",
       "category": "exceptionnel.vente_occasion",
       "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "fr"
-    },
-    {
-      "input": "sold on eBay",
-      "type": "income",
-      "category": "exceptionnel.vente_occasion",
-      "recurrence": "ponctuel",
-      "axis": "service_online",
-      "lang": "en"
+      "axis": "service_online"
     },
     {
       "input": "vide-grenier dimanche",
       "type": "income",
       "category": "exceptionnel.vente_occasion",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "étrennes de mamie",
       "type": "income",
       "category": "exceptionnel.don_recu",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "birthday money",
-      "type": "income",
-      "category": "exceptionnel.don_recu",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "intérêts du livret",
       "type": "income",
       "category": "exceptionnel.interets",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
+      "axis": "common_noun"
     },
     {
       "input": "dividendes 200",
       "type": "income",
       "category": "exceptionnel.interets",
       "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "savings interest",
-      "type": "income",
-      "category": "exceptionnel.interets",
-      "recurrence": "ponctuel",
-      "axis": "common_noun",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "loyer perçu 650",
       "type": "income",
       "category": "exceptionnel.loyer_percu",
       "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "fr"
-    },
-    {
-      "input": "rent received from tenant",
-      "type": "income",
-      "category": "exceptionnel.loyer_percu",
-      "recurrence": "fixe",
-      "axis": "common_noun",
-      "lang": "en"
-    },
-    {
-      "input": "Smith's Barbershop",
-      "type": "expense",
-      "category": "sante_beaute.coiffeur",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "The Red Lion",
-      "type": "expense",
-      "category": "restauration.bar",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Miller's Garage",
-      "type": "expense",
-      "category": "transport.entretien_vehicule",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Wilson Dental Practice",
-      "type": "expense",
-      "category": "sante_beaute.medecin",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Tony's Pizzeria",
-      "type": "expense",
-      "category": "restauration.restaurant",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Green Lane Bakery",
-      "type": "expense",
-      "category": "alimentation.boulangerie",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Riverside Vets",
-      "type": "expense",
-      "category": "divers.animaux",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
-    },
-    {
-      "input": "Hilltop Guest House",
-      "type": "expense",
-      "category": "voyage.hebergement",
-      "recurrence": "ponctuel",
-      "axis": "local_business",
-      "lang": "en"
+      "axis": "common_noun"
     },
     {
       "input": "Nutella",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "pack de Coca",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     },
     {
       "input": "capsules Nespresso",
       "type": "expense",
       "category": "alimentation.supermarche",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
-    },
-    {
-      "input": "Heinz beans",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
-    },
-    {
-      "input": "Pampers nappies",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
-    },
-    {
-      "input": "Nike Air Max",
-      "type": "expense",
-      "category": "shopping.vetements",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
-    },
-    {
-      "input": "Samsung Galaxy S24",
-      "type": "expense",
-      "category": "shopping.electronique",
-      "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "en"
+      "axis": "product"
     },
     {
       "input": "Whiskas pâtée",
       "type": "expense",
       "category": "divers.animaux",
       "recurrence": "ponctuel",
-      "axis": "product",
-      "lang": "fr"
+      "axis": "product"
     }
   ]
 }

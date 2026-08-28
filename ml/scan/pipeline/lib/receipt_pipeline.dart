@@ -11,6 +11,7 @@ export 'src/line_features.dart';
 export 'src/line_features_all.dart';
 export 'src/line_signals.dart';
 export 'src/lines.dart';
+export 'src/normalize.dart';
 export 'src/role_tagger.dart';
 export 'src/serialize.dart';
 export 'src/store_gazetteer.dart';

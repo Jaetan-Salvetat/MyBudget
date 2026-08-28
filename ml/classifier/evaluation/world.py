@@ -34,6 +34,11 @@ COVERAGE_LEVELS = (0.7, 0.8, 0.9)
 TYPE_LABELS = ["expense", "income"]
 RECURRENCE_LABELS = ["ponctuel", "fixe"]
 
+# Ce que ce module lit dans chaque cas du corpus. Retirer un champ du JSON sans
+# le retirer ici passe les tests et casse au premier lancement — c'est arrive
+# en supprimant `lang` avec le passage au francais seul.
+CASE_FIELDS = ("input", "axis", "category", "type", "recurrence")
+
 
 def known_names() -> set[str]:
     names: set[str] = set()
@@ -108,7 +113,6 @@ def main() -> None:
             {
                 "input": case["input"],
                 "axis": case["axis"],
-                "lang": case["lang"],
                 "known": is_known(case["input"], names),
                 "expected": expected,
                 "predicted": prediction["category"],
@@ -142,13 +146,6 @@ def main() -> None:
         by_axis[row["axis"]].append(row)
     for axis, rows in sorted(by_axis.items()):
         print(f"  {axis:16s} {_rate(rows)}")
-
-    print("\nPar langue")
-    by_lang: dict[str, list[dict]] = defaultdict(list)
-    for row in results:
-        by_lang[row["lang"]].append(row)
-    for lang, rows in sorted(by_lang.items()):
-        print(f"  {lang:16s} {_rate(rows)}")
 
     print(f"\nCalibration (ECE) : {expected_calibration_error(results):.1%}")
     ordered = sorted(results, key=lambda row: row["confidence"], reverse=True)

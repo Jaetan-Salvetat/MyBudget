@@ -19,6 +19,7 @@ from corpus.quick_add.examples import EXAMPLES
 from knowledge.build import SOURCE_PRIORITY
 from knowledge.entities import TIER_HEAD, Entity, normalize, read_entities
 from paths import DATASET_DIR, ENTITIES_PATH
+from serving.normalize import normalize_query
 from taxonomy import ACTIVE_LABELS, LABELS, NUM_EXPENSE, RECURRING, type_of
 
 SEED = 42
@@ -30,52 +31,50 @@ AMOUNT_RATIO = 0.15
 
 NUM_INCOME = len(LABELS) - NUM_EXPENSE
 
+# L'app ne sert que des utilisateurs francophones : tout le budget de phrase va
+# au francais. Les noms d'entites, eux, restent internationaux — un utilisateur
+# francais tape Netflix et Ikea. C'est la langue de la tournure qui est
+# monolingue, pas celle du monde.
 FR_EXPENSE_PREFIXES = [
     "payé", "acheté", "pris", "réglé", "dépensé pour", "commandé", "j'ai payé",
-    "j'ai acheté", "achat", "dépense", "note de", "facture",
+    "j'ai acheté", "achat", "dépense", "note de", "facture", "j'ai pris",
+    "j'ai commandé", "réglé la note de", "passé chez", "arrêt", "petit tour à",
+    "on a payé", "j'ai claqué", "sorti pour", "addition", "ticket", "reçu de",
+    "paiement", "carte bleue", "cb", "en espèces", "j'ai réglé", "commande",
 ]
 FR_INCOME_PREFIXES = [
     "reçu", "perçu", "touché", "encaissé", "gagné", "viré", "j'ai reçu", "virement",
+    "j'ai touché", "rentrée de", "versement", "virement reçu", "crédité",
+    "remboursement", "j'ai encaissé", "paiement reçu", "rentrée d'argent",
 ]
 FR_SUFFIXES = [
     "hier", "ce matin", "ce soir", "lundi", "mardi", "mercredi", "jeudi", "vendredi",
     "samedi", "dimanche", "la semaine dernière", "le mois dernier", "aujourd'hui",
     "ce week-end", "en janvier", "en février", "en mars", "en avril", "en mai",
     "en juin", "en juillet", "en août", "en septembre", "en octobre", "en novembre",
-    "en décembre",
+    "en décembre", "avant-hier", "ce midi", "cet aprem", "cette semaine",
+    "en début de mois", "en fin de mois", "il y a deux jours", "la semaine passée",
+    "tout à l'heure", "vendredi dernier", "samedi soir", "dimanche midi", "ce matin tôt",
 ]
 FR_CONTEXTS = [
     "avec les amis", "pour moi", "en famille", "pour le boulot", "du mois",
     "du week-end", "de la semaine", "pour la maison", "en ligne", "en magasin",
     "sur place", "à emporter", "avec les collègues", "pour les enfants",
-]
-
-EN_EXPENSE_PREFIXES = [
-    "paid for", "bought", "spent on", "picked up", "ordered", "got", "payment for",
-    "purchase", "bill for", "paid",
-]
-EN_INCOME_PREFIXES = [
-    "received", "got paid", "earned", "refunded", "payment received", "transfer from",
-]
-EN_SUFFIXES = [
-    "yesterday", "this morning", "tonight", "last night", "on monday", "on tuesday",
-    "on wednesday", "on thursday", "on friday", "on saturday", "on sunday",
-    "last week", "last month", "today", "this weekend", "in january", "in february",
-    "in march", "in april", "in may", "in june", "in july", "in august",
-    "in september", "in october", "in november", "in december",
-]
-EN_CONTEXTS = [
-    "with friends", "for work", "for the house", "for the kids", "online",
-    "in store", "for the month", "for the weekend", "takeaway", "with the family",
+    "avec ma copine", "avec mon copain", "pour l'appart", "pour le bureau",
+    "en livraison", "au drive", "en click and collect", "pour offrir",
+    "pour les vacances", "avec les voisins", "en urgence", "de dernière minute",
 ]
 
 AMOUNTS = [
-    "12", "8,50", "8.50", "4€", "€25", "15 euros", "30 balles", "£15", "$20",
-    "1200", "45,90", "3.20", "9,99", "60", "250", "12 quid", "22.40",
+    "12", "8,50", "8.50", "4€", "€25", "15 euros", "30 balles", "1200", "45,90",
+    "3.20", "9,99", "60", "250", "22.40", "7 euros", "18,20", "2,30", "150",
 ]
 
-FRENCH_WRAPPERS = ["petit {text}", "{text} rapide", "{text} pas cher", "{text} en promo"]
-ENGLISH_WRAPPERS = ["quick {text}", "cheap {text}", "{text} on sale", "small {text}"]
+FRENCH_WRAPPERS = [
+    "petit {text}", "{text} rapide", "{text} pas cher", "{text} en promo",
+    "gros {text}", "{text} du coin", "{text} de quartier", "{text} en soldes",
+    "{text} d'occasion", "{text} en urgence",
+]
 
 # « abonnement X » est un prélèvement quelle que soit la classe de X : la
 # récurrence se lit dans la formulation, pas seulement dans la nature du
@@ -84,10 +83,8 @@ ENGLISH_WRAPPERS = ["quick {text}", "cheap {text}", "{text} on sale", "small {te
 FRENCH_RECURRING_WRAPPERS = [
     "abonnement {text}", "{text} mensuel", "{text} tous les mois", "cotisation {text}",
     "prélèvement {text}", "échéance {text}", "{text} du mois", "abo {text}",
-]
-ENGLISH_RECURRING_WRAPPERS = [
-    "{text} subscription", "monthly {text}", "{text} membership", "{text} plan",
-    "{text} direct debit", "{text} every month", "monthly {text} payment",
+    "mensualité {text}", "{text} chaque mois", "renouvellement {text}",
+    "forfait {text}", "{text} par mois", "reconduction {text}", "{text} annuel",
 ]
 RECURRING_RATIO = 0.18
 
@@ -111,17 +108,14 @@ def _rank(entity: Entity) -> tuple[int, int]:
     return SOURCE_PRIORITY.get(entity.source, 0), entity.tier
 
 
-def _decorate(text: str, is_income: bool, english: bool, rng: random.Random) -> tuple[str, bool]:
-    prefixes = (EN_INCOME_PREFIXES if is_income else EN_EXPENSE_PREFIXES) if english else (
-        FR_INCOME_PREFIXES if is_income else FR_EXPENSE_PREFIXES
-    )
-    suffixes = EN_SUFFIXES if english else FR_SUFFIXES
-    contexts = EN_CONTEXTS if english else FR_CONTEXTS
-    wrappers = ENGLISH_WRAPPERS if english else FRENCH_WRAPPERS
+def _decorate(text: str, is_income: bool, rng: random.Random) -> tuple[str, bool]:
+    prefixes = FR_INCOME_PREFIXES if is_income else FR_EXPENSE_PREFIXES
+    suffixes = FR_SUFFIXES
+    contexts = FR_CONTEXTS
+    wrappers = FRENCH_WRAPPERS
 
     if rng.random() < RECURRING_RATIO:
-        wrapper = rng.choice(ENGLISH_RECURRING_WRAPPERS if english else FRENCH_RECURRING_WRAPPERS)
-        return wrapper.format(text=text.lower()), True
+        return rng.choice(FRENCH_RECURRING_WRAPPERS).format(text=text.lower()), True
 
     shape = rng.randrange(7)
     if shape == 0:
@@ -152,7 +146,8 @@ def _surface_forms(
     seen: set[str] = set()
 
     def push(text: str, recurrence: int) -> None:
-        cleaned = " ".join(text.split())
+        """Le corpus est écrit dans la forme exacte que l'app enverra au modèle."""
+        cleaned = normalize_query(text)
         key = normalize(cleaned)
         if cleaned and key not in seen:
             seen.add(key)
@@ -167,7 +162,7 @@ def _surface_forms(
     while len(forms) < budget and attempts < budget * 4:
         attempts += 1
         base = rng.choice(surfaces)
-        text, marked = _decorate(base, is_income, attempts % 2 == 1, rng)
+        text, marked = _decorate(base, is_income, rng)
         push(text, RECURRING if marked else entity.recurrence)
     return forms[:budget]
 

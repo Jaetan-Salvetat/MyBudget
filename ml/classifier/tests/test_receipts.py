@@ -5,9 +5,14 @@ from corpus.receipts.labels import EXCLUDED_ITEMS, ITEM_OVERRIDES, STORE_LABELS
 from corpus.receipts.lexicon import RECEIPT_LEXICON, STORE_ABBREVIATIONS
 from corpus.receipts.style import format_quantity, receipt_line
 from evaluation.build_receipts import label_for
-from serving.normalize import normalize_receipt_line
+from serving.normalize import normalize_query, normalize_receipt_line
 from taxonomy import LABELS, NUM_EXPENSE
 from training.train import training_rows
+
+
+def test_normalize_lands_in_the_same_canonical_form_as_a_typed_query():
+    assert normalize_receipt_line("*160G PÂTÉ CROÛTE") == "pate croute"
+    assert normalize_receipt_line("PÈRE&FILS") == normalize_query("Père & Fils")
 
 
 def test_normalize_strips_receipt_noise_and_lowercases():
@@ -19,11 +24,11 @@ def test_normalize_strips_receipt_noise_and_lowercases():
 
 
 def test_normalize_keeps_a_line_made_of_numbers():
-    assert normalize_receipt_line("0,180 4,00") == "0,180 4,00"
+    assert normalize_receipt_line("0,180 4,00") == "0 , 180 4 , 00"
 
 
 def test_normalize_never_returns_empty():
-    assert normalize_receipt_line("***") == "***"
+    assert normalize_receipt_line("***") == "*"
 
 
 def test_receipt_line_is_normalized_and_deterministic():

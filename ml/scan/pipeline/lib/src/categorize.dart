@@ -1,11 +1,12 @@
 /// Catégorisation d'un ticket structuré : normalisation des libellés pour le
 /// modèle quick-add, puis décision enseigne / articles.
 ///
-/// Miroir exact de `ml/classifier/serving/normalize.py` et
-/// `ml/classifier/serving/cascade.py`. La référence de parité de la
-/// normalisation est `test/fixtures/receipt_line_normalization.json` ; la
-/// cascade est mesurée par `receipts/evaluate.py --cascade`.
+/// Miroir exact de `ml/classifier/serving/cascade.py` ; la normalisation vit
+/// dans `normalize.dart`. La cascade est mesurée par
+/// `receipts/evaluate.py --cascade`.
 library;
+
+import 'normalize.dart';
 
 /// Ce que le modèle dit d'une ligne : une catégorie et sa confiance.
 typedef LinePrediction = ({String slug, double confidence});
@@ -18,49 +19,6 @@ typedef CategorizedReceipt = ({LinePrediction ticket, List<String> itemSlugs});
 /// Abstrait pour que la décision se teste sans modèle.
 abstract interface class ReceiptLineClassifier {
   Future<LinePrediction> classify(String normalizedLine);
-}
-
-final RegExp _leadingMarkers = RegExp(r'^[\s*#!.\-]+');
-final RegExp _trailingMarkers = RegExp(r'[\s*#!.\-]+$');
-final RegExp _longCode = RegExp(r'\b\d{5,}\b');
-final RegExp _quantity = RegExp(
-  r'\b\d+(?:[.,]\d+)?\s?(?:x\s?\d+(?:[.,]\d+)?\s?)?'
-  r'(?:g|gr|grs|kg|l|cl|ml|mg|m|cm|mm|w|d|p|pl|t|tr|rlx|dos|st|pce|pcs)\b',
-  caseSensitive: false,
-);
-final RegExp _count = RegExp(
-  r'(?:\b|(?<=\s))x\s?\d+\b|\b\d+\s?x\b',
-  caseSensitive: false,
-);
-final RegExp _fraction = RegExp(r'\b\d/\d\b');
-final RegExp _percent = RegExp(
-  r'\b\d+(?:[.,]\d+)?\s?%(?:\s?mg)?',
-  caseSensitive: false,
-);
-final RegExp _leadingCount = RegExp(r'^\d{1,2}\s+(?=\D)');
-final RegExp _loneNumber = RegExp(r'\b\d+(?:[.,]\d+)?\b');
-final RegExp _spaces = RegExp(r'\s+');
-final RegExp _dotGlue = RegExp(r'(?<=[^\W\d])\.(?=[^\W\d])');
-final RegExp _edgePunctuation = RegExp(r'^[ .,;:\-*]+|[ .,;:\-*]+$');
-
-/// Ramène un libellé imprimé à ce que le modèle a vu à l'entraînement :
-/// sans astérisques de tête, code-barres, contenance (« 4X125G »), compteur
-/// (« X6 »), en minuscules. Rien n'est réécrit, on ne fait que retirer.
-String normalizeReceiptLine(String line) {
-  var text = line.replaceFirst(_leadingMarkers, '');
-  text = text.replaceFirst(_trailingMarkers, '');
-  text = text.replaceAll(_longCode, ' ');
-  text = text.replaceAll(_percent, ' ');
-  text = text.replaceAll(_quantity, ' ');
-  text = text.replaceAll(_count, ' ');
-  text = text.replaceAll(_fraction, ' ');
-  text = text.replaceFirst(_leadingCount, '');
-  text = text.replaceAll(_loneNumber, ' ');
-  text = text.replaceAll(_dotGlue, ' ');
-  text = text.replaceAll('/', ' ');
-  text = text.replaceAll(_spaces, ' ').replaceAll(_edgePunctuation, '');
-  if (text.isEmpty) return line.trim().toLowerCase();
-  return text.toLowerCase();
 }
 
 /// La décision de catégorie d'un ticket scanné.

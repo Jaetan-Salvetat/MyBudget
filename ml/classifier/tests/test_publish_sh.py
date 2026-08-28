@@ -103,8 +103,37 @@ def test_each_model_announces_the_file_it_publishes(tmp_path: Path) -> None:
     assert "ml/classifier/output/best/model.onnx" in line_of(result.stdout, "quick_add")
 
 
-def test_a_model_without_a_training_output_is_carried_over(tmp_path: Path) -> None:
+# v10 est parti avec le modele perime malgre l'avertissement : un `INCHANGE`
+# se scrolle. Une source declaree dans registry.env dont le fichier manque n'est
+# pas un modele « pas reentraine », c'est un export qu'on a oublie de refaire.
+def test_a_declared_source_that_is_missing_stops_the_publication(tmp_path: Path) -> None:
     root = make_root(tmp_path)
+    (root / "ml" / "scan" / "research" / "models" / "line_roles.json").unlink()
+
+    result = run(root)
+
+    assert result.returncode == 65
+    assert "line_roles" in result.stderr
+    assert "ml/scan/research/models/line_roles.json" in result.stderr
+
+
+def test_carrying_over_a_model_on_purpose_is_allowed_by_name(tmp_path: Path) -> None:
+    root = make_root(tmp_path)
+    (root / "ml" / "scan" / "research" / "models" / "line_roles.json").unlink()
+
+    result = run(root, "--carry-over", "line_roles")
+
+    assert result.returncode == 0, result.stderr
+    assert "line_roles_v9.json" in line_of(result.stdout, "line_roles")
+
+
+def test_a_model_without_a_declared_source_is_carried_over_silently(tmp_path: Path) -> None:
+    root = make_root(tmp_path)
+    registry = root / "tool" / "models" / "registry.env"
+    registry.write_text(REGISTRY.replace(
+        '"line_roles|line_roles_%s.json|ml/scan/research/models/line_roles.json"',
+        '"line_roles|line_roles_%s.json|"',
+    ))
     (root / "ml" / "scan" / "research" / "models" / "line_roles.json").unlink()
 
     result = run(root)
@@ -115,7 +144,11 @@ def test_a_model_without_a_training_output_is_carried_over(tmp_path: Path) -> No
 
 def test_a_model_with_neither_source_nor_asset_stops_the_publication(tmp_path: Path) -> None:
     root = make_root(tmp_path)
-    (root / "ml" / "scan" / "research" / "models" / "line_roles.json").unlink()
+    registry = root / "tool" / "models" / "registry.env"
+    registry.write_text(REGISTRY.replace(
+        '"line_roles|line_roles_%s.json|ml/scan/research/models/line_roles.json"',
+        '"line_roles|line_roles_%s.json|"',
+    ))
     (root / "assets" / "models" / "line_roles_v9.json").unlink()
 
     result = run(root)

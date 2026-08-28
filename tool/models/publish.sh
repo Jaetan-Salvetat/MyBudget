@@ -31,11 +31,28 @@ source tool/models/registry.env
 [ -f tool/models/lock.env ] && source tool/models/lock.env
 
 DRY_RUN=0
+CARRY_OVER=()
 ARGS=()
-for arg in "$@"; do
-  if [ "$arg" = "--dry-run" ]; then DRY_RUN=1; else ARGS+=("$arg"); fi
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    --carry-over) CARRY_OVER+=("$2"); shift ;;
+    *) ARGS+=("$1") ;;
+  esac
+  shift
 done
 set -- "${ARGS[@]+"${ARGS[@]}"}"
+
+# Reporter un modele est legitime quand on ne l'a pas reentraine — mais ca doit
+# se demander. v10 est parti avec le quick-add perime parce que sa source
+# n'existait pas encore et que le report s'est fait tout seul.
+is_carried_over() {
+  local id="$1" name
+  for name in ${CARRY_OVER[@]+"${CARRY_OVER[@]}"}; do
+    [ "$name" = "$id" ] && return 0
+  done
+  return 1
+}
 
 if [ $# -gt 1 ]; then
   echo "usage: ./tool/models/publish.sh [version] [--dry-run]" >&2
@@ -146,6 +163,15 @@ for entry in "${MODELS[@]}"; do
     echo "  Regeneration du tokenizer depuis $TOKENIZER_SOURCE..."
     dart run tool/models/build_tokenizer_asset.dart "$TOKENIZER_SOURCE" "$destination.tmp"
     source="$destination.tmp"
+  fi
+
+  # Une source declaree dont le fichier manque n'est pas un modele « pas
+  # reentraine » : c'est un export qu'on a oublie de refaire, et le report
+  # silencieux publierait l'ancien sous un nom neuf.
+  if [ -n "$source" ] && [ ! -f "$source" ] && ! is_carried_over "$id"; then
+    echo "Source declaree absente pour $id : $source" >&2
+    echo "Refaire l'export, ou assumer le report avec --carry-over $id." >&2
+    exit 65
   fi
 
   if [ -n "$source" ] && [ -f "$source" ]; then

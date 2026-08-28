@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:test/test.dart';
 
@@ -18,41 +15,6 @@ class _FakeClassifier implements ReceiptLineClassifier {
 }
 
 void main() {
-  group('normalizeReceiptLine', () {
-    test('strips receipt noise and lowercases', () {
-      expect(normalizeReceiptLine('*160G BLC PLT 4TR.F'), 'blc plt .f');
-      expect(normalizeReceiptLine('*4X100G YOPA 0% LIT'), 'yopa lit');
-      expect(
-        normalizeReceiptLine('2120017210877 SAO PAULO DENIM BER 42'),
-        'sao paulo denim ber',
-      );
-      expect(normalizeReceiptLine('1 MENU SUPREME'), 'menu supreme');
-      expect(normalizeReceiptLine('6X1.5L EAU SOURCE'), 'eau source');
-    });
-
-    test('keeps a line made of numbers', () {
-      expect(normalizeReceiptLine('0,180 4,00'), '0,180 4,00');
-    });
-
-    test('never returns an empty string', () {
-      expect(normalizeReceiptLine('***'), '***');
-    });
-
-    test('matches the Python reference on every golden line', () {
-      final file = File('test/fixtures/receipt_line_normalization.json');
-      final pairs = (jsonDecode(file.readAsStringSync()) as List<dynamic>)
-          .cast<List<dynamic>>();
-      final mismatches = <String>[
-        for (final pair in pairs)
-          if (normalizeReceiptLine(pair[0] as String) != pair[1])
-            '${pair[0]} → "${normalizeReceiptLine(pair[0] as String)}" '
-                'attendu "${pair[1]}"',
-      ];
-      expect(mismatches, isEmpty, reason: mismatches.take(20).join('\n'));
-      expect(pairs.length, greaterThan(3000));
-    });
-  });
-
   group('ReceiptCategorizer.ticketCategory', () {
     test('trusts a confident store', () {
       final ticket = ReceiptCategorizer.ticketCategory(
