@@ -416,11 +416,65 @@ PricedWord? rightmostPrice(PhysicalLine line) {
   return null;
 }
 
+/// Un montant décimal isolé de ce qui l'entoure par autre chose que des
+/// chiffres : la devise collée (« 2.15Eur »), la classe de TVA entre
+/// parenthèses (« 2.31(2) »), le signe égal d'une pesée (« 2 x 0.85EUR =
+/// 1.70EUR »). Rien n'y départage les montants d'une même ligne — c'est le
+/// décodeur qui tranche, au checksum.
+final RegExp laxPricePattern = RegExp(r'(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,])');
+
+/// Les montants que cette ligne peut porter, du plus sûr au moins sûr.
+///
+/// La laxité ne sert qu'à rendre lisible une ligne qui ne l'était pas : quand
+/// la lecture stricte aboutit, elle reste la seule. Rouvrir une ligne déjà lue
+/// donnerait au décodeur un degré de liberté qu'il n'a pas besoin d'avoir —
+/// mesuré, il s'en sert pour retomber sur la bonne somme avec quatre montants
+/// faux (prix unitaire au lieu du prix ligne).
+///
+/// Et l'élargissement ne vaut que sur les lignes auxquelles le tagger a donné
+/// un rôle porteur de montant : la laxité suit la décision du modèle, plus un
+/// lexique.
+///
+/// L'ordre encode un a priori, jamais une règle : de droite à gauche, parce
+/// que la colonne des prix est à droite. Un candidat plus loin dans la liste
+/// reste atteignable, à une pénalité près, si c'est lui qui fait retomber la
+/// somme.
+List<PricedWord> priceCandidates(PhysicalLine line, {required bool lax}) {
+  final strict = rightmostPrice(line);
+  if (strict != null) return [strict];
+  if (!lax) return const [];
+  final candidates = <PricedWord>[];
+  for (final word in line.words.reversed) {
+    final matches = laxPricePattern.allMatches(word.text).toList().reversed;
+    for (final match in matches) {
+      candidates.add(
+        PricedWord(double.parse(match.group(1)!.replaceAll(',', '.')), word),
+      );
+    }
+  }
+  final junk = _trailingJunkPrice(line) ?? _splitPrice(line);
+  if (junk != null) candidates.add(junk);
+  return _distinctAmounts(candidates);
+}
+
+/// Un même montant lu deux fois n'est qu'un candidat : le premier, et le mot
+/// qui le porte est celui de la lecture la plus sûre.
+List<PricedWord> _distinctAmounts(List<PricedWord> candidates) {
+  final seen = <int>{};
+  final distinct = <PricedWord>[];
+  for (final candidate in candidates) {
+    if (seen.add((candidate.price * 100).round())) distinct.add(candidate);
+  }
+  return distinct;
+}
+
 final RegExp _trailingJunkPricePattern = RegExp(r'^(-?\d{1,4}[.,]\d{2})\S$');
 
-/// Prix d'une ligne total suivi d'un caractère parasite (« 7.074 »,
-/// « 3.10D ») : seul le contexte total autorise cette lecture, le checksum
-/// valide derrière.
+/// Prix suivi d'un caractère parasite (« 7.074 », « 3.10D ») : lecture lâche,
+/// que le checksum valide derrière. Les features du tagger ne l'autorisent que
+/// sur une ligne total — elles décrivent, elles ne décident pas, et les changer
+/// invaliderait le modèle entraîné. La structuration, elle, l'ouvre à toute
+/// ligne que le tagger dit porteuse d'un montant.
 PricedWord? _trailingJunkPrice(PhysicalLine line) {
   for (final word in line.words.reversed) {
     final junk = _trailingJunkPricePattern.firstMatch(word.text);

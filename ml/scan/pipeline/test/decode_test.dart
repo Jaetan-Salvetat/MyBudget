@@ -447,7 +447,7 @@ void main() {
         LineOptions(
           cents: 5275,
           logProbs: {labelItem: math.log(0.9), labelIgnore: math.log(0.1)},
-          alternativeCents: 275,
+          candidates: [5275, 275],
         ),
       ];
       final assignment = bestAssignmentDetail(lines, 475)!;
@@ -455,12 +455,23 @@ void main() {
       expect(assignment.cents, [200, 275]);
     });
 
+    test('a third candidate is reachable when the first two cannot sum', () {
+      final lines = [
+        LineOptions(
+          cents: 170,
+          logProbs: {labelItem: math.log(0.9), labelIgnore: math.log(0.1)},
+          candidates: [170, 85, 42],
+        ),
+      ];
+      expect(bestAssignmentDetail(lines, 42)!.cents, [42]);
+    });
+
     test('primary amount is preferred when both sum', () {
       final lines = [
         LineOptions(
           cents: 200,
           logProbs: {labelItem: math.log(0.9), labelIgnore: math.log(0.1)},
-          alternativeCents: 200,
+          candidates: [200, 200],
         ),
       ];
       expect(bestAssignmentDetail(lines, 200)!.cents, [200]);

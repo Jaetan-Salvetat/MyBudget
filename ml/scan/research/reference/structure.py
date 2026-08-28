@@ -49,9 +49,7 @@ PHONE_PATTERN = re.compile(r"(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)")
 # des espaces a recollée (« 13/03/17 20:30 » → « 13/03/1720:30 »).
 # Jour et mois peuvent n'avoir qu'un chiffre (« 7/10/15 », « 14/1/17 ») : le
 # masque des numéros et la validation calendaire tiennent les faux positifs.
-DATE_PATTERN = re.compile(
-    r"(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))"
-)
+DATE_PATTERN = re.compile(r"(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))")
 
 # Mois en toutes lettres ou abrégé : un ticket sur six de T1-test l'imprime
 # ainsi. Les accents sont retirés en amont, la casse est indifférente.
@@ -70,7 +68,9 @@ MONTH_NAMES = (
     "DECEMBRE|DEC",
 )
 LITERAL_DATE_PATTERN = re.compile(
-    r"(\d{1,2})(?:ER)?[/.\- ]?(" + "|".join(MONTH_NAMES) + r")[A-Z]*[/.\- ]?(\d{4}|\d{2})",
+    r"(\d{1,2})(?:ER)?[/.\- ]?("
+    + "|".join(MONTH_NAMES)
+    + r")[A-Z]*[/.\- ]?(\d{4}|\d{2})",
     re.IGNORECASE,
 )
 # Bornes d'une date de ticket : au-delà, l'année lue n'en est pas une.
@@ -357,10 +357,69 @@ def _rightmost_price(line: PhysicalLine) -> tuple[float, Word] | None:
     return None
 
 
+# Un montant décimal isolé de ce qui l'entoure par autre chose que des
+# chiffres : la devise collée (« 2.15Eur »), la classe de TVA entre
+# parenthèses (« 2.31(2) »), le signe égal d'une pesée (« 2 x 0.85EUR =
+# 1.70EUR »). Rien n'y départage les montants d'une même ligne — c'est le
+# décodeur qui tranche, au checksum.
+LAX_PRICE_PATTERN = re.compile(r"(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,])")
+
+
+def price_candidates(line: PhysicalLine, lax: bool) -> list[tuple[float, Word]]:
+    """Les montants que cette ligne peut porter, du plus sûr au moins sûr.
+
+    La laxité ne sert qu'à rendre lisible une ligne qui ne l'était pas : quand
+    la lecture stricte aboutit, elle reste la seule. Rouvrir une ligne déjà
+    lue donnerait au décodeur un degré de liberté qu'il n'a pas besoin d'avoir
+    — mesuré, il s'en sert pour retomber sur la bonne somme avec quatre
+    montants faux (prix unitaire au lieu du prix ligne).
+
+    Et l'élargissement ne vaut que sur les lignes auxquelles le tagger a donné
+    un rôle porteur de montant : la laxité suit la décision du modèle, plus un
+    lexique.
+
+    L'ordre encode un a priori, jamais une règle : de droite à gauche, parce
+    que la colonne des prix est à droite. Un candidat plus loin dans la liste
+    reste atteignable, à une pénalité près, si c'est lui qui fait retomber la
+    somme.
+    """
+    strict = _rightmost_price(line)
+    if strict is not None:
+        return [strict]
+    if not lax:
+        return []
+    candidates = []
+    for word in reversed(line.words):
+        for text in reversed(LAX_PRICE_PATTERN.findall(word.text)):
+            candidates.append((float(text.replace(",", ".")), word))
+    junk = _trailing_junk_price(line) or _split_price(line)
+    if junk is not None:
+        candidates.append(junk)
+    return _distinct_amounts(candidates)
+
+
+def _distinct_amounts(
+    candidates: list[tuple[float, Word]],
+) -> list[tuple[float, Word]]:
+    """Un même montant lu deux fois n'est qu'un candidat : le premier, et le
+    mot qui le porte est celui de la lecture la plus sûre."""
+    seen: set[int] = set()
+    distinct = []
+    for price, word in candidates:
+        cents = round(price * 100)
+        if cents in seen:
+            continue
+        seen.add(cents)
+        distinct.append((price, word))
+    return distinct
+
+
 def _trailing_junk_price(line: PhysicalLine) -> tuple[float, Word] | None:
-    """Prix d'une ligne total suivi d'un caractère parasite (« 7.074 »,
-    « 3.10D ») : seul le contexte total autorise cette lecture, le checksum
-    valide derrière."""
+    """Prix suivi d'un caractère parasite (« 7.074 », « 3.10D ») : lecture
+    lâche, que le checksum valide derrière. Les features du tagger ne
+    l'autorisent que sur une ligne total — elles décrivent, elles ne décident
+    pas, et les changer invaliderait le modèle entraîné. La structuration, elle,
+    l'ouvre à toute ligne que le tagger dit porteuse d'un montant."""
     for word in reversed(line.words):
         junk = TRAILING_JUNK_PRICE_PATTERN.match(word.text)
         if junk is not None:

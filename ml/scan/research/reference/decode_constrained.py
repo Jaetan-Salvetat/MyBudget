@@ -45,8 +45,11 @@ SINGLE_ITEM_MIN_SOURCES = 2
 SINGLE_ITEM_COUNTS = (None, 1)
 
 
-ALTERNATIVE_PROB = 0.5
-VARIANT_COUNT = 2
+# Chaque lecture d'un cran moins sûre que la précédente vaut la moitié. Le
+# rang est l'ordre dans lequel `price_candidates` les a rendues, et la seconde
+# passe OCR vient après : une lecture qu'une seule passe voit est un candidat
+# comme un autre, pas une vérité concurrente.
+CANDIDATE_PROB = 0.5
 SOFT_IGNORE_PROB = 0.5
 
 
@@ -54,15 +57,16 @@ SOFT_IGNORE_PROB = 0.5
 class LineOptions:
     cents: int
     log_probs: dict[int, float]
-    alternative_cents: int | None = None
+    candidates: tuple[int, ...] = ()
 
     def variants(self) -> list[tuple[int, int, float]]:
-        """(variante, centimes, pénalité) : la lecture principale, puis la
-        lecture alternative de l'autre passe OCR quand elle diffère."""
-        variants = [(0, self.cents, 0.0)]
-        if self.alternative_cents is not None:
-            variants.append((1, self.alternative_cents, math.log(ALTERNATIVE_PROB)))
-        return variants
+        """(variante, centimes, pénalité) : les montants que la ligne peut
+        porter, la lecture principale d'abord, chacun payant son rang."""
+        amounts = self.candidates or (self.cents,)
+        return [
+            (rank, cents, rank * math.log(CANDIDATE_PROB))
+            for rank, cents in enumerate(amounts)
+        ]
 
 
 @dataclass(frozen=True)
@@ -115,12 +119,19 @@ def _contribution(label: int, cents: int) -> int:
     return 0
 
 
-def _encode(label: int, variant: int) -> int:
-    return label * VARIANT_COUNT + variant
+def _variant_count(lines: list[LineOptions]) -> int:
+    """Le nombre de variantes qu'il faut pour encoder n'importe quel choix de
+    ce ticket. Une ligne peut en porter plus qu'une autre ; l'encodage est
+    commun, donc il prend la plus large."""
+    return max((len(line.variants()) for line in lines), default=1)
 
 
-def _decode_choice(choice: int) -> tuple[int, int]:
-    return divmod(int(choice), VARIANT_COUNT)
+def _encode(label: int, variant: int, variant_count: int) -> int:
+    return label * variant_count + variant
+
+
+def _decode_choice(choice: int, variant_count: int) -> tuple[int, int]:
+    return divmod(int(choice), variant_count)
 
 
 def best_assignment_detail(
@@ -143,7 +154,8 @@ def best_assignment_detail(
     offset = discount_capacity
     scores = np.full(size, NEG_INF)
     scores[offset] = 0.0
-    choices = np.full((len(lines), size), -1, dtype=np.int8)
+    variant_count = _variant_count(lines)
+    choices = np.full((len(lines), size), -1, dtype=np.int16)
 
     for index, line in enumerate(lines):
         next_scores = np.full(size, NEG_INF)
@@ -162,7 +174,7 @@ def best_assignment_detail(
                     candidate[:shift] = scores[-shift:] + log_prob + penalty
                 better = candidate > next_scores
                 next_scores[better] = candidate[better]
-                choices[index][better] = _encode(label, variant)
+                choices[index][better] = _encode(label, variant, variant_count)
         scores = next_scores
 
     position = target_cents + offset
@@ -171,7 +183,7 @@ def best_assignment_detail(
     labels: list[int] = []
     amounts: list[int] = []
     for index in range(len(lines) - 1, -1, -1):
-        label, variant = _decode_choice(choices[index][position])
+        label, variant = _decode_choice(choices[index][position], variant_count)
         cents = lines[index].variants()[variant][1]
         labels.append(label)
         amounts.append(cents)
@@ -236,15 +248,36 @@ def _line_options(
                 key=log_probs.get,
             )
             log_probs = {best_label: log_probs[best_label]}
-        alternative = (alternatives or {}).get(rank)
         options.append(
             LineOptions(
                 cents=cents,
                 log_probs=log_probs,
-                alternative_cents=alternative if alternative != cents else None,
+                candidates=_candidates(priced, cents, (alternatives or {}).get(rank)),
             )
         )
     return options
+
+
+def _candidates(
+    priced: PricedLine, cents: int, alternative: int | None
+) -> tuple[int, ...]:
+    """Les montants que le décodeur peut retenir pour cette ligne : ses
+    lectures, puis celle de l'autre passe OCR.
+
+    Tous gardent le signe de la lecture principale. Un article ne peut pas
+    être négatif et une remise ne peut pas être positive : laisser le décodeur
+    changer le signe d'une ligne pour faire tomber la somme lui donnerait un
+    degré de liberté que le ticket n'a pas."""
+    readings = [_to_cents(price) for price in priced.candidates]
+    if alternative is not None:
+        readings.append(alternative)
+    positive = cents > 0
+    kept: list[int] = []
+    for reading in readings:
+        if reading == 0 or (reading > 0) != positive or reading in kept:
+            continue
+        kept.append(reading)
+    return tuple(kept)
 
 
 def _classifier_references(

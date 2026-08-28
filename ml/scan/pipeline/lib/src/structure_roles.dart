@@ -23,6 +23,17 @@ const String roleSubtotal = 'subtotal';
 const String roleTotal = 'total';
 const String rolePayment = 'payment';
 
+/// Les rôles qui portent un montant : sur eux, la lecture du prix s'élargit.
+/// Même table que `decode_roles.dart`, écrite ici pour ne pas faire dépendre
+/// la structuration du décodeur.
+const Set<String> amountBearingRoles = {
+  roleItem,
+  roleDiscount,
+  roleSubtotal,
+  roleTotal,
+  rolePayment,
+};
+
 /// Le reçu que décrivent ces rôles. [merged] et [roles] sont alignés.
 ExtractedReceipt? extractRoles(List<PhysicalLine> merged, List<String> roles) {
   final column = labelColumnLeft(merged);
@@ -40,9 +51,12 @@ ExtractedReceipt? extractRoles(List<PhysicalLine> merged, List<String> roles) {
       continue;
     }
 
-    final priced = rightmostPrice(line);
-    if (priced == null) continue;
-    final price = roundCents(priced.price);
+    final candidates = priceCandidates(
+      line,
+      lax: amountBearingRoles.contains(role),
+    );
+    if (candidates.isEmpty) continue;
+    final price = roundCents(candidates.first.price);
 
     // Un article ne peut pas être négatif : quel que soit le rôle prédit, un
     // montant négatif se déduit du précédent.

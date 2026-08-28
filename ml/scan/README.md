@@ -1522,6 +1522,68 @@ Et sur les 48 : 35 (73 %) sont lisibles de bout en bout et le décodeur ne sait
 pas départager — 13 seulement sont un défaut de lecture.
 
 
+## La regex de prix décidait avant le modèle (2026-08-28)
+
+Le tagger étiquetait `item` des lignes que le décodeur ne voyait jamais. Sur
+les 100 articles que la tranche d'évaluation perdait (rappel 97,3 %), **93
+étaient perdus avant qu'un modèle soit consulté** : `_rightmost_price` exige un
+montant en token isolé, et tout ce qui a un caractère collé lui échappe.
+
+```
+'CARRE FOURRE A T1 2.15Eur'             la devise, 3 lettres — la règle n'en tolérait qu'une
+'0.858kg x 2.69Eur/kg 2.31(2)'          la classe de TVA entre parenthèses
+'SHEBA SOUPE FILETS POULET 160G 2.342'  un chiffre parasite, toléré sur les seules lignes total
+'OIGNON / SAC (1KG) 2 x 0.85EUR = 1.70EUR'
+```
+
+Le modèle n'a pas besoin du prix pour décider : sur ces 93 lignes, le tagger
+dit `item` **91 fois sur 93**, et la distribution est identique quand on lui
+rend le prix lisible. Treize des 38 colonnes non-trigrammes sortent pourtant de
+cette regex — elle pollue le vecteur sans changer le verdict. C'était un filtre
+en aval, pas une aide à la décision.
+
+**Ce qui change.** La lecture du prix passe après l'étiquetage, et sa largeur
+est gouvernée par le rôle prédit : une ligne à qui le tagger donne un rôle
+porteur de montant (`ROLE_TO_DECODER_CLASS`, la même table lue à l'envers) et
+qu'aucune lecture stricte n'atteint propose **tous** ses montants plausibles.
+Le décodeur retient celui qui fait retomber la somme, chaque candidat payant
+son rang (½ par cran). Ça supprime au passage le dernier gate lexical de la
+lecture : `_trailing_junk_price` n'est plus réservé aux lignes que
+`contains_total` reconnaît.
+
+**Ce qui ne change pas.** Quand la lecture stricte aboutit, elle reste la
+seule. Rouvrir une ligne déjà lisible a été essayé et mesuré : le décodeur s'en
+sert pour retomber sur la bonne somme avec quatre montants faux (t1train_214,
+prix unitaire au lieu du prix ligne) — un faux auto-validé de plus. La laxité
+ne sert qu'à rendre lisible ce qui ne l'était pas.
+
+| | avant | après |
+|---|---|---|
+| rappel articles (held-out) | 97,3 % (3632/3732) | **99,8 % (3723/3732)** |
+| tickets vérifiés | 488 (82,4 %) | **508 (85,8 %)** |
+| tickets parfaits | 364 (61,5 %) | **383 (64,7 %)** |
+| erreurs silencieuses | 18 (3,7 %) | 19 (3,7 %) |
+| `bench.local` somme prouvée | 855/899 | **860/899** |
+| **`bench.local` faux auto-validés** | **2** | **2** |
+
+Les 9 articles encore perdus : 6 sont une vraie erreur du tagger, 3 n'ont aucun
+montant lisible même lâchement. Ces trois-là **disparaissent silencieusement** —
+les garder avec un montant vide demande un montant nullable de bout en bout
+(pipeline → `ScannedItemModel` → écran d'édition → création de transaction),
+pour 0,08 % des articles, sur des tickets qui partent de toute façon à l'écran
+de confirmation. Non fait.
+
+Parité Dart : 699 tickets, 0 divergence, dont 25 tickets où la laxité gagne 52
+lignes.
+
+Ce qui reste décidé par le code et non par un modèle, après ce changement :
+la lecture de la date (`_find_date` : sur 29 dates fausses, **28 ont la bonne
+ligne désignée par le tagger** — c'est la regex qui échoue), l'éligibilité des
+références et les invariants (`invariants.py`, 9 lexiques), l'imputation d'une
+remise à l'article précédent, et le libellé de repli quand `label_link` et
+`label_span` ne rendent rien.
+
+
 ## Contenu
 
 ```

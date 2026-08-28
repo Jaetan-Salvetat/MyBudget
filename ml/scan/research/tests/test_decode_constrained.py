@@ -93,6 +93,7 @@ class TestLineOptions:
         class Priced:
             def __init__(self, price):
                 self.price = price
+                self.candidates = [price]
 
         probas = np.array([[0.8, 0.1, 0.05, 0.0, 0.05]] * len(prices))
         return _line_options(
@@ -318,7 +319,7 @@ class TestAmountAlternatives:
             LineOptions(
                 cents=5275,
                 log_probs={ITEM: math.log(0.9), IGNORE: math.log(0.1)},
-                alternative_cents=275,
+                candidates=(5275, 275),
             ),
         ]
         assignment = best_assignment_detail(lines, 475)
@@ -332,10 +333,35 @@ class TestAmountAlternatives:
             LineOptions(
                 cents=200,
                 log_probs={ITEM: math.log(0.9), IGNORE: math.log(0.1)},
-                alternative_cents=200,
+                candidates=(200, 200),
             ),
         ]
         assert best_assignment_detail(lines, 200).cents == [200]
+
+    def test_a_third_candidate_is_reachable_when_the_first_two_cannot_sum(self):
+        from reference.decode_constrained import best_assignment_detail
+
+        lines = [
+            LineOptions(
+                cents=170,
+                log_probs={ITEM: math.log(0.9), IGNORE: math.log(0.1)},
+                candidates=(170, 85, 42),
+            ),
+        ]
+        assert best_assignment_detail(lines, 42).cents == [42]
+
+    def test_the_cheapest_candidate_wins_when_several_sum(self):
+        from reference.decode_constrained import best_assignment_detail
+
+        lines = [
+            options(100, 0.9, 0.05, 0.05),
+            LineOptions(
+                cents=200,
+                log_probs={ITEM: math.log(0.9), IGNORE: math.log(0.1)},
+                candidates=(200, 200),
+            ),
+        ]
+        assert best_assignment_detail(lines, 300).cents == [100, 200]
 
     def test_decode_with_alternatives_rewrites_the_chosen_amount(self):
         rows = [

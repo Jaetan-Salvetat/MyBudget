@@ -188,6 +188,26 @@ void main() {
       expect(scan.store, 'CARREFOUR');
     });
 
+    test('un article dont le prix échappe à la regex stricte remonte', () async {
+      // La devise collée au montant sortait la ligne du décodeur avant même
+      // que le tagger soit consulté : 93 des 100 articles que le corpus
+      // d'évaluation perdait. La lecture s'élargit maintenant sur les lignes
+      // à qui le tagger donne un rôle porteur de montant.
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf([
+          [('CARREFOUR', 0)],
+          [('CARRE', 0), ('FOURRE', 6), ('2.15Eur', 20)],
+          [('LAIT', 0), ('3,00', 20)],
+          [('TOTAL', 0), ('5,15', 20)],
+        ]),
+      ]);
+
+      final scan = await scannerOf(recognizer).scan(_photo);
+
+      expect(scan.verified, isTrue);
+      expect([for (final item in scan.items) item.amount], [2.15, 3.0]);
+    });
+
     test('une photo sans texte est signalée telle quelle', () async {
       final recognizer = _ScriptedRecognizer([const <PhysicalLine>[]]);
 

@@ -14,6 +14,7 @@
 /// Miroir de `ml/scan/research/reference/decode_roles.py`.
 library;
 
+import 'classifier.dart';
 import 'decode.dart';
 import 'line_features.dart';
 import 'lines.dart';
@@ -34,6 +35,16 @@ const Map<String, int> roleToDecoderClass = {
 };
 
 const int decoderClasses = 5;
+
+/// Les lignes auxquelles le tagger donne un rôle porteur de montant.
+///
+/// C'est là — et seulement là — que la lecture du prix s'élargit. L'argmax
+/// suffit : aucun seuil n'est choisi à la main, un candidat de plus ne décide
+/// de rien par lui-même, et c'est le checksum qui juge.
+Set<int> laxRanks(List<List<double>> roleProbabilities) => {
+  for (final (rank, row) in roleProbabilities.indexed)
+    if (amountBearingRoles.contains(roleNames[argmax(row)])) rank,
+};
 
 /// Les probabilités du tagger, restreintes aux lignes chiffrées et repliées
 /// sur les cinq classes du décodeur. Replier, c'est sommer : la probabilité
@@ -69,7 +80,7 @@ ExtractedReceipt? extractRoleConstrained(
   List<List<double>> roleProbabilities, {
   Map<int, int> alternatives = const {},
 }) {
-  final priced = pricedLines(merged);
+  final priced = pricedLines(merged, laxRanks: laxRanks(roleProbabilities));
   if (priced.isEmpty) return null;
   final hypothesis = decodeConstrained(
     priced,

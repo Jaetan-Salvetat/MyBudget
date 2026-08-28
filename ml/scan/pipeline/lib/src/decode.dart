@@ -34,8 +34,12 @@ const int defaultMaxReferences = 4;
 const double defaultMinReferenceProb = 0.5;
 const double _probabilityFloor = 1e-12;
 const List<int> labelOrder = [labelItem, labelDiscount, labelIgnore];
-const double alternativeProb = 0.5;
-const int _variantCount = 2;
+
+/// Chaque lecture d'un cran moins sûre que la précédente vaut la moitié. Le
+/// rang est l'ordre dans lequel [priceCandidates] les a rendues, et la seconde
+/// passe OCR vient après : une lecture qu'une seule passe voit est un candidat
+/// comme un autre, pas une vérité concurrente.
+const double candidateProb = 0.5;
 const double softIgnoreProb = 0.5;
 const double evidenceProb = 0.5;
 const double totalLineProbFloor = 0.1;
@@ -50,20 +54,22 @@ class LineOptions {
   const LineOptions({
     required this.cents,
     required this.logProbs,
-    this.alternativeCents,
+    this.candidates = const [],
   });
 
   final int cents;
   final Map<int, double> logProbs;
-  final int? alternativeCents;
+  final List<int> candidates;
 
-  /// (variante, centimes, pénalité) : la lecture principale, puis la lecture
-  /// alternative de l'autre passe OCR quand elle diffère.
-  List<(int, int, double)> variants() => [
-    (0, cents, 0.0),
-    if (alternativeCents case final alternative?)
-      (1, alternative, math.log(alternativeProb)),
-  ];
+  /// (variante, centimes, pénalité) : les montants que la ligne peut porter,
+  /// la lecture principale d'abord, chacun payant son rang.
+  List<(int, int, double)> variants() {
+    final amounts = candidates.isEmpty ? [cents] : candidates;
+    return [
+      for (final (rank, cents) in amounts.indexed)
+        (rank, cents, rank * math.log(candidateProb)),
+    ];
+  }
 }
 
 const LineOptions forcedIgnoreOption = LineOptions(
@@ -140,10 +146,19 @@ int _contribution(int label, int cents) {
   return 0;
 }
 
-int _encode(int label, int variant) => label * _variantCount + variant;
+/// Le nombre de variantes qu'il faut pour encoder n'importe quel choix de ce
+/// ticket. Une ligne peut en porter plus qu'une autre ; l'encodage est commun,
+/// donc il prend la plus large.
+int _variantCount(List<LineOptions> lines) => lines.fold(
+  1,
+  (widest, line) => math.max(widest, line.variants().length),
+);
 
-(int, int) _decodeChoice(int choice) =>
-    (choice ~/ _variantCount, choice % _variantCount);
+int _encode(int label, int variant, int variantCount) =>
+    label * variantCount + variant;
+
+(int, int) _decodeChoice(int choice, int variantCount) =>
+    (choice ~/ variantCount, choice % variantCount);
 
 /// Étiquetage maximisant Σ log P sous contrainte Σ contributions =
 /// [targetCents], avec pour chaque ligne le montant retenu (lecture
@@ -166,9 +181,10 @@ Assignment? bestAssignmentDetail(
   final offset = discountCapacity;
   var scores = Float64List(size)..fillRange(0, size, double.negativeInfinity);
   scores[offset] = 0.0;
+  final variantCount = _variantCount(lines);
   final choices = [
     for (var i = 0; i < lines.length; i++)
-      Int8List(size)..fillRange(0, size, -1),
+      Int16List(size)..fillRange(0, size, -1),
   ];
 
   for (final (index, line) in lines.indexed) {
@@ -180,7 +196,7 @@ Assignment? bestAssignmentDetail(
         final shift = _contribution(label, cents);
         if (shift.abs() >= size) continue;
         final gain = logProb + penalty;
-        final choice = _encode(label, variant);
+        final choice = _encode(label, variant, variantCount);
         if (shift >= 0) {
           for (var position = shift; position < size; position++) {
             final candidate = scores[position - shift] + gain;
@@ -210,7 +226,10 @@ Assignment? bestAssignmentDetail(
   final labels = <int>[];
   final amounts = <int>[];
   for (var index = lines.length - 1; index >= 0; index--) {
-    final (label, variant) = _decodeChoice(choices[index][position]);
+    final (label, variant) = _decodeChoice(
+      choices[index][position],
+      variantCount,
+    );
     final cents = lines[index].variants()[variant].$2;
     labels.add(label);
     amounts.add(cents);
@@ -278,16 +297,38 @@ List<LineOptions> lineOptions(
       }
       logProbs = {bestLabel!: logProbs[bestLabel]!};
     }
-    final alternative = alternatives[rank];
     options.add(
       LineOptions(
         cents: cents,
         logProbs: logProbs,
-        alternativeCents: alternative != cents ? alternative : null,
+        candidates: _candidates(priced, cents, alternatives[rank]),
       ),
     );
   }
   return options;
+}
+
+/// Les montants que le décodeur peut retenir pour cette ligne : ses lectures,
+/// puis celle de l'autre passe OCR.
+///
+/// Tous gardent le signe de la lecture principale. Un article ne peut pas être
+/// négatif et une remise ne peut pas être positive : laisser le décodeur
+/// changer le signe d'une ligne pour faire tomber la somme lui donnerait un
+/// degré de liberté que le ticket n'a pas.
+List<int> _candidates(PricedLine priced, int cents, int? alternative) {
+  final readings = [
+    for (final price in priced.candidates) _toCents(price),
+    ?alternative,
+  ];
+  final positive = cents > 0;
+  final kept = <int>[];
+  for (final reading in readings) {
+    if (reading == 0 || (reading > 0) != positive || kept.contains(reading)) {
+      continue;
+    }
+    kept.add(reading);
+  }
+  return kept;
 }
 
 List<Reference> _classifierReferences(

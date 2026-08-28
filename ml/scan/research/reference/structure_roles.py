@@ -26,8 +26,13 @@ from reference.structure import (
     _label_column_left,
     _label_zone,
     _plausible_label,
-    _rightmost_price,
+    price_candidates,
 )
+
+# Les rôles qui portent un montant : sur eux, la lecture du prix s'élargit.
+# Même table que `decode_roles.AMOUNT_BEARING_ROLES`, écrite ici pour ne pas
+# faire dépendre la structuration du décodeur.
+AMOUNT_BEARING_ROLES = frozenset({ITEM, DISCOUNT, SUBTOTAL, TOTAL, PAYMENT})
 
 
 def extract_roles(
@@ -47,10 +52,10 @@ def extract_roles(
             pending = _plausible_label(line.text)
             continue
 
-        priced = _rightmost_price(line)
-        if priced is None:
+        candidates = price_candidates(line, lax=role in AMOUNT_BEARING_ROLES)
+        if not candidates:
             continue
-        price = round(priced[0], 2)
+        price = round(candidates[0][0], 2)
 
         # Un article ne peut pas être négatif : quel que soit le rôle prédit,
         # un montant négatif se déduit du précédent.

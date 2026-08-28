@@ -47,6 +47,23 @@ ROLE_TO_DECODER_CLASS = {
 
 DECODER_CLASSES = 5
 
+# Les rôles qui portent un montant sont exactement ceux que le décodeur sait
+# combiner : c'est la même table, lue dans l'autre sens.
+AMOUNT_BEARING_ROLES = frozenset(ROLE_TO_DECODER_CLASS)
+
+
+def lax_ranks(role_probas: np.ndarray) -> frozenset[int]:
+    """Les lignes auxquelles le tagger donne un rôle porteur de montant.
+
+    C'est là — et seulement là — que la lecture du prix s'élargit. L'argmax
+    suffit : aucun seuil n'est choisi à la main, un candidat de plus ne
+    décide de rien par lui-même, et c'est le checksum qui juge."""
+    return frozenset(
+        rank
+        for rank, row in enumerate(role_probas)
+        if TAGGER_ROLES[int(np.argmax(row))] in AMOUNT_BEARING_ROLES
+    )
+
 
 def decoder_probabilities(
     role_probas: np.ndarray, priced: list[PricedLine]
@@ -77,11 +94,11 @@ def extract_role_constrained(
     """`merged` porte les prix recollés, `lines` ce que le tagger a appris à
     lire — les deux ont le même nombre de lignes, le rang les aligne. Passer
     `role_probas` évite de réinférer quand l'appelant les a déjà."""
-    priced = priced_lines(merged)
-    if not priced:
-        return None
     if role_probas is None:
         role_probas = role_probabilities(lines if lines is not None else merged)
+    priced = priced_lines(merged, lax_ranks(role_probas))
+    if not priced:
+        return None
     probas = decoder_probabilities(role_probas, priced)
     hypothesis = decode(
         priced,
