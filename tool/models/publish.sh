@@ -139,6 +139,7 @@ RELEASE_FILES=()
 NOTES_ROWS=()
 LOCK_ROWS=()
 UNCHANGED=()
+CHANGED=()
 
 for entry in "${MODELS[@]}"; do
   id="$(id_of "$entry")"
@@ -203,7 +204,11 @@ for entry in "${MODELS[@]}"; do
   fi
 
   state="$(verdict "$sha" "$previous")"
-  [ "$state" = "INCHANGE" ] && UNCHANGED+=("$id")
+  if [ "$state" != "INCHANGE" ]; then
+    CHANGED+=("$id")
+  else
+    UNCHANGED+=("$id")
+  fi
   printf '  %-16s %-24s %-16s %s\n' "$id" "$asset" "$state" "$origin"
 
   [ "$DRY_RUN" -eq 1 ] && continue
@@ -223,6 +228,20 @@ if [ "${#UNCHANGED[@]}" -gt 0 ]; then
   echo "INCHANGES depuis $RELEASE_PREVIOUS : ${UNCHANGED[*]}"
   echo "Attendu pour un modele non reentraine. Sinon, la source de registry.env"
   echo "pointe un export perime : verifier la date affichee ci-dessus."
+fi
+
+# La seule question que la publication pose. Un modele inchange se reporte tout
+# seul — c'est le cas courant, on n'en reentraine qu'un a la fois — mais une
+# release ou aucun n'a bouge n'a rien a livrer : v12 a repris les six modeles de
+# v11 aux memes octets. Le nom de l'asset est ce que l'app lit pour choisir son
+# modele et ce sur quoi le cache ONNX s'indexe : le bumper pour rien fait
+# re-extraire 142 Mo chez chaque utilisateur sans changer une decision.
+if [ "${#CHANGED[@]}" -eq 0 ]; then
+  echo >&2
+  echo "Aucun modele n'a bouge depuis $RELEASE_PREVIOUS : rien a publier." >&2
+  echo "Reentrainer, refaire l'export, ou verifier que registry.env pointe le" >&2
+  echo "run qu'on croit publier : les dates ci-dessus le disent." >&2
+  exit 68
 fi
 
 # La source HuggingFace est archivee avec les modeles : elle ne vit plus dans

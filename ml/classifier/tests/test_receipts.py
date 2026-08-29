@@ -4,7 +4,7 @@ import random
 from corpus.receipts.labels import EXCLUDED_ITEMS, ITEM_OVERRIDES, STORE_LABELS
 from corpus.receipts.lexicon import RECEIPT_LEXICON, STORE_ABBREVIATIONS
 from corpus.receipts.style import format_quantity, receipt_line
-from evaluation.build_receipts import label_for
+from corpus.receipts.truth import item_label
 from serving.normalize import normalize_query, normalize_receipt_line
 from taxonomy import LABELS, NUM_EXPENSE
 from training.train import training_rows
@@ -63,12 +63,18 @@ def test_overrides_and_exclusions_do_not_overlap():
     assert not (set(ITEM_OVERRIDES) & EXCLUDED_ITEMS)
 
 
-def test_label_for_applies_override_then_store_then_exclusion():
-    assert label_for("HYPER U", "LITIERE SILICE POUR CHAT U 5L") == "divers.animaux"
-    assert label_for("HYPER U", "CAROTTE") == "alimentation.supermarche"
-    assert label_for("HYPER U", "ADMISSION") is None
-    assert label_for("", "CAROTTE") is None
-    assert label_for("ENSEIGNE INCONNUE", "CAROTTE") is None
+def test_item_label_applies_exclusion_then_override_then_the_real_labels():
+    labels = {"carotte": "alimentation.supermarche"}
+    assert item_label("LITIERE SILICE POUR CHAT U 5L", labels) == "divers.animaux"
+    assert item_label("CAROTTE", labels) == "alimentation.supermarche"
+    assert item_label("ADMISSION", labels) is None
+
+
+def test_item_label_never_reads_the_store():
+    """Le même libellé garde sa classe quel que soit le ticket où il est lu."""
+    labels = {"pain": "alimentation.boulangerie"}
+    assert item_label("PAIN", labels) == "alimentation.boulangerie"
+    assert item_label("PAIN", {}) is None
 
 
 def test_store_abbreviations_are_uppercase_receipt_headers():
@@ -97,3 +103,32 @@ def test_cap_per_class_bounds_every_class():
     capped = cap_per_class(rows, 10, random.Random(0))
     assert sum(1 for r in capped if r["category_label"] == 0) == 10
     assert sum(1 for r in capped if r["category_label"] == 1) == 1
+
+
+def test_cap_per_class_reads_the_class_where_it_is_told_to():
+    from corpus.receipts.build import cap_per_class
+
+    lines = [(str(i), "x", "alimentation.supermarche") for i in range(50)]
+    lines += [("k", "y", "divers.animaux")]
+    capped = cap_per_class(lines, 10, random.Random(0), key=lambda line: line[2])
+    assert sum(1 for line in capped if line[2] == "alimentation.supermarche") == 10
+    assert sum(1 for line in capped if line[2] == "divers.animaux") == 1
+
+
+def test_drop_contradictions_removes_a_label_two_sources_disagree_on():
+    from corpus.receipts.build import drop_contradictions
+
+    lines = [
+        ("lexique", "shampooing", "transport.entretien_vehicule"),
+        ("3760", "shampooing", "alimentation.supermarche"),
+        ("3761", "yaourt nature", "alimentation.supermarche"),
+    ]
+    assert drop_contradictions(lines) == [("3761", "yaourt nature", "alimentation.supermarche")]
+
+
+def test_drop_contradictions_keeps_a_label_repeated_under_one_class():
+    from corpus.receipts.build import drop_contradictions
+
+    lines = [("a", "baguette", "alimentation.boulangerie"),
+             ("b", "baguette", "alimentation.boulangerie")]
+    assert drop_contradictions(lines) == lines

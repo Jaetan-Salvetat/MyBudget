@@ -24,12 +24,9 @@ from pathlib import Path
 
 import duckdb
 
-from corpus.receipts.labels import (
-    EXCLUDED_ITEMS,
-    EXCLUDED_STORES,
-    ITEM_OVERRIDES,
-    STORE_LABELS,
-)
+from corpus.receipts import openprices
+from corpus.receipts.categories import beauty_slug, food_slug
+from corpus.receipts.labels import EXCLUDED_STORES
 from corpus.receipts.lexicon import (
     CITIES,
     LEGAL_SUFFIXES,
@@ -37,8 +34,15 @@ from corpus.receipts.lexicon import (
     STORE_ABBREVIATIONS,
 )
 from corpus.receipts.style import receipt_line, strip_accents
+from corpus.receipts.truth import item_label
 from knowledge.entities import is_latin, read_entities
-from paths import CACHE_DIR, DATASET_DIR, ENTITIES_PATH, SCAN_GOLDEN_DIR
+from paths import (
+    CACHE_DIR,
+    DATASET_DIR,
+    ENTITIES_PATH,
+    OPEN_PRICES_PATH,
+    SCAN_GOLDEN_DIR,
+)
 from serving.normalize import normalize_receipt_line
 from taxonomy import EXPENSE_TYPE, LABEL_INDEX, ONE_TIME
 
@@ -55,18 +59,10 @@ STORE_HEADER_MAX = 6_000
 GOLDEN_WEIGHT = 2
 RECEIPT_CLASS_CAP = 12_000
 
-SUPERMARCHE = "alimentation.supermarche"
-ANIMAUX = "divers.animaux"
-ESTHETIQUE = "sante_beaute.esthetique"
-PHARMACIE = "sante_beaute.pharmacie"
-
-PET_TAGS = ("en:pet-food", "en:cat-food", "en:dog-food", "en:pet-", "fr:aliments-pour-animaux")
-COSMETIC_TAGS = ("en:makeup", "en:make-up", "en:perfumes", "en:fragrances", "en:nail-polish",
-                 "en:nail-makeup", "en:lip-cosmetics", "en:lipsticks", "en:mascaras", "en:eyeshadow",
-                 "en:foundations", "en:eau-de-toilette", "en:eau-de-parfum", "en:colognes")
-PHARMA_TAGS = ("en:medicines", "en:dietary-supplements", "en:food-supplements", "en:baby-milks",
-               "en:infant-formulas", "en:first-aid")
-SKIP_TAGS = ("en:non-food-products", "en:open-beauty-facts", "en:open-products-facts")
+# Open Prices apporte cent mille libellés dont la quasi-totalité est
+# alimentaire. Sans plafond à la source, cette seule classe remplirait le
+# corpus avant que le lexique écrit à la main y ait sa place.
+OPEN_PRICES_CLASS_CAP = 8_000
 
 SHOP_FAMILIES = frozenset({
     "alimentation.supermarche", "alimentation.epicerie", "alimentation.boulangerie", "alimentation.marche",
@@ -91,24 +87,6 @@ def row(text: str, slug: str) -> dict:
     }
 
 
-def off_slug(tags: list[str]) -> str | None:
-    for tag in tags:
-        if tag.startswith(PET_TAGS):
-            return ANIMAUX
-        if tag.startswith(SKIP_TAGS):
-            return None
-    return SUPERMARCHE
-
-
-def obf_slug(tags: list[str]) -> str:
-    for tag in tags:
-        if tag.startswith(COSMETIC_TAGS):
-            return ESTHETIQUE
-        if tag.startswith(PHARMA_TAGS):
-            return PHARMACIE
-    return SUPERMARCHE
-
-
 def _products(path: Path, limit: int) -> list[tuple[str, str | None, str | None, list[str]]]:
     if not path.exists():
         raise FileNotFoundError(f"{path} absent : lancer d'abord `python -m receipts.fetch_off`")
@@ -128,13 +106,13 @@ def product_lines(rng: random.Random) -> list[tuple[str, str, str]]:
     """(clé produit, texte, slug) pour les produits OFF et OBF."""
     out: list[tuple[str, str, str]] = []
     for name, brand, quantity, tags in _products(CACHE_DIR / "off_products_fr.parquet", OFF_MAX_PRODUCTS):
-        slug = off_slug(tags)
+        slug = food_slug(tags)
         if slug is None:
             continue
         for _ in range(OFF_VARIANTS):
             out.append((name, receipt_line(name, rng, brand, quantity), slug))
     for name, brand, quantity, tags in _products(CACHE_DIR / "obf_products_fr.parquet", OBF_MAX_PRODUCTS):
-        slug = obf_slug(tags)
+        slug = beauty_slug(tags)
         for _ in range(OFF_VARIANTS):
             out.append((name, receipt_line(name, rng, brand, quantity), slug))
     return out
@@ -150,7 +128,13 @@ def lexicon_lines(rng: random.Random) -> list[tuple[str, str, str]]:
     return out
 
 
-def golden_lines() -> list[tuple[str, str, str]]:
+def golden_lines(labels: dict[str, str]) -> list[tuple[str, str, str]]:
+    """Les libellés réels de T1-train, avec la classe de l'article.
+
+    La classe venait de l'enseigne : le même `banane` était épicerie chez
+    l'un, supermarché chez l'autre, restaurant chez un troisième. Un article
+    que rien ne sait classer sort du corpus plutôt que d'y entrer sous
+    l'étiquette de son magasin."""
     out: list[tuple[str, str, str]] = []
     for path in sorted((GOLDEN_DIR / "T1-train").glob("*.json")):
         receipt = json.loads(path.read_text(encoding="utf-8"))["receipt"]
@@ -159,14 +143,25 @@ def golden_lines() -> list[tuple[str, str, str]]:
             continue
         for item in receipt["items"]:
             name = item["name"]
-            if name in EXCLUDED_ITEMS:
-                continue
-            slug = ITEM_OVERRIDES.get(name) or STORE_LABELS.get(store)
+            slug = item_label(name, labels)
             if slug is None:
                 continue
-            text = normalize_receipt_line(name)
             for _ in range(GOLDEN_WEIGHT):
-                out.append((f"golden:{name}", text, slug))
+                out.append((f"golden:{name}", normalize_receipt_line(name), slug))
+    return out
+
+
+def held_out_texts() -> set[str]:
+    """Les écritures des articles de T1-test.
+
+    T1-test mesure ce que le modèle fait d'un libellé qu'il n'a pas vu. Sa
+    vérité vient maintenant d'Open Prices, source qui alimente aussi
+    l'entraînement : sans cette retenue, on mesurerait la mémoire du corpus."""
+    out: set[str] = set()
+    for path in sorted((GOLDEN_DIR / "T1-test").glob("*.json")):
+        receipt = json.loads(path.read_text(encoding="utf-8"))["receipt"]
+        for item in receipt["items"]:
+            out.add(normalize_receipt_line(item["name"]))
     return out
 
 
@@ -204,6 +199,20 @@ def store_lines(rng: random.Random) -> list[tuple[str, str, str]]:
     return out
 
 
+def drop_contradictions(lines: list[tuple[str, str, str]]) -> list[tuple[str, str, str]]:
+    """Retire les libellés que deux sources ne classent pas pareil.
+
+    Le lexique écrit à la main range `asperges` au marché, Open Food Facts au
+    supermarché ; `shampooing` est de l'entretien de voiture d'un côté, un
+    produit de rayon de l'autre. Trancher au cas par cas reviendrait à écrire
+    une règle par libellé ; garder les deux apprend une contradiction. Sur le
+    corpus livré, cela concerne 177 libellés sur 50 204."""
+    classes: dict[str, set[str]] = defaultdict(set)
+    for _key, text, slug in lines:
+        classes[text].add(slug)
+    return [line for line in lines if len(classes[line[1]]) == 1]
+
+
 def split(lines: list[tuple[str, str, str]], rng: random.Random) -> tuple[list[dict], list[dict]]:
     by_key: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for key, text, slug in lines:
@@ -227,22 +236,46 @@ def split(lines: list[tuple[str, str, str]], rng: random.Random) -> tuple[list[d
 
 def generate(seed: int = SEED) -> tuple[list[dict], list[dict]]:
     rng = random.Random(seed)
-    lines = product_lines(rng) + lexicon_lines(rng) + store_lines(rng)
-    train, evaluation = split(lines, rng)
-    golden = [row(text, slug) for _key, text, slug in golden_lines()]
+    real = openprices.read_lines(
+        OPEN_PRICES_PATH, openprices.FOOD_CODES_PATH, openprices.BEAUTY_CODES_PATH
+    )
+    labels = openprices.label_table(real)
+    lines = (
+        cap_per_class(real, OPEN_PRICES_CLASS_CAP, rng, key=lambda line: line[2])
+        + product_lines(rng)
+        + lexicon_lines(rng)
+        + store_lines(rng)
+    )
+    # La retenue s'applique aussi au golden : un article de T1-train peut porter
+    # l'écriture d'un article de T1-test (`banane`, `baguette`), et l'apprendre
+    # ferait mesurer la mémoire là où on veut mesurer la généralisation.
+    # La retenue s'applique aussi au golden : un article de T1-train peut porter
+    # l'écriture d'un article de T1-test (`banane`, `baguette`), et l'apprendre
+    # ferait mesurer la mémoire là où on veut mesurer la généralisation.
+    held_out = held_out_texts()
+    kept = drop_contradictions(
+        [line for line in lines + golden_lines(labels) if line[1] not in held_out]
+    )
+    golden = [row(text, slug) for key, text, slug in kept if key.startswith("golden:")]
+    train, evaluation = split([line for line in kept if not line[0].startswith("golden:")], rng)
     train = cap_per_class(train + golden, RECEIPT_CLASS_CAP, rng)
     rng.shuffle(train)
     return train, evaluation
 
 
-def cap_per_class(rows: list[dict], cap: int, rng: random.Random) -> list[dict]:
+def cap_per_class(rows: list, cap: int, rng: random.Random, key=None) -> list:
     """Aucune classe au-delà de `cap` lignes : les produits alimentaires sont
     dix fois plus nombreux que tout le reste et tireraient le modèle vers
-    « supermarché » sur n'importe quel libellé inconnu."""
-    by_class: dict[int, list[dict]] = defaultdict(list)
+    « supermarché » sur n'importe quel libellé inconnu.
+
+    `key` dit où lire la classe, pour que le plafond s'applique aussi bien aux
+    lignes déjà mises au format d'entraînement qu'aux triplets bruts d'une
+    source — une seule implémentation, pas deux qui divergeront."""
+    read = key or (lambda entry: entry["category_label"])
+    by_class: dict = defaultdict(list)
     for entry in rows:
-        by_class[entry["category_label"]].append(entry)
-    kept: list[dict] = []
+        by_class[read(entry)].append(entry)
+    kept: list = []
     for entries in by_class.values():
         rng.shuffle(entries)
         kept.extend(entries[:cap])

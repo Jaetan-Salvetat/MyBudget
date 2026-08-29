@@ -119,8 +119,25 @@ cd ml/scan/research
 uv run python -m pytest              # invariants du pipeline de référence
 uv run python -m bench.parity        # parité Dart ↔ Python, 0 divergence attendue
 uv run python -m bench.local --ml    # le bench central : mode local sur 899 tickets
-./fetch_data.sh                      # reconstruit les corpus d'images
+./fetch_data.sh                      # reconstruit les sélections et le synthétique
 ```
+
+## Corpus d'entraînement
+
+Rien de tout ça n'est versionné : les corpus vivent dans un dépôt Hugging Face
+**privé**, seul endroit où FindIt peut tenir sans enfreindre sa licence de
+recherche. Le dépôt est un miroir exact de `ml/`, épinglé par révision.
+
+```bash
+./tool/ml_data/fetch.sh --list        # l'inventaire
+./tool/ml_data/fetch.sh               # tout (~6,7 Go)
+./tool/ml_data/fetch.sh annotations   # ~57 Mo, suffit à entraîner le tagger
+./tool/ml_data/publish.sh --dry-run   # ce qui repartirait
+```
+
+Publier **synchronise** : ce qui a disparu en local disparaît côté distant.
+D'où le refus de publier un corpus absent de la machine — après un clone
+frais, ce serait vider le dépôt.
 
 ## Artefacts locaux
 

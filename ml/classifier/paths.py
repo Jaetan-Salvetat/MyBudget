@@ -31,3 +31,7 @@ QUICK_ADD_CORPUS = EVAL_DATA_DIR / "quick_add.json"
 RECEIPTS_CORPUS = EVAL_DATA_DIR / "receipts.json"
 
 SCAN_GOLDEN_DIR = ML_DIR / "scan" / "data" / "golden"
+
+# Open Prices (ODbL) : le seul corpus public où un libellé de caisse français
+# arrive avec la vérité de son produit. Moissonné par l'étude scan, lu ici.
+OPEN_PRICES_PATH = ML_DIR / "scan" / "data" / "raw" / "open_prices.parquet"

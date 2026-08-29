@@ -1642,7 +1642,8 @@ module y a son miroir dans `pipeline/lib/src/`, et `research/bench/parity.py`
 - **`data/golden/`** — golden dataset **versionné** : 1000 annotations JSON.
   `data/raw/findit/` (dataset Find it!), `data/corpus/` (synthétique et
   sélections d'images), `data/annotations/` (corpus annoté),
-  `data/results/` (sorties OCR par device, caches VLM) sont gitignorés.
+  `data/results/` (sorties OCR par device, caches VLM) sont gitignorés et
+  vivent dans le dépôt Hugging Face privé (`tool/ml_data/`).
 - **`VERIFICATION.md`** — spec d'implémentation app du système de vérification.
 
 ## Datasets : sources et reconstruction
@@ -1651,13 +1652,29 @@ Ni les images ni le corpus annoté ne sont versionnés — seul le golden FindIt
 l'est, parce qu'il est curé à la main et irremplaçable. Le reste se récupère
 par deux chemins, et la distinction compte :
 
-- **`./tool/scan_data/fetch.sh`** — ce qui ne se reconstruit pas, épinglé par
-  sha256 dans `tool/scan_data/lock.env` : le corpus annoté (~12 Mo, suffit à
-  entraîner) et les images déjà triées de `photos_pixel`, `open_prices` et
-  `mixed` (~4,2 Go, en morceaux car GitHub plafonne à 2 Gio par asset).
-  `--annotations` ne prend que la première.
-- **`research/fetch_data.sh`** — ce qui est déterministe : FindIt, les
-  sélections dérivées, le synthétique.
+- **`./tool/ml_data/fetch.sh`** — ce qui ne se reconstruit pas, épinglé par
+  révision dans `tool/ml_data/lock.env` : un dépôt Hugging Face **privé**, ce
+  qui est la seule façon d'y garder FindIt, dont la licence s'arrête à la
+  recherche. `--list` en donne l'inventaire ; chaque corpus se prend à part,
+  et `annotations` (~57 Mo) suffit à entraîner.
+- **`research/fetch_data.sh`** — ce qui est déterministe : les sélections
+  dérivées de FindIt et le synthétique (seed 42).
+
+| Corpus | Taille | Ce que c'est |
+|---|---|---|
+| `annotations` | 57 Mo | corpus annoté ligne à ligne, la supervision du tagger |
+| `images` | 4,3 Go | photos déjà triées : `open_prices`, `photos_pixel`, `mixed` |
+| `findit` | 1,3 Go | Find it! (ICPR 2018), licence recherche |
+| `open_prices` | 30 Mo | le dump figé sur lequel les annotations ont été faites |
+| `ocr` | 280 Mo | dumps OCR, deux passes par image |
+| `device` | 203 Mo | dumps par appareil, l'entrée des benchs |
+| `llm` | 1,2 Mo | cache des réponses VLM |
+| `classifier` | 104 Mo | corpus BERT et connaissances moissonnées |
+
+Le dépôt est un **miroir exact de `ml/`** : même chemin des deux côtés, donc
+un seul `--local-dir` au téléchargement et rien à traduire. Publier
+**synchronise** — `tool/ml_data/publish.sh` supprime côté distant ce qui a
+disparu en local, et refuse donc de publier un corpus absent de la machine.
 
 `open_prices` est archivé plutôt que retéléchargé parce que c'est un jeu
 **vivant** : son dump grossit chaque jour et un contributeur peut supprimer sa
@@ -1667,7 +1684,7 @@ annotations ont été faites. Pour l'agrandir délibérément :
 
 | Dataset | Source | Licence |
 |---|---|---|
-| Find it! (1000 tickets FR + transcriptions) | officiel : http://findit.univ-lr.fr/download-the-dataset/ (formulaire) ; miroir : `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 |
+| Find it! (1000 tickets FR + transcriptions) | `./tool/ml_data/fetch.sh findit` ; origine officielle : http://findit.univ-lr.fr/download-the-dataset/ (formulaire), miroir `kaggle datasets download srjpdl/findit-dataset` | recherche, citer Artaud et al. ICPR 2018 — d'où le dépôt privé |
 | Open Prices (4 350 tickets FR photographiés, 2024-2026) | `research/corpus/open_prices.py` — dump quotidien sur data.gouv.fr | base ODbL, images CC BY-SA 4.0 |
 | Wikimedia Commons (1 ticket FR) | `Special:FilePath` — voir fetch_data.sh | libres |
 | Synthétique (120 tickets + ground truth) | `research/corpus/generate.py` (seed 42, déterministe) | interne |
@@ -1681,7 +1698,8 @@ caches de `data/results/` et le golden.
 
 **Le harnais Flutter on-device qui produisait ces dumps n'existe plus** (il a
 été supprimé lors de la réorganisation de `ml/`). `data/results/device_flow`
-— 1000 dumps OCR, l'entrée de `bench/local.py` — est donc un artefact figé
-et gitignoré : sans lui, aucun bench du mode local ne tourne, et rien dans
-le dépôt ne sait le régénérer. À réoutiller avant toute reprise de la
-mesure device.
+— 1000 dumps OCR, l'entrée de `bench/local.py` — est donc un artefact figé :
+sans lui, aucun bench du mode local ne tourne, et rien dans le dépôt ne sait
+le régénérer. C'est pour ça qu'il est publié (`fetch.sh device`) plutôt que
+laissé sur une seule machine. À réoutiller avant toute reprise de la mesure
+device.

@@ -47,7 +47,7 @@ Sans argument, tous les projets de ml/ sont traites.
   --backups              inclut les poids des runs qui ne sont pas livres
                          (output/best_*, output/<run>/)
   --hf-cache             inclut le cache huggingface du backbone
-  --raw                  inclut les datasets telecharges (scan/data/raw, cf fetch_data.sh)
+  --raw                  inclut les datasets recuperables (scan/data/raw, cf tool/ml_data/fetch.sh)
   --min-free GO          s'arrete des que cet espace libre est atteint
   -h, --help             affiche cette aide
 
@@ -154,7 +154,7 @@ collect_derived_corpora() {
   [ -d "$corpus_dir" ] || return 0
   find "$corpus_dir" -maxdepth 1 -mindepth 1 -type d |
     while IFS= read -r path; do
-      add_candidate "$LEVEL_DERIVED" "corpus derive (fetch_data.sh)" "$path"
+      add_candidate "$LEVEL_DERIVED" "corpus derive (research/fetch_data.sh)" "$path"
     done
   return 0
 }
@@ -164,7 +164,7 @@ collect_raw_datasets() {
   [ -d "$raw_dir" ] || return 0
   find "$raw_dir" -maxdepth 1 -mindepth 1 -type d |
     while IFS= read -r path; do
-      add_candidate "$LEVEL_REDOWNLOADABLE" "dataset telecharge (fetch_data.sh)" "$path"
+      add_candidate "$LEVEL_REDOWNLOADABLE" "dataset publie (tool/ml_data/fetch.sh)" "$path"
     done
   return 0
 }

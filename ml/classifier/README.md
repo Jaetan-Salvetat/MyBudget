@@ -12,6 +12,8 @@ knowledge/  ──►  dataset/entities.jsonl         ← ~28 600 entités du mo
         │
         ├──►  corpus/quick_add/build.py  ──►  dataset/train.jsonl + eval.jsonl
         └──►  corpus/receipts/build.py   ──►  dataset/receipts_*.jsonl
+                    ▲
+        Open Prices ┘  ← libellés de caisse réels, vérité par code-barres
         │
         ▼
 training/train.py  ──►  output/best/            ← poids PyTorch, les deux corpus
@@ -24,10 +26,10 @@ training/train.py  ──►  output/best/            ← poids PyTorch, les deu
 training/export_onnx.py  ──►  output/best/model.onnx  ──►  publish.sh
 ```
 
-`serving/` porte le contrat d'entrée/sortie du modèle : tout module qui y vit a
-son miroir exact dans `ml/scan/pipeline/lib/src/` (`normalize.dart`,
-`categorize.dart`), vérifié par
-la fixture de parité.
+`serving/` porte le contrat d'entrée/sortie du modèle : `normalize.py` a son
+miroir exact dans `ml/scan/pipeline/lib/src/normalize.dart`, vérifié par la
+fixture de parité. Il n'y a rien d'autre à y mettre — depuis que chaque article
+se classe seul, l'app n'a plus de décision à porter après le modèle (§8).
 
 ## 0. Prérequis
 
@@ -39,6 +41,13 @@ uv run python -m pytest # 30 tests, < 3 s, aucun accès réseau
 
 Compter ~4 Go de RAM, 2 Go de disque pour les checkpoints, et une connexion
 pour la première moisson (les sources sont ensuite en cache).
+
+Le corpus déjà construit et son cache de moisson se récupèrent sans refaire
+les étapes 1 et 2 :
+
+```bash
+./tool/ml_data/fetch.sh classifier    # dataset/*.jsonl + dataset/cache/
+```
 
 ## 1. Moissonner la connaissance
 
@@ -300,9 +309,21 @@ c'est la seule occasion de le voir avant les utilisateurs.
 L'export atterrit toujours à côté des poids qu'il encode (`MODEL_DIR`), et
 `registry.env` ne publie que `output/best/model.onnx`. Livrer un autre run se
 fait en en faisant `output/best` — il n'y a pas de chemin d'export à choisir.
-`publish.sh` affiche pour chaque modèle sa source, sa date et `INCHANGE` quand
-le sha ne bouge pas depuis la version précédente : c'est ce qui manquait quand
-cinq releases ont republié le même quick-add.
+`publish.sh` publie **tout, sans paramètre** : on ne réentraîne qu'un modèle à
+la fois, les cinq autres se reportent seuls sous la nouvelle version. Il affiche
+pour chacun sa source, sa date et `INCHANGE` quand le sha ne bouge pas.
+
+| Situation | Ce que fait `publish.sh` |
+|---|---|
+| source déclarée absente | `exit 65` — refaire l'export, ou `--carry-over <id>` |
+| source présente, octets identiques | `INCHANGE` affiché, report sous la nouvelle version |
+| **aucun** modèle n'a bougé | `exit 68` — une version ne se bumpe pas pour rien |
+
+C'est le dernier cas qui compte : **v11 et v12 sont parties byte-identiques à
+v10 sur les six modèles**. Une release ne se justifie que par au moins un modèle
+qui change — le nom de l'asset est ce que l'app lit pour choisir son modèle et ce
+sur quoi le cache ONNX s'indexe, le bumper pour rien fait ré-extraire 142 Mo chez
+chaque utilisateur sans changer une seule décision.
 
 `tool/models/publish.sh` régénère le tokenizer binaire, dépose
 `assets/models/model_v<N+1>.onnx`, crée la release GitHub et réécrit
@@ -353,78 +374,136 @@ Après ajout : `python -m knowledge.build`, `python -m corpus.quick_add.build`,
 
 ## 8. Le même modèle pour le scan : libellés de ticket
 
-Le scan local (`ml/scan`) sort une enseigne et des libellés tels qu'une
-caisse les imprime — `*160G BLC PLT 4TR.F`, `CRF-CITY LA ROCHELLE`. Mesuré
-sur les 1 000 tickets FindIt étiquetés à la main (`corpus/receipts/labels.py`,
-5 005 articles, T1-test = 2 531 jamais vus), le modèle quick-add seul y est
-aveugle : 8 % strict en majuscules, 20 % après normalisation. Deux raisons :
-il n'a jamais vu de majuscules sans accent ni d'abréviations de caisse, et il
-ne connaît presque aucun produit (« jus de pomme bio » → fast-food).
+Le scan local (`ml/scan`) sort des libellés tels qu'une caisse les imprime —
+`*160G BLC PLT 4TR.F`, `AUC BIOD LAIT SOL ENT BT 1L`. **Chaque article se
+classe seul** : le modèle lit un libellé normalisé et rend une catégorie, celle
+de l'article, sans rien savoir du ticket où il a été lu.
 
-Ce que les corpus « style ticket » ajoutent, sans changer l'architecture ni l'ONNX :
+### Ce que la cascade cachait
 
-```bash
-uv run python -m receipts.fetch_off                 # Open Food/Beauty Facts FR → dataset/cache/*.parquet
-uv run python -m receipts.generate_receipt_dataset  # → dataset/receipts_train.jsonl (+ eval)
-uv run python -m training.train                              # train.jsonl + receipts_train.jsonl
-uv run python -m evaluation.receipts --cascade        # T1-test, strict / famille / ticket
-uv run python -m serving.parity_fixture   # parité Dart de la normalisation
+Jusqu'au 2026-08-29, la classe d'un article était celle de son enseigne : la
+taxonomie étant une taxonomie de marchands, cela paraissait juste. Trois
+mesures ont clos la question.
+
+- La cascade affichait **88,8 % strict / 93,0 % famille** sur T1-test. Le
+  corpus l'expliquait à lui seul : 63 % des tickets FindIt sont alimentaires
+  et leur en-tête suffit à les trancher. Découpé, l'enseigne lue tenait 98,1 %
+  sur l'alimentaire et **77,8 % ailleurs** ; le vote des articles, 66,0 %.
+  Moyenné sur les 27 classes de ticket plutôt que sur les tickets : **76,7 %**.
+- Tout reposait sur la lecture de l'en-tête, que le modèle rate : **58,6 %
+  strict / 69,2 % famille** sur les 266 en-têtes réels étiquetés à la main. Un
+  en-tête faux rend faux tous les articles du ticket.
+- La vérité elle-même était une recopie de l'enseigne — **4 871 des 5 005
+  articles, 97,3 %**. Elle rendait le corpus contradictoire : **10,7 % des
+  lignes d'entraînement** portaient un libellé classé de deux ou trois façons
+  (`banane` restaurant / épicerie / supermarché, `baguette` boulangerie /
+  épicerie / supermarché). Un modèle n'en tire que la classe majoritaire.
+
+`serving/cascade.py` et sa décision côté Dart ont été retirés ;
+`ml/scan/pipeline/lib/src/categorize.dart` ne fait plus que classer chaque
+libellé. `STORE_LABELS` survit comme diagnostic de lecture d'en-tête
+(`evaluation/receipts.py --stores`), et ne décide plus d'aucune catégorie.
+
+### Où la vérité d'article vient chercher son échelle
+
+**Open Prices** (ODbL, projet Open Food Facts) est le corpus qui manquait. Son
+champ `product_name` n'est pas le nom canonique du produit : c'est **le libellé
+tel qu'il est imprimé**, recopié par le contributeur qui photographie son
+ticket, son étiquette de rayon ou son historique de carte de fidélité. La
+preuve tient dans les doublons — 25 400 codes-barres y portent de deux à
+trente-neuf écritures, et ce sont des écritures de caisse :
+
+```
+3560071009175  446ML LENTILLES BIO CRF / LENTILLES BIO CRF / LENTILLES
+3183280012837  LA BALEINE BICARBONATE 800G / SALINS BICARBONATE BTE
+3372463000017  BISQUE DE HOMARD 1/2 410G / BISQUE DE HOMARD 12410G
 ```
 
-- `serving/normalize.py` : ce que l'app applique avant le modèle (retrait
-  des marqueurs, contenances, compteurs, codes), puis la même forme canonique
-  qu'une saisie tapée. Miroir Dart dans
-  `ml/scan/pipeline/lib/src/normalize.dart`, parité vérifiée sur les
-  3 845 lignes des golden ;
-- `corpus/receipts/style.py` : déforme un nom de produit comme une caisse
-  (abréviations `PLT`/`JBN`/`1/2ECR`, troncature 16-26 caractères,
-  contenance `4X125G`, marque distributeur `CRF`/`U`, voyelles supprimées) ;
-- `corpus/receipts/lexicon.py` : ~1 900 libellés écrits à la main pour ce que les
-  sources ouvertes ne couvrent pas (vêtements, bricolage, pharmacie, plats,
-  carburant, péage…), les abréviations d'enseigne (`CRF CITY`, `ITM`) et
-  200 villes pour les en-têtes ;
-- `corpus/receipts/build.py` : OFF/OBF (12 000 produits les plus
-  scannés), lexique, en-têtes d'enseigne (entités physiques + ville +
-  raison sociale), et les libellés réels de T1-train avec leur vérité —
-  **jamais T1-test**. Plafond de 12 000 lignes par classe : sans lui,
-  l'alimentaire tire tout libellé inconnu vers « supermarché » et le
-  quick-add régresse (mesuré : `eval_world` 96 → 94 %, revenu à 96 % avec le
-  plafond et un rejeu de 50 000 lignes) ;
-- `serving/cascade.py` : la décision de l'app. La taxonomie est une
-  taxonomie de marchands, donc **classe du ticket = enseigne** (si lue à
-  P ≥ 0,9, sinon vote des articles pondéré par la confiance) et **article =
-  classe du ticket**, sauf famille distincte (vêtement, animalerie,
-  pharmacie, jouet…) à P ≥ 0,8 dans une enseigne alimentaire. Seuils
-  balayés sur T1-train : un seuil enseigne élevé rend la main au vote des
-  articles dès que l'en-tête est incertain, et le vote est devenu fiable ;
-- `training/finetune.py` : boucle rapide (40 min) qui poursuit `output/best`
-  sur le corpus ticket + rejeu du corpus général, vers `output/receipts` —
-  jamais dans `output/best`. `CLASSIFIER_MODEL=output/receipts` fait tourner
-  `evaluation/world.py` et `evaluation/quick_add.py` sur ce modèle.
+Abréviations, troncatures, marques distributeur (`AUC`, `CRF`, `PAT`),
+contenances collées, fautes de saisie : la morphologie que `style.py`
+fabriquait à la main, en vrai et par dizaines de milliers.
 
-Mesures sur T1-test (articles, vérité manuelle) :
+La vérité vient du **produit** : le code-barres donne les catégories Open Food
+Facts. `corpus/receipts/categories.py` les traduit dans notre taxonomie, et
+`knowledge/sources/openfoodfacts.py` lit la même règle — deux règles feraient
+apprendre au modèle que `baguette` est boulangerie quand elle vient du
+quick-add et supermarché quand elle vient d'un ticket, ce qui était le cas sur
+4,9 % des textes communs aux deux corpus.
 
-| Modèle | Article seul (strict / famille) | Cascade, enseigne lue | Cascade, enseigne masquée |
-|---|---|---|---|
-| `output/best` (quick-add livré) | 20 % / 38 % | 40 % / 65 % — ticket 63 % | 35 % / 54 % — ticket 46 % |
-| + fine-tune corpus ticket v1 (60 % supermarché, seuils 0,5/0,6) | 65 % / 88 % | 86 % / 93 % — ticket 87 % | 70 % / 89 % — ticket 81 % |
-| + fine-tune corpus ticket v2 (plafond par classe, rejeu 50 k, seuils 0,9/0,8) | 65 % / 87 % | 83 % / 93 % — ticket 88 % | 75 % / 92 % — ticket 85 % |
-| **`training/train.py` complet, 5 epochs, deux corpus (`output/full_receipts`)** | 67 % / 89 % | **85 % / 93 % — ticket 88 %** | 75 % / 92 % — ticket 86 % |
+Volume : **114 297 libellés français distincts** portent une vérité, dont
+95 373 d'étiquettes de rayon, 10 026 d'historiques RGPD, 5 986 d'imports
+enseigne, 4 036 de tickets photographiés. Après jointure et normalisation :
+**134 344 lignes, 85 209 libellés sans ambiguïté**.
 
-« Famille » confond supermarché/épicerie/marché et
-restaurant/fast-food/café/bar : ces frontières sont des conventions
-d'enseigne, pas des faits. Le strict en enseigne lue tombe avec v2 sur une seule
-bascule intra-famille (« Carrefour market AYTRE » → épicerie, 522 articles :
-la base d'entités classe Carrefour Market en supérette). Les erreurs de
-famille restantes sont des enseignes inconnues (cantines, petits
-restaurants) dont les plats — `pain`, `tartiflette` — ressemblent à des
-produits.
+**La limite est nette et il faut la connaître :** 98 % des libellés viennent de
+`shop=supermarket` (97 785) et `shop=convenience` (16 202) — jardinerie 382,
+pharmacie 378, bricolage 255, librairie 77. Open Prices règle la moitié
+alimentaire et **ne dit rien** de la moitié où le modèle se plante :
+restaurant, travaux, vêtements, mobilier. Un plat du jour et une planche de
+contreplaqué n'ont pas de code-barres.
 
-Le modèle complet repasse les seuils de la section 4 : `eval_world` 96 %,
-ECE 3,4 %, 99 % de justesse sur les 80 % les plus confiants, `evaluation/quick_add.py`
-niveau `app` 100 % — le scan et le quick-add partagent le même ONNX. Il
-n'est **pas publié** : `output/best` reste le modèle livré tant que la
-décision n'est pas prise.
+### La chaîne
+
+```bash
+uv run python -m corpus.receipts.fetch_off      # produits FR + table code-barres → catégories
+uv run python -m evaluation.build_receipts      # vérité d'article de T1-train/T1-test
+uv run python -m corpus.receipts.build          # → dataset/receipts_*.jsonl
+uv run python -m training.train                 # train.jsonl + receipts_train.jsonl
+uv run python -m evaluation.receipts            # T1-test, article seul
+uv run python -m serving.parity_fixture         # parité Dart de la normalisation
+```
+
+`fetch_off.py` ne télécharge plus les 8 Go du dump : DuckDB ne lit à distance
+que les colonnes demandées. Hugging Face coupe les lectures anonymes trop
+longues en 429, d'où les reprises à attente doublante ; le fichier n'est publié
+qu'une fois complet, sans quoi un parquet tronqué passerait pour du cache et le
+corpus se construirait sur un dixième de la base sans que rien ne le signale.
+
+Les autres sources n'ont pas bougé : `corpus/receipts/lexicon.py` (~1 900
+libellés écrits à la main pour ce qu'Open Food Facts ne couvre pas),
+`corpus/receipts/style.py` (déformation de caisse, encore utile là où il n'y a
+pas de libellé réel), les en-têtes d'enseigne, et les libellés de T1-train.
+
+### Trois invariants, tous sous test
+
+- **La vérité d'un article ne regarde jamais l'enseigne** (`truth.py`) :
+  surcharge écrite à la main, puis répertoire Open Prices. Un article que ni
+  l'une ni l'autre ne classe sort du corpus — mieux vaut une ligne de moins
+  qu'une ligne fausse.
+- **Aucun libellé ne porte deux classes** (`build.drop_contradictions`). Le
+  lexique range `asperges` au marché et Open Food Facts au supermarché ;
+  `shampooing` est de l'entretien de voiture d'un côté, un produit de rayon de
+  l'autre. Trancher au cas par cas serait écrire une règle par libellé.
+  Mesuré : 177 libellés retirés sur 50 204.
+- **Aucune écriture de T1-test n'entre à l'entraînement**
+  (`build.held_out_texts`), golden T1-train compris : `banane` et `baguette`
+  existent des deux côtés, et les apprendre ferait mesurer la mémoire.
+
+Vérifié après reconstruction : 0 contradiction, 0 fuite.
+
+### Ce que ça coûte à la mesure
+
+La vérité d'article ne couvre pas tout le golden : **1 077 articles sur 5 005**
+(T1-test 548 sur 2 531). Le reste sort du corpus d'évaluation faute de vérité —
+il n'y est pas remplacé par la classe du magasin. Conséquence à garder en tête :
+`restauration.restaurant` compte désormais **zéro** article mesuré, alors que
+c'était la première confusion du modèle. **La mesure est devenue juste, elle
+n'est pas devenue complète.** Fermer ce trou demande une vérité d'article pour
+les ~3 000 libellés non alimentaires du golden, qu'aucune base publique ne
+donne : c'est de l'annotation, filtrée comme celle du tagger de rôles.
+
+Relevé du modèle livré (v13) contre cette nouvelle vérité, article seul :
+
+| Variante | T1-train | T1-test |
+|---|---|---|
+| brut | 53,1 % / 68,2 % | 46,7 % / 59,3 % |
+| minuscules | 59,4 % / 91,5 % | 49,3 % / 82,3 % |
+| **normalisé** (ce que l'app envoie) | 46,7 % / 91,3 % | **40,0 % / 83,2 %** |
+
+Le strict s'effondre parce que la vérité distingue maintenant supermarché,
+épicerie et boulangerie là où l'ancienne recopiait l'enseigne : le modèle livré
+a appris à tout ranger au supermarché. C'est la mesure d'un modèle entraîné sur
+l'ancienne vérité, pas celle du corpus refait.
 
 ## 9. Pistes non explorées
 
@@ -439,6 +518,12 @@ décision n'est pas prise.
   `aamazon` → Amazon — ce que le modèle fait structurellement mal, `amazon`
   tenant en un token quand `aamazon` part en trois morceaux sans rapport.
   `store_gazetteer` fait déjà ça côté scan pour les enseignes sorties de l'OCR.
+- **Vérité d'article pour le non-alimentaire.** Open Prices couvre le rayon
+  courses et rien d'autre : plat de restaurant, quincaillerie, vêtement,
+  mobilier n'ont pas de code-barres, et ce sont les classes où le modèle se
+  trompe. Les ~3 000 libellés concernés du golden demandent une annotation,
+  filtrée comme celle du tagger de rôles. C'est le premier poste à ouvrir : la
+  mesure de §8 est juste mais aveugle sur ces classes.
 - **Normalisation en amont du tokenizer** pour le quick-add : accents, casse,
   espaces autour de la ponctuation. `father &son` = `father & son` ne se
   règle pas dans le modèle. `serving/normalize.py` le fait pour le scan, le
@@ -474,6 +559,8 @@ décision n'est pas prise.
 | 80 classes, itération 2 (2026-08-24) | + récurrence déduite de la formulation, marques manquantes, mots de boulangerie | **96 %** — couverture 100 %, type 99 %, récurrence 95 %, ECE 3,5 %, **100 % de justesse sur les 80 % les plus confiants** | catégorie **99 %**, type 100 %, récurrence 98 % |
 
 | 80 classes + corpus ticket (2026-08-25, `output/full_receipts`, non publié) | + 40 539 libellés style ticket (OFF, lexique, T1-train, en-têtes), plafond 12 000/classe | **96 %** — ECE 3,4 %, 99 % sur les 80 % les plus confiants | catégorie 100 % (`app`), hard 88 % |
+
+| 80 classes, vérité d'article (2026-08-29, `output/item_truth`, non publié) | corpus ticket refait : 50 216 lignes dont 85 209 libellés de caisse réels d'Open Prices, vérité par code-barres et non par enseigne ; 0 contradiction, 0 fuite T1-test | à mesurer | à mesurer |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.

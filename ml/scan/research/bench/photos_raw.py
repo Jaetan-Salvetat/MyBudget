@@ -32,7 +32,7 @@ from truth.references import receipt_from_annotation
 def raw_dumps() -> dict[str, Path]:
     """Le dump OCR de chaque image, indexé par nom d'image."""
     dumps: dict[str, Path] = {}
-    for path in (RESULTS_DIR / "ocr_cache").glob("*.json"):
+    for path in (RESULTS_DIR / "ocr_cache").rglob("*.json"):
         try:
             payload = json.loads(path.read_text())
         except (OSError, ValueError):

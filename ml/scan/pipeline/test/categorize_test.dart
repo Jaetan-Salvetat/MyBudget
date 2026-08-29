@@ -15,128 +15,47 @@ class _FakeClassifier implements ReceiptLineClassifier {
 }
 
 void main() {
-  group('ReceiptCategorizer.ticketCategory', () {
-    test('trusts a confident store', () {
-      final ticket = ReceiptCategorizer.ticketCategory(
-        (slug: 'alimentation.supermarche', confidence: 0.9),
-        [(slug: 'restauration.fast_food', confidence: 0.99)],
-      );
-      expect(ticket.slug, 'alimentation.supermarche');
-    });
-
-    test('falls back to the weighted vote when the store is unsure', () {
-      final ticket = ReceiptCategorizer.ticketCategory(
-        (slug: 'transport.transport_commun', confidence: 0.3),
-        [
-          (slug: 'alimentation.supermarche', confidence: 0.9),
-          (slug: 'alimentation.supermarche', confidence: 0.8),
-          (slug: 'restauration.fast_food', confidence: 0.95),
-        ],
-      );
-      expect(ticket.slug, 'alimentation.supermarche');
-      expect(ticket.confidence, closeTo(1.7 / 3, 1e-9));
-    });
-
-    test('votes when the store is unreadable', () {
-      final ticket = ReceiptCategorizer.ticketCategory(null, [
-        (slug: 'restauration.restaurant', confidence: 0.7),
-      ]);
-      expect(ticket.slug, 'restauration.restaurant');
-    });
-
-    test('keeps the unsure store when there is nothing to vote with', () {
-      final ticket = ReceiptCategorizer.ticketCategory((
-        slug: 'transport.peage',
-        confidence: 0.2,
-      ), const []);
-      expect(ticket.slug, 'transport.peage');
-    });
-
-    test('has a fallback when nothing is known', () {
-      final ticket = ReceiptCategorizer.ticketCategory(null, const []);
-      expect(ticket.slug, 'divers.autre');
-      expect(ticket.confidence, 0.0);
-    });
-  });
-
-  group('ReceiptCategorizer.itemCategory', () {
-    const supermarket = (slug: 'alimentation.supermarche', confidence: 0.9);
-
-    test('an article follows its store by default', () {
-      expect(
-        ReceiptCategorizer.itemCategory(supermarket, (
-          slug: 'restauration.fast_food',
-          confidence: 0.99,
-        )),
-        'alimentation.supermarche',
-      );
-    });
-
-    test('a confident distinct family leaves a food store', () {
-      expect(
-        ReceiptCategorizer.itemCategory(supermarket, (
-          slug: 'divers.animaux',
-          confidence: 0.8,
-        )),
-        'divers.animaux',
-      );
-    });
-
-    test('an unsure distinct family stays with the store', () {
-      expect(
-        ReceiptCategorizer.itemCategory(supermarket, (
-          slug: 'divers.animaux',
-          confidence: 0.5,
-        )),
-        'alimentation.supermarche',
-      );
-    });
-
-    test('nothing leaves a non-food store', () {
-      expect(
-        ReceiptCategorizer.itemCategory(
-          (slug: 'logement.travaux', confidence: 0.9),
-          (slug: 'shopping.mobilier_deco', confidence: 0.99),
-        ),
-        'logement.travaux',
-      );
-    });
-  });
-
-  group('ReceiptCategorizer.categorize', () {
-    test('normalizes lines before the model and maps every item', () async {
+  group('ReceiptCategorizer', () {
+    test('normalizes each line before the model and keeps its order', () async {
       final classifier = _FakeClassifier({
-        'carrefour market aytre': (
-          slug: 'alimentation.supermarche',
-          confidence: 0.95,
-        ),
         'litiere silice pour chat u': (slug: 'divers.animaux', confidence: 0.9),
-        'blc plt .f': (slug: 'restauration.fast_food', confidence: 0.7),
+        'blc plt .f': (slug: 'alimentation.supermarche', confidence: 0.7),
       });
-      final result = await ReceiptCategorizer(classifier).categorize(
-        store: 'CARREFOUR MARKET AYTRE',
-        itemNames: ['LITIERE SILICE POUR CHAT U 5L', '*160G BLC PLT 4TR.F'],
-      );
 
-      expect(result.ticket.slug, 'alimentation.supermarche');
-      expect(result.itemSlugs, ['divers.animaux', 'alimentation.supermarche']);
+      final result = await ReceiptCategorizer(classifier).categorize([
+        'LITIERE SILICE POUR CHAT U 5L',
+        '*160G BLC PLT 4TR.F',
+      ]);
+
+      expect([for (final item in result) item.slug], [
+        'divers.animaux',
+        'alimentation.supermarche',
+      ]);
       expect(classifier.seen, [
-        'carrefour market aytre',
         'litiere silice pour chat u',
         'blc plt .f',
       ]);
     });
 
-    test('skips the store call when the header is unreadable', () async {
+    test('classes an article on itself, never on what sits next to it', () async {
       final classifier = _FakeClassifier({
         'menu supreme': (slug: 'restauration.fast_food', confidence: 0.9),
+        'croquettes chat': (slug: 'divers.animaux', confidence: 0.6),
       });
-      final result = await ReceiptCategorizer(classifier)
-          .categorize(store: '  ', itemNames: ['1 MENU SUPREME']);
 
-      expect(result.ticket.slug, 'restauration.fast_food');
-      expect(result.itemSlugs, ['restauration.fast_food']);
-      expect(classifier.seen, ['menu supreme']);
+      final result = await ReceiptCategorizer(
+        classifier,
+      ).categorize(['1 MENU SUPREME', 'CROQUETTES CHAT']);
+
+      expect(result[0].slug, 'restauration.fast_food');
+      expect(result[1].slug, 'divers.animaux');
+      expect(result[1].confidence, 0.6);
+    });
+
+    test('reads nothing when there is no article', () async {
+      final classifier = _FakeClassifier(const {});
+      expect(await ReceiptCategorizer(classifier).categorize(const []), isEmpty);
+      expect(classifier.seen, isEmpty);
     });
   });
 }

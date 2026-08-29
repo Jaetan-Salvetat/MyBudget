@@ -116,3 +116,16 @@ versions précédentes, qui pèsent autant que le modèle.
 Garder `QuickAddLabels` synchronisé avec l'ordre des labels du training. Le golden
 `test/fixtures/tokenizer_golden.json` vérifie que le tokenizer binaire encode exactement comme le
 `tokenizer.json` d'origine.
+
+### Corpus d'entraînement
+
+Les modèles sont publiés ici, les données qui les entraînent ne le sont pas : elles vivent dans un
+dépôt Hugging Face **privé**, seul endroit où le corpus FindIt peut tenir sans enfreindre sa licence
+de recherche. Rien de tout ça n'est nécessaire pour construire l'app — seulement pour ré-entraîner.
+
+```bash
+./tool/ml_data/fetch.sh --list        # l'inventaire des corpus
+./tool/ml_data/fetch.sh annotations   # ~57 Mo, suffit à entraîner le tagger de rôles
+```
+
+Détail dans [`ml/README.md`](ml/README.md).

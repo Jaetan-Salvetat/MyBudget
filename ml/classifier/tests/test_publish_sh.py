@@ -37,21 +37,29 @@ def checksum(path: Path) -> str:
     return out.stdout.split()[0]
 
 
-def make_root(tmp_path: Path, *, quick_add: str = "poids v10") -> Path:
+def make_root(
+    tmp_path: Path, *, quick_add: str = "poids v10", line_roles: str = "roles v10"
+) -> Path:
+    """Un depot ou les deux sorties d'entrainement sont fraiches.
+
+    Le lock epingle ce que `assets/models/` contient : redonner a une source le
+    contenu deja publie — `quick_add="poids v9"` — est ce qui rejoue un export
+    qu'on a oublie de refaire.
+    """
     root = tmp_path / "repo"
     write(root / "tool" / "models" / "registry.env", REGISTRY)
-    quick_add_source = write(root / "ml" / "classifier" / "output" / "best" / "model.onnx", quick_add)
-    roles_source = write(root / "ml" / "scan" / "research" / "models" / "line_roles.json", "roles v10")
-    write(root / "assets" / "models" / "model_v9.onnx", "poids v9")
-    write(root / "assets" / "models" / "line_roles_v9.json", "roles v9")
+    write(root / "ml" / "classifier" / "output" / "best" / "model.onnx", quick_add)
+    write(root / "ml" / "scan" / "research" / "models" / "line_roles.json", line_roles)
+    published_quick_add = write(root / "assets" / "models" / "model_v9.onnx", "poids v9")
+    published_roles = write(root / "assets" / "models" / "line_roles_v9.json", "roles v9")
     write(
         root / "tool" / "models" / "lock.env",
         "REPOSITORY=owner/repo\n"
         "RELEASE=models-v9\n"
         "QUICK_ADD_ASSET=model_v9.onnx\n"
-        f"QUICK_ADD_SHA256={checksum(quick_add_source)}\n"
+        f"QUICK_ADD_SHA256={checksum(published_quick_add)}\n"
         "LINE_ROLES_ASSET=line_roles_v9.json\n"
-        f"LINE_ROLES_SHA256={checksum(roles_source)}\n",
+        f"LINE_ROLES_SHA256={checksum(published_roles)}\n",
     )
     return root
 
@@ -81,17 +89,14 @@ def test_the_next_version_comes_from_the_pinned_assets(tmp_path: Path) -> None:
 
 
 def test_a_source_identical_to_the_published_version_is_called_out(tmp_path: Path) -> None:
-    root = make_root(tmp_path)
-    (root / "ml" / "scan" / "research" / "models" / "line_roles.json").write_text("roles v11")
-
-    result = run(root)
+    result = run(make_root(tmp_path, quick_add="poids v9"))
 
     assert "INCHANGE" in line_of(result.stdout, "quick_add")
     assert "INCHANGE" not in line_of(result.stdout, "line_roles")
 
 
 def test_the_unchanged_models_are_summarised_after_the_table(tmp_path: Path) -> None:
-    result = run(make_root(tmp_path))
+    result = run(make_root(tmp_path, quick_add="poids v9", line_roles="roles v9"))
 
     assert "quick_add" in result.stdout.split("INCHANGES")[-1]
     assert "line_roles" in result.stdout.split("INCHANGES")[-1]
@@ -125,6 +130,27 @@ def test_carrying_over_a_model_on_purpose_is_allowed_by_name(tmp_path: Path) -> 
 
     assert result.returncode == 0, result.stderr
     assert "line_roles_v9.json" in line_of(result.stdout, "line_roles")
+
+
+# La seule question que la publication pose : y a-t-il quelque chose de neuf a
+# livrer ? v12 a repris les six modeles de v11 aux memes octets. Un modele
+# inchange se reporte tout seul, mais une release ou rien n'a bouge ne fait que
+# retelecharger la meme chose chez tout le monde.
+def test_a_release_where_nothing_moved_is_refused(tmp_path: Path) -> None:
+    root = make_root(tmp_path, quick_add="poids v9", line_roles="roles v9")
+
+    result = run(root)
+
+    assert result.returncode == 68
+    assert "rien a publier" in result.stderr
+
+
+def test_one_model_moving_is_enough_to_publish(tmp_path: Path) -> None:
+    result = run(make_root(tmp_path, quick_add="poids v9"))
+
+    assert result.returncode == 0, result.stderr
+    assert "INCHANGE" in line_of(result.stdout, "quick_add")
+    assert "INCHANGE" not in line_of(result.stdout, "line_roles")
 
 
 def test_a_model_without_a_declared_source_is_carried_over_silently(tmp_path: Path) -> None:
