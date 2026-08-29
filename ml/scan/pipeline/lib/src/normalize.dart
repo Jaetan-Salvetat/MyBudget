@@ -62,6 +62,25 @@ final RegExp _spacedPunctuation = RegExp(
   '([' r'&+/\\,;:!?()\[\]{}<>|="«»*#~' '])',
 );
 
+/// Un texte peut arriver décomposé (macOS et iOS écrivent « café » en NFD) : la
+/// lettre est alors nue et l'accent la suit en caractère séparé, qu'aucune table
+/// de précomposés ne peut attraper. Mêmes plages que la référence Python.
+const List<List<int>> _combiningRanges = [
+  [0x0300, 0x0370],
+  [0x1AB0, 0x1B00],
+  [0x1DC0, 0x1E00],
+  [0x20D0, 0x2100],
+  [0xFE20, 0xFE30],
+];
+
+bool _isCombining(String char) {
+  final codePoint = char.codeUnitAt(0);
+  for (final range in _combiningRanges) {
+    if (codePoint >= range[0] && codePoint < range[1]) return true;
+  }
+  return false;
+}
+
 /// Minuscules, sans accents, ponctuation décollée — la forme exacte du corpus.
 ///
 /// Ce que cette fonction traite, le modèle n'a pas à l'apprendre : « father
@@ -69,6 +88,7 @@ final RegExp _spacedPunctuation = RegExp(
 String normalizeQuery(String text) {
   final buffer = StringBuffer();
   for (final char in text.split('')) {
+    if (_isCombining(char)) continue;
     final folded = accentFold[char] ?? char;
     buffer.write(_substitutions[folded] ?? folded);
   }

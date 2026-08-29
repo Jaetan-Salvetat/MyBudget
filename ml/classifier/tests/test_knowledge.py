@@ -115,6 +115,47 @@ def test_an_override_never_makes_a_name_disappear():
         assert resolved.get(name) == slug, name
 
 
+def test_an_alias_never_steals_the_name_of_another_entity():
+    """« McDonald's PlayPlace » porte l'alias « McDonald's », qui est une entité."""
+    playground = Entity(
+        name="McDonald's PlayPlace",
+        slug="famille_education.activites_enfants",
+        source="nsi",
+        aliases=["McDonald's"],
+    )
+    restaurant = Entity(name="McDonald's", slug="restauration.fast_food", source="nsi")
+    merged, _ = merge([playground, restaurant])
+    by_name = {entity.name: entity for entity in merged}
+    assert by_name["McDonald's PlayPlace"].aliases == []
+    assert by_name["McDonald's"].slug == "restauration.fast_food"
+
+
+def test_an_alias_claimed_by_two_classes_goes_to_the_most_reliable():
+    station = Entity(
+        name="Station Service E.Leclerc",
+        slug="transport.essence",
+        source="nsi",
+        aliases=["leclerc"],
+    )
+    market = Entity(
+        name="E.Leclerc Drive",
+        slug="alimentation.supermarche",
+        source="services",
+        aliases=["leclerc"],
+    )
+    merged, _ = merge([station, market])
+    owners = {entity.slug for entity in merged if "leclerc" in entity.aliases}
+    assert owners == {"alimentation.supermarche"}
+
+
+def test_an_ambiguous_alias_is_given_to_nobody():
+    """Deux sources de même rang qui se disputent un alias : on ne tranche pas."""
+    first = Entity(name="Bistrot A", slug="restauration.bar", source="nsi", aliases=["chez leo"])
+    second = Entity(name="Cave B", slug="alimentation.epicerie", source="nsi", aliases=["chez leo"])
+    merged, _ = merge([first, second])
+    assert all("chez leo" not in entity.aliases for entity in merged)
+
+
 def test_merge_unions_aliases_of_the_same_entity():
     first = Entity(name="Netflix", slug="loisirs.streaming", source="services", aliases=["netflix fr"])
     second = Entity(name="netflix", slug="loisirs.streaming", source="nsi", aliases=["Netflix Inc"])

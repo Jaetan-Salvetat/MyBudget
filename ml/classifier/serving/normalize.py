@@ -76,9 +76,26 @@ def _fold_table() -> dict[str, str]:
 _FOLD = _fold_table()
 
 
+# Un texte peut arriver décomposé (macOS et iOS écrivent « café » en NFD) : la
+# lettre est alors nue et l'accent la suit en caractère séparé, qu'aucune table
+# de précomposés ne peut attraper. Les blocs de diacritiques combinants sont
+# donc retirés à part — mêmes plages des deux côtés du miroir.
+_COMBINING_RANGES = (
+    (0x0300, 0x0370), (0x1AB0, 0x1B00), (0x1DC0, 0x1E00),
+    (0x20D0, 0x2100), (0xFE20, 0xFE30),
+)
+
+
+def _is_combining(char: str) -> bool:
+    code_point = ord(char)
+    return any(start <= code_point < end for start, end in _COMBINING_RANGES)
+
+
 def fold_accents(text: str) -> str:
     """« crèche » et « creche » sont le même mot : personne n'accentue au clavier."""
-    return "".join(_FOLD.get(char, char) for char in text)
+    return "".join(
+        _FOLD.get(char, char) for char in text if not _is_combining(char)
+    )
 
 
 def normalize_query(text: str) -> str:

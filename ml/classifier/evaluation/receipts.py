@@ -26,7 +26,7 @@ from serving.cascade import (
     item_category,
     ticket_category,
 )
-from serving.normalize import normalize_receipt_line
+from serving.normalize import normalize_query, normalize_receipt_line
 from taxonomy import LABELS
 from training.train import BudgetClassifier
 
@@ -49,7 +49,9 @@ VARIANTS = {
     "raw": lambda row: row["name"],
     "lower": lambda row: row["name"].lower(),
     "normalized": lambda row: normalize_receipt_line(row["name"]),
-    "store+normalized": lambda row: f"{row['store'].lower()} {normalize_receipt_line(row['name'])}".strip(),
+    "store+normalized": lambda row: normalize_query(
+        f"{row['store']} {normalize_receipt_line(row['name'])}"
+    ),
 }
 
 

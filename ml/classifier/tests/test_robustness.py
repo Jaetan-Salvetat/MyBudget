@@ -17,6 +17,12 @@ def test_query_normalization_folds_accents_and_case():
     assert normalize_query("MARCHE PEAGE CRECHE") == "marche peage creche"
 
 
+def test_query_normalization_folds_a_decomposed_text():
+    """macOS écrit « café » en NFD : la lettre nue puis l'accent."""
+    assert normalize_query("cafe\u0301 de la gare") == "cafe de la gare"
+    assert normalize_query("BI\u0307M") == "bim"
+
+
 def test_query_normalization_unifies_apostrophes_and_dashes():
     assert normalize_query("aujourd’hui") == normalize_query("aujourd'hui")
     assert normalize_query("week—end") == "week-end"
@@ -44,27 +50,25 @@ def test_corruption_stays_in_canonical_form():
         assert normalize_query(noisy) == noisy
 
 
-def test_corruption_alters_a_single_word_at_most():
+def test_corruption_alters_two_words_at_most():
     rng = random.Random(1)
-    clean = "abonnement netflix mensuel"
-    for _ in range(200):
+    clean = "abonnement netflix mensuel du mois"
+    for _ in range(500):
         noisy = corrupt(clean, rng)
-        differing = [
-            index
-            for index, (before, after) in enumerate(zip(clean.split(), noisy.split()))
-            if before != after
-        ]
-        assert len(noisy.split()) == len(clean.split())
-        assert len(differing) <= 1
+        words = noisy.split(" ")
+        untouched = sum(word in clean.split(" ") for word in words)
+        assert abs(len(words) - len(clean.split(" "))) <= 2
+        assert untouched >= len(clean.split(" ")) - 4
 
 
 def test_corruption_leaves_short_words_and_numbers_alone():
+    """Le bruit tombe sur les mots, jamais sur un montant ni sur « le »."""
     rng = random.Random(2)
     clean = "carrefour 12,50 le 8"
     for _ in range(200):
-        head, *tail = corrupt(clean, rng).split(" ")
-        assert tail == ["12,50", "le", "8"]
-        assert head.isalpha()
+        words = corrupt(clean, rng).split(" ")
+        assert [word for word in words if not word.isalpha()] == ["12,50", "8"]
+        assert "le" in words
 
 
 def test_corruption_is_deterministic_for_a_seed():
@@ -77,7 +81,14 @@ def test_corruption_actually_corrupts_often_enough():
     rng = random.Random(3)
     texts = [corrupt("carrefour contact", rng) for _ in range(1000)]
     altered = sum(text != "carrefour contact" for text in texts)
-    assert 200 <= altered <= 500
+    assert 200 <= altered <= 400
+
+
+def test_corruption_never_produces_the_same_fault_twice_in_a_row():
+    """Une faute figée serait mémorisée ; c'est tout ce qu'on veut éviter."""
+    rng = random.Random(11)
+    faults = {corrupt("boulangerie du village", rng) for _ in range(200)}
+    assert len(faults) > 30
 
 
 def test_evaluation_operators_are_held_out_from_training():

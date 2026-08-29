@@ -9,7 +9,7 @@ cher que l'ambiguïté qu'il résout.
 """
 
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 
 from knowledge.entities import Entity, is_latin, normalize, write_entities
 from knowledge.sources import lexicon, nsi, openfoodfacts, patterns, services, wikidata
@@ -99,6 +99,46 @@ def collect() -> list[Entity]:
     ]
 
 
+def _arbitrate_aliases(best: dict[str, Entity]) -> Counter:
+    """Un alias ne peut désigner qu'une classe, et jamais voler un nom d'entité.
+
+    « McDonald's PlayPlace » porte l'alias « McDonald's », qui est le nom d'une
+    autre entité : sans arbitrage, le corpus sort « mcdonald's » étiqueté
+    activités enfants *et* fast-food, et le modèle apprend une contradiction. Le
+    nom canonique l'emporte toujours sur l'alias ; entre deux alias, la source
+    la plus fiable ; à égalité, personne — une ambiguïté qu'on ne sait pas
+    trancher ne s'apprend pas.
+    """
+    claims: dict[str, list[Entity]] = defaultdict(list)
+    for entity in best.values():
+        for alias in entity.aliases:
+            claims[normalize(alias)].append(entity)
+
+    arbitrated: Counter = Counter()
+    for key, claimants in claims.items():
+        named = best.get(key)
+        slugs = {entity.slug for entity in claimants}
+        if named is not None:
+            slugs.add(named.slug)
+        if len(slugs) == 1:
+            continue
+
+        if named is not None:
+            winner = named.slug
+        else:
+            ranked = sorted(claimants, key=_rank, reverse=True)
+            winner = ranked[0].slug if _rank(ranked[0]) > _rank(ranked[1]) else None
+
+        for claimant in claimants:
+            if claimant.slug == winner:
+                continue
+            claimant.aliases = [
+                alias for alias in claimant.aliases if normalize(alias) != key
+            ]
+            arbitrated[f"alias {claimant.slug} < {winner or 'ambigu'}"] += 1
+    return arbitrated
+
+
 def merge(entities: list[Entity]) -> tuple[list[Entity], Counter]:
     """Une entité par nom normalisé, la source la plus fiable l'emporte."""
     best: dict[str, Entity] = {}
@@ -136,6 +176,7 @@ def merge(entities: list[Entity]) -> tuple[list[Entity], Counter]:
             and is_latin(alias)
             and OVERRIDES.get(normalize(alias), entity.slug) == entity.slug
         ]
+    conflicts.update(_arbitrate_aliases(best))
     return list(best.values()), conflicts
 
 

@@ -32,6 +32,11 @@ void main() {
       expect(normalizeQuery('MARCHE PEAGE CRECHE'), 'marche peage creche');
     });
 
+    test('folds a decomposed text', () {
+      expect(normalizeQuery('cafe\u0301 de la gare'), 'cafe de la gare');
+      expect(normalizeQuery('BI\u0307M'), 'bim');
+    });
+
     test('unifies apostrophes and dashes', () {
       expect(normalizeQuery('aujourd’hui'), "aujourd'hui");
       expect(normalizeQuery('week—end'), 'week-end');

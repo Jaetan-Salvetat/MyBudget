@@ -68,6 +68,12 @@ fiable : `SOURCE_PRIORITY` dans `knowledge/build.py` fixe l'ordre
 - `Conflits arbitrés` — deux sources ont donné deux classes au même nom. Une
   centaine est normale (une station-service qui vend aussi de l'épicerie). Un
   pic sur une paire inattendue signale une erreur de correspondance ;
+- les lignes préfixées `alias` sont des **noms disputés par deux entités**. Un
+  alias ne peut désigner qu'une classe : le nom canonique l'emporte toujours sur
+  l'alias, sinon la source la plus fiable, et à égalité personne. Sans cet
+  arbitrage « McDonald's » — alias de « McDonald's PlayPlace » — sortait du
+  corpus étiqueté *activités enfants* **et** *fast-food*, et le modèle
+  apprenait une contradiction ;
 - `Moins fournies` — une classe sous 10 entités sera portée par l'amplification
   du générateur, pas par de la vraie connaissance. C'est le premier endroit où
   ajouter du vocabulaire.
@@ -143,7 +149,7 @@ uv run python -m training.train
 | padding | dynamique, au plus long du lot | la saisie médiane fait quelques tokens ; bourrer à 64 multipliait le calcul par dix |
 | échantillonnage | `LengthGroupedSampler` | rend au padding dynamique le gain qu'un mélange uniforme lui reprend |
 | sélection | `category_f1` macro | l'accuracy récompenserait le déséquilibre des classes |
-| bruit de frappe | 30 % des exemples, une faute, à la volée | voir plus bas |
+| bruit de frappe | 30 % des exemples, une faute (deux dans un quart des cas) | voir plus bas |
 
 **La faute de frappe est ajoutée au moment où le lot part dans le modèle, jamais
 écrite dans le corpus.** Générer `aamazon` dans `train.jsonl` ferait apprendre
@@ -151,10 +157,21 @@ uv run python -m training.train
 ce qu'on cherche. Corrompre dans le collateur donne une faute différente à
 chaque epoch — le modèle ne voit jamais deux fois la même et n'a rien à en
 retenir sinon que le bruit ne compte pas. `training/corruption.py` ne porte que
-les fautes qui survivent à la normalisation (lettre doublée, omise, touche
-AZERTY voisine, insertion) : la casse, les accents et la ponctuation sont déjà
-traités en amont, les faire apprendre serait payer deux fois. L'évaluation lit
-le texte propre (`get_eval_dataloader` retire le bruit).
+les fautes qui survivent à la normalisation — lettre doublée, omise, touche
+AZERTY voisine, insertion, transposition, phonétique, mot coupé
+(« carre four »), espace perdu (« carrefourcity ») : la casse, les accents et la
+ponctuation sont déjà traités en amont, les faire apprendre serait payer deux
+fois. L'évaluation lit le texte propre (`get_eval_dataloader` retire le bruit).
+
+**Le modèle apprend tous les cas, la mesure garde quand même sa réserve** :
+plutôt que d'écarter une faute de l'entraînement, `evaluation/robustness.py`
+rejoue le même mécanisme avec d'autres instances — AZERTY à l'entraînement,
+QWERTY à la mesure ; digrammes de consonnes (« farmacie ») à l'entraînement,
+voyelles (« oto », « wazo ») à la mesure ; lettre doublée à l'entraînement,
+triplée à la mesure. Un modèle qui a compris que le bruit ne compte pas tient
+sur les trois ; un modèle qui a appris nos règles s'effondre. Le test
+`test_evaluation_operators_are_held_out_from_training` empêche les deux jeux de
+se rejoindre par accident.
 
 Environ 2 h sur Apple Silicon (MPS) pour ~19 400 pas. `save_total_limit=1` borne
 les checkpoints de reprise ; le meilleur est copié dans `output/best/`.
@@ -170,6 +187,7 @@ uv run python -m evaluation.world           # mémorisation, 166 cas écrits à 
 uv run python -m evaluation.generalization  # entités jamais vues, 8 307 exemples
 uv run python -m evaluation.quick_add       # non-régression, 153 cas
 uv run python -m evaluation.robustness      # ce que coûte une faute de frappe
+uv run python -m evaluation.build_typos     # régénère le corpus des fautes réelles
 ```
 
 **Sans `evaluation/generalization.py`, la grille ment.** `world.py` affiche
@@ -203,27 +221,50 @@ l'entraînement : mesurer un modèle avec le bruit qu'on lui a servi ne mesure q
 sa mémoire.
 
 Relevé sur le modèle v11 (livré avant ce chantier, ni normalisation à
-l'inférence ni bruit à l'entraînement), 2 000 entités jamais vues :
+l'inférence ni bruit à l'entraînement), 2 000 entités jamais vues du corpus
+canonique :
 
 | Opérateur | brut | normalisé |
 |---|---|---|
-| (aucun) | 72,2 % | 70,3 % |
-| majuscules | **32,7 %** | 70,3 % |
-| accents ajoutés | 49,5 % | 70,3 % |
-| accents retirés | 69,8 % | 70,3 % |
-| ponctuation collée | 61,6 % | 64,4 % |
-| transposition | 46,9 % | 43,8 % |
-| touche qwerty | 49,6 % | 45,6 % |
-| espace perdu | 58,8 % | 55,0 % |
-| phonétique | 55,6 % | 52,9 % |
-| lettre doublée / omise / voisine | ~50 % | ~46 % |
+| (aucun) | 70,3 % | 70,3 % |
+| **majuscules** | **33,1 %** | 70,3 % |
+| accents ajoutés | 46,5 % | 70,3 % |
+| accents retirés | 70,3 % | 70,3 % |
+| ponctuation collée | 59,6 % | 64,1 % |
+| *jamais vu à l'entraînement* | | |
+| phonétique | 53,1 % | 52,4 % |
+| lettre triplée | 47,0 % | 47,0 % |
+| touche qwerty | 44,8 % | 44,8 % |
+| mot coupé | 41,3 % | 41,3 % |
+| *vu à l'entraînement* | | |
+| espace perdu | 54,7 % | 54,7 % |
+| doublement | 47,9 % | 47,9 % |
+| insertion | 45,5 % | 45,5 % |
+| omission | 44,5 % | 44,5 % |
+| transposition | 43,7 % | 43,7 % |
+| touche voisine | 42,2 % | 42,2 % |
 
-Le coût n'était pas là où on le croyait : les accents retirés ne coûtaient que
-2 points, les majuscules en coûtaient 40. Une saisie en capitales était
-quasiment illisible pour le modèle, et une règle de trois lignes la répare
+Le coût n'était pas là où on le croyait : les accents ne coûtaient que
+2 points, les majuscules en coûtaient 37. Une saisie en capitales était
+quasiment illisible pour le modèle, et une règle déterministe la répare
 entièrement. Ce que la normalisation ne peut pas rendre — la lettre qui ripe,
-l'espace perdu — coûte encore ~22 points ; c'est ce que la corruption à la volée
-doit récupérer, et le seul endroit où le modèle a quelque chose à apprendre.
+l'espace perdu — coûte encore 15 à 29 points, et c'est là, et seulement là, que
+le modèle a quelque chose à apprendre.
+
+Le même rapport se termine par les **fautes réelles** : 68 cas écrits à la main
+(`evaluation/data/typos.json`, régénérés par `evaluation.build_typos`) où un
+francophone se trompe pour de bon sur un nom que la base connaît —
+« farmacie », « carrefourcity », « decatlhon », « boulan gerie ». Chaque cas
+porte sa forme correcte à côté, et la mesure est **la chute entre les deux** :
+la justesse absolue dépendrait de la connaissance, la chute ne dépend que de la
+robustesse. La classe vient de `dataset/entities.jsonl`, jamais d'un jugement
+écrit à la main, sans quoi la vérité du corpus d'évaluation divergerait de celle
+de l'entraînement.
+
+Deux des six axes — casse et ponctuation collée — doivent afficher **zéro
+chute** : `normalize_query` les efface avant le modèle, et un test le vérifie
+sur chaque cas. Les quatre autres (frappe, phonétique, agglutination, mot
+coupé) sont ce que le modèle doit comprendre seul.
 
 **Seuils d'acceptation avant publication :**
 
@@ -299,6 +340,7 @@ dans le modèle : `taxonomy.canonical()` redirige, aucune entité ne la vise.
 | Ce qu'on veut apprendre | Où l'écrire |
 |---|---|
 | une marque, un abonnement, un service | `knowledge/sources/services.py` |
+| un surnom que les gens tapent (« macdo », « carrouf », « décat ») | alias dans `knowledge/sources/services.py` |
 | un mot courant, un synonyme, de l'argot | `knowledge/sources/lexicon.py` |
 | une famille entière d'enseignes physiques | `knowledge/mapping_nsi.py` |
 | une classe entière d'entités Wikidata | `CLASS_TO_SLUG` dans `knowledge/sources/wikidata.py` |

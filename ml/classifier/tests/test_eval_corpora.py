@@ -5,7 +5,9 @@ import pytest
 
 from evaluation.generalization import FAMILIES, family
 from evaluation.world import CASE_FIELDS, is_known
+from evaluation.robustness import TYPOS_PATH
 from paths import QUICK_ADD_CORPUS, WORLD_CORPUS
+from serving.normalize import normalize_query
 from taxonomy import ACTIVE_LABELS, LABELS, canonical, type_of
 
 WORLD_PATH = WORLD_CORPUS
@@ -14,6 +16,11 @@ LEGACY_PATH = QUICK_ADD_CORPUS
 TYPES = {"expense", "income"}
 RECURRENCES = {"ponctuel", "fixe"}
 AXES = {"brand_physical", "service_online", "product", "common_noun", "local_business"}
+# Deux familles de fautes : celles que la normalisation efface avant le modèle,
+# et celles qu'il doit comprendre lui-même.
+NORMALIZED_AWAY_AXES = {"ponctuation", "casse"}
+MODEL_AXES = {"frappe", "phonetique", "agglutination", "coupure"}
+TYPO_AXES = NORMALIZED_AWAY_AXES | MODEL_AXES
 
 
 def _cases(path: Path) -> list[dict]:
@@ -81,3 +88,28 @@ def test_known_detection_matches_on_word_boundaries():
     assert is_known("courses Carrefour 85", names)
     assert is_known("Uber Eats 24", names)
     assert not is_known("carrefourgeoisie", names)
+
+
+def test_typo_corpus_is_a_fault_over_a_known_name():
+    """Sans la forme correcte à côté, la chute mesurée ne veut rien dire."""
+    cases = _cases(TYPOS_PATH)
+    assert len(cases) >= 60
+    for case in cases:
+        assert case["axis"] in TYPO_AXES, case["input"]
+        assert canonical(case["category"]) in ACTIVE_LABELS, case["input"]
+        assert case["input"] != case["clean"], case["input"]
+
+
+def test_typo_corpus_covers_every_axis():
+    covered = {case["axis"] for case in _cases(TYPOS_PATH)}
+    assert covered == TYPO_AXES
+
+
+def test_the_rule_absorbs_what_it_claims_and_leaves_the_rest_to_the_modele():
+    """Casse et ponctuation disparaissent avant le modèle ; le reste lui arrive."""
+    for case in _cases(TYPOS_PATH):
+        same = normalize_query(case["input"]) == normalize_query(case["clean"])
+        if case["axis"] in NORMALIZED_AWAY_AXES:
+            assert same, case["input"]
+        else:
+            assert not same, case["input"]

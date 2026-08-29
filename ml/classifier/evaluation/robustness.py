@@ -10,23 +10,32 @@ Deux colonnes, donc : le texte brut tel qu'il arrive, et le même passé par
 `normalize_query`. L'écart entre les deux est ce que la normalisation rend, et
 ce que le modèle n'a pas à apprendre.
 
-Les opérateurs d'ici sont tenus à l'écart de ceux de `training/corruption.py` :
-mesurer un modèle avec le bruit qu'on lui a servi ne mesure que sa mémoire.
-Seul le bloc « déjà vus » les rejoue, pour comparaison.
+Les opérateurs d'ici rejouent les mécanismes de `training/corruption.py` avec
+d'autres instances : QWERTY quand l'entraînement sert de l'AZERTY, des voyelles
+quand il sert des consonnes, une lettre triplée quand il en double une. Mesurer
+un modèle avec exactement le bruit qu'on lui a servi ne mesurerait que sa
+mémoire ; le bloc « vu à l'entraînement » est là pour la comparaison.
 
     uv run python -m evaluation.robustness [--limit 2000]
 """
 
 import argparse
+import json
 import random
+from collections import defaultdict
 
 import torch
 from transformers import AutoTokenizer
 
 from evaluation.generalization import BATCH_SIZE, MAX_LENGTH, read_rows
-from paths import MODEL_DIR
+from paths import EVAL_DATA_DIR, MODEL_DIR
 from serving.normalize import fold_accents, normalize_query
-from training.corruption import MIN_WORD_LENGTH, TRAIN_OPERATORS, build_neighbours
+from training.corruption import (
+    TRAIN_OPERATORS,
+    build_neighbours,
+    words_and_candidates,
+)
+from taxonomy import LABELS
 from training.train import BudgetClassifier
 
 QWERTY_ROWS = ("qwertyuiop", "asdfghjkl", "zxcvbnm")
@@ -34,22 +43,16 @@ QWERTY_NEIGHBOURS = build_neighbours(QWERTY_ROWS)
 
 ACCENTED = {"e": "éèê", "a": "àâ", "u": "ùû", "i": "î", "o": "ô", "c": "ç"}
 GLUING_PUNCTUATION = "&/-,+"
-PHONETIC = (
-    ("ph", "f"), ("qu", "k"), ("au", "o"), ("ai", "e"), ("ei", "e"), ("ou", "u"),
-    ("y", "i"), ("x", "ks"), ("ck", "k"), ("ss", "s"), ("th", "t"), ("gu", "g"),
-    ("eau", "o"), ("er", "é"), ("ent", "an"), ("oi", "wa"),
+# Les voyelles, quand l'entraînement ne sert que des consonnes : même mécanisme,
+# instances jamais vues. Un modèle qui a compris que le bruit ne compte pas tient
+# ici ; un modèle qui a appris nos règles s'effondre.
+PHONETIC_VOWELS = (
+    ("au", "o"), ("eau", "o"), ("ai", "e"), ("ei", "e"), ("ou", "u"),
+    ("oi", "wa"), ("er", "e"), ("ent", "an"), ("y", "i"), ("in", "un"),
 )
+TYPOS_PATH = EVAL_DATA_DIR / "typos.json"
 DEFAULT_LIMIT = 2000
 SAMPLE_SEED = 7
-
-
-def _words(text: str) -> tuple[list[str], list[int]]:
-    words = text.split(" ")
-    return words, [
-        index
-        for index, word in enumerate(words)
-        if len(word) >= MIN_WORD_LENGTH and word.isalpha()
-    ]
 
 
 def strip_accents(text: str, rng: random.Random) -> str:
@@ -78,20 +81,21 @@ def glue_punctuation(text: str, rng: random.Random) -> str:
     return text[:index] + rng.choice(GLUING_PUNCTUATION) + text[index + 1 :]
 
 
-def transpose(text: str, rng: random.Random) -> str:
-    words, candidates = _words(text)
+def triple_letter(text: str, rng: random.Random) -> str:
+    """« amaaazon » : deux fautes d'un coup, au-delà de ce que l'entraînement sert."""
+    words, candidates = words_and_candidates(text)
     if not candidates:
         return text
     position = rng.choice(candidates)
     word = words[position]
-    index = rng.randrange(len(word) - 1)
-    words[position] = word[:index] + word[index + 1] + word[index] + word[index + 2 :]
+    index = rng.randrange(len(word))
+    words[position] = word[:index] + word[index] * 3 + word[index + 1 :]
     return " ".join(words)
 
 
-def phonetic(text: str, rng: random.Random) -> str:
-    """Écrire au son : « farmacie », « boulangerie » → « boulanjerie »."""
-    applicable = [(before, after) for before, after in PHONETIC if before in text.lower()]
+def phonetic_vowels(text: str, rng: random.Random) -> str:
+    """Écrire au son, côté voyelles : « oto », « resto u », « wazo »."""
+    applicable = [rule for rule in PHONETIC_VOWELS if rule[0] in text.lower()]
     if not applicable:
         return text
     before, after = rng.choice(applicable)
@@ -100,7 +104,7 @@ def phonetic(text: str, rng: random.Random) -> str:
 
 
 def qwerty_key(text: str, rng: random.Random) -> str:
-    words, candidates = _words(text)
+    words, candidates = words_and_candidates(text)
     if not candidates:
         return text
     position = rng.choice(candidates)
@@ -113,15 +117,6 @@ def qwerty_key(text: str, rng: random.Random) -> str:
     return " ".join(words)
 
 
-def lost_space(text: str, rng: random.Random) -> str:
-    """« carrefour city » tapé d'un seul tenant : rien en amont ne le recolle."""
-    spaces = [index for index, char in enumerate(text) if char == " "]
-    if not spaces:
-        return text
-    index = rng.choice(spaces)
-    return text[:index] + text[index + 1 :]
-
-
 NORMALIZATION_OPERATORS = {
     "accents retirés": strip_accents,
     "accents ajoutés": add_accents,
@@ -130,28 +125,12 @@ NORMALIZATION_OPERATORS = {
 }
 
 EVAL_ONLY_OPERATORS = {
-    "transposition": transpose,
-    "phonétique": phonetic,
+    "phonétique voyelles": phonetic_vowels,
     "touche qwerty": qwerty_key,
-    "espace perdu": lost_space,
+    "lettre triplée": triple_letter,
 }
 
-
-def _always(operator):
-    """Les opérateurs d'entraînement tirent au sort ; ici on mesure à coup sûr."""
-
-    def apply(text: str, rng: random.Random) -> str:
-        words, candidates = _words(text)
-        if not candidates:
-            return text
-        position = rng.choice(candidates)
-        words[position] = operator(words[position], rng)
-        return " ".join(words)
-
-    return apply
-
-
-SEEN_AT_TRAINING = {name: _always(op) for name, op in TRAIN_OPERATORS.items()}
+SEEN_AT_TRAINING = TRAIN_OPERATORS
 
 
 def predict(model, tokenizer, texts: list[str]) -> list[int]:
@@ -181,6 +160,28 @@ def sample(rows: list[dict], limit: int) -> list[dict]:
     if limit <= 0 or limit >= len(rows):
         return rows
     return random.Random(SAMPLE_SEED).sample(rows, limit)
+
+
+def report_real_faults(model, tokenizer) -> None:
+    """La faute qu'un francophone fait vraiment, sur un nom que la base connaît."""
+    if not TYPOS_PATH.exists():
+        return
+    cases = json.loads(TYPOS_PATH.read_text(encoding="utf-8"))["cases"]
+    by_axis: dict[str, list[dict]] = defaultdict(list)
+    for case in cases:
+        by_axis[case["axis"]].append(case)
+
+    print(f"\nFautes réelles ({len(cases)} cas, noms connus de la base)")
+    print(f"  {'axe':16s}{'écrit juste':>13s}{'tel que tapé':>14s}")
+    for axis, group in sorted(by_axis.items()):
+        expected = [LABELS.index(case["category"]) for case in group]
+        clean = accuracy(
+            model, tokenizer, [normalize_query(case["clean"]) for case in group], expected
+        )
+        typed = accuracy(
+            model, tokenizer, [normalize_query(case["input"]) for case in group], expected
+        )
+        print(f"  {axis:16s}{clean:12.0%}{typed:14.0%}   ({len(group)})")
 
 
 def main() -> None:
@@ -218,6 +219,8 @@ def main() -> None:
                 model, tokenizer, [normalize_query(t) for t in noisy], expected
             )
             print(f"  {name:20s}{raw:8.1%}{normalized:12.1%}")
+
+    report_real_faults(model, tokenizer)
 
 
 if __name__ == "__main__":

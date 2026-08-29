@@ -56,6 +56,7 @@ uv run python -m training.train             # → output/best/ (~2 h sur MPS)
 uv run python -m evaluation.world           # mémorisation
 uv run python -m evaluation.generalization  # entités jamais vues — la mesure qui décide
 uv run python -m evaluation.quick_add       # non-régression quick-add
+uv run python -m evaluation.robustness      # fautes de frappe, par opérateur
 uv run python -m evaluation.receipts --cascade   # libellés de tickets (scan)
 uv run python -m training.export_onnx       # → output/best/model.onnx
 uv run python -m evaluation.onnx            # justesse et fidélité de l'export int8
@@ -73,7 +74,8 @@ cd ../.. && ./tool/models/publish.sh   # asset versionné + release GitHub + too
 ```
 Texte utilisateur / libellé de ticket
       ↓  [Price Parser]        montant (regex, PriceParserService côté app)
-      ↓  [serving/normalize]   libellé nettoyé, identique à l'entraînement
+      ↓  [serving/normalize]   minuscules, accents repliés, ponctuation décollée
+                               — la forme exacte du corpus, des deux côtés
       ↓  [BPE Tokenizer]       input_ids + attention_mask (padding dynamique)
       ↓  [ONNX Model]          type_logits (2) | category_logits (80) | recurrence_logits (2)
   argmax par tête

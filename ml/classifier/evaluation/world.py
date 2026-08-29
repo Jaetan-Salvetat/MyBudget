@@ -22,6 +22,7 @@ from transformers import AutoTokenizer
 
 from knowledge.entities import normalize, read_entities
 from paths import ENTITIES_PATH, MODEL_DIR, WORLD_CORPUS
+from serving.normalize import normalize_query
 from taxonomy import LABELS, canonical
 from training.train import BudgetClassifier
 
@@ -64,7 +65,8 @@ def is_known(text: str, names: set[str]) -> bool:
 
 
 def predict(model: BudgetClassifier, tokenizer, text: str) -> dict:
-    tokens = tokenizer(text, return_tensors="pt", truncation=True, max_length=64)
+    """Le corpus est écrit comme l'utilisateur tape ; le modèle lit la forme canonique."""
+    tokens = tokenizer(normalize_query(text), return_tensors="pt", truncation=True, max_length=64)
     with torch.no_grad():
         output = model(input_ids=tokens["input_ids"], attention_mask=tokens["attention_mask"])
     probabilities = torch.softmax(output.category_logits, dim=-1)
