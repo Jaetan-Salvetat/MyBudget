@@ -17,6 +17,9 @@ JournalEntry entryOf({
 }) {
   return JournalEntry(
     id: id,
+    source: type == TransactionType.income
+        ? JournalEntrySource.revenue
+        : JournalEntrySource.expense,
     type: type,
     name: 'Ligne $id',
     amount: amount,

@@ -9,8 +9,11 @@ import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
+import 'package:mybudget/ui/capture/models/journal_bucket.dart';
+import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
@@ -212,7 +215,7 @@ void main() {
     });
   });
 
-  group('the day total', () {
+  group('the slice total', () {
     test('counts expenses up and revenues down', () async {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day, 10, 0);
@@ -228,14 +231,14 @@ void main() {
       final container = await containerReady();
 
       expect(
-        container.read(monthJournalProvider).first.spent,
+        container.read(journalBucketsProvider).first.spent,
         closeTo(26.30, 0.001),
       );
     });
   });
 
-  group('monthJournal', () {
-    test('reads the month backwards, newest day first', () async {
+  group('journalBuckets', () {
+    test('reads the past backwards, newest slice first', () async {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day, 10, 0);
       final earlier = DateTime(now.year, now.month, 1, 9, 0);
@@ -246,16 +249,17 @@ void main() {
       ]);
 
       final container = await containerReady();
-      final days = container.read(monthJournalProvider);
+      final buckets = container.read(journalBucketsProvider);
 
-      expect(days.first.entries.single.name, 'Carrefour');
-      expect(days.first.isSameDay(today), isTrue);
-      if (days.length > 1) {
-        expect(days.last.entries.single.name, 'Loyer');
-      }
+      expect(buckets.first.kind, JournalBucketKind.today);
+      expect(buckets.first.entries.single.name, 'Carrefour');
+      expect(
+        buckets.expand((bucket) => bucket.entries).map((e) => e.name),
+        containsAll(['Carrefour', 'Loyer']),
+      );
     });
 
-    test('leaves out the days the month recorded nothing on', () async {
+    test('leaves out the slices that recorded nothing', () async {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day, 10, 0);
 
@@ -265,10 +269,10 @@ void main() {
 
       final container = await containerReady();
 
-      expect(container.read(monthJournalProvider).length, 1);
+      expect(container.read(journalBucketsProvider).length, 1);
     });
 
-    test('a day reads newest line first', () async {
+    test('a slice reads newest line first', () async {
       final now = DateTime.now();
 
       when(() => expenses.getActive()).thenReturn([
@@ -289,8 +293,62 @@ void main() {
       final container = await containerReady();
 
       expect(
-        container.read(monthJournalProvider).first.entries.map((e) => e.name),
+        container.read(journalBucketsProvider).first.entries.map((e) => e.name),
         ['Carrefour', 'Café'],
+      );
+    });
+
+    test('a monthly expense lands in every month since its first', () async {
+      final now = DateTime.now();
+      final twoMonthsAgo = DateTime(now.year, now.month - 2, 3, 9, 0);
+
+      when(() => expenses.getActive()).thenReturn([
+        expenseOf(
+          id: 1,
+          name: 'Netflix',
+          amount: 13.99,
+          startDate: twoMonthsAgo,
+          frequency: 'Mensuel',
+        ),
+      ]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .toList();
+
+      expect(landings.length, 3);
+      expect(
+        landings.map((entry) => entry.at.month).toSet().length,
+        3,
+      );
+    });
+
+    test('a yearly expense comes back a year on, same month', () async {
+      final now = DateTime.now();
+      final lastYear = DateTime(now.year - 1, now.month, 12, 9, 0);
+
+      when(() => expenses.getActive()).thenReturn([
+        expenseOf(
+          id: 1,
+          name: 'Assurance habitation',
+          amount: 214,
+          startDate: lastYear,
+          frequency: 'Annuel',
+        ),
+      ]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .toList();
+
+      expect(landings.length, 2);
+      expect(
+        landings.map((entry) => entry.at.year).toSet(),
+        {now.year - 1, now.year},
       );
     });
 
@@ -308,7 +366,81 @@ void main() {
 
       final container = await containerReady();
 
-      expect(container.read(monthJournalProvider), isEmpty);
+      expect(container.read(journalBucketsProvider), isEmpty);
+    });
+  });
+
+  group('loans', () {
+    LoanModel loanOf({required DateTime startDate, required int dayOfMonth}) {
+      return LoanModel(
+        id: 7,
+        name: 'Prêt auto',
+        amount: 5000,
+        duration: 12,
+        interestRate: 5,
+        accountId: 1,
+        startDate: startDate,
+        endDate: DateTime(startDate.year + 1, startDate.month, dayOfMonth),
+        dayOfMonth: dayOfMonth,
+        lenderName: 'Banque',
+      );
+    }
+
+    test('every instalment already due lands in the journal', () async {
+      final now = DateTime.now();
+      final threeMonthsAgo = DateTime(now.year, now.month - 3, 1);
+
+      when(
+        () => loans.getAll(),
+      ).thenReturn([loanOf(startDate: threeMonthsAgo, dayOfMonth: 1)]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .where((entry) => entry.source == JournalEntrySource.loan)
+          .toList();
+
+      expect(landings, isNotEmpty);
+      expect(landings.every((entry) => !entry.at.isAfter(now)), isTrue);
+      expect(landings.first.name, 'Prêt auto');
+    });
+
+    test('an instalment reads as a credit repayment', () async {
+      final now = DateTime.now();
+
+      when(() => loans.getAll()).thenReturn([
+        loanOf(startDate: DateTime(now.year, now.month - 2, 1), dayOfMonth: 1),
+      ]);
+
+      final container = await containerReady();
+      final instalment = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .firstWhere((entry) => entry.source == JournalEntrySource.loan);
+
+      expect(instalment.categorySlug, kLoanCategorySlug);
+      expect(instalment.type, TransactionType.expense);
+      expect(instalment.amount, greaterThan(0));
+    });
+
+    test('an instalment answers to no quick-add submission', () async {
+      final now = DateTime.now();
+
+      when(() => loans.getAll()).thenReturn([
+        loanOf(startDate: DateTime(now.year, now.month - 1, 1), dayOfMonth: 1),
+      ]);
+
+      final container = await containerReady();
+      final instalment = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .firstWhere((entry) => entry.source == JournalEntrySource.loan);
+
+      expect(
+        instalment.sameTransaction(TransactionType.expense, instalment.id),
+        isFalse,
+      );
     });
   });
 

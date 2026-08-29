@@ -11,7 +11,9 @@ import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
+import 'package:intl/intl.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
+import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -26,13 +28,14 @@ ExpenseModel expenseOf({
   required String name,
   required double amount,
   required DateTime startDate,
+  String frequency = 'Ponctuel',
   String? categorySlug,
 }) {
   final expense = ExpenseModel.create(
     name: name,
     amount: amount,
     startDate: startDate,
-    frequency: 'Ponctuel',
+    frequency: frequency,
     accountId: 1,
     categorySlug: categorySlug,
   );
@@ -104,22 +107,21 @@ void main() {
     expect(find.text('Café'), findsOneWidget);
   });
 
-  testWidgets('carries the merchant initial rather than a shared icon', (
-    tester,
-  ) async {
+  testWidgets('wears the same avatar as the expenses list', (tester) async {
     when(() => expenses.getActive()).thenReturn([
       expenseOf(
         id: 1,
         name: 'Leroy Merlin',
         amount: 31.40,
         startDate: todayAt(15, 8),
+        categorySlug: 'logement.entretien',
       ),
     ]);
 
     await pumpJournal(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('LM'), findsOneWidget);
+    expect(find.byType(TransactionAvatar), findsOneWidget);
   });
 
   testWidgets('splits the day where the moment changes', (tester) async {
@@ -172,6 +174,82 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => expenses.delete(7)).called(1);
+  });
+
+  testWidgets('a past month reads open, and folds away on a tap', (
+    tester,
+  ) async {
+    final lastMonth = DateTime(now.year, now.month - 1, 15, 10, 0);
+
+    when(() => expenses.getActive()).thenReturn([
+      expenseOf(
+        id: 1,
+        name: 'Assurance auto',
+        amount: 61.20,
+        startDate: lastMonth,
+      ),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    final label = DateFormat(
+      'MMMM yyyy',
+      'fr_FR',
+    ).format(lastMonth).toUpperCase();
+
+    expect(find.text(label), findsOneWidget);
+    expect(find.text('Assurance auto'), findsOneWidget);
+
+    await tester.tap(find.text(label));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Assurance auto'), findsNothing);
+  });
+
+  testWidgets('a monthly expense shows up in every month since its first', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final twoMonthsAgo = DateTime(now.year, now.month - 2, 3, 9, 0);
+
+    when(() => expenses.getActive()).thenReturn([
+      expenseOf(
+        id: 1,
+        name: 'Netflix',
+        amount: 13.99,
+        startDate: twoMonthsAgo,
+        frequency: 'Mensuel',
+      ),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    // Its own month, the one after, and the current one.
+    expect(find.text('Netflix'), findsNWidgets(3));
+  });
+
+  testWidgets('a yearly expense comes back on the same month, a year on', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final lastYear = DateTime(now.year - 1, now.month, 12, 9, 0);
+
+    when(() => expenses.getActive()).thenReturn([
+      expenseOf(
+        id: 1,
+        name: 'Assurance habitation',
+        amount: 214,
+        startDate: lastYear,
+        frequency: 'Annuel',
+      ),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Assurance habitation'), findsNWidgets(2));
   });
 
   testWidgets('an empty today says so, the month carries on below', (

@@ -7,22 +7,27 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
+import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
-/// One transaction of the day. Every line carries the same typographic
-/// weight : what tells them apart is the initial, the category tint and the
+/// One transaction of the journal. Every line carries the same typographic
+/// weight : what tells them apart is the avatar, the category colour and the
 /// place in the day — never a bigger number.
+///
+/// The avatar is the app's own [TransactionAvatar], the one the expenses and
+/// revenues lists already draw : one transaction, one face, wherever it is
+/// read.
 class JournalLine extends StatelessWidget {
-  static const double avatarSize = 36;
   static const double radius = 18;
   static const Duration coolDown = Duration(milliseconds: 600);
 
-  static const double _tintOpacity = 0.17;
-  static const double _borderOpacity = 0.26;
   static const double _freshOpacity = 0.13;
-  static const double _inkBlend = 0.78;
 
   final JournalEntry entry;
   final CategoryDisplay? category;
+
+  /// The slice the line sits in already names the day : the meta then shows
+  /// the hour. Further back it is the day that has to be said.
+  final bool keepsTheHour;
 
   /// The line just landed : it holds its tint and its way back for as long as
   /// the undo window lasts, then cools into the list.
@@ -34,6 +39,7 @@ class JournalLine extends StatelessWidget {
   const JournalLine({
     required this.entry,
     required this.category,
+    required this.keepsTheHour,
     required this.isFresh,
     this.onUndo,
     this.onTap,
@@ -64,7 +70,12 @@ class JournalLine extends StatelessWidget {
             padding: const EdgeInsets.all(FrostedSpacing.sp2),
             child: Row(
               children: [
-                _Avatar(entry: entry, category: category, tone: tone),
+                TransactionAvatar(
+                  color: tone,
+                  icon: category == null
+                      ? Symbols.category_rounded
+                      : CategoryDefaults.resolveIcon(category!.icon),
+                ),
                 const SizedBox(width: FrostedSpacing.sp3),
                 Expanded(
                   child: Column(
@@ -126,10 +137,15 @@ class JournalLine extends StatelessWidget {
 
   String _meta() {
     final label = category?.label;
-    if (!entry.hasTime) return label ?? '';
+    final when = _when();
+    if (when == null) return label ?? '';
 
-    final time = DateFormat.Hm('fr_FR').format(entry.at);
-    return label == null ? time : '$time · $label';
+    return label == null ? when : '$when · $label';
+  }
+
+  String? _when() {
+    if (!keepsTheHour) return DateFormat('EEE d', 'fr_FR').format(entry.at);
+    return entry.hasTime ? DateFormat.Hm('fr_FR').format(entry.at) : null;
   }
 
   String _amountLabel() {
@@ -139,84 +155,6 @@ class JournalLine extends StatelessWidget {
     ).format(entry.amount);
     return entry.isIncome ? '+ $formatted' : '− $formatted';
   }
-}
-
-/// The initial of the merchant in a disc tinted by its category : four
-/// identical basket icons told nothing apart.
-class _Avatar extends StatelessWidget {
-  final JournalEntry entry;
-  final CategoryDisplay? category;
-  final Color tone;
-
-  const _Avatar({
-    required this.entry,
-    required this.category,
-    required this.tone,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final ink = _ink(context);
-    final initials = _initials(entry.name);
-
-    return Container(
-      width: JournalLine.avatarSize,
-      height: JournalLine.avatarSize,
-      decoration: BoxDecoration(
-        color: tone.withValues(alpha: JournalLine._tintOpacity),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: tone.withValues(alpha: JournalLine._borderOpacity),
-        ),
-      ),
-      alignment: Alignment.center,
-      child: initials.isEmpty
-          ? Icon(
-              _icon(category),
-              size: 19,
-              color: ink,
-              fill: 1,
-            )
-          : Text(
-              initials,
-              style: TextStyle(
-                fontSize: 15,
-                height: 1,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.15,
-                color: ink,
-              ),
-            ),
-    );
-  }
-
-  static IconData _icon(CategoryDisplay? category) => category == null
-      ? Symbols.category_rounded
-      : CategoryDefaults.resolveIcon(category.icon);
-
-  /// The palette is tuned for a dark ground ; on a light one the same hue has
-  /// to be taken down before it can carry a letter.
-  Color _ink(BuildContext context) {
-    if (Theme.of(context).brightness == Brightness.dark) return tone;
-    return Color.alphaBlend(
-      tone.withValues(alpha: JournalLine._inkBlend),
-      Colors.black,
-    );
-  }
-
-  static String _initials(String name) {
-    final words = name
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty && _isLetter(word[0]))
-        .toList();
-    if (words.isEmpty) return '';
-    if (words.length == 1) return words.first[0].toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-
-  static bool _isLetter(String character) =>
-      character.toLowerCase() != character.toUpperCase();
 }
 
 class _UndoLink extends StatelessWidget {

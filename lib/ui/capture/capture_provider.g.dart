@@ -61,62 +61,60 @@ final class RemainingThisMonthProvider
 String _$remainingThisMonthHash() =>
     r'9136ff2a5737a2ca0440aea27772a0441c7e3844';
 
-/// The month so far, newest day first and newest line first inside each day.
-/// The journal opens on what just happened and scrolls back through the
-/// month ; days with nothing on them are left out rather than drawn empty.
+/// The past cut into slices that get coarser as they get older, newest first
+/// throughout. Empty slices are dropped rather than drawn hollow.
 
-@ProviderFor(monthJournal)
-final monthJournalProvider = MonthJournalProvider._();
+@ProviderFor(journalBuckets)
+final journalBucketsProvider = JournalBucketsProvider._();
 
-/// The month so far, newest day first and newest line first inside each day.
-/// The journal opens on what just happened and scrolls back through the
-/// month ; days with nothing on them are left out rather than drawn empty.
+/// The past cut into slices that get coarser as they get older, newest first
+/// throughout. Empty slices are dropped rather than drawn hollow.
 
-final class MonthJournalProvider
+final class JournalBucketsProvider
     extends
         $FunctionalProvider<
-          List<JournalDay>,
-          List<JournalDay>,
-          List<JournalDay>
+          List<JournalBucket>,
+          List<JournalBucket>,
+          List<JournalBucket>
         >
-    with $Provider<List<JournalDay>> {
-  /// The month so far, newest day first and newest line first inside each day.
-  /// The journal opens on what just happened and scrolls back through the
-  /// month ; days with nothing on them are left out rather than drawn empty.
-  MonthJournalProvider._()
+    with $Provider<List<JournalBucket>> {
+  /// The past cut into slices that get coarser as they get older, newest first
+  /// throughout. Empty slices are dropped rather than drawn hollow.
+  JournalBucketsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'monthJournalProvider',
+        name: r'journalBucketsProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$monthJournalHash();
+  String debugGetCreateSourceHash() => _$journalBucketsHash();
 
   @$internal
   @override
-  $ProviderElement<List<JournalDay>> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<List<JournalBucket>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  List<JournalDay> create(Ref ref) {
-    return monthJournal(ref);
+  List<JournalBucket> create(Ref ref) {
+    return journalBuckets(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<JournalDay> value) {
+  Override overrideWithValue(List<JournalBucket> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<List<JournalDay>>(value),
+      providerOverride: $SyncValueProvider<List<JournalBucket>>(value),
     );
   }
 }
 
-String _$monthJournalHash() => r'38216b30d06e80eb3ecfd2f059751d4011084f36';
+String _$journalBucketsHash() => r'778ff7ef6e520e4591151ecc5005aa8d2b2628e2';
 
 /// Today alone, for the figure above the list and for the hint that only
 /// types itself out while the day is still bare.
@@ -171,4 +169,4 @@ final class TodayJournalProvider
   }
 }
 
-String _$todayJournalHash() => r'aeea6d4b0dea97201d5591482cea4cb9479ee770';
+String _$todayJournalHash() => r'8c7407867e6896be8dc50918d893ac3f568d6bc4';
