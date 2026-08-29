@@ -21,6 +21,7 @@ import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
+import 'package:mybudget/ui/settings/settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -152,5 +153,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(container.read(homeNavigationProvider).tab, HomeTab.stats);
+  });
+
+  testWidgets('les réglages restent en haut à droite', (tester) async {
+    final container = await pumpCapture(tester);
+
+    final settings = find.byIcon(Symbols.settings_rounded);
+    expect(settings, findsOneWidget);
+
+    await tester.tap(settings);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(container.read(homeNavigationProvider).tab, HomeTab.capture);
   });
 }

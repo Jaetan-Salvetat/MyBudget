@@ -17,11 +17,13 @@ class CaptureAnchor extends StatelessWidget {
   final double remaining;
   final double monthlyRevenues;
   final VoidCallback onTap;
+  final VoidCallback onSettings;
 
   const CaptureAnchor({
     required this.remaining,
     required this.monthlyRevenues,
     required this.onTap,
+    required this.onSettings,
     super.key,
   });
 
@@ -67,9 +69,9 @@ class CaptureAnchor extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Symbols.chevron_right_rounded,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.55),
+            FrostedIconButton.tonal(
+              icon: Symbols.settings_rounded,
+              onPressed: onSettings,
             ),
           ],
         ),

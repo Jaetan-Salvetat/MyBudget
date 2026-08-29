@@ -15,6 +15,7 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/ui/settings/settings_screen.dart';
 
 /// The page the app opens on : one figure, the day's journal, and the input
 /// under the thumb. Everything else is a consequence of what gets typed here.
@@ -117,6 +118,10 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                 monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
                 onTap: () =>
                     ref.read(homeNavigationProvider.notifier).openStats(),
+                onSettings: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
               ),
               const Expanded(child: JournalView()),
               Padding(
