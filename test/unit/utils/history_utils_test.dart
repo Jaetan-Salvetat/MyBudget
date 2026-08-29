@@ -146,6 +146,77 @@ void main() {
     });
   });
 
+  group('occursInMonth, at day resolution', () {
+    test('a rule closed on the 29th keeps the 8th it paid that month', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 4, 8),
+          DateTime(2026, 8, 29),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isTrue,
+      );
+    });
+
+    test('a rule closed on the 29th drops the 30th it never paid', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 4, 30),
+          DateTime(2026, 8, 29),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isFalse,
+      );
+    });
+
+    test('a rule started on the 20th keeps the month it started in', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 8, 20),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isTrue,
+      );
+    });
+
+    test('a rule opened and closed the same day keeps that day', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 8, 8),
+          DateTime(2026, 8, 8),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isTrue,
+      );
+    });
+
+    test('an end that precedes the start falls on no month at all', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 9, 8),
+          DateTime(2026, 8, 8),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isFalse,
+      );
+      expect(
+        occursInMonth(
+          DateTime(2026, 9, 8),
+          DateTime(2026, 8, 8),
+          Frequency.monthly,
+          DateTime(2026, 9),
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('dayInMonthOf', () {
     test('keeps the day of the month a recurring rule started on', () {
       expect(
@@ -177,44 +248,6 @@ void main() {
         ),
         DateTime(2026, 5, 20, 14, 30),
       );
-    });
-  });
-
-  group('computeEndDate', () {
-    test('already paid this month returns this month paymentDay', () {
-      final now = DateTime(2024, 6, 20);
-      const paymentDay = 15;
-
-      final result = computeEndDate(now, paymentDay);
-
-      expect(result, DateTime(2024, 6, 15));
-    });
-
-    test('not yet paid returns previous month paymentDay', () {
-      final now = DateTime(2024, 6, 10);
-      const paymentDay = 15;
-
-      final result = computeEndDate(now, paymentDay);
-
-      expect(result, DateTime(2024, 5, 15));
-    });
-
-    test('day 31 in month with 30 days is clamped to 30', () {
-      final now = DateTime(2024, 7, 5);
-      const paymentDay = 31;
-
-      final result = computeEndDate(now, paymentDay);
-
-      expect(result, DateTime(2024, 6, 30));
-    });
-
-    test('January edge case: previous month is December of previous year', () {
-      final now = DateTime(2024, 1, 10);
-      const paymentDay = 15;
-
-      final result = computeEndDate(now, paymentDay);
-
-      expect(result, DateTime(2023, 12, 15));
     });
   });
 

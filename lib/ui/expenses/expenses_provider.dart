@@ -49,37 +49,39 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly =
-          updated.amount == old.amount &&
-          updated.frequency == old.frequency &&
-          updated.categorySlug == old.categorySlug &&
-          updated.accountId == old.accountId &&
-          updated.beneficiaryId == old.beneficiaryId &&
-          updated.name != old.name;
+      // What the rule costs, how often, and which account it leaves : change
+      // any of that and it is another agreement, so the months already paid
+      // keep the one they were paid under.
+      final bool changesTerms =
+          updated.amount != old.amount ||
+          updated.frequency != old.frequency ||
+          updated.accountId != old.accountId;
 
-      if (isNameOnly) {
-        final int rootId = old.parentId ?? old.id;
-        final chain = repo.getChain(rootId);
-        for (final entry in chain) {
-          repo.update(entry.copyWith(name: updated.name));
+      // Everything else only describes the rule. Filing a subscription under
+      // the right category is a correction, and a correction is true of every
+      // month it ever ran — so it reaches the whole chain and splits nothing.
+      if (!changesTerms) {
+        for (final entry in repo.getChain(old.parentId ?? old.id)) {
+          repo.update(
+            entry
+              ..name = updated.name
+              ..categorySlug = updated.categorySlug
+              ..beneficiaryId = updated.beneficiaryId,
+          );
         }
         ref.invalidateSelf();
         await future;
         return;
       }
 
-      final bool isStructural =
-          updated.amount != old.amount ||
-          updated.frequency != old.frequency ||
-          updated.categorySlug != old.categorySlug ||
-          updated.accountId != old.accountId ||
-          updated.beneficiaryId != old.beneficiaryId;
-
-      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
+      if (old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
         final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
+        if (hasStarted(old.startDate, now)) {
+          repo.update(old.copyWith(endDate: dayOnly(now)));
+        } else {
+          repo.delete(old.id);
+        }
         final newExpense = ExpenseModel.create(
           name: updated.name,
           amount: updated.amount,
@@ -115,14 +117,17 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       final expense = repo.get(id);
       if (expense == null) return;
 
-      if (expense.frequencyEnum == Frequency.oneTime) {
+      final now = DateTime.now();
+      // A recurring rule is closed rather than erased : the months it was
+      // actually paid in are history, and history is what this app keeps.
+      // One that never came round has no such months to defend.
+      if (expense.frequencyEnum == Frequency.oneTime ||
+          !hasStarted(expense.startDate, now)) {
         await deletePermanently(id);
         return;
       }
 
-      final now = DateTime.now();
-      final endDate = computeEndDate(now, expense.startDate.day);
-      repo.update(expense.copyWith(endDate: endDate));
+      repo.update(expense.copyWith(endDate: dayOnly(now)));
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -135,9 +140,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     return repo.getClosed();
   }
 
-  List<ExpenseModel> _currentExpenses() => state.value ?? [];
-
-  List<ExpenseModel> getExpensesForAccount(int accountId) => _currentExpenses()
-      .where((expense) => expense.accountId == accountId)
-      .toList();
+  List<ExpenseModel> getExpensesForAccount(int accountId) =>
+      (state.value ?? const <ExpenseModel>[])
+          .where((expense) => expense.accountId == accountId)
+          .toList();
 }

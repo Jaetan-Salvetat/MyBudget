@@ -64,9 +64,12 @@ class TransferNotifier extends _$TransferNotifier {
 
       if (isStructural && old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
         final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
+        if (hasStarted(old.startDate, now)) {
+          repo.update(old.copyWith(endDate: dayOnly(now)));
+        } else {
+          repo.delete(old.id);
+        }
         final newTransfer = TransferModel.create(
           name: updated.name,
           amount: updated.amount,
@@ -93,12 +96,12 @@ class TransferNotifier extends _$TransferNotifier {
       final transfer = repo.get(id);
       if (transfer == null) return;
 
-      if (transfer.frequencyEnum == Frequency.oneTime) {
+      final now = DateTime.now();
+      if (transfer.frequencyEnum == Frequency.oneTime ||
+          !hasStarted(transfer.startDate, now)) {
         repo.delete(id);
       } else {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, transfer.startDate.day);
-        repo.update(transfer.copyWith(endDate: endDate));
+        repo.update(transfer.copyWith(endDate: dayOnly(now)));
       }
       ref.invalidateSelf();
       await future;

@@ -12,7 +12,11 @@ bool isActiveForMonth(DateTime startDate, DateTime? endDate, DateTime month) {
 }
 
 /// Whether a rule lands on [month] at all : it has to be alive that month,
-/// and its frequency has to bring it round.
+/// its frequency has to bring it round, and the day it lands on has to fall
+/// inside its own life.
+///
+/// That last check is what a month-wide window cannot say : a rule closed on
+/// the 29th never paid the 30th, even though both sit in the same month.
 ///
 /// This is the single answer to "does this count for this month ?" — the
 /// lists and the totals both read it, so neither can drift from the other.
@@ -25,13 +29,17 @@ bool occursInMonth(
   if (!isActiveForMonth(startDate, endDate, month)) return false;
 
   switch (frequency) {
-    case Frequency.monthly:
-      return true;
-    case Frequency.annual:
-      return startDate.month == month.month;
     case Frequency.oneTime:
       return startDate.year == month.year && startDate.month == month.month;
+    case Frequency.annual:
+      if (startDate.month != month.month) return false;
+    case Frequency.monthly:
+      break;
   }
+
+  final landing = dayInMonthOf(startDate, frequency, month);
+  if (landing.isBefore(dayOnly(startDate))) return false;
+  return endDate == null || !landing.isAfter(dayOnly(endDate));
 }
 
 /// The date a rule lands on inside [month]. A recurring rule keeps the day it
@@ -51,18 +59,14 @@ DateTime dayInMonthOf(
   );
 }
 
-DateTime computeEndDate(DateTime now, int paymentDay) {
-  final clampedDay = clampDayOfMonth(now.year, now.month, paymentDay);
-  if (now.day > clampedDay) {
-    return DateTime(now.year, now.month, clampedDay);
-  }
-  final prevMonth = now.month == 1
-      ? DateTime(now.year - 1, 12, 1)
-      : DateTime(now.year, now.month - 1, 1);
-  final clampedPrev = clampDayOfMonth(prevMonth.year, prevMonth.month, paymentDay);
-  return DateTime(prevMonth.year, prevMonth.month, clampedPrev);
-}
+/// Whether a rule has already lived by [asOf] : it has, from the day it
+/// starts on. One that has not has nothing to archive — closing it would
+/// write an end before its own start, and leave a row belonging to no month.
+bool hasStarted(DateTime startDate, DateTime asOf) =>
+    !dayOnly(startDate).isAfter(dayOnly(asOf));
 
+/// The first day the rule taking over lands on : the next occurrence of
+/// [paymentDay], this month if it has not come round yet.
 DateTime computeNewStartDate(DateTime now, int paymentDay) {
   final clampedDay = clampDayOfMonth(now.year, now.month, paymentDay);
   if (now.day > clampedDay) {
@@ -96,9 +100,6 @@ bool occursOnDay(
 ) {
   final month = DateTime(day.year, day.month);
   if (!occursInMonth(startDate, endDate, frequency, month)) return false;
-
-  if (dayOnly(day).isBefore(dayOnly(startDate))) return false;
-  if (endDate != null && dayOnly(day).isAfter(dayOnly(endDate))) return false;
 
   return dayOnly(dayInMonthOf(startDate, frequency, month)) == dayOnly(day);
 }
