@@ -8,6 +8,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
+import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
@@ -15,7 +16,6 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
@@ -24,7 +24,9 @@ import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 /// is a rafale, not one trip per line. The way back sits on the journal line
 /// the transaction just became.
 class QuickAddBar extends ConsumerStatefulWidget {
-  static const String staticHint = 'café 3,50 · netflix 13,99 · salaire 2500';
+  /// Un seul exemple : une liste d'exemples ne tient pas dans le champ et
+  /// finit tronquée par des points de suspension.
+  static const String staticHint = 'courses carrefour 42';
 
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
@@ -53,6 +55,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+
   bool _keyboardOpen = false;
   bool _submitting = false;
   bool _sentFlashing = false;
@@ -94,10 +97,11 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   /// rafale dies on the very key made for it.
   void _keepTyping() {}
 
+  /// Vider le champ n'est pas en sortir : le clavier reste, la frappe
+  /// suivante part tout de suite.
   void _cancel() {
     _controller.clear();
     ref.read(quickAddProvider.notifier).reset();
-    _focusNode.unfocus();
   }
 
   /// Une dégradation ne se signale qu'au moment où elle arrive, et jamais
@@ -133,13 +137,17 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   /// stays : the next expense types straight away, the journal holds the undo.
   Future<void> _submit() async {
     if (_submitting) return;
-    if (!ref.read(quickAddProvider).isSubmittable) return;
+    final draft = ref.read(quickAddProvider);
+    if (!draft.isSubmittable) return;
 
     final accountId = ref.read(quickAddAccountProvider);
     if (accountId == null) {
       widget.onNoAccount();
       return;
     }
+
+    final landing = QuickAddLanding.controllerOf(context);
+    landing?.arm();
 
     setState(() => _submitting = true);
     try {
@@ -148,10 +156,15 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           .submit(accountId);
       _controller.clear();
       unawaited(HapticFeedback.mediumImpact());
-      if (!mounted) return;
+      if (!mounted) {
+        landing?.release();
+        return;
+      }
       ref.read(quickAddRecentSubmissionsProvider.notifier).push(submission);
+      landing?.land();
       _flashSent();
     } on QuickAddException catch (e) {
+      landing?.release();
       if (!mounted) return;
       FrostedSnackbar.show(context, message: e.message);
     } finally {
@@ -227,8 +240,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               enabled: _sentFlashing || draft.isSubmittable,
               busy: _submitting,
               onTap: _sentFlashing ? _keepTyping : _submit,
-              background: _categoryAccent(draft) ?? scheme.primary,
-              foreground: _accentForeground(draft, scheme),
+              background: scheme.onSurface,
+              foreground: scheme.surface,
             ),
           ],
         ),
@@ -238,7 +251,12 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           alignment: Alignment.topCenter,
           child: showContext
               ? Padding(
-                  padding: const EdgeInsets.only(top: FrostedSpacing.sp1),
+                  // Alignée sur le champ, dont elle parle, pas sur le bord de
+                  // la rangée.
+                  padding: const EdgeInsets.only(
+                    left: _RoundButton.size + FrostedSpacing.sp2,
+                    top: FrostedSpacing.sp1,
+                  ),
                   child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
                 )
               : const SizedBox(width: double.infinity),
@@ -284,35 +302,15 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
       ),
     );
   }
-
-  /// Once the model stands behind a category, its colour takes the send
-  /// button : the tap records *that* transaction, not a generic submit.
-  Color? _categoryAccent(QuickAddDraft draft) {
-    final slug = draft.categorySlug;
-    if (slug == null || draft.isStale || draft.isCategoryUncertain) {
-      return null;
-    }
-
-    final display = ref
-        .watch(categoryDisplayResolverProvider)
-        .value
-        ?.resolve(slug);
-    if (display == null) return null;
-    return Color(display.color);
-  }
-
-  Color _accentForeground(QuickAddDraft draft, ColorScheme scheme) {
-    final accent = _categoryAccent(draft);
-    if (accent == null) return scheme.onPrimary;
-    return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF1C1B1F);
-  }
-
 }
 
-class _RoundButton extends StatelessWidget {
-  static const double _size = 44;
+class _RoundButton extends StatefulWidget {
+  static const double size = 44;
+
+  /// Le bouton s'enfonce sous le doigt et remonte : c'est ce qui accuse le
+  /// tap, avant que quoi que ce soit d'autre ait bougé à l'écran.
+  static const double pressedScale = 0.88;
+  static const Duration press = Duration(milliseconds: 120);
 
   static const double _spinnerSize = 18;
   static const double _spinnerStroke = 2;
@@ -334,47 +332,70 @@ class _RoundButton extends StatelessWidget {
   });
 
   @override
+  State<_RoundButton> createState() => _RoundButtonState();
+}
+
+class _RoundButtonState extends State<_RoundButton> {
+  bool _pressed = false;
+
+  void _setPressed(bool pressed) {
+    if (pressed == _pressed) return;
+    setState(() => _pressed = pressed);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final motion = context.frostedTokens.motion.snappy;
     final scheme = Theme.of(context).colorScheme;
+    final live = widget.enabled && !widget.busy;
 
-    return AnimatedContainer(
-      duration: motion.duration,
+    return AnimatedScale(
+      scale: _pressed ? _RoundButton.pressedScale : 1,
+      duration: _RoundButton.press,
       curve: motion.curve,
-      width: _size,
-      height: _size,
-      decoration: BoxDecoration(
-        color: enabled ? background : scheme.surfaceContainerHighest,
-        shape: BoxShape.circle,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: enabled && !busy ? onTap : null,
-          customBorder: const CircleBorder(),
-          child: Center(
-            child: AnimatedSwitcher(
-              duration: motion.duration,
-              switchInCurve: motion.curve,
-              child: busy
-                  ? SizedBox(
-                      key: const ValueKey('busy'),
-                      width: _spinnerSize,
-                      height: _spinnerSize,
-                      child: CircularProgressIndicator(
-                        strokeWidth: _spinnerStroke,
-                        color: foreground,
+      child: AnimatedContainer(
+        duration: motion.duration,
+        curve: motion.curve,
+        width: _RoundButton.size,
+        height: _RoundButton.size,
+        decoration: BoxDecoration(
+          color: widget.enabled
+              ? widget.background
+              : scheme.surfaceContainerHighest,
+          shape: BoxShape.circle,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: live ? widget.onTap : null,
+            onTapDown: live ? (_) => _setPressed(true) : null,
+            onTapUp: live ? (_) => _setPressed(false) : null,
+            onTapCancel: live ? () => _setPressed(false) : null,
+            customBorder: const CircleBorder(),
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: motion.duration,
+                switchInCurve: motion.curve,
+                child: widget.busy
+                    ? SizedBox(
+                        key: const ValueKey('busy'),
+                        width: _RoundButton._spinnerSize,
+                        height: _RoundButton._spinnerSize,
+                        child: CircularProgressIndicator(
+                          strokeWidth: _RoundButton._spinnerStroke,
+                          color: widget.foreground,
+                        ),
+                      )
+                    : Icon(
+                        widget.icon,
+                        key: ValueKey(widget.icon),
+                        size: 20,
+                        color: widget.enabled
+                            ? widget.foreground
+                            : scheme.onSurface.withValues(alpha: 0.38),
                       ),
-                    )
-                  : Icon(
-                      icon,
-                      key: ValueKey(icon),
-                      size: 20,
-                      color: enabled
-                          ? foreground
-                          : scheme.onSurface.withValues(alpha: 0.38),
-                    ),
+              ),
             ),
           ),
         ),

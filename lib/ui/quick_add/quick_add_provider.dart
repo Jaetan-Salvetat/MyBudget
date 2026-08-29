@@ -87,7 +87,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
 
     final name = draft.name ?? draft.input;
     final amount = draft.amount!;
-    final startDate = draft.date ?? DateTime.now();
+    final startDate = _recordedAt(draft.date);
     final int id;
 
     if (draft.type == TransactionType.income) {
@@ -123,8 +123,22 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       type: draft.type,
       name: name,
       amount: amount,
-      categorySlug: categorySlug,
     );
+  }
+
+  /// Une transaction dite aujourd'hui garde l'heure où elle l'a été : le
+  /// journal la range dans son moment de la journée. Un jour passé n'a pas
+  /// d'heure à retenir.
+  DateTime _recordedAt(DateTime? date) {
+    final now = DateTime.now();
+    if (date == null) return now;
+    if (date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
+      return now;
+    }
+
+    return date;
   }
 
   Future<void> undo(QuickAddSubmission submission) {

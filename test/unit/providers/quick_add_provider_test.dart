@@ -353,7 +353,7 @@ void main() {
   });
 
   group('QuickAddNotifier.submit', () {
-    test('hands back the category it recorded, for the wash to read', () async {
+    test('enregistre la catégorie que le modèle a lue', () async {
       when(
         () => classifier.classify('resto 25'),
       ).thenAnswer((_) async => expenseClassification());
@@ -363,9 +363,12 @@ void main() {
       notifier.onInputChanged('resto 25');
       await pumpAnalysis();
 
-      final submission = await notifier.submit(3);
+      await notifier.submit(3);
 
-      expect(submission.categorySlug, restaurantLeaf.slug);
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
+      expect(expense.categorySlug, restaurantLeaf.slug);
     });
   });
 
@@ -566,6 +569,29 @@ void main() {
           verify(() => expenseRepository.add(captureAny())).captured.single
               as ExpenseModel;
       expect(expense.startDate, DateTime(2026, 8, 15));
+    });
+
+    test('une saisie du jour garde l\'heure où elle a été dite', () async {
+      final today = DateTime.now();
+      when(() => classifier.classify(any())).thenAnswer(
+        (_) async => expenseClassification(
+          date: DateTime(today.year, today.month, today.day),
+          hasWrittenDate: true,
+        ),
+      );
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25 aujourd\'hui');
+      await pumpAnalysis();
+
+      final before = DateTime.now();
+      await notifier.submit(3);
+
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
+      expect(expense.startDate.isBefore(before), isFalse);
     });
 
     test('a hand-picked day survives the next reading', () async {

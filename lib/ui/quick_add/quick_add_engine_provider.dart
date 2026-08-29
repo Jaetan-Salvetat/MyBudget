@@ -18,8 +18,7 @@ part 'quick_add_engine_provider.g.dart';
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   final local = await ref.watch(quickAddClassifierProvider.future);
 
-  if (ref.watch(quickAddEngineModeProvider) !=
-      QuickAddEngineMode.apiKey) {
+  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
     return local;
   }
 
@@ -73,7 +72,9 @@ Future<void> quickAddWarmUp(Ref ref) async {
   try {
     await ref.read(quickAddEngineProvider.future);
   } catch (error, stackTrace) {
-    debugPrint('Prechargement de l\'ajout rapide impossible : '
-        '$error\n$stackTrace');
+    debugPrint(
+      'Prechargement de l\'ajout rapide impossible : '
+      '$error\n$stackTrace',
+    );
   }
 }

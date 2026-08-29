@@ -14,6 +14,7 @@ import 'package:mybudget/ui/capture/models/day_moment.dart';
 import 'package:mybudget/ui/capture/models/journal_bucket.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/capture/widgets/day_gauge.dart';
+import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 import 'package:mybudget/ui/capture/widgets/journal_line.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
@@ -41,11 +42,11 @@ class JournalView extends ConsumerStatefulWidget {
   /// not opened onto.
   static const int staggeredLines = 8;
 
-  /// Room left under the last line so it slides beneath the glass dock
-  /// instead of stopping short of it.
-  final double bottomInset;
+  /// La liste se dissout sur son bord bas plutôt que d'être coupée net par
+  /// le dock : on lit deux plans, pas deux calques.
+  static const double bottomFade = 28;
 
-  const JournalView({required this.bottomInset, super.key});
+  const JournalView({super.key});
 
   @override
   ConsumerState<JournalView> createState() => _JournalViewState();
@@ -56,6 +57,17 @@ class _JournalViewState extends ConsumerState<JournalView> {
 
   /// Months the reader has folded away. Everything opens open.
   final Set<String> _folded = <String>{};
+
+  /// La cascade d'ouverture n'appartient qu'à l'arrivée sur la page. Passé la
+  /// première frame, une ligne qui s'insère ne doit pas rejouer l'ouverture de
+  /// toutes celles qu'elle décale.
+  bool _opened = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _opened = true);
+  }
 
   @override
   void dispose() {
@@ -87,7 +99,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
         controller: _scroll,
         physics: const BouncingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.only(bottom: widget.bottomInset),
+        padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
         itemCount: rows.length,
         itemBuilder: (context, index) =>
             _buildRow(context, rows[index], resolver, submissions),
@@ -222,8 +234,28 @@ class _JournalViewState extends ConsumerState<JournalView> {
       onUndo: fresh == null ? null : () => _undo(ref, fresh),
     );
 
-    if (row.index >= JournalView.staggeredLines) return line;
+    // Seule la dernière dite ouvre un créneau : dans une rafale, les
+    // précédentes sont déjà posées, elles n'ont pas à se reposer.
+    final landing = submissions.isNotEmpty && _isLast(entry, submissions);
+    if (landing) {
+      // Une clé par occurrence, sinon la liste recycle l'élément de la ligne
+      // d'avant et la nouvelle hérite d'un créneau déjà ouvert.
+      return JournalLanding(
+        key: ValueKey<String>(
+          '${entry.source.name}-${entry.id}-${entry.at.microsecondsSinceEpoch}',
+        ),
+        child: line,
+      );
+    }
+
+    if (_opened || row.index >= JournalView.staggeredLines) return line;
+
     return _Rise(index: row.index, child: line);
+  }
+
+  bool _isLast(JournalEntry entry, List<QuickAddSubmission> submissions) {
+    final last = submissions.last;
+    return entry.sameTransaction(last.type, last.id);
   }
 
   /// Today always opens the list, even with nothing on it : the page has to
@@ -243,22 +275,25 @@ class _JournalViewState extends ConsumerState<JournalView> {
     ];
   }
 
-  /// The edge only dissolves what has scrolled past it. Nothing has, at rest,
-  /// so the first line stays whole and hard against the top.
+  /// Le haut ne dissout que ce qui est passé sous le bord — rien, au repos,
+  /// donc la première ligne reste franche. Le bas se dissout toujours : c'est
+  /// là que la liste passe sous le dock.
   Shader _fade(Rect bounds) {
     final scrolled = _scroll.hasClients ? _scroll.offset : 0.0;
-    final extent = scrolled.clamp(0.0, JournalView.edgeFade);
-    if (extent < 1) {
-      return const LinearGradient(
-        colors: [Colors.black, Colors.black],
-      ).createShader(bounds);
-    }
+    final bottom = 1 - JournalView.bottomFade / bounds.height;
+    final top = (scrolled.clamp(0.0, JournalView.edgeFade) / bounds.height)
+        .clamp(0.0, bottom);
 
     return LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: const [Colors.transparent, Colors.black],
-      stops: [0, (extent / bounds.height).clamp(0.0, 1.0)],
+      colors: const [
+        Colors.transparent,
+        Colors.black,
+        Colors.black,
+        Colors.transparent,
+      ],
+      stops: [0, top, bottom, 1],
     ).createShader(bounds);
   }
 

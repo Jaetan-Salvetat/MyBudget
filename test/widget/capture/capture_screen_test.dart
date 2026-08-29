@@ -131,6 +131,18 @@ void main() {
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
+  testWidgets('le dock prend sa place, il ne couvre pas le journal', (
+    tester,
+  ) async {
+    await pumpCapture(tester);
+
+    final journal = tester.getRect(find.byType(JournalView));
+    final dock = tester.getRect(find.byType(QuickAddBar));
+
+    expect(journal.overlaps(dock), isFalse);
+    expect(dock.top, greaterThanOrEqualTo(journal.bottom));
+  });
+
   testWidgets('the figure hands the month over to Stats', (tester) async {
     final container = await pumpCapture(tester);
 

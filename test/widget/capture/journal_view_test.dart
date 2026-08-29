@@ -12,6 +12,7 @@ import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
@@ -79,7 +80,7 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: JournalView(bottomInset: 0)),
+          home: const Scaffold(body: JournalView()),
         ),
       ),
     );
@@ -92,14 +93,12 @@ void main() {
         name: 'Carrefour',
         amount: 42.30,
         startDate: todayAt(12, 4),
-        categorySlug: 'alimentation.supermarche',
       ),
       expenseOf(
         id: 2,
         name: 'Café',
         amount: 4,
         startDate: todayAt(8, 12),
-        categorySlug: 'restauration.cafe',
       ),
     ]);
 
@@ -117,7 +116,6 @@ void main() {
         name: 'Leroy Merlin',
         amount: 31.40,
         startDate: todayAt(15, 8),
-        categorySlug: 'logement.entretien',
       ),
     ]);
 
@@ -153,7 +151,7 @@ void main() {
     await pumpJournal(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Annuler'), findsNothing);
+    expect(find.text('annuler'), findsNothing);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(JournalView)),
@@ -166,17 +164,61 @@ void main() {
             type: TransactionType.expense,
             name: 'Mc do',
             amount: 12,
-            categorySlug: 'restauration.fast_food',
           ),
         );
-    await tester.pumpAndSettle();
+    // Le rail de la fenêtre d'annulation tourne tant qu'elle dure : on ne
+    // laisse pas le test la traverser, il n'y aurait plus rien à annuler. Le
+    // créneau, lui, doit finir de s'ouvrir avant qu'on vise la ligne.
+    await tester.pump();
+    await tester.pump(JournalLanding.duration);
 
-    expect(find.text('Annuler'), findsOneWidget);
+    expect(find.text('annuler'), findsOneWidget);
 
-    await tester.tap(find.text('Annuler'));
+    await tester.tap(find.text('annuler'));
     await tester.pumpAndSettle();
 
     verify(() => expenses.delete(7)).called(1);
+  });
+
+  testWidgets('une ligne qui arrive ne rallume pas tout le journal', (
+    tester,
+  ) async {
+    when(() => expenses.getActive()).thenReturn([
+      expenseOf(id: 7, name: 'Mc do', amount: 12, startDate: todayAt(19, 30)),
+      expenseOf(id: 8, name: 'Kiosque', amount: 3, startDate: todayAt(9, 10)),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(JournalView)),
+    );
+    container
+        .read(quickAddRecentSubmissionsProvider.notifier)
+        .push(
+          const QuickAddSubmission(
+            id: 7,
+            type: TransactionType.expense,
+            name: 'Mc do',
+            amount: 12,
+          ),
+        );
+    await tester.pump();
+
+    // Seule la ligne qui vient d'être dite s'ouvre un créneau ; celle qu'elle
+    // décale reste entière au lieu de refaire son entrée.
+    expect(find.byType(JournalLanding), findsOneWidget);
+    expect(
+      find.ancestor(
+        of: find.text('Kiosque'),
+        matching: find.byType(Opacity),
+      ),
+      findsNothing,
+    );
+
+    await tester.pump(JournalLanding.duration);
+    await tester.pump(QuickAddRecentSubmissions.retention);
   });
 
   testWidgets('a past month reads open, and folds away on a tap', (

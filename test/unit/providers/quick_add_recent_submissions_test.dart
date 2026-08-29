@@ -11,7 +11,6 @@ QuickAddSubmission submissionOf(int id, {String name = 'café'}) {
     type: TransactionType.expense,
     name: name,
     amount: 3.5,
-    categorySlug: 'restauration.cafe',
   );
 }
 

@@ -2,10 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
+import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
-import 'package:mybudget/ui/capture/widgets/category_wash.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -19,10 +18,13 @@ import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 /// The page the app opens on : one figure, the day's journal, and the input
 /// under the thumb. Everything else is a consequence of what gets typed here.
+///
+/// Les trois se suivent dans une colonne : le dock prend sa place au lieu de
+/// flotter au-dessus du journal, et le journal recule quand le brouillon
+/// s'ouvre.
 class CaptureScreen extends ConsumerStatefulWidget {
-  /// Fallback used before the dock has been measured, so the first frame does
-  /// not hide the newest line behind the glass.
-  static const double estimatedDockHeight = 108;
+  /// Air entre la dernière ligne du journal et le dock.
+  static const double dockClearance = FrostedSpacing.sp3;
 
   const CaptureScreen({super.key});
 
@@ -32,14 +34,37 @@ class CaptureScreen extends ConsumerStatefulWidget {
 
 class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   final QuickAddHintTyper _hint = QuickAddHintTyper();
-  double _dockHeight = CaptureScreen.estimatedDockHeight;
+  final QuickAddLandingController _landing = QuickAddLandingController();
   bool _hintStarted = false;
   bool _focused = false;
 
+  /// La figure du mois pendant qu'une transaction se pose : elle garde ce
+  /// qu'elle disait avant l'envoi et n'encaisse qu'une fois le créneau ouvert.
+  double? _heldFigure;
+
+  @override
+  void initState() {
+    super.initState();
+    _landing.addListener(_onLanding);
+  }
+
   @override
   void dispose() {
+    _landing.removeListener(_onLanding);
+    _landing.dispose();
     _hint.dispose();
     super.dispose();
+  }
+
+  void _onLanding() {
+    if (!mounted) return;
+
+    final held = _landing.holdsTheFigure
+        ? (_heldFigure ?? ref.read(remainingThisMonthProvider))
+        : null;
+    if (held == _heldFigure) return;
+
+    setState(() => _heldFigure = held);
   }
 
   void _onFocusChanged(bool focused) {
@@ -65,61 +90,49 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
     }
   }
 
-  void _onDockMeasured(double height) {
-    if ((height - _dockHeight).abs() < 0.5) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() => _dockHeight = height);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final entries = ref.watch(todayJournalProvider);
     _syncHint(entries.isEmpty);
 
-    final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final dockBottom = keyboardUp
-        ? FrostedSpacing.sp3
-        : mainFlowBottomInset(context);
+    // Le scaffold met déjà sous le body la place exacte de la nav pill, et la
+    // reprend quand le clavier la fait disparaître : le dock n'a qu'à se poser
+    // dessus. Compter la pill une seconde fois laissait le champ flotter très
+    // au-dessus d'elle, et loin du pouce.
+    final dockBottom =
+        MediaQuery.paddingOf(context).bottom + CaptureScreen.dockClearance;
+    final remaining = ref.watch(remainingThisMonthProvider);
 
-    return SafeArea(
-      bottom: false,
-      child: Stack(
-        children: [
-          const Positioned.fill(child: CategoryWash()),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FrostedSpacing.sp5,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CaptureAnchor(
-                  remaining: ref.watch(remainingThisMonthProvider),
-                  monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
-                  onTap: () =>
-                      ref.read(homeNavigationProvider.notifier).openStats(),
-                ),
-                Expanded(
-                  child: JournalView(bottomInset: _dockHeight + dockBottom),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: FrostedSpacing.sp5,
-            right: FrostedSpacing.sp5,
-            bottom: dockBottom,
-            child: _MeasureHeight(
-              onMeasured: _onDockMeasured,
-              child: _Dock(
-                hint: _hint,
-                focused: _focused,
-                onFocusChanged: _onFocusChanged,
+    return QuickAddLanding(
+      notifier: _landing,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CaptureAnchor(
+                remaining: _heldFigure ?? remaining,
+                monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
+                onTap: () =>
+                    ref.read(homeNavigationProvider.notifier).openStats(),
               ),
-            ),
+              const Expanded(child: JournalView()),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: CaptureScreen.dockClearance,
+                  bottom: dockBottom,
+                ),
+                child: _Dock(
+                  hint: _hint,
+                  focused: _focused,
+                  onFocusChanged: _onFocusChanged,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -178,31 +191,5 @@ class _ManualDock extends ConsumerWidget {
         ),
       ],
     );
-  }
-}
-
-/// Reports the height of its child so the journal can leave exactly that much
-/// room under its last line, and no more.
-class _MeasureHeight extends StatefulWidget {
-  final ValueChanged<double> onMeasured;
-  final Widget child;
-
-  const _MeasureHeight({required this.onMeasured, required this.child});
-
-  @override
-  State<_MeasureHeight> createState() => _MeasureHeightState();
-}
-
-class _MeasureHeightState extends State<_MeasureHeight> {
-  final GlobalKey _key = GlobalKey();
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final box = _key.currentContext?.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) widget.onMeasured(box.size.height);
-    });
-
-    return KeyedSubtree(key: _key, child: widget.child);
   }
 }

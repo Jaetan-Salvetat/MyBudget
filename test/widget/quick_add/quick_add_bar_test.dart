@@ -22,7 +22,11 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
@@ -121,6 +125,10 @@ void main() {
           categoryMemoryProvider.overrideWithValue(memory),
           categoryOverrideRepositoryProvider.overrideWithValue(overrides),
           quickAddClassifierProvider.overrideWith((ref) => classifier),
+          categoryDisplayResolverProvider.overrideWith(
+            (ref) async =>
+                CategoryDisplayResolver(taxonomy: taxonomy, overrides: const {}),
+          ),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -224,6 +232,54 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  BoxDecoration roundButtonSkin(WidgetTester tester, IconData icon) {
+    final button = tester.widget<AnimatedContainer>(
+      find
+          .ancestor(
+            of: find.byIcon(icon),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first,
+    );
+
+    return button.decoration! as BoxDecoration;
+  }
+
+  testWidgets('le bouton d\'envoi n\'a qu\'une peau, du brouillon au check', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    final ready = roundButtonSkin(tester, Symbols.arrow_upward_rounded);
+    expect(ready.border, isNull);
+    expect(ready.boxShadow, isNull);
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(roundButtonSkin(tester, Symbols.check_rounded).color, ready.color);
+
+    await tester.pump(QuickAddBarState.sentFlash);
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('la ligne de compte s\'aligne sur le champ, pas sur le scan', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    expect(
+      tester.getTopLeft(find.byType(QuickAddAccountLine)).dx,
+      tester.getTopLeft(find.byType(FrostedTextField)).dx,
+    );
+  });
+
   testWidgets('hands what it recorded to the journal', (tester) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();
@@ -291,10 +347,16 @@ void main() {
     );
     expect(container.read(quickAddProvider).amount, 12.0);
 
+    await tester.showKeyboard(find.byType(TextField));
     await tester.tap(find.byIcon(Symbols.close_rounded));
     await tester.pumpAndSettle();
 
     expect(container.read(quickAddProvider).isEmpty, isTrue);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
+
+    // Vider le champ n'est pas en sortir : la frappe suivante part tout de
+    // suite, sans re-viser le champ.
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.text, '');
+    expect(field.focusNode!.hasFocus, isTrue);
   });
 }

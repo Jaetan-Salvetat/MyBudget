@@ -8,6 +8,7 @@ import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
+import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
 /// One transaction of the journal. Every line carries the same typographic
 /// weight : what tells them apart is the avatar, the category colour and the
@@ -18,9 +19,10 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 /// read.
 class JournalLine extends StatelessWidget {
   static const double radius = 18;
-  static const Duration coolDown = Duration(milliseconds: 600);
 
-  static const double _freshOpacity = 0.13;
+  /// Le rail de la fenêtre d'annulation longe la ligne sans entrer dans sa
+  /// mise en page : rien ne se décale quand il apparaît.
+  static const double _railInset = 6;
 
   final JournalEntry entry;
   final CategoryDisplay? category;
@@ -29,8 +31,8 @@ class JournalLine extends StatelessWidget {
   /// the hour. Further back it is the day that has to be said.
   final bool keepsTheHour;
 
-  /// The line just landed : it holds its tint and its way back for as long as
-  /// the undo window lasts, then cools into the list.
+  /// La ligne vient de se poser : elle garde son rail et sa porte de sortie
+  /// le temps de la fenêtre d'annulation, puis rentre dans le rang.
   final bool isFresh;
 
   final VoidCallback? onUndo;
@@ -51,81 +53,86 @@ class JournalLine extends StatelessWidget {
     final theme = Theme.of(context);
     final tone = _tone(context);
 
-    return AnimatedContainer(
-      duration: coolDown,
-      curve: context.frostedTokens.motion.fluid.curve,
-      decoration: BoxDecoration(
-        color: isFresh
-            ? tone.withValues(alpha: _freshOpacity)
-            : Colors.transparent,
+    final line = Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(radius),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(radius),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(radius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(radius),
-          child: Padding(
-            padding: const EdgeInsets.all(FrostedSpacing.sp2),
-            child: Row(
-              children: [
-                TransactionAvatar(
-                  color: tone,
-                  icon: category == null
-                      ? Symbols.category_rounded
-                      : CategoryDefaults.resolveIcon(category!.icon),
-                ),
-                const SizedBox(width: FrostedSpacing.sp3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        entry.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 20 / 15,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.012 * 15,
+        child: Padding(
+          padding: const EdgeInsets.all(FrostedSpacing.sp2),
+          child: Row(
+            children: [
+              TransactionAvatar(
+                color: tone,
+                icon: category == null
+                    ? Symbols.category_rounded
+                    : CategoryDefaults.resolveIcon(category!.icon),
+              ),
+              const SizedBox(width: FrostedSpacing.sp3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      entry.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 20 / 15,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.012 * 15,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _meta(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.mono(
+                        fontSize: 10,
+                        lineHeight: 14,
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.68,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _meta(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.mono(
-                          fontSize: 10,
-                          lineHeight: 14,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.68,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: FrostedSpacing.sp2),
-                Text(
-                  _amountLabel(),
-                  style: AppTextStyles.displaySerifItalic(
-                    fontSize: 17,
-                    height: 1.15,
-                    color: entry.isIncome
-                        ? context.financeColors.income
-                        : theme.colorScheme.onSurface,
-                  ),
+              ),
+              const SizedBox(width: FrostedSpacing.sp2),
+              Text(
+                _amountLabel(),
+                style: AppTextStyles.displaySerifItalic(
+                  fontSize: 17,
+                  height: 1.15,
+                  color: entry.isIncome
+                      ? context.financeColors.income
+                      : theme.colorScheme.onSurface,
                 ),
-                if (onUndo != null) _UndoLink(onTap: onUndo!),
-              ],
-            ),
+              ),
+              if (onUndo != null) _UndoLink(onTap: onUndo!),
+            ],
           ),
         ),
       ),
+    );
+
+    if (!isFresh) return line;
+
+    return Stack(
+      children: [
+        line,
+        PositionedDirectional(
+          start: 0,
+          top: _railInset,
+          bottom: _railInset,
+          width: _UndoRail.width,
+          child: _UndoRail(color: tone),
+        ),
+      ],
     );
   }
 
@@ -157,6 +164,38 @@ class JournalLine extends StatelessWidget {
   }
 }
 
+/// Le temps qu'il reste pour revenir en arrière, lisible d'un coup d'œil :
+/// un rail qui se vide le long de la ligne, jamais un aplat de couleur sur
+/// toute sa largeur.
+class _UndoRail extends StatelessWidget {
+  static const double width = 2;
+
+  final Color color;
+
+  const _UndoRail({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 1, end: 0),
+      duration: QuickAddRecentSubmissions.retention,
+      curve: Curves.linear,
+      builder: (context, remaining, _) => FractionallySizedBox(
+        alignment: Alignment.topCenter,
+        heightFactor: remaining,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(width),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// La porte de sortie, dans le registre mono du reste de la ligne : elle se
+/// lit, elle ne se dispute pas la couleur de la catégorie.
 class _UndoLink extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -164,8 +203,6 @@ class _UndoLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(FrostedRadius.sm),
@@ -175,10 +212,11 @@ class _UndoLink extends StatelessWidget {
           vertical: FrostedSpacing.sp1,
         ),
         child: Text(
-          'Annuler',
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.w600,
+          'annuler',
+          style: AppTextStyles.mono(
+            fontSize: 10,
+            lineHeight: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
