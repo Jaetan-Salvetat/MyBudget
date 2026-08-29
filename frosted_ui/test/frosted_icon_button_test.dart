@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
@@ -33,6 +34,78 @@ void main() {
         )
         .size!;
   }
+
+  Color fillOf(WidgetTester tester) =>
+      (surfaceOf(tester).decoration! as BoxDecoration).color!;
+
+  Color glyphColorOf(WidgetTester tester) => tester
+      .widget<Icon>(
+        find.descendant(
+          of: find.byType(FrostedIconButton),
+          matching: find.byType(Icon),
+        ),
+      )
+      .color!;
+
+  group('FrostedIconButton accent', () {
+    ColorScheme scheme(WidgetTester tester) => Theme.of(
+      tester.element(find.byType(FrostedIconButton)),
+    ).colorScheme;
+
+    testWidgets('a filled command carries the accent at rest', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        FrostedIconButton.filled(icon: Icons.send, onPressed: () {}),
+      );
+
+      expect(fillOf(tester), scheme(tester).primary);
+      expect(glyphColorOf(tester), scheme(tester).onPrimary);
+    });
+
+    testWidgets('a filled toggle waits to be turned on', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        FrostedIconButton.filled(
+          icon: Icons.send,
+          selected: false,
+          onPressed: () {},
+        ),
+      );
+
+      expect(fillOf(tester), scheme(tester).surfaceContainerHighest);
+
+      await pump(
+        tester,
+        FrostedIconButton.filled(
+          icon: Icons.send,
+          selected: true,
+          onPressed: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(fillOf(tester), scheme(tester).primary);
+    });
+
+    testWidgets('a command tells nothing about selection', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        FrostedIconButton.filled(icon: Icons.send, onPressed: () {}),
+      );
+
+      final SemanticsNode node = tester.getSemantics(
+        find.byType(FrostedIconButton),
+      );
+
+      expect(node.hasFlag(SemanticsFlag.hasSelectedState), isFalse);
+    });
+  });
 
   group('FrostedIconButton size', () {
     testWidgets('defaults to medium', (WidgetTester tester) async {

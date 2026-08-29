@@ -80,7 +80,7 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: JournalView()),
+          home: const Scaffold(body: JournalView(bottomInset: 0)),
         ),
       ),
     );

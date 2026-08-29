@@ -19,6 +19,15 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
+/// L'empreinte d'un bouton de la rangée : sa boîte, et l'air que le composant
+/// porte de chaque côté.
+final double _kSendFootprint =
+    FrostedIconButtonSize.medium.box + FrostedSpacing.sp1 * 2;
+
+/// Là où le champ commence, une fois le bouton de scan posé. La ligne de
+/// compte s'y aligne : elle parle du champ, pas du bord de la rangée.
+final double _kFieldOffset = _kSendFootprint;
+
 /// The one place a transaction gets typed. Reads the text as it comes,
 /// creates on submit, and keeps the keyboard up : entering the day's expenses
 /// is a rafale, not one trip per line. The way back sits on the journal line
@@ -201,7 +210,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);
-    final scheme = Theme.of(context).colorScheme;
 
     final motion = context.frostedTokens.motion.snappy;
     final showContext = widget.focused || !draft.isEmpty;
@@ -222,27 +230,14 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         ),
         Row(
           children: [
-            _RoundButton(
+            FrostedIconButton.filled(
               icon: Symbols.photo_camera_rounded,
-              enabled: true,
-              busy: false,
-              onTap: _scan,
-              background: scheme.surfaceContainerHighest,
-              foreground: scheme.onSurfaceVariant,
+              shape: FrostedShape.pill,
+              tooltip: 'Photographier le ticket',
+              onPressed: _scan,
             ),
-            const SizedBox(width: FrostedSpacing.sp2),
             Expanded(child: _field(draft, showContext)),
-            const SizedBox(width: FrostedSpacing.sp2),
-            _RoundButton(
-              icon: _sentFlashing
-                  ? Symbols.check_rounded
-                  : Symbols.arrow_upward_rounded,
-              enabled: _sentFlashing || draft.isSubmittable,
-              busy: _submitting,
-              onTap: _sentFlashing ? _keepTyping : _submit,
-              background: scheme.onSurface,
-              foreground: scheme.surface,
-            ),
+            _send(draft),
           ],
         ),
         AnimatedSize(
@@ -253,8 +248,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               ? Padding(
                   // Alignée sur le champ, dont elle parle, pas sur le bord de
                   // la rangée.
-                  padding: const EdgeInsets.only(
-                    left: _RoundButton.size + FrostedSpacing.sp2,
+                  padding: EdgeInsets.only(
+                    left: _kFieldOffset,
                     top: FrostedSpacing.sp1,
                   ),
                   child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
@@ -262,6 +257,24 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               : const SizedBox(width: double.infinity),
         ),
       ],
+    );
+  }
+
+  /// L'envoi, ou l'attente pendant que l'écriture part : le bouton laisse sa
+  /// place au tourniquet plutôt que de rester pressable sur une action déjà
+  /// partie.
+  Widget _send(QuickAddDraft draft) {
+    if (_submitting) return const _Submitting();
+
+    return FrostedIconButton.filled(
+      icon: _sentFlashing
+          ? Symbols.check_rounded
+          : Symbols.arrow_upward_rounded,
+      shape: FrostedShape.pill,
+      tooltip: _sentFlashing ? 'Continuer à écrire' : 'Envoyer',
+      onPressed: _sentFlashing
+          ? _keepTyping
+          : (draft.isSubmittable ? _submit : null),
     );
   }
 
@@ -304,99 +317,24 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   }
 }
 
-class _RoundButton extends StatefulWidget {
-  static const double size = 44;
+/// Ce que l'envoi laisse à sa place le temps de partir : même empreinte que le
+/// bouton, pour que la rangée ne bouge pas.
+class _Submitting extends StatelessWidget {
+  static const double _spinner = 18;
+  static const double _stroke = 2;
 
-  /// Le bouton s'enfonce sous le doigt et remonte : c'est ce qui accuse le
-  /// tap, avant que quoi que ce soit d'autre ait bougé à l'écran.
-  static const double pressedScale = 0.88;
-  static const Duration press = Duration(milliseconds: 120);
-
-  static const double _spinnerSize = 18;
-  static const double _spinnerStroke = 2;
-
-  final IconData icon;
-  final bool enabled;
-  final bool busy;
-  final VoidCallback onTap;
-  final Color background;
-  final Color foreground;
-
-  const _RoundButton({
-    required this.icon,
-    required this.enabled,
-    required this.busy,
-    required this.onTap,
-    required this.background,
-    required this.foreground,
-  });
-
-  @override
-  State<_RoundButton> createState() => _RoundButtonState();
-}
-
-class _RoundButtonState extends State<_RoundButton> {
-  bool _pressed = false;
-
-  void _setPressed(bool pressed) {
-    if (pressed == _pressed) return;
-    setState(() => _pressed = pressed);
-  }
+  const _Submitting();
 
   @override
   Widget build(BuildContext context) {
-    final motion = context.frostedTokens.motion.snappy;
-    final scheme = Theme.of(context).colorScheme;
-    final live = widget.enabled && !widget.busy;
-
-    return AnimatedScale(
-      scale: _pressed ? _RoundButton.pressedScale : 1,
-      duration: _RoundButton.press,
-      curve: motion.curve,
-      child: AnimatedContainer(
-        duration: motion.duration,
-        curve: motion.curve,
-        width: _RoundButton.size,
-        height: _RoundButton.size,
-        decoration: BoxDecoration(
-          color: widget.enabled
-              ? widget.background
-              : scheme.surfaceContainerHighest,
-          shape: BoxShape.circle,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: live ? widget.onTap : null,
-            onTapDown: live ? (_) => _setPressed(true) : null,
-            onTapUp: live ? (_) => _setPressed(false) : null,
-            onTapCancel: live ? () => _setPressed(false) : null,
-            customBorder: const CircleBorder(),
-            child: Center(
-              child: AnimatedSwitcher(
-                duration: motion.duration,
-                switchInCurve: motion.curve,
-                child: widget.busy
-                    ? SizedBox(
-                        key: const ValueKey('busy'),
-                        width: _RoundButton._spinnerSize,
-                        height: _RoundButton._spinnerSize,
-                        child: CircularProgressIndicator(
-                          strokeWidth: _RoundButton._spinnerStroke,
-                          color: widget.foreground,
-                        ),
-                      )
-                    : Icon(
-                        widget.icon,
-                        key: ValueKey(widget.icon),
-                        size: 20,
-                        color: widget.enabled
-                            ? widget.foreground
-                            : scheme.onSurface.withValues(alpha: 0.38),
-                      ),
-              ),
-            ),
+    return SizedBox.square(
+      dimension: _kSendFootprint,
+      child: Center(
+        child: SizedBox.square(
+          dimension: _spinner,
+          child: CircularProgressIndicator(
+            strokeWidth: _stroke,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

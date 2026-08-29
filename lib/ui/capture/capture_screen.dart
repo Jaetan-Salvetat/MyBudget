@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -40,6 +41,10 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   bool _hintStarted = false;
   bool _focused = false;
 
+  /// Ce que le dock occupe en bas de la page, mesuré : il grandit avec le
+  /// brouillon, et le journal se replie d'autant.
+  double _dockHeight = 0;
+
   /// La figure du mois pendant qu'une transaction se pose : elle garde ce
   /// qu'elle disait avant l'envoi et n'encaisse qu'une fois le créneau ouvert.
   double? _heldFigure;
@@ -67,6 +72,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
     if (held == _heldFigure) return;
 
     setState(() => _heldFigure = held);
+  }
+
+  void _onDockHeight(double height) {
+    if (!mounted || height == _dockHeight) return;
+    setState(() => _dockHeight = height);
   }
 
   void _onFocusChanged(bool focused) {
@@ -109,38 +119,91 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
       notifier: _landing,
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CaptureAnchor(
-                remaining: _heldFigure ?? remaining,
-                monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
-                onTap: () =>
-                    ref.read(homeNavigationProvider.notifier).openStats(),
-                onSettings: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+        // Le journal descend jusqu'au bas de l'écran et passe sous le dock,
+        // qui le recouvre : sans rien derrière lui, le verre n'aurait rien à
+        // flouter et la page se couperait net au-dessus du champ.
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CaptureAnchor(
+                    remaining: _heldFigure ?? remaining,
+                    monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
+                    onTap: () =>
+                        ref.read(homeNavigationProvider.notifier).openStats(),
+                    onSettings: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    ),
+                  ),
+                  Expanded(child: JournalView(bottomInset: _dockHeight)),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _MeasuredHeight(
+                onHeight: _onDockHeight,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    kMainFlowGutter,
+                    CaptureScreen.dockClearance,
+                    kMainFlowGutter,
+                    dockBottom,
+                  ),
+                  child: _Dock(
+                    hint: _hint,
+                    focused: _focused,
+                    onFocusChanged: _onFocusChanged,
+                  ),
                 ),
               ),
-              const Expanded(child: JournalView()),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: CaptureScreen.dockClearance,
-                  bottom: dockBottom,
-                ),
-                child: _Dock(
-                  hint: _hint,
-                  focused: _focused,
-                  onFocusChanged: _onFocusChanged,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+}
+
+/// Rend sa hauteur au reste de la page.
+class _MeasuredHeight extends SingleChildRenderObjectWidget {
+  final ValueChanged<double> onHeight;
+
+  const _MeasuredHeight({required this.onHeight, required Widget super.child});
+
+  @override
+  _RenderMeasuredHeight createRenderObject(BuildContext context) =>
+      _RenderMeasuredHeight(onHeight);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderMeasuredHeight renderObject,
+  ) => renderObject.onHeight = onHeight;
+}
+
+class _RenderMeasuredHeight extends RenderProxyBox {
+  ValueChanged<double> onHeight;
+  double? _reported;
+
+  _RenderMeasuredHeight(this.onHeight);
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (_reported == size.height) return;
+
+    _reported = size.height;
+    // La mesure tombe pendant le layout : prévenir tout de suite relancerait
+    // celui de la frame en cours.
+    WidgetsBinding.instance.addPostFrameCallback((_) => onHeight(size.height));
   }
 }
 

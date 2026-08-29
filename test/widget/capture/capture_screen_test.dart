@@ -132,16 +132,23 @@ void main() {
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
-  testWidgets('le dock prend sa place, il ne couvre pas le journal', (
+  testWidgets('le journal passe sous le dock sans finir dessous', (
     tester,
   ) async {
     await pumpCapture(tester);
 
     final journal = tester.getRect(find.byType(JournalView));
     final dock = tester.getRect(find.byType(QuickAddBar));
+    final list = tester.widget<ListView>(
+      find.descendant(
+        of: find.byType(JournalView),
+        matching: find.byType(ListView),
+      ),
+    );
+    final reserved = list.padding!.resolve(TextDirection.ltr).bottom;
 
-    expect(journal.overlaps(dock), isFalse);
-    expect(dock.top, greaterThanOrEqualTo(journal.bottom));
+    expect(journal.bottom, greaterThan(dock.top));
+    expect(journal.bottom - reserved, lessThanOrEqualTo(dock.top));
   });
 
   testWidgets('the figure hands the month over to Stats', (tester) async {

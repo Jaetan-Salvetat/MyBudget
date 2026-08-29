@@ -42,11 +42,12 @@ class JournalView extends ConsumerStatefulWidget {
   /// not opened onto.
   static const int staggeredLines = 8;
 
-  /// La liste se dissout sur son bord bas plutôt que d'être coupée net par
-  /// le dock : on lit deux plans, pas deux calques.
-  static const double bottomFade = 28;
+  /// Ce que le dock occupe en bas de la page. La liste descend jusqu'au bord
+  /// de l'écran et passe sous le verre du dock — c'est lui qui la dissout —
+  /// mais sa dernière ligne doit rester au-dessus.
+  final double bottomInset;
 
-  const JournalView({super.key});
+  const JournalView({required this.bottomInset, super.key});
 
   @override
   ConsumerState<JournalView> createState() => _JournalViewState();
@@ -99,7 +100,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
         controller: _scroll,
         physics: const BouncingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+        padding: EdgeInsets.only(bottom: widget.bottomInset),
         itemCount: rows.length,
         itemBuilder: (context, index) =>
             _buildRow(context, rows[index], resolver, submissions),
@@ -280,20 +281,14 @@ class _JournalViewState extends ConsumerState<JournalView> {
   /// là que la liste passe sous le dock.
   Shader _fade(Rect bounds) {
     final scrolled = _scroll.hasClients ? _scroll.offset : 0.0;
-    final bottom = 1 - JournalView.bottomFade / bounds.height;
     final top = (scrolled.clamp(0.0, JournalView.edgeFade) / bounds.height)
-        .clamp(0.0, bottom);
+        .clamp(0.0, 1.0);
 
     return LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: const [
-        Colors.transparent,
-        Colors.black,
-        Colors.black,
-        Colors.transparent,
-      ],
-      stops: [0, top, bottom, 1],
+      colors: const [Colors.transparent, Colors.black, Colors.black],
+      stops: [0, top, 1],
     ).createShader(bounds);
   }
 

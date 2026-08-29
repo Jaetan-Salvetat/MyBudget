@@ -28,6 +28,11 @@ enum FrostedIconButtonSize {
 
 /// An icon-only button.
 ///
+/// Leave [selected] out for a plain command; pass it — true or false — only
+/// for a button that toggles. A filled command carries the accent, the way M3
+/// fills a non-toggling icon button; a filled toggle waits on its off state
+/// before it does, so that pressing it is what turns the accent on.
+///
 /// When [selected] is true and [selectedIcon] is provided, the filled
 /// variant of the icon is shown.
 ///
@@ -40,7 +45,7 @@ class FrostedIconButton extends StatelessWidget {
     required this.icon,
     required _IconButtonVariant variant,
     this.selectedIcon,
-    this.selected = false,
+    this.selected,
     this.tooltip,
     this.onPressed,
     this.shape = FrostedShape.rounded,
@@ -51,7 +56,7 @@ class FrostedIconButton extends StatelessWidget {
     Key? key,
     required IconData icon,
     IconData? selectedIcon,
-    bool selected = false,
+    bool? selected,
     String? tooltip,
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
@@ -72,7 +77,7 @@ class FrostedIconButton extends StatelessWidget {
     Key? key,
     required IconData icon,
     IconData? selectedIcon,
-    bool selected = false,
+    bool? selected,
     String? tooltip,
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
@@ -93,7 +98,7 @@ class FrostedIconButton extends StatelessWidget {
     Key? key,
     required IconData icon,
     IconData? selectedIcon,
-    bool selected = false,
+    bool? selected,
     String? tooltip,
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
@@ -114,7 +119,7 @@ class FrostedIconButton extends StatelessWidget {
     Key? key,
     required IconData icon,
     IconData? selectedIcon,
-    bool selected = false,
+    bool? selected,
     String? tooltip,
     required VoidCallback? onPressed,
     FrostedShape shape = FrostedShape.rounded,
@@ -133,7 +138,9 @@ class FrostedIconButton extends StatelessWidget {
 
   final IconData icon;
   final IconData? selectedIcon;
-  final bool selected;
+
+  /// Null for a command, true or false for a toggle.
+  final bool? selected;
   final String? tooltip;
   final VoidCallback? onPressed;
 
@@ -149,7 +156,7 @@ class FrostedIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
-    final IconData glyph = selected && selectedIcon != null
+    final IconData glyph = _isOn && selectedIcon != null
         ? selectedIcon!
         : icon;
 
@@ -194,6 +201,13 @@ class FrostedIconButton extends StatelessWidget {
     return result;
   }
 
+  /// True only for a toggle that is on. A command is never "on".
+  bool get _isOn => selected ?? false;
+
+  /// A filled command carries the accent at rest; a filled toggle only once
+  /// it is on.
+  bool get _carriesAccent => selected != false;
+
   BorderRadius _shape(InteractionStates s) =>
       shape.resolve(Size(size.box, size.box), pressed: s.pressed);
 
@@ -208,16 +222,16 @@ class FrostedIconButton extends StatelessWidget {
     Color base;
     switch (_variant) {
       case _IconButtonVariant.standard:
-        base = selected ? cs.primaryContainer : Colors.transparent;
+        base = _isOn ? cs.primaryContainer : Colors.transparent;
         break;
       case _IconButtonVariant.filled:
-        base = selected ? cs.primary : cs.surfaceContainerHighest;
+        base = _carriesAccent ? cs.primary : cs.surfaceContainerHighest;
         break;
       case _IconButtonVariant.tonal:
-        base = selected ? cs.secondaryContainer : cs.surfaceContainerHigh;
+        base = _isOn ? cs.secondaryContainer : cs.surfaceContainerHigh;
         break;
       case _IconButtonVariant.outlined:
-        base = selected ? cs.inverseSurface : Colors.transparent;
+        base = _isOn ? cs.inverseSurface : Colors.transparent;
         break;
     }
     final Color overlay = _overlayBase(cs);
@@ -230,19 +244,19 @@ class FrostedIconButton extends StatelessWidget {
     if (!s.enabled) return cs.onSurface.withValues(alpha: 0.38);
     switch (_variant) {
       case _IconButtonVariant.standard:
-        return selected ? cs.onPrimaryContainer : cs.onSurfaceVariant;
+        return _isOn ? cs.onPrimaryContainer : cs.onSurfaceVariant;
       case _IconButtonVariant.filled:
-        return selected ? cs.onPrimary : cs.primary;
+        return _carriesAccent ? cs.onPrimary : cs.primary;
       case _IconButtonVariant.tonal:
-        return selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
+        return _isOn ? cs.onSecondaryContainer : cs.onSurfaceVariant;
       case _IconButtonVariant.outlined:
-        return selected ? cs.onInverseSurface : cs.onSurfaceVariant;
+        return _isOn ? cs.onInverseSurface : cs.onSurfaceVariant;
     }
   }
 
   BorderSide? _resolveBorder(ColorScheme cs, InteractionStates s) {
     if (_variant != _IconButtonVariant.outlined) return null;
-    if (selected) return null;
+    if (_isOn) return null;
     if (!s.enabled) {
       return BorderSide(color: cs.onSurface.withValues(alpha: 0.12));
     }
@@ -252,13 +266,13 @@ class FrostedIconButton extends StatelessWidget {
   Color _overlayBase(ColorScheme cs) {
     switch (_variant) {
       case _IconButtonVariant.standard:
-        return selected ? cs.onPrimaryContainer : cs.onSurfaceVariant;
+        return _isOn ? cs.onPrimaryContainer : cs.onSurfaceVariant;
       case _IconButtonVariant.filled:
-        return selected ? cs.onPrimary : cs.primary;
+        return _carriesAccent ? cs.onPrimary : cs.primary;
       case _IconButtonVariant.tonal:
-        return selected ? cs.onSecondaryContainer : cs.onSurfaceVariant;
+        return _isOn ? cs.onSecondaryContainer : cs.onSurfaceVariant;
       case _IconButtonVariant.outlined:
-        return selected ? cs.onInverseSurface : cs.onSurfaceVariant;
+        return _isOn ? cs.onInverseSurface : cs.onSurfaceVariant;
     }
   }
 
