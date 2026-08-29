@@ -2,8 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/ui/dashboard/models/loan_progress_summary.dart';
-import 'package:mybudget/ui/dashboard/widgets/loan_progress_section.dart';
+import 'package:mybudget/ui/stats/models/loan_progress_summary.dart';
+import 'package:mybudget/ui/stats/widgets/loan_progress_section.dart';
 
 void main() {
   setUpAll(() async {

@@ -15,7 +15,7 @@ void main() {
 
       final state = container.read(homeNavigationProvider);
 
-      expect(state.tab, HomeTab.dashboard);
+      expect(state.tab, HomeTab.capture);
       expect(state.transactionsTab, TransactionsTab.expenses);
     });
 
@@ -27,7 +27,7 @@ void main() {
       final handled = notifier.handleBack();
 
       expect(handled, isTrue);
-      expect(container.read(homeNavigationProvider).tab, HomeTab.dashboard);
+      expect(container.read(homeNavigationProvider).tab, HomeTab.capture);
     });
 
     test('back from the dashboard leaves the app', () {
@@ -37,7 +37,7 @@ void main() {
           .handleBack();
 
       expect(handled, isFalse);
-      expect(container.read(homeNavigationProvider).tab, HomeTab.dashboard);
+      expect(container.read(homeNavigationProvider).tab, HomeTab.capture);
     });
 
     test('selectTab keeps the current transactions sub-tab', () {

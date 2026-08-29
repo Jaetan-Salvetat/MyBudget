@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/dashboard/dashboard_provider.dart';
+import 'package:mybudget/ui/stats/stats_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
@@ -111,7 +111,7 @@ void main() {
       await container.read(categoryDisplayResolverProvider.future);
       await container.read(categoryDisplayResolverProvider.future);
 
-      final state = container.read(dashboardProvider);
+      final state = container.read(statsProvider);
       final summaries = state.categorySummaries;
 
       expect(summaries.length, 2);
@@ -143,7 +143,7 @@ void main() {
       await container.read(loanProvider.future);
       await container.read(categoryDisplayResolverProvider.future);
 
-      final state = container.read(dashboardProvider);
+      final state = container.read(statsProvider);
       expect(state.categorySummaries, isEmpty);
       expect(state.totalExpenses, 0.0);
     },
@@ -175,7 +175,7 @@ void main() {
     await container.read(loanProvider.future);
     await container.read(categoryDisplayResolverProvider.future);
 
-    final summaries = container.read(dashboardProvider).categorySummaries;
+    final summaries = container.read(statsProvider).categorySummaries;
 
     expect(summaries, hasLength(2));
     final bucket = summaries.firstWhere(
@@ -224,7 +224,7 @@ void main() {
     await container.read(loanProvider.future);
     await container.read(categoryDisplayResolverProvider.future);
 
-    final summaries = container.read(dashboardProvider).categorySummaries;
+    final summaries = container.read(statsProvider).categorySummaries;
     expect(summaries.length, 2);
     expect(summaries.first.groupKey, 'transport');
     expect(summaries.last.groupKey, 'alimentation');
@@ -273,7 +273,7 @@ void main() {
     await container.read(loanProvider.future);
     await container.read(categoryDisplayResolverProvider.future);
 
-    final state = container.read(dashboardProvider);
+    final state = container.read(statsProvider);
 
     expect(state.recurringExpenses, 2000.0);
     expect(state.oneTimeExpenses, 300.0);
@@ -311,7 +311,7 @@ void main() {
     await container.read(loanProvider.future);
     await container.read(categoryDisplayResolverProvider.future);
 
-    final state = container.read(dashboardProvider);
+    final state = container.read(statsProvider);
 
     expect(state.recurringRevenues, 3000.0);
     expect(state.oneTimeRevenues, 500.0);
@@ -345,7 +345,7 @@ void main() {
       await container.read(loanProvider.future);
       await container.read(categoryDisplayResolverProvider.future);
 
-      final state = container.read(dashboardProvider);
+      final state = container.read(statsProvider);
 
       expect(state.oneTimeExpenses, 0.0);
     },
@@ -387,7 +387,7 @@ void main() {
       await container.read(loanProvider.future);
       await container.read(categoryDisplayResolverProvider.future);
 
-      final state = container.read(dashboardProvider);
+      final state = container.read(statsProvider);
       expect(state.netCashFlow, closeTo(2000.0, 0.01));
     },
   );

@@ -3,10 +3,10 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
-class DashboardGreeting extends StatelessWidget {
+class StatsGreeting extends StatelessWidget {
   final VoidCallback? onSettingsTap;
 
-  const DashboardGreeting({super.key, this.onSettingsTap});
+  const StatsGreeting({super.key, this.onSettingsTap});
 
   String _greetingForHour(int hour) {
     if (hour >= 5 && hour < 12) return 'Bonjour';

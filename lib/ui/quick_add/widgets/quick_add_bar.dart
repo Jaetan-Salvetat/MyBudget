@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
@@ -13,7 +14,6 @@ import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_submission_ticker.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
@@ -21,16 +21,24 @@ import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 /// The one place a transaction gets typed. Reads the text as it comes,
 /// creates on submit, and keeps the keyboard up : entering the day's expenses
-/// is a rafale, not one trip per line. The way back sits in the ticker below.
+/// is a rafale, not one trip per line. The way back sits on the journal line
+/// the transaction just became.
 class QuickAddBar extends ConsumerStatefulWidget {
+  static const String staticHint = 'café 3,50 · netflix 13,99 · salaire 2500';
+
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
   final VoidCallback onNoAccount;
+
+  /// The hint typing itself out while the day is still empty. Falls back to
+  /// [staticHint] as soon as it has nothing to say.
+  final ValueListenable<String>? hint;
 
   const QuickAddBar({
     required this.focused,
     required this.onFocusChanged,
     required this.onNoAccount,
+    this.hint,
     super.key,
   });
 
@@ -122,7 +130,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   /// Submitting waits for the reading the model still owes on the current
   /// text, so the button stays busy instead of swallowing the tap. The focus
-  /// stays : the next expense types straight away, the ticker holds the undo.
+  /// stays : the next expense types straight away, the journal holds the undo.
   Future<void> _submit() async {
     if (_submitting) return;
     if (!ref.read(quickAddProvider).isSubmittable) return;
@@ -159,8 +167,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     });
   }
 
-  /// Tant que rien n'est saisi, le bouton d'envoi n'a rien à envoyer : il
-  /// sert alors de raccourci vers le scan, sans occuper de place en plus.
+  /// Le scan est le second geste de la page, pas un raccourci caché derrière
+  /// un bouton qui change de sens : il a le sien, à gauche du champ.
   Future<void> _scan() async {
     if (ref.read(quickAddAccountProvider) == null) {
       widget.onNoAccount();
@@ -180,8 +188,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);
-    final usesRemote = ref.watch(quickAddUsesRemoteProvider);
-    final offersScan = draft.isEmpty;
     final scheme = Theme.of(context).colorScheme;
 
     final motion = context.frostedTokens.motion.snappy;
@@ -193,41 +199,34 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         AnimatedSize(
           duration: motion.duration,
           curve: motion.curve,
-          alignment: Alignment.topCenter,
-          child: showContext
-              ? Padding(
-                  padding: const EdgeInsets.only(bottom: FrostedSpacing.sp1),
-                  child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
-                )
-              : const SizedBox(width: double.infinity),
+          alignment: Alignment.bottomCenter,
+          child: draft.isEmpty
+              ? const SizedBox(width: double.infinity)
+              : const Padding(
+                  padding: EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                  child: QuickAddPreview(),
+                ),
         ),
         Row(
           children: [
-            Expanded(
-              child: QuickAddThinkingBorder(
-                thinking: !draft.isEmpty && draft.isStale,
-                child: FrostedTextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  leadingIcon: usesRemote
-                      ? Symbols.cloud_rounded
-                      : Symbols.auto_awesome_rounded,
-                  trailingIcon: showContext ? Symbols.close_rounded : null,
-                  onTrailingTap: _cancel,
-                  hintText: 'café 3,50 · netflix 13,99 · salaire 2500',
-                  textInputAction: TextInputAction.send,
-                  onChanged: _onChanged,
-                  onSubmitted: (_) => _submit(),
-                  onEditingComplete: _keepTyping,
-                ),
-              ),
+            _RoundButton(
+              icon: Symbols.photo_camera_rounded,
+              enabled: true,
+              busy: false,
+              onTap: _scan,
+              background: scheme.surfaceContainerHighest,
+              foreground: scheme.onSurfaceVariant,
             ),
             const SizedBox(width: FrostedSpacing.sp2),
-            _TrailingButton(
-              icon: _trailingIcon(offersScan),
-              enabled: _sentFlashing || offersScan || draft.isSubmittable,
+            Expanded(child: _field(draft, showContext)),
+            const SizedBox(width: FrostedSpacing.sp2),
+            _RoundButton(
+              icon: _sentFlashing
+                  ? Symbols.check_rounded
+                  : Symbols.arrow_upward_rounded,
+              enabled: _sentFlashing || draft.isSubmittable,
               busy: _submitting,
-              onTap: _onTrailingTap(offersScan),
+              onTap: _sentFlashing ? _keepTyping : _submit,
               background: _categoryAccent(draft) ?? scheme.primary,
               foreground: _accentForeground(draft, scheme),
             ),
@@ -237,15 +236,52 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           duration: motion.duration,
           curve: motion.curve,
           alignment: Alignment.topCenter,
-          child: draft.isEmpty
-              ? const SizedBox(width: double.infinity)
-              : const Padding(
-                  padding: EdgeInsets.only(top: FrostedSpacing.sp3),
-                  child: QuickAddPreview(),
-                ),
+          child: showContext
+              ? Padding(
+                  padding: const EdgeInsets.only(top: FrostedSpacing.sp1),
+                  child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
+                )
+              : const SizedBox(width: double.infinity),
         ),
-        const QuickAddSubmissionTicker(),
       ],
+    );
+  }
+
+  Widget _field(QuickAddDraft draft, bool showContext) {
+    final hint = widget.hint;
+    if (hint == null) {
+      return _fieldWithHint(draft, showContext, QuickAddBar.staticHint);
+    }
+
+    return ValueListenableBuilder<String>(
+      valueListenable: hint,
+      builder: (context, typed, _) => _fieldWithHint(
+        draft,
+        showContext,
+        typed.isEmpty ? QuickAddBar.staticHint : typed,
+      ),
+    );
+  }
+
+  Widget _fieldWithHint(QuickAddDraft draft, bool showContext, String hint) {
+    final usesRemote = ref.watch(quickAddUsesRemoteProvider);
+
+    return QuickAddThinkingBorder(
+      thinking: !draft.isEmpty && draft.isStale,
+      child: FrostedTextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        leadingIcon: usesRemote
+            ? Symbols.cloud_rounded
+            : Symbols.auto_awesome_rounded,
+        trailingIcon: showContext ? Symbols.close_rounded : null,
+        onTrailingTap: _cancel,
+        hintText: hint,
+        textInputAction: TextInputAction.send,
+        onChanged: _onChanged,
+        onSubmitted: (_) => _submit(),
+        onEditingComplete: _keepTyping,
+      ),
     );
   }
 
@@ -273,21 +309,9 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         : const Color(0xFF1C1B1F);
   }
 
-  /// The check holds the button just long enough to say "parti", then gives
-  /// the send back : a rafale never waits on it.
-  IconData _trailingIcon(bool offersScan) {
-    if (_sentFlashing) return Symbols.check_rounded;
-    if (offersScan) return Symbols.photo_camera_rounded;
-    return Symbols.arrow_upward_rounded;
-  }
-
-  VoidCallback _onTrailingTap(bool offersScan) {
-    if (_sentFlashing) return () {};
-    return offersScan ? _scan : _submit;
-  }
 }
 
-class _TrailingButton extends StatelessWidget {
+class _RoundButton extends StatelessWidget {
   static const double _size = 44;
 
   static const double _spinnerSize = 18;
@@ -300,7 +324,7 @@ class _TrailingButton extends StatelessWidget {
   final Color background;
   final Color foreground;
 
-  const _TrailingButton({
+  const _RoundButton({
     required this.icon,
     required this.enabled,
     required this.busy,

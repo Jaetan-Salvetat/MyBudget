@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
-import 'package:mybudget/ui/dashboard/models/category_expense_summary.dart';
+import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
 
 class CategoryBreakdownSection extends StatelessWidget {
   final List<CategoryExpenseSummary> categories;

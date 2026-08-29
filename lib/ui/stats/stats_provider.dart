@@ -6,9 +6,9 @@ import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/account_queries.dart';
-import 'package:mybudget/ui/dashboard/models/category_expense_summary.dart';
-import 'package:mybudget/ui/dashboard/models/loan_progress_summary.dart';
-import 'package:mybudget/ui/dashboard/models/upcoming_movement.dart';
+import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
+import 'package:mybudget/ui/stats/models/loan_progress_summary.dart';
+import 'package:mybudget/ui/stats/models/upcoming_movement.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
@@ -22,9 +22,9 @@ import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'dashboard_provider.g.dart';
+part 'stats_provider.g.dart';
 
-class DashboardState {
+class StatsState {
   final double netCashFlow;
   final double savingsRate;
   final double totalLoanAmount;
@@ -40,7 +40,7 @@ class DashboardState {
   final List<UpcomingMovement> upcomingMovements;
   final LoanProgressSummary loanProgress;
 
-  const DashboardState({
+  const StatsState({
     required this.netCashFlow,
     required this.savingsRate,
     required this.totalLoanAmount,
@@ -59,9 +59,9 @@ class DashboardState {
 }
 
 @Riverpod(keepAlive: true)
-class DashboardNotifier extends _$DashboardNotifier {
+class StatsNotifier extends _$StatsNotifier {
   @override
-  DashboardState build() {
+  StatsState build() {
     final monthlyExpenses = ref.watch(monthlyExpensesProvider);
     final totalMonthlyLoanPayments = ref.watch(
       totalMonthlyLoanPaymentsProvider,
@@ -115,7 +115,7 @@ class DashboardNotifier extends _$DashboardNotifier {
       ],
     );
 
-    return DashboardState(
+    return StatsState(
       netCashFlow: ref.watch(netCashFlowProvider),
       savingsRate: ref.watch(savingsRateProvider),
       totalLoanAmount: ref.watch(totalRemainingLoanAmountProvider),

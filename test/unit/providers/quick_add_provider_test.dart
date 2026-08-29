@@ -350,6 +350,23 @@ void main() {
     });
   });
 
+  group('QuickAddNotifier.submit', () {
+    test('hands back the category it recorded, for the wash to read', () async {
+      when(
+        () => classifier.classify('resto 25'),
+      ).thenAnswer((_) async => expenseClassification());
+
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      final submission = await notifier.submit(3);
+
+      expect(submission.categorySlug, restaurantLeaf.slug);
+    });
+  });
+
   group('QuickAddNotifier.submit while the model is still reading', () {
     test('cuts the pause short rather than dropping the tap', () async {
       when(

@@ -6,7 +6,7 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
-import 'package:mybudget/ui/dashboard/models/upcoming_movement.dart';
+import 'package:mybudget/ui/stats/models/upcoming_movement.dart';
 
 class UpcomingMovementsSection extends StatelessWidget {
   final List<UpcomingMovement> movements;

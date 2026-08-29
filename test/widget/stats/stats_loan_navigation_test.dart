@@ -14,7 +14,7 @@ import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/ui/dashboard/dashboard_screen.dart';
+import 'package:mybudget/ui/stats/stats_screen.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
@@ -107,7 +107,7 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: DashboardScreen()),
+          home: const Scaffold(body: StatsScreen()),
         ),
       ),
     );

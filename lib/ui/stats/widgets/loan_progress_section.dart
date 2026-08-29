@@ -6,7 +6,7 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
-import 'package:mybudget/ui/dashboard/models/loan_progress_summary.dart';
+import 'package:mybudget/ui/stats/models/loan_progress_summary.dart';
 
 class LoanProgressSection extends StatelessWidget {
   static const int _maxVisibleLoans = 3;

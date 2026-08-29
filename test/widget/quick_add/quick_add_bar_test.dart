@@ -151,14 +151,14 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
   });
 
-  testWidgets('offers the scan while there is nothing to send', (tester) async {
+  testWidgets('keeps the scan under the thumb at all times', (tester) async {
     await pumpBar(tester, focused: false);
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
-  testWidgets('gives the send button back as soon as a draft exists', (
+  testWidgets('the send button only ever sends, the scan keeps its own', (
     tester,
   ) async {
     await pumpBar(tester);
@@ -171,7 +171,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
   Future<void> typeAndAnalyze(WidgetTester tester, String input) async {
@@ -221,38 +221,32 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('what just landed stays on screen, undoable', (tester) async {
+  testWidgets('hands what it recorded to the journal', (tester) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
-    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Mc do'), findsOneWidget);
-
-    await tester.tap(find.text('Annuler'));
-    await tester.pumpAndSettle();
-
-    verify(() => expenseRepository.delete(7)).called(1);
-    expect(find.textContaining('Mc do'), findsNothing);
-  });
-
-  testWidgets('the line lets go on its own after the retention', (
-    tester,
-  ) async {
-    await pumpBar(tester);
-    await tester.pumpAndSettle();
-    await typeAndAnalyze(tester, 'mc do 12');
+    // The journal is what keeps the submission alive in the app ; here it
+    // stands in for it.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(QuickAddBar)),
+    );
+    final subscription = container.listen(
+      quickAddRecentSubmissionsProvider,
+      (_, _) {},
+    );
+    addTearDown(subscription.close);
 
     await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
     await tester.pumpAndSettle();
+
+    final submissions = container.read(quickAddRecentSubmissionsProvider);
+
+    expect(submissions.single.id, 7);
+    expect(submissions.single.name, 'Mc do');
 
     await tester.pump(QuickAddRecentSubmissions.retention);
     await tester.pumpAndSettle();
-
-    expect(find.text('Annuler'), findsNothing);
-    verifyNever(() => expenseRepository.delete(any()));
   });
 
   testWidgets('the send button flashes a check once it has sent', (

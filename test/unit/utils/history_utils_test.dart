@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 void main() {
@@ -129,6 +130,82 @@ void main() {
       final result = computeNewStartDate(now, paymentDay);
 
       expect(result, DateTime(2024, 2, 29));
+    });
+  });
+
+  group('occursOnDay', () {
+    test('a one-time transaction only lands on its own day', () {
+      final start = DateTime(2026, 8, 14, 18, 42);
+
+      expect(
+        occursOnDay(start, null, Frequency.oneTime, DateTime(2026, 8, 14)),
+        isTrue,
+      );
+      expect(
+        occursOnDay(start, null, Frequency.oneTime, DateTime(2026, 8, 15)),
+        isFalse,
+      );
+      expect(
+        occursOnDay(start, null, Frequency.oneTime, DateTime(2026, 9, 14)),
+        isFalse,
+      );
+    });
+
+    test('a monthly transaction lands every month on its start day', () {
+      final start = DateTime(2026, 3, 5);
+
+      expect(
+        occursOnDay(start, null, Frequency.monthly, DateTime(2026, 8, 5)),
+        isTrue,
+      );
+      expect(
+        occursOnDay(start, null, Frequency.monthly, DateTime(2026, 8, 6)),
+        isFalse,
+      );
+    });
+
+    test('a monthly transaction clamps to the last day of a shorter month', () {
+      final start = DateTime(2026, 1, 31);
+
+      expect(
+        occursOnDay(start, null, Frequency.monthly, DateTime(2026, 2, 28)),
+        isTrue,
+      );
+      expect(
+        occursOnDay(start, null, Frequency.monthly, DateTime(2026, 2, 27)),
+        isFalse,
+      );
+    });
+
+    test('an annual transaction lands once a year', () {
+      final start = DateTime(2024, 6, 12);
+
+      expect(
+        occursOnDay(start, null, Frequency.annual, DateTime(2026, 6, 12)),
+        isTrue,
+      );
+      expect(
+        occursOnDay(start, null, Frequency.annual, DateTime(2026, 7, 12)),
+        isFalse,
+      );
+    });
+
+    test('nothing lands before it started or after it ended', () {
+      final start = DateTime(2026, 3, 5);
+
+      expect(
+        occursOnDay(start, null, Frequency.monthly, DateTime(2026, 2, 5)),
+        isFalse,
+      );
+      expect(
+        occursOnDay(
+          start,
+          DateTime(2026, 6, 30),
+          Frequency.monthly,
+          DateTime(2026, 8, 5),
+        ),
+        isFalse,
+      );
     });
   });
 }

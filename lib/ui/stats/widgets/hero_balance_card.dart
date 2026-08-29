@@ -6,7 +6,7 @@ import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
-import 'package:mybudget/ui/dashboard/widgets/balance_donut.dart';
+import 'package:mybudget/ui/stats/widgets/balance_donut.dart';
 
 class HeroBalanceCard extends StatelessWidget {
   final double balance;

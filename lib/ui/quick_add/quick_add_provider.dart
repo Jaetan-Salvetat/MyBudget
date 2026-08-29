@@ -123,6 +123,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       type: draft.type,
       name: name,
       amount: amount,
+      categorySlug: categorySlug,
     );
   }
 

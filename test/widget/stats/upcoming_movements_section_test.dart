@@ -2,8 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/ui/dashboard/models/upcoming_movement.dart';
-import 'package:mybudget/ui/dashboard/widgets/upcoming_movements_section.dart';
+import 'package:mybudget/ui/stats/models/upcoming_movement.dart';
+import 'package:mybudget/ui/stats/widgets/upcoming_movements_section.dart';
 
 void main() {
   setUpAll(() async {
