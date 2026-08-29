@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../actions/_interactive_surface.dart';
@@ -238,6 +237,7 @@ class _StepCircle extends StatelessWidget {
     Widget circle(Widget content) => Container(
       width: _kCircleSize,
       height: _kCircleSize,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
       child: content,
     );
@@ -246,9 +246,8 @@ class _StepCircle extends StatelessWidget {
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: '${index + 1}',
-      builder: (BuildContext context, InteractionStates s) => circle(
-        s.ink(borderRadius: BorderRadius.circular(FrostedRadius.full), glyph),
-      ),
+      builder: (BuildContext context, InteractionStates s) =>
+          circle(s.ink(glyph)),
     );
   }
 }

@@ -171,7 +171,7 @@ class _MainAction extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: FrostedSplitButton._height,
-          alignment: Alignment.center,
+          clipBehavior: Clip.antiAlias,
           decoration: _decoration(
             cs: cs,
             s: s,
@@ -179,23 +179,24 @@ class _MainAction extends StatelessWidget {
             borderRadius: radius,
           ),
           child: s.ink(
-            borderRadius: radius,
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FrostedSpacing.sp5,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  if (icon != null) ...<Widget>[
-                    Icon(icon, size: 18, color: fg),
-                    const SizedBox(width: FrostedSpacing.sp2),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp5,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (icon != null) ...<Widget>[
+                      Icon(icon, size: 18, color: fg),
+                      const SizedBox(width: FrostedSpacing.sp2),
+                    ],
+                    Text(
+                      label,
+                      style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                    ),
                   ],
-                  Text(
-                    label,
-                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -267,7 +268,7 @@ class _ChevronAction extends StatelessWidget {
               curve: motion.curve,
               height: FrostedSplitButton._height,
               width: FrostedSplitButton._height,
-              alignment: Alignment.center,
+              clipBehavior: Clip.antiAlias,
               decoration: _decoration(
                 cs: cs,
                 s: s,
@@ -275,12 +276,13 @@ class _ChevronAction extends StatelessWidget {
                 borderRadius: radius,
               ),
               child: s.ink(
-                borderRadius: radius,
-                AnimatedRotation(
-                  duration: motion.duration,
-                  curve: motion.curve,
-                  turns: open ? 0.5 : 0,
-                  child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+                Center(
+                  child: AnimatedRotation(
+                    duration: motion.duration,
+                    curve: motion.curve,
+                    turns: open ? 0.5 : 0,
+                    child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+                  ),
                 ),
               ),
             );

@@ -33,19 +33,16 @@ class PressInk {
 /// Carries the Material ink layer of a surface, between the surface it sits
 /// on and the content above it, so a splash washes over the glass without
 /// tinting the label.
+///
+/// The splash spreads over the plain rectangle of the surface: its corners
+/// are the surface's own clip to give, not this host's. A shape carried in
+/// the splash would be the shape at the instant of the press, frozen while
+/// the surface goes on morphing under it; a clip on the surface is the one
+/// shape both of them read, animated included.
 class PressInkHost extends StatefulWidget {
-  const PressInkHost({
-    required this.ink,
-    required this.child,
-    this.borderRadius,
-    super.key,
-  });
+  const PressInkHost({required this.ink, required this.child, super.key});
 
   final PressInk ink;
-
-  /// The corners the ink is confined to. Null keeps it to the plain
-  /// rectangle the surface occupies.
-  final BorderRadius? borderRadius;
 
   final Widget child;
 
@@ -118,7 +115,6 @@ class _PressInkHostState extends State<PressInkHost> {
           : box.globalToLocal(globalPosition),
       color: Theme.of(inkContext).splashColor,
       containedInkWell: true,
-      borderRadius: widget.borderRadius,
       textDirection: Directionality.of(inkContext),
       onRemoved: () {
         _splashes.remove(splash);

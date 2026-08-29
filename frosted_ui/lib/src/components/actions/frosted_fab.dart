@@ -158,6 +158,7 @@ class FrostedFab extends StatelessWidget {
           curve: motion.curve,
           height: m.height,
           width: m.extended ? null : m.height,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: resolveShape(s),
@@ -173,7 +174,7 @@ class FrostedFab extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: s.ink(content, borderRadius: resolveShape(s)),
+          child: s.ink(content),
         );
       },
     );

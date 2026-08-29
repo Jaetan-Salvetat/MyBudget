@@ -118,9 +118,9 @@ class FrostedListTile extends StatelessWidget {
       return AnimatedContainer(
         duration: motion.duration,
         curve: motion.curve,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(color: fill, borderRadius: _shape(s)),
         child: s.ink(
-          borderRadius: _shape(s),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: minHeight),
             child: Padding(

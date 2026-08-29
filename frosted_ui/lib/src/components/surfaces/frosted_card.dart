@@ -59,11 +59,9 @@ class FrostedCard extends StatelessWidget {
         return AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
+          clipBehavior: Clip.antiAlias,
           decoration: _decoration(cs, pressed: s.pressed),
-          child: s.ink(
-            borderRadius: BorderRadius.circular(_radiusFor(pressed: s.pressed)),
-            Padding(padding: padding, child: child),
-          ),
+          child: s.ink(Padding(padding: padding, child: child)),
         );
       },
     );

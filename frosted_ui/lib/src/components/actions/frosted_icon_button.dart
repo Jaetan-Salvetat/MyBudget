@@ -168,13 +168,13 @@ class FrostedIconButton extends StatelessWidget {
           curve: motion.curve,
           width: size.box,
           height: size.box,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            borderRadius: _shape(s),
             Center(
               child: Icon(glyph, size: size.glyph, color: fg),
             ),

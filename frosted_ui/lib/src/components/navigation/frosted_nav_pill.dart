@@ -113,13 +113,15 @@ class _NavPillAction extends StatelessWidget {
     return InteractiveSurface(
       onTap: action.onPressed,
       semanticsLabel: action.label,
-      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+      builder: (BuildContext context, InteractionStates s) => Container(
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
         child: SizedBox.square(
           dimension: _kMinTapTarget,
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
-            Center(child: Icon(action.icon, size: _kIconSize, color: cs.onPrimary)),
+            Center(
+              child: Icon(action.icon, size: _kIconSize, color: cs.onPrimary),
+            ),
           ),
         ),
       ),
@@ -168,12 +170,12 @@ class _NavPillDestination extends StatelessWidget {
           minWidth: _kMinTapTarget,
           minHeight: _kMinTapTarget,
         ),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(FrostedRadius.full),
         ),
         child: s.ink(
-          borderRadius: BorderRadius.circular(FrostedRadius.full),
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: selected ? FrostedSpacing.sp4 : FrostedSpacing.sp2,

@@ -161,15 +161,13 @@ class _RailItem extends StatelessWidget {
         onTap: onTap,
         semanticsLabel: item.label,
         semanticsSelected: selected,
-        builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+        builder: (BuildContext context, InteractionStates s) => Container(
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
-          child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.lg),
-            content,
-          ),
+          child: s.ink(content),
         ),
       ),
     );

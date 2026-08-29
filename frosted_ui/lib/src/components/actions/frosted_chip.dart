@@ -134,13 +134,13 @@ class FrostedChip extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: _height,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            borderRadius: _shape(s),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: FrostedSpacing.sp3,
@@ -281,9 +281,8 @@ class _DeleteAffordance extends StatelessWidget {
   Widget build(BuildContext context) {
     return InteractiveSurface(
       onTap: onDelete,
-      builder: (BuildContext context, InteractionStates s) => s.ink(
-        borderRadius: BorderRadius.circular(FrostedRadius.full),
-        Icon(Icons.close, size: _glyphSize, color: color),
+      builder: (BuildContext context, InteractionStates s) => ClipOval(
+        child: s.ink(Icon(Icons.close, size: _glyphSize, color: color)),
       ),
     );
   }

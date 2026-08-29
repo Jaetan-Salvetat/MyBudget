@@ -40,13 +40,13 @@ class FrostedSwitch extends StatelessWidget {
           curve: motion.curve,
           width: _kTrackWidth,
           height: _kTrackHeight,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: trackColor,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
             Padding(
               padding: const EdgeInsets.all(_kPadding),
               child: AnimatedAlign(

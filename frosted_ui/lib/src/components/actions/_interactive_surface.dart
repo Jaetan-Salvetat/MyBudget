@@ -35,16 +35,13 @@ class InteractionStates {
 
   /// Lays the press ink under [child] — above the surface the builder drew,
   /// below the label it carries. The ink takes its colour from the ambient
-  /// [ThemeData.splashColor]; pass the surface's [borderRadius] so it stops
-  /// at its corners.
-  Widget ink(Widget child, {BorderRadius? borderRadius}) {
+  /// [ThemeData.splashColor] and spreads to the edges of the surface, which
+  /// has to clip it to its own corners: only the surface knows the shape it
+  /// is on its way to, frame by frame.
+  Widget ink(Widget child) {
     final PressInk? pressInk = this.pressInk;
     if (pressInk == null) return child;
-    return PressInkHost(
-      ink: pressInk,
-      borderRadius: borderRadius,
-      child: child,
-    );
+    return PressInkHost(ink: pressInk, child: child);
   }
 }
 

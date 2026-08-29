@@ -196,6 +196,7 @@ class _MonthLabel extends StatelessWidget {
             ? 0.08
             : 0;
         return Container(
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: overlay == 0
                 ? Colors.transparent
@@ -203,7 +204,6 @@ class _MonthLabel extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.full),
           ),
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: FrostedSpacing.sp3,
@@ -278,9 +278,9 @@ class _DayCell extends StatelessWidget {
                   base,
                 );
           return Container(
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
             child: s.ink(
-              borderRadius: BorderRadius.circular(FrostedRadius.full),
               Center(
                 child: Text(
                   '$day',
@@ -335,12 +335,12 @@ class _YearCell extends StatelessWidget {
                   base,
                 );
           return Container(
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(FrostedRadius.full),
             ),
             child: s.ink(
-              borderRadius: BorderRadius.circular(FrostedRadius.full),
               Center(
                 child: Text(
                   '$year',

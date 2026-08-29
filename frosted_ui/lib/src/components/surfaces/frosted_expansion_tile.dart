@@ -119,12 +119,12 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
         return AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: fill,
             borderRadius: _shape(s, header: true),
           ),
           child: s.ink(
-            borderRadius: _shape(s, header: true),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: _headerHeight),
               child: Padding(

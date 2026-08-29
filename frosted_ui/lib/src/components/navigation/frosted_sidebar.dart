@@ -160,13 +160,13 @@ class _Item extends StatelessWidget {
       onTap: item.onTap,
       semanticsLabel: item.label,
       semanticsSelected: selected,
-      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+      builder: (BuildContext context, InteractionStates s) => Container(
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(FrostedRadius.sm),
         ),
         child: s.ink(
-          borderRadius: BorderRadius.circular(FrostedRadius.sm),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: FrostedSpacing.sp2,

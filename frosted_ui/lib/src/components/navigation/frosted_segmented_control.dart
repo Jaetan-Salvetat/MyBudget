@@ -77,24 +77,29 @@ class FrostedSegmentedControl extends StatelessWidget {
                           onTap: () => onTap(i),
                           semanticsLabel: segments[i],
                           semanticsSelected: i == currentIndex,
+                          // The thumb is a sibling sliding under the row, so
+                          // a segment has no surface to clip its ink: it does
+                          // it itself.
                           builder:
                               (BuildContext context, InteractionStates s) =>
-                                  s.ink(
+                                  ClipRRect(
                                     borderRadius: BorderRadius.circular(
                                       FrostedRadius.sm,
                                     ),
-                                    Center(
-                                      child: Text(
-                                        segments[i],
-                                        style: FrostedTypeScale.labelMedium
-                                            .copyWith(
-                                              color: i == currentIndex
-                                                  ? cs.onSurface
-                                                  : cs.onSurfaceVariant,
-                                              fontWeight: i == currentIndex
-                                                  ? FontWeight.w600
-                                                  : FontWeight.w500,
-                                            ),
+                                    child: s.ink(
+                                      Center(
+                                        child: Text(
+                                          segments[i],
+                                          style: FrostedTypeScale.labelMedium
+                                              .copyWith(
+                                                color: i == currentIndex
+                                                    ? cs.onSurface
+                                                    : cs.onSurfaceVariant,
+                                                fontWeight: i == currentIndex
+                                                    ? FontWeight.w600
+                                                    : FontWeight.w500,
+                                              ),
+                                        ),
                                       ),
                                     ),
                                   ),

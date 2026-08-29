@@ -74,14 +74,18 @@ class _Crumb extends StatelessWidget {
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: label,
-      builder: (BuildContext context, InteractionStates s) => s.ink(
+      // A crumb carries no surface of its own, so the corners its ink stops
+      // at are this clip's to give.
+      builder: (BuildContext context, InteractionStates s) => ClipRRect(
         borderRadius: BorderRadius.circular(FrostedRadius.xs),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FrostedSpacing.sp1,
-            vertical: 2,
+        child: s.ink(
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FrostedSpacing.sp1,
+              vertical: 2,
+            ),
+            child: Text(label, style: style),
           ),
-          child: Text(label, style: style),
         ),
       ),
     );

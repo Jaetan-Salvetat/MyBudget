@@ -222,6 +222,7 @@ class _Field extends StatelessWidget {
         return Container(
           width: _w,
           height: _h,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: overlay == 0
                 ? bg
@@ -229,7 +230,6 @@ class _Field extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.lg),
             Center(
               child: Text(
                 text,
