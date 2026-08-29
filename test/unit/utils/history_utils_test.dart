@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 void main() {
@@ -213,6 +214,122 @@ void main() {
           DateTime(2026, 9),
         ),
         isFalse,
+      );
+    });
+  });
+
+  group('hasOccurredThisMonth', () {
+    test('the 12th has fallen when we are the 29th', () {
+      expect(
+        hasOccurredThisMonth(
+          DateTime(2026, 4, 12),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 8, 29),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the 30th has not fallen when we are the 29th', () {
+      expect(
+        hasOccurredThisMonth(
+          DateTime(2026, 4, 30),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 8, 29),
+        ),
+        isFalse,
+      );
+    });
+
+    test('the day itself counts as fallen', () {
+      expect(
+        hasOccurredThisMonth(
+          DateTime(2026, 4, 29),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 8, 29),
+        ),
+        isTrue,
+      );
+    });
+
+    test('a yearly rule outside its month has nothing falling', () {
+      expect(
+        hasOccurredThisMonth(
+          DateTime(2026, 3, 12),
+          null,
+          Frequency.annual,
+          DateTime(2026, 8, 29),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('closingDateOf', () {
+    final startDate = DateTime(2026, 4, 12);
+    final asOf = DateTime(2026, 8, 29);
+
+    test('leaving this month its due closes on the day of the deletion', () {
+      expect(
+        closingDateOf(
+          RecurringDeletion.afterThisMonth,
+          startDate,
+          Frequency.monthly,
+          asOf,
+        ),
+        DateTime(2026, 8, 29),
+      );
+    });
+
+    test('taking this month too closes the eve of its due date', () {
+      expect(
+        closingDateOf(
+          RecurringDeletion.includingThisMonth,
+          startDate,
+          Frequency.monthly,
+          asOf,
+        ),
+        DateTime(2026, 8, 11),
+      );
+    });
+
+    test('taking this month too leaves the months before it alone', () {
+      final closing = closingDateOf(
+        RecurringDeletion.includingThisMonth,
+        startDate,
+        Frequency.monthly,
+        asOf,
+      );
+
+      expect(
+        occursInMonth(startDate, closing, Frequency.monthly, DateTime(2026, 8)),
+        isFalse,
+      );
+      expect(
+        occursInMonth(startDate, closing, Frequency.monthly, DateTime(2026, 7)),
+        isTrue,
+      );
+    });
+
+    test('a yearly rule loses this year and keeps the one before', () {
+      final anniversary = DateTime(2025, 3, 12);
+      final closing = closingDateOf(
+        RecurringDeletion.includingThisMonth,
+        anniversary,
+        Frequency.annual,
+        DateTime(2026, 3, 29),
+      );
+
+      expect(
+        occursInMonth(anniversary, closing, Frequency.annual, DateTime(2026, 3)),
+        isFalse,
+      );
+      expect(
+        occursInMonth(anniversary, closing, Frequency.annual, DateTime(2025, 3)),
+        isTrue,
       );
     });
   });

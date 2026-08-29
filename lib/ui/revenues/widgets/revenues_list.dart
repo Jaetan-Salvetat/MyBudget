@@ -9,6 +9,7 @@ import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/revenues_view_provider.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/providers/transaction_filter_provider.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
@@ -33,6 +34,7 @@ import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 class RevenuesList extends ConsumerStatefulWidget {
   const RevenuesList({super.key});
@@ -238,6 +240,14 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
+  /// A month other than the one in progress is read : acting on it would mean
+  /// deciding what it should retroactively have been.
+  bool get _isViewingCurrentMonth {
+    final now = DateTime.now();
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    return now.year == selectedMonth.year && now.month == selectedMonth.month;
+  }
+
   Widget _buildRow(
     RevenueModel revenue,
     List<AccountModel> accounts,
@@ -258,12 +268,13 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
 
     return CompactRevenueRow(
       revenue: revenue,
+      isCurrentMonth: _isViewingCurrentMonth,
       accountName: account.name,
       beneficiary: beneficiary,
       category: category,
       showDivider: showDivider,
       onEdit: () => _openEditScreen(revenue, accounts),
-      onDelete: () => _deleteRevenue(revenue),
+      onDelete: (scope) => _deleteRevenue(revenue, scope),
     );
   }
 
@@ -392,9 +403,11 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     }
   }
 
-  Future<void> _deleteRevenue(RevenueModel revenue) async {
+  Future<void> _deleteRevenue(RevenueModel revenue, RecurringDeletion scope) async {
     try {
-      await ref.read(revenueProvider.notifier).deleteRevenue(revenue.id);
+      await ref
+          .read(revenueProvider.notifier)
+          .deleteRevenue(revenue.id, scope: scope);
     } catch (e) {
       if (mounted) {
         FrostedSnackbar.show(

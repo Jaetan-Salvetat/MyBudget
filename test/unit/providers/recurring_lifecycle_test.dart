@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -116,6 +117,79 @@ void main() {
         ),
         isFalse,
       );
+    });
+  });
+
+  group('a deletion that takes the month in progress too', () {
+    // A rule due on the 1st, so its turn has already come round.
+    ExpenseModel dueEarlyInTheMonth() => subscription(
+      startDate: DateTime(today.year, today.month - 2, 1),
+    );
+
+    test('stops it the eve of the due date it must not honour', () async {
+      final expense = dueEarlyInTheMonth();
+
+      await (await notifierWith(expense)).deleteExpense(
+        7,
+        scope: RecurringDeletion.includingThisMonth,
+      );
+
+      expect(
+        closed!.endDate,
+        DateTime(today.year, today.month, 1).subtract(const Duration(days: 1)),
+      );
+    });
+
+    test('drops it from the month in progress', () async {
+      final expense = dueEarlyInTheMonth();
+
+      await (await notifierWith(expense)).deleteExpense(
+        7,
+        scope: RecurringDeletion.includingThisMonth,
+      );
+
+      expect(
+        occursInMonth(
+          closed!.startDate,
+          closed!.endDate,
+          closed!.frequencyEnum,
+          DateTime(today.year, today.month),
+        ),
+        isFalse,
+      );
+    });
+
+    test('leaves the month before it untouched', () async {
+      final expense = dueEarlyInTheMonth();
+
+      await (await notifierWith(expense)).deleteExpense(
+        7,
+        scope: RecurringDeletion.includingThisMonth,
+      );
+
+      expect(
+        occursInMonth(
+          closed!.startDate,
+          closed!.endDate,
+          closed!.frequencyEnum,
+          DateTime(today.year, today.month - 1),
+        ),
+        isTrue,
+      );
+    });
+
+    test('removes for good a rule opened this very month', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month, 1),
+      );
+
+      await (await notifierWith(expense)).deleteExpense(
+        7,
+        scope: RecurringDeletion.includingThisMonth,
+      );
+
+      expect(deleted, [7]);
+      expect(closed, isNull);
     });
   });
 
@@ -261,6 +335,50 @@ void main() {
       await notifier.updateExpense(expense.copyWith(accountId: 3));
 
       verify(() => repo.add(any())).called(1);
+    });
+  });
+
+  group('editing from a month other than this one', () {
+    // The list hands the form a copy dated on the month being looked at, not
+    // on the day the rule really started. Nothing may be read from it.
+    test('never moves the rule onto the month it was edited from', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 4, 12),
+      );
+      final notifier = await notifierWith(expense);
+      final asSeenInAPastMonth = expense.copyWith(
+        startDate: DateTime(today.year, today.month - 2, 12),
+        amount: 35,
+      );
+
+      await notifier.updateExpense(asSeenInAPastMonth);
+
+      expect(closed!.startDate, expense.startDate);
+      expect(dayOnly(closed!.endDate!), today);
+    });
+
+    test('opens the rule taking over on the next occurrence, not that '
+        'month', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 4, 12),
+      );
+      final notifier = await notifierWith(expense);
+      ExpenseModel? opened;
+      when(() => repo.add(any())).thenAnswer((invocation) {
+        opened = invocation.positionalArguments.first as ExpenseModel;
+        return 8;
+      });
+
+      await notifier.updateExpense(
+        expense.copyWith(
+          startDate: DateTime(today.year, today.month - 2, 12),
+          amount: 35,
+        ),
+      );
+
+      expect(opened!.startDate.day, 12);
+      // The next occurrence, whatever day of the month we run this on.
+      expect(dayOnly(opened!.startDate).isBefore(today), isFalse);
     });
   });
 

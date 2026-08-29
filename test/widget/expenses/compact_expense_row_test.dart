@@ -7,7 +7,8 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 
 /// A rule that has been closed is a trace of a month that is over : it can be
-/// read, never edited and never deleted again.
+/// read, never edited and never deleted again. So is anything read from a
+/// month other than the one in progress.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -33,6 +34,7 @@ void main() {
     ExpenseModel expense, {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
+    bool isCurrentMonth = true,
   }) {
     return tester.pumpWidget(
       MaterialApp(
@@ -40,8 +42,9 @@ void main() {
         home: Scaffold(
           body: CompactExpenseRow(
             expense: expense,
+            isCurrentMonth: isCurrentMonth,
             onEdit: onEdit,
-            onDelete: onDelete,
+            onDelete: (_) => onDelete(),
           ),
         ),
       ),
@@ -90,6 +93,34 @@ void main() {
       rent(endDate: DateTime(2026, 8, 12)),
       onEdit: () {},
       onDelete: () {},
+    );
+
+    expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);
+  });
+
+  testWidgets('a past month opens nothing on a tap', (tester) async {
+    var edited = false;
+    await pumpRow(
+      tester,
+      rent(),
+      onEdit: () => edited = true,
+      onDelete: () {},
+      isCurrentMonth: false,
+    );
+
+    await tester.tap(find.text('Loyer'));
+    await tester.pumpAndSettle();
+
+    expect(edited, isFalse);
+  });
+
+  testWidgets('a past month offers no actions either', (tester) async {
+    await pumpRow(
+      tester,
+      rent(),
+      onEdit: () {},
+      onDelete: () {},
+      isCurrentMonth: false,
     );
 
     expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);

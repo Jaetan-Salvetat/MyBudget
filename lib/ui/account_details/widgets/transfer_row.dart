@@ -31,7 +31,7 @@ class TransferRow extends StatelessWidget {
       context: context,
       deleteConfirmationMessage: 'Voulez-vous vraiment supprimer ce virement ?',
       onEdit: onEdit,
-      onDelete: onDelete,
+      onDelete: (_) => onDelete(),
     );
   }
 

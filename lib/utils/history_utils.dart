@@ -1,4 +1,5 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 /// A date stripped of its hour, so two moments of the same day compare equal.
 DateTime dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
@@ -57,6 +58,46 @@ DateTime dayInMonthOf(
     month.month,
     clampDayOfMonth(month.year, month.month, startDate.day),
   );
+}
+
+/// Whether the rule's occurrence for the month of [asOf] has already fallen.
+///
+/// It is what tells a deletion apart : a month that has been paid has
+/// something to keep, a month still waiting for its turn has not.
+bool hasOccurredThisMonth(
+  DateTime startDate,
+  DateTime? endDate,
+  Frequency frequency,
+  DateTime asOf,
+) {
+  final month = DateTime(asOf.year, asOf.month);
+  if (!occursInMonth(startDate, endDate, frequency, month)) return false;
+
+  return !dayInMonthOf(startDate, frequency, month).isAfter(dayOnly(asOf));
+}
+
+/// The day a deletion stops the rule on.
+///
+/// Leaving the month its due, the rule ran until the deletion. Taking the
+/// month too, it stopped the eve of the occurrence it must not honour — which
+/// leaves every earlier month exactly as it was.
+DateTime closingDateOf(
+  RecurringDeletion scope,
+  DateTime startDate,
+  Frequency frequency,
+  DateTime asOf,
+) {
+  switch (scope) {
+    case RecurringDeletion.afterThisMonth:
+      return dayOnly(asOf);
+    case RecurringDeletion.includingThisMonth:
+      final due = dayInMonthOf(
+        startDate,
+        frequency,
+        DateTime(asOf.year, asOf.month),
+      );
+      return dayOnly(due).subtract(const Duration(days: 1));
+  }
 }
 
 /// Whether a rule has already lived by [asOf] : it has, from the day it

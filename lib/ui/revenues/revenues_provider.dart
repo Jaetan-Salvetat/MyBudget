@@ -1,4 +1,5 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
@@ -108,23 +109,35 @@ class RevenueNotifier extends _$RevenueNotifier {
     await future;
   }
 
-  Future<void> deleteRevenue(int id) async {
+  /// A recurring rule is closed rather than erased : the months it was
+  /// actually paid in are history, and history is what this app keeps. What
+  /// [scope] settles is whether the month in progress is one of them.
+  ///
+  /// A rule left with nothing to defend — a one-off, or one closing before it
+  /// ever came round — is erased instead.
+  Future<void> deleteRevenue(
+    int id, {
+    RecurringDeletion scope = RecurringDeletion.afterThisMonth,
+  }) async {
     try {
       final repo = ref.read(revenueRepositoryProvider);
       final revenue = repo.get(id);
       if (revenue == null) return;
 
-      final now = DateTime.now();
-      // A recurring rule is closed rather than erased : the months it was
-      // actually paid in are history, and history is what this app keeps.
-      // One that never came round has no such months to defend.
+      final closing = closingDateOf(
+        scope,
+        revenue.startDate,
+        revenue.frequencyEnum,
+        DateTime.now(),
+      );
+
       if (revenue.frequencyEnum == Frequency.oneTime ||
-          !hasStarted(revenue.startDate, now)) {
+          closing.isBefore(dayOnly(revenue.startDate))) {
         await deletePermanently(id);
         return;
       }
 
-      repo.update(revenue.copyWith(endDate: dayOnly(now)));
+      repo.update(revenue.copyWith(endDate: closing));
       ref.invalidateSelf();
       await future;
     } catch (e) {

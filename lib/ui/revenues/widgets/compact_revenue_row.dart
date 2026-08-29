@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
@@ -9,6 +10,7 @@ import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class CompactRevenueRow extends StatelessWidget {
   final RevenueModel revenue;
@@ -16,12 +18,16 @@ class CompactRevenueRow extends StatelessWidget {
   final Beneficiary? beneficiary;
   final CategoryDisplay? category;
   final bool showDivider;
+
+  /// Whether the month being read is the one still in progress.
+  final bool isCurrentMonth;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   const CompactRevenueRow({
     required this.revenue,
     required this.accountName,
+    required this.isCurrentMonth,
     required this.onEdit,
     required this.onDelete,
     this.beneficiary,
@@ -60,7 +66,7 @@ class CompactRevenueRow extends StatelessWidget {
     ];
 
     return InkWell(
-      onTap: _isClosed ? null : onEdit,
+      onTap: _isReadOnly ? null : onEdit,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -123,7 +129,7 @@ class CompactRevenueRow extends StatelessWidget {
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-            if (!_isClosed)
+            if (!_isReadOnly)
               SizedBox(
                 width: 32,
                 height: 32,
@@ -141,13 +147,31 @@ class CompactRevenueRow extends StatelessWidget {
     );
   }
 
-  /// A rule that has been closed is a trace of a month that is over : it can
-  /// be read, never edited and never deleted again.
-  bool get _isClosed => revenue.endDate != null;
+  /// A closed rule is a trace, and so is any month that is not the one in
+  /// progress : both can be read, neither can be edited or deleted. Acting on
+  /// a past month would mean deciding what it should retroactively have been.
+  bool get _isReadOnly => !isCurrentMonth || revenue.endDate != null;
+
+  /// The answer the deletion dialog opens on, and null when there is no
+  /// month to argue about. A rule that has already been honoured this month
+  /// keeps it ; one still waiting for its turn has nothing to keep.
+  RecurringDeletion? get _initialDeletionScope {
+    if (revenue.frequencyEnum == Frequency.oneTime) return null;
+
+    return hasOccurredThisMonth(
+      revenue.startDate,
+      revenue.endDate,
+      revenue.frequencyEnum,
+      DateTime.now(),
+    )
+        ? RecurringDeletion.afterThisMonth
+        : RecurringDeletion.includingThisMonth;
+  }
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(
       context: context,
+      initialScope: _initialDeletionScope,
       deleteConfirmationMessage: 'Voulez-vous vraiment supprimer ce revenu ?',
       onEdit: onEdit,
       onDelete: onDelete,

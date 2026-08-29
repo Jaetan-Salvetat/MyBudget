@@ -36,6 +36,7 @@ import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   const ExpensesList({super.key});
@@ -173,9 +174,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             );
 
             final today = DateTime.now();
-            final isViewingCurrentMonth =
-                today.year == selectedMonth.year &&
-                today.month == selectedMonth.month;
+            final isViewingCurrentMonth = _isViewingCurrentMonth;
 
             final isEmpty = filteredExpenses.isEmpty && filter.isEmpty;
 
@@ -338,6 +337,14 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
+  /// A month other than the one in progress is read : acting on it would mean
+  /// deciding what it should retroactively have been.
+  bool get _isViewingCurrentMonth {
+    final now = DateTime.now();
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    return now.year == selectedMonth.year && now.month == selectedMonth.month;
+  }
+
   Widget _buildRow(
     ExpenseModel expense,
     CategoryDisplayResolver? resolver,
@@ -353,12 +360,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
     return CompactExpenseRow(
       expense: expense,
+      isCurrentMonth: _isViewingCurrentMonth,
       category: category,
       beneficiary: beneficiary,
       showDivider: showDivider,
       showDate: showDate,
       onEdit: () => _openEditScreen(expense),
-      onDelete: () => _deleteExpense(expense),
+      onDelete: (scope) => _deleteExpense(expense, scope),
     );
   }
 
@@ -490,9 +498,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     }
   }
 
-  Future<void> _deleteExpense(ExpenseModel expense) async {
+  Future<void> _deleteExpense(ExpenseModel expense, RecurringDeletion scope) async {
     try {
-      await ref.read(expenseProvider.notifier).deleteExpense(expense.id);
+      await ref
+          .read(expenseProvider.notifier)
+          .deleteExpense(expense.id, scope: scope);
     } catch (e) {
       if (mounted) {
         FrostedSnackbar.show(
