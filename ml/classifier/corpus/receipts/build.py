@@ -4,8 +4,9 @@
 Quatre sources, toutes passées par le même style de caisse puis la même
 normalisation que l'app :
 
-- produits Open Food Facts / Open Beauty Facts vendus en France (nom, marque,
-  contenance) — la connaissance produit, classée par famille de tags ;
+- produits Open Food Facts, Open Beauty Facts, Open Products Facts et Open Pet
+  Food Facts vendus en France (nom, marque, contenance) — la connaissance
+  produit, classée par famille de tags ;
 - lexique manuel des familles non couvertes (vêtements, bricolage, pharmacie,
   plats, carburant…) ;
 - libellés réels des tickets FindIt T1-train avec leur vérité manuelle —
@@ -25,7 +26,7 @@ from pathlib import Path
 import duckdb
 
 from corpus.receipts import openprices
-from corpus.receipts.categories import beauty_slug, food_slug
+from corpus.receipts.categories import beauty_slug, food_slug, petfood_slug, products_slug
 from corpus.receipts.labels import EXCLUDED_STORES
 from corpus.receipts.lexicon import (
     CITIES,
@@ -50,9 +51,7 @@ GOLDEN_DIR = SCAN_GOLDEN_DIR
 SEED = 42
 EVAL_RATIO = 0.05
 
-OFF_MAX_PRODUCTS = 12_000
 OFF_VARIANTS = 1
-OBF_MAX_PRODUCTS = 6_000
 LEXICON_VARIANTS = 8
 STORE_HEADER_VARIANTS = 4
 STORE_HEADER_MAX = 6_000
@@ -63,6 +62,16 @@ RECEIPT_CLASS_CAP = 12_000
 # alimentaire. Sans plafond à la source, cette seule classe remplirait le
 # corpus avant que le lexique écrit à la main y ait sa place.
 OPEN_PRICES_CLASS_CAP = 8_000
+
+# Les quatre bases produit, chacune avec la règle qui traduit ses catégories.
+# Seule l'alimentaire est plafonnée : elle pèse à elle seule vingt fois les
+# trois autres, qui portent justement les classes où le corpus était mince.
+PRODUCT_SOURCES = (
+    ("off_products_fr.parquet", food_slug, 12_000),
+    ("obf_products_fr.parquet", beauty_slug, None),
+    ("opf_products_fr.parquet", products_slug, None),
+    ("opff_products_fr.parquet", petfood_slug, None),
+)
 
 SHOP_FAMILIES = frozenset({
     "alimentation.supermarche", "alimentation.epicerie", "alimentation.boulangerie", "alimentation.marche",
@@ -87,13 +96,14 @@ def row(text: str, slug: str) -> dict:
     }
 
 
-def _products(path: Path, limit: int) -> list[tuple[str, str | None, str | None, list[str]]]:
+def _products(path: Path, limit: int | None) -> list[tuple[str, str | None, str | None, list[str]]]:
     if not path.exists():
-        raise FileNotFoundError(f"{path} absent : lancer d'abord `python -m receipts.fetch_off`")
+        raise FileNotFoundError(f"{path} absent : lancer d'abord `python -m corpus.receipts.fetch_off`")
     connection = duckdb.connect()
     rows = connection.execute(
         f"SELECT name, brands, quantity, categories_tags FROM read_parquet('{path}') "
-        f"WHERE length(name) BETWEEN 3 AND 60 ORDER BY scans DESC LIMIT {limit}"
+        f"WHERE length(name) BETWEEN 3 AND 60 ORDER BY scans DESC "
+        f"{f'LIMIT {limit}' if limit else ''}"
     ).fetchall()
     return [
         (name, brand if brand and is_latin(brand) else None, quantity, list(tags or []))
@@ -103,18 +113,15 @@ def _products(path: Path, limit: int) -> list[tuple[str, str | None, str | None,
 
 
 def product_lines(rng: random.Random) -> list[tuple[str, str, str]]:
-    """(clé produit, texte, slug) pour les produits OFF et OBF."""
+    """(clé produit, texte, slug) pour les produits des quatre bases."""
     out: list[tuple[str, str, str]] = []
-    for name, brand, quantity, tags in _products(CACHE_DIR / "off_products_fr.parquet", OFF_MAX_PRODUCTS):
-        slug = food_slug(tags)
-        if slug is None:
-            continue
-        for _ in range(OFF_VARIANTS):
-            out.append((name, receipt_line(name, rng, brand, quantity), slug))
-    for name, brand, quantity, tags in _products(CACHE_DIR / "obf_products_fr.parquet", OBF_MAX_PRODUCTS):
-        slug = beauty_slug(tags)
-        for _ in range(OFF_VARIANTS):
-            out.append((name, receipt_line(name, rng, brand, quantity), slug))
+    for filename, slug_for, limit in PRODUCT_SOURCES:
+        for name, brand, quantity, tags in _products(CACHE_DIR / filename, limit):
+            slug = slug_for(tags)
+            if slug is None:
+                continue
+            for _ in range(OFF_VARIANTS):
+                out.append((name, receipt_line(name, rng, brand, quantity), slug))
     return out
 
 
@@ -236,9 +243,7 @@ def split(lines: list[tuple[str, str, str]], rng: random.Random) -> tuple[list[d
 
 def generate(seed: int = SEED) -> tuple[list[dict], list[dict]]:
     rng = random.Random(seed)
-    real = openprices.read_lines(
-        OPEN_PRICES_PATH, openprices.FOOD_CODES_PATH, openprices.BEAUTY_CODES_PATH
-    )
+    real = openprices.read_lines(OPEN_PRICES_PATH, openprices.CODES_PATHS)
     labels = openprices.label_table(real)
     lines = (
         cap_per_class(real, OPEN_PRICES_CLASS_CAP, rng, key=lambda line: line[2])
@@ -246,9 +251,6 @@ def generate(seed: int = SEED) -> tuple[list[dict], list[dict]]:
         + lexicon_lines(rng)
         + store_lines(rng)
     )
-    # La retenue s'applique aussi au golden : un article de T1-train peut porter
-    # l'écriture d'un article de T1-test (`banane`, `baguette`), et l'apprendre
-    # ferait mesurer la mémoire là où on veut mesurer la généralisation.
     # La retenue s'applique aussi au golden : un article de T1-train peut porter
     # l'écriture d'un article de T1-test (`banane`, `baguette`), et l'apprendre
     # ferait mesurer la mémoire là où on veut mesurer la généralisation.

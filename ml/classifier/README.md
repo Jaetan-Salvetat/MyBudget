@@ -433,7 +433,7 @@ quick-add et supermarché quand elle vient d'un ticket, ce qui était le cas sur
 Volume : **114 297 libellés français distincts** portent une vérité, dont
 95 373 d'étiquettes de rayon, 10 026 d'historiques RGPD, 5 986 d'imports
 enseigne, 4 036 de tickets photographiés. Après jointure et normalisation :
-**134 344 lignes, 85 209 libellés sans ambiguïté**.
+**135 532 lignes, 86 095 libellés sans ambiguïté**.
 
 **La limite est nette et il faut la connaître :** 98 % des libellés viennent de
 `shop=supermarket` (97 785) et `shop=convenience` (16 202) — jardinerie 382,
@@ -441,6 +441,58 @@ pharmacie 378, bricolage 255, librairie 77. Open Prices règle la moitié
 alimentaire et **ne dit rien** de la moitié où le modèle se plante :
 restaurant, travaux, vêtements, mobilier. Un plat du jour et une planche de
 contreplaqué n'ont pas de code-barres.
+
+### Les deux bases qui manquaient (2026-08-29)
+
+Le code-barres d'Open Prices n'était cherché que dans l'alimentaire et
+l'hygiène-beauté. Les deux autres bases du projet Open Food Facts existent, et
+ce sont exactement celles des classes les plus minces :
+
+| Base | Produits FR étiquetés | Ce qu'elle couvre |
+|---|---|---|
+| Open Products Facts | 7 194 | entretien, presse, électronique, tabac, papeterie |
+| Open Pet Food Facts | 2 072 | animalerie |
+| Open Beauty Facts | 8 966 (6 000 lus avant) | hygiène-beauté |
+
+Elles n'ont pas la même forme : l'alimentaire et l'hygiène-beauté sont publiés
+en parquet sur Hugging Face, les deux autres n'existent qu'en CSV compressé sur
+leur site. DuckDB lit les deux à distance, et `fetch_off.py` les fait sortir
+sous la même paire de fichiers par base — rien en aval ne sait d'où une
+catégorie est venue.
+
+`products_slug` traduit la taxonomie d'Open Products Facts, qui est celle de
+Google Shopping : une catégorie y porte toute son ascendance, du plus large au
+plus fin. Les tags sont donc lus **à l'envers**, ce qui prend la catégorie la
+plus précise que la table connaît et enjambe les feuilles qui ne décrivent
+aucun commerce (`en:3-ply`, `en:160-sheets`). Un produit dont aucun tag ne
+parle sort du corpus : 6 206 des 6 990 produits FR sont classés, et rien n'est
+rangé au supermarché par défaut. Ce qui relève de l'alimentaire ou de la beauté
+est rendu à la base qui en répond — deux tables pour la même question feraient
+du dentifrice un produit de rayon d'un côté et un cosmétique de l'autre.
+
+Open Pet Food Facts ne demande pas de table : la base entière est de
+l'alimentation animale, et lire ses catégories ne servirait qu'à ranger
+ailleurs les produits que ses contributeurs ont mal étiquetés.
+
+Ce que ça déplace, corpus ticket d'entraînement :
+
+| Classe | avant | après |
+|---|---|---|
+| `divers.animaux` | 477 | **2 425** |
+| `loisirs.livre_presse` | 597 | **1 782** |
+| `shopping.electronique` | 979 | **1 862** |
+| `famille_education.fournitures` | 303 | **675** |
+| `divers.tabac_jeux` | 427 | **646** |
+| `famille_education.activites_enfants` | 343 | **497** |
+| `sante_beaute.pharmacie` | 1 423 | 1 650 |
+| `shopping.mobilier_deco` | 1 421 | 1 728 |
+| **total** | **50 216** | **55 774** |
+
+Côté Open Prices le gain est mince — 886 libellés de plus portent une vérité,
+et **aucun article du golden n'en gagne une** : les tickets FindIt sont
+alimentaires, et leurs lignes non alimentaires ne sont dans aucune des quatre
+bases. Le trou de mesure du §8 reste entier ; ce chantier remplit le corpus
+d'entraînement, pas le corpus d'évaluation.
 
 ### La chaîne
 
@@ -458,6 +510,8 @@ que les colonnes demandées. Hugging Face coupe les lectures anonymes trop
 longues en 429, d'où les reprises à attente doublante ; le fichier n'est publié
 qu'une fois complet, sans quoi un parquet tronqué passerait pour du cache et le
 corpus se construirait sur un dixième de la base sans que rien ne le signale.
+Il moissonne les quatre bases : ajouter la cinquième se fait en ajoutant une
+ligne à `DUMPS` et une table à `categories.py`.
 
 Les autres sources n'ont pas bougé : `corpus/receipts/lexicon.py` (~1 900
 libellés écrits à la main pour ce qu'Open Food Facts ne couvre pas),
@@ -505,6 +559,50 @@ Le strict s'effondre parce que la vérité distingue maintenant supermarché,
 a appris à tout ranger au supermarché. C'est la mesure d'un modèle entraîné sur
 l'ancienne vérité, pas celle du corpus refait.
 
+### Ce que rendent les corpus refaits (2026-08-29)
+
+Deux modèles entraînés sur la vérité d'article, mesurés sur les **mêmes** 548
+articles T1-test — `receipts.json` n'a pas bougé d'un octet entre les deux :
+
+| Variante | v13 (vérité d'enseigne) | ancien corpus | corpus enrichi |
+|---|---|---|---|
+| brut | 46,7 % / 59,3 % | 45,3 % / 55,3 % | 46,9 % / 54,6 % |
+| minuscules | 49,3 % / 82,3 % | 64,2 % / 77,6 % | 63,1 % / 73,9 % |
+| **normalisé** | **40,0 % / 83,2 %** | **65,0 % / 81,0 %** | **68,4 % / 81,9 %** |
+
+Refaire la vérité vaut **+25 points** de strict ; les quatre bases produit en
+valent **+3,4 de plus**, et font disparaître en normalisé les confusions
+`supermarché → livre_presse` (23 cas) et `supermarché → animaux` (21) que le
+modèle n'avait aucun vocabulaire pour éviter.
+
+Ce n'est pas l'epoch de plus qui le rend : à epoch 4, l'ancien corpus menait sur
+`eval_category_f1` (0,7541 contre 0,7453). Le modèle enrichi est différent, pas
+plus cuit.
+
+**Il échoue une porte, et il faut le savoir avant de publier :**
+
+| Porte | ancien corpus | corpus enrichi | Cible |
+|---|---|---|---|
+| **`world` mémorisation** | 98 % | **95 %** | **≥ 97 % ✗** |
+| entités jamais vues, strict | 75,8 % | 75,8 % | > 66,3 % ✓ |
+| — à la famille près | 77,4 % | 77,2 % | > 68,7 % ✓ |
+| 50 % plus confiants | 98,1 % | 96,6 % | ≥ 93 % ✓ |
+| `quick_add` niveau `app` | 100 % | 100 % | ≥ 95 % ✓ |
+| ECE | 2,4 % | 4,8 % | ≤ 5 % ✓ |
+| casse et accents | — | 76,6 % = 76,6 % | égal au propre ✓ |
+
+Le mécanisme est identifiable, pas mystérieux. Parmi les huit échecs de `world` :
+`Nocibé parfum → alimentation.supermarche (94 %)`, `capsules Nespresso →
+épicerie`. En passant Open Beauty Facts de 6 000 à 8 966 produits et en routant
+le sous-arbre `personal-care` d'Open Products Facts vers `beauty_slug`, le
+nombre de libellés **beauté rangés au supermarché** a bondi — ce qui est juste
+pour une ligne de caisse et faux pour une enseigne tapée au quick-add.
+
+C'est la contradiction du `baguette` du §8, dans l'autre sens, et
+`drop_contradictions` ne la voit pas : elle ne compare que les lignes du corpus
+ticket entre elles, jamais contre `train.jsonl`. **Étendre son arbitrage aux
+deux corpus est le premier correctif à tenter.**
+
 ## 9. Pistes non explorées
 
 - **Adaptation MLM du backbone.** 98,3 M des 131 M de paramètres sont dans la
@@ -518,12 +616,21 @@ l'ancienne vérité, pas celle du corpus refait.
   `aamazon` → Amazon — ce que le modèle fait structurellement mal, `amazon`
   tenant en un token quand `aamazon` part en trois morceaux sans rapport.
   `store_gazetteer` fait déjà ça côté scan pour les enseignes sorties de l'OCR.
+- **Arbitrer les contradictions entre les deux corpus, pas seulement dans le
+  corpus ticket.** `drop_contradictions` ne compare que les lignes de
+  `receipts_train.jsonl` entre elles. Un libellé que le corpus ticket range au
+  supermarché et que `train.jsonl` range ailleurs passe les deux fois, et le
+  modèle apprend la contradiction : c'est ce qui a coûté trois points de
+  mémorisation `world` aux quatre bases produit (§8). C'est le premier poste à
+  ouvrir avant de republier.
 - **Vérité d'article pour le non-alimentaire.** Open Prices couvre le rayon
   courses et rien d'autre : plat de restaurant, quincaillerie, vêtement,
   mobilier n'ont pas de code-barres, et ce sont les classes où le modèle se
-  trompe. Les ~3 000 libellés concernés du golden demandent une annotation,
-  filtrée comme celle du tagger de rôles. C'est le premier poste à ouvrir : la
-  mesure de §8 est juste mais aveugle sur ces classes.
+  trompe. Les quatre bases produit ont fourni le vocabulaire manquant à
+  l'entraînement, mais **pas un article de mesure de plus** : les ~3 000
+  libellés concernés du golden demandent une annotation, filtrée comme celle du
+  tagger de rôles. C'est le premier poste à ouvrir : la mesure de §8 est juste
+  mais aveugle sur ces classes.
 - **Normalisation en amont du tokenizer** pour le quick-add : accents, casse,
   espaces autour de la ponctuation. `father &son` = `father & son` ne se
   règle pas dans le modèle. `serving/normalize.py` le fait pour le scan, le
@@ -560,7 +667,9 @@ l'ancienne vérité, pas celle du corpus refait.
 
 | 80 classes + corpus ticket (2026-08-25, `output/full_receipts`, non publié) | + 40 539 libellés style ticket (OFF, lexique, T1-train, en-têtes), plafond 12 000/classe | **96 %** — ECE 3,4 %, 99 % sur les 80 % les plus confiants | catégorie 100 % (`app`), hard 88 % |
 
-| 80 classes, vérité d'article (2026-08-29, `output/item_truth`, non publié) | corpus ticket refait : 50 216 lignes dont 85 209 libellés de caisse réels d'Open Prices, vérité par code-barres et non par enseigne ; 0 contradiction, 0 fuite T1-test | à mesurer | à mesurer |
+| 80 classes, vérité d'article (2026-08-29, `output/item_truth`, epoch 4, non publié) | corpus ticket refait : 50 216 lignes dont 85 209 libellés de caisse réels d'Open Prices, vérité par code-barres et non par enseigne ; 0 contradiction, 0 fuite T1-test | **98 %** — ECE 2,4 %, entités jamais vues 75,8 % | catégorie 100 % (`app`), hard 88 % |
+
+| 80 classes, quatre bases produit (2026-08-29, `output/four_bases`) | + Open Products Facts et Open Pet Food Facts, Open Beauty Facts déplafonné : 55 774 lignes, 86 095 libellés sans ambiguïté ; 0 contradiction, 0 fuite | **95 %** — ECE 4,8 %, entités jamais vues 75,8 % ; **sous la cible de mémorisation** | catégorie 100 % (`app`), hard 88 % |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.
