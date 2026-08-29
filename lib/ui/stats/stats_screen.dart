@@ -89,7 +89,12 @@ class _Content extends ConsumerWidget {
       bottom: false,
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16, 0, 16, mainFlowBottomInset(context)),
+        padding: EdgeInsets.fromLTRB(
+          kMainFlowGutter,
+          0,
+          kMainFlowGutter,
+          mainFlowBottomInset(context),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

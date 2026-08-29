@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
@@ -109,7 +110,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp5),
+          padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

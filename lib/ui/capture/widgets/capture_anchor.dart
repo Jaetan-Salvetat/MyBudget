@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
@@ -35,10 +36,10 @@ class CaptureAnchor extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(FrostedRadius.lg),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          FrostedSpacing.sp1,
-          FrostedSpacing.sp5,
-          FrostedSpacing.sp1,
+        padding: EdgeInsets.fromLTRB(
+          0,
+          kMainFlowTopBarPadding.top,
+          0,
           FrostedSpacing.sp5,
         ),
         child: Row(

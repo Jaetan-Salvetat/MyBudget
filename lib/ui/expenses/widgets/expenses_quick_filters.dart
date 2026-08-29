@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 
@@ -28,7 +29,7 @@ class ExpensesQuickFilters extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
       child: Row(
         children: [
           _SortChip(label: sortBy.label, onTap: onOpenSort),

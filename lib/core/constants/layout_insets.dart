@@ -1,5 +1,13 @@
 import 'package:flutter/widgets.dart';
 
+/// Marge horizontale entre le contenu d'un écran du main flow et les bords de
+/// l'écran. Les quatre onglets la partagent : leurs titres, leurs boutons et
+/// leurs listes s'alignent d'un onglet à l'autre.
+const double kMainFlowGutter = 16;
+
+/// Marges verticales de la barre de titre d'un écran du main flow.
+const EdgeInsets kMainFlowTopBarPadding = EdgeInsets.fromLTRB(0, 8, 0, 12);
+
 /// Hauteur occupée par la nav pill flottante du main flow, sa marge basse
 /// comprise et sa safe area exclue.
 const double kNavPillFootprint = 68;

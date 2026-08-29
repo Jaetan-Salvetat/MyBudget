@@ -180,7 +180,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(top: 16, bottom: mainFlowBottomInset(context)),
+              padding: EdgeInsets.only(
+                top: 16,
+                bottom: mainFlowBottomInset(context),
+              ),
               children: [
                 _hPad(
                   ExpensesSummaryCard(
@@ -314,7 +317,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
   Widget _hPad(Widget child) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
       child: child,
     );
   }
@@ -453,8 +456,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       accounts: accounts,
       beneficiaries: beneficiaries,
       highestAmount: _highestAmount(_monthExpenses()),
-      resultCount: (filter) =>
-          _filterExpenses(_monthExpenses(), filter).length,
+      resultCount: (filter) => _filterExpenses(_monthExpenses(), filter).length,
       onApply: (updated) => _filterNotifier.update(
         (current) => updated.copyWith(searchQuery: current.searchQuery),
       ),
@@ -498,7 +500,10 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     }
   }
 
-  Future<void> _deleteExpense(ExpenseModel expense, RecurringDeletion scope) async {
+  Future<void> _deleteExpense(
+    ExpenseModel expense,
+    RecurringDeletion scope,
+  ) async {
     try {
       await ref
           .read(expenseProvider.notifier)

@@ -33,7 +33,12 @@ class LoansList extends ConsumerWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(16, 16, 16, mainFlowBottomInset(context)),
+              padding: EdgeInsets.fromLTRB(
+                kMainFlowGutter,
+                16,
+                kMainFlowGutter,
+                mainFlowBottomInset(context),
+              ),
               children: [
                 _buildSummaryCard(context, ref),
                 if (isEmpty) ...[
