@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -17,7 +18,9 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
+import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
+import 'package:mybudget/ui/capture/widgets/capture_dock.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
@@ -87,7 +90,10 @@ void main() {
     when(() => revenues.getClosed()).thenReturn([]);
   });
 
-  Future<ProviderContainer> pumpCapture(WidgetTester tester) async {
+  Future<ProviderContainer> pumpCapture(
+    WidgetTester tester, {
+    bool keyboardVisible = false,
+  }) async {
     final container = ProviderContainer(
       overrides: [
         accountRepositoryProvider.overrideWithValue(accounts),
@@ -101,12 +107,35 @@ void main() {
     );
     addTearDown(container.dispose);
 
+    final landing = QuickAddLandingController();
+    addTearDown(landing.dispose);
+
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: CaptureScreen()),
+          home: QuickAddLanding(
+            notifier: landing,
+            child: FrostedScaffold(
+              bottomNavigationBar: FrostedBottomBar(
+                folded: keyboardVisible,
+                selectedIndex: 0,
+                onDestinationSelected: (_) {},
+                destinations: const [
+                  FrostedNavItem(
+                    icon: Symbols.auto_awesome_rounded,
+                    label: 'Accueil',
+                  ),
+                  FrostedNavItem(
+                    icon: Symbols.swap_vert_rounded,
+                    label: 'Transactions',
+                  ),
+                ],
+              ),
+              body: const CaptureScreen(),
+            ),
+          ),
         ),
       ),
     );
@@ -132,13 +161,14 @@ void main() {
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
-  testWidgets('le journal passe sous le dock sans finir dessous', (
+  testWidgets('le journal descend jusqu\'en bas sans finir sous le dock', (
     tester,
   ) async {
     await pumpCapture(tester);
 
     final journal = tester.getRect(find.byType(JournalView));
-    final dock = tester.getRect(find.byType(QuickAddBar));
+    final dock = tester.getRect(find.byType(CaptureDock));
+    final screen = tester.getRect(find.byType(CaptureScreen));
     final list = tester.widget<ListView>(
       find.descendant(
         of: find.byType(JournalView),
@@ -147,8 +177,36 @@ void main() {
     );
     final reserved = list.padding!.resolve(TextDirection.ltr).bottom;
 
+    expect(journal.bottom, screen.bottom);
     expect(journal.bottom, greaterThan(dock.top));
     expect(journal.bottom - reserved, lessThanOrEqualTo(dock.top));
+  });
+
+  testWidgets('le dock flotte au-dessus de la barre, hors de son verre', (
+    tester,
+  ) async {
+    await pumpCapture(tester);
+
+    final dock = tester.getRect(find.byType(CaptureDock));
+    final field = tester.getRect(find.byType(QuickAddBar));
+    final bar = tester.getRect(find.byType(FrostedBottomBar));
+
+    expect(dock.bottom, bar.top);
+    expect(bar.top - field.bottom, CaptureDock.clearance);
+  });
+
+  testWidgets('le clavier replie la barre et le dock prend son bord', (
+    tester,
+  ) async {
+    await pumpCapture(tester, keyboardVisible: true);
+    await tester.pumpAndSettle();
+
+    final dock = tester.getRect(find.byType(CaptureDock));
+    final screen = tester.getRect(find.byType(CaptureScreen));
+
+    expect(find.byType(QuickAddBar), findsOneWidget);
+    expect(tester.getSize(find.byType(FrostedBottomBar)).height, 0);
+    expect(dock.bottom, screen.bottom);
   });
 
   testWidgets('the figure hands the month over to Stats', (tester) async {

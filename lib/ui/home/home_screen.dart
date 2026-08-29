@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
+import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
@@ -19,6 +20,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  /// L'atterrissage d'une transaction se joue entre le champ, porté par la
+  /// barre, et le journal, porté par la page : il ne peut appartenir qu'à
+  /// l'écran qui contient les deux.
+  final QuickAddLandingController _landing = QuickAddLandingController();
+
+  @override
+  void dispose() {
+    _landing.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,41 +78,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       AccountsScreen(),
     ];
 
-    return PopScope(
-      canPop: selectedTab == HomeTab.capture,
-      onPopInvokedWithResult: (bool didPop, Object? result) {
-        if (didPop) return;
-        ref.read(homeNavigationProvider.notifier).handleBack();
-      },
-      child: FrostedScaffold(
-        extendBodyBehindAppBar: true,
-        bottomNavigationBar: keyboardVisible
-            ? null
-            : SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
-                  child: FrostedNavPill(
-                    selectedIndex: selectedTab.index,
-                    onDestinationSelected: (index) => ref
-                        .read(homeNavigationProvider.notifier)
-                        .selectTab(HomeTab.values[index]),
-                    destinations: _items
-                        .map(
-                          (item) => FrostedNavItem(
-                            icon: item.icon,
-                            selectedIcon: item.icon,
-                            label: item.label,
-                          ),
-                        )
-                        .toList(),
+    return QuickAddLanding(
+      notifier: _landing,
+      child: PopScope(
+        canPop: selectedTab == HomeTab.capture,
+        onPopInvokedWithResult: (bool didPop, Object? result) {
+          if (didPop) return;
+          ref.read(homeNavigationProvider.notifier).handleBack();
+        },
+        child: FrostedScaffold(
+          extendBodyBehindAppBar: true,
+          bottomNavigationBar: FrostedBottomBar(
+            // Le clavier replie la rangée au lieu d'emporter la barre : le
+            // dock garde le bord sur lequel il se pose, au pixel près.
+            folded: keyboardVisible,
+            selectedIndex: selectedTab.index,
+            onDestinationSelected: (index) => ref
+                .read(homeNavigationProvider.notifier)
+                .selectTab(HomeTab.values[index]),
+            destinations: _items
+                .map(
+                  (item) => FrostedNavItem(
+                    icon: item.icon,
+                    selectedIcon: item.icon,
+                    label: item.label,
                   ),
-                ),
-              ),
-        body: FrostedBackground(
-          child: FrostedFadeThroughView(
-            index: selectedTab.index,
-            children: screens,
+                )
+                .toList(),
+          ),
+          body: FrostedBackground(
+            child: FrostedFadeThroughView(
+              index: selectedTab.index,
+              children: screens,
+            ),
           ),
         ),
       ),
