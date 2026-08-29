@@ -20,7 +20,7 @@ void main() {
                 context: context,
                 deleteConfirmationMessage: 'Supprimer cette dépense ?',
                 onEdit: onEdit,
-                onDelete: onDelete,
+                onDelete: (_) => onDelete(),
               ),
               child: const Text('open'),
             ),

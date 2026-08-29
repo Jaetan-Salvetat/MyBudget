@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum HomeTab { dashboard, transactions, accounts }
+enum HomeTab { capture, transactions, stats, accounts }
 
 enum TransactionsTab { expenses, revenues, loans }
 
@@ -9,7 +9,7 @@ class HomeNavigationState {
   final TransactionsTab transactionsTab;
 
   const HomeNavigationState({
-    this.tab = HomeTab.dashboard,
+    this.tab = HomeTab.capture,
     this.transactionsTab = TransactionsTab.expenses,
   });
 
@@ -37,8 +37,8 @@ class HomeNavigationNotifier extends Notifier<HomeNavigationState> {
   /// before letting the back gesture leave the app. Returns whether the pop
   /// was consumed here.
   bool handleBack() {
-    if (state.tab == HomeTab.dashboard) return false;
-    selectTab(HomeTab.dashboard);
+    if (state.tab == HomeTab.capture) return false;
+    selectTab(HomeTab.capture);
     return true;
   }
 
@@ -53,6 +53,8 @@ class HomeNavigationNotifier extends Notifier<HomeNavigationState> {
       transactionsTab: transactionsTab,
     );
   }
+
+  void openStats() => selectTab(HomeTab.stats);
 }
 
 final homeNavigationProvider =

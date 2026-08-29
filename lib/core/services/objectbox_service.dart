@@ -16,6 +16,10 @@ import 'package:mybudget/objectbox.g.dart';
 class ObjectBoxService {
   late Store store;
 
+  /// The store browser, served on the device in debug builds only : the
+  /// release artifact does not carry it, so [Admin.isAvailable] answers no.
+  Admin? _admin;
+
   late Box<BeneficiaryModel> beneficiaryBox;
   late Box<CategoryOverrideModel> categoryOverrideBox;
   late Box<CategoryMemoryModel> categoryMemoryBox;
@@ -43,6 +47,7 @@ class ObjectBoxService {
     final docsDir = await getApplicationDocumentsDirectory();
     final storeDir = p.join(docsDir.path, "objectbox");
     store = await openStore(directory: storeDir);
+    if (Admin.isAvailable()) _admin = Admin(store);
 
     beneficiaryBox = Box<BeneficiaryModel>(store);
     categoryOverrideBox = Box<CategoryOverrideModel>(store);
@@ -57,6 +62,8 @@ class ObjectBoxService {
   }
 
   void closeStore() {
+    _admin?.close();
+    _admin = null;
     if (!store.isClosed()) {
       store.close();
     }

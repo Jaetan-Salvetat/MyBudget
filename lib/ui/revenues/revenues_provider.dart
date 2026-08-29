@@ -1,6 +1,6 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,38 +50,40 @@ class RevenueNotifier extends _$RevenueNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly =
-          updated.amount == old.amount &&
-          updated.frequency == old.frequency &&
-          updated.accountId == old.accountId &&
-          updated.beneficiaryId == old.beneficiaryId &&
-          updated.name != old.name;
+      // What the rule pays, how often, and which account it lands on : see
+      // ExpenseNotifier.updateExpense for why that splits the rule and the
+      // rest only corrects it.
+      final bool changesTerms =
+          updated.amount != old.amount ||
+          updated.frequency != old.frequency ||
+          updated.accountId != old.accountId;
 
-      if (isNameOnly) {
-        final int rootId = old.parentId ?? old.id;
-        final chain = repo.getChain(rootId);
-        for (final entry in chain) {
-          repo.update(entry.copyWith(name: updated.name));
+      if (!changesTerms) {
+        for (final entry in repo.getChain(old.parentId ?? old.id)) {
+          repo.update(
+            entry
+              ..name = updated.name
+              ..categorySlug = updated.categorySlug
+              ..beneficiaryId = updated.beneficiaryId,
+          );
         }
         ref.invalidateSelf();
         await future;
         return;
       }
 
-      final bool isStructural =
-          updated.amount != old.amount ||
-          updated.frequency != old.frequency ||
-          updated.accountId != old.accountId ||
-          updated.beneficiaryId != old.beneficiaryId;
-
-      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
+      if (old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
         final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
+        if (hasStarted(old.startDate, now)) {
+          repo.update(old.copyWith(endDate: dayOnly(now)));
+        } else {
+          repo.delete(old.id);
+        }
         final newRevenue = RevenueModel.create(
           name: updated.name,
           amount: updated.amount,
+          categorySlug: updated.categorySlug,
           startDate: newStartDate,
           accountId: updated.accountId,
           frequency: updated.frequency,
@@ -107,20 +109,35 @@ class RevenueNotifier extends _$RevenueNotifier {
     await future;
   }
 
-  Future<void> deleteRevenue(int id) async {
+  /// A recurring rule is closed rather than erased : the months it was
+  /// actually paid in are history, and history is what this app keeps. What
+  /// [scope] settles is whether the month in progress is one of them.
+  ///
+  /// A rule left with nothing to defend — a one-off, or one closing before it
+  /// ever came round — is erased instead.
+  Future<void> deleteRevenue(
+    int id, {
+    RecurringDeletion scope = RecurringDeletion.afterThisMonth,
+  }) async {
     try {
       final repo = ref.read(revenueRepositoryProvider);
       final revenue = repo.get(id);
       if (revenue == null) return;
 
-      if (revenue.frequencyEnum == Frequency.oneTime) {
+      final closing = closingDateOf(
+        scope,
+        revenue.startDate,
+        revenue.frequencyEnum,
+        DateTime.now(),
+      );
+
+      if (revenue.frequencyEnum == Frequency.oneTime ||
+          closing.isBefore(dayOnly(revenue.startDate))) {
         await deletePermanently(id);
         return;
       }
 
-      final now = DateTime.now();
-      final endDate = computeEndDate(now, revenue.startDate.day);
-      repo.update(revenue.copyWith(endDate: endDate));
+      repo.update(revenue.copyWith(endDate: closing));
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -133,36 +150,9 @@ class RevenueNotifier extends _$RevenueNotifier {
     return repo.getClosed();
   }
 
-  List<RevenueModel> _currentRevenues() => state.value ?? [];
+  List<RevenueModel> getRevenuesForAccount(int accountId) =>
+      (state.value ?? const <RevenueModel>[])
+          .where((revenue) => revenue.accountId == accountId)
+          .toList();
 
-  double getMonthlyRevenues() {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    for (final revenue in _currentRevenues()) {
-      switch (revenue.frequencyEnum) {
-        case Frequency.monthly:
-          total += revenue.amount;
-        case Frequency.annual:
-          if (revenue.startDate.month == selectedMonth.month) {
-            total += revenue.amount;
-          }
-        case Frequency.oneTime:
-          if (revenue.startDate.year == selectedMonth.year &&
-              revenue.startDate.month == selectedMonth.month) {
-            total += revenue.amount;
-          }
-      }
-    }
-    return total;
-  }
-
-  List<RevenueModel> getRecentRevenues(int count) =>
-      _currentRevenues().take(count).toList();
-
-  List<RevenueModel> getRevenuesForAccount(int accountId) => _currentRevenues()
-      .where((revenue) => revenue.accountId == accountId)
-      .toList();
-
-  double getTotalRevenuesForAccount(int accountId) =>
-      getRevenuesForAccount(accountId).fold(0.0, (sum, r) => sum + r.amount);
 }

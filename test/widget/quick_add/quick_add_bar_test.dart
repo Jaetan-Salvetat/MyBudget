@@ -22,7 +22,11 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
@@ -84,9 +88,12 @@ void main() {
     revenueRepository = MockRevenueRepository();
 
     when(() => expenseRepository.getActive()).thenReturn([]);
+
+    when(() => expenseRepository.getClosed()).thenReturn([]);
     when(() => expenseRepository.add(any())).thenReturn(7);
     when(() => expenseRepository.delete(any())).thenReturn(true);
     when(() => revenueRepository.getActive()).thenReturn([]);
+    when(() => revenueRepository.getClosed()).thenReturn([]);
     when(() => memory.recall(any())).thenReturn(null);
     when(() => memory.remember(any(), any())).thenAnswer((_) {});
     when(() => overrides.getAll()).thenReturn({});
@@ -118,6 +125,10 @@ void main() {
           categoryMemoryProvider.overrideWithValue(memory),
           categoryOverrideRepositoryProvider.overrideWithValue(overrides),
           quickAddClassifierProvider.overrideWith((ref) => classifier),
+          categoryDisplayResolverProvider.overrideWith(
+            (ref) async =>
+                CategoryDisplayResolver(taxonomy: taxonomy, overrides: const {}),
+          ),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -151,14 +162,14 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
   });
 
-  testWidgets('offers the scan while there is nothing to send', (tester) async {
+  testWidgets('keeps the scan under the thumb at all times', (tester) async {
     await pumpBar(tester, focused: false);
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
-  testWidgets('gives the send button back as soon as a draft exists', (
+  testWidgets('the send button only ever sends, the scan keeps its own', (
     tester,
   ) async {
     await pumpBar(tester);
@@ -171,7 +182,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
   });
 
   Future<void> typeAndAnalyze(WidgetTester tester, String input) async {
@@ -221,38 +232,80 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('what just landed stays on screen, undoable', (tester) async {
-    await pumpBar(tester);
-    await tester.pumpAndSettle();
-    await typeAndAnalyze(tester, 'mc do 12');
+  BoxDecoration roundButtonSkin(WidgetTester tester, IconData icon) {
+    final button = tester.widget<AnimatedContainer>(
+      find
+          .ancestor(
+            of: find.byIcon(icon),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first,
+    );
 
-    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
-    await tester.pumpAndSettle();
+    return button.decoration! as BoxDecoration;
+  }
 
-    expect(find.textContaining('Mc do'), findsOneWidget);
-
-    await tester.tap(find.text('Annuler'));
-    await tester.pumpAndSettle();
-
-    verify(() => expenseRepository.delete(7)).called(1);
-    expect(find.textContaining('Mc do'), findsNothing);
-  });
-
-  testWidgets('the line lets go on its own after the retention', (
+  testWidgets('le bouton d\'envoi n\'a qu\'une peau, du brouillon au check', (
     tester,
   ) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
+    final ready = roundButtonSkin(tester, Symbols.arrow_upward_rounded);
+    expect(ready.border, isNull);
+    expect(ready.boxShadow, isNull);
+
+    await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(roundButtonSkin(tester, Symbols.check_rounded).color, ready.color);
+
+    await tester.pump(QuickAddBarState.sentFlash);
+    await tester.pump(QuickAddRecentSubmissions.retention);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('la ligne de compte s\'aligne sur le champ, pas sur le scan', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    expect(
+      tester.getTopLeft(find.byType(QuickAddAccountLine)).dx,
+      tester.getTopLeft(find.byType(FrostedTextField)).dx,
+    );
+  });
+
+  testWidgets('hands what it recorded to the journal', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    // The journal is what keeps the submission alive in the app ; here it
+    // stands in for it.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(QuickAddBar)),
+    );
+    final subscription = container.listen(
+      quickAddRecentSubmissionsProvider,
+      (_, _) {},
+    );
+    addTearDown(subscription.close);
+
     await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
     await tester.pumpAndSettle();
 
+    final submissions = container.read(quickAddRecentSubmissionsProvider);
+
+    expect(submissions.single.id, 7);
+    expect(submissions.single.name, 'Mc do');
+
     await tester.pump(QuickAddRecentSubmissions.retention);
     await tester.pumpAndSettle();
-
-    expect(find.text('Annuler'), findsNothing);
-    verifyNever(() => expenseRepository.delete(any()));
   });
 
   testWidgets('the send button flashes a check once it has sent', (
@@ -294,10 +347,16 @@ void main() {
     );
     expect(container.read(quickAddProvider).amount, 12.0);
 
+    await tester.showKeyboard(find.byType(TextField));
     await tester.tap(find.byIcon(Symbols.close_rounded));
     await tester.pumpAndSettle();
 
     expect(container.read(quickAddProvider).isEmpty, isTrue);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
+
+    // Vider le champ n'est pas en sortir : la frappe suivante part tout de
+    // suite, sans re-viser le champ.
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.text, '');
+    expect(field.focusNode!.hasFocus, isTrue);
   });
 }

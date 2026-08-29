@@ -1,4 +1,5 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
@@ -7,6 +8,40 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'revenue_queries.g.dart';
 
+/// Every rule ever recorded, the closed ones included : reading only the open
+/// ones would erase the months a since-closed revenue was actually received.
+@Riverpod(keepAlive: true)
+List<RevenueModel> revenueHistory(Ref ref) {
+  final open = ref.watch(revenueProvider).value ?? const <RevenueModel>[];
+  final closed = ref.watch(revenueRepositoryProvider).getClosed();
+  return [...open, ...closed];
+}
+
+/// The rules that fall on the selected month, each dated on the day it lands
+/// there : the revenue counterpart of [monthExpenses].
+@Riverpod(keepAlive: true)
+List<RevenueModel> monthRevenues(Ref ref) {
+  final revenues = ref.watch(revenueHistoryProvider);
+  final month = ref.watch(selectedMonthProvider);
+
+  return [
+    for (final revenue in revenues)
+      if (occursInMonth(
+        revenue.startDate,
+        revenue.endDate,
+        revenue.frequencyEnum,
+        month,
+      ))
+        _datedOn(revenue, month),
+  ];
+}
+
+RevenueModel _datedOn(RevenueModel revenue, DateTime month) {
+  final landing = dayInMonthOf(revenue.startDate, revenue.frequencyEnum, month);
+  if (landing == revenue.startDate) return revenue;
+  return revenue.copyWith(startDate: landing);
+}
+
 @Riverpod(keepAlive: true)
 List<RevenueModel> activeRevenues(Ref ref) {
   final revenues = ref.watch(revenueProvider).value ?? [];
@@ -14,23 +49,18 @@ List<RevenueModel> activeRevenues(Ref ref) {
 }
 
 double _revenueAmountForMonth(RevenueModel revenue, DateTime month) {
-  if (!isActiveForMonth(revenue.startDate, revenue.endDate, month)) return 0.0;
-  switch (revenue.frequencyEnum) {
-    case Frequency.monthly:
-      return revenue.amount;
-    case Frequency.annual:
-      return revenue.startDate.month == month.month ? revenue.amount : 0.0;
-    case Frequency.oneTime:
-      return revenue.startDate.year == month.year &&
-              revenue.startDate.month == month.month
-          ? revenue.amount
-          : 0.0;
-  }
+  final falls = occursInMonth(
+    revenue.startDate,
+    revenue.endDate,
+    revenue.frequencyEnum,
+    month,
+  );
+  return falls ? revenue.amount : 0.0;
 }
 
 @Riverpod(keepAlive: true)
 double monthlyRevenues(Ref ref) {
-  final revenues = ref.watch(revenueProvider).value ?? [];
+  final revenues = ref.watch(revenueHistoryProvider);
   final selectedMonth = ref.watch(selectedMonthProvider);
   double total = 0.0;
   for (final revenue in revenues) {
@@ -41,7 +71,7 @@ double monthlyRevenues(Ref ref) {
 
 @Riverpod(keepAlive: true)
 double currentMonthRevenues(Ref ref) {
-  final revenues = ref.watch(revenueProvider).value ?? [];
+  final revenues = ref.watch(revenueHistoryProvider);
   final now = DateTime.now();
   final currentMonth = DateTime(now.year, now.month);
   double total = 0.0;

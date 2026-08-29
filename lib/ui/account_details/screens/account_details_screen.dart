@@ -3,8 +3,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/entities/transfer.dart';
-import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/account_details/widgets/account_balance_breakdown.dart';
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
@@ -13,12 +11,13 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class AccountDetailsScreen extends ConsumerStatefulWidget {
   final AccountModel account;
@@ -41,48 +40,17 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedMonth = ref.watch(selectedMonthProvider);
-    final expenses = ref.watch(expenseProvider).value ?? [];
-    final revenues = ref.watch(revenueProvider).value ?? [];
+    final expenses = ref.watch(monthExpensesProvider);
+    final revenues = ref.watch(monthRevenuesProvider);
     final loans = ref.watch(loanProvider).value ?? [];
 
     final totalRevenues = revenues
-        .where((r) => r.accountId == account.id)
-        .where((r) => isActiveForMonth(r.startDate, r.endDate, selectedMonth))
-        .fold(0.0, (sum, r) {
-          switch (r.frequencyEnum) {
-            case Frequency.monthly:
-              return sum + r.amount;
-            case Frequency.annual:
-              return r.startDate.month == selectedMonth.month
-                  ? sum + r.amount
-                  : sum;
-            case Frequency.oneTime:
-              return r.startDate.year == selectedMonth.year &&
-                      r.startDate.month == selectedMonth.month
-                  ? sum + r.amount
-                  : sum;
-          }
-        });
+        .where((revenue) => revenue.accountId == account.id)
+        .fold(0.0, (sum, revenue) => sum + revenue.amount);
 
     final totalExpenses = expenses
-        .where((e) => e.accountId == account.id)
-        .where((e) => isActiveForMonth(e.startDate, e.endDate, selectedMonth))
-        .fold(0.0, (sum, e) {
-          switch (e.frequencyEnum) {
-            case Frequency.monthly:
-              return sum + e.amount;
-            case Frequency.annual:
-              return e.startDate.month == selectedMonth.month
-                  ? sum + e.amount
-                  : sum;
-            case Frequency.oneTime:
-              return e.startDate.year == selectedMonth.year &&
-                      e.startDate.month == selectedMonth.month
-                  ? sum + e.amount
-                  : sum;
-          }
-        });
+        .where((expense) => expense.accountId == account.id)
+        .fold(0.0, (sum, expense) => sum + expense.amount);
 
     final totalLoanPayments = loans
         .where((l) => l.accountId == account.id && !l.isCompleted)

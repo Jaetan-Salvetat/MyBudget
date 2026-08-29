@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -21,6 +22,7 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -49,7 +51,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 1200.0);
     },
@@ -73,7 +75,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+    final total = container.read(monthlyExpensesProvider);
 
     expect(total, 100.0);
   });
@@ -106,7 +108,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 1700.0);
     },
@@ -120,7 +122,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getTotalExpenses(), 0.0);
+    expect(container.read(monthlyExpensesProvider), 0.0);
   });
 
   test('getTotalExpenses with zero-amount expense returns 0.0', () async {
@@ -141,7 +143,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getTotalExpenses(), 0.0);
+    expect(container.read(monthlyExpensesProvider), 0.0);
   });
 
   test(
@@ -176,9 +178,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final result = container
-          .read(expenseProvider.notifier)
-          .getUpcomingExpenses();
+      final result = container.read(upcomingExpensesProvider);
 
       expect(result.any((e) => e.name == 'Upcoming'), isTrue);
     },
@@ -206,7 +206,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 0.0);
     },
@@ -233,7 +233,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 500.0);
     },
@@ -261,7 +261,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 0.0);
     },
@@ -308,7 +308,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 2000.0);
     },
@@ -336,9 +336,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final result = container
-        .read(expenseProvider.notifier)
-        .getUpcomingExpenses();
+    final result = container.read(upcomingExpensesProvider);
 
     expect(result, isEmpty);
   });
@@ -377,9 +375,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final result = container
-        .read(expenseProvider.notifier)
-        .getUpcomingExpenses();
+    final result = container.read(upcomingExpensesProvider);
 
     expect(result.any((e) => e.name == 'Annual This Month'), isTrue);
     expect(result.any((e) => e.name == 'Annual Other Month'), isFalse);
@@ -406,7 +402,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 600.0);
     },
@@ -433,7 +429,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
       expect(total, 0.0);
     },
@@ -488,9 +484,7 @@ void main() {
 
       await container.read(expenseProvider.future);
 
-      final total = container
-          .read(expenseProvider.notifier)
-          .getAnnualExpenses();
+      final total = container.read(annualExpensesProvider);
 
       expect(total, 2000.0);
     },
@@ -504,7 +498,7 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getAnnualExpenses(), 0.0);
+    expect(container.read(annualExpensesProvider), 0.0);
   });
 
   test('deleteExpense soft deletes recurring expense', () async {

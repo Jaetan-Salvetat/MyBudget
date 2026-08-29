@@ -101,8 +101,18 @@ configurations.all {
     }
 }
 
+// ObjectBox Admin, the store browser, only exists in the debug build : it
+// ships a web server, which has nothing to do in a release. Its artifact
+// carries the native library too, so the plain one has to step aside.
+configurations {
+    getByName("debugImplementation") {
+        exclude(group = "io.objectbox", module = "objectbox-android")
+    }
+}
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    debugImplementation("io.objectbox:objectbox-android-objectbrowser:5.4.2")
 }
 
 flutter {

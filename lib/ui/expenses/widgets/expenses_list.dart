@@ -25,6 +25,7 @@ import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
@@ -35,6 +36,7 @@ import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   const ExpensesList({super.key});
@@ -74,13 +76,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
         ?.groupKeyOrUncategorized(expense.categorySlug);
   }
 
-  List<ExpenseModel> _monthExpenses() {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    return (ref.read(expenseProvider).value ?? [])
-        .where((e) => e.endDate == null)
-        .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-        .toList();
-  }
+  List<ExpenseModel> _monthExpenses() => ref.read(monthExpensesProvider);
 
   double _highestAmount(List<ExpenseModel> expenses) {
     return expenses.fold<double>(0, (highest, e) => max(highest, e.amount));
@@ -95,50 +91,6 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       filter,
       groupKeyOf: _groupKeyOf,
     );
-  }
-
-  bool _belongsToSelectedMonth(ExpenseModel expense, DateTime selectedMonth) {
-    switch (expense.frequencyEnum) {
-      case Frequency.monthly:
-        return true;
-      case Frequency.annual:
-        return expense.startDate.month == selectedMonth.month;
-      case Frequency.oneTime:
-        return expense.startDate.year == selectedMonth.year &&
-            expense.startDate.month == selectedMonth.month;
-    }
-  }
-
-  DateTime _effectiveDate(ExpenseModel expense, DateTime selectedMonth) {
-    switch (expense.frequencyEnum) {
-      case Frequency.monthly:
-        return DateTime(
-          selectedMonth.year,
-          selectedMonth.month,
-          expense.startDate.day,
-        );
-      case Frequency.annual:
-        return DateTime(
-          selectedMonth.year,
-          expense.startDate.month,
-          expense.startDate.day,
-        );
-      case Frequency.oneTime:
-        return expense.startDate;
-    }
-  }
-
-  ExpenseModel _withEffectiveDate(
-    ExpenseModel expense,
-    DateTime selectedMonth,
-  ) {
-    final effective = _effectiveDate(expense, selectedMonth);
-    if (effective.year == expense.startDate.year &&
-        effective.month == expense.startDate.month &&
-        effective.day == expense.startDate.day) {
-      return expense;
-    }
-    return expense.copyWith(startDate: effective);
   }
 
   List<ActiveFilterPill> _activeFilterPills(
@@ -177,13 +129,8 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                 resolver?.groupsOfType(TransactionType.expense) ?? const [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-            final activeExpenses = expensesRaw
-                .where((e) => e.endDate == null)
-                .where((e) => _belongsToSelectedMonth(e, selectedMonth))
-                .map((e) => _withEffectiveDate(e, selectedMonth))
-                .toList();
-
-            final filteredExpenses = _filterExpenses(activeExpenses, filter);
+            final monthExpenses = ref.watch(monthExpensesProvider);
+            final filteredExpenses = _filterExpenses(monthExpenses, filter);
 
             final recurring = filteredExpenses
                 .where((e) => e.frequencyEnum != Frequency.oneTime)
@@ -227,9 +174,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
             );
 
             final today = DateTime.now();
-            final isViewingCurrentMonth =
-                today.year == selectedMonth.year &&
-                today.month == selectedMonth.month;
+            final isViewingCurrentMonth = _isViewingCurrentMonth;
 
             final isEmpty = filteredExpenses.isEmpty && filter.isEmpty;
 
@@ -241,7 +186,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
                   ExpensesSummaryCard(
                     total: total,
                     filteredCount: filteredExpenses.length,
-                    totalCount: activeExpenses.length,
+                    totalCount: monthExpenses.length,
                     weeklyTotals: weeklyBars,
                   ),
                 ),
@@ -392,6 +337,14 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     );
   }
 
+  /// A month other than the one in progress is read : acting on it would mean
+  /// deciding what it should retroactively have been.
+  bool get _isViewingCurrentMonth {
+    final now = DateTime.now();
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    return now.year == selectedMonth.year && now.month == selectedMonth.month;
+  }
+
   Widget _buildRow(
     ExpenseModel expense,
     CategoryDisplayResolver? resolver,
@@ -407,12 +360,13 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
 
     return CompactExpenseRow(
       expense: expense,
+      isCurrentMonth: _isViewingCurrentMonth,
       category: category,
       beneficiary: beneficiary,
       showDivider: showDivider,
       showDate: showDate,
       onEdit: () => _openEditScreen(expense),
-      onDelete: () => _deleteExpense(expense),
+      onDelete: (scope) => _deleteExpense(expense, scope),
     );
   }
 
@@ -544,9 +498,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     }
   }
 
-  Future<void> _deleteExpense(ExpenseModel expense) async {
+  Future<void> _deleteExpense(ExpenseModel expense, RecurringDeletion scope) async {
     try {
-      await ref.read(expenseProvider.notifier).deleteExpense(expense.id);
+      await ref
+          .read(expenseProvider.notifier)
+          .deleteExpense(expense.id, scope: scope);
     } catch (e) {
       if (mounted) {
         FrostedSnackbar.show(

@@ -100,8 +100,8 @@ class QuickAddDraftLine extends StatelessWidget {
   }
 }
 
-/// The amount in the same serif numerals as the dashboard hero : the draft
-/// already belongs to the app, not to a form.
+/// Le montant du brouillon, dans les chiffres serif de la figure du mois : ce
+/// qui se tape appartient déjà à l'app, pas à un formulaire.
 class _DraftAmount extends StatelessWidget {
   static const double _integerFontSize = 30;
   static const double _decimalFontSize = 19;
@@ -153,6 +153,7 @@ class _DraftAmount extends StatelessWidget {
       ..minimumFractionDigits = 2
       ..maximumFractionDigits = 2;
     final segments = formatter.format(value.abs()).split(',');
+
     return (
       integer: segments[0],
       decimals: segments.length > 1 ? segments[1] : '00',
@@ -322,9 +323,7 @@ class _MetaLine extends StatelessWidget {
             onTap: onPickDate,
             borderRadius: BorderRadius.circular(FrostedRadius.sm),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: FrostedSpacing.sp1,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp1),
               child: Text(dateLabel!.toLowerCase(), style: style),
             ),
           ),

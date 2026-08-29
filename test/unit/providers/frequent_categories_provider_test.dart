@@ -34,7 +34,10 @@ void main() {
     overrideRepository = MockCategoryOverrideRepository();
 
     when(() => expenseRepository.getActive()).thenReturn([]);
+
+    when(() => expenseRepository.getClosed()).thenReturn([]);
     when(() => revenueRepository.getActive()).thenReturn([]);
+    when(() => revenueRepository.getClosed()).thenReturn([]);
     when(() => overrideRepository.getAll()).thenReturn({});
   });
 

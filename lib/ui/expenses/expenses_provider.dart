@@ -1,8 +1,7 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -51,37 +50,39 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly =
-          updated.amount == old.amount &&
-          updated.frequency == old.frequency &&
-          updated.categorySlug == old.categorySlug &&
-          updated.accountId == old.accountId &&
-          updated.beneficiaryId == old.beneficiaryId &&
-          updated.name != old.name;
+      // What the rule costs, how often, and which account it leaves : change
+      // any of that and it is another agreement, so the months already paid
+      // keep the one they were paid under.
+      final bool changesTerms =
+          updated.amount != old.amount ||
+          updated.frequency != old.frequency ||
+          updated.accountId != old.accountId;
 
-      if (isNameOnly) {
-        final int rootId = old.parentId ?? old.id;
-        final chain = repo.getChain(rootId);
-        for (final entry in chain) {
-          repo.update(entry.copyWith(name: updated.name));
+      // Everything else only describes the rule. Filing a subscription under
+      // the right category is a correction, and a correction is true of every
+      // month it ever ran — so it reaches the whole chain and splits nothing.
+      if (!changesTerms) {
+        for (final entry in repo.getChain(old.parentId ?? old.id)) {
+          repo.update(
+            entry
+              ..name = updated.name
+              ..categorySlug = updated.categorySlug
+              ..beneficiaryId = updated.beneficiaryId,
+          );
         }
         ref.invalidateSelf();
         await future;
         return;
       }
 
-      final bool isStructural =
-          updated.amount != old.amount ||
-          updated.frequency != old.frequency ||
-          updated.categorySlug != old.categorySlug ||
-          updated.accountId != old.accountId ||
-          updated.beneficiaryId != old.beneficiaryId;
-
-      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
+      if (old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
         final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
+        if (hasStarted(old.startDate, now)) {
+          repo.update(old.copyWith(endDate: dayOnly(now)));
+        } else {
+          repo.delete(old.id);
+        }
         final newExpense = ExpenseModel.create(
           name: updated.name,
           amount: updated.amount,
@@ -111,20 +112,35 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     await future;
   }
 
-  Future<void> deleteExpense(int id) async {
+  /// A recurring rule is closed rather than erased : the months it was
+  /// actually paid in are history, and history is what this app keeps. What
+  /// [scope] settles is whether the month in progress is one of them.
+  ///
+  /// A rule left with nothing to defend — a one-off, or one closing before it
+  /// ever came round — is erased instead.
+  Future<void> deleteExpense(
+    int id, {
+    RecurringDeletion scope = RecurringDeletion.afterThisMonth,
+  }) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
       final expense = repo.get(id);
       if (expense == null) return;
 
-      if (expense.frequencyEnum == Frequency.oneTime) {
+      final closing = closingDateOf(
+        scope,
+        expense.startDate,
+        expense.frequencyEnum,
+        DateTime.now(),
+      );
+
+      if (expense.frequencyEnum == Frequency.oneTime ||
+          closing.isBefore(dayOnly(expense.startDate))) {
         await deletePermanently(id);
         return;
       }
 
-      final now = DateTime.now();
-      final endDate = computeEndDate(now, expense.startDate.day);
-      repo.update(expense.copyWith(endDate: endDate));
+      repo.update(expense.copyWith(endDate: closing));
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -137,87 +153,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     return repo.getClosed();
   }
 
-  List<ExpenseModel> _currentExpenses() => state.value ?? [];
-
-  double getMonthlyExpenses() => getTotalExpenses(_currentExpenses());
-
-  List<ExpenseModel> getUpcomingExpenses() {
-    final now = DateTime.now();
-    final upcoming = _currentExpenses().where((expense) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          return expense.startDate.day >= now.day;
-        case Frequency.annual:
-          return expense.startDate.month == now.month &&
-              expense.startDate.day >= now.day;
-        case Frequency.oneTime:
-          return false;
-      }
-    }).toList();
-
-    upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
-    return upcoming;
-  }
-
-  List<ExpenseModel> getRecentExpenses(int count) =>
-      _currentExpenses().take(count).toList();
-
-  List<ExpenseModel> getExpensesForAccount(int accountId) => _currentExpenses()
-      .where((expense) => expense.accountId == accountId)
-      .toList();
-
-  List<ExpenseModel> getExpensesForGroup(String groupKey) {
-    final resolver = ref.read(categoryDisplayResolverProvider).value;
-    if (resolver == null) return const [];
-    return _currentExpenses().where((expense) {
-      final slug = expense.categorySlug;
-      return slug != null && resolver.groupKeyOf(slug) == groupKey;
-    }).toList();
-  }
-
-  double getTotalExpensesForAccount(int accountId) =>
-      getExpensesForAccount(accountId).fold(0.0, (sum, e) => sum + e.amount);
-
-  double getTotalExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount;
-        case Frequency.annual:
-          if (expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year &&
-              expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
-
-  double getAnnualExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount * 12;
-        case Frequency.annual:
-          total += expense.amount;
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
+  List<ExpenseModel> getExpensesForAccount(int accountId) =>
+      (state.value ?? const <ExpenseModel>[])
+          .where((expense) => expense.accountId == accountId)
+          .toList();
 }

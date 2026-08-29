@@ -50,7 +50,7 @@ final class QuickAddNotifierProvider
   }
 }
 
-String _$quickAddNotifierHash() => r'b714f82210f1c1454c394f930b255dc2567cf701';
+String _$quickAddNotifierHash() => r'03c13d5b6f038ffc01699710bfc3678da7df3ecc';
 
 /// Reads the input as it is typed : the amount lands at every keystroke, the
 /// model runs on the pause. Submitting creates the transaction straight away,
