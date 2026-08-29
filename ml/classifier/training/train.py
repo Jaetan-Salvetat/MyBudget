@@ -1,4 +1,5 @@
 import json
+import random
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -20,6 +21,7 @@ from transformers.utils import ModelOutput
 
 from paths import DATASET_DIR, OUTPUT_DIR
 from taxonomy import LABELS
+from training.corruption import corrupt
 
 MODEL_NAME = "jhu-clsp/mmBERT-small"
 
@@ -28,6 +30,8 @@ MAX_LENGTH = 64
 BATCH_SIZE = 32
 NUM_EPOCHS = 5
 LEARNING_RATE = 5e-5
+
+CORRUPTION_SEED = 1312
 
 NUM_TYPES = 2
 NUM_CATEGORIES = len(LABELS)
@@ -150,6 +154,15 @@ class MultiHeadTrainer(Trainer):
             lengths=list(dataset["length"]),
         )
 
+    def get_eval_dataloader(self, eval_dataset=None):
+        """L'évaluation lit le texte propre : le bruit est un outil d'entraînement."""
+        collator = self.data_collator
+        self.data_collator = collator.without_noise()
+        try:
+            return super().get_eval_dataloader(eval_dataset)
+        finally:
+            self.data_collator = collator
+
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(
             input_ids=inputs["input_ids"],
@@ -221,39 +234,52 @@ def training_rows(dataset_dir: Path) -> list[dict]:
     return rows
 
 
-def tokenize(examples: dict, tokenizer: AutoTokenizer) -> dict:
-    out = tokenizer(examples["text"], truncation=True, max_length=MAX_LENGTH)
-    out["type_labels"] = examples["type_label"]
-    out["category_labels"] = examples["category_label"]
-    out["recurrence_labels"] = examples["recurrence_label"]
-    out["length"] = [len(ids) for ids in out["input_ids"]]
-    return out
+def measure(examples: dict, tokenizer: AutoTokenizer) -> dict:
+    """Longueur et étiquettes ; le texte, lui, n'est tokenisé qu'au dernier moment.
+
+    Tokeniser une fois pour toutes figerait la phrase : la faute de frappe doit
+    changer à chaque epoch pour que le modèle n'ait rien à mémoriser d'elle.
+    """
+    encoded = tokenizer(examples["text"], truncation=True, max_length=MAX_LENGTH)
+    return {
+        "type_labels": examples["type_label"],
+        "category_labels": examples["category_label"],
+        "recurrence_labels": examples["recurrence_label"],
+        "length": [len(ids) for ids in encoded["input_ids"]],
+    }
 
 
 class MultiLabelDataCollator:
-    """Pad au plus long du lot, pas à 64.
+    """Tokenise le lot, le bruite s'il sert à l'entraînement, et pad au plus long.
 
     La saisie médiane fait quelques tokens : bourrer jusqu'à 64 multipliait le
     calcul par dix pour un résultat identique, les positions de bourrage étant
     masquées dans l'attention comme dans le mean pooling.
     """
 
-    def __init__(self, pad_token_id: int):
-        self.pad_token_id = pad_token_id
+    def __init__(self, tokenizer: AutoTokenizer, noise: random.Random | None):
+        self.tokenizer = tokenizer
+        self.noise = noise
+
+    def without_noise(self) -> "MultiLabelDataCollator":
+        return MultiLabelDataCollator(self.tokenizer, None)
 
     def __call__(self, features: list[dict]) -> dict:
-        lengths = [len(feature["input_ids"]) for feature in features]
-        width = max(lengths)
-        input_ids = torch.full((len(features), width), self.pad_token_id, dtype=torch.long)
-        attention_mask = torch.zeros((len(features), width), dtype=torch.long)
-        for row, feature in enumerate(features):
-            length = lengths[row]
-            input_ids[row, :length] = torch.as_tensor(feature["input_ids"], dtype=torch.long)
-            attention_mask[row, :length] = torch.as_tensor(
-                feature["attention_mask"], dtype=torch.long
-            )
+        texts = [feature["text"] for feature in features]
+        if self.noise is not None:
+            texts = [corrupt(text, self.noise) for text in texts]
 
-        batch: dict = {"input_ids": input_ids, "attention_mask": attention_mask}
+        encoded = self.tokenizer(
+            texts,
+            truncation=True,
+            max_length=MAX_LENGTH,
+            padding=True,
+            return_tensors="pt",
+        )
+        batch: dict = {
+            "input_ids": encoded["input_ids"],
+            "attention_mask": encoded["attention_mask"],
+        }
         for key in ("type_labels", "category_labels", "recurrence_labels"):
             batch[key] = torch.tensor([feature[key] for feature in features], dtype=torch.long)
         return batch
@@ -274,11 +300,11 @@ def main() -> None:
     train_dataset = Dataset.from_list(training_rows(DATASET_DIR))
     eval_dataset = load_dataset_from_jsonl(DATASET_DIR / "eval.jsonl")
 
-    train_dataset = train_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True)
-    eval_dataset = eval_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True)
+    train_dataset = train_dataset.map(lambda ex: measure(ex, tokenizer), batched=True)
+    eval_dataset = eval_dataset.map(lambda ex: measure(ex, tokenizer), batched=True)
 
     columns = [
-        "input_ids", "attention_mask", "length",
+        "text", "length",
         "type_labels", "category_labels", "recurrence_labels",
     ]
     train_dataset = train_dataset.select_columns(columns)
@@ -312,7 +338,7 @@ def main() -> None:
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=MultiLabelDataCollator(tokenizer.pad_token_id),
+        data_collator=MultiLabelDataCollator(tokenizer, random.Random(CORRUPTION_SEED)),
     )
 
     trainer.train()

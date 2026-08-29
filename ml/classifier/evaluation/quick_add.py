@@ -6,6 +6,7 @@ from transformers import AutoTokenizer
 
 from corpus.quick_add.build import LABELS
 from paths import MODEL_DIR, QUICK_ADD_CORPUS
+from serving.normalize import normalize_query
 from training.train import BudgetClassifier, BudgetClassifierConfig
 
 MODEL_PATH = MODEL_DIR
@@ -33,7 +34,14 @@ def load_corpus() -> dict[str, list[dict]]:
 
 
 def predict(model: BudgetClassifier, tokenizer, text: str) -> dict:
-    tokens = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=64)
+    """Le corpus est écrit comme l'utilisateur tape ; le modèle lit la forme canonique."""
+    tokens = tokenizer(
+        normalize_query(text),
+        return_tensors="pt",
+        truncation=True,
+        padding="max_length",
+        max_length=64,
+    )
     with torch.no_grad():
         outputs = model(input_ids=tokens["input_ids"], attention_mask=tokens["attention_mask"])
 

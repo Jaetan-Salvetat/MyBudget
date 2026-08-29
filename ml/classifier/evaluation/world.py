@@ -22,6 +22,7 @@ from transformers import AutoTokenizer
 
 from knowledge.entities import normalize, read_entities
 from paths import ENTITIES_PATH, MODEL_DIR, WORLD_CORPUS
+from serving.normalize import normalize_query
 from taxonomy import LABELS, canonical
 from training.train import BudgetClassifier
 
@@ -33,6 +34,11 @@ COVERAGE_LEVELS = (0.7, 0.8, 0.9)
 
 TYPE_LABELS = ["expense", "income"]
 RECURRENCE_LABELS = ["ponctuel", "fixe"]
+
+# Ce que ce module lit dans chaque cas du corpus. Retirer un champ du JSON sans
+# le retirer ici passe les tests et casse au premier lancement — c'est arrive
+# en supprimant `lang` avec le passage au francais seul.
+CASE_FIELDS = ("input", "axis", "category", "type", "recurrence")
 
 
 def known_names() -> set[str]:
@@ -59,7 +65,8 @@ def is_known(text: str, names: set[str]) -> bool:
 
 
 def predict(model: BudgetClassifier, tokenizer, text: str) -> dict:
-    tokens = tokenizer(text, return_tensors="pt", truncation=True, max_length=64)
+    """Le corpus est écrit comme l'utilisateur tape ; le modèle lit la forme canonique."""
+    tokens = tokenizer(normalize_query(text), return_tensors="pt", truncation=True, max_length=64)
     with torch.no_grad():
         output = model(input_ids=tokens["input_ids"], attention_mask=tokens["attention_mask"])
     probabilities = torch.softmax(output.category_logits, dim=-1)
@@ -108,7 +115,6 @@ def main() -> None:
             {
                 "input": case["input"],
                 "axis": case["axis"],
-                "lang": case["lang"],
                 "known": is_known(case["input"], names),
                 "expected": expected,
                 "predicted": prediction["category"],
@@ -142,13 +148,6 @@ def main() -> None:
         by_axis[row["axis"]].append(row)
     for axis, rows in sorted(by_axis.items()):
         print(f"  {axis:16s} {_rate(rows)}")
-
-    print("\nPar langue")
-    by_lang: dict[str, list[dict]] = defaultdict(list)
-    for row in results:
-        by_lang[row["lang"]].append(row)
-    for lang, rows in sorted(by_lang.items()):
-        print(f"  {lang:16s} {_rate(rows)}")
 
     print(f"\nCalibration (ECE) : {expected_calibration_error(results):.1%}")
     ordered = sorted(results, key=lambda row: row["confidence"], reverse=True)

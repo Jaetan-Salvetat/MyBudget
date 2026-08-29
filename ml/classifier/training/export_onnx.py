@@ -5,13 +5,13 @@ import torch.nn as nn
 from onnxruntime.quantization import QuantType, quantize_dynamic
 from transformers import AutoTokenizer
 
-from paths import EXPORT_DIR, MODEL_DIR
+from paths import MODEL_DIR, ONNX_PATH
 from training.train import BudgetClassifier, BudgetClassifierConfig, mean_pool
 
 MODEL_PATH = MODEL_DIR
-ONNX_RAW = EXPORT_DIR / "model_raw.onnx"
-ONNX_MERGED = EXPORT_DIR / "model_merged.onnx"
-ONNX_FINAL = EXPORT_DIR / "model.onnx"
+ONNX_RAW = MODEL_DIR / "model_raw.onnx"
+ONNX_MERGED = MODEL_DIR / "model_merged.onnx"
+ONNX_FINAL = ONNX_PATH
 
 # Traced short so nothing bakes a padded length into the graph : the sequence
 # axis stays symbolic and the app pads to the smallest bucket that fits.

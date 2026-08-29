@@ -5,8 +5,8 @@
 #   ./tool/cleanup.sh --apply         # a la fin d'un entrainement
 #   ./tool/cleanup.sh --min-free 50 --apply   # en cours de run, disque plein
 #
-# L'etat cible est celui decrit par ml/README.md : output/best, un model.onnx a
-# jour, dataset/entities.jsonl et dataset/cache. Tout le reste se regenere.
+# L'etat cible est celui decrit par ml/README.md : output/best et son model.onnx
+# a jour, dataset/entities.jsonl et dataset/cache. Tout le reste se regenere.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -47,11 +47,11 @@ Sans argument, tous les projets de ml/ sont traites.
   --backups              inclut les poids des runs qui ne sont pas livres
                          (output/best_*, output/<run>/)
   --hf-cache             inclut le cache huggingface du backbone
-  --raw                  inclut les datasets telecharges (scan/data/raw, cf fetch_data.sh)
+  --raw                  inclut les datasets recuperables (scan/data/raw, cf tool/ml_data/fetch.sh)
   --min-free GO          s'arrete des que cet espace libre est atteint
   -h, --help             affiche cette aide
 
-Jamais touches : output/best, output/model.onnx a jour, dataset/entities.jsonl,
+Jamais touches : output/best et son model.onnx a jour, dataset/entities.jsonl,
 dataset/cache, scan/data/golden, scan/data/results (dumps device, une nuit de
 run), .venv. Les checkpoints sont epargnes si un entrainement tourne.
 EOF
@@ -154,7 +154,7 @@ collect_derived_corpora() {
   [ -d "$corpus_dir" ] || return 0
   find "$corpus_dir" -maxdepth 1 -mindepth 1 -type d |
     while IFS= read -r path; do
-      add_candidate "$LEVEL_DERIVED" "corpus derive (fetch_data.sh)" "$path"
+      add_candidate "$LEVEL_DERIVED" "corpus derive (research/fetch_data.sh)" "$path"
     done
   return 0
 }
@@ -164,7 +164,7 @@ collect_raw_datasets() {
   [ -d "$raw_dir" ] || return 0
   find "$raw_dir" -maxdepth 1 -mindepth 1 -type d |
     while IFS= read -r path; do
-      add_candidate "$LEVEL_REDOWNLOADABLE" "dataset telecharge (fetch_data.sh)" "$path"
+      add_candidate "$LEVEL_REDOWNLOADABLE" "dataset publie (tool/ml_data/fetch.sh)" "$path"
     done
   return 0
 }
@@ -205,12 +205,16 @@ collect_checkpoints_of_run() {
   return 0
 }
 
+# L'export vit avec les poids dont il sort. Celui reste a la racine de output/
+# date du temps ou l'un et l'autre se choisissaient separement : c'est ce
+# decouplage qui a fait publier cinq versions du meme modele perime.
 collect_stale_exports() {
   local output_dir="$1"
   local weights="$output_dir/best/model.safetensors" artefact name
   [ -f "$weights" ] || return 0
   for name in "${EXPORT_NAMES[@]}"; do
-    artefact="$output_dir/$name"
+    add_candidate "$LEVEL_STALE" "export onnx hors de output/best" "$output_dir/$name"
+    artefact="$output_dir/best/$name"
     [ -f "$artefact" ] || continue
     if [ "$(mtime "$artefact")" -lt "$(mtime "$weights")" ]; then
       add_candidate "$LEVEL_STALE" "export onnx perime" "$artefact"

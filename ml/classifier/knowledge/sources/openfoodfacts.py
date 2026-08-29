@@ -3,10 +3,16 @@
 Seuls les nœuds proches de la racine sont retenus : « Yaourts » est tapé par un
 utilisateur, « Piment doux de Gascogne » jamais. Les feuilles profondes de la
 taxonomie n'apporteraient que du bruit dans une classe déjà majoritaire.
+
+Le classement d'une catégorie alimentaire vit dans
+`corpus/receipts/categories.py`, partagé avec le corpus ticket : c'est la même
+question posée sur la même taxonomie, et deux réponses feraient apprendre au
+modèle une contradiction.
 """
 
 from typing import Iterator
 
+from corpus.receipts.categories import food_family
 from knowledge.cache import fetch_json
 from knowledge.entities import TIER_KNOWN, Entity
 from taxonomy import ONE_TIME
@@ -20,14 +26,6 @@ MAX_DEPTH = 2
 MAX_WORDS = 2
 LANGUAGES = ("fr", "en")
 
-BAKERY_WORDS = frozenset({"bread", "breads", "loaf", "loaves", "bun", "buns", "pastry",
-                          "pastries", "cake", "cakes", "cookie", "cookies", "muffin", "muffins",
-                          "donut", "donuts", "croissant", "croissants", "baguette", "baguettes",
-                          "brioche", "brioches", "viennoiserie", "viennoiseries", "biscuit",
-                          "biscuits", "pain", "pains", "gateau", "gateaux", "tarte", "tartes"})
-GROCERY_WORDS = frozenset({"beverage", "beverages", "drink", "drinks", "juice", "juices",
-                           "water", "waters", "soda", "sodas", "beer", "beers", "wine",
-                           "wines", "spirit", "spirits", "coffee", "tea", "teas"})
 
 
 def _depths(taxonomy: dict) -> dict[str, int]:
@@ -50,15 +48,6 @@ def _depths(taxonomy: dict) -> dict[str, int]:
 
 def _acceptable(name: str | None) -> bool:
     return bool(name) and len(name.split()) <= MAX_WORDS and not any(c.isdigit() for c in name)
-
-
-def _food_slug(*names: str) -> str:
-    words = {word.lower().strip(",") for name in names for word in name.split()}
-    if words & BAKERY_WORDS:
-        return "alimentation.boulangerie"
-    if words & GROCERY_WORDS:
-        return "alimentation.epicerie"
-    return "alimentation.supermarche"
 
 
 def _iter_categories(url: str, filename: str, slug_for, refresh: bool) -> Iterator[Entity]:
@@ -84,7 +73,7 @@ def _iter_categories(url: str, filename: str, slug_for, refresh: bool) -> Iterat
 
 def iter_entities(refresh: bool = False) -> Iterator[Entity]:
     yield from _iter_categories(
-        FOOD_CATEGORIES_URL, "off_categories.json", _food_slug, refresh
+        FOOD_CATEGORIES_URL, "off_categories.json", food_family, refresh
     )
     yield from _iter_categories(
         BEAUTY_CATEGORIES_URL,

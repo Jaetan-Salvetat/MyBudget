@@ -13,6 +13,7 @@ from knowledge.build import OVERRIDES, SOURCE_PRIORITY, merge
 from knowledge.entities import TIER_HEAD, TIER_KNOWN, Entity, normalize
 from knowledge.mapping_nsi import OSM_PATH_TO_SLUG
 from knowledge.sources import lexicon, patterns, services
+from serving.normalize import normalize_query
 from taxonomy import (
     ACTIVE_LABELS,
     DEPRECATED,
@@ -114,6 +115,47 @@ def test_an_override_never_makes_a_name_disappear():
         assert resolved.get(name) == slug, name
 
 
+def test_an_alias_never_steals_the_name_of_another_entity():
+    """« McDonald's PlayPlace » porte l'alias « McDonald's », qui est une entité."""
+    playground = Entity(
+        name="McDonald's PlayPlace",
+        slug="famille_education.activites_enfants",
+        source="nsi",
+        aliases=["McDonald's"],
+    )
+    restaurant = Entity(name="McDonald's", slug="restauration.fast_food", source="nsi")
+    merged, _ = merge([playground, restaurant])
+    by_name = {entity.name: entity for entity in merged}
+    assert by_name["McDonald's PlayPlace"].aliases == []
+    assert by_name["McDonald's"].slug == "restauration.fast_food"
+
+
+def test_an_alias_claimed_by_two_classes_goes_to_the_most_reliable():
+    station = Entity(
+        name="Station Service E.Leclerc",
+        slug="transport.essence",
+        source="nsi",
+        aliases=["leclerc"],
+    )
+    market = Entity(
+        name="E.Leclerc Drive",
+        slug="alimentation.supermarche",
+        source="services",
+        aliases=["leclerc"],
+    )
+    merged, _ = merge([station, market])
+    owners = {entity.slug for entity in merged if "leclerc" in entity.aliases}
+    assert owners == {"alimentation.supermarche"}
+
+
+def test_an_ambiguous_alias_is_given_to_nobody():
+    """Deux sources de même rang qui se disputent un alias : on ne tranche pas."""
+    first = Entity(name="Bistrot A", slug="restauration.bar", source="nsi", aliases=["chez leo"])
+    second = Entity(name="Cave B", slug="alimentation.epicerie", source="nsi", aliases=["chez leo"])
+    merged, _ = merge([first, second])
+    assert all("chez leo" not in entity.aliases for entity in merged)
+
+
 def test_merge_unions_aliases_of_the_same_entity():
     first = Entity(name="Netflix", slug="loisirs.streaming", source="services", aliases=["netflix fr"])
     second = Entity(name="netflix", slug="loisirs.streaming", source="nsi", aliases=["Netflix Inc"])
@@ -189,8 +231,16 @@ def test_samples_carry_the_labels_of_their_class():
 def test_surface_forms_start_with_the_bare_name():
     entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
     forms = _surface_forms(entity, 6, random.Random(4))
-    assert forms[0] == ("Carrefour", ONE_TIME)
+    assert forms[0] == ("carrefour", ONE_TIME)
     assert len(forms) == len({normalize(text) for text, _ in forms})
+
+
+def test_surface_forms_are_written_in_the_form_the_app_sends():
+    entity = Entity(name="Père & Fils", slug="alimentation.supermarche", source="services")
+    forms = _surface_forms(entity, 20, random.Random(4))
+    assert forms[0] == ("pere & fils", ONE_TIME)
+    for text, _ in forms:
+        assert text == normalize_query(text), text
 
 
 def test_a_subscription_wording_makes_the_sample_recurring():
@@ -201,10 +251,38 @@ def test_a_subscription_wording_makes_the_sample_recurring():
     for text in marked:
         assert any(
             word in text.lower()
-            for word in ("abonnement", "abo ", "mensuel", "cotisation", "prélèvement",
-                         "échéance", "du mois", "les mois", "subscription", "monthly", "membership",
-                         "plan", "direct debit", "every month")
+            for word in ("abonnement", "abo ", "mensuel", "mensualite", "cotisation",
+                         "prelevement", "echeance", "du mois", "les mois", "renouvellement",
+                         "forfait", "reconduction", "par mois", "chaque mois", "annuel")
         ), text
+
+
+# Les utilisateurs de l'app ecrivent en francais : une tournure anglaise dans le
+# corpus consomme du budget de classe pour une phrase que personne ne tapera.
+ENGLISH_PHRASING = (
+    "paid for", "bought", "spent on", "picked up", "ordered", "payment for",
+    "purchase", "bill for", "received", "got paid", "earned", "refunded",
+    "yesterday", "this morning", "tonight", "last night", "last week", "last month",
+    "today", "this weekend", "in january", "in december", "on monday", "on sunday",
+    "with friends", "for work", "for the house", "for the kids", "online",
+    "in store", "for the month", "takeaway", "with the family",
+    "quick ", "cheap ", "on sale", "small ",
+    "subscription", "monthly", "membership", "direct debit", "every month",
+)
+
+
+def test_the_generated_phrasing_carries_no_english():
+    entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
+    for text, _ in _surface_forms(entity, 400, random.Random(7)):
+        lowered = text.lower()
+        assert not any(marker in lowered for marker in ENGLISH_PHRASING), text
+
+
+def test_french_phrasing_offers_enough_variety_to_fill_a_budget():
+    entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
+    forms = _surface_forms(entity, 60, random.Random(8))
+    assert len(forms) == 60
+    assert len({text for text, _ in forms}) == 60
 
 
 def test_source_priority_covers_every_source():

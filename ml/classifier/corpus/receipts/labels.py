@@ -1,12 +1,22 @@
-"""Vérité terrain de la catégorisation des tickets FindIt (golden `ml/scan/data/golden`).
+"""Étiquetage manuel des tickets FindIt (golden `ml/scan/data/golden`).
 
-Étiquetage manuel du 2026-08-25. Le principe : un article prend la classe de
-son enseigne (la taxonomie est une taxonomie de marchands), sauf quand il
-appartient à une famille budgétaire distincte — vêtement, animalerie,
-fourniture, déco, pharmacie… — auquel cas il est surchargé. Les consommables
-du quotidien (hygiène, entretien, piles, sacs) suivent l'enseigne. Les lignes
-qui ne sont pas des articles (poids, admissions, cartes de fidélité) sont
-exclues.
+Trois tables, et une seule décide encore de la classe d'un article :
+
+- `ITEM_OVERRIDES` — la classe d'un libellé, écrite à la main. Avec le
+  répertoire d'Open Prices, c'est la vérité d'article (`truth.py`) ;
+- `EXCLUDED_ITEMS` / `EXCLUDED_STORES` — ce qui n'est pas un article, ce qui
+  n'est pas un ticket exploitable ;
+- `STORE_LABELS` — la classe des 266 en-têtes d'enseigne. **Elle n'étiquette
+  plus aucun article.** Le principe d'origine — un article prend la classe de
+  son enseigne — rendait la catégorie d'un produit dépendante du magasin, et
+  10,7 % des lignes d'entraînement se contredisaient. Elle sert désormais au
+  seul diagnostic de la lecture d'en-tête (`evaluation/receipts.py --stores`),
+  que le scan affiche sans en tirer de catégorie.
+
+Conventions de l'étiquetage manuel du 2026-08-25 : les consommables du
+quotidien (hygiène, entretien, piles, sacs) restent au rayon courses, les
+lignes qui ne sont pas des articles (poids, admissions, cartes de fidélité)
+sont exclues.
 
 Conventions héritées du lexique et du mapping NSI :
 supérette → épicerie ; primeur, producteur → marché ; boucherie, poissonnerie,

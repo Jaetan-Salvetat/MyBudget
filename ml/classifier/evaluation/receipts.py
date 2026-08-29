@@ -1,18 +1,27 @@
 """Mesure un modèle sur `evaluation/data/receipts.json` : libellés de tickets réels.
 
+**Un article se classe seul.** Le scan ne passe plus par l'enseigne, donc la
+mesure non plus : ce qui est noté ici est ce que le modèle rend d'un libellé
+de caisse, sans rien savoir du ticket où il a été lu. La cascade qui déduisait
+la classe d'un article de celle de son enseigne portait un chiffre flatteur —
+88,8 % — que le corpus expliquait à lui seul : 63 % des tickets FindIt sont
+alimentaires, et l'enseigne suffisait à les trancher.
+
 Deux lectures par variante d'entrée :
 - stricte : le slug exact ;
 - famille : supermarché/épicerie/marché confondus, restaurant/fast-food/café/bar
   confondus — ces frontières sont des conventions d'enseigne, pas des faits.
 
 Le score qui compte est celui de T1-test : T1-train sert d'entraînement à
-tout ce qui apprend des libellés de tickets.
+tout ce qui apprend des libellés de tickets. `--stores` mesure à part la
+lecture des en-têtes d'enseigne : elle ne décide plus d'aucune catégorie, elle
+reste ce que le scan affiche.
 """
 
 import argparse
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 import torch
@@ -20,12 +29,6 @@ from transformers import AutoTokenizer
 
 from corpus.receipts.labels import STORE_LABELS
 from paths import MODEL_DIR, RECEIPTS_CORPUS
-from serving.cascade import (
-    STORE_MIN_CONFIDENCE,
-    Prediction,
-    item_category,
-    ticket_category,
-)
 from serving.normalize import normalize_receipt_line
 from taxonomy import LABELS
 from training.train import BudgetClassifier
@@ -34,6 +37,7 @@ CORPUS_PATH = RECEIPTS_CORPUS
 DEFAULT_MODEL = MODEL_DIR
 BATCH_SIZE = 64
 MAX_LENGTH = 64
+CONFIDENT = 0.9
 
 FAMILIES = {
     "alimentation.supermarche": "alimentation",
@@ -45,11 +49,12 @@ FAMILIES = {
     "restauration.bar": "restauration",
 }
 
+# `normalized` est ce que l'app envoie au modèle ; les deux autres disent ce
+# que la normalisation rapporte, et ne décrivent aucun chemin de production.
 VARIANTS = {
     "raw": lambda row: row["name"],
     "lower": lambda row: row["name"].lower(),
     "normalized": lambda row: normalize_receipt_line(row["name"]),
-    "store+normalized": lambda row: f"{row['store'].lower()} {normalize_receipt_line(row['name'])}".strip(),
 }
 
 
@@ -104,59 +109,20 @@ def score(rows: list[dict], predictions: list[tuple[str, float]]) -> dict:
     }
 
 
-def cascade_scores(rows: list[dict], model, tokenizer, hide_store: bool) -> dict:
-    """Rejoue la décision de l'app ticket par ticket."""
-    stores = sorted({row["store"] for row in rows if row["store"]})
-    store_predictions = dict(zip(stores, predict(model, tokenizer, [normalize_receipt_line(s) for s in stores])))
-    item_predictions = predict(model, tokenizer, [normalize_receipt_line(row["name"]) for row in rows])
-    by_ticket: dict[str, list[int]] = defaultdict(list)
-    for index, row in enumerate(rows):
-        by_ticket[row["ticket"]].append(index)
-    strict, loose, total = Counter(), Counter(), Counter()
-    confusions: Counter[tuple[str, str]] = Counter()
-    ticket_ok, ticket_total = Counter(), Counter()
-    wrong_stores: Counter[tuple[str, str, str]] = Counter()
-    for ticket, indices in by_ticket.items():
-        split = rows[indices[0]]["split"]
-        store_name = rows[indices[0]]["store"]
-        store = None if hide_store or not store_name else Prediction(*store_predictions[store_name])
-        items = [Prediction(*item_predictions[i]) for i in indices]
-        decided = ticket_category(store, items)
-        expected_ticket = Counter(rows[i]["category"] for i in indices).most_common(1)[0][0]
-        ticket_total[split] += 1
-        if family(decided.slug) == family(expected_ticket):
-            ticket_ok[split] += 1
-        elif split == "test":
-            wrong_stores[(store_name, expected_ticket, decided.slug)] += 1
-        for i, item in zip(indices, items):
-            slug = item_category(decided, item)
-            total[split] += 1
-            strict[split] += slug == rows[i]["category"]
-            if family(slug) == family(rows[i]["category"]):
-                loose[split] += 1
-            elif split == "test":
-                confusions[(rows[i]["category"], slug)] += 1
-    return {
-        "strict": {s: strict[s] / total[s] for s in total},
-        "family": {s: loose[s] / total[s] for s in total},
-        "ticket": {s: ticket_ok[s] / ticket_total[s] for s in ticket_total},
-        "total": dict(total),
-        "confusions": confusions,
-        "wrong_stores": wrong_stores,
-    }
-
-
 def store_scores(model, tokenizer) -> None:
-    """Les en-têtes d'enseigne seuls, contre l'étiquette manuelle."""
+    """Les en-têtes d'enseigne seuls, contre l'étiquette manuelle.
+
+    Diagnostic, pas décision : depuis que chaque article se classe seul, aucune
+    catégorie d'article ne dépend plus de ce chiffre."""
     stores = sorted(STORE_LABELS)
     predictions = predict(model, tokenizer, [normalize_receipt_line(s) for s in stores])
     strict = sum(slug == STORE_LABELS[s] for s, (slug, _c) in zip(stores, predictions))
     loose = sum(family(slug) == family(STORE_LABELS[s]) for s, (slug, _c) in zip(stores, predictions))
-    confident = [(s, slug) for s, (slug, c) in zip(stores, predictions) if c >= STORE_MIN_CONFIDENCE]
+    confident = [(s, slug) for s, (slug, c) in zip(stores, predictions) if c >= CONFIDENT]
     confident_ok = sum(family(slug) == family(STORE_LABELS[s]) for s, slug in confident)
     print(f"\n== enseignes ({len(stores)}) ==")
     print(f"  strict {strict / len(stores):.1%}  famille {loose / len(stores):.1%}  "
-          f"famille à P≥{STORE_MIN_CONFIDENCE} : {confident_ok}/{len(confident)}")
+          f"famille à P≥{CONFIDENT} : {confident_ok}/{len(confident)}")
 
 
 def main() -> None:
@@ -164,25 +130,12 @@ def main() -> None:
     parser.add_argument("--model", type=Path, default=DEFAULT_MODEL)
     parser.add_argument("--variants", nargs="*", default=list(VARIANTS))
     parser.add_argument("--errors", type=int, default=0, help="exemples d'erreurs T1-test à afficher")
-    parser.add_argument("--cascade", action="store_true", help="rejouer la décision de l'app")
+    parser.add_argument("--stores", action="store_true", help="lecture des en-têtes d'enseigne")
     args = parser.parse_args()
 
     rows = json.loads(CORPUS_PATH.read_text(encoding="utf-8"))
     model, tokenizer = load_model(args.model)
-    if args.cascade:
-        for hide_store in (False, True):
-            result = cascade_scores(rows, model, tokenizer, hide_store)
-            print(f"\n== cascade {'(enseigne masquée)' if hide_store else '(enseigne lue)'} ==")
-            for split in ("train", "test"):
-                print(
-                    f"  {split:5} n={result['total'][split]:5}  strict {result['strict'][split]:.1%}  "
-                    f"famille {result['family'][split]:.1%}  ticket {result['ticket'][split]:.1%}"
-                )
-            for (expected, predicted), count in result["confusions"].most_common(6):
-                print(f"    {count:4}  {expected} → {predicted}")
-            if args.errors:
-                for (store, expected, predicted), count in result["wrong_stores"].most_common(args.errors):
-                    print(f"    ticket ×{count:<3} {store!r:40} {expected} → {predicted}")
+    if args.stores:
         store_scores(model, tokenizer)
     for variant in args.variants:
         texts = [VARIANTS[variant](row) for row in rows]

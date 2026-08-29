@@ -24,6 +24,12 @@ from paths import DATA_DIR
 # l'image, pas son nom : une photo remplacée invalide son entrée.
 CACHE_DIR = DATA_DIR / "results" / "ocr_cache"
 
+# Deux dumps par image, jamais purgés : à plat, le cache heurtait la limite
+# dure de 10 000 entrées par dossier du dépôt qui l'héberge. Le préfixe de
+# l'empreinte le répartit sur 256 dossiers, et les deux passes d'une même
+# image restent voisines.
+SHARD_WIDTH = 2
+
 UPRIGHT_NAME = "upright.jpg"
 RETRY_NAME = "retry.jpg"
 JPEG_QUALITY = 95
@@ -35,15 +41,16 @@ def _rotated(source: Path, destination: Path, degrees: int) -> Path:
     return destination
 
 
-def _cache_path(image: Path, with_retry: bool) -> Path:
+def cache_path(image: Path, with_retry: bool) -> Path:
     digest = hashlib.sha256(image.read_bytes()).hexdigest()[:32]
-    return CACHE_DIR / f"{digest}{'_retry' if with_retry else ''}.json"
+    name = f"{digest}{'_retry' if with_retry else ''}.json"
+    return CACHE_DIR / digest[:SHARD_WIDTH] / name
 
 
 def dump_for(image: Path, with_retry: bool = True, cache: bool = True) -> dict:
     """Dump OCR de l'image, servi depuis le cache quand il existe."""
     if cache:
-        cached = _cache_path(image, with_retry)
+        cached = cache_path(image, with_retry)
         if cached.exists():
             return json.loads(cached.read_text())
         dump = _recognize_both(image, with_retry)

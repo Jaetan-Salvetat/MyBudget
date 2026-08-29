@@ -4,10 +4,11 @@ import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-/// Habille ce que le flow local a lu : catégorie de l'enseigne puis de chaque
-/// article, libellés résolus dans la taxonomie de l'utilisateur. Une catégorie
-/// que la taxonomie ne connaît pas n'est pas inventée — l'article part sans
-/// catégorie et l'écran d'édition la demande.
+/// Habille ce que le flow local a lu : la catégorie de chaque article, libellés
+/// résolus dans la taxonomie de l'utilisateur. Un article se classe sur son
+/// seul libellé — l'enseigne du ticket n'entre pas dans la décision. Une
+/// catégorie que la taxonomie ne connaît pas n'est pas inventée : l'article
+/// part sans catégorie et l'écran d'édition la demande.
 class ReceiptScanComposer {
   final ReceiptCategorizer _categorizer;
   final CategoryDisplayResolver _resolver;
@@ -18,10 +19,9 @@ class ReceiptScanComposer {
   });
 
   Future<ReceiptScanResultModel> compose(LocalReceiptScan scan) async {
-    final categorized = await _categorizer.categorize(
-      store: scan.store,
-      itemNames: [for (final item in scan.items) item.name],
-    );
+    final categorized = await _categorizer.categorize([
+      for (final item in scan.items) item.name,
+    ]);
 
     return ReceiptScanResultModel(
       storeName: scan.store,
@@ -29,7 +29,7 @@ class ReceiptScanComposer {
       verified: scan.verified,
       items: [
         for (final (index, item) in scan.items.indexed)
-          _itemOf(item, categorized.itemSlugs[index]),
+          _itemOf(item, categorized[index].slug),
       ],
     );
   }

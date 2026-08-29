@@ -14,12 +14,12 @@ import onnxruntime as ort
 import torch
 from transformers import AutoTokenizer
 
-from paths import EXPORT_DIR, MODEL_DIR, QUICK_ADD_CORPUS, WORLD_CORPUS
+from paths import MODEL_DIR, ONNX_PATH, QUICK_ADD_CORPUS, WORLD_CORPUS
+from serving.normalize import normalize_query
 from taxonomy import LABELS, canonical
 from training.train import MAX_LENGTH, BudgetClassifier
 
 MODEL_PATH = MODEL_DIR
-ONNX_PATH = EXPORT_DIR / "model.onnx"
 CORPORA = (WORLD_CORPUS, QUICK_ADD_CORPUS)
 
 TYPE_LABELS = ["expense", "income"]
@@ -31,7 +31,10 @@ def _cases(path: Path) -> list[dict]:
 
 
 def _feed(tokenizer, text: str) -> dict:
-    tokens = tokenizer(text, return_tensors="np", truncation=True, max_length=MAX_LENGTH)
+    """Le corpus est écrit comme l'utilisateur tape ; le modèle lit la forme canonique."""
+    tokens = tokenizer(
+        normalize_query(text), return_tensors="np", truncation=True, max_length=MAX_LENGTH
+    )
     return {
         "input_ids": tokens["input_ids"].astype(np.int64),
         "attention_mask": tokens["attention_mask"].astype(np.int64),

@@ -18,12 +18,13 @@ from transformers import AutoTokenizer, TrainingArguments
 
 from paths import DATASET_DIR, OUTPUT_DIR
 from training.train import (
+    CORRUPTION_SEED,
     BudgetClassifier,
     MultiHeadTrainer,
     MultiLabelDataCollator,
     compute_metrics,
     load_dataset_from_jsonl,
-    tokenize,
+    measure,
 )
 
 SOURCE_MODEL = OUTPUT_DIR / "best"
@@ -33,7 +34,7 @@ EPOCHS = 2
 LEARNING_RATE = 3e-5
 BATCH_SIZE = 32
 SEED = 42
-COLUMNS = ["input_ids", "attention_mask", "length", "type_labels", "category_labels", "recurrence_labels"]
+COLUMNS = ["text", "length", "type_labels", "category_labels", "recurrence_labels"]
 
 
 def replay_rows(path: Path, count: int, rng: random.Random) -> list[dict]:
@@ -61,8 +62,8 @@ def main() -> None:
     eval_dataset = load_dataset_from_jsonl(DATASET_DIR / "receipts_eval.jsonl")
     print(f"tickets {len(receipts)} + rejeu {len(replay)} = {len(train_dataset)} ; eval {len(eval_dataset)}")
 
-    train_dataset = train_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True).select_columns(COLUMNS)
-    eval_dataset = eval_dataset.map(lambda ex: tokenize(ex, tokenizer), batched=True).select_columns(COLUMNS)
+    train_dataset = train_dataset.map(lambda ex: measure(ex, tokenizer), batched=True).select_columns(COLUMNS)
+    eval_dataset = eval_dataset.map(lambda ex: measure(ex, tokenizer), batched=True).select_columns(COLUMNS)
 
     training_args = TrainingArguments(
         output_dir=str(args.target / "checkpoints"),
@@ -86,7 +87,7 @@ def main() -> None:
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=MultiLabelDataCollator(tokenizer.pad_token_id),
+        data_collator=MultiLabelDataCollator(tokenizer, random.Random(CORRUPTION_SEED)),
     )
     trainer.train()
     trainer.save_model(str(args.target))

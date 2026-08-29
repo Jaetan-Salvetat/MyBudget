@@ -8,6 +8,7 @@ import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
+import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 class QuickAddClassifierService implements QuickAddEngine {
   static const String _recurringLabel = 'fixe';
@@ -30,12 +31,16 @@ class QuickAddClassifierService implements QuickAddEngine {
 
   /// Reads everything the text carries. The amount stays null while the user
   /// has not typed one : classifying is understanding, not validating.
+  ///
+  /// Le modèle lit la forme canonique — minuscules, sans accents, ponctuation
+  /// décollée, celle du corpus — mais le nom retenu reste ce que l'utilisateur
+  /// a tapé : normaliser sert le modèle, pas l'affichage.
   @override
   Future<QuickAddClassification> classify(String input) async {
     final facts = QuickAddTextReader.read(input);
     final cleanedText = facts.modelText;
 
-    final tokens = _tokenizer.encode(cleanedText);
+    final tokens = _tokenizer.encode(normalizeQuery(cleanedText));
     final output = await _modelRunner.run(tokens);
 
     final slug = QuickAddLabels.categories[output.category.index];

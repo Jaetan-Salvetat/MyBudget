@@ -1,33 +1,24 @@
 #!/usr/bin/env bash
-# Reconstruit les corpus d'images (non versionnés) depuis leurs sources.
-# Prérequis : CLI kaggle configurée, curl, unzip, uv.
+# Reconstruit ce qui est DÉTERMINISTE : les sélections dérivées de FindIt et le
+# corpus synthétique (seed 42). Rien d'autre — tout ce qui ne se reconstruit
+# pas vit dans le dépôt Hugging Face privé.
+#
+#   ./tool/ml_data/fetch.sh      # les corpus, dont FindIt dont ceci dérive
+#   ./fetch_data.sh              # puis les sélections et le synthétique
+#
+# Prérequis : uv, et `ml/scan/data/raw/findit/` déjà récupéré.
 set -euo pipefail
-cd "$(dirname "$0")/../data"
+cd "$(dirname "$0")"
 
-echo "== Find it! (ICPR 2018) — seul dataset public de tickets FR"
-echo "   Officiel (formulaire) : http://findit.univ-lr.fr/download-the-dataset/"
-echo "   Miroir utilisé : kaggle srjpdl/findit-dataset"
-if [ ! -d raw/findit/T1-test ]; then
-  kaggle datasets download srjpdl/findit-dataset -p /tmp/findit --unzip
-  mkdir -p raw/findit
-  cp -R /tmp/findit/FindIt-Dataset-Test/FindIt-Dataset-Test/T1-test raw/findit/
-  cp /tmp/findit/FindIt-Dataset-Test/FindIt-Dataset-Test/T1-Test-GT.xml raw/findit/
-  cp -R /tmp/findit/FindIt-Dataset-Train/T1-train raw/findit/
-  cp -R /tmp/findit/FindIt-Dataset-Train/T2-Train raw/findit/T2-train
+if [ ! -d ../data/raw/findit/T1-test ]; then
+  echo "FindIt absent : ./tool/ml_data/fetch.sh findit" >&2
+  exit 66
 fi
 
 echo "== Sélections dérivées + corpus synthétique"
-(cd ../research && uv run python -m corpus.rebuild && uv run python -m corpus.generate)
+uv run python -m corpus.rebuild
+uv run python -m corpus.generate
 
 echo
-echo "Ce script ne reconstruit QUE ce qui est déterministe : FindIt, les"
-echo "sélections dérivées et le synthétique (seed 42)."
-echo
-echo "  photos_pixel, open_prices et mixed → ./tool/scan_data/fetch.sh"
-echo
-echo "Elles ne se reconstruisent pas : open_prices est un jeu vivant dont le"
-echo "dump grossit chaque jour, donc un re-fetch rendrait un AUTRE corpus que"
-echo "celui sur lequel les annotations ont été faites. Pour l'agrandir"
-echo "délibérément : uv run python -m corpus.open_prices, puis republier."
-echo
-echo "Les dumps OCR se régénèrent via le harnais (voir ../README.md)."
+echo "Les sélections gardent les mêmes ids et les mêmes noms de fichiers, donc"
+echo "caches et benchs restent comparables d'une reconstruction à l'autre."

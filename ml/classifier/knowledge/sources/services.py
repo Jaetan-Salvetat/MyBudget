@@ -82,7 +82,8 @@ SERVICES: dict[str, list[str]] = {
         "~On Air Fitness", "~Vita Liberté", "~Gymlib", "~ClassPass", "~Strava", "~Peloton",
         "~Freeletics", "~PureGym", "~The Gym Group", "~David Lloyd", "~Anytime Fitness",
         "~Planet Fitness", "~Equinox", "~Crunch Fitness", "~abonnement salle de sport",
-        "~licence club", "~cotisation club", "Decathlon", "Intersport", "Go Sport", "Foot Locker",
+        "~licence club", "~cotisation club", "Decathlon|Décathlon|Décat|Decat|Decath",
+        "Intersport", "Go Sport", "Foot Locker",
     ],
     "loisirs.cinema_sortie": [
         "UGC", "Pathé|Pathé Gaumont", "CGR", "Kinepolis", "Mégarama", "MK2",
@@ -244,6 +245,13 @@ SERVICES: dict[str, list[str]] = {
         "Too Good To Go", "Nestor", "Sushi Shop livraison", "commande livraison",
         "food delivery", "takeaway delivery",
     ],
+    # Les surnoms que les francais tapent : « macdo » et « carrouf » sont plus
+    # frequents que la raison sociale, et aucune source ouverte ne les porte.
+    "restauration.fast_food": [
+        "McDonald's|McDo|Mcdo|Macdo|Mac Do|Mac Donald", "Burger King|BK",
+        "O'Tacos|Otacos|O tacos", "Domino's Pizza|Domino's|Dominos",
+        "Five Guys", "Sushi Shop", "Del Arte", "Pizza Hut",
+    ],
     "restauration.bar": [
         "Wetherspoons|JD Wetherspoon|Spoons", "The Red Lion", "The Crown", "The King's Arms",
         "The White Hart", "The Royal Oak", "BrewDog", "Au Bureau", "Le Zinc",
@@ -254,6 +262,8 @@ SERVICES: dict[str, list[str]] = {
         "restaurant ticket", "meal voucher",
     ],
     "alimentation.supermarche": [
+        "E.Leclerc|Leclerc|Centre E.Leclerc|Leclerc Drive|Hyper Leclerc",
+        "Carrefour|Carrouf|Carrefour Hyper|Hyper Carrefour",
         "Monoprix", "Franprix", "Amazon Fresh", "Ocado", "Ocado Retail", "La Ruche qui dit Oui", "HelloFresh",
         "Quitoque", "Jow", "Thrive Market", "Instacart", "Drive Leclerc", "Carrefour Drive",
         "Auchan Drive", "Courses en ligne", "click and collect courses", "online groceries",
@@ -310,7 +320,8 @@ SERVICES: dict[str, list[str]] = {
         "crèche", "baby-sitter", "babysitter", "childminder", "nursery", "after school club",
     ],
     "famille_education.cantine": [
-        "Sodexo", "Elior", "Compass", "Turboself", "Izly", "Crous", "restaurant universitaire",
+        "Sodexo", "Elior", "Compass", "Turboself", "Izly", "Crous",
+        "restaurant universitaire|resto u|restau u",
         "cantine scolaire", "self", "school meals", "school dinner money", "lunch card",
     ],
     "famille_education.scolarite": [
@@ -367,6 +378,10 @@ SERVICES: dict[str, list[str]] = {
         "Hill's", "Virbac", "Zooplus", "Wanimo", "Maxi Zoo", "Jardiland", "Truffaut",
         "Animalis", "Bitiba", "Petco", "PetSmart", "Pets at Home", "assurance animaux",
         "toilettage chien", "pension pour chat", "pet insurance", "vet bill",
+    ],
+    "divers.autre": [
+        "La Poste|Colissimo|Chronopost", "Mondial Relay", "Relais Colis", "UPS", "DHL",
+        "FedEx", "Point Relais",
     ],
     "divers.cadeau_offert": [
         "Interflora", "Bergamotte", "Aquarelle", "Wonderbox", "Smartbox", "Vente-privée cadeau",

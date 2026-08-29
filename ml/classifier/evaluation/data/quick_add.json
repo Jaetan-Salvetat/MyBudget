@@ -337,37 +337,9 @@
       "level": "app"
     },
     {
-      "input": "groceries 55",
-      "type": "expense",
-      "category": "alimentation.supermarche",
-      "recurrence": "ponctuel",
-      "level": "app"
-    },
-    {
-      "input": "dinner out 40",
-      "type": "expense",
-      "category": "restauration.restaurant",
-      "recurrence": "ponctuel",
-      "level": "app"
-    },
-    {
-      "input": "Netflix subscription 14",
-      "type": "expense",
-      "category": "loisirs.streaming",
-      "recurrence": "fixe",
-      "level": "app"
-    },
-    {
       "input": "gym membership 30",
       "type": "expense",
       "category": "loisirs.sport",
-      "recurrence": "fixe",
-      "level": "app"
-    },
-    {
-      "input": "monthly rent 1200",
-      "type": "expense",
-      "category": "logement.loyer",
       "recurrence": "fixe",
       "level": "app"
     },

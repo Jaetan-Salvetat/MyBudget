@@ -70,11 +70,13 @@ assets/models/label_span_v*.json
 assets/models/tokenizer.json
 
 # ML scan : datasets, corpus et sorties OCR volumineux. Seul le golden FindIt
-# est versionné : curé à la main, stable, irremplaçable. Le corpus annoté, lui,
-# est une sortie de modèle réécrite en bloc à chaque évolution du prompt ou du
-# format — il vit en release asset, épinglé par tool/scan_annotations/lock.env.
+# est versionné : curé à la main, stable, irremplaçable. Tout le reste vit dans
+# le dépôt Hugging Face privé, épinglé par tool/ml_data/lock.env.
 ml/scan/data/*
 !ml/scan/data/golden/
+
+# Journal de téléchargement de `hf download --local-dir ml`.
+ml/.cache/
 ml/scan/harness/assets/corpus/
 # Artefacts d'entrainement du scan : regeneres par line_classifier.train*,
 # livres a l'app en release (tool/models/)

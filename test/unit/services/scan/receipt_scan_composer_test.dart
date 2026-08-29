@@ -56,29 +56,30 @@ void main() {
   }
 
   group('ReceiptScanComposer', () {
-    test('la catégorie de l\'enseigne couvre les articles', () async {
+    test('chaque article porte la catégorie de son propre libellé', () async {
       final result = await composerOf({
-        'carrefour': (slug: 'alimentation.supermarche', confidence: 0.99),
-      }).compose(scanOf(items: const [('PAIN', 2.0, 0.0), ('LAIT', 3.0, 0.0)]));
-
-      expect(
-        [for (final item in result.items) item.categorySlug],
-        ['alimentation.supermarche', 'alimentation.supermarche'],
-      );
-      expect(result.items.first.categoryName, isNotEmpty);
-    });
-
-    test('un article d\'une autre famille sort de la classe du ticket',
-        () async {
-      final result = await composerOf({
-        'carrefour': (slug: 'alimentation.supermarche', confidence: 0.99),
+        'pain': (slug: 'alimentation.boulangerie', confidence: 0.9),
         'croquettes chien': (slug: 'divers.animaux', confidence: 0.95),
       }).compose(
         scanOf(items: const [('PAIN', 2.0, 0.0), ('CROQUETTES CHIEN', 9.0, 0.0)]),
       );
 
-      expect(result.items[0].categorySlug, 'alimentation.supermarche');
+      expect(result.items[0].categorySlug, 'alimentation.boulangerie');
       expect(result.items[1].categorySlug, 'divers.animaux');
+      expect(result.items.first.categoryName, isNotEmpty);
+    });
+
+    test('l\'enseigne ne teinte pas la catégorie des articles', () async {
+      final classifier = _ScriptedLineClassifier({
+        'pain': (slug: 'alimentation.boulangerie', confidence: 0.9),
+      });
+      final result = await ReceiptScanComposer(
+        categorizer: ReceiptCategorizer(classifier),
+        resolver: resolver,
+      ).compose(scanOf(store: 'CARREFOUR'));
+
+      expect(result.items.single.categorySlug, 'alimentation.boulangerie');
+      expect(classifier.seen, ['pain']);
     });
 
     test('les libellés sont normalisés avant le modèle', () async {
@@ -94,7 +95,7 @@ void main() {
     test('une catégorie inconnue de la taxonomie n\'est pas inventée',
         () async {
       final result = await composerOf({
-        'carrefour': (slug: 'categorie.disparue', confidence: 0.99),
+        'pain': (slug: 'categorie.disparue', confidence: 0.99),
       }).compose(scanOf());
 
       expect(result.items.single.categorySlug, isNull);
