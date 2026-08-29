@@ -1,6 +1,5 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -133,36 +132,9 @@ class RevenueNotifier extends _$RevenueNotifier {
     return repo.getClosed();
   }
 
-  List<RevenueModel> _currentRevenues() => state.value ?? [];
+  List<RevenueModel> getRevenuesForAccount(int accountId) =>
+      (state.value ?? const <RevenueModel>[])
+          .where((revenue) => revenue.accountId == accountId)
+          .toList();
 
-  double getMonthlyRevenues() {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    for (final revenue in _currentRevenues()) {
-      switch (revenue.frequencyEnum) {
-        case Frequency.monthly:
-          total += revenue.amount;
-        case Frequency.annual:
-          if (revenue.startDate.month == selectedMonth.month) {
-            total += revenue.amount;
-          }
-        case Frequency.oneTime:
-          if (revenue.startDate.year == selectedMonth.year &&
-              revenue.startDate.month == selectedMonth.month) {
-            total += revenue.amount;
-          }
-      }
-    }
-    return total;
-  }
-
-  List<RevenueModel> getRecentRevenues(int count) =>
-      _currentRevenues().take(count).toList();
-
-  List<RevenueModel> getRevenuesForAccount(int accountId) => _currentRevenues()
-      .where((revenue) => revenue.accountId == accountId)
-      .toList();
-
-  double getTotalRevenuesForAccount(int accountId) =>
-      getRevenuesForAccount(accountId).fold(0.0, (sum, r) => sum + r.amount);
 }

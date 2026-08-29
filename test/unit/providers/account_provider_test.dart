@@ -50,11 +50,14 @@ void main() {
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getActive()).thenReturn([]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getActive()).thenReturn([]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -84,6 +87,7 @@ void main() {
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
       when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getClosed()).thenReturn([]);
 
       final expense = ExpenseModel.create(
         name: 'Groceries',
@@ -95,6 +99,7 @@ void main() {
       );
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
 
       final loanModel = LoanModel.create(
         name: 'Car Loan',
@@ -171,8 +176,10 @@ void main() {
 
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
       when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getClosed()).thenReturn([]);
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
       when(() => mockLoanRepo.getAll()).thenReturn([]);
 
       final container = makeContainer();
@@ -203,6 +210,7 @@ void main() {
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -216,6 +224,7 @@ void main() {
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -244,6 +253,7 @@ void main() {
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -257,6 +267,7 @@ void main() {
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);

@@ -44,7 +44,7 @@ class CompactExpenseRow extends StatelessWidget {
     ];
 
     return InkWell(
-      onTap: onEdit,
+      onTap: _isClosed ? null : onEdit,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -109,17 +109,18 @@ class CompactExpenseRow extends StatelessWidget {
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                iconSize: 18,
-                icon: const Icon(Symbols.more_vert_rounded),
-                color: scheme.onSurfaceVariant,
-                onPressed: () => _showOptionsBottomSheet(context),
+            if (!_isClosed)
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  iconSize: 18,
+                  icon: const Icon(Symbols.more_vert_rounded),
+                  color: scheme.onSurfaceVariant,
+                  onPressed: () => _showOptionsBottomSheet(context),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -139,6 +140,10 @@ class CompactExpenseRow extends StatelessWidget {
       ).format(expense.startDate),
     };
   }
+
+  /// A rule that has been closed is a trace of a month that is over : it can
+  /// be read, never edited and never deleted again.
+  bool get _isClosed => expense.endDate != null;
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(

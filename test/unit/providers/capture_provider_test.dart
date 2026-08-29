@@ -17,6 +17,7 @@ import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -35,6 +36,7 @@ ExpenseModel expenseOf({
   required DateTime startDate,
   String frequency = 'Ponctuel',
   String? categorySlug,
+  DateTime? endDate,
 }) {
   final expense = ExpenseModel.create(
     name: name,
@@ -43,6 +45,7 @@ ExpenseModel expenseOf({
     frequency: frequency,
     accountId: 1,
     categorySlug: categorySlug,
+    endDate: endDate,
   );
   expense.id = id;
   return expense;
@@ -54,6 +57,7 @@ RevenueModel revenueOf({
   required double amount,
   required DateTime startDate,
   String frequency = 'Ponctuel',
+  DateTime? endDate,
 }) {
   final revenue = RevenueModel.create(
     name: name,
@@ -61,6 +65,7 @@ RevenueModel revenueOf({
     startDate: startDate,
     frequency: frequency,
     accountId: 1,
+    endDate: endDate,
   );
   revenue.id = id;
   return revenue;
@@ -85,8 +90,10 @@ void main() {
     when(() => accounts.getAll()).thenReturn([]);
     when(() => expenses.getAll()).thenReturn([]);
     when(() => expenses.getActive()).thenReturn([]);
+    when(() => expenses.getClosed()).thenReturn([]);
     when(() => revenues.getAll()).thenReturn([]);
     when(() => revenues.getActive()).thenReturn([]);
+    when(() => revenues.getClosed()).thenReturn([]);
     when(() => loans.getAll()).thenReturn([]);
     when(() => loanEvents.getAll()).thenReturn([]);
   });
@@ -367,6 +374,125 @@ void main() {
       final container = await containerReady();
 
       expect(container.read(journalBucketsProvider), isEmpty);
+    });
+  });
+
+  group('history', () {
+    test('a rule closed after an edit keeps the months it was paid', () async {
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month - 2, 3, 9, 0);
+      final closedOn = DateTime(now.year, now.month - 1, 3);
+
+      when(() => expenses.getClosed()).thenReturn([
+        expenseOf(
+          id: 1,
+          name: 'Loyer',
+          amount: 800,
+          startDate: start,
+          frequency: 'Mensuel',
+          endDate: closedOn,
+        ),
+      ]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .where((entry) => entry.name == 'Loyer')
+          .toList();
+
+      expect(landings.length, 2);
+    });
+
+    test('a closed rule stops on the day it closed', () async {
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month - 2, 3, 9, 0);
+      final closedOn = DateTime(now.year, now.month - 1, 3);
+
+      when(() => expenses.getClosed()).thenReturn([
+        expenseOf(
+          id: 1,
+          name: 'Loyer',
+          amount: 800,
+          startDate: start,
+          frequency: 'Mensuel',
+          endDate: closedOn,
+        ),
+      ]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .toList();
+
+      expect(
+        landings.every(
+          (entry) => !dayOnly(entry.at).isAfter(dayOnly(closedOn)),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the replacement rule reads next to the one it closed', () async {
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month - 2, 3, 9, 0);
+      final closedOn = DateTime(now.year, now.month - 1, 3);
+
+      when(() => expenses.getClosed()).thenReturn([
+        expenseOf(
+          id: 1,
+          name: 'Loyer',
+          amount: 800,
+          startDate: start,
+          frequency: 'Mensuel',
+          endDate: closedOn,
+        ),
+      ]);
+      when(() => expenses.getActive()).thenReturn([
+        expenseOf(
+          id: 2,
+          name: 'Loyer',
+          amount: 850,
+          startDate: DateTime(now.year, now.month, 3, 9, 0),
+          frequency: 'Mensuel',
+        ),
+      ]);
+
+      final container = await containerReady();
+      final landings = container
+          .read(journalBucketsProvider)
+          .expand((bucket) => bucket.entries)
+          .where((entry) => entry.name == 'Loyer')
+          .toList();
+
+      expect(landings.length, 3);
+      expect(landings.map((entry) => entry.amount).toSet(), {800.0, 850.0});
+    });
+
+    test('a revenue closed last month keeps its past too', () async {
+      final now = DateTime.now();
+
+      when(() => revenues.getClosed()).thenReturn([
+        revenueOf(
+          id: 1,
+          name: 'Ancien salaire',
+          amount: 2400,
+          startDate: DateTime(now.year, now.month - 2, 2, 9, 0),
+          frequency: 'Mensuel',
+          endDate: DateTime(now.year, now.month - 1, 2),
+        ),
+      ]);
+
+      final container = await containerReady();
+
+      expect(
+        container
+            .read(journalBucketsProvider)
+            .expand((bucket) => bucket.entries)
+            .length,
+        2,
+      );
     });
   });
 

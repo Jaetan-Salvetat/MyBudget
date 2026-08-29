@@ -69,6 +69,7 @@ void main() {
 
     when(() => accounts.getAll()).thenReturn([]);
     when(() => expenses.getActive()).thenReturn([]);
+    when(() => expenses.getClosed()).thenReturn([]);
     when(() => loans.getAll()).thenReturn([]);
     when(() => loanEvents.getAll()).thenReturn([]);
     when(() => overrides.getAll()).thenReturn({});
@@ -82,6 +83,7 @@ void main() {
     );
     salary.id = 1;
     when(() => revenues.getActive()).thenReturn([salary]);
+    when(() => revenues.getClosed()).thenReturn([]);
   });
 
   Future<ProviderContainer> pumpCapture(WidgetTester tester) async {

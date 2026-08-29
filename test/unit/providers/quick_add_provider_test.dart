@@ -156,9 +156,11 @@ void main() {
     when(() => memory.recall(any())).thenReturn(null);
     when(() => memory.remember(any(), any())).thenAnswer((_) {});
     when(() => expenseRepository.getActive()).thenReturn([]);
+    when(() => expenseRepository.getClosed()).thenReturn([]);
     when(() => expenseRepository.add(any())).thenReturn(7);
     when(() => expenseRepository.delete(any())).thenReturn(true);
     when(() => revenueRepository.getActive()).thenReturn([]);
+    when(() => revenueRepository.getClosed()).thenReturn([]);
     when(() => revenueRepository.add(any())).thenReturn(9);
     when(() => revenueRepository.delete(any())).thenReturn(true);
     when(

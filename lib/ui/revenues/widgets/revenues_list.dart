@@ -6,11 +6,9 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/revenues_view_provider.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/providers/transaction_filter_provider.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
@@ -25,6 +23,7 @@ import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
@@ -79,35 +78,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  bool _belongsToSelectedMonth(RevenueModel revenue, DateTime selectedMonth) {
-    switch (revenue.frequencyEnum) {
-      case Frequency.monthly:
-        return true;
-      case Frequency.annual:
-        return revenue.startDate.month == selectedMonth.month;
-      case Frequency.oneTime:
-        return revenue.startDate.year == selectedMonth.year &&
-            revenue.startDate.month == selectedMonth.month;
-    }
-  }
-
-  List<RevenueModel> _activeRevenues(
-    List<RevenueModel> revenues,
-    DateTime selectedMonth,
-  ) {
-    return revenues
-        .where((r) => r.endDate == null)
-        .where((r) => _belongsToSelectedMonth(r, selectedMonth))
-        .toList();
-  }
-
-  List<RevenueModel> _monthRevenues() {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    return _activeRevenues(
-      ref.read(revenueProvider).value ?? [],
-      selectedMonth,
-    );
-  }
+  List<RevenueModel> _monthRevenues() => ref.read(monthRevenuesProvider);
 
   double _highestAmount(List<RevenueModel> revenues) {
     return revenues.fold<double>(0, (highest, r) => max(highest, r.amount));
@@ -141,7 +112,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
-            final selectedMonth = ref.watch(selectedMonthProvider);
             final axis = ref.watch(revenuesGroupByProvider);
             final accounts = ref.watch(accountProvider).value ?? [];
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
@@ -150,7 +120,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
                 resolver?.groupsOfType(TransactionType.income) ?? const [];
 
             final visibleRevenues = _filterRevenues(
-              _activeRevenues(revenues, selectedMonth),
+              ref.watch(monthRevenuesProvider),
               filter,
             );
 
@@ -164,9 +134,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
               ),
             );
 
-            final monthlyRevenues = ref
-                .read(revenueProvider.notifier)
-                .getMonthlyRevenues();
+            final monthlyRevenues = ref.watch(monthlyRevenuesProvider);
 
             final pills = _activeFilterPills(
               filter,

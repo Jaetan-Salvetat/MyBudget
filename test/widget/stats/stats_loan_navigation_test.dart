@@ -65,8 +65,10 @@ void main() {
     when(() => accountRepository.getAll()).thenReturn([]);
     when(() => expenseRepository.getAll()).thenReturn([]);
     when(() => expenseRepository.getActive()).thenReturn([]);
+    when(() => expenseRepository.getClosed()).thenReturn([]);
     when(() => revenueRepository.getAll()).thenReturn([]);
     when(() => revenueRepository.getActive()).thenReturn([]);
+    when(() => revenueRepository.getClosed()).thenReturn([]);
     when(() => loanEventRepository.getAll()).thenReturn([]);
     when(() => categoryOverrideRepository.getAll()).thenReturn({});
     when(() => loanRepository.getAll()).thenReturn([

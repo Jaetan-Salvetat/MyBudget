@@ -52,8 +52,10 @@ void main() {
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getActive()).thenReturn([]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
   });
@@ -168,6 +170,7 @@ void main() {
 
     when(() => mockExpenseRepo.getAll()).thenReturn([orphan, known]);
     when(() => mockExpenseRepo.getActive()).thenReturn([orphan, known]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     await container.read(expenseProvider.future);
@@ -299,6 +302,7 @@ void main() {
 
     when(() => mockRevenueRepo.getAll()).thenReturn([monthly, oneTime]);
     when(() => mockRevenueRepo.getActive()).thenReturn([monthly, oneTime]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
     when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
@@ -334,6 +338,7 @@ void main() {
 
       when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
       when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
       when(() => mockLoanRepo.getAll()).thenReturn([]);
       when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 
@@ -374,8 +379,10 @@ void main() {
 
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
       when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getClosed()).thenReturn([]);
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
       when(() => mockLoanRepo.getAll()).thenReturn([]);
       when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
 

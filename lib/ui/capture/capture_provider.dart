@@ -6,11 +6,9 @@ import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/capture/models/journal_bucket.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -34,8 +32,8 @@ double remainingThisMonth(Ref ref) {
 /// throughout. Empty slices are dropped rather than drawn hollow.
 @Riverpod(keepAlive: true)
 List<JournalBucket> journalBuckets(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? const <ExpenseModel>[];
-  final revenues = ref.watch(revenueProvider).value ?? const <RevenueModel>[];
+  final expenses = ref.watch(expenseHistoryProvider);
+  final revenues = ref.watch(revenueHistoryProvider);
   final loans = ref.watch(loanProvider).value ?? const <Loan>[];
   final today = dayOnly(DateTime.now());
 
@@ -181,8 +179,6 @@ DateTime? _oldestStart(
 
   return oldest;
 }
-
-DateTime dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
 /// The Monday of the week [day] falls in.
 DateTime startOfWeek(DateTime day) =>

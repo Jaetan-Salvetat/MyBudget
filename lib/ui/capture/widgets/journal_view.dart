@@ -19,6 +19,7 @@ import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 /// The past read backwards from now, in slices that coarsen as they age :
 /// today flush against the top, then yesterday, the week, the month, and

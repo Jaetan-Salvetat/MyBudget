@@ -1,8 +1,6 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -139,85 +137,7 @@ class ExpenseNotifier extends _$ExpenseNotifier {
 
   List<ExpenseModel> _currentExpenses() => state.value ?? [];
 
-  double getMonthlyExpenses() => getTotalExpenses(_currentExpenses());
-
-  List<ExpenseModel> getUpcomingExpenses() {
-    final now = DateTime.now();
-    final upcoming = _currentExpenses().where((expense) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          return expense.startDate.day >= now.day;
-        case Frequency.annual:
-          return expense.startDate.month == now.month &&
-              expense.startDate.day >= now.day;
-        case Frequency.oneTime:
-          return false;
-      }
-    }).toList();
-
-    upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
-    return upcoming;
-  }
-
-  List<ExpenseModel> getRecentExpenses(int count) =>
-      _currentExpenses().take(count).toList();
-
   List<ExpenseModel> getExpensesForAccount(int accountId) => _currentExpenses()
       .where((expense) => expense.accountId == accountId)
       .toList();
-
-  List<ExpenseModel> getExpensesForGroup(String groupKey) {
-    final resolver = ref.read(categoryDisplayResolverProvider).value;
-    if (resolver == null) return const [];
-    return _currentExpenses().where((expense) {
-      final slug = expense.categorySlug;
-      return slug != null && resolver.groupKeyOf(slug) == groupKey;
-    }).toList();
-  }
-
-  double getTotalExpensesForAccount(int accountId) =>
-      getExpensesForAccount(accountId).fold(0.0, (sum, e) => sum + e.amount);
-
-  double getTotalExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount;
-        case Frequency.annual:
-          if (expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year &&
-              expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
-
-  double getAnnualExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount * 12;
-        case Frequency.annual:
-          total += expense.amount;
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
 }

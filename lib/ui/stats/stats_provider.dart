@@ -10,16 +10,13 @@ import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
 import 'package:mybudget/ui/stats/models/loan_progress_summary.dart';
 import 'package:mybudget/ui/stats/models/upcoming_movement.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'stats_provider.g.dart';
@@ -69,14 +66,14 @@ class StatsNotifier extends _$StatsNotifier {
     final totalExpenses = monthlyExpenses + totalMonthlyLoanPayments;
     final selectedMonth = ref.watch(selectedMonthProvider);
 
-    final expenses = ref.watch(expenseProvider).value ?? [];
-    final revenues = ref.watch(revenueProvider).value ?? [];
+    final expenses = ref.watch(monthExpensesProvider);
+    final revenues = ref.watch(monthRevenuesProvider);
     final resolver = ref.watch(categoryDisplayResolverProvider).value;
     final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
     final beneficiaryById = {for (final b in beneficiaries) b.id: b};
 
-    final flows = _computeFlows(expenses, revenues, selectedMonth);
+    final flows = _computeFlows(expenses, revenues);
 
     final summaries = _buildCategorySummaries(
       ref.watch(expensesByGroupProvider),
@@ -133,58 +130,29 @@ class StatsNotifier extends _$StatsNotifier {
     );
   }
 
+  /// Both lists already hold what falls on the selected month, so all that is
+  /// left is to tell a standing charge from a one-off.
   _MonthlyFlows _computeFlows(
     List<ExpenseModel> expenses,
     List<RevenueModel> revenues,
-    DateTime selectedMonth,
   ) {
     double recurringExp = 0;
     double oneTimeExp = 0;
     for (final expense in expenses) {
-      if (!isActiveForMonth(
-        expense.startDate,
-        expense.endDate,
-        selectedMonth,
-      )) {
-        continue;
-      }
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          recurringExp += expense.amount;
-        case Frequency.annual:
-          if (expense.startDate.month == selectedMonth.month) {
-            recurringExp += expense.amount;
-          }
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year &&
-              expense.startDate.month == selectedMonth.month) {
-            oneTimeExp += expense.amount;
-          }
+      if (expense.frequencyEnum == Frequency.oneTime) {
+        oneTimeExp += expense.amount;
+      } else {
+        recurringExp += expense.amount;
       }
     }
 
     double recurringRev = 0;
     double oneTimeRev = 0;
     for (final revenue in revenues) {
-      if (!isActiveForMonth(
-        revenue.startDate,
-        revenue.endDate,
-        selectedMonth,
-      )) {
-        continue;
-      }
-      switch (revenue.frequencyEnum) {
-        case Frequency.monthly:
-          recurringRev += revenue.amount;
-        case Frequency.annual:
-          if (revenue.startDate.month == selectedMonth.month) {
-            recurringRev += revenue.amount;
-          }
-        case Frequency.oneTime:
-          if (revenue.startDate.year == selectedMonth.year &&
-              revenue.startDate.month == selectedMonth.month) {
-            oneTimeRev += revenue.amount;
-          }
+      if (revenue.frequencyEnum == Frequency.oneTime) {
+        oneTimeRev += revenue.amount;
+      } else {
+        recurringRev += revenue.amount;
       }
     }
 
@@ -238,17 +206,10 @@ class StatsNotifier extends _$StatsNotifier {
     final movements = <UpcomingMovement>[];
 
     for (final expense in expenses) {
-      if (!isActiveForMonth(
-        expense.startDate,
-        expense.endDate,
-        selectedMonth,
-      )) {
-        continue;
-      }
       final day = _movementDay(
         expense.frequencyEnum,
         expense.startDate,
-        selectedMonth,
+        expense.endDate,
       );
       if (day == null || day <= todayDay) continue;
       final slug = expense.categorySlug;
@@ -270,17 +231,10 @@ class StatsNotifier extends _$StatsNotifier {
     }
 
     for (final revenue in revenues) {
-      if (!isActiveForMonth(
-        revenue.startDate,
-        revenue.endDate,
-        selectedMonth,
-      )) {
-        continue;
-      }
       final day = _movementDay(
         revenue.frequencyEnum,
         revenue.startDate,
-        selectedMonth,
+        revenue.endDate,
       );
       if (day == null || day <= todayDay) continue;
       movements.add(
@@ -301,19 +255,12 @@ class StatsNotifier extends _$StatsNotifier {
     return movements;
   }
 
-  int? _movementDay(
-    Frequency frequency,
-    DateTime startDate,
-    DateTime selectedMonth,
-  ) {
-    switch (frequency) {
-      case Frequency.monthly:
-        return startDate.day;
-      case Frequency.annual:
-        return startDate.month == selectedMonth.month ? startDate.day : null;
-      case Frequency.oneTime:
-        return null;
-    }
+  /// The day a standing rule still has to fall on this month. A rule that has
+  /// been closed owes nothing any more, and a one-off is not a movement to
+  /// come — it is one that was recorded.
+  int? _movementDay(Frequency frequency, DateTime startDate, DateTime? endDate) {
+    if (endDate != null || frequency == Frequency.oneTime) return null;
+    return startDate.day;
   }
 
   String? _beneficiaryName(Map<int, Beneficiary> map, int? id) {

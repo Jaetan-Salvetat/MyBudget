@@ -1,4 +1,5 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
@@ -8,6 +9,42 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_queries.g.dart';
 
+/// Every rule ever recorded, the closed ones included. Editing or deleting a
+/// recurring expense closes its row and opens another : reading only the open
+/// ones would erase the months the closed one was actually paid in.
+@Riverpod(keepAlive: true)
+List<ExpenseModel> expenseHistory(Ref ref) {
+  final open = ref.watch(expenseProvider).value ?? const <ExpenseModel>[];
+  final closed = ref.watch(expenseRepositoryProvider).getClosed();
+  return [...open, ...closed];
+}
+
+/// The rules that fall on the selected month, each dated on the day it lands
+/// there. The list drawn on screen and the total announced above it read the
+/// same rule, so one can never say something the other denies.
+@Riverpod(keepAlive: true)
+List<ExpenseModel> monthExpenses(Ref ref) {
+  final expenses = ref.watch(expenseHistoryProvider);
+  final month = ref.watch(selectedMonthProvider);
+
+  return [
+    for (final expense in expenses)
+      if (occursInMonth(
+        expense.startDate,
+        expense.endDate,
+        expense.frequencyEnum,
+        month,
+      ))
+        _datedOn(expense, month),
+  ];
+}
+
+ExpenseModel _datedOn(ExpenseModel expense, DateTime month) {
+  final landing = dayInMonthOf(expense.startDate, expense.frequencyEnum, month);
+  if (landing == expense.startDate) return expense;
+  return expense.copyWith(startDate: landing);
+}
+
 @Riverpod(keepAlive: true)
 List<ExpenseModel> activeExpenses(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
@@ -15,23 +52,18 @@ List<ExpenseModel> activeExpenses(Ref ref) {
 }
 
 double _expenseAmountForMonth(ExpenseModel expense, DateTime month) {
-  if (!isActiveForMonth(expense.startDate, expense.endDate, month)) return 0.0;
-  switch (expense.frequencyEnum) {
-    case Frequency.monthly:
-      return expense.amount;
-    case Frequency.annual:
-      return expense.startDate.month == month.month ? expense.amount : 0.0;
-    case Frequency.oneTime:
-      return expense.startDate.year == month.year &&
-              expense.startDate.month == month.month
-          ? expense.amount
-          : 0.0;
-  }
+  final falls = occursInMonth(
+    expense.startDate,
+    expense.endDate,
+    expense.frequencyEnum,
+    month,
+  );
+  return falls ? expense.amount : 0.0;
 }
 
 @Riverpod(keepAlive: true)
 double monthlyExpenses(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
+  final expenses = ref.watch(expenseHistoryProvider);
   final selectedMonth = ref.watch(selectedMonthProvider);
   double total = 0.0;
   for (final expense in expenses) {
@@ -42,7 +74,7 @@ double monthlyExpenses(Ref ref) {
 
 @Riverpod(keepAlive: true)
 double currentMonthExpenses(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
+  final expenses = ref.watch(expenseHistoryProvider);
   final now = DateTime.now();
   final currentMonth = DateTime(now.year, now.month);
   double total = 0.0;
@@ -103,7 +135,7 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
 /// leaves would not.
 @Riverpod(keepAlive: true)
 Map<String, double> expensesByGroup(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
+  final expenses = ref.watch(expenseHistoryProvider);
   final selectedMonth = ref.watch(selectedMonthProvider);
   final resolver = ref.watch(categoryDisplayResolverProvider).value;
   if (resolver == null) return const {};

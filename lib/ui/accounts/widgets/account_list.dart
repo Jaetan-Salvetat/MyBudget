@@ -2,22 +2,17 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_card.dart';
 import 'package:mybudget/ui/accounts/widgets/add_account_tile.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class AccountList extends ConsumerWidget {
   const AccountList({super.key});
@@ -79,9 +74,8 @@ class _AccountCardEntry extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMonth = ref.watch(selectedMonthProvider);
-    final expenses = ref.watch(expenseProvider).value ?? [];
-    final revenues = ref.watch(revenueProvider).value ?? [];
+    final expenses = ref.watch(monthExpensesProvider);
+    final revenues = ref.watch(monthRevenuesProvider);
 
     final monthlyLoanPayments = ref
         .watch(loanProvider.notifier)
@@ -96,17 +90,12 @@ class _AccountCardEntry extends ConsumerWidget {
     );
 
     final totalExpenses = expenses
-        .where((e) => e.accountId == account.id)
-        .where((e) => isActiveForMonth(e.startDate, e.endDate, selectedMonth))
-        .fold(0.0, (sum, e) => sum + _amountIfApplicable(e, selectedMonth));
+        .where((expense) => expense.accountId == account.id)
+        .fold(0.0, (sum, expense) => sum + expense.amount);
 
     final totalRevenues = revenues
-        .where((r) => r.accountId == account.id)
-        .where((r) => isActiveForMonth(r.startDate, r.endDate, selectedMonth))
-        .fold(
-          0.0,
-          (sum, r) => sum + _revenueAmountIfApplicable(r, selectedMonth),
-        );
+        .where((revenue) => revenue.accountId == account.id)
+        .fold(0.0, (sum, revenue) => sum + revenue.amount);
 
     final charges = totalExpenses + monthlyLoanPayments + outgoingTransfers;
     final incomes = totalRevenues + incomingTransfers;
@@ -123,33 +112,5 @@ class _AccountCardEntry extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  double _amountIfApplicable(ExpenseModel e, DateTime selectedMonth) {
-    switch (e.frequencyEnum) {
-      case Frequency.monthly:
-        return e.amount;
-      case Frequency.annual:
-        return e.startDate.month == selectedMonth.month ? e.amount : 0;
-      case Frequency.oneTime:
-        return e.startDate.year == selectedMonth.year &&
-                e.startDate.month == selectedMonth.month
-            ? e.amount
-            : 0;
-    }
-  }
-
-  double _revenueAmountIfApplicable(RevenueModel r, DateTime selectedMonth) {
-    switch (r.frequencyEnum) {
-      case Frequency.monthly:
-        return r.amount;
-      case Frequency.annual:
-        return r.startDate.month == selectedMonth.month ? r.amount : 0;
-      case Frequency.oneTime:
-        return r.startDate.year == selectedMonth.year &&
-                r.startDate.month == selectedMonth.month
-            ? r.amount
-            : 0;
-    }
   }
 }

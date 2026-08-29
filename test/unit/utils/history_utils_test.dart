@@ -57,6 +57,129 @@ void main() {
     });
   });
 
+  group('occursInMonth', () {
+    test('a monthly rule falls on every month it is alive', () {
+      final startDate = DateTime(2026, 4, 12);
+
+      expect(
+        occursInMonth(startDate, null, Frequency.monthly, DateTime(2026, 4)),
+        isTrue,
+      );
+      expect(
+        occursInMonth(startDate, null, Frequency.monthly, DateTime(2026, 8)),
+        isTrue,
+      );
+    });
+
+    test('a monthly rule falls on no month before it started', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 4, 12),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 3),
+        ),
+        isFalse,
+      );
+    });
+
+    test('a rule closed in August still falls on August', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 4, 12),
+          DateTime(2026, 8, 12),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
+        isTrue,
+      );
+    });
+
+    test('a rule closed in August falls on nothing after it', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 4, 12),
+          DateTime(2026, 8, 12),
+          Frequency.monthly,
+          DateTime(2026, 9),
+        ),
+        isFalse,
+      );
+    });
+
+    test('a yearly rule falls only on its own month', () {
+      final startDate = DateTime(2026, 3, 8);
+
+      expect(
+        occursInMonth(startDate, null, Frequency.annual, DateTime(2027, 3)),
+        isTrue,
+      );
+      expect(
+        occursInMonth(startDate, null, Frequency.annual, DateTime(2027, 4)),
+        isFalse,
+      );
+    });
+
+    test('a yearly rule falls on no March before its first', () {
+      expect(
+        occursInMonth(
+          DateTime(2026, 3, 8),
+          null,
+          Frequency.annual,
+          DateTime(2025, 3),
+        ),
+        isFalse,
+      );
+    });
+
+    test('a one-off falls on its month alone', () {
+      final startDate = DateTime(2026, 5, 20);
+
+      expect(
+        occursInMonth(startDate, null, Frequency.oneTime, DateTime(2026, 5)),
+        isTrue,
+      );
+      expect(
+        occursInMonth(startDate, null, Frequency.oneTime, DateTime(2027, 5)),
+        isFalse,
+      );
+    });
+  });
+
+  group('dayInMonthOf', () {
+    test('keeps the day of the month a recurring rule started on', () {
+      expect(
+        dayInMonthOf(DateTime(2026, 4, 12), Frequency.monthly, DateTime(2026, 8)),
+        DateTime(2026, 8, 12),
+      );
+    });
+
+    test('brings the 31st back to the last day of a shorter month', () {
+      expect(
+        dayInMonthOf(DateTime(2026, 1, 31), Frequency.monthly, DateTime(2026, 2)),
+        DateTime(2026, 2, 28),
+      );
+    });
+
+    test('a yearly rule keeps its own month, whatever the year', () {
+      expect(
+        dayInMonthOf(DateTime(2026, 3, 8), Frequency.annual, DateTime(2028, 3)),
+        DateTime(2028, 3, 8),
+      );
+    });
+
+    test('a one-off keeps the date it was recorded on', () {
+      expect(
+        dayInMonthOf(
+          DateTime(2026, 5, 20, 14, 30),
+          Frequency.oneTime,
+          DateTime(2026, 5),
+        ),
+        DateTime(2026, 5, 20, 14, 30),
+      );
+    });
+  });
+
   group('computeEndDate', () {
     test('already paid this month returns this month paymentDay', () {
       final now = DateTime(2024, 6, 20);

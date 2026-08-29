@@ -45,7 +45,10 @@ void main() {
     beneficiaryRepository = MockBeneficiaryRepository();
 
     when(() => expenseRepository.getActive()).thenReturn([]);
+
+    when(() => expenseRepository.getClosed()).thenReturn([]);
     when(() => revenueRepository.getActive()).thenReturn([]);
+    when(() => revenueRepository.getClosed()).thenReturn([]);
     when(() => overrideRepository.getAll()).thenReturn({});
     when(() => beneficiaryRepository.getAll()).thenReturn([]);
   });

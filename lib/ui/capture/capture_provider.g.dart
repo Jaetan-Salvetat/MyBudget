@@ -114,7 +114,7 @@ final class JournalBucketsProvider
   }
 }
 
-String _$journalBucketsHash() => r'778ff7ef6e520e4591151ecc5005aa8d2b2628e2';
+String _$journalBucketsHash() => r'e3bb61e56ee7a848a5db48c98e07557a1c50d0b5';
 
 /// Today alone, for the figure above the list and for the hint that only
 /// types itself out while the day is still bare.

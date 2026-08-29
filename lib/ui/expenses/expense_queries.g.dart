@@ -8,6 +8,121 @@ part of 'expense_queries.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Every rule ever recorded, the closed ones included. Editing or deleting a
+/// recurring expense closes its row and opens another : reading only the open
+/// ones would erase the months the closed one was actually paid in.
+
+@ProviderFor(expenseHistory)
+final expenseHistoryProvider = ExpenseHistoryProvider._();
+
+/// Every rule ever recorded, the closed ones included. Editing or deleting a
+/// recurring expense closes its row and opens another : reading only the open
+/// ones would erase the months the closed one was actually paid in.
+
+final class ExpenseHistoryProvider
+    extends
+        $FunctionalProvider<
+          List<ExpenseModel>,
+          List<ExpenseModel>,
+          List<ExpenseModel>
+        >
+    with $Provider<List<ExpenseModel>> {
+  /// Every rule ever recorded, the closed ones included. Editing or deleting a
+  /// recurring expense closes its row and opens another : reading only the open
+  /// ones would erase the months the closed one was actually paid in.
+  ExpenseHistoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'expenseHistoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$expenseHistoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<ExpenseModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<ExpenseModel> create(Ref ref) {
+    return expenseHistory(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ExpenseModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ExpenseModel>>(value),
+    );
+  }
+}
+
+String _$expenseHistoryHash() => r'c36546d58f1ea40b3639382cb783115638e5722f';
+
+/// The rules that fall on the selected month, each dated on the day it lands
+/// there. The list drawn on screen and the total announced above it read the
+/// same rule, so one can never say something the other denies.
+
+@ProviderFor(monthExpenses)
+final monthExpensesProvider = MonthExpensesProvider._();
+
+/// The rules that fall on the selected month, each dated on the day it lands
+/// there. The list drawn on screen and the total announced above it read the
+/// same rule, so one can never say something the other denies.
+
+final class MonthExpensesProvider
+    extends
+        $FunctionalProvider<
+          List<ExpenseModel>,
+          List<ExpenseModel>,
+          List<ExpenseModel>
+        >
+    with $Provider<List<ExpenseModel>> {
+  /// The rules that fall on the selected month, each dated on the day it lands
+  /// there. The list drawn on screen and the total announced above it read the
+  /// same rule, so one can never say something the other denies.
+  MonthExpensesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'monthExpensesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$monthExpensesHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<ExpenseModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<ExpenseModel> create(Ref ref) {
+    return monthExpenses(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ExpenseModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ExpenseModel>>(value),
+    );
+  }
+}
+
+String _$monthExpensesHash() => r'502bf6d40ca17db1e55ff9be7449740eccc432e5';
 
 @ProviderFor(activeExpenses)
 final activeExpensesProvider = ActiveExpensesProvider._();
@@ -95,7 +210,7 @@ final class MonthlyExpensesProvider
   }
 }
 
-String _$monthlyExpensesHash() => r'bb853c5ff4061944bab9a0ecab331425ba5a6e1a';
+String _$monthlyExpensesHash() => r'f48ad2e46d97b20f0e25f54787448eef7b09a26a';
 
 @ProviderFor(currentMonthExpenses)
 final currentMonthExpensesProvider = CurrentMonthExpensesProvider._();
@@ -137,7 +252,7 @@ final class CurrentMonthExpensesProvider
 }
 
 String _$currentMonthExpensesHash() =>
-    r'ec4fef5f1b1ed1032f55b92d2938eb61d90f5d44';
+    r'c9814aedd64dcc3d9b282d85dcd67788e344e552';
 
 @ProviderFor(annualExpenses)
 final annualExpensesProvider = AnnualExpensesProvider._();
@@ -286,4 +401,4 @@ final class ExpensesByGroupProvider
   }
 }
 
-String _$expensesByGroupHash() => r'd6e83bb27dcf1127d7e0685dd8287ec04b4e99d7';
+String _$expensesByGroupHash() => r'bd2cba0277c57c6528d82372ce24d9af1a8aef23';

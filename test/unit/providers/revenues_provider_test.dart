@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -21,6 +22,7 @@ void main() {
     mockRepository = MockRevenueRepository();
     when(() => mockRepository.getAll()).thenReturn([]);
     when(() => mockRepository.getActive()).thenReturn([]);
+    when(() => mockRepository.getClosed()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -54,6 +56,7 @@ void main() {
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2, rev3]);
     when(() => mockRepository.getActive()).thenReturn([rev1, rev2, rev3]);
+    when(() => mockRepository.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -61,7 +64,7 @@ void main() {
     await container.read(revenueProvider.future);
 
     expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
+      container.read(monthlyRevenuesProvider),
       2800.0,
     );
   });
@@ -74,7 +77,7 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    expect(container.read(revenueProvider.notifier).getMonthlyRevenues(), 0.0);
+    expect(container.read(monthlyRevenuesProvider), 0.0);
   });
 
   test(
@@ -91,6 +94,7 @@ void main() {
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
       when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getClosed()).thenReturn([]);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -98,7 +102,7 @@ void main() {
       await container.read(revenueProvider.future);
 
       expect(
-        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        container.read(monthlyRevenuesProvider),
         6000.0,
       );
     },
@@ -119,6 +123,7 @@ void main() {
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
       when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getClosed()).thenReturn([]);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -126,7 +131,7 @@ void main() {
       await container.read(revenueProvider.future);
 
       expect(
-        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        container.read(monthlyRevenuesProvider),
         0.0,
       );
     },
@@ -146,6 +151,7 @@ void main() {
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
       when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getClosed()).thenReturn([]);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -153,7 +159,7 @@ void main() {
       await container.read(revenueProvider.future);
 
       expect(
-        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        container.read(monthlyRevenuesProvider),
         1000.0,
       );
     },
@@ -174,6 +180,7 @@ void main() {
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
       when(() => mockRepository.getActive()).thenReturn([rev]);
+      when(() => mockRepository.getClosed()).thenReturn([]);
 
       final container = makeContainer();
       addTearDown(container.dispose);
@@ -181,7 +188,7 @@ void main() {
       await container.read(revenueProvider.future);
 
       expect(
-        container.read(revenueProvider.notifier).getMonthlyRevenues(),
+        container.read(monthlyRevenuesProvider),
         0.0,
       );
     },
@@ -222,7 +229,7 @@ void main() {
     await container.read(revenueProvider.future);
 
     expect(
-      container.read(revenueProvider.notifier).getMonthlyRevenues(),
+      container.read(monthlyRevenuesProvider),
       5500.0,
     );
   });
@@ -245,6 +252,7 @@ void main() {
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2]);
     when(() => mockRepository.getActive()).thenReturn([rev1, rev2]);
+    when(() => mockRepository.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
