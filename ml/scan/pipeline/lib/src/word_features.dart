@@ -1,19 +1,3 @@
-/// Features par mot, pour décider quels mots d'une ligne forment le libellé.
-///
-/// `line_features_all.dart` décrit une ligne entière : il sait dire qu'une
-/// ligne est un article, jamais où le nom de cet article commence. Or c'est
-/// là que se concentrent les libellés faux — un code article collé devant,
-/// une quantité ou un prix unitaire collés derrière, sur la bonne ligne.
-///
-/// Les règles répondaient par une coupe verticale unique. Un ticket imprime
-/// trois à cinq colonnes et leurs frontières changent d'une enseigne à
-/// l'autre : la colonne devient donc une feature par mot. Un mot dont la
-/// bande verticale est occupée, sur les autres lignes, par des nombres
-/// appartient à une colonne ; le même mot ailleurs appartient au nom.
-///
-/// Miroir exact de `ml/scan/research/reference/word_features.py` ; toute
-/// divergence décale les colonnes et le modèle décide autrement que la
-/// référence. `bench/roles_parity.py` vérifie l'égalité mot à mot.
 library;
 
 import 'dart:math' as math;
@@ -24,8 +8,6 @@ import 'structure.dart';
 
 const double wordNeighbourAbsent = -1.0;
 
-/// Unités imprimées à côté d'une quantité ou d'un prix au kilo : elles
-/// bornent le libellé sans en faire partie.
 final RegExp _unitPattern = RegExp(
   r'^(KG|G|GR|L|CL|ML|PCE|PC|U|UN|EUR|€)$',
   caseSensitive: false,
@@ -38,8 +20,6 @@ final RegExp _wordUpper = RegExp(r'\p{Lu}', unicode: true);
 final RegExp _allDigits = RegExp(r'^\p{Nd}+$', unicode: true);
 final RegExp _currencyStrip = RegExp(r'€|EUR');
 
-/// Trigrammes du mot, chiffres masqués : ce que le mot *dit*, quand sa forme
-/// et sa position ne suffisent pas — « TVA », « kg », « REMISE ».
 const int wordTrigramBuckets = 16;
 
 final List<String> wordFeatureNames = [
@@ -76,7 +56,6 @@ _Shape _shapeOf(String text) {
 bool _isPriceShaped(String text) =>
     pricePattern.hasMatch(text.replaceAll(_currencyStrip, '').trim());
 
-/// Les mots que les *autres* lignes impriment à cette abscisse.
 List<Word> _bandWords(List<PhysicalLine> lines, int row, double centre) {
   final found = <Word>[];
   for (var index = 0; index < lines.length; index++) {
@@ -91,11 +70,9 @@ List<Word> _bandWords(List<PhysicalLine> lines, int row, double centre) {
   return found;
 }
 
-/// Le mot qui porte le prix de la ligne, fragments recollés.
 Word? _priceWord(PhysicalLine line) =>
     rightmostPrice(mergePriceFragments(line))?.word;
 
-/// Un vecteur de features par mot, ligne par ligne, dans l'ordre du ticket.
 List<List<List<double>>> featurizeWords(List<PhysicalLine> lines) {
   if (lines.isEmpty) return const [];
   final words = [for (final line in lines) ...line.words];

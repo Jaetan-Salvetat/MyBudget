@@ -6,10 +6,6 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// iOS-style segmented control.
-///
-/// Each segment is equally sized. The selected segment slides between
-/// positions with a spring-like ease.
 class FrostedSegmentedControl extends StatelessWidget {
   const FrostedSegmentedControl({
     required this.segments,
@@ -77,9 +73,6 @@ class FrostedSegmentedControl extends StatelessWidget {
                           onTap: () => onTap(i),
                           semanticsLabel: segments[i],
                           semanticsSelected: i == currentIndex,
-                          // The thumb is a sibling sliding under the row, so
-                          // a segment has no surface to clip its ink: it does
-                          // it itself.
                           builder:
                               (BuildContext context, InteractionStates s) =>
                                   ClipRRect(

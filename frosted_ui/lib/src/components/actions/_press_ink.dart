@@ -2,13 +2,6 @@ import 'dart:collection';
 
 import 'package:material_ui/material_ui.dart';
 
-/// The press ink of one interactive surface.
-///
-/// A surface reports its presses here and the [PressInkHost] planted in its
-/// layer stack turns them into whichever splash the ambient theme prescribes.
-/// The library paints no ink of its own, so a press inside it and a press on
-/// a plain Material widget react the same way — by construction, not by a
-/// hand-kept resemblance.
 class PressInk {
   _PressInkHostState? _host;
 
@@ -18,27 +11,13 @@ class PressInk {
     if (identical(_host, host)) _host = null;
   }
 
-  /// Starts a splash under [globalPosition] — or at the middle of the
-  /// surface when the press carries no point, as keyboard activation does.
   void start({Offset? globalPosition}) => _host?.start(globalPosition);
 
-  /// The press became a tap: let the splash play out.
   void confirm() => _host?.confirm();
 
-  /// The press never became a tap — the pointer scrolled away, or a nested
-  /// target took the gesture — so the ink goes back with it.
   void cancel() => _host?.cancel();
 }
 
-/// Carries the Material ink layer of a surface, between the surface it sits
-/// on and the content above it, so a splash washes over the glass without
-/// tinting the label.
-///
-/// The splash spreads over the plain rectangle of the surface: its corners
-/// are the surface's own clip to give, not this host's. A shape carried in
-/// the splash would be the shape at the instant of the press, frozen while
-/// the surface goes on morphing under it; a clip on the surface is the one
-/// shape both of them read, animated included.
 class PressInkHost extends StatefulWidget {
   const PressInkHost({required this.ink, required this.child, super.key});
 
@@ -51,9 +30,6 @@ class PressInkHost extends StatefulWidget {
 }
 
 class _PressInkHostState extends State<PressInkHost> {
-  /// A context below the [Material] this host plants: both the ink
-  /// controller and the box a splash is measured against are looked up from
-  /// there, never from the host's own context, which sits above it.
   final GlobalKey _inkKey = GlobalKey();
 
   final HashSet<InteractiveInkFeature> _splashes =
@@ -76,10 +52,6 @@ class _PressInkHostState extends State<PressInkHost> {
     }
   }
 
-  /// A surface can be taken off screen by the very tap it is animating — a
-  /// menu entry that closes its menu. The ink still in flight is dropped
-  /// here rather than in [dispose], because the [Material] that vsyncs it
-  /// goes down with this subtree and would be left ticking for it.
   @override
   void deactivate() {
     for (final InteractiveInkFeature splash in _splashes.toList()) {
@@ -96,9 +68,6 @@ class _PressInkHostState extends State<PressInkHost> {
     super.dispose();
   }
 
-  /// A press can land on a surface that is already on its way out — the
-  /// sheet it belongs to is closing under the finger — and there is no ink
-  /// controller left to give it to.
   void start(Offset? globalPosition) {
     final BuildContext? inkContext = _inkKey.currentContext;
     if (inkContext == null || !inkContext.mounted) return;
@@ -137,9 +106,6 @@ class _PressInkHostState extends State<PressInkHost> {
 
   @override
   Widget build(BuildContext context) {
-    // A Material hands its subtree bodyMedium unless told otherwise, which
-    // would restyle every label this host is slipped under. Handing it back
-    // the style already in force keeps the layer to what it is here for.
     return Material(
       type: MaterialType.transparency,
       textStyle: DefaultTextStyle.of(context).style,

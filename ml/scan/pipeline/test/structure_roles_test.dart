@@ -1,7 +1,3 @@
-/// Les articles décidés par le tagger de rôles, pas par les règles.
-///
-/// Les rôles sont donnés, pas prédits : le test ne mesure que la mise en
-/// reçu. Miroir de `research/tests/test_structure_roles.py`.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';

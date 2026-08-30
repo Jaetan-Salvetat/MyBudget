@@ -96,14 +96,8 @@ class CategoryTaxonomyService {
     _loaded = true;
   }
 
-  /// Group owning [slug], resolved through the taxonomy so an aliased node
-  /// reports the group it was moved to, not the one its slug spells out.
   TaxonomyGroup? groupOfSlug(String slug) => resolve(slug)?.group;
 
-  /// Resolves a `group.subcategory` slug to its leaf, following aliases.
-  ///
-  /// Returns null when the slug is malformed or unknown, so historical values
-  /// never crash a screen.
   TaxonomyNode? resolve(String slug) {
     assert(_loaded, 'Taxonomy not loaded. Call load() first.');
 
@@ -119,7 +113,6 @@ class CategoryTaxonomyService {
     return _groups[key];
   }
 
-  /// Groups of [type], or every group in taxonomy order when it is null.
   List<TaxonomyGroup> groupsOfType(TransactionType? type) => _groups.values
       .where((group) => type == null || group.type == type)
       .toList();

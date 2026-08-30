@@ -6,10 +6,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_account_provider.g.dart';
 
-/// The account a quick-added transaction lands on. Opens on the last one the
-/// user picked, whatever the session, and only falls back to the first when
-/// that account is gone. Alive as long as the app is : the pick must not be
-/// lost because the bar left the screen for the time of a sheet.
 @Riverpod(keepAlive: true)
 class QuickAddAccountNotifier extends _$QuickAddAccountNotifier {
   int? _picked = PreferencesService.getQuickAddAccountId();
@@ -34,8 +30,6 @@ class QuickAddAccountNotifier extends _$QuickAddAccountNotifier {
     state = accountId;
   }
 
-  /// A pick that no longer names an account is dead weight : it would keep
-  /// losing to the fallback at every launch.
   void _forget() {
     _picked = null;
     unawaited(PreferencesService.clearQuickAddAccountId());

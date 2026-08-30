@@ -32,7 +32,6 @@ class RevenueNotifier extends _$RevenueNotifier {
     return revenues;
   }
 
-  /// Returns the id of the created row, so a caller can undo its own add.
   Future<int> addRevenue(RevenueModel revenue) async {
     try {
       final repo = ref.read(revenueRepositoryProvider);
@@ -51,9 +50,6 @@ class RevenueNotifier extends _$RevenueNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      // What the rule is, pays, how often, and which account it lands on :
-      // see ExpenseNotifier.updateExpense for why that splits the rule and
-      // why the category alone corrects the whole chain instead.
       final bool changesTerms =
           updated.amount != old.amount ||
           updated.frequency != old.frequency ||
@@ -95,9 +91,6 @@ class RevenueNotifier extends _$RevenueNotifier {
     }
   }
 
-  /// Filing a rule under another category is a correction, never a new
-  /// agreement : it says what the rule always was, so it reaches every month
-  /// it ever ran and splits nothing on its own.
   void _recategorizeChain(
     RevenueRepository repo,
     RevenueModel old,
@@ -110,20 +103,12 @@ class RevenueNotifier extends _$RevenueNotifier {
     }
   }
 
-  /// Hard delete, whatever the recurrence : closing a row makes no sense when
-  /// it was created seconds ago.
   Future<void> deletePermanently(int id) async {
     ref.read(revenueRepositoryProvider).delete(id);
     ref.invalidateSelf();
     await future;
   }
 
-  /// A recurring rule is closed rather than erased : the months it was
-  /// actually paid in are history, and history is what this app keeps. What
-  /// [scope] settles is whether the month in progress is one of them.
-  ///
-  /// A rule left with nothing to defend — a one-off, or one closing before it
-  /// ever came round — is erased instead.
   Future<void> deleteRevenue(
     int id, {
     RecurringDeletion scope = RecurringDeletion.afterThisMonth,

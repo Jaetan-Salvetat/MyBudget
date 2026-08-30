@@ -7,11 +7,6 @@ import '../overlays/frosted_dialog.dart';
 import 'frosted_calendar.dart';
 import 'frosted_picker_field.dart';
 
-/// Opens the Frosted date picker — a glass shell with the M3 Expressive
-/// calendar flow (headline, month/year navigation, year grid), rendered with
-/// Frosted interactions instead of Material's.
-///
-/// Returns the picked [DateTime], or null if dismissed.
 Future<DateTime?> showFrostedDatePicker({
   required BuildContext context,
   required DateTime initialDate,
@@ -84,8 +79,6 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
   }
 }
 
-/// A field that displays the selected date and opens [showFrostedDatePicker]
-/// on tap.
 class FrostedDateField extends StatelessWidget {
   const FrostedDateField({
     required this.value,
@@ -105,7 +98,6 @@ class FrostedDateField extends StatelessWidget {
   final DateTime lastDate;
   final ValueChanged<DateTime> onChanged;
 
-  /// Formats the selected [value] for display (e.g. via `intl`'s DateFormat).
   final String Function(DateTime date) format;
 
   final String? label;

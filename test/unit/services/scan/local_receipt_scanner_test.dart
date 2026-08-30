@@ -10,7 +10,6 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import '../../../helpers/receipt_line_factory.dart';
 
-/// Rend une lecture figée par passe et retient combien de fois on l'appelle.
 class _ScriptedRecognizer implements ReceiptLineRecognizer {
   _ScriptedRecognizer(this.passes);
 
@@ -189,10 +188,6 @@ void main() {
     });
 
     test('un article dont le prix échappe à la regex stricte remonte', () async {
-      // La devise collée au montant sortait la ligne du décodeur avant même
-      // que le tagger soit consulté : 93 des 100 articles que le corpus
-      // d'évaluation perdait. La lecture s'élargit maintenant sur les lignes
-      // à qui le tagger donne un rôle porteur de montant.
       final recognizer = _ScriptedRecognizer([
         receiptLinesOf([
           [('CARREFOUR', 0)],

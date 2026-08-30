@@ -7,7 +7,6 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '_interactive_surface.dart';
 
-/// A single entry in a [FrostedToggleButtons] group.
 class FrostedToggleItem {
   const FrostedToggleItem({required this.icon, this.label, this.tooltip});
 
@@ -18,18 +17,6 @@ class FrostedToggleItem {
 
 enum _ToggleVariant { connected, standard }
 
-/// An M3 Expressive toggle button group.
-///
-/// Two shapes, both single- ([multiSelect] false, radio-like) or
-/// multi-selection:
-///
-/// - [FrostedToggleButtons.connected]: segments fused into one pill, split by
-///   hairline gaps. Outer corners are fully rounded, inner corners stay tight.
-///   A selected, label-only segment shows a leading check.
-/// - [FrostedToggleButtons.standard]: independent buttons spaced apart. Each
-///   morphs from a pill (unselected) to a rounded square (selected).
-///
-/// For a full-width iOS-style selector, use `FrostedSegmentedControl`.
 class FrostedToggleButtons extends StatelessWidget {
   const FrostedToggleButtons._({
     required this.items,
@@ -42,7 +29,6 @@ class FrostedToggleButtons extends StatelessWidget {
     super.key,
   }) : _variant = variant;
 
-  /// Fused segments split by 2dp gaps — the M3 Expressive connected group.
   factory FrostedToggleButtons.connected({
     Key? key,
     required List<FrostedToggleItem> items,
@@ -61,7 +47,6 @@ class FrostedToggleButtons extends StatelessWidget {
     axis: axis,
   );
 
-  /// Independent spaced buttons that morph shape on selection.
   factory FrostedToggleButtons.standard({
     Key? key,
     required List<FrostedToggleItem> items,

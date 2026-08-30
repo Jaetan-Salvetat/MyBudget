@@ -4,11 +4,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import 'frosted_field_surface.dart';
 
-/// A read-only, field-styled trigger used by the date and time pickers.
-///
-/// Mirrors [FrostedTextField]'s look (label above a filled block with a focus
-/// ring) but is read-only; tapping it runs [onTap]. Set [glass] for the
-/// translucent veil (off-spec, opt-in).
 class FrostedPickerField extends StatelessWidget {
   const FrostedPickerField({
     required this.icon,

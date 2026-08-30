@@ -3,10 +3,6 @@ import 'package:material_symbols_icons/symbols.dart';
 
 const Duration _expandDuration = Duration(milliseconds: 220);
 
-/// A header with children that slide open and closed.
-///
-/// The children leave the tree once the collapse animation has finished, so a
-/// closed group costs nothing and cannot be found by a hit test.
 class ExpandableGroup extends StatefulWidget {
   final Widget header;
   final List<Widget> children;
@@ -44,8 +40,6 @@ class _ExpandableGroupState extends State<ExpandableGroup>
     _controller.addStatusListener(_dropChildrenWhenClosed);
   }
 
-  /// [AnimatedBuilder] rebuilds its own subtree only; the collapsed state has
-  /// to reach [build] for the children to actually leave the tree.
   void _dropChildrenWhenClosed(AnimationStatus status) {
     if (status == AnimationStatus.dismissed) setState(() {});
   }

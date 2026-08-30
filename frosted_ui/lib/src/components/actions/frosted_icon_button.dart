@@ -8,10 +8,6 @@ import '_interactive_surface.dart';
 
 enum _IconButtonVariant { standard, filled, tonal, outlined }
 
-/// The three footprints an icon button can take.
-///
-/// [medium] is the default; [small] is for dense rows where the button trails
-/// content, [large] for a lone target that has to carry a screen.
 enum FrostedIconButtonSize {
   small(box: 32, glyph: 18),
   medium(box: 40, glyph: 22),
@@ -19,26 +15,11 @@ enum FrostedIconButtonSize {
 
   const FrostedIconButtonSize({required this.box, required this.glyph});
 
-  /// Side of the square touch target.
   final double box;
 
-  /// Side of the icon inside it.
   final double glyph;
 }
 
-/// An icon-only button.
-///
-/// Leave [selected] out for a plain command; pass it — true or false — only
-/// for a button that toggles. A filled command carries the accent, the way M3
-/// fills a non-toggling icon button; a filled toggle waits on its off state
-/// before it does, so that pressing it is what turns the accent on.
-///
-/// When [selected] is true and [selectedIcon] is provided, the filled
-/// variant of the icon is shown.
-///
-/// [shape] picks the resting form — [FrostedShape.rounded] by default, or
-/// [FrostedShape.pill], which on this square box is a circle. A press morphs
-/// it into the other one and back.
 class FrostedIconButton extends StatelessWidget {
   const FrostedIconButton._({
     super.key,
@@ -139,15 +120,12 @@ class FrostedIconButton extends StatelessWidget {
   final IconData icon;
   final IconData? selectedIcon;
 
-  /// Null for a command, true or false for a toggle.
   final bool? selected;
   final String? tooltip;
   final VoidCallback? onPressed;
 
-  /// The resting form. A press morphs it into [FrostedShape.opposite].
   final FrostedShape shape;
 
-  /// The footprint of the touch target and the glyph it holds.
   final FrostedIconButtonSize size;
 
   final _IconButtonVariant _variant;
@@ -201,11 +179,8 @@ class FrostedIconButton extends StatelessWidget {
     return result;
   }
 
-  /// True only for a toggle that is on. A command is never "on".
   bool get _isOn => selected ?? false;
 
-  /// A filled command carries the accent at rest; a filled toggle only once
-  /// it is on.
   bool get _carriesAccent => selected != false;
 
   BorderRadius _shape(InteractionStates s) =>

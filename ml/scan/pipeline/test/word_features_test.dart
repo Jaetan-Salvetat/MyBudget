@@ -1,4 +1,3 @@
-/// Features par mot : ce qui sépare un libellé d'une colonne voisine.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
@@ -26,7 +25,6 @@ PhysicalLine line(int row, List<(String, double)> tokens) => PhysicalLine(
 
 int columnOf(String name) => wordFeatureNames.indexOf(name);
 
-/// Un ticket à trois colonnes : code, libellé, prix.
 final ticket = [
   line(0, [('6015', 0), ('SANDWICH POULET', 8), ('2,95', 40)]),
   line(1, [('6011', 0), ('SALADE CESAR', 8), ('1,29', 40)]),

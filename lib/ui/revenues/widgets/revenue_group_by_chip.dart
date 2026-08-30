@@ -2,10 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 
-/// Chip opening the grouping menu.
-///
-/// Its leading icon is the grouping action, never the axis icon: next to the
-/// filter chips, an axis icon reads as one more filter.
 class RevenueGroupByChip extends StatelessWidget {
   final RevenueGroupBy axis;
   final VoidCallback onTap;

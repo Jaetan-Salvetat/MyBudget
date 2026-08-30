@@ -2,11 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_type_scale.dart';
 
-/// A thin single-value slider, modelled on the mockup's player scrubber.
-///
-/// Opaque M3 content surface: a 4dp track with a primary fill and a small
-/// round knob. Pass [divisions] to make it discrete; the value label appears
-/// above the knob while dragging.
 class FrostedSlider extends StatelessWidget {
   const FrostedSlider({
     required this.value,
@@ -25,7 +20,6 @@ class FrostedSlider extends StatelessWidget {
   final int? divisions;
   final String? label;
 
-  // Mockup `.scrub-track` height 4 / radius 4; `.scrub-knob` 12×12 round.
   static const double _trackHeight = 4;
   static const double _knobRadius = 6;
 

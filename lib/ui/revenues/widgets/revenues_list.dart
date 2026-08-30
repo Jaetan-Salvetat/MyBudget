@@ -240,8 +240,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  /// A month other than the one in progress is read : acting on it would mean
-  /// deciding what it should retroactively have been.
   bool get _isViewingCurrentMonth {
     final now = DateTime.now();
     final selectedMonth = ref.watch(selectedMonthProvider);

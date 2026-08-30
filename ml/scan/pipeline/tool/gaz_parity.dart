@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-/// Rejoue le répertoire Python sur les mêmes lignes et rend son verdict.
 void main(List<String> args) {
   final entries = (jsonDecode(File(args[0]).readAsStringSync()) as Map)
       .map((k, v) => MapEntry(k as String, v as String));

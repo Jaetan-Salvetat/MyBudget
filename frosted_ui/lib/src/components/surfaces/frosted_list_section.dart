@@ -4,13 +4,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import 'frosted_list_tile.dart';
 
-/// A segmented list group (M3 Expressive): standalone rounded tiles separated
-/// by a 2dp gap, with corners that round outward at the ends and stay tight
-/// between neighbours.
-///
-/// Pass [FrostedListTile]s; the section assigns each one its position
-/// (first / middle / last / single) so the corners read as one group. An
-/// optional [label] renders a sentence-case title above the group.
 class FrostedListSection extends StatelessWidget {
   const FrostedListSection({required this.tiles, this.label, super.key});
 

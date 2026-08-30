@@ -167,8 +167,6 @@ void main() {
   });
 
   group('moved nodes', () {
-    // Un noeud deplace garde son ancien slug (les transactions le referencent)
-    // et pointe vers sa nouvelle destination via alias_of.
     late CategoryDisplayResolver resolver;
 
     setUp(() {

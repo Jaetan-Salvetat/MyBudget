@@ -13,8 +13,6 @@ import 'package:mybudget/ui/common/widgets/category_field.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
 
-/// Full-page revenue form. Child pickers (category, date) stay as overlays;
-/// only the form itself was promoted from a sheet to a route.
 class RevenueFormScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final RevenueModel? revenue;

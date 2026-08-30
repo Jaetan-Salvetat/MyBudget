@@ -7,27 +7,14 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// Where a tile sits inside a [FrostedListSection], which drives its corners.
 enum FrostedTilePosition { single, first, middle, last }
 
-/// How much surface a [FrostedListTile] paints of its own.
 enum FrostedListTileVariant {
-  /// Opaque `surfaceContainer` block — the M3 Expressive segmented-list item.
   filled,
 
-  /// No surface at all, for rows that sit on a background their parent owns
-  /// (a tree, a sheet). Selection and state layers still show.
   plain,
 }
 
-/// A list item following the M3 Expressive segmented-list spec: each item is
-/// its own rounded `surfaceContainer` surface (not a row in a shared block),
-/// with corners that depend on its [position] in the group. Rows that belong
-/// to a surface their parent already draws take [FrostedListTileVariant.plain]
-/// instead.
-///
-/// Heights follow the spec (56 one-line / 72 two-line), 16dp leading/trailing
-/// space, 8dp vertical padding. Standalone tiles are fully rounded.
 class FrostedListTile extends StatelessWidget {
   const FrostedListTile({
     required this.title,
@@ -50,7 +37,6 @@ class FrostedListTile extends StatelessWidget {
   final FrostedListTileVariant variant;
   final FrostedTilePosition position;
 
-  /// Copy with a resolved [position] — used by [FrostedListSection].
   FrostedListTile withPosition(FrostedTilePosition value) => FrostedListTile(
     title: title,
     subtitle: subtitle,
@@ -69,8 +55,6 @@ class FrostedListTile extends StatelessWidget {
   static const double _inner = FrostedRadius.sm;
 
   BorderRadius _shape(InteractionStates s) {
-    // Pressed → every corner rounds up to the outer radius, so the tile
-    // detaches from its neighbours (M3 Expressive list press morph).
     if (s.pressed) return BorderRadius.circular(_outer);
 
     final Radius outerR = const Radius.circular(_outer);

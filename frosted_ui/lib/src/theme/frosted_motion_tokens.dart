@@ -1,11 +1,6 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 
-/// A single motion descriptor: duration + easing curve.
-///
-/// The original system specifies spring physics; this is a cubic-bezier
-/// approximation that mirrors the CSS handoff. Components that need a real
-/// spring should use `SpringSimulation` directly.
 @immutable
 class FrostedMotion {
   const FrostedMotion({required this.duration, required this.curve});
@@ -14,7 +9,6 @@ class FrostedMotion {
   final Curve curve;
 }
 
-/// Motion tokens shared across Frosted UI.
 @immutable
 class FrostedMotionTokens {
   const FrostedMotionTokens({

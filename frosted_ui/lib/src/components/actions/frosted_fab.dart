@@ -10,13 +10,6 @@ import '_interactive_surface.dart';
 
 enum _FabSize { small, regular, large, extended }
 
-/// A Floating Action Button — the most expressive interactive element on
-/// a screen.
-///
-/// [shape] picks the resting form, [FrostedShape.pill] by default since the
-/// round form is the FAB's signature. A press morphs it into the other form
-/// and back; each size carries its own [FrostedShape.rounded] radius so the
-/// corner stays concentric with the container it sits in.
 class FrostedFab extends StatelessWidget {
   const FrostedFab._({
     super.key,
@@ -105,7 +98,6 @@ class FrostedFab extends StatelessWidget {
   final String? tooltip;
   final bool tonal;
 
-  /// The resting form. A press morphs it into [FrostedShape.opposite].
   final FrostedShape shape;
 
   final _FabSize _size;
@@ -252,8 +244,6 @@ class _FabMetrics {
   final double roundedRadius;
   final bool extended;
 
-  /// An extended fab grows with its label, so its shortest side — the one the
-  /// pill radius is measured against — is always its height.
   Size get box =>
       extended ? Size(double.infinity, height) : Size(height, height);
 }

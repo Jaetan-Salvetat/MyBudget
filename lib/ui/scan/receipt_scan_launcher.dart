@@ -5,8 +5,6 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:mybudget/ui/scan/scan_screen.dart';
 
-/// Propose l'appareil photo ou la galerie, puis ouvre l'écran de scan sur
-/// l'image retenue. Ne fait rien si l'utilisateur renonce.
 Future<void> showReceiptScanSourceSheet(BuildContext context) {
   return showFrostedBottomSheet<void>(
     context: context,
@@ -36,9 +34,6 @@ Future<void> showReceiptScanSourceSheet(BuildContext context) {
   );
 }
 
-/// Le ticket est lu sur l'appareil : la photo ne part nulle part et garde sa
-/// définition. Les petits caractères ne survivent pas à une réduction, et
-/// c'est exactement ce que la reconnaissance doit lire.
 Future<void> _pickAndScan(BuildContext context, ImageSource source) async {
   final navigator = Navigator.of(context);
 

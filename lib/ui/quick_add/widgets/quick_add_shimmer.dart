@@ -1,7 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-/// A light band sweeping across its child : the model is reading, and the
-/// wait shows as motion rather than as a frozen chip.
 class QuickAddShimmer extends StatefulWidget {
   static const Duration period = Duration(milliseconds: 1100);
 

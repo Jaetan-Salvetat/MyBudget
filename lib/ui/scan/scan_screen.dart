@@ -95,9 +95,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     return FrostedScaffold(
       appBar: FrostedTopBar(
         title: 'Scanner un ticket',
-        // Le détail de chaque étage du flow n'a d'intérêt que pour qui
-        // développe le scan, et il montre des données brutes : il ne sort pas
-        // des builds de debug.
         actions: [
           if (kDebugMode && !isLoading)
             IconButton(
@@ -371,9 +368,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
   }
 
-  /// La somme des articles n'est retombée sur aucun montant imprimé : la
-  /// lecture est partielle. On le dit franchement plutôt que de laisser
-  /// valider un ticket incomplet en croyant qu'il est juste.
   Widget _buildUnverifiedBanner(BuildContext context) {
     final theme = Theme.of(context);
 

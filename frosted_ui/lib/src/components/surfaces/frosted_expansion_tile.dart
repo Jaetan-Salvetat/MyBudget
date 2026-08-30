@@ -8,10 +8,6 @@ import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 import 'frosted_list_tile.dart';
 
-/// A collapsible section built on the segmented-list surface: a filled,
-/// rounded header (icon + title, a chevron that rotates) that reveals [child]
-/// on tap. Shares [FrostedTilePosition] with [FrostedListTile] so it can sit
-/// inside a [FrostedListSection] as one of the group.
 class FrostedExpansionTile extends StatefulWidget {
   const FrostedExpansionTile({
     required this.title,
@@ -31,17 +27,12 @@ class FrostedExpansionTile extends StatefulWidget {
   final Widget child;
   final bool initiallyExpanded;
 
-  /// Drives the tile from the outside. When null the tile owns its state and
-  /// starts from [initiallyExpanded].
   final bool? expanded;
 
-  /// The state a tap asks for. A controlled tile only reports it: nothing
-  /// opens until [expanded] is updated.
   final ValueChanged<bool>? onExpansionChanged;
 
   final FrostedTilePosition position;
 
-  /// Copy with a resolved [position] — used by [FrostedListSection].
   FrostedExpansionTile withPosition(FrostedTilePosition value) =>
       FrostedExpansionTile(
         title: title,
@@ -74,8 +65,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
   static const double _inner = FrostedRadius.sm;
   static const double _headerHeight = 56;
 
-  // When expanded, the header's bottom corners stay tight against the revealed
-  // body so the two read as one block; the body carries the bottom rounding.
   BorderRadius _shape(InteractionStates s, {required bool header}) {
     if (s.pressed && !_expanded) return BorderRadius.circular(_outer);
 
@@ -101,7 +90,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
     final Radius bottom = roundBottom ? outerR : innerR;
 
     if (header) {
-      // Expanded → flat bottom so it meets the body seamlessly.
       return BorderRadius.only(
         topLeft: topLeading,
         topRight: topTrailing,
@@ -109,7 +97,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
         bottomRight: _expanded ? Radius.zero : bottom,
       );
     }
-    // Body: only bottom corners.
     return BorderRadius.only(bottomLeft: bottom, bottomRight: bottom);
   }
 

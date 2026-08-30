@@ -1,6 +1,3 @@
-/// 4dp base grid spacing tokens used across Frosted UI.
-///
-/// Always reach for a token before introducing an arbitrary value.
 class FrostedSpacing {
   const FrostedSpacing._();
 

@@ -17,7 +17,6 @@ Word receiptWord(String text, int column, int row) {
   );
 }
 
-/// Un ticket de test : une ligne par entrée, chaque mot posé à sa colonne.
 List<PhysicalLine> receiptLinesOf(List<List<(String, int)>> rows) => [
   for (final (index, tokens) in rows.indexed)
     PhysicalLine(

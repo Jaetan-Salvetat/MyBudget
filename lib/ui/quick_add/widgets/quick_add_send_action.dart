@@ -2,42 +2,23 @@ import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-/// Ce que la poignée du champ a à offrir à l'instant : rien tant que le texte
-/// n'est pas une transaction, puis l'envoi, l'attente, et l'accusé.
 enum QuickAddSendState {
-  /// Il n'y a pas de quoi envoyer. La poignée n'est pas grisée, elle n'est pas
-  /// là : un bouton mort dit moins bien « pas encore » que son absence.
   idle,
 
-  /// La transaction tient debout, le geste est à un pouce.
   ready,
 
-  /// L'écriture est partie.
   sending,
 
-  /// Elle est posée. Le champ est déjà vide pour la suivante.
   sent,
 }
 
-/// L'envoi, à l'intérieur du champ, là où un mot de passe met son œil.
-///
-/// Tant qu'il n'y a rien à envoyer il ne garde pas sa place : la sortie tient
-/// alors le bord du champ, et c'est en glissant qu'elle lui cède la sienne.
 class QuickAddSendAction extends StatelessWidget {
-  /// Côté du carré que la poignée occupe dans le champ. Il tient dans la
-  /// hauteur d'une ligne : le champ ne grandit pas quand l'envoi apparaît.
   static const double slot = 24;
 
-  /// L'air qui sépare l'envoi de la sortie, replié avec lui quand il n'est
-  /// pas là.
   static const double gap = FrostedSpacing.sp2;
 
-  /// D'où le glyphe arrive. Assez petit pour qu'on voie qu'il se pose, assez
-  /// grand pour rester lisible pendant tout le trajet.
   static const double entryScale = 0.6;
 
-  /// La distance dont il monte en arrivant, dans le sens du geste qu'il
-  /// propose.
   static const double entryRise = 6;
 
   final QuickAddSendState state;
@@ -77,8 +58,6 @@ class QuickAddSendAction extends StatelessWidget {
     );
   }
 
-  /// Le glyphe monte en se posant plutôt qu'en apparaissant : c'est le geste
-  /// qu'il propose, joué en petit.
   Widget _rise(Widget child, Animation<double> animation) {
     return FadeTransition(
       opacity: animation,
@@ -156,7 +135,6 @@ class _Glyph extends StatelessWidget {
   }
 }
 
-/// L'attente, dans l'empreinte du glyphe qu'elle remplace.
 class _Spinner extends StatelessWidget {
   static const double _size = 16;
   static const double _stroke = 2;

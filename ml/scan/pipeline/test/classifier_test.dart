@@ -26,7 +26,6 @@ LineClassifier tinyModel() {
   });
 }
 
-/// Un modèle binaire n'a qu'une sortie brute, comme sklearn l'exporte.
 LineClassifier binaryModel() {
   return LineClassifier.fromJson({
     'version': 'test',

@@ -57,8 +57,6 @@ class PreferencesService {
     await _prefs.setString(keyThemeMode, mode.name);
   }
 
-  /// Ancien emplacement de la clé, en clair. Conservé le temps que
-  /// [ApiKeyService.migrateLegacyGeminiKey] la déplace dans le trousseau.
   static String getGeminiApiKey() {
     return _prefs.getString(keyGeminiApiKey) ?? '';
   }

@@ -118,8 +118,6 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
 
   int countUsages(int beneficiaryId) => usageCounts()[beneficiaryId] ?? 0;
 
-  /// How many transactions reference each beneficiary, in a single pass over
-  /// the transaction repositories so a whole list can be labelled at once.
   Map<int, int> usageCounts() {
     final counts = <int, int>{};
     for (final id in _referencedBeneficiaryIds()) {

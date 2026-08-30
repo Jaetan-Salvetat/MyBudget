@@ -12,8 +12,6 @@ class GaugeSegment {
 
   const GaugeSegment({required this.color, required this.weight});
 
-  /// One segment per category the day spent on, heaviest first. Revenues are
-  /// left out : the gauge reads what the day cost.
   static List<GaugeSegment> forDay(
     List<JournalEntry> entries,
     CategoryDisplayResolver? resolver,
@@ -43,8 +41,6 @@ class GaugeSegment {
   }
 }
 
-/// The day summed up in colour : four pixels that shift the moment a
-/// transaction lands, without a single figure changing size.
 class DayGauge extends StatelessWidget {
   static const double height = 4;
   static const double gap = 3;
@@ -76,8 +72,6 @@ class DayGauge extends StatelessWidget {
     );
   }
 
-  /// Every bar is a share of the same width, so the row always fits : a shape
-  /// changing mid-animation cannot make the segments sum to more than the day.
   Widget _bars(_GaugeBars bars, double maxWidth) {
     final free = maxWidth - gap * (bars.length - 1);
 
@@ -98,7 +92,6 @@ class DayGauge extends StatelessWidget {
   }
 }
 
-/// One drawn bar : a colour and the share of the width it takes.
 @immutable
 class _GaugeBar {
   final Color color;
@@ -125,7 +118,6 @@ class _GaugeBar {
   int get hashCode => Object.hash(color, fraction);
 }
 
-/// The bars of one gauge, weights already turned into shares summing to one.
 @immutable
 class _GaugeBars {
   final List<_GaugeBar> bars;
@@ -149,8 +141,6 @@ class _GaugeBars {
   int get length => bars.length;
   _GaugeBar operator [](int index) => bars[index];
 
-  /// Bars are paired by rank ; a rank the other side lacks fades in or out on
-  /// a zero share rather than shifting the ones that stay.
   static _GaugeBars lerp(_GaugeBars from, _GaugeBars to, double t) {
     final count = math.max(from.length, to.length);
 

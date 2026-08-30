@@ -1,8 +1,3 @@
-/// Rejoue le pipeline Dart sur des dumps OCR et écrit, par ticket,
-/// l'extraction par les règles de la passe 1 et — si le tagger est fourni —
-/// la décision du flow local (tagger de rôles → décodeur, sur la passe 1
-/// puis le retry puis leur fusion), pour comparaison champ à champ avec la
-/// version Python (research/bench/parity.py).
 library;
 
 import 'dart:convert';
@@ -77,7 +72,6 @@ Future<Map<String, Object?>> _flowJson(
   };
 }
 
-/// Lignes physiques d'un dump OCR (mots + angle médian), comme sur device.
 List<PhysicalLine> clusteredLines(Map<String, dynamic> data) {
   final words = <Word>[];
   final angles = <double>[];

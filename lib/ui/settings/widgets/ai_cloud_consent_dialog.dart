@@ -4,8 +4,6 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:mybudget/core/enums/ai_provider.dart';
 
-/// Dit exactement ce qui sort du téléphone, avant le premier appel. Le contenu
-/// est vérifiable : c'est littéralement ce que le moteur distant envoie.
 class AiCloudConsentDialog extends StatelessWidget {
   const AiCloudConsentDialog({required this.provider, super.key});
 

@@ -1,12 +1,5 @@
 import 'package:flutter/painting.dart';
 
-/// Glass Expressive type scale.
-///
-/// Bricolage Grotesque drives the [display] and [headline] tiers (variable
-/// optical-size axis), while Geist powers [title], [body] and [label].
-///
-/// These [TextStyle]s leave [TextStyle.color] unset so they inherit
-/// `onSurface` (or whatever the surrounding `DefaultTextStyle` provides).
 class FrostedTypeScale {
   const FrostedTypeScale._();
 

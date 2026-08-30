@@ -1,14 +1,3 @@
-/// Inférence pure Dart d'un HistGradientBoosting exporté par
-/// `research/line_classifier/export.py`.
-///
-/// Un seul runtime pour tous les modèles de lignes et de mots — tagger de
-/// rôles, modèle de lien, tagger de spans : ils ne diffèrent que par leurs
-/// features et leurs classes, jamais par le calcul.
-///
-/// Score brut par sortie = baseline + Σ valeur de la feuille atteinte dans
-/// chaque arbre de l'itération ; probabilités par softmax, ou par sigmoïde
-/// quand le modèle est binaire et n'a qu'une sortie. Aucune dépendance
-/// native : le modèle est un JSON embarqué.
 library;
 
 import 'dart:math' as math;
@@ -104,8 +93,6 @@ class LineClassifier {
   final String version;
   final int featureCount;
 
-  /// Les étiquettes du modèle, dans l'ordre des scores : `predictProba`
-  /// rend des probabilités par colonne, `classes` dit ce que chacune nomme.
   final List<int> classes;
   final List<double> _baseline;
   final List<List<_Tree>> _iterations;
@@ -122,9 +109,6 @@ class LineClassifier {
     return raw;
   }
 
-  /// Un modèle binaire n'a qu'une sortie brute et se lit à la sigmoïde ;
-  /// au-delà de deux classes, une sortie par classe et un softmax. C'est la
-  /// convention de sklearn, que `export.py` reproduit à l'identique.
   List<double> predictProba(List<double> features) {
     final raw = rawScores(features);
     if (raw.length == 1) {
@@ -141,12 +125,9 @@ class LineClassifier {
     for (final row in rows) predictProba(row),
   ];
 
-  /// L'étiquette la plus probable — `classes_[argmax]`, comme sklearn.
   int predict(List<double> features) => classes[argmax(rawScores(features))];
 }
 
-/// Indice de la probabilité maximale, première occurrence en cas d'égalité
-/// (convention numpy `argmax`).
 int argmax(List<double> values) {
   var best = 0;
   for (var index = 1; index < values.length; index++) {

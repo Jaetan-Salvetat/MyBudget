@@ -6,9 +6,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 void main() {
   const Color seed = Color(0xFF7C5CFF);
 
-  /// The press ink is the theme's, not the button's, and the app default —
-  /// the M3 sparkle — paints no circle to measure. These tests pump the
-  /// plain splash so the ink a press produces can be read off the canvas.
   Future<ColorScheme> pump(WidgetTester tester, Widget button) async {
     late ColorScheme scheme;
     await tester.pumpWidget(
@@ -48,7 +45,6 @@ void main() {
     );
     return text.style!.color!;
   }
-
 
   double cornerRadiusOf(WidgetTester tester) {
     final AnimatedContainer container = tester.widget<AnimatedContainer>(

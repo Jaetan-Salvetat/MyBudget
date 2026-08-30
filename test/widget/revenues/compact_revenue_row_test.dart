@@ -6,10 +6,6 @@ import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 
-/// The revenue row reads the same as the expense one : a rule that has been
-/// closed is a trace of a month that is over : it can be
-/// read, never edited and never deleted again. So is anything read from a
-/// month other than the one in progress.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

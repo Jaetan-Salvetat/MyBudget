@@ -15,8 +15,6 @@ import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Turns the live draft into the transaction line the user reads while
-/// typing.
 class QuickAddPreview extends ConsumerWidget {
   const QuickAddPreview({super.key});
 
@@ -51,8 +49,6 @@ class QuickAddPreview extends ConsumerWidget {
     );
   }
 
-  /// The two days a transaction is typed on almost every time get a word
-  /// rather than a date : reading "hier" is quicker than dating it.
   String? _dateLabel(DateTime? date) {
     if (date == null) return null;
 
@@ -77,9 +73,6 @@ class QuickAddPreview extends ConsumerWidget {
     ref.read(quickAddProvider.notifier).selectDate(picked);
   }
 
-  /// Null only while the reading has yet to land : the line then says so.
-  /// Once it has, an unnamed category shows the one it will be recorded
-  /// under, flagged as a guess so a tap corrects it.
   QuickAddCategoryPreview? _category(
     BuildContext context,
     WidgetRef ref,

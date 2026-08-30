@@ -208,8 +208,6 @@ void main() {
 
     expect(dockPanel(), findsOneWidget);
 
-    // Tout ce que la saisie affiche vit dans le verre : rien ne flotte a nu
-    // au-dessus du journal.
     final panel = tester.getRect(dockPanel());
     final bar = tester.getRect(find.byType(QuickAddBar));
 

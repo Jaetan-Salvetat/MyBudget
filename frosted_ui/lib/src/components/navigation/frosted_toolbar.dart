@@ -9,10 +9,6 @@ import '../actions/_interactive_surface.dart';
 
 const double _kToolbarHeight = 48;
 
-/// A desktop chrome toolbar in Liquid Glass.
-///
-/// Hosts breadcrumb-style navigation on the left, a search shortcut in the
-/// middle, and arbitrary trailing actions.
 class FrostedToolbar extends StatelessWidget {
   const FrostedToolbar({
     this.breadcrumbs = const <String>[],
@@ -131,8 +127,6 @@ class _Crumb extends StatelessWidget {
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: label,
-      // A crumb carries no surface of its own, so the corners its ink stops
-      // at are this clip's to give.
       builder: (BuildContext context, InteractionStates s) => ClipRRect(
         borderRadius: BorderRadius.circular(FrostedRadius.xs),
         child: s.ink(

@@ -1,9 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-/// A 1px hairline separator on `outlineVariant`.
-///
-/// Use [indent] / [endIndent] to inset the line — e.g. to align it past a
-/// list tile's leading element.
 class FrostedDivider extends StatelessWidget {
   const FrostedDivider({
     this.axis = Axis.horizontal,

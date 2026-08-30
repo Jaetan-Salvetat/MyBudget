@@ -5,10 +5,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../actions/_interactive_surface.dart';
 
-/// A standalone breadcrumb trail.
-///
-/// The last crumb is emphasized and not interactive. Others can be tapped if
-/// [onTap] is provided.
 class FrostedBreadcrumb extends StatelessWidget {
   const FrostedBreadcrumb({required this.crumbs, this.onTap, super.key});
 
@@ -74,8 +70,6 @@ class _Crumb extends StatelessWidget {
     return InteractiveSurface(
       onTap: onTap,
       semanticsLabel: label,
-      // A crumb carries no surface of its own, so the corners its ink stops
-      // at are this clip's to give.
       builder: (BuildContext context, InteractionStates s) => ClipRRect(
         borderRadius: BorderRadius.circular(FrostedRadius.xs),
         child: s.ink(

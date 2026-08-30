@@ -15,8 +15,6 @@ void main() {
     await PreferencesService.init();
   });
 
-  // Créé dans le corps du test, jamais dans setUp : un Completer né hors de
-  // la zone fake-async de testWidgets ne se résout jamais sous les pump.
   Future<void> pumpSplash(WidgetTester tester, Completer<void> warmUp) {
     return tester.pumpWidget(
       ProviderScope(

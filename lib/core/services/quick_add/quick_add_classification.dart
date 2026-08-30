@@ -7,14 +7,10 @@ class QuickAddClassification {
   final TaxonomyNode category;
   final Frequency frequency;
 
-  /// The day the transaction lands on, read from the text or today.
   final DateTime date;
 
-  /// Whether [date] was written in the text rather than assumed.
   final bool hasWrittenDate;
 
-  /// Null while the text carries no amount yet : the draft stays incomplete
-  /// instead of failing.
   final double? amount;
   final String name;
   final double typeConfidence;
@@ -22,7 +18,6 @@ class QuickAddClassification {
   final double recurrenceConfidence;
   final List<String> categorySuggestions;
 
-  /// Input stripped of its amount: the key the correction memory is keyed on.
   final String cleanedText;
 
   const QuickAddClassification({

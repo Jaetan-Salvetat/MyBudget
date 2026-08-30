@@ -1,7 +1,5 @@
 import 'package:mybudget/core/enums/ai_provider.dart';
 
-/// Pourquoi une clé est refusée. Chaque raison porte son message : il dit ce
-/// qui s'est passé et quoi faire, jamais un code brut.
 enum ApiKeyDenialReason {
   invalidFormat,
   foreignProvider,
@@ -34,15 +32,11 @@ enum ApiKeyDenialReason {
   }
 }
 
-/// Le verdict d'une vérification de clé. Tant qu'il n'est pas [ApiKeyAccepted],
-/// rien n'est écrit : le moteur ne bascule que sur un appel abouti.
 sealed class ApiKeyCheck {
   const ApiKeyCheck();
 }
 
 final class ApiKeyAccepted extends ApiKeyCheck {
-  /// La clé est authentifiée mais son quota est épuisé : on l'accepte, en le
-  /// disant, plutôt que de faire ressaisir une clé qui marche.
   const ApiKeyAccepted({this.quotaExhausted = false});
 
   final bool quotaExhausted;

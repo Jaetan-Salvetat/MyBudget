@@ -19,8 +19,6 @@ class QuickAddEnabledNotifier extends _$QuickAddEnabledNotifier {
   }
 }
 
-/// Le moteur retenu. Il ne bascule sur [QuickAddEngineMode.apiKey] qu'après une
-/// vérification aboutie : cocher l'option ne suffit pas.
 @Riverpod(keepAlive: true)
 class QuickAddEngineModeNotifier extends _$QuickAddEngineModeNotifier {
   @override
@@ -43,8 +41,6 @@ class SelectedAiProviderNotifier extends _$SelectedAiProviderNotifier {
   }
 }
 
-/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
-/// la clé ni le moteur : seul l'identifiant envoyé au service change.
 @Riverpod(keepAlive: true)
 class SelectedAiModelNotifier extends _$SelectedAiModelNotifier {
   @override
@@ -67,17 +63,12 @@ class AiCloudConsentNotifier extends _$AiCloudConsentNotifier {
   }
 }
 
-/// Vrai quand la clé du fournisseur courant est dans le trousseau. La clé
-/// elle-même ne remonte jamais jusqu'à l'UI.
 @Riverpod(keepAlive: true)
 Future<bool> hasStoredApiKey(Ref ref) {
   final provider = ref.watch(selectedAiProviderProvider);
   return ref.watch(apiKeyServiceProvider).has(provider);
 }
 
-/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
-/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
-/// sans avoir à ouvrir les réglages.
 @Riverpod(keepAlive: true)
 bool quickAddUsesRemote(Ref ref) {
   if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
@@ -87,8 +78,6 @@ bool quickAddUsesRemote(Ref ref) {
   return ref.watch(hasStoredApiKeyProvider).value ?? false;
 }
 
-/// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
-/// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 @Riverpod(keepAlive: true)
 class QuickAddDegradationNotifier extends _$QuickAddDegradationNotifier {
   @override

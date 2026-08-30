@@ -13,8 +13,6 @@ import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 
-/// Le seul endroit où la clé se saisit, pour l'ajout rapide comme pour le scan
-/// de ticket. Rien n'est enregistré tant qu'un appel n'a pas abouti.
 class ApiKeyScreen extends ConsumerStatefulWidget {
   const ApiKeyScreen({super.key});
 
@@ -185,7 +183,6 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
     }
   }
 
-  /// L'appel a abouti : c'est seulement ici que le moteur bascule.
   Future<void> _activate(AiProvider provider, String rawKey) async {
     await ref.read(apiKeyServiceProvider).save(provider, rawKey);
     await ref

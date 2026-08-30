@@ -3,24 +3,24 @@ import 'package:material_symbols_icons/symbols.dart';
 
 abstract final class CategoryDefaults {
   static const List<int> colors = [
-    0xFFEF5350, // red
-    0xFFEC407A, // pink
-    0xFFAB47BC, // purple
-    0xFF7E57C2, // deep purple
-    0xFF5C6BC0, // indigo
-    0xFF42A5F5, // blue
-    0xFF29B6F6, // light blue
-    0xFF26C6DA, // cyan
-    0xFF26A69A, // teal
-    0xFF66BB6A, // green
-    0xFF9CCC65, // light green
-    0xFFD4E157, // lime
-    0xFFFFCA28, // amber
-    0xFFFFA726, // orange
-    0xFFFF7043, // deep orange
-    0xFF8D6E63, // brown
-    0xFF78909C, // blue grey
-    0xFF9E9E9E, // grey
+    0xFFEF5350,
+    0xFFEC407A,
+    0xFFAB47BC,
+    0xFF7E57C2,
+    0xFF5C6BC0,
+    0xFF42A5F5,
+    0xFF29B6F6,
+    0xFF26C6DA,
+    0xFF26A69A,
+    0xFF66BB6A,
+    0xFF9CCC65,
+    0xFFD4E157,
+    0xFFFFCA28,
+    0xFFFFA726,
+    0xFFFF7043,
+    0xFF8D6E63,
+    0xFF78909C,
+    0xFF9E9E9E,
   ];
 
   static const Map<String, IconData> icons = {
@@ -126,12 +126,6 @@ abstract final class CategoryDefaults {
     for (final entry in icons.entries) entry.value.codePoint: entry.key,
   };
 
-  /// The [icons] key [value] designates, or null when nothing matches.
-  ///
-  /// Accepts the codePoint strings written by the pre-taxonomy categories, so
-  /// legacy overrides heal into keys the first time they are rewritten.
-  /// Codepoints are not unique across the icon set, but colliding entries share
-  /// the same glyph, so the key returned always renders what was stored.
   static String? canonicalIconKey(String? value) {
     if (value == null) return null;
 

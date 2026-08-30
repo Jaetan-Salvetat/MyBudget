@@ -2,15 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
-/// One tappable component, and where to press it.
 class _Case {
   const _Case(this.name, this.build, this.target);
 
   final String name;
   final Widget Function() build;
 
-  /// The element the press lands on — the whole component for a single
-  /// target, one row or segment for the collections.
   final Finder Function() target;
 }
 
@@ -183,10 +180,6 @@ void main() {
     ),
   ];
 
-  /// The library paints no ink of its own — it hands the press to the
-  /// ambient [ThemeData.splashFactory]. The suite therefore pumps a theme
-  /// whose factory draws a plain circle, so what a press produces can be
-  /// counted; the app-facing default is asserted separately.
   Future<void> pump(
     WidgetTester tester,
     Widget child, {
@@ -202,18 +195,12 @@ void main() {
     );
   }
 
-  /// Settles a press far enough for its ink to have travelled. Inside a
-  /// scrollable the tap recognizer only reports the press once it outlives
-  /// [kPressTimeout], and the splash needs a further frame to start ticking.
   Future<void> pressAndSettle(WidgetTester tester) async {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 120));
     await tester.pump(const Duration(milliseconds: 100));
   }
 
-  /// How many circles the whole app paints right now. The splash is the only
-  /// circle a press adds, so the delta isolates it from the ones a component
-  /// draws at rest — a radio dot, a badge, an avatar.
   int circlesPainted(WidgetTester tester) {
     int count = 0;
     expect(

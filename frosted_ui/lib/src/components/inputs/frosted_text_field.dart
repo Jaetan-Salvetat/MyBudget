@@ -5,15 +5,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import 'frosted_field_surface.dart';
 
-/// A Frosted UI text input.
-///
-/// Original to the system — not a Material text field. The field is a single
-/// self-contained filled block with its label baked in at the top; focus
-/// raises a 2dp primary ring (the Glass Expressive focus signal) rather than
-/// an underline or a notched outline.
-///
-/// Opaque M3 content surface — never glass. Pass [errorText] to drive the
-/// error state; it takes priority over [helperText].
 class FrostedTextField extends StatefulWidget {
   const FrostedTextField({
     this.controller,
@@ -49,10 +40,6 @@ class FrostedTextField extends StatefulWidget {
   final IconData? leadingIcon;
   final IconData? trailingIcon;
 
-  /// What sits in the trailing slot when a glyph is not enough — an affordance
-  /// that animates in and out, or one that carries its own state. It takes the
-  /// slot over from [trailingIcon] and owns its own gesture, so
-  /// [onTrailingTap] does not apply to it.
   final Widget? trailing;
 
   final VoidCallback? onTrailingTap;
@@ -65,17 +52,12 @@ class FrostedTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final FocusNode? focusNode;
 
-  /// Requests focus as soon as the field is mounted.
   final bool autofocus;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
-  /// Replaces the framework's default action handling. Pass an empty
-  /// callback to keep focus and keyboard through a send/done action.
   final VoidCallback? onEditingComplete;
 
-  /// Replaces the solid fill with a blurred translucent veil. Off-spec for
-  /// content surfaces, so opt-in.
   final bool glass;
 
   @override

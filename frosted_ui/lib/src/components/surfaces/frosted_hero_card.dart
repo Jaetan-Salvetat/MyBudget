@@ -4,12 +4,6 @@ import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 
-/// A large emphasis card for the top of a screen: a `primaryContainer` block
-/// with a soft corner halo, a display-scale [title], a [subtitle], and a row
-/// of [actions].
-///
-/// Opaque M3 content surface. At most one per screen — it is the loudest
-/// content element below the FAB.
 class FrostedHeroCard extends StatelessWidget {
   const FrostedHeroCard({
     required this.title,

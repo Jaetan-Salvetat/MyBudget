@@ -14,13 +14,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'capture_provider.g.dart';
 
-/// A loan instalment is a credit repayment, and the taxonomy already has a
-/// name and a colour for that. Nothing about a loan says otherwise.
 const String kLoanCategorySlug = 'finance.credit_pret';
 
-/// What the month has left once everything it already owes is counted. The
-/// capture screen shows that figure and nothing else : it is the consequence
-/// of what was just typed, not a summary of the month.
 @Riverpod(keepAlive: true)
 double remainingThisMonth(Ref ref) {
   return ref.watch(currentMonthRevenuesProvider) -
@@ -28,8 +23,6 @@ double remainingThisMonth(Ref ref) {
       ref.watch(totalMonthlyLoanPaymentsProvider);
 }
 
-/// The past cut into slices that get coarser as they get older, newest first
-/// throughout. Empty slices are dropped rather than drawn hollow.
 @Riverpod(keepAlive: true)
 List<JournalBucket> journalBuckets(Ref ref) {
   final expenses = ref.watch(expenseHistoryProvider);
@@ -55,9 +48,6 @@ List<JournalBucket> journalBuckets(Ref ref) {
         .add(build(_occurrence(startDate, frequency, day)));
   }
 
-  // Back to the oldest transaction on record : a monthly expense created in
-  // June shows up in June, July and August, and a yearly one created last
-  // August shows up in both Augusts.
   final oldest = _oldestStart(expenses, revenues);
   final firstMonth = oldest == null
       ? DateTime(today.year, today.month + 1)
@@ -105,8 +95,6 @@ List<JournalBucket> journalBuckets(Ref ref) {
     }
   }
 
-  // A loan needs no recurrence rule : its schedule already holds every date
-  // it was due on, and what was actually paid on each of them.
   for (final loan in loans) {
     for (final instalment in loan.schedule.installments) {
       final day = dayOnly(instalment.date);
@@ -147,8 +135,6 @@ List<JournalBucket> journalBuckets(Ref ref) {
   ];
 }
 
-/// Today alone, for the figure above the list and for the hint that only
-/// types itself out while the day is still bare.
 @Riverpod(keepAlive: true)
 List<JournalEntry> todayJournal(Ref ref) {
   final buckets = ref.watch(journalBucketsProvider);
@@ -180,16 +166,9 @@ DateTime? _oldestStart(
   return oldest;
 }
 
-/// The Monday of the week [day] falls in.
 DateTime startOfWeek(DateTime day) =>
     dayOnly(day).subtract(Duration(days: day.weekday - DateTime.monday));
 
-/// Which slice a day belongs to. Resolution decays with distance : a day
-/// while it is still remembered, then a week, then a month.
-///
-/// The week slices only ever cut the current month up. A month that had lost
-/// its last days to "la semaine dernière" would show a total that is not the
-/// month's, and a total you cannot trust is worse than a coarse one.
 JournalBucketKind journalSliceOf(DateTime day, DateTime today) {
   if (day == today) return JournalBucketKind.today;
   if (day == today.subtract(const Duration(days: 1))) {
@@ -221,8 +200,6 @@ _BucketKey _bucketKeyOf(DateTime day, DateTime today) {
   });
 }
 
-/// The single day of [month] a transaction can land on : a recurring one
-/// keeps its day of the month, a one-off only counts if it falls in it.
 DateTime? _dayInMonth(
   DateTime startDate,
   Frequency frequency,
@@ -241,9 +218,6 @@ DateTime? _dayInMonth(
   );
 }
 
-/// A recurring transaction keeps the hour it was created at but takes the
-/// day's date : the line says when in the day it lands, not which month it
-/// was first recorded in.
 DateTime _occurrence(DateTime startDate, Frequency frequency, DateTime day) {
   if (frequency == Frequency.oneTime) return startDate;
   return DateTime(

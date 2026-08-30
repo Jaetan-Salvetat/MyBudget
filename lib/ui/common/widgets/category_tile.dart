@@ -5,7 +5,6 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 
-/// One taxonomy row, shared by the picker and the settings screen.
 class CategoryTile extends StatelessWidget {
   final CategoryDisplay category;
   final String? subtitle;

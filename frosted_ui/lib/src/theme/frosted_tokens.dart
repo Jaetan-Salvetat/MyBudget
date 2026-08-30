@@ -4,12 +4,6 @@ import 'frosted_glass_tokens.dart';
 import 'frosted_motion_tokens.dart';
 import 'frosted_state_tokens.dart';
 
-/// Aggregated theme extension carrying every Frosted UI token that is not
-/// already expressed by Flutter's `ColorScheme`, `TextTheme`, or constant
-/// foundations (spacing, radius).
-///
-/// Resolve via `Theme.of(context).extension<FrostedTokens>()!` or the
-/// [BuildContextFrostedTokens.frostedTokens] helper.
 class FrostedTokens extends ThemeExtension<FrostedTokens> {
   const FrostedTokens({
     required this.glass,
@@ -48,10 +42,6 @@ class FrostedTokens extends ThemeExtension<FrostedTokens> {
 }
 
 extension BuildContextFrostedTokens on BuildContext {
-  /// Resolve the [FrostedTokens] attached to the ambient theme.
-  ///
-  /// Throws if no [FrostedTokens] extension was registered — call
-  /// `FrostedTheme.light(...)` or `.dark(...)` when building your [ThemeData].
   FrostedTokens get frostedTokens {
     final FrostedTokens? tokens = Theme.of(this).extension<FrostedTokens>();
     assert(

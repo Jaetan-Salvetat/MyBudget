@@ -42,8 +42,6 @@ class ActionsPage extends StatelessWidget {
   }
 }
 
-/// The fan-out: the trigger holds still while its actions rise behind it,
-/// bottom-up, over a glass scrim.
 class _ExpandableFabDemo extends StatelessWidget {
   const _ExpandableFabDemo();
 
@@ -75,7 +73,6 @@ class _ExpandableFabDemo extends StatelessWidget {
   }
 }
 
-/// The error role, for actions that cannot be taken back.
 class _DestructiveDemo extends StatelessWidget {
   const _DestructiveDemo();
 
@@ -110,8 +107,6 @@ class _DestructiveDemo extends StatelessWidget {
   }
 }
 
-/// Three footprints: dense rows trail [FrostedIconButtonSize.small], a lone
-/// target takes [FrostedIconButtonSize.large].
 class _IconButtonSizesDemo extends StatelessWidget {
   const _IconButtonSizesDemo();
 
@@ -134,8 +129,6 @@ class _IconButtonSizesDemo extends StatelessWidget {
   }
 }
 
-/// Every variant in both resting forms. Press one and it morphs into the
-/// other form for as long as it is held — pill flattens, rounded rounds out.
 class _ShapeMorphingDemo extends StatelessWidget {
   const _ShapeMorphingDemo();
 

@@ -1,11 +1,3 @@
-/// Reads the date a free-text entry carries, so a transaction can be typed
-/// long after it happened.
-///
-/// Runs before the price is read and hands back the text without its date :
-/// left in place, "le 12" would be taken for an amount, and the model would
-/// have to make sense of words it never saw during training.
-/// The user notes what has been spent : every form but "demain" resolves to
-/// the most recent matching day that has already come.
 abstract final class DateParserService {
   static const int _daysInWeek = 7;
 
@@ -64,13 +56,11 @@ abstract final class DateParserService {
     caseSensitive: false,
   );
 
-  /// A bare number is an amount, never a date : only "le" turns it into one.
   static final RegExp _dayOfMonth = RegExp(
     r'\ble\s+(\d{1,2})\b',
     caseSensitive: false,
   );
 
-  /// Null when the text carries no date, which is the common case.
   static DateParseResult? parse(String input, {DateTime? today}) {
     if (input.trim().isEmpty) return null;
 
@@ -84,8 +74,6 @@ abstract final class DateParserService {
     );
   }
 
-  /// The date the user wrote first wins. At equal position the longest match
-  /// wins, so "le 12 mars" is not cut down to "le 12".
   static _DateMatch? _firstOf(String input, DateTime reference) {
     final matches = <_DateMatch>[
       ..._relative(input, reference),
@@ -132,9 +120,6 @@ abstract final class DateParserService {
     return reference.subtract(Duration(days: days));
   }
 
-  /// "samedi" is the last Saturday that has come, today included. "dernier"
-  /// steps back a full week from there, which only shows when the weekday
-  /// written is today's.
   static List<_DateMatch> _weekdayMatches(String input, DateTime reference) {
     return [
       for (final match in _weekday.allMatches(input))
@@ -205,9 +190,6 @@ abstract final class DateParserService {
         1;
   }
 
-  /// Null when the numbers do not name a real day. Without an explicit year,
-  /// a day still to come belongs to the period before : nobody records
-  /// tomorrow's groceries by writing their date.
   static DateTime? _dated(
     DateTime reference, {
     required int day,

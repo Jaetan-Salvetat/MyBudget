@@ -1,12 +1,8 @@
-/// Résultat du parsing de prix.
 class PriceResult {
-  /// Texte original de l'utilisateur.
   final String fullText;
 
-  /// Montant extrait.
   final double price;
 
-  /// Phrase nettoyée sans le montant ni les mots-monnaie.
   final String remaining;
 
   const PriceResult({
@@ -37,29 +33,22 @@ final _moneyWords = RegExp(
   caseSensitive: false,
 );
 
-// Montant avec séparateur de milliers format FR : 1 500,00 ou 10 000
 final _thousandsSepFr = RegExp(
   r'(\d{1,3}(?:\s\d{3})+)(?:[,.](\d{2}))?',
 );
 
-// Montant avec séparateur de milliers format EN : 1,200 ou 2,500.00
 final _thousandsSepEn = RegExp(
   r'(\d{1,3}(?:,\d{3})+)(?:\.(\d{1,2}))?',
 );
 
-// Montant simple avec décimales (point ou virgule)
 final _decimalAmount = RegExp(
   r'(\d+)[,.](\d{1,2})\b',
 );
 
-// Montant entier seul
 final _integerAmount = RegExp(
   r'\d+',
 );
 
-/// Extrait le montant et la phrase nettoyée d'une saisie libre utilisateur.
-///
-/// Retourne `null` si aucun montant n'est détecté.
 PriceResult? parsePrice(String input) {
   if (input.trim().isEmpty) return null;
 
@@ -125,8 +114,6 @@ _PriceMatch? _findPrice(String input) {
 
   if (candidates.isEmpty) return null;
 
-  // Quand il y a plusieurs candidats, le prix est généralement le dernier nombre
-  // sauf s'il est petit (1-9) et précède un mot (quantité comme "2 cafés")
   if (candidates.length == 1) return candidates.first;
 
   return _selectBestCandidate(candidates, input);

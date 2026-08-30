@@ -8,8 +8,6 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
-/// What the month has left, counting down under the eye at every send. It is
-/// the only figure on the capture screen : a tap hands the rest over to Stats.
 class CaptureAnchor extends StatelessWidget {
   static const double integerFontSize = 52;
   static const double centsFontSize = 30;

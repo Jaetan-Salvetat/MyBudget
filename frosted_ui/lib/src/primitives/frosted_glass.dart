@@ -11,17 +11,6 @@ import '../theme/frosted_tokens.dart';
 import 'frosted_glass_level.dart';
 import 'frosted_glass_suspension.dart';
 
-/// The Liquid Glass primitive used by every chrome surface (tab bar,
-/// toolbar, sheet, modal shell).
-///
-/// The material is composed from three independent axes:
-///
-///   - [level]: how much matter the glass carries (blur + veil opacity).
-///   - [tone]: which tint the veil uses ([FrostedGlassTone.auto] follows
-///     the ambient theme brightness).
-///   - [elevation]: how the glass sits in space (shadow strength).
-///
-/// Glass is for *chrome only*. Do not wrap scrollable content in it.
 class FrostedGlass extends StatelessWidget {
   const FrostedGlass({
     super.key,
@@ -42,19 +31,8 @@ class FrostedGlass extends StatelessWidget {
   final FrostedGlassTone tone;
   final FrostedGlassElevation elevation;
 
-  /// Sides that carry the hairline border.
-  ///
-  /// Leave out any side that sits on a screen edge. Subsets other than
-  /// [FrostedGlassEdge.all] or [FrostedGlassEdge.none] require a
-  /// [BorderRadius.zero] radius.
   final Set<FrostedGlassEdge> borderEdges;
 
-  /// Optional 0→1 driver that reveals the material progressively: blur, veil,
-  /// border and shadow all scale with the animation value. When null the glass
-  /// renders at full strength.
-  ///
-  /// Use it for reveal transitions (scrims, sheets, drawers) where wrapping the
-  /// glass in [Opacity] would break the [BackdropFilter].
   final Animation<double>? animation;
 
   @override
@@ -185,17 +163,6 @@ List<BoxShadow> _scaleShadow(List<BoxShadow> shadows, double t) {
   ];
 }
 
-/// Blurs the backdrop, then desaturates it the way Apple's vibrancy does.
-///
-/// The blur is *bounded*: its kernel only samples pixels that sit inside the
-/// glass bounds, so no surrounding colour bleeds in and no bright halo forms
-/// along the edges.
-///
-/// Impeller's bounded blur degenerates once the sigma grows past roughly a
-/// third of the bounded region: it collapses the backdrop into a flat fill
-/// instead of blurring it, so the glass reads as opaque. Skia is unaffected,
-/// which hides the problem in widget tests. The sigma is therefore capped
-/// against the surface itself — see [_maxSigmaForBounds].
 class _GlassBackdrop extends SingleChildRenderObjectWidget {
   const _GlassBackdrop({
     required this.sigma,
@@ -222,15 +189,6 @@ class _GlassBackdrop extends SingleChildRenderObjectWidget {
   }
 }
 
-/// Paints the bounded backdrop blur behind its child.
-///
-/// The bounds a backdrop filter reads are expressed in the coordinate space of
-/// the backdrop it samples — the root of the layer tree — not in the local
-/// paint space the widget sits in. Any compositing layer in between (a repaint
-/// boundary, a transform, the follower layer a [MenuAnchor] overlay hangs
-/// from) resets the local offset to zero, which would aim the bounds at the
-/// top-left of the screen and leave the filter reading nothing at all. The
-/// rect is therefore resolved at paint time through [getTransformTo].
 class _RenderGlassBackdrop extends RenderProxyBox {
   _RenderGlassBackdrop({required double sigma, required double saturation})
     : _sigma = sigma,
@@ -295,8 +253,6 @@ class _RenderGlassBackdrop extends RenderProxyBox {
   }
 }
 
-/// Measured against Impeller: a bounded blur tracks Skia while the sigma stays
-/// at or below a third of the shortest bounded span, and collapses beyond it.
 const double _kSigmaToShortestSide = 3;
 
 double _maxSigmaForBounds(Rect bounds) =>

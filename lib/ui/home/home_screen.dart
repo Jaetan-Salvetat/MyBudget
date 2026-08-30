@@ -20,9 +20,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  /// L'atterrissage d'une transaction se joue entre le champ, porté par la
-  /// barre, et le journal, porté par la page : il ne peut appartenir qu'à
-  /// l'écran qui contient les deux.
   final QuickAddLandingController _landing = QuickAddLandingController();
 
   @override
@@ -55,8 +52,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  /// Four destinations, no action button : the start destination *is* the
-  /// quick add, so a shortcut back to it would point at itself.
   static const List<_NavItem> _items = [
     _NavItem('Accueil', Symbols.auto_awesome_rounded),
     _NavItem('Transactions', Symbols.swap_vert_rounded),
@@ -89,8 +84,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: FrostedScaffold(
           extendBodyBehindAppBar: true,
           bottomNavigationBar: FrostedBottomBar(
-            // Le clavier replie la rangée au lieu d'emporter la barre : le
-            // dock garde le bord sur lequel il se pose, au pixel près.
             folded: keyboardVisible,
             selectedIndex: selectedTab.index,
             onDestinationSelected: (index) => ref

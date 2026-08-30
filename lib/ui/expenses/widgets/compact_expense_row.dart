@@ -17,7 +17,6 @@ class CompactExpenseRow extends StatelessWidget {
   final Beneficiary? beneficiary;
   final bool showDivider;
 
-  /// Whether the month being read is the one still in progress.
   final bool isCurrentMonth;
   final bool showDate;
   final VoidCallback onEdit;
@@ -147,14 +146,8 @@ class CompactExpenseRow extends StatelessWidget {
     };
   }
 
-  /// A closed rule is a trace, and so is any month that is not the one in
-  /// progress : both can be read, neither can be edited or deleted. Acting on
-  /// a past month would mean deciding what it should retroactively have been.
   bool get _isReadOnly => !isCurrentMonth || expense.endDate != null;
 
-  /// The answer the deletion dialog opens on, and null when there is no
-  /// month to argue about. A rule that has already been honoured this month
-  /// keeps it ; one still waiting for its turn has nothing to keep.
   RecurringDeletion? get _initialDeletionScope {
     if (expense.frequencyEnum == Frequency.oneTime) return null;
 

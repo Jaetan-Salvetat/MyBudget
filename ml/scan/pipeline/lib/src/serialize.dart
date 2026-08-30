@@ -1,6 +1,3 @@
-/// Sérialisation JSON des extractions, partagée par les bancs de test
-/// (harnais on-device, outil de parité) : le format est celui que les
-/// scripts Python d'analyse consomment.
 library;
 
 import 'flow.dart';
@@ -21,8 +18,6 @@ Map<String, Object?> receiptJson(ExtractedReceipt receipt) {
   };
 }
 
-/// Noms de lecture au format de `reference/local_flow.py` : le nom d'enum
-/// Dart n'est pas le contrat, `bench/parity.py` compare ces chaînes-là.
 String sourceName(ReadSource source) => switch (source) {
   ReadSource.pass1 => 'passe1',
   ReadSource.retry => 'retry',

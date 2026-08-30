@@ -1,5 +1,3 @@
-/// Un service externe compatible OpenAI que l'utilisateur branche avec sa
-/// propre clé. Le nom du fournisseur ne sort jamais de l'écran qui le liste.
 enum AiProvider {
   gemini(
     id: 'gemini',
@@ -32,8 +30,6 @@ enum AiProvider {
   final String consoleLabel;
   final String consoleUrl;
 
-  /// Préfixes des fournisseurs concurrents, du plus spécifique au plus large :
-  /// une clé collée depuis le mauvais service est refusée sans appel réseau.
   static const Map<String, String> foreignKeyPrefixes = {
     'sk-ant-': 'Anthropic',
     'sk-proj-': 'OpenAI',
@@ -55,7 +51,6 @@ enum AiProvider {
     return fallback;
   }
 
-  /// Le fournisseur d'où vient la clé quand ce n'est manifestement pas celui-ci.
   static String? foreignVendorOf(String key) {
     for (final entry in foreignKeyPrefixes.entries) {
       if (key.startsWith(entry.key)) return entry.value;

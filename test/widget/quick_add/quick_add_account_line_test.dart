@@ -106,8 +106,6 @@ void main() {
     await tester.tap(find.textContaining('Courant'));
     await tester.pumpAndSettle();
 
-    // La barre se recompose pendant que la feuille est ouverte : la ligne
-    // qui l'a ouverte n'est plus montee.
     lineVisibility.value = false;
     await tester.pumpAndSettle();
 
@@ -156,7 +154,6 @@ void main() {
   });
 }
 
-/// Une ligne qui ne disparait jamais : le cas ordinaire des autres tests.
 class _AlwaysVisible extends ValueListenable<bool> {
   const _AlwaysVisible();
 

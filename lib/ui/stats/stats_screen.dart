@@ -15,8 +15,6 @@ import 'package:mybudget/ui/stats/widgets/loan_progress_section.dart';
 import 'package:mybudget/ui/stats/widgets/stats_greeting.dart';
 import 'package:mybudget/ui/stats/widgets/upcoming_movements_section.dart';
 
-/// The month read in full : balance, breakdown, what is coming. The capture
-/// screen owns the present, this one owns the period.
 class StatsScreen extends ConsumerWidget {
   final bool isNested;
 

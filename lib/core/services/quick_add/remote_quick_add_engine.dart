@@ -9,18 +9,11 @@ import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 
-/// Le moteur distant. Il ne voit ni le montant ni la date : les deux sont lus
-/// localement et retirés du texte avant l'envoi, ce qui supprime d'un coup les
-/// montants hallucinés et les séparateurs décimaux inversés.
 class RemoteQuickAddEngine implements QuickAddEngine {
   RemoteQuickAddEngine({required this._client, required this._taxonomy});
 
-  /// Une saisie d'ajout rapide tient en une ligne. Au-delà c'est un collage :
-  /// on borne le coût et ce qui sort du téléphone.
   static const int maxInputLength = 280;
 
-  /// Une seule reprise : si le modèle sort deux fois de la taxonomie, la
-  /// réponse locale est meilleure que d'insister.
   static const int maxAttempts = 2;
 
   static const String _recurringLabel = 'fixe';
@@ -28,8 +21,6 @@ class RemoteQuickAddEngine implements QuickAddEngine {
   static const String _schemaName = 'quick_add';
   static const int _maxAlternatives = 3;
 
-  /// Le refuge quand rien ne colle : mieux vaut « Autre » qu'une catégorie
-  /// voisine qui obligera l'utilisateur à corriger.
   static const String _fallbackExpenseSlug = 'divers.autre';
 
   final AiChatClient _client;
@@ -60,17 +51,12 @@ class RemoteQuickAddEngine implements QuickAddEngine {
     throw const AiRequestException(AiRequestFailure.malformedResponse);
   }
 
-  /// L'énumération du schéma et le catalogue du prompt sortent de la même
-  /// liste : ils ne peuvent pas diverger.
   List<TaxonomyNode> _nodes() {
     return _selectableNodes ??= _taxonomy.leaves
         .where((node) => !node.isDeprecated && node.aliasOf == null)
         .toList();
   }
 
-  /// Les slugs seuls sont ambigus (`divers.tabac_jeux`, `finance.retrait_dab`).
-  /// Le libellé lève le doute, et ce bloc est stable d'un appel à l'autre :
-  /// placé en tête, il se met en cache côté fournisseur.
   String _catalogueOfCategories() {
     if (_catalogue != null) return _catalogue!;
 
@@ -176,8 +162,6 @@ class RemoteQuickAddEngine implements QuickAddEngine {
         );
     }
 
-    // La saisie ferme le prompt : tout ce qui précède est identique d'un
-    // appel à l'autre, donc réutilisable par le cache du fournisseur.
     buffer
       ..writeln()
       ..writeln('Saisie : "$text"');
@@ -185,8 +169,6 @@ class RemoteQuickAddEngine implements QuickAddEngine {
     return buffer.toString();
   }
 
-  /// Null quand la réponse est inexploitable : l'appelant relance, il ne
-  /// devine pas.
   QuickAddClassification? _parse(
     String raw,
     String cleanedText,

@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
-/// One component whose surface is a rounded rectangle, and where to press it.
 class _Case {
   const _Case(this.name, this.build, this.target, {Finder Function()? root})
     : _root = root;
@@ -10,25 +9,16 @@ class _Case {
   final String name;
   final Widget Function() build;
 
-  /// The element the press lands on — the whole component for a single
-  /// target, one row for the collections.
   final Finder Function() target;
 
   final Finder Function()? _root;
 
-  /// The component whose paint is replayed. It defaults to [target], and is
-  /// given separately for the collections, where the press lands on a row
-  /// but the surface under it is painted by the component itself.
   Finder Function() get root => _root ?? target;
 }
 
-/// What the canvas held at the moment the press ink was painted: the surface
-/// drawn underneath it, and the clips it was confined by.
 class _InkFrame {
   const _InkFrame(this.surface, this.clips);
 
-  /// The rounded rectangle the surface painted for itself, in the same
-  /// coordinates as [clips] — the shape the ink is supposed to take.
   final RRect surface;
 
   final List<bool Function(Offset)> clips;
@@ -41,9 +31,6 @@ void main() {
   const Color seed = Color(0xFF7C5CFF);
   const Color splash = Color(0xFF00FF00);
 
-  /// How far from the surface edge a probe has to sit to be judged. Points
-  /// any closer straddle the boundary, where a clip and a fill disagree by
-  /// rounding rather than by shape.
   const double _boundaryMargin = 0.25;
 
   const List<FrostedNavItem> navItems = <FrostedNavItem>[
@@ -184,11 +171,6 @@ void main() {
     );
   }
 
-  /// Replays the paint of [root] and reports the state of the canvas at the
-  /// moment the press ink went down: the surface underneath it and every clip
-  /// then in force. The ink is picked out by the theme splash colour, so a
-  /// circle the component draws for itself — a radio dot, a switch thumb —
-  /// is never mistaken for it.
   _InkFrame? inkFrame(WidgetTester tester, Finder root) {
     _InkFrame? frame;
     Offset origin = Offset.zero;
@@ -243,8 +225,6 @@ void main() {
     return frame;
   }
 
-  /// The ink covers the surface and nothing beyond it: every point of the
-  /// shape lets the ink through, every point outside it stops the ink.
   void expectInkTakesSurfaceShape(_InkFrame? frame, String name) {
     expect(frame, isNotNull, reason: '$name paints no ink over a surface');
     final RRect surface = frame!.surface;
@@ -283,8 +263,6 @@ void main() {
         final TestGesture gesture = await tester.startGesture(
           tester.getCenter(root),
         );
-        // The press registers once it outlives the tap timeout; the surface
-        // starts morphing and the ink starts spreading on that same frame.
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 110));
         await tester.pump(const Duration(milliseconds: 60));

@@ -7,8 +7,6 @@ import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_tokens.dart';
 
-/// Shows a [FrostedDialog] as a modal route — a glass shell wrapping an opaque
-/// M3 interior, over a scrim. Returns the value the dialog pops with.
 Future<T?> showFrostedDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -65,11 +63,6 @@ Future<T?> showFrostedDialog<T>({
   );
 }
 
-/// A modal dialog: a Liquid Glass shell around an opaque M3 interior, with a
-/// title, body, and a bottom row of actions. An optional [leadingAction] is
-/// pinned to the left of that row (e.g. a mode toggle).
-///
-/// Present it through [showFrostedDialog].
 class FrostedDialog extends StatelessWidget {
   const FrostedDialog({
     required this.title,
@@ -83,7 +76,6 @@ class FrostedDialog extends StatelessWidget {
   final Widget? body;
   final List<Widget> actions;
 
-  /// Optional widget pinned to the left of the action row, opposite [actions].
   final Widget? leadingAction;
 
   @override

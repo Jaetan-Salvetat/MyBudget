@@ -10,7 +10,6 @@ import '../../theme/frosted_tokens.dart';
 import '../navigation/frosted_menu.dart';
 import 'frosted_field_surface.dart';
 
-/// A single option in a [FrostedDropdown].
 class FrostedDropdownItem<T> {
   const FrostedDropdownItem({
     required this.value,
@@ -23,10 +22,6 @@ class FrostedDropdownItem<T> {
   final IconData? icon;
 }
 
-/// A field-styled single-select dropdown.
-///
-/// Opaque M3 content surface. Mirrors [FrostedTextField]'s filled look and
-/// opens a menu of [items]; selecting one reports it through [onChanged].
 class FrostedDropdown<T> extends StatefulWidget {
   const FrostedDropdown({
     required this.items,
@@ -68,11 +63,6 @@ class _FrostedDropdownState<T> extends State<FrostedDropdown<T>> {
 
   static const BorderRadius _radius = BorderRadius.all(_corner);
 
-  /// Caps the menu at the roomier side of the field, gap included, so a long
-  /// list scrolls inside the viewport instead of running past it.
-  ///
-  /// Which side it lands on is [MenuAnchor]'s call — both cards carry the same
-  /// corners, so either direction reads the same.
   void _measureRoom() {
     final RenderBox? box =
         _fieldKey.currentContext?.findRenderObject() as RenderBox?;

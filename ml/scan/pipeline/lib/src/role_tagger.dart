@@ -1,15 +1,3 @@
-/// Le tagger de rôles : neuf classes, toutes les lignes du ticket.
-///
-/// Il *désigne* la ligne, il ne lit pas le champ. L'enseigne échouait à la
-/// sélection (`lines[0]` est souvent un slogan ou une adresse), la date à la
-/// lecture : le modèle règle la première, le parsing garde la seconde.
-///
-/// Le corpus annote quatorze rôles, le modèle n'en prédit que neuf : six
-/// d'entre eux — tax, change, summary, header, footer, noise — ne sont lus
-/// par aucun consommateur, et les distinguer coûtait 41 % des erreurs du
-/// tagger sans rien rapporter. Ils sont fondus dans `noise`.
-///
-/// Miroir de `ml/scan/research/reference/header_ml.py` et `line_labels.py`.
 library;
 
 import 'classifier.dart';
@@ -18,9 +6,6 @@ import 'lines.dart';
 import 'store_gazetteer.dart';
 import 'structure.dart';
 
-/// Ordre des rôles, contrat partagé avec `annotate/schema.py`. Un décalage
-/// ici ferait désigner silencieusement la mauvaise ligne : `RoleTagger`
-/// vérifie la liste au chargement plutôt que de faire confiance.
 const List<String> roleNames = [
   'store',
   'date_line',
@@ -35,22 +20,12 @@ const List<String> roleNames = [
 
 const int roleStore = 0;
 const int roleDateLine = 1;
-/// `structure_roles.dart` porte déjà `roleItem` comme nom de rôle ; ici
-/// c'est la colonne du modèle, d'où le suffixe.
 const int roleItemIndex = 2;
 
-/// Au-delà, une ligne qui nomme une enseigne parle d'autre chose : une pub
-/// fidélité, un site web en pied de ticket.
 const int headerFallbackLines = 12;
 
-/// On ne cherche un nom connu que parmi les lignes que le tagger n'a pas
-/// écartées. Une adresse sort à des probabilités de l'ordre de 0,005 — sous ce
-/// plancher, on fabriquerait des enseignes.
 const double recognitionMinProbability = 0.05;
 
-/// En-dessous, le modèle hésite : mieux vaut pas d'enseigne ni de date du
-/// tout qu'une ligne prise au hasard. Le rattachement du libellé ne passe
-/// plus par ce seuil — il a son propre modèle (`label_link.dart`).
 const double minRoleProbability = 0.5;
 
 class RoleTagger {
@@ -64,24 +39,17 @@ class RoleTagger {
 
   final LineClassifier _model;
 
-  /// Probabilité de chaque rôle pour chaque ligne, dans l'ordre du ticket.
   List<List<double>> probabilities(List<PhysicalLine> lines) =>
       _model.predictProbaAll(featurizeAll(lines));
 
-  /// Le rôle le plus probable de chaque ligne — l'argmax, sans seuil : la
-  /// décision se juge au checksum, pas à une confiance choisie à la main.
   List<String> roles(List<PhysicalLine> lines) =>
       predictedRoles(probabilities(lines));
 }
 
-/// Les rôles argmax de probabilités déjà inférées. L'inférence est l'étage
-/// cher du flow : un appelant qui l'a déjà payée ne doit pas la repayer pour
-/// nommer les rôles.
 List<String> predictedRoles(List<List<double>> probabilities) => [
   for (final row in probabilities) roleNames[argmax(row)],
 ];
 
-/// La ligne la plus probable pour ce rôle — un ticket n'en a qu'une.
 int? bestLineFor(List<List<double>> probabilities, int role) {
   if (probabilities.isEmpty) return null;
   var best = 0;
@@ -91,8 +59,6 @@ int? bestLineFor(List<List<double>> probabilities, int role) {
   return probabilities[best][role] > minRoleProbability ? best : null;
 }
 
-/// L'en-tête s'arrête au premier article : après, une enseigne nommée est une
-/// publicité ou une adresse web, jamais le logo.
 int headerZone(List<PhysicalLine> lines, List<List<double>> probabilities) {
   for (var index = 0; index < probabilities.length; index++) {
     if (argmax(probabilities[index]) == roleItemIndex) return index;
@@ -100,7 +66,6 @@ int headerZone(List<PhysicalLine> lines, List<List<double>> probabilities) {
   return lines.length < headerFallbackLines ? lines.length : headerFallbackLines;
 }
 
-/// Le premier nom connu porté par une ligne plausible de l'en-tête.
 String? _recognizedStore(
   List<PhysicalLine> lines,
   List<List<double>> probabilities,
@@ -119,13 +84,6 @@ String? _recognizedStore(
   return null;
 }
 
-/// L'enseigne de la ligne que le tagger désigne, rendue sous sa graphie connue
-/// quand le répertoire l'y reconnaît.
-///
-/// Reconnaître prime sur recopier : quand le modèle désigne `-SP` et qu'une
-/// autre ligne de l'en-tête dit « McDonald's », c'est la seconde qui a raison.
-/// Sans répertoire, on retombe sur la ligne désignée telle quelle — c'est ce
-/// que faisait le Dart avant le portage, et ça coûtait cinq enseignes sur 500.
 String? storeOf(
   List<PhysicalLine> lines,
   List<List<double>> probabilities, {
@@ -140,9 +98,6 @@ String? storeOf(
   return index == null ? null : lines[index].text;
 }
 
-/// La date lue sur la ligne désignée ; à défaut, sur tout le ticket — le
-/// tagger peut se tromper de ligne, il ne doit pas faire perdre une date que
-/// les règles savaient lire.
 String? dateOf(List<PhysicalLine> lines, List<List<double>> probabilities) {
   final index = bestLineFor(probabilities, roleDateLine);
   if (index != null) {

@@ -19,7 +19,6 @@ class CategoryOverrideRepository {
     }
   }
 
-  /// Stores the override, or removes it when nothing is customised anymore.
   void save(CategoryOverrideModel override) {
     final existing = get(override.slug);
 

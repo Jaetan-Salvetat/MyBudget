@@ -5,10 +5,6 @@ import '../../foundations/frosted_type_scale.dart';
 import '../actions/_interactive_surface.dart';
 import 'frosted_step.dart';
 
-/// A stepper for multi-step flows (wizards, onboarding).
-///
-/// - [Axis.horizontal]: numbered circles linked by progress lines.
-/// - [Axis.vertical]: numbered circles stacked with title and subtitle.
 class FrostedStepper extends StatelessWidget {
   const FrostedStepper({
     required this.steps,

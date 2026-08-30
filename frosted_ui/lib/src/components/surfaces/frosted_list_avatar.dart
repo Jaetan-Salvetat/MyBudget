@@ -1,7 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-/// The rounded leading badge used in list tiles — a 40dp circle on
-/// `secondaryContainer` holding an icon (M3 Expressive leading avatar size).
 class FrostedListAvatar extends StatelessWidget {
   const FrostedListAvatar({required this.icon, super.key});
 

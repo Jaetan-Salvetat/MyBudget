@@ -10,13 +10,6 @@ import 'package:mybudget/ui/common/widgets/expandable_group.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Two-level taxonomy picker: pick a group, then one of its subcategories.
-///
-/// Only leaves can be picked: a group slug stored on a transaction would not
-/// resolve and the amount would fall into "Non catégorisé".
-///
-/// A null [type] offers both sections: the caller then reads the type back
-/// from the picked slug rather than imposing one.
 class CategoryPickerSheet extends ConsumerStatefulWidget {
   static const String expensesLabel = 'Dépenses';
   static const String incomeLabel = 'Revenus';
@@ -99,8 +92,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     );
   }
 
-  /// The group of the current selection starts open, but only until the user
-  /// touches the tree: reopening it on every rebuild would fight their taps.
   void _openSelectedGroupOnce(CategoryDisplayResolver resolver) {
     if (_didOpenSelectedGroup) return;
     _didOpenSelectedGroup = true;
@@ -164,8 +155,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     );
   }
 
-  /// The tree itself. Both sections are labelled when the sheet spans them,
-  /// so an income group cannot be read as one more expense group.
   List<Widget> _groupSections(CategoryDisplayResolver resolver) {
     final spansBothTypes = widget.type == null;
 

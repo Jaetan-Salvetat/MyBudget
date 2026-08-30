@@ -11,9 +11,6 @@ import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/settings/screens/category_form_screen.dart';
 
-/// Read-only taxonomy tree. Categories cannot be created or deleted: the
-/// taxonomy is the contract with the classifier. Only name, icon and colour
-/// can be customised.
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
 
@@ -149,10 +146,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  /// Leaves to show per group key, in taxonomy order, for one type.
-  ///
-  /// A search keeps the tree shape rather than flattening it: the group row is
-  /// what carries the colour, so it has to stay reachable to be edited.
   Map<String, List<CategoryDisplay>> _matchingLeavesByGroup(
     CategoryDisplayResolver resolver,
     TransactionType type,

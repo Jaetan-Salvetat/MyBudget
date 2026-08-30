@@ -11,12 +11,6 @@ const int maxFrequentCategories = 5;
 
 typedef _Usage = ({int count, DateTime last});
 
-/// Categories the user assigns the most, most used first. A null [type] ranks
-/// expenses and revenues together.
-///
-/// Counted per entry rather than per occurrence: expenses and revenues are
-/// recurrences, so a monthly rent would otherwise outweigh everything the user
-/// actually reaches for when picking a category.
 @Riverpod(keepAlive: true)
 List<CategoryDisplay> frequentCategories(Ref ref, TransactionType? type) {
   final resolver = ref.watch(categoryDisplayResolverProvider).value;

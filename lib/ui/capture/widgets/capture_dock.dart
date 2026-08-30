@@ -12,33 +12,15 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
-/// La saisie, posée sur son propre verre au-dessus de la barre du bas.
-///
-/// Le panneau porte tout ce que la saisie produit — le brouillon, la rangée,
-/// la ligne de compte — parce que rien de tout cela ne peut flotter à nu : le
-/// journal court jusqu'au bas de l'écran, et un montant sans surface se lit
-/// par-dessus une ligne d'historique. Des deux chromes de ce bord, celui-ci
-/// est celui qui porte l'action, donc celui qui flotte.
 class CaptureDock extends ConsumerStatefulWidget {
-  /// Air que le dock garde de chaque côté : au-dessus la dernière ligne du
-  /// journal, en dessous la barre. Il flotte, il ne se pose sur rien.
   static const double clearance = FrostedSpacing.sp3;
 
-  /// Air entre le bord du verre et ce qu'il porte. Il vaut la différence
-  /// entre les deux rayons : les coins du panneau et ceux du champ restent
-  /// concentriques.
   static const double padding = FrostedSpacing.sp4;
 
-  /// Le rayon du panneau, un cran au-dessus de celui du champ qu'il contient.
   static const double radius = FrostedRadius.xl;
 
-  /// Le verre doit rester lisible par-dessus le journal : un niveau plus
-  /// léger laisserait les lignes se lire à travers la saisie.
   static const FrostedGlassLevel level = FrostedGlassLevel.thick;
 
-  /// Le panneau répond à la page au lieu d'être posé dessus : il flotte d'un
-  /// cheveu au-dessus de la barre, et une ombre plus franche en ferait une
-  /// carte lâchée par-dessus le journal.
   static const FrostedGlassElevation elevation = FrostedGlassElevation.resting;
 
   const CaptureDock({super.key});
@@ -64,8 +46,6 @@ class _CaptureDockState extends ConsumerState<CaptureDock> {
     setState(() => _focused = focused);
   }
 
-  /// The hint only ever runs on a day with nothing on it : once a line is
-  /// there, the page already says what it can do.
   void _syncHint(bool dayIsEmpty) {
     if (!dayIsEmpty) {
       _hint.stop();
@@ -108,8 +88,6 @@ class _CaptureDockState extends ConsumerState<CaptureDock> {
   }
 }
 
-/// Quick-add turned off in the settings : the page keeps its two gestures,
-/// the scan and the form, rather than becoming a dead end.
 class _ManualDock extends ConsumerWidget {
   const _ManualDock();
 

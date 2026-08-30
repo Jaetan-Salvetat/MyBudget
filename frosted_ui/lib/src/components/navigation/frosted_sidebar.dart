@@ -11,11 +11,6 @@ import 'frosted_sidebar_section.dart';
 
 const double _kDefaultWidth = 280;
 
-/// A Liquid Glass desktop sidebar.
-///
-/// Supports a brand, an optional accent action button (e.g. "+ New task"),
-/// a list of [FrostedSidebarSection]s, and a footer. Items are identified by
-/// stable [FrostedSidebarItem.id] strings and tracked via [selectedId].
 class FrostedSidebar extends StatelessWidget {
   const FrostedSidebar({
     required this.sections,

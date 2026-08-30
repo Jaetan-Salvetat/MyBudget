@@ -11,41 +11,13 @@ import 'frosted_badge.dart';
 import 'frosted_nav_action.dart';
 import 'frosted_nav_item.dart';
 
-/// Smallest square a destination may occupy, so a bare icon stays comfortably
-/// tappable.
 const double _kMinTapTarget = 48;
 
-/// Accent strength of the selected destination's tint. Light surfaces need a
-/// denser tint than dark ones: on a pale pill an M3 container tone lands
-/// within a hair of the glass it sits on, so the selection disappears.
 const double _kSelectedTintLight = 0.18;
 
-/// Icon size shared by the destinations and the docked action.
 const double _kIconSize = 24;
 const double _kSelectedTintDark = 0.30;
 
-/// A compact Liquid Glass pill holding a handful of navigation destinations.
-///
-/// Only the selected destination spells out its label, inline next to its
-/// icon; the others stay icon-only. The pill therefore hugs its content and
-/// reads as a free-standing object floating over the page rather than as a bar
-/// spanning it. Best used with 3-4 destinations — beyond that it grows wide
-/// enough that [FrostedToolbar] or an edge-anchored bar carries the job better.
-///
-/// The pill claims no safe area of its own: whoever places it at the bottom of
-/// a screen owns that inset, since the same widget also sits inside cards and
-/// panels where no inset applies.
-///
-/// It sits on [FrostedGlassLevel.thin] on purpose. A bounded backdrop blur is
-/// capped at a third of the surface's shortest span, so on a pill this short
-/// every level from [FrostedGlassLevel.thin] up resolves to the very same
-/// sigma — only the veil still differs. Reaching for a heavier level therefore
-/// buys no extra blur and just paints a denser veil, which turns the pill into
-/// an opaque slab instead of glass.
-///
-/// An optional [action] docks a command at the trailing edge, filled with the
-/// accent so it reads as the one thing to press rather than as a fourth
-/// destination.
 class FrostedNavPill extends StatelessWidget {
   const FrostedNavPill({
     required this.destinations,
@@ -59,15 +31,10 @@ class FrostedNavPill extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
 
-  /// Command docked at the trailing edge, apart from the destinations.
   final FrostedNavAction? action;
 
   @override
   Widget build(BuildContext context) {
-    // Hugging is the whole point of this pill, so it must survive a parent
-    // that hands down a tight width — the `bottomNavigationBar` slot of a
-    // Scaffold does exactly that. The Align absorbs the tight box and lets the
-    // glass keep its own size inside it.
     return Align(
       alignment: Alignment.center,
       widthFactor: 1,

@@ -1,13 +1,3 @@
-/// Rejoue les features, le tagger de rôles, le modèle de lien et le tagger de
-/// spans côté Dart,
-/// pour comparaison ligne à ligne avec la référence Python
-/// (research/bench/roles_parity.py).
-///
-/// Entrée : les fichiers du corpus annoté, qui portent déjà les lignes
-/// physiques avec leur géométrie. Sortie : par ticket, la matrice de
-/// features de ligne et de mot, le rôle le plus probable de chaque ligne, la
-/// distance prédite jusqu'à son libellé et le libellé découpé. Zéro divergence attendue — une colonne décalée fait
-/// décider le device autrement que la référence.
 library;
 
 import 'dart:convert';

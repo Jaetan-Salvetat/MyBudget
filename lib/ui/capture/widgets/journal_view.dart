@@ -22,39 +22,18 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
-/// The past read backwards from now, in slices that coarsen as they age :
-/// today flush against the top, then yesterday, the week, the month, and
-/// every month before it. The list is what the page is about — the figure
-/// above only says what it costs.
-///
-/// Rows are laid out flat and built on demand : a couple of years of history
-/// is a couple of thousand lines, and none of the ones off screen are worth
-/// an element.
 class JournalView extends ConsumerStatefulWidget {
-  /// How far the top of the list dissolves once it has been scrolled. At rest
-  /// there is no fade at all : nothing has gone under the edge yet.
   static const double edgeFade = 40;
 
   static const String emptyMessage =
       'Rien encore. Dis-le comme ça te vient, ou photographie le ticket.';
 
-  /// Past the first few lines the stagger stops : the rest is scrolled to,
-  /// not opened onto.
   static const int staggeredLines = 8;
 
-  /// Ce que le dock occupe en bas de la page. La liste descend jusqu'au bord
-  /// de l'écran et passe sous le verre du dock — c'est lui qui la dissout —
-  /// mais sa dernière ligne doit rester au-dessus.
   final double bottomInset;
 
   const JournalView({required this.bottomInset, super.key});
 
-  /// Comment la liste rejoint son bord haut : elle ne dissout que ce qui est
-  /// passé dessous — rien, au repos, donc la première ligne reste franche.
-  ///
-  /// Le bas ne dissout rien. La liste descend entière derrière les deux
-  /// chromes du bord : c'est leur verre qui la floute, et un verre posé sur du
-  /// vide n'est plus qu'un aplat de son propre voile.
   static LinearGradient edgeGradient({
     required double scrolled,
     required double height,
@@ -76,12 +55,8 @@ class JournalView extends ConsumerStatefulWidget {
 class _JournalViewState extends ConsumerState<JournalView> {
   final ScrollController _scroll = ScrollController();
 
-  /// Months the reader has folded away. Everything opens open.
   final Set<String> _folded = <String>{};
 
-  /// La cascade d'ouverture n'appartient qu'à l'arrivée sur la page. Passé la
-  /// première frame, une ligne qui s'insère ne doit pas rejouer l'ouverture de
-  /// toutes celles qu'elle décale.
   bool _opened = false;
 
   @override
@@ -156,7 +131,6 @@ class _JournalViewState extends ConsumerState<JournalView> {
 
       DayMoment? previousMoment;
       for (final entry in bucket.entries) {
-        // Moments only ever cut a day up : anything coarser dates its lines.
         final moment = bucket.keepsTheHour && entry.hasTime
             ? DayMoment.ofHour(entry.at.hour)
             : null;
@@ -255,12 +229,8 @@ class _JournalViewState extends ConsumerState<JournalView> {
       onUndo: fresh == null ? null : () => _undo(ref, fresh),
     );
 
-    // Seule la dernière dite ouvre un créneau : dans une rafale, les
-    // précédentes sont déjà posées, elles n'ont pas à se reposer.
     final landing = submissions.isNotEmpty && _isLast(entry, submissions);
     if (landing) {
-      // Une clé par occurrence, sinon la liste recycle l'élément de la ligne
-      // d'avant et la nouvelle hérite d'un créneau déjà ouvert.
       return JournalLanding(
         key: ValueKey<String>(
           '${entry.source.name}-${entry.id}-${entry.at.microsecondsSinceEpoch}',
@@ -279,8 +249,6 @@ class _JournalViewState extends ConsumerState<JournalView> {
     return entry.sameTransaction(last.type, last.id);
   }
 
-  /// Today always opens the list, even with nothing on it : the page has to
-  /// say where "now" is before it says what came before.
   List<JournalBucket> _withToday(List<JournalBucket> buckets) {
     if (buckets.isNotEmpty && buckets.first.kind == JournalBucketKind.today) {
       return buckets;
@@ -476,8 +444,6 @@ class _MomentLabel extends StatelessWidget {
   }
 }
 
-/// The first lines land one after another rather than all at once : the eye
-/// follows the list instead of meeting a block.
 class _Rise extends StatefulWidget {
   static const Duration duration = Duration(milliseconds: 460);
   static const Duration step = Duration(milliseconds: 45);

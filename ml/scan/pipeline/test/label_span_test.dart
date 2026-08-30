@@ -1,4 +1,3 @@
-/// Le libellé est l'intervalle de mots que le modèle juge le plus probable.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';

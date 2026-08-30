@@ -131,7 +131,6 @@ QuickAddClassification incomeClassification() {
   );
 }
 
-/// Long enough for the debounced analysis to have fired and settled.
 Future<void> pumpAnalysis() {
   return Future<void>.delayed(
     QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 120),
@@ -200,8 +199,6 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
-    // The draft is auto-disposed: in the app a widget watches it, here the
-    // subscription plays that role.
     container.listen(quickAddProvider, (_, _) {}, fireImmediately: true);
     return container;
   }

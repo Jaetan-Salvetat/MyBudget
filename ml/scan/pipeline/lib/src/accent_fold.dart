@@ -1,10 +1,3 @@
-/// Repli des lettres accentuées vers leur lettre de base.
-///
-/// **Généré par `research/tool/generate_accent_fold.py`, ne pas éditer.**
-/// La table dérive d'`unicodedata.normalize("NFD")` : c'est elle qui garantit
-/// que Dart replie exactement comme la référence Python, y compris sur les
-/// caractères que l'OCR sort rarement — une entrée manquante décale les
-/// trigrammes hachés et fait décider le device autrement.
 library;
 
 const Map<String, String> accentFold = {

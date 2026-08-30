@@ -14,10 +14,6 @@ import 'frosted_nav_item.dart';
 const double _kCollapsedWidth = 80;
 const double _kExtendedWidth = 256;
 
-/// A vertical navigation rail for tablet-class layouts.
-///
-/// Toggles between a collapsed icon-only mode and an extended mode that
-/// shows labels next to icons.
 class FrostedNavigationRail extends StatelessWidget {
   const FrostedNavigationRail({
     required this.items,

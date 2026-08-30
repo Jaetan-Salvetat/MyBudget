@@ -11,9 +11,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  /// The app typography is fetched from Google Fonts, which no test
-  /// environment can reach. The style still carries its family name, so the
-  /// load failure is irrelevant here — swallow it.
   ThemeData themeFor(Brightness brightness) {
     late ThemeData theme;
     runZonedGuarded(

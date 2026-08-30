@@ -1,7 +1,5 @@
 import 'package:mybudget/core/enums/ai_provider.dart';
 
-/// Les modèles qu'une clé personnelle peut adresser. Le choix est à
-/// l'utilisateur : sa clé, sa facture, sa latence.
 enum AiModel {
   flashLite35(
     id: 'gemini-3.5-flash-lite',
@@ -40,8 +38,6 @@ enum AiModel {
   final String label;
   final String description;
 
-  /// Le moins cher et le plus rapide : l'ajout rapide passe avant la finesse,
-  /// et c'est la clé de l'utilisateur qui paie.
   static const AiModel fallback = flashLite35;
 
   static List<AiModel> forProvider(AiProvider provider) {

@@ -5,11 +5,6 @@ import '../../foundations/frosted_type_scale.dart';
 import '../navigation/frosted_menu.dart';
 import 'frosted_field_surface.dart';
 
-/// A text field that filters [options] as the user types and surfaces the
-/// matches in the shared Frosted menu overlay.
-///
-/// Opaque M3 content surface. Picking a suggestion fills the field and reports
-/// it through [onSelected]. Set [glass] for the translucent veil (opt-in).
 class FrostedAutocomplete extends StatefulWidget {
   const FrostedAutocomplete({
     required this.options,
@@ -37,7 +32,6 @@ class FrostedAutocomplete extends StatefulWidget {
   final bool glass;
   final int maxSuggestions;
 
-  /// Custom match test. Defaults to a case-insensitive "contains".
   final bool Function(String option, String query)? filter;
 
   final FocusNode? focusNode;
@@ -98,8 +92,6 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
 
   void _onChanged(String value) {
     widget.onChanged?.call(value);
-    // setState first so menuChildren reflects the current query before the
-    // menu shows — opening alone would surface the previous keystroke's hits.
     setState(() {});
     if (_matches(value).isEmpty) {
       _menu.close();

@@ -21,9 +21,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
 
-/// Every case is read against the same rule : a monthly expense opened in
-/// April and closed in August belongs to April through August, and to nothing
-/// on either side of that.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

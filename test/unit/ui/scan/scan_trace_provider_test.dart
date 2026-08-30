@@ -5,7 +5,6 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import '../../../helpers/receipt_line_factory.dart';
 
-/// Un tagger parfait : chaque ligne reçoit le rôle qu'on lui donne.
 RoleInference tagger(List<String> roles) => (lines) => [
   for (final (index, _) in lines.indexed)
     [
@@ -27,9 +26,6 @@ Future<List<ReadTrace>> someTrace() async {
 
 void main() {
   test('la trace survit au scan qui l\'a produite', () async {
-    // Le scan enregistre la trace alors que personne ne l'écoute encore :
-    // l'inspecteur ne s'ouvre qu'après. Un provider auto-disposé perdrait son
-    // état entre les deux, et l'écran afficherait « aucune lecture ».
     final container = ProviderContainer();
     addTearDown(container.dispose);
 

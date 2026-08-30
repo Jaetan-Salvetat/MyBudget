@@ -11,12 +11,6 @@ import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
-/// The page the app opens on : one figure, the day's journal, and the input
-/// under the thumb. Everything else is a consequence of what gets typed here.
-///
-/// Le dock flotte au-dessus de la barre du bas au lieu d'y rentrer : des deux
-/// chromes de ce bord, celui qui porte l'action est celui qui doit flotter, et
-/// la barre ne fait que dire où l'on est.
 class CaptureScreen extends ConsumerStatefulWidget {
   const CaptureScreen({super.key});
 
@@ -25,16 +19,10 @@ class CaptureScreen extends ConsumerStatefulWidget {
 }
 
 class _CaptureScreenState extends ConsumerState<CaptureScreen> {
-  /// L'atterrissage appartient à l'écran qui porte à la fois le champ et le
-  /// journal : la page ne fait que l'écouter.
   QuickAddLandingController? _landing;
 
-  /// Ce que le dock occupe en bas de la page, mesuré : il grandit avec le
-  /// brouillon, et le journal se replie d'autant.
   double _dockHeight = 0;
 
-  /// La figure du mois pendant qu'une transaction se pose : elle garde ce
-  /// qu'elle disait avant l'envoi et n'encaisse qu'une fois le créneau ouvert.
   double? _heldFigure;
 
   @override
@@ -74,17 +62,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Le scaffold rend l'empreinte exacte de la barre — safe area comprise —
-    // dans le padding bas du body, et la reprend quand le clavier la replie :
-    // le dock n'a qu'à se poser dessus.
     final barFootprint = MediaQuery.paddingOf(context).bottom;
     final remaining = ref.watch(remainingThisMonthProvider);
 
     return SafeArea(
       bottom: false,
-      // Le journal descend jusqu'au bas de l'écran et passe sous le dock puis
-      // sous la barre, qui le recouvrent : sans rien derrière eux, le verre
-      // n'aurait rien à flouter et la page se couperait net au-dessus du champ.
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -124,7 +106,6 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   }
 }
 
-/// Rend sa hauteur au reste de la page.
 class _MeasuredHeight extends SingleChildRenderObjectWidget {
   final ValueChanged<double> onHeight;
 
@@ -153,8 +134,6 @@ class _RenderMeasuredHeight extends RenderProxyBox {
     if (_reported == size.height) return;
 
     _reported = size.height;
-    // La mesure tombe pendant le layout : prévenir tout de suite relancerait
-    // celui de la frame en cours.
     WidgetsBinding.instance.addPostFrameCallback((_) => onHeight(size.height));
   }
 }

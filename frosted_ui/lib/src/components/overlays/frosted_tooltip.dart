@@ -4,10 +4,6 @@ import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 
-/// A small label shown on hover (pointer) or long-press (touch).
-///
-/// Wraps Flutter's [Tooltip] for timing, positioning and dismissal, restyled
-/// as a near-neutral inverse-surface chip.
 class FrostedTooltip extends StatelessWidget {
   const FrostedTooltip({required this.message, required this.child, super.key});
 

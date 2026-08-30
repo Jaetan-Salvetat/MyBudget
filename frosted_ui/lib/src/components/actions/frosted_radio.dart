@@ -9,7 +9,6 @@ const double _kCircleSize = 20;
 const double _kBorderWidth = 2;
 const double _kDotSize = 10;
 
-/// A single-choice radio button, generic over the option type.
 class FrostedRadio<T> extends StatelessWidget {
   const FrostedRadio({
     required this.value,

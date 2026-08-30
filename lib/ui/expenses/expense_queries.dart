@@ -9,9 +9,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_queries.g.dart';
 
-/// Every rule ever recorded, the closed ones included. Editing or deleting a
-/// recurring expense closes its row and opens another : reading only the open
-/// ones would erase the months the closed one was actually paid in.
 @Riverpod(keepAlive: true)
 List<ExpenseModel> expenseHistory(Ref ref) {
   final open = ref.watch(expenseProvider).value ?? const <ExpenseModel>[];
@@ -19,9 +16,6 @@ List<ExpenseModel> expenseHistory(Ref ref) {
   return [...open, ...closed];
 }
 
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there. The list drawn on screen and the total announced above it read the
-/// same rule, so one can never say something the other denies.
 @Riverpod(keepAlive: true)
 List<ExpenseModel> monthExpenses(Ref ref) {
   final expenses = ref.watch(expenseHistoryProvider);
@@ -129,10 +123,6 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
   return upcoming;
 }
 
-/// Monthly totals per taxonomy group key, for the dashboard breakdown.
-///
-/// Aggregation happens at group level: 11 expense groups stay readable where 59
-/// leaves would not.
 @Riverpod(keepAlive: true)
 Map<String, double> expensesByGroup(Ref ref) {
   final expenses = ref.watch(expenseHistoryProvider);

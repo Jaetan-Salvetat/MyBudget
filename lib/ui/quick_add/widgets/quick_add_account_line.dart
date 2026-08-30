@@ -7,7 +7,6 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 
-/// Says where the transaction will land, before it lands.
 class QuickAddAccountLine extends ConsumerWidget {
   final VoidCallback onNoAccount;
 
@@ -46,16 +45,11 @@ class QuickAddAccountLine extends ConsumerWidget {
     List<AccountModel> accounts,
   ) async {
     final selectedId = ref.read(quickAddAccountProvider);
-    // La feuille se referme sur son propre contexte, et le choix passe par un
-    // notifier tenu d'avance : la ligne qui l'a ouverte peut avoir quitte
-    // l'arbre pendant ce temps, la barre se recomposant derriere elle.
     final notifier = ref.read(quickAddAccountProvider.notifier);
     final picked = await showFrostedBottomSheet<int>(
       context: context,
       builder: (sheetContext) => FrostedBottomSheet(
         title: 'Compte',
-        // Les comptes forment un groupe, pas une suite de tuiles isolees ;
-        // la feuille les fait defiler quand ils ne tiennent plus.
         child: SingleChildScrollView(
           child: FrostedListSection(
             tiles: [

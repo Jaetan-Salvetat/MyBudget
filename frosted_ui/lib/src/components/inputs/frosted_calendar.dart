@@ -6,12 +6,6 @@ import '../../foundations/frosted_type_scale.dart';
 import '../actions/_interactive_surface.dart';
 import '../actions/frosted_icon_button.dart';
 
-/// The month grid + year grid used inside the date picker, with Frosted
-/// interactions (day/year cells are [InteractiveSurface]s, the selection is a
-/// primary pill). Mirrors the M3 Expressive calendar flow: a navigable month
-/// label that toggles a year picker, chevrons to step months.
-///
-/// Internal to the library — composed by the date picker dialog.
 class FrostedCalendar extends StatefulWidget {
   const FrostedCalendar({
     required this.selected,

@@ -3,12 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../navigation/frosted_page_indicator.dart';
 
-/// A hero carousel: one near-full-width item at a time, snapping page by page,
-/// with a synced [FrostedPageIndicator] below. Use it to spotlight a few cards
-/// (onboarding, featured budgets).
-///
-/// [items] are laid out edge to edge; [viewportFraction] leaves a peek of the
-/// neighbours. Opaque M3 content — the items decide their own surface.
 class FrostedCarousel extends StatefulWidget {
   const FrostedCarousel({
     required this.items,

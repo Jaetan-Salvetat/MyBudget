@@ -9,11 +9,6 @@ import '_interactive_surface.dart';
 const double _kBoxSize = 20;
 const double _kBorderWidth = 2;
 
-/// A square checkbox with rounded corners.
-///
-/// Supports the boolean states `true` (checked), `false` (unchecked) and,
-/// when [tristate] is true, `null` (indeterminate — rendered as a horizontal
-/// bar instead of a checkmark).
 class FrostedCheckbox extends StatelessWidget {
   const FrostedCheckbox({
     required this.value,

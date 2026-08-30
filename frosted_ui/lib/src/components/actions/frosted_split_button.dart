@@ -10,7 +10,6 @@ import '_interactive_surface.dart';
 
 enum _SplitVariant { filled, tonal, outlined }
 
-/// A single menu item for a [FrostedSplitButton].
 class FrostedSplitMenuItem {
   const FrostedSplitMenuItem({
     required this.label,
@@ -23,12 +22,6 @@ class FrostedSplitMenuItem {
   final VoidCallback onTap;
 }
 
-/// A two-zone button: a primary action on the leading edge and a dropdown
-/// chevron on the trailing edge that surfaces a menu of related actions.
-///
-/// The two zones are separate segments split by a small gap. Outer corners
-/// are fully rounded; the inner corners (facing the gap) are softer. The
-/// chevron morphs to a circle while its menu is open, per M3 Expressive.
 class FrostedSplitButton extends StatelessWidget {
   const FrostedSplitButton._({
     super.key,

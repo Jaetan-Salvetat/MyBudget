@@ -3,7 +3,6 @@ import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/models/category_override_model.dart';
 
-/// A taxonomy node ready to be rendered, user customisation applied.
 class CategoryDisplay {
   final String slug;
   final String label;
@@ -26,16 +25,7 @@ class CategoryDisplay {
   bool get isGroup => slug == groupKey;
 }
 
-/// Merges the taxonomy asset with the sparse user overrides.
-///
-/// Overrides are keyed by slug: a bare `alimentation` targets the group, a
-/// dotted `alimentation.supermarche` targets the leaf. Colour is a group-level
-/// property: a leaf always follows its group, so restyling a group restyles its
-/// children and no leaf can drift out of its group's identity.
 class CategoryDisplayResolver {
-  /// Bucket for transactions with no slug, or a slug the taxonomy no longer
-  /// knows. Surfaced rather than dropped: a silently missing amount makes the
-  /// breakdown stop summing to the total with nothing to explain the gap.
   static const String uncategorizedKey = '__uncategorized__';
   static const String uncategorizedLabel = 'Non catégorisé';
   static const int uncategorizedColor = 0xFF9E9E9E;
@@ -49,7 +39,6 @@ class CategoryDisplayResolver {
     required this._overrides,
   });
 
-  /// Resolves a leaf slug, or null when it is unknown.
   CategoryDisplay? resolve(String slug) {
     final node = _taxonomy.resolve(slug);
     if (node == null) return null;
@@ -85,16 +74,11 @@ class CategoryDisplayResolver {
     );
   }
 
-  /// Resolves the group owning a leaf slug, aliases followed.
   CategoryDisplay? resolveGroupOfSlug(String slug) {
     final group = _taxonomy.groupOfSlug(slug);
     return group == null ? null : resolveGroup(group.key);
   }
 
-  /// Group key owning [slug], falling back to [uncategorizedKey].
-  ///
-  /// The single definition of what "no category" means, so aggregation and
-  /// filtering cannot disagree.
   String groupKeyOrUncategorized(String? slug) =>
       (slug == null ? null : groupKeyOf(slug)) ?? uncategorizedKey;
 
@@ -108,22 +92,13 @@ class CategoryDisplayResolver {
     type: type,
   );
 
-  /// Group key owning [slug], or null when the slug is unknown.
-  ///
-  /// Aggregation must go through here rather than splitting the slug: a node
-  /// moved to another group keeps its old prefix but belongs to the new group.
   String? groupKeyOf(String slug) => _taxonomy.groupOfSlug(slug)?.key;
 
-  /// Groups of [type], or every group, expenses first, when it is null.
   List<CategoryDisplay> groupsOfType(TransactionType? type) => _taxonomy
       .groupsOfType(type)
       .map((group) => resolveGroup(group.key)!)
       .toList();
 
-  /// The same taxonomy with every customisation dropped.
-  ///
-  /// The single source of "what would this look like by default", so the edit
-  /// form can drop a field that matches instead of storing it again.
   CategoryDisplayResolver get withoutOverrides =>
       CategoryDisplayResolver(taxonomy: _taxonomy, overrides: const {});
 
@@ -131,9 +106,6 @@ class CategoryDisplayResolver {
       ? withoutOverrides.resolveGroup(category.groupKey)!
       : withoutOverrides.resolve(category.slug)!;
 
-  /// Selectable leaves of [type], or of both types when it is null, whose
-  /// label or whose group label matches [query]. Empty for a blank query: the
-  /// caller keeps showing the tree.
   List<CategoryDisplay> search(String query, TransactionType? type) {
     final needle = TextNormalizer.normalize(query);
     if (needle.isEmpty) return const [];

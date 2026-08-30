@@ -12,8 +12,6 @@ AccountModel accountOf(int id, String name) {
   return account;
 }
 
-/// Stands in for the real account list, which pulls the whole persistence
-/// graph behind it.
 class FakeAccountNotifier extends AccountNotifier {
   FakeAccountNotifier(this._accounts);
 

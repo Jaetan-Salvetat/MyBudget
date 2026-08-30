@@ -2,8 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/quick_add/date_parser_service.dart';
 
 void main() {
-  // A Thursday, mid-month : far enough from both edges that a weekday or a
-  // day number resolves without wrapping by accident.
   final today = DateTime(2026, 8, 20);
 
   DateParseResult? parse(String input) =>

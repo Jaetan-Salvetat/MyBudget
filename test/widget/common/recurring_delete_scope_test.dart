@@ -5,10 +5,6 @@ import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 
-/// Deleting a recurring rule asks one question : does the month in progress
-/// go with it ? The answer is offered already filled in — kept when the
-/// occurrence has been honoured, dropped when it never came round — and the
-/// reader is free to say otherwise.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

@@ -166,9 +166,6 @@ void main() {
             amount: 12,
           ),
         );
-    // Le rail de la fenêtre d'annulation tourne tant qu'elle dure : on ne
-    // laisse pas le test la traverser, il n'y aurait plus rien à annuler. Le
-    // créneau, lui, doit finir de s'ouvrir avant qu'on vise la ligne.
     await tester.pump();
     await tester.pump(JournalLanding.duration);
 
@@ -206,8 +203,6 @@ void main() {
         );
     await tester.pump();
 
-    // Seule la ligne qui vient d'être dite s'ouvre un créneau ; celle qu'elle
-    // décale reste entière au lieu de refaire son entrée.
     expect(find.byType(JournalLanding), findsOneWidget);
     expect(
       find.ancestor(
@@ -271,7 +266,6 @@ void main() {
     await pumpJournal(tester);
     await tester.pumpAndSettle();
 
-    // Its own month, the one after, and the current one.
     expect(find.text('Netflix'), findsNWidgets(3));
   });
 

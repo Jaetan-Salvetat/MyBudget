@@ -1,9 +1,3 @@
-/// La lecture du prix : ce que le modèle autorise, ce que le décodeur tranche.
-///
-/// La regex stricte décidait seule quelles lignes pouvaient être des articles,
-/// et elle en écartait 93 sur les 100 que le corpus d'évaluation perdait. La
-/// laxité est maintenant gouvernée par le rôle prédit, et une ligne dont
-/// aucune lecture stricte n'aboutit propose tous ses montants plausibles.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
@@ -37,9 +31,6 @@ void main() {
     });
 
     test('a line the strict reader reaches is never widened', () {
-      // Rouvrir une ligne déjà lisible donnerait au décodeur de quoi retomber
-      // sur la bonne somme avec des montants faux : mesuré sur t1train_214,
-      // quatre prix unitaires pris pour des prix ligne.
       expect(amounts('PAIN 1,20 2,40Eur', lax: true), [1.20]);
     });
   });

@@ -10,16 +10,10 @@ typedef TokenizedInput = ({List<int> inputIds, List<int> attentionMask});
 typedef _Symbol = ({String text, int id});
 
 class QuickAddTokenizer {
-  /// Le tokenizer porte la version des modeles : il est publie avec eux et
-  /// doit correspondre au graphe ONNX qui consomme ses identifiants.
   static final RegExp assetPattern = RegExp(
     r'^assets/models/tokenizer_v\d+\.bin$',
   );
 
-  /// Le graphe ONNX accepte une longueur libre : on pade au plus petit palier
-  /// qui contient la saisie plutot qu'au maximum, le modele ne calculant alors
-  /// plus les positions de bourrage. Quelques paliers seulement, pour qu'ORT
-  /// reutilise ses buffers au lieu d'en reallouer a chaque forme inedite.
   static const List<int> lengthBuckets = [8, 16, 32, 64];
   static const int _padId = 0;
   static const int _bosId = 2;
@@ -40,8 +34,6 @@ class QuickAddTokenizer {
 
   bool get isLoaded => _loaded;
 
-  /// Aucune table n'est construite ici : les sections sont deja triees, on ne
-  /// retient que leurs positions et les recherches lisent les octets en place.
   Future<void> load() async {
     if (_loaded) return;
 
@@ -122,9 +114,6 @@ class QuickAddTokenizer {
     );
   }
 
-  /// Chaque symbole porte son identifiant : les fusions se cherchent par paire
-  /// d'identifiants, et un symbole absent du vocabulaire — seuls les caracteres
-  /// inconnus le sont — ne participe a aucune fusion.
   List<_Symbol> _bpeEncode(String text) {
     var symbols = text
         .split('')

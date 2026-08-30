@@ -1,7 +1,3 @@
-/// Lowercases, strips accents and collapses whitespace.
-///
-/// Shared by every text comparison the user can type into: category memory keys
-/// and category search must agree on what "café" and "Cafe" mean.
 abstract final class TextNormalizer {
   static final RegExp _whitespace = RegExp(r'\s+');
 

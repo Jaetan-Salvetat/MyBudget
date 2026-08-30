@@ -6,11 +6,6 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
-/// What a revenue is grouped under, and how that bucket is rendered.
-///
-/// [rank] orders the buckets before their weight is looked at: a calendar axis
-/// wants its own order, and a fallback bucket ("Non catégorisé") stays last
-/// however much money it holds.
 class RevenueGroupIdentity {
   static const int leadingRank = 0;
   static const int trailingRank = 1 << 20;
@@ -18,8 +13,6 @@ class RevenueGroupIdentity {
   final String key;
   final String label;
 
-  /// Taxonomy icon key, when the axis carries one. Axes with no icon of their
-  /// own leave it null and let the view pick one.
   final String? icon;
   final int? color;
   final int rank;
@@ -38,7 +31,6 @@ class RevenueGroup {
   final List<RevenueModel> items;
   final double total;
 
-  /// Weight of the group in the grouped set, in `[0, 1]`.
   final double share;
 
   const RevenueGroup({
@@ -57,7 +49,6 @@ class RevenueGroup {
   int? get color => identity.color;
 }
 
-/// Maps a revenue to its bucket along one axis.
 abstract class RevenueGrouper {
   const RevenueGrouper();
 
@@ -173,9 +164,6 @@ class AccountRevenueGrouper extends RevenueGrouper {
 class RevenueGroupingService {
   const RevenueGroupingService._();
 
-  /// The grouper backing [axis], flat while the taxonomy is still loading:
-  /// a category axis with no taxonomy would label every revenue "Non
-  /// catégorisé", which reads as data loss rather than as a loading state.
   static RevenueGrouper grouperFor(
     RevenueGroupBy axis, {
     required CategoryDisplayResolver? categoryResolver,

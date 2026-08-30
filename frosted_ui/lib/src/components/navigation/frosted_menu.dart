@@ -9,9 +9,6 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// A single row in a [FrostedMenuPanel].
-///
-/// Internal to the library — shared by the dropdown and the split button.
 class FrostedMenuEntry {
   const FrostedMenuEntry({
     required this.label,
@@ -28,12 +25,6 @@ class FrostedMenuEntry {
   final bool destructive;
 }
 
-/// The Frosted overlay panel: a glass card of [InteractiveSurface] rows that
-/// springs into place. Render it inside a `MenuAnchor.menuChildren` (which
-/// keeps Flutter's anchoring, keyboard and dismiss handling) — this widget
-/// only owns the look and the open animation.
-///
-/// Internal to the library; not exported.
 class FrostedMenuPanel extends StatelessWidget {
   const FrostedMenuPanel({
     required this.entries,
@@ -43,22 +34,14 @@ class FrostedMenuPanel extends StatelessWidget {
     super.key,
   });
 
-  /// Gap between the anchor and the panel, fed to `MenuAnchor.alignmentOffset`.
-  ///
-  /// The panel is its own card, with its own corners. Flush against the field
-  /// the two rounded rects meet corner to corner and pinch into one broken
-  /// silhouette.
   static const double anchorGap = FrostedSpacing.sp2;
   static const Offset anchorOffset = Offset(0, anchorGap);
 
   final List<FrostedMenuEntry> entries;
   final double? width;
 
-  /// Ceiling on the panel height. Past it the rows scroll.
   final double? maxHeight;
 
-  /// Corner shape. Anchored menus flatten the edge they share with their
-  /// field so the pair reads as one surface instead of two stacked cards.
   final BorderRadius? borderRadius;
 
   @override
@@ -90,8 +73,6 @@ class FrostedMenuPanel extends StatelessWidget {
       curve: motion.curve,
       tween: Tween<double>(begin: 0, end: 1),
       builder: (BuildContext context, double t, Widget? child) {
-        // No Opacity: it isolates a layer and breaks the BackdropFilter
-        // (the glass would stay transparent until the animation settles).
         return Transform.scale(
           scale: 0.92 + 0.08 * t,
           alignment: Alignment.topCenter,

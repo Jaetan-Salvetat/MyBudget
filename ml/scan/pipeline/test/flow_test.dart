@@ -3,9 +3,6 @@ import 'package:test/test.dart';
 
 import 'support.dart';
 
-/// Un tagger de rôles parfait : chaque ligne reçoit le rôle qu'on lui donne,
-/// à probabilité 1. Le flow ne connaît que cette signature, donc sa politique
-/// de lecture se teste sans embarquer de modèle.
 RoleInference tagger(List<String> roles) =>
     (lines) => [
       for (final (index, _) in lines.indexed)

@@ -13,8 +13,6 @@ typedef ModelAssetResolver = Future<String> Function();
 
 typedef HeadPrediction = ({int index, double confidence});
 
-/// Category prediction with its runners-up, used to seed the picker when
-/// confidence is too low to assign automatically.
 typedef CategoryPrediction = ({
   int index,
   double confidence,
@@ -30,15 +28,6 @@ typedef QuickAddModelOutput = ({
 const int kCategorySuggestionCount = 3;
 
 class QuickAddModelRunner {
-  /// Le plugin ONNX extrait l'asset dans le dossier temporaire et le met en
-  /// cache sous son seul nom de fichier : republier un modele reentraine sous
-  /// le meme nom laisserait toutes les installations existantes tourner sur
-  /// l'ancien. Chaque modele porte donc sa version.
-  ///
-  /// Le nom n'est pas ecrit ici : il est lu dans le manifeste des assets au
-  /// chargement. Publier un modele n'a ainsi qu'un seul endroit a mettre a
-  /// jour — le fichier depose dans `assets/models/` — au lieu d'une constante
-  /// Dart, d'un manifeste et d'un nom de release a garder d'accord.
   static final RegExp assetPattern = RegExp(
     r'^assets/models/model_v\d+\.onnx$',
   );
@@ -69,10 +58,6 @@ class QuickAddModelRunner {
   static Future<String> _assetFromManifest() =>
       modelAssetFromManifest(assetPattern, 'modele quick-add');
 
-  /// Les extractions des versions precedentes pesent autant que le modele :
-  /// les laisser dans le cache doublerait l'espace occupe a chaque mise a
-  /// jour. Un echec de nettoyage ne doit pas priver l'utilisateur de l'ajout
-  /// rapide, on le signale et on charge quand meme.
   Future<void> _deleteOutdatedExtractions(String assetPath) async {
     final currentName = assetPath.split('/').last;
     try {

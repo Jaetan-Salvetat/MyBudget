@@ -279,7 +279,6 @@ void main() {
     expect(field.contains(send.center), isTrue);
   });
 
-  /// Un texte sans montant n'est pas une transaction : rien a envoyer.
   void classifyAmountOnlyWithDigits() {
     when(() => classifier.classify(any())).thenAnswer((invocation) async {
       final input = invocation.positionalArguments.first as String;
@@ -415,8 +414,6 @@ void main() {
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
-    // The journal is what keeps the submission alive in the app ; here it
-    // stands in for it.
     final container = ProviderScope.containerOf(
       tester.element(find.byType(QuickAddBar)),
     );
@@ -454,7 +451,6 @@ void main() {
     await tester.pump(QuickAddBarState.sentFlash);
     await tester.pumpAndSettle();
 
-    // Le brouillon est reparti à vide : le bouton redevient le raccourci scan.
     expect(find.byIcon(Symbols.check_rounded), findsNothing);
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
 
@@ -483,8 +479,6 @@ void main() {
 
     expect(container.read(quickAddProvider).isEmpty, isTrue);
 
-    // Vider le champ n'est pas en sortir : la frappe suivante part tout de
-    // suite, sans re-viser le champ.
     final field = tester.widget<TextField>(find.byType(TextField));
     expect(field.controller!.text, '');
     expect(field.focusNode!.hasFocus, isTrue);

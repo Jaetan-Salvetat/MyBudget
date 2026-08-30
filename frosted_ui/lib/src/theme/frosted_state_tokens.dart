@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
-/// State-layer overlay tokens (hover, focus, press, disabled).
-///
-/// These colors are blended on top of any surface to communicate interactive
-/// state — never replace the surface color directly.
 @immutable
 class FrostedStateTokens {
   const FrostedStateTokens({

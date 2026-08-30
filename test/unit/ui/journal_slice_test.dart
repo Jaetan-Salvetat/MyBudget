@@ -57,7 +57,6 @@ void main() {
   });
 
   group('journalSliceOf, early in the month', () {
-    // Wednesday : last week started on 27 July, in the month before.
     final today = DateTime(2026, 8, 5);
 
     test('a week never steals days from the month before it', () {

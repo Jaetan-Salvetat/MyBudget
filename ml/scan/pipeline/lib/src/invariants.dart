@@ -1,15 +1,3 @@
-/// Invariants structurels d'un ticket, calculés sans modèle. Portage de
-/// référence de `research/reference/invariants.py`.
-///
-/// Trois familles de preuves arithmétiques, indépendantes du classifieur :
-/// décomposition TVA (HT + taxe à taux légal = TTC, y compris quand une
-/// seule ligne porte les trois montants — aucun mot requis), espèces − rendu,
-/// récapitulatif de remises (un montant égal au signe près à la somme des
-/// remises qui le précèdent, imprimé négatif comme positif) ; plus les totaux
-/// de rayon (somme courante des articles) et l'éligibilité des références
-/// (les totaux de rayon précèdent le total final, un sous-total ou un montant
-/// HT ne sert de référence que s'il clôt les articles). Tout est gated par le
-/// checksum.
 library;
 
 import 'line_features.dart';
@@ -84,10 +72,6 @@ bool _isRateToken(String token) {
       _ratePercentages.contains(token.substring(0, token.length - 1));
 }
 
-/// La ligne porte elle-même sa décomposition : deux de ses montants font le
-/// troisième, et leur rapport est un taux de TVA légal. Aucune enseigne
-/// n'imprime ça sur un article — et aucun mot n'est nécessaire pour le voir,
-/// ce qui rend la lecture indépendante de « TVA », « VAT » ou « MWST ».
 bool _carriesItsOwnTaxSplit(List<int> amounts) {
   for (var index = 0; index < amounts.length; index++) {
     final ttc = amounts[index];
@@ -103,9 +87,6 @@ bool _carriesItsOwnTaxSplit(List<int> amounts) {
   return false;
 }
 
-/// Lexique taxe, ligne de table TVA « taux HT taxe [TTC] » — un taux seul ne
-/// suffit pas, 5,50 ou 20,00 sont aussi des prix d'article — ou ligne portant
-/// sa propre décomposition HT + taxe = TTC.
 bool _isTaxRow(PricedLine priced) {
   if (containsEntry(priced.line.text, tvaWords)) return true;
   final amounts = _rowAmounts(priced);
@@ -159,10 +140,6 @@ List<int> _partnersByDistance(Map<int, List<int>> partners, int rank) {
   return [for (final entry in indexed) entry.$2];
 }
 
-/// Couples (HT, taxe) plausibles pour une ligne de taxe : sur la ligne
-/// elle-même, ou avec une ligne HT voisine. Un TTC et son HT tombent tous
-/// deux à un cent de la taxe sur les petits montants : le couple dont la
-/// somme est imprimée l'emporte, puis la même ligne, puis la plus proche.
 List<_TaxPair> _rowPairs(
   int rank,
   List<int> amounts,
@@ -217,8 +194,6 @@ _TaxPair? _bestPair(List<_TaxPair> pairs, int rank) {
   return best;
 }
 
-/// TTC prouvé par HT + taxe à taux légal, ligne par ligne de taxe ; les
-/// lignes consommées (taxe et HT) ne sont jamais des articles.
 (Evidence?, Set<int>) taxEvidence(List<PricedLine> lines) {
   final taxRows = <int>{
     for (final (rank, priced) in lines.indexed)
@@ -261,8 +236,6 @@ _TaxPair? _bestPair(List<_TaxPair> pairs, int rank) {
 bool _isChangeLine(PricedLine priced) =>
     containsEntry(priced.line.text, changeWords);
 
-/// Espèces données − monnaie rendue = montant réglé. Le paiement retenu est
-/// le plus grand avant la ligne de rendu : c'est l'argent donné.
 Evidence? paymentChangeEvidence(List<PricedLine> lines) {
   int? changeRank;
   for (final (rank, priced) in lines.indexed) {
@@ -316,13 +289,6 @@ int? _firstPaymentRank(List<PricedLine> lines) {
   return null;
 }
 
-/// Rangs dont le montant, au signe près, égale la somme des remises qui les
-/// précèdent : un récapitulatif de ristournes, jamais une somme due.
-///
-/// Purement arithmétique — l'enseigne peut l'imprimer positif (« Total
-/// remise: 58,98 ») comme négatif, avec ou sans le mot « total ». Deux remises
-/// réelles au minimum : une seule remise recopiée plus bas serait
-/// indiscernable d'un article au même prix.
 Set<int> discountRecapRanks(List<PricedLine> lines) {
   final recaps = <int>{};
   final discounts = <int>[];
@@ -339,10 +305,6 @@ Set<int> discountRecapRanks(List<PricedLine> lines) {
   return recaps;
 }
 
-/// Le total à payer est le dernier total lexical AVANT le premier paiement :
-/// un « Total bon immédiat » imprimé après la carte n'est pas le total du
-/// ticket. Un récapitulatif de remises ne compte jamais, quel que soit le mot
-/// qui le précède.
 int? lastTotalRank(List<PricedLine> lines) {
   final recaps = discountRecapRanks(lines);
   final ranks = [
@@ -361,9 +323,6 @@ int? lastTotalRank(List<PricedLine> lines) {
   return beforePayment.isNotEmpty ? beforePayment.last : ranks.last;
 }
 
-/// Une remise égale à la somme des remises réelles qui la précèdent est un
-/// récapitulatif — si elle porte le mot total, ou si au moins deux remises
-/// la précèdent (deux remises identiques ne sont pas un récap).
 Set<int> summaryDiscountRanks(List<PricedLine> lines) {
   final lastTotal = lastTotalRank(lines);
   final scope = lastTotal ?? lines.length;
@@ -386,8 +345,6 @@ Set<int> summaryDiscountRanks(List<PricedLine> lines) {
   return summaries;
 }
 
-/// Les rayons s'arrêtent au dernier total lexical inclus : quand le total à
-/// payer est illisible, la dernière ligne « Total » lue est un rayon.
 int _sectionScope(List<PricedLine> lines) {
   final lastTotal = lastTotalRank(lines);
   return lastTotal == null ? lines.length : lastTotal + 1;
@@ -426,16 +383,9 @@ bool _itemsFollow(List<PricedLine> lines, int rank) {
   return false;
 }
 
-/// Un total intermédiaire que ne suivent ni article ni remise (seulement des
-/// taxes ou le total final) vérifie les articles : c'est le « net total »
-/// avant taxes, pas un total de rayon.
 bool _closesTheItems(List<PricedLine> lines, int rank) =>
     !_itemsFollow(lines, rank) && !_discountFollows(lines, rank);
 
-/// Un total ou sous-total intermédiaire vérifie les articles s'il les clôt
-/// tous (ni article ni remise après lui) et qu'aucun total de rayon d'un
-/// autre montant ne le précède : le « net total » avant taxes, pas le
-/// dernier rayon.
 bool _isIntermediateReference(
   List<PricedLine> lines,
   int rank,
@@ -465,9 +415,6 @@ bool _isEligibleReference(
   return _isIntermediateReference(lines, rank, sections);
 }
 
-/// Rangs pouvant porter la référence total : jamais un montant HT ; tout
-/// après le total final sauf un sous-total ; avant lui, seulement un total
-/// intermédiaire qui clôt les articles.
 Set<int> referenceRanks(List<PricedLine> lines) {
   final lastTotal = lastTotalRank(lines);
   final sections = sectionTotals(lines);
@@ -479,10 +426,6 @@ Set<int> referenceRanks(List<PricedLine> lines) {
   };
 }
 
-/// Totaux de rayon : une ligne dont le montant égale la somme courante des
-/// articles depuis le rayon précédent. Sans lexique il faut au moins deux
-/// articles (un article ne vaut pas un autre par hasard) ; une ligne total
-/// lexicale ferme un rayon dès un article.
 List<int> sectionTotals(List<PricedLine> lines, [Set<int>? excluded]) {
   final skipped = excluded ?? const <int>{};
   final sections = <int>[];
@@ -542,8 +485,6 @@ Evidence? _sectionsEvidence(
   );
 }
 
-/// Une ligne de taxe n'est jamais un article, même sans partenaire HT ; un
-/// total « TVA incluse » reste un total.
 Set<int> _taxRows(List<PricedLine> lines) => {
   for (final (rank, priced) in lines.indexed)
     if (_isTaxRow(priced) && !_isFinalTotalCandidate(priced)) rank,

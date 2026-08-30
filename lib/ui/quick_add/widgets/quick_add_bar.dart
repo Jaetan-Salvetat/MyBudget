@@ -20,27 +20,16 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
-/// Là où le champ commence, une fois le bouton de scan posé : sa boîte, et
-/// l'air que le composant porte de chaque côté. La ligne de compte s'y
-/// aligne — elle parle du champ, pas du bord de la rangée.
 final double _kFieldOffset =
     FrostedIconButtonSize.medium.box + FrostedSpacing.sp1 * 2;
 
-/// The one place a transaction gets typed. Reads the text as it comes,
-/// creates on submit, and keeps the keyboard up : entering the day's expenses
-/// is a rafale, not one trip per line. The way back sits on the journal line
-/// the transaction just became.
 class QuickAddBar extends ConsumerStatefulWidget {
-  /// Un seul exemple : une liste d'exemples ne tient pas dans le champ et
-  /// finit tronquée par des points de suspension.
   static const String staticHint = 'courses carrefour 42';
 
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
   final VoidCallback onNoAccount;
 
-  /// The hint typing itself out while the day is still empty. Falls back to
-  /// [staticHint] as soon as it has nothing to say.
   final ValueListenable<String>? hint;
 
   const QuickAddBar({
@@ -57,7 +46,6 @@ class QuickAddBar extends ConsumerStatefulWidget {
 
 class QuickAddBarState extends ConsumerState<QuickAddBar>
     with WidgetsBindingObserver {
-  /// How long the send button holds its check before offering to send again.
   static const Duration sentFlash = Duration(milliseconds: 700);
 
   final _controller = TextEditingController();
@@ -85,8 +73,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     super.dispose();
   }
 
-  /// The system back button hides the keyboard without dropping focus, which
-  /// would leave the screen in its typing layout with nothing to type on.
   @override
   void didChangeMetrics() {
     if (!mounted) return;
@@ -99,20 +85,13 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   void _reportFocus() => widget.onFocusChanged(_focusNode.hasFocus);
 
-  /// The keyboard's send key must behave like the send button : without this,
-  /// the framework's default action handling unfocuses the field and the
-  /// rafale dies on the very key made for it.
   void _keepTyping() {}
 
-  /// Vider le champ n'est pas en sortir : le clavier reste, la frappe
-  /// suivante part tout de suite.
   void _cancel() {
     _controller.clear();
     ref.read(quickAddProvider.notifier).reset();
   }
 
-  /// Une dégradation ne se signale qu'au moment où elle arrive, et jamais
-  /// pendant une saisie en cours : la transaction, elle, est passée.
   void _onDegradationChanged(bool? previous, bool degraded) {
     if (!degraded || previous == true || !mounted) return;
 
@@ -126,8 +105,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
 
-  /// The moment the model catches up with a category it stands behind : worth
-  /// a tap under the finger, the transaction is ready as typed.
   void _onDraftChanged(QuickAddDraft? previous, QuickAddDraft next) {
     final landedConfident =
         previous != null &&
@@ -139,9 +116,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     if (landedConfident) unawaited(HapticFeedback.lightImpact());
   }
 
-  /// Submitting waits for the reading the model still owes on the current
-  /// text, so the button stays busy instead of swallowing the tap. The focus
-  /// stays : the next expense types straight away, the journal holds the undo.
   Future<void> _submit() async {
     if (_submitting) return;
     final draft = ref.read(quickAddProvider);
@@ -187,8 +161,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     });
   }
 
-  /// Le scan est le second geste de la page, pas un raccourci caché derrière
-  /// un bouton qui change de sens : il a le sien, à gauche du champ.
   Future<void> _scan() async {
     if (ref.read(quickAddAccountProvider) == null) {
       widget.onNoAccount();
@@ -228,9 +200,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         ),
         Row(
           children: [
-            // Le second geste de la page, pas son action : l'accent revient à
-            // l'envoi, et deux disques pleins de part et d'autre du champ
-            // n'auraient dit lequel des deux la page attend.
             FrostedIconButton.tonal(
               icon: Symbols.photo_camera_rounded,
               shape: FrostedShape.pill,
@@ -246,8 +215,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           alignment: Alignment.topCenter,
           child: showContext
               ? Padding(
-                  // Alignée sur le champ, dont elle parle, pas sur le bord de
-                  // la rangée.
                   padding: EdgeInsets.only(
                     left: _kFieldOffset,
                     top: FrostedSpacing.sp1,
@@ -260,9 +227,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     );
   }
 
-  /// Ce que la poignée du champ propose à l'instant. L'attente et l'accusé
-  /// passent devant le brouillon : le champ est déjà vide pour la frappe
-  /// suivante, et l'envoi qui vient de partir a encore quelque chose à dire.
   QuickAddSendState _sendState(QuickAddDraft draft) {
     if (_submitting) return QuickAddSendState.sending;
     if (_sentFlashing) return QuickAddSendState.sent;
@@ -272,11 +236,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         : QuickAddSendState.idle;
   }
 
-  /// Les poignées du champ : la sortie tant qu'il y a quelque chose à vider,
-  /// l'envoi dès que ce qui est écrit tient debout.
-  ///
-  /// Aucune sur un champ vide — ni la sortie, qui ne ferait rien, ni la place
-  /// que l'envoi réserve : elle mangerait la largeur du texte pour rien.
   Widget? _handles(QuickAddDraft draft) {
     final state = _sendState(draft);
     if (draft.isEmpty && state == QuickAddSendState.idle) return null;

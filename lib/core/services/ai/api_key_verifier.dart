@@ -5,12 +5,9 @@ import 'package:mybudget/core/models/api_key_check.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 
-/// Vérifie une clé avant de la laisser devenir le moteur. Un refus de format
-/// ne coûte aucun appel réseau ; un appel abouti est la seule preuve acceptée.
 class ApiKeyVerifier {
   const ApiKeyVerifier({required this._clientFactory});
 
-  /// Plus long que le délai d'usage : ici l'utilisateur attend et regarde.
   static const Duration timeout = Duration(seconds: 10);
 
   static const String _probePrompt =

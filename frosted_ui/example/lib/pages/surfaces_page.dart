@@ -136,7 +136,6 @@ class _ListDemoState extends State<_ListDemo> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        // Two-line, avatar + meta + chevron, with a selected row.
         FrostedListSection(
           label: 'Récents',
           tiles: <FrostedListTile>[
@@ -166,7 +165,6 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
-        // One-line, bare icons, trailing switches (interactive).
         FrostedListSection(
           label: 'Réseau',
           tiles: <FrostedListTile>[
@@ -192,7 +190,6 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
-        // Single-selection group (radio-like), no label, no leading.
         FrostedListSection(
           label: 'Compte par défaut',
           tiles: <FrostedListTile>[
@@ -209,7 +206,6 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
-        // Standalone single tile (fully rounded), no label.
         FrostedListSection(
           tiles: <FrostedListTile>[
             FrostedListTile(
@@ -221,8 +217,6 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
-        // Plain rows: no surface of their own, for a tree or a sheet whose
-        // parent already owns the background.
         FrostedListSection(
           label: 'Catégories',
           tiles: <FrostedListTile>[
@@ -241,7 +235,6 @@ class _ListDemoState extends State<_ListDemo> {
         ),
         const SizedBox(height: FrostedSpacing.sp5),
 
-        // Read-only group (no onTap → no ripple, static).
         FrostedListSection(
           label: 'Informations',
           tiles: const <FrostedListTile>[

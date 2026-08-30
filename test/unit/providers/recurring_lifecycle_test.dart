@@ -12,9 +12,6 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
-/// Closing a rule says when it stopped, not what it last paid : a rule
-/// deleted today ran until today, and one whose day never came round never
-/// ran at all.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -121,7 +118,6 @@ void main() {
   });
 
   group('a deletion that takes the month in progress too', () {
-    // A rule due on the 1st, so its turn has already come round.
     ExpenseModel dueEarlyInTheMonth() =>
         subscription(startDate: DateTime(today.year, today.month - 2, 1));
 
@@ -364,8 +360,6 @@ void main() {
   });
 
   group('editing from a month other than this one', () {
-    // The list hands the form a copy dated on the month being looked at, not
-    // on the day the rule really started. Nothing may be read from it.
     test('never moves the rule onto the month it was edited from', () async {
       final expense = subscription(
         startDate: DateTime(today.year, today.month - 4, 12),
@@ -402,7 +396,6 @@ void main() {
       );
 
       expect(opened!.startDate.day, 12);
-      // The next occurrence, whatever day of the month we run this on.
       expect(dayOnly(opened!.startDate).isBefore(today), isFalse);
     });
   });

@@ -6,22 +6,14 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// Emphasis level of a [FrostedCard].
 enum FrostedCardVariant {
-  /// Opaque container-high surface — the default content card.
   filled,
 
-  /// Transparent body with a 1px outline, for low-emphasis groups.
   outlined,
 
-  /// Primary-container fill — the single most important card on a screen.
   accent,
 }
 
-/// An opaque M3 content card.
-///
-/// Never glass — cards hold data and demand legibility. Pass [onTap] to make
-/// it interactive (state layers + ripple, corners soften on press).
 class FrostedCard extends StatelessWidget {
   const FrostedCard({
     required this.child,
@@ -37,8 +29,6 @@ class FrostedCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
 
-  /// Resting corner radius. Pass a [FrostedRadius] token — a card nested in
-  /// another surface steps down to stay concentric with it.
   final double radius;
 
   @override

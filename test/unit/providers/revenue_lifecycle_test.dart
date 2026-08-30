@@ -11,10 +11,6 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
-/// The revenue side answers to the same lifecycle as the expense side :
-/// see recurring_lifecycle_test.dart. Closing a rule says when it stopped, not what it last paid : a rule
-/// deleted today ran until today, and one whose day never came round never
-/// ran at all.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

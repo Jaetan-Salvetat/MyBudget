@@ -1,12 +1,3 @@
-/// Fusion de deux passes OCR sur la même image, ligne physique à ligne.
-/// Portage de référence de `research/reference/fuse_passes.py`.
-///
-/// Les deux passes (brute, prétraitée) abîment des lignes différentes : l'une
-/// colle une lettre au prix, l'autre saute un article. Alignées par position
-/// verticale, elles se complètent : une ligne non chiffrée dans la passe
-/// principale prend la lecture de l'autre, une ligne absente est insérée, un
-/// montant différent devient une alternative que le décodeur sous contrainte
-/// arbitre. Rien n'est inventé : chaque montant vient d'une passe OCR.
 library;
 
 import 'lines.dart';
@@ -19,7 +10,6 @@ class FusedPass {
 
   final List<PhysicalLine> lines;
 
-  /// Index de ligne fusionnée → montant alternatif en centimes.
   final Map<int, int> alternatives;
 }
 

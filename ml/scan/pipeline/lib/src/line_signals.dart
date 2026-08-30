@@ -1,17 +1,3 @@
-/// Les signaux qu'une ligne de ticket porte, sans modèle ni featuriseur.
-///
-/// Ils décrivent des faits typographiques indépendants du modèle qui les lit :
-/// les featuriseurs de lignes et de mots s'en servent tous les deux.
-///
-/// Ils vivaient dans `line_features.dart`, à côté du featuriseur du
-/// classifieur V2/V3. Ce classifieur est mort — le tagger de rôles fait mieux
-/// ce qu'il faisait — mais les signaux, eux, lui survivent.
-///
-/// Miroir de `ml/scan/research/reference/line_signals.py`, restreint aux
-/// signaux qu'un modèle embarqué consomme : les signaux arithmétiques
-/// (`block_sum_matches`, `tax_shaped`, `discount_summary`) et flous
-/// (`fuzzy_lexicon_similarity`) n'y servent qu'à construire la vérité de
-/// rôle, côté Python, et n'ont donc pas de portage.
 library;
 
 import 'dart:convert';
@@ -24,8 +10,6 @@ const int hashBuckets = 64;
 final RegExp _digitPattern = RegExp(r'\d');
 final RegExp _whitespaceRun = RegExp(r'\s+');
 
-/// Le texte replié sur ce que l'OCR ne peut pas confondre : accents retirés,
-/// et les trois substitutions que tout moteur fait sur du thermique pâli.
 String normalizedText(String text) => foldAccents(text.toUpperCase())
     .replaceAll('0', 'O')
     .replaceAll('1', 'I')
@@ -45,7 +29,6 @@ List<int> _buildCrcTable() {
   return table;
 }
 
-/// CRC-32 (IEEE 802.3), identique à `zlib.crc32` côté Python.
 int crc32(List<int> bytes) {
   var crc = 0xFFFFFFFF;
   for (final byte in bytes) {
@@ -54,9 +37,6 @@ int crc32(List<int> bytes) {
   return (crc ^ 0xFFFFFFFF) & 0xFFFFFFFF;
 }
 
-/// Empreinte du texte en trigrammes hachés : les chiffres deviennent `#`, si
-/// bien qu'un libellé et le même libellé à un autre prix tombent au même
-/// endroit.
 List<double> hashedTrigrams(String text, int buckets) {
   var folded = normalizedText(text.replaceAll(_digitPattern, '#'));
   folded = folded.replaceAll(_whitespaceRun, ' ').trim();
