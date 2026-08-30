@@ -87,6 +87,35 @@ void main() {
     expect(find.byType(QuickAddShimmer), findsOneWidget);
   });
 
+  testWidgets('a landed category brings a zero amount rather than a gap', (
+    tester,
+  ) async {
+    await pumpLine(tester, category: category);
+    await tester.pumpAndSettle();
+
+    expect(find.text('0,00 €', findRichText: true), findsOneWidget);
+  });
+
+  testWidgets('the zero placeholder never reads as an income', (tester) async {
+    await pumpLine(tester, category: category, isIncome: true);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('+', findRichText: true), findsNothing);
+  });
+
+  testWidgets('the placeholder gives way to the amount once it is typed', (
+    tester,
+  ) async {
+    await pumpLine(tester, category: category);
+    await tester.pumpAndSettle();
+
+    await pumpLine(tester, amount: 12, category: category);
+    await tester.pumpAndSettle();
+
+    expect(find.text('12,00 €', findRichText: true), findsOneWidget);
+    expect(find.text('0,00 €', findRichText: true), findsNothing);
+  });
+
   testWidgets('shows the category once it lands', (tester) async {
     await pumpLine(tester, amount: 12, category: category);
     await tester.pumpAndSettle();

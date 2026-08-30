@@ -46,26 +46,33 @@ class QuickAddAccountLine extends ConsumerWidget {
     List<AccountModel> accounts,
   ) async {
     final selectedId = ref.read(quickAddAccountProvider);
+    // La feuille se referme sur son propre contexte, et le choix passe par un
+    // notifier tenu d'avance : la ligne qui l'a ouverte peut avoir quitte
+    // l'arbre pendant ce temps, la barre se recomposant derriere elle.
+    final notifier = ref.read(quickAddAccountProvider.notifier);
     final picked = await showFrostedBottomSheet<int>(
       context: context,
-      builder: (_) => FrostedBottomSheet(
+      builder: (sheetContext) => FrostedBottomSheet(
         title: 'Compte',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final account in accounts)
-              FrostedListTile(
-                title: account.name,
-                subtitle: account.bank,
-                selected: account.id == selectedId,
-                onTap: () => Navigator.pop(context, account.id),
-              ),
-          ],
+        // Les comptes forment un groupe, pas une suite de tuiles isolees ;
+        // la feuille les fait defiler quand ils ne tiennent plus.
+        child: SingleChildScrollView(
+          child: FrostedListSection(
+            tiles: [
+              for (final account in accounts)
+                FrostedListTile(
+                  title: account.name,
+                  subtitle: account.bank,
+                  selected: account.id == selectedId,
+                  onTap: () => Navigator.pop(sheetContext, account.id),
+                ),
+            ],
+          ),
         ),
       ),
     );
     if (picked == null) return;
-    ref.read(quickAddAccountProvider.notifier).select(picked);
+    notifier.select(picked);
   }
 }
 

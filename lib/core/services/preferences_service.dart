@@ -28,6 +28,8 @@ class PreferencesService {
   static const String keyAiCloudConsent = 'aiCloudConsent';
   static const String keyAiFailureTimestamps = 'aiFailureTimestamps';
 
+  static const String keyQuickAddAccountId = 'quickAddAccountId';
+
   static const String keyExpensesGroupBy = 'expensesGroupBy';
   static const String keyExpensesSortBy = 'expensesSortBy';
   static const String keyRevenuesGroupBy = 'revenuesGroupBy';
@@ -163,6 +165,18 @@ class PreferencesService {
       keyAiFailureTimestamps,
       timestamps.map((timestamp) => timestamp.toString()).toList(),
     );
+  }
+
+  static int? getQuickAddAccountId() {
+    return _prefs.getInt(keyQuickAddAccountId);
+  }
+
+  static Future<void> setQuickAddAccountId(int accountId) async {
+    await _prefs.setInt(keyQuickAddAccountId, accountId);
+  }
+
+  static Future<void> clearQuickAddAccountId() async {
+    await _prefs.remove(keyQuickAddAccountId);
   }
 
   static String getExpensesGroupBy() {

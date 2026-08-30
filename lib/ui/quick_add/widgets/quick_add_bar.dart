@@ -294,7 +294,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-        const SizedBox(width: FrostedSpacing.sp2),
         QuickAddSendAction(state: state, onSend: _submit),
       ],
     );

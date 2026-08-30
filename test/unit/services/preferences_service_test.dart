@@ -68,6 +68,22 @@ void main() {
       expect(PreferencesService.getAiModel(), AiModel.fallback);
     });
 
+    test('getQuickAddAccountId holds nothing until an account is picked', () {
+      expect(PreferencesService.getQuickAddAccountId(), isNull);
+    });
+
+    test('setQuickAddAccountId persists the account', () async {
+      await PreferencesService.setQuickAddAccountId(4);
+      expect(PreferencesService.getQuickAddAccountId(), 4);
+    });
+
+    test('clearQuickAddAccountId forgets the account', () async {
+      await PreferencesService.setQuickAddAccountId(4);
+      await PreferencesService.clearQuickAddAccountId();
+
+      expect(PreferencesService.getQuickAddAccountId(), isNull);
+    });
+
     test('getRevenuesGroupBy returns nothing by default', () {
       expect(PreferencesService.getRevenuesGroupBy(), isNull);
     });

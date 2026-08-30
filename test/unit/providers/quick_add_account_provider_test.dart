@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 AccountModel accountOf(int id, String name) {
   final account = AccountModel.create(name: name, bank: 'CM');
@@ -27,7 +29,16 @@ class FakeAccountNotifier extends AccountNotifier {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late FakeAccountNotifier accounts;
+
+  Future<void> initPreferences([Map<String, Object> stored = const {}]) async {
+    SharedPreferences.setMockInitialValues(stored);
+    await PreferencesService.init();
+  }
+
+  setUp(initPreferences);
 
   ProviderContainer makeContainer(List<AccountModel> initial) {
     accounts = FakeAccountNotifier(initial);
@@ -78,6 +89,39 @@ void main() {
     accounts.emit([accountOf(1, 'Courant'), accountOf(2, 'Livret A')]);
 
     expect(container.read(quickAddAccountProvider), 2);
+  });
+
+  test('opens on the account last picked, sessions later', () async {
+    await initPreferences({PreferencesService.keyQuickAddAccountId: 2});
+    final container = makeContainer([
+      accountOf(1, 'Courant'),
+      accountOf(2, 'Livret'),
+    ]);
+    await container.read(accountProvider.future);
+
+    expect(container.read(quickAddAccountProvider), 2);
+  });
+
+  test('a pick is written down for the next session', () async {
+    final container = makeContainer([
+      accountOf(1, 'Courant'),
+      accountOf(2, 'Livret'),
+    ]);
+    await container.read(accountProvider.future);
+    container.read(quickAddAccountProvider.notifier).select(2);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(PreferencesService.getQuickAddAccountId(), 2);
+  });
+
+  test('a written down account that is gone is forgotten', () async {
+    await initPreferences({PreferencesService.keyQuickAddAccountId: 2});
+    final container = makeContainer([accountOf(1, 'Courant')]);
+    await container.read(accountProvider.future);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(container.read(quickAddAccountProvider), 1);
+    expect(PreferencesService.getQuickAddAccountId(), isNull);
   });
 
   test('drops a pick whose account is gone', () async {

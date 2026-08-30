@@ -21,13 +21,16 @@ enum QuickAddSendState {
 
 /// L'envoi, à l'intérieur du champ, là où un mot de passe met son œil.
 ///
-/// Il ne pousse pas le texte quand il arrive : la place qu'il prend est
-/// toujours réservée, seul son contenu se change. Sans ça la ligne se
-/// recomposait sous le curseur au moment précis où le montant tombe.
+/// Tant qu'il n'y a rien à envoyer il ne garde pas sa place : la sortie tient
+/// alors le bord du champ, et c'est en glissant qu'elle lui cède la sienne.
 class QuickAddSendAction extends StatelessWidget {
   /// Côté du carré que la poignée occupe dans le champ. Il tient dans la
   /// hauteur d'une ligne : le champ ne grandit pas quand l'envoi apparaît.
   static const double slot = 24;
+
+  /// L'air qui sépare l'envoi de la sortie, replié avec lui quand il n'est
+  /// pas là.
+  static const double gap = FrostedSpacing.sp2;
 
   /// D'où le glyphe arrive. Assez petit pour qu'on voie qu'il se pose, assez
   /// grand pour rester lisible pendant tout le trajet.
@@ -50,14 +53,26 @@ class QuickAddSendAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final motion = context.frostedTokens.motion.snappy;
 
-    return SizedBox.square(
-      dimension: slot,
-      child: AnimatedSwitcher(
-        duration: motion.duration,
-        switchInCurve: motion.curve,
-        switchOutCurve: motion.curve,
-        transitionBuilder: _rise,
-        child: _content(context),
+    return AnimatedSize(
+      duration: motion.duration,
+      curve: motion.curve,
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        width: state == QuickAddSendState.idle ? 0 : gap + slot,
+        height: slot,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox.square(
+            dimension: slot,
+            child: AnimatedSwitcher(
+              duration: motion.duration,
+              switchInCurve: motion.curve,
+              switchOutCurve: motion.curve,
+              transitionBuilder: _rise,
+              child: _content(context),
+            ),
+          ),
+        ),
       ),
     );
   }

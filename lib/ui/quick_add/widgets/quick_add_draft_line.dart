@@ -73,9 +73,11 @@ class QuickAddDraftLine extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: amount == null
-                  ? const SizedBox.shrink()
-                  : _DraftAmount(amount: amount!, isIncome: isIncome),
+              child: _DraftAmount(
+                amount: amount ?? 0,
+                isIncome: isIncome,
+                isAwaitingAmount: amount == null,
+              ),
             ),
             const SizedBox(width: FrostedSpacing.sp2),
             _CategoryPill(
@@ -106,17 +108,31 @@ class _DraftAmount extends StatelessWidget {
   static const double _integerFontSize = 30;
   static const double _decimalFontSize = 19;
   static const double _decimalAlpha = 0.65;
+  static const double _awaitingAlpha = 0.35;
 
   final double amount;
   final bool isIncome;
 
-  const _DraftAmount({required this.amount, required this.isIncome});
+  /// Nothing readable as a price has been typed yet : the line holds a zero
+  /// so the category never sits next to a hole, dimmed so it reads as a slot
+  /// to fill rather than as an amount that was understood.
+  final bool isAwaitingAmount;
+
+  const _DraftAmount({
+    required this.amount,
+    required this.isIncome,
+    required this.isAwaitingAmount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = isIncome
+    final scheme = Theme.of(context).colorScheme;
+    final signed = isIncome && !isAwaitingAmount;
+    final color = isAwaitingAmount
+        ? scheme.onSurfaceVariant.withValues(alpha: _awaitingAlpha)
+        : isIncome
         ? context.financeColors.income
-        : Theme.of(context).colorScheme.onSurface;
+        : scheme.onSurface;
 
     return AnimatedAmount(
       amount: amount,
@@ -132,7 +148,7 @@ class _DraftAmount extends StatelessWidget {
               color: color,
             ),
             children: [
-              TextSpan(text: '${isIncome ? '+ ' : ''}${parts.integer}'),
+              TextSpan(text: '${signed ? '+ ' : ''}${parts.integer}'),
               TextSpan(
                 text: ',${parts.decimals} €',
                 style: AppTextStyles.displaySerifItalic(

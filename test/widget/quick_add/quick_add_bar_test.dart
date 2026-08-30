@@ -28,6 +28,7 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
@@ -278,15 +279,8 @@ void main() {
     expect(field.contains(send.center), isTrue);
   });
 
-  testWidgets('l\'envoi n\'apparait que quand il y a de quoi envoyer', (
-    tester,
-  ) async {
-    await pumpBar(tester);
-    await tester.pumpAndSettle();
-
-    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
-
-    // Un texte sans montant n'est pas une transaction : rien à envoyer.
+  /// Un texte sans montant n'est pas une transaction : rien a envoyer.
+  void classifyAmountOnlyWithDigits() {
     when(() => classifier.classify(any())).thenAnswer((invocation) async {
       final input = invocation.positionalArguments.first as String;
       return QuickAddClassification(
@@ -302,6 +296,64 @@ void main() {
         cleanedText: 'mc do',
       );
     });
+  }
+
+  testWidgets('la sortie tient le bord du champ tant qu\'il n\'y a rien a '
+      'envoyer', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    classifyAmountOnlyWithDigits();
+
+    await typeAndAnalyze(tester, 'mc do');
+    final alone = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await typeAndAnalyze(tester, 'mc do 12');
+    final shifted = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    expect(shifted.right, lessThan(alone.right));
+    expect(
+      alone.right - shifted.right,
+      moreOrLessEquals(
+        QuickAddSendAction.slot + FrostedSpacing.sp2,
+        epsilon: 0.5,
+      ),
+    );
+  });
+
+  testWidgets('la sortie glisse au lieu de sauter quand l\'envoi arrive', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    classifyAmountOnlyWithDigits();
+
+    await typeAndAnalyze(tester, 'mc do');
+    final alone = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await tester.enterText(find.byType(TextField), 'mc do 12');
+    await tester.pump(
+      QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 50),
+    );
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 40));
+    final midway = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await tester.pumpAndSettle();
+    final settled = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    expect(midway.right, lessThan(alone.right));
+    expect(midway.right, greaterThan(settled.right));
+  });
+
+  testWidgets('l\'envoi n\'apparait que quand il y a de quoi envoyer', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
+
+    classifyAmountOnlyWithDigits();
     await typeAndAnalyze(tester, 'mc do');
     expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
 
