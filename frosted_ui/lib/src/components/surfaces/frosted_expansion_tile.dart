@@ -19,6 +19,8 @@ class FrostedExpansionTile extends StatefulWidget {
     this.leading,
     this.subtitle,
     this.initiallyExpanded = false,
+    this.expanded,
+    this.onExpansionChanged,
     this.position = FrostedTilePosition.single,
     super.key,
   });
@@ -28,6 +30,15 @@ class FrostedExpansionTile extends StatefulWidget {
   final Widget? leading;
   final Widget child;
   final bool initiallyExpanded;
+
+  /// Drives the tile from the outside. When null the tile owns its state and
+  /// starts from [initiallyExpanded].
+  final bool? expanded;
+
+  /// The state a tap asks for. A controlled tile only reports it: nothing
+  /// opens until [expanded] is updated.
+  final ValueChanged<bool>? onExpansionChanged;
+
   final FrostedTilePosition position;
 
   /// Copy with a resolved [position] — used by [FrostedListSection].
@@ -37,6 +48,8 @@ class FrostedExpansionTile extends StatefulWidget {
         subtitle: subtitle,
         leading: leading,
         initiallyExpanded: initiallyExpanded,
+        expanded: expanded,
+        onExpansionChanged: onExpansionChanged,
         position: value,
         key: key,
         child: child,
@@ -47,7 +60,15 @@ class FrostedExpansionTile extends StatefulWidget {
 }
 
 class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
-  late bool _expanded = widget.initiallyExpanded;
+  late bool _ownExpanded = widget.initiallyExpanded;
+
+  bool get _expanded => widget.expanded ?? _ownExpanded;
+
+  void _handleTap() {
+    final bool next = !_expanded;
+    if (widget.expanded == null) setState(() => _ownExpanded = next);
+    widget.onExpansionChanged?.call(next);
+  }
 
   static const double _outer = FrostedRadius.lg;
   static const double _inner = FrostedRadius.sm;
@@ -98,7 +119,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
     final Widget header = InteractiveSurface(
-      onTap: () => setState(() => _expanded = !_expanded),
+      onTap: _handleTap,
       semanticsLabel: widget.title,
       semanticsSelected: _expanded,
       builder: (BuildContext context, InteractionStates s) {

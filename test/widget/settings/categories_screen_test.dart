@@ -54,9 +54,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('lists expense and income groups', (tester) async {
+  Future<void> tapSection(WidgetTester tester, String label) async {
+    await tester.scrollUntilVisible(
+      find.text(label),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(label));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('both type sections start expanded', (tester) async {
     await pumpScreen(tester);
 
+    expect(find.text('D\u00e9penses'), findsOneWidget);
     expect(find.text('Alimentation'), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -66,7 +78,37 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Revenus'), findsOneWidget);
     expect(find.text('Salaire'), findsOneWidget);
+  });
+
+  testWidgets('a collapsed section reopens on tap', (tester) async {
+    await pumpScreen(tester);
+
+    await tapSection(tester, 'D\u00e9penses');
+    expect(find.text('Alimentation'), findsNothing);
+
+    await tapSection(tester, 'D\u00e9penses');
+
+    expect(find.text('Alimentation'), findsOneWidget);
+  });
+
+  testWidgets('collapsing a section hides its groups', (tester) async {
+    await pumpScreen(tester);
+
+    await tapSection(tester, 'D\u00e9penses');
+
+    expect(find.text('Alimentation'), findsNothing);
+  });
+
+  testWidgets('a search drops the section with no match', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.enterText(find.byType(TextField), 'salaire');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Salaire'), findsWidgets);
+    expect(find.text('D\u00e9penses'), findsNothing);
   });
 
   testWidgets('a group reveals its leaves once tapped', (tester) async {

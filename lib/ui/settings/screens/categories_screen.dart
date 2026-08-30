@@ -22,7 +22,17 @@ class CategoriesScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
+  static const Map<TransactionType, String> _typeLabels = {
+    TransactionType.expense: 'Dépenses',
+    TransactionType.income: 'Revenus',
+  };
+  static const Map<TransactionType, IconData> _typeIcons = {
+    TransactionType.expense: Symbols.trending_down_rounded,
+    TransactionType.income: Symbols.trending_up_rounded,
+  };
+
   final TextEditingController _searchController = TextEditingController();
+  final Set<TransactionType> _openTypes = {...TransactionType.values};
   String _query = '';
   String? _openGroupKey;
 
@@ -70,13 +80,26 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
+  void _toggleType(TransactionType type, bool open) => setState(() {
+    if (open) {
+      _openTypes.add(type);
+    } else {
+      _openTypes.remove(type);
+      _openGroupKey = null;
+    }
+  });
+
   Widget _tree(
     CategoryDisplayResolver resolver,
     Map<String, CategoryOverrideModel> overrides,
   ) {
-    final matches = _matchingLeavesByGroup(resolver);
+    final searching = _query.trim().isNotEmpty;
+    final sections = {
+      for (final type in TransactionType.values)
+        type: _matchingLeavesByGroup(resolver, type),
+    }..removeWhere((_, groups) => groups.isEmpty);
 
-    if (matches.isEmpty) {
+    if (sections.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Text(
@@ -89,50 +112,63 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       );
     }
 
-    final searching = _query.trim().isNotEmpty;
-
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        for (final entry in matches.entries)
-          _GroupSection(
-            group: resolver.resolveGroup(entry.key)!,
-            children: entry.value,
-            overrides: overrides,
-            expanded: searching || _openGroupKey == entry.key,
-            collapsible: !searching,
-            onToggle: () => setState(
-              () =>
-                  _openGroupKey = _openGroupKey == entry.key ? null : entry.key,
+        for (final section in sections.entries)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: FrostedExpansionTile(
+              title: _typeLabels[section.key]!,
+              leading: Icon(_typeIcons[section.key]),
+              expanded: searching || _openTypes.contains(section.key),
+              onExpansionChanged: (open) => _toggleType(section.key, open),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final entry in section.value.entries)
+                    _GroupSection(
+                      group: resolver.resolveGroup(entry.key)!,
+                      children: entry.value,
+                      overrides: overrides,
+                      expanded: searching || _openGroupKey == entry.key,
+                      collapsible: !searching,
+                      onToggle: () => setState(
+                        () => _openGroupKey = _openGroupKey == entry.key
+                            ? null
+                            : entry.key,
+                      ),
+                      onEdit: (category) => _edit(resolver, category),
+                    ),
+                ],
+              ),
             ),
-            onEdit: (category) => _edit(resolver, category),
           ),
       ],
     );
   }
 
-  /// Leaves to show per group key, in taxonomy order, expenses before income.
+  /// Leaves to show per group key, in taxonomy order, for one type.
   ///
   /// A search keeps the tree shape rather than flattening it: the group row is
   /// what carries the colour, so it has to stay reachable to be edited.
   Map<String, List<CategoryDisplay>> _matchingLeavesByGroup(
     CategoryDisplayResolver resolver,
+    TransactionType type,
   ) {
     final query = _query.trim();
     final result = <String, List<CategoryDisplay>>{};
 
-    for (final type in TransactionType.values) {
-      if (query.isEmpty) {
-        for (final group in resolver.groupsOfType(type)) {
-          result[group.groupKey] = resolver.childrenOf(group.groupKey);
-        }
-        continue;
+    if (query.isEmpty) {
+      for (final group in resolver.groupsOfType(type)) {
+        result[group.groupKey] = resolver.childrenOf(group.groupKey);
       }
+      return result;
+    }
 
-      for (final leaf in resolver.search(query, type)) {
-        result.putIfAbsent(leaf.groupKey, () => []).add(leaf);
-      }
+    for (final leaf in resolver.search(query, type)) {
+      result.putIfAbsent(leaf.groupKey, () => []).add(leaf);
     }
 
     return result;
