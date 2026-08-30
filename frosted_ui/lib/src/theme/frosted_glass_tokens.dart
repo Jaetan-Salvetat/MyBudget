@@ -26,6 +26,7 @@ class FrostedGlassTokens {
     required this.lightDetachedBorder,
     required this.darkDetachedBorder,
     required this.saturation,
+    required this.restingShadow,
     required this.floatingShadow,
     required this.liftedShadow,
     required this.scrim,
@@ -63,6 +64,13 @@ class FrostedGlassTokens {
       lightDetachedBorder: BorderSide(color: Color(0x1F000000), width: 0.5),
       darkDetachedBorder: BorderSide(color: Color(0x33FFFFFF), width: 0.5),
       saturation: 1.4,
+      restingShadow: <BoxShadow>[
+        BoxShadow(
+          color: Color(0x14000000),
+          offset: Offset(0, 3),
+          blurRadius: 18,
+        ),
+      ],
       floatingShadow: <BoxShadow>[
         BoxShadow(
           color: Color(0x1F000000),
@@ -99,6 +107,7 @@ class FrostedGlassTokens {
   /// Backdrop saturation multiplier (1.0 = no boost).
   final double saturation;
 
+  final List<BoxShadow> restingShadow;
   final List<BoxShadow> floatingShadow;
   final List<BoxShadow> liftedShadow;
 
@@ -131,6 +140,7 @@ class FrostedGlassTokens {
     BorderSide? lightDetachedBorder,
     BorderSide? darkDetachedBorder,
     double? saturation,
+    List<BoxShadow>? restingShadow,
     List<BoxShadow>? floatingShadow,
     List<BoxShadow>? liftedShadow,
     Color? scrim,
@@ -146,6 +156,7 @@ class FrostedGlassTokens {
       lightDetachedBorder: lightDetachedBorder ?? this.lightDetachedBorder,
       darkDetachedBorder: darkDetachedBorder ?? this.darkDetachedBorder,
       saturation: saturation ?? this.saturation,
+      restingShadow: restingShadow ?? this.restingShadow,
       floatingShadow: floatingShadow ?? this.floatingShadow,
       liftedShadow: liftedShadow ?? this.liftedShadow,
       scrim: scrim ?? this.scrim,
@@ -176,6 +187,7 @@ class FrostedGlassTokens {
         t,
       ),
       saturation: lerpDouble(a.saturation, b.saturation, t)!,
+      restingShadow: BoxShadow.lerpList(a.restingShadow, b.restingShadow, t)!,
       floatingShadow: BoxShadow.lerpList(
         a.floatingShadow,
         b.floatingShadow,

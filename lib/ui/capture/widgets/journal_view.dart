@@ -49,6 +49,26 @@ class JournalView extends ConsumerStatefulWidget {
 
   const JournalView({required this.bottomInset, super.key});
 
+  /// Comment la liste rejoint son bord haut : elle ne dissout que ce qui est
+  /// passé dessous — rien, au repos, donc la première ligne reste franche.
+  ///
+  /// Le bas ne dissout rien. La liste descend entière derrière les deux
+  /// chromes du bord : c'est leur verre qui la floute, et un verre posé sur du
+  /// vide n'est plus qu'un aplat de son propre voile.
+  static LinearGradient edgeGradient({
+    required double scrolled,
+    required double height,
+  }) {
+    final top = (scrolled.clamp(0.0, edgeFade) / height).clamp(0.0, 1.0);
+
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: const [Colors.transparent, Colors.black, Colors.black],
+      stops: [0, top, 1],
+    );
+  }
+
   @override
   ConsumerState<JournalView> createState() => _JournalViewState();
 }
@@ -276,21 +296,10 @@ class _JournalViewState extends ConsumerState<JournalView> {
     ];
   }
 
-  /// Le haut ne dissout que ce qui est passé sous le bord — rien, au repos,
-  /// donc la première ligne reste franche. Le bas se dissout toujours : c'est
-  /// là que la liste passe sous le dock.
-  Shader _fade(Rect bounds) {
-    final scrolled = _scroll.hasClients ? _scroll.offset : 0.0;
-    final top = (scrolled.clamp(0.0, JournalView.edgeFade) / bounds.height)
-        .clamp(0.0, 1.0);
-
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: const [Colors.transparent, Colors.black, Colors.black],
-      stops: [0, top, 1],
-    ).createShader(bounds);
-  }
+  Shader _fade(Rect bounds) => JournalView.edgeGradient(
+    scrolled: _scroll.hasClients ? _scroll.offset : 0,
+    height: bounds.height,
+  ).createShader(bounds);
 
   Future<void> _undo(WidgetRef ref, QuickAddSubmission submission) async {
     ref.read(quickAddRecentSubmissionsProvider.notifier).dismiss(submission);

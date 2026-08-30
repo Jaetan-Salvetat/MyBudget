@@ -15,18 +15,16 @@ import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
-/// L'empreinte d'un bouton de la rangée : sa boîte, et l'air que le composant
-/// porte de chaque côté.
-final double _kSendFootprint =
+/// Là où le champ commence, une fois le bouton de scan posé : sa boîte, et
+/// l'air que le composant porte de chaque côté. La ligne de compte s'y
+/// aligne — elle parle du champ, pas du bord de la rangée.
+final double _kFieldOffset =
     FrostedIconButtonSize.medium.box + FrostedSpacing.sp1 * 2;
-
-/// Là où le champ commence, une fois le bouton de scan posé. La ligne de
-/// compte s'y aligne : elle parle du champ, pas du bord de la rangée.
-final double _kFieldOffset = _kSendFootprint;
 
 /// The one place a transaction gets typed. Reads the text as it comes,
 /// creates on submit, and keeps the keyboard up : entering the day's expenses
@@ -230,14 +228,16 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         ),
         Row(
           children: [
-            FrostedIconButton.filled(
+            // Le second geste de la page, pas son action : l'accent revient à
+            // l'envoi, et deux disques pleins de part et d'autre du champ
+            // n'auraient dit lequel des deux la page attend.
+            FrostedIconButton.tonal(
               icon: Symbols.photo_camera_rounded,
               shape: FrostedShape.pill,
               tooltip: 'Photographier le ticket',
               onPressed: _scan,
             ),
-            Expanded(child: _field(draft, showContext)),
-            _send(draft),
+            Expanded(child: _field(draft)),
           ],
         ),
         AnimatedSize(
@@ -260,41 +260,60 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     );
   }
 
-  /// L'envoi, ou l'attente pendant que l'écriture part : le bouton laisse sa
-  /// place au tourniquet plutôt que de rester pressable sur une action déjà
-  /// partie.
-  Widget _send(QuickAddDraft draft) {
-    if (_submitting) return const _Submitting();
+  /// Ce que la poignée du champ propose à l'instant. L'attente et l'accusé
+  /// passent devant le brouillon : le champ est déjà vide pour la frappe
+  /// suivante, et l'envoi qui vient de partir a encore quelque chose à dire.
+  QuickAddSendState _sendState(QuickAddDraft draft) {
+    if (_submitting) return QuickAddSendState.sending;
+    if (_sentFlashing) return QuickAddSendState.sent;
 
-    return FrostedIconButton.filled(
-      icon: _sentFlashing
-          ? Symbols.check_rounded
-          : Symbols.arrow_upward_rounded,
-      shape: FrostedShape.pill,
-      tooltip: _sentFlashing ? 'Continuer à écrire' : 'Envoyer',
-      onPressed: _sentFlashing
-          ? _keepTyping
-          : (draft.isSubmittable ? _submit : null),
+    return draft.isSubmittable
+        ? QuickAddSendState.ready
+        : QuickAddSendState.idle;
+  }
+
+  /// Les poignées du champ : la sortie tant qu'il y a quelque chose à vider,
+  /// l'envoi dès que ce qui est écrit tient debout.
+  ///
+  /// Aucune sur un champ vide — ni la sortie, qui ne ferait rien, ni la place
+  /// que l'envoi réserve : elle mangerait la largeur du texte pour rien.
+  Widget? _handles(QuickAddDraft draft) {
+    final state = _sendState(draft);
+    if (draft.isEmpty && state == QuickAddSendState.idle) return null;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!draft.isEmpty)
+          GestureDetector(
+            onTap: _cancel,
+            behavior: HitTestBehavior.opaque,
+            child: Icon(
+              Symbols.close_rounded,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        const SizedBox(width: FrostedSpacing.sp2),
+        QuickAddSendAction(state: state, onSend: _submit),
+      ],
     );
   }
 
-  Widget _field(QuickAddDraft draft, bool showContext) {
+  Widget _field(QuickAddDraft draft) {
     final hint = widget.hint;
-    if (hint == null) {
-      return _fieldWithHint(draft, showContext, QuickAddBar.staticHint);
-    }
+    if (hint == null) return _fieldWithHint(draft, QuickAddBar.staticHint);
 
     return ValueListenableBuilder<String>(
       valueListenable: hint,
       builder: (context, typed, _) => _fieldWithHint(
         draft,
-        showContext,
         typed.isEmpty ? QuickAddBar.staticHint : typed,
       ),
     );
   }
 
-  Widget _fieldWithHint(QuickAddDraft draft, bool showContext, String hint) {
+  Widget _fieldWithHint(QuickAddDraft draft, String hint) {
     final usesRemote = ref.watch(quickAddUsesRemoteProvider);
 
     return QuickAddThinkingBorder(
@@ -305,38 +324,12 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         leadingIcon: usesRemote
             ? Symbols.cloud_rounded
             : Symbols.auto_awesome_rounded,
-        trailingIcon: showContext ? Symbols.close_rounded : null,
-        onTrailingTap: _cancel,
+        trailing: _handles(draft),
         hintText: hint,
         textInputAction: TextInputAction.send,
         onChanged: _onChanged,
         onSubmitted: (_) => _submit(),
         onEditingComplete: _keepTyping,
-      ),
-    );
-  }
-}
-
-/// Ce que l'envoi laisse à sa place le temps de partir : même empreinte que le
-/// bouton, pour que la rangée ne bouge pas.
-class _Submitting extends StatelessWidget {
-  static const double _spinner = 18;
-  static const double _stroke = 2;
-
-  const _Submitting();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: _kSendFootprint,
-      child: Center(
-        child: SizedBox.square(
-          dimension: _spinner,
-          child: CircularProgressIndicator(
-            strokeWidth: _stroke,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
       ),
     );
   }

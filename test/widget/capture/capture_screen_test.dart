@@ -182,17 +182,41 @@ void main() {
     expect(journal.bottom - reserved, lessThanOrEqualTo(dock.top));
   });
 
+  Finder dockPanel() => find.descendant(
+    of: find.byType(CaptureDock),
+    matching: find.byType(FrostedGlass),
+  );
+
   testWidgets('le dock flotte au-dessus de la barre, hors de son verre', (
     tester,
   ) async {
     await pumpCapture(tester);
 
     final dock = tester.getRect(find.byType(CaptureDock));
-    final field = tester.getRect(find.byType(QuickAddBar));
+    final panel = tester.getRect(dockPanel());
     final bar = tester.getRect(find.byType(FrostedBottomBar));
 
     expect(dock.bottom, bar.top);
-    expect(bar.top - field.bottom, CaptureDock.clearance);
+    expect(bar.top - panel.bottom, CaptureDock.clearance);
+    expect(panel.top - dock.top, CaptureDock.clearance);
+  });
+
+  testWidgets('le dock porte son propre verre, le journal passe derriere', (
+    tester,
+  ) async {
+    await pumpCapture(tester);
+
+    expect(dockPanel(), findsOneWidget);
+
+    // Tout ce que la saisie affiche vit dans le verre : rien ne flotte a nu
+    // au-dessus du journal.
+    final panel = tester.getRect(dockPanel());
+    final bar = tester.getRect(find.byType(QuickAddBar));
+
+    expect(panel.top, lessThan(bar.top));
+    expect(panel.bottom, greaterThan(bar.bottom));
+    expect(panel.left, lessThan(bar.left));
+    expect(panel.right, greaterThan(bar.right));
   });
 
   testWidgets('le clavier replie la barre et le dock prend son bord', (

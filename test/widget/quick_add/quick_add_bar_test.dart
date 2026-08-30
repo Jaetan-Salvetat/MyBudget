@@ -153,10 +153,22 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsNothing);
   });
 
-  testWidgets('offers a way out as soon as the field is focused', (
+  testWidgets('n\'offre pas de sortie sur un champ vide, meme vise', (
     tester,
   ) async {
     await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.close_rounded), findsNothing);
+  });
+
+  testWidgets('offers a way out as soon as there is something to clear', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'mc do');
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
@@ -232,6 +244,9 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  Color glyphColor(WidgetTester tester, IconData icon) =>
+      tester.widget<Icon>(find.byIcon(icon)).color!;
+
   BoxDecoration roundButtonSkin(WidgetTester tester, IconData icon) {
     final button = tester.widget<AnimatedContainer>(
       find
@@ -245,26 +260,89 @@ void main() {
     return button.decoration! as BoxDecoration;
   }
 
-  testWidgets('le bouton d\'envoi n\'a qu\'une peau, du brouillon au check', (
+  testWidgets('l\'envoi vit dans le champ, pas a cote', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    expect(
+      find.descendant(
+        of: find.byType(FrostedTextField),
+        matching: find.byIcon(Symbols.arrow_upward_rounded),
+      ),
+      findsOneWidget,
+    );
+
+    final field = tester.getRect(find.byType(FrostedTextField));
+    final send = tester.getRect(find.byIcon(Symbols.arrow_upward_rounded));
+    expect(field.contains(send.center), isTrue);
+  });
+
+  testWidgets('l\'envoi n\'apparait que quand il y a de quoi envoyer', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
+
+    // Un texte sans montant n'est pas une transaction : rien à envoyer.
+    when(() => classifier.classify(any())).thenAnswer((invocation) async {
+      final input = invocation.positionalArguments.first as String;
+      return QuickAddClassification(
+        type: TransactionType.expense,
+        category: taxonomy.resolve('restauration.fast_food')!,
+        frequency: Frequency.oneTime,
+        date: DateTime(2026, 8, 20),
+        amount: input.contains(RegExp(r'\d')) ? 12.0 : null,
+        name: 'Mc do',
+        typeConfidence: 0.99,
+        categoryConfidence: 0.9,
+        recurrenceConfidence: 0.9,
+        cleanedText: 'mc do',
+      );
+    });
+    await typeAndAnalyze(tester, 'mc do');
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
+
+    await typeAndAnalyze(tester, 'mc do 12');
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+  });
+
+  testWidgets('l\'envoi garde sa couleur, de la fleche au check', (
     tester,
   ) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
-    final ready = roundButtonSkin(tester, Symbols.arrow_upward_rounded);
-    expect(ready.border, isNull);
-    expect(ready.boxShadow, isNull);
+    final ready = glyphColor(tester, Symbols.arrow_upward_rounded);
 
     await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
-    expect(roundButtonSkin(tester, Symbols.check_rounded).color, ready.color);
+    expect(glyphColor(tester, Symbols.check_rounded), ready);
 
     await tester.pump(QuickAddBarState.sentFlash);
     await tester.pump(QuickAddRecentSubmissions.retention);
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('l\'accent tient a l\'envoi, le scan reste le second geste', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    final scheme = AppTheme.light().colorScheme;
+
+    expect(glyphColor(tester, Symbols.arrow_upward_rounded), scheme.primary);
+    expect(
+      roundButtonSkin(tester, Symbols.photo_camera_rounded).color,
+      isNot(scheme.primary),
+    );
   });
 
   testWidgets('la ligne de compte s\'aligne sur le champ, pas sur le scan', (

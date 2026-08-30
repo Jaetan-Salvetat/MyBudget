@@ -91,6 +91,7 @@ class FrostedGlass extends StatelessWidget {
     );
     final List<BoxShadow>? shadow = switch (elevation) {
       FrostedGlassElevation.none => null,
+      FrostedGlassElevation.resting => _scaleShadow(glass.restingShadow, t),
       FrostedGlassElevation.floating => _scaleShadow(glass.floatingShadow, t),
       FrostedGlassElevation.lifted => _scaleShadow(glass.liftedShadow, t),
     };

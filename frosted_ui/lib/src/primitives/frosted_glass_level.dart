@@ -25,10 +25,17 @@ enum FrostedGlassTone { auto, light, dark }
 ///
 /// - [none]: no shadow. Use when the glass is attached to an edge or to
 ///   another element.
+/// - [resting]: the faintest detachment. Use for chrome that floats a hair
+///   above the page and answers to it — a dock sitting on a bar, a pill
+///   riding a list — where [floating] reads as a card dropped on top.
 /// - [floating]: soft ambient grounding. Default for free-standing chrome.
 /// - [lifted]: stronger shadow. Use for modals or sheets that hover above
 ///   a dimmed scrim.
-enum FrostedGlassElevation { none, floating, lifted }
+///
+/// Everything above [none] is *detached*, and carries the crisper hairline
+/// that goes with it: what separates the steps is depth, not whether the
+/// surface stands free of the page.
+enum FrostedGlassElevation { none, resting, floating, lifted }
 
 /// Which sides of the glass carry the hairline border.
 ///

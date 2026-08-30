@@ -316,4 +316,31 @@ void main() {
     expect(find.text('HIER'), findsOneWidget);
     expect(find.text('Decathlon'), findsOneWidget);
   });
+
+  group('le dégradé de bord', () {
+    const double height = 600;
+
+    test('laisse la première ligne franche tant que rien n\'est passé dessus', () {
+      final gradient = JournalView.edgeGradient(scrolled: 0, height: height);
+
+      expect(gradient.stops!.first, 0);
+      expect(gradient.colors[1], Colors.black);
+    });
+
+    test('dissout le haut à mesure que la liste passe sous le bord', () {
+      final gradient = JournalView.edgeGradient(
+        scrolled: JournalView.edgeFade,
+        height: height,
+      );
+
+      expect(gradient.stops![1], JournalView.edgeFade / height);
+    });
+
+    test('laisse la liste entière derrière les chromes du bas', () {
+      final gradient = JournalView.edgeGradient(scrolled: 0, height: height);
+
+      expect(gradient.stops!.last, 1);
+      expect(gradient.colors.last, Colors.black);
+    });
+  });
 }

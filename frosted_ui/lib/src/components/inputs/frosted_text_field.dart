@@ -23,6 +23,7 @@ class FrostedTextField extends StatefulWidget {
     this.errorText,
     this.leadingIcon,
     this.trailingIcon,
+    this.trailing,
     this.onTrailingTap,
     this.obscureText = false,
     this.enabled = true,
@@ -47,6 +48,13 @@ class FrostedTextField extends StatefulWidget {
   final String? errorText;
   final IconData? leadingIcon;
   final IconData? trailingIcon;
+
+  /// What sits in the trailing slot when a glyph is not enough — an affordance
+  /// that animates in and out, or one that carries its own state. It takes the
+  /// slot over from [trailingIcon] and owns its own gesture, so
+  /// [onTrailingTap] does not apply to it.
+  final Widget? trailing;
+
   final VoidCallback? onTrailingTap;
   final bool obscureText;
   final bool enabled;
@@ -143,7 +151,10 @@ class _FrostedTextFieldState extends State<FrostedTextField> {
                 const SizedBox(width: FrostedSpacing.sp3),
               ],
               Expanded(child: _input(cs)),
-              if (widget.trailingIcon != null) ...<Widget>[
+              if (widget.trailing != null) ...<Widget>[
+                const SizedBox(width: FrostedSpacing.sp3),
+                widget.trailing!,
+              ] else if (widget.trailingIcon != null) ...<Widget>[
                 const SizedBox(width: FrostedSpacing.sp3),
                 GestureDetector(
                   onTap: enabled ? widget.onTrailingTap : null,
