@@ -31,7 +31,7 @@ void main() {
   const Color seed = Color(0xFF7C5CFF);
   const Color splash = Color(0xFF00FF00);
 
-  const double _boundaryMargin = 0.25;
+  const double boundaryMargin = 0.25;
 
   const List<FrostedNavItem> navItems = <FrostedNavItem>[
     FrostedNavItem(icon: Icons.home, label: 'Accueil'),
@@ -228,8 +228,8 @@ void main() {
   void expectInkTakesSurfaceShape(_InkFrame? frame, String name) {
     expect(frame, isNotNull, reason: '$name paints no ink over a surface');
     final RRect surface = frame!.surface;
-    final RRect inside = surface.deflate(_boundaryMargin);
-    final RRect outside = surface.inflate(_boundaryMargin);
+    final RRect inside = surface.deflate(boundaryMargin);
+    final RRect outside = surface.inflate(boundaryMargin);
 
     const int steps = 32;
     for (int i = 0; i <= steps; i++) {

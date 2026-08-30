@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -103,7 +105,7 @@ void main() {
         find.byType(FrostedIconButton),
       );
 
-      expect(node.hasFlag(SemanticsFlag.hasSelectedState), isFalse);
+      expect(node.flagsCollection.isSelected, Tristate.none);
     });
   });
 
