@@ -13,6 +13,7 @@ import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_provider.g.dart';
@@ -66,12 +67,21 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     state = state.copyWith(date: date, isDatePinned: true);
   }
 
+  /// A picked category also settles the type: an income slug on an expense
+  /// draft would otherwise record a revenue as a spending.
   void selectCategory(String slug) {
     if (state.isEmpty || state.isStale) return;
 
     ref.read(categoryMemoryProvider).remember(state.memoryKey, slug);
-    state = state.copyWith(categorySlug: slug, categoryConfidence: 1.0);
+    state = state.copyWith(
+      categorySlug: slug,
+      categoryConfidence: 1.0,
+      type: _typeOfCategory(slug),
+    );
   }
+
+  TransactionType? _typeOfCategory(String slug) =>
+      ref.read(categoryDisplayResolverProvider).value?.resolve(slug)?.type;
 
   Future<QuickAddSubmission> submit(int accountId) async {
     await _settleAnalysis();

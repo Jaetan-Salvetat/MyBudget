@@ -14,8 +14,14 @@ import 'package:mybudget/ui/settings/category_override_provider.dart';
 ///
 /// Only leaves can be picked: a group slug stored on a transaction would not
 /// resolve and the amount would fall into "Non catégorisé".
+///
+/// A null [type] offers both sections: the caller then reads the type back
+/// from the picked slug rather than imposing one.
 class CategoryPickerSheet extends ConsumerStatefulWidget {
-  final TransactionType type;
+  static const String expensesLabel = 'Dépenses';
+  static const String incomeLabel = 'Revenus';
+
+  final TransactionType? type;
   final String? selectedSlug;
   final List<String> suggestions;
 
@@ -28,7 +34,7 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
 
   static Future<String?> show(
     BuildContext context, {
-    TransactionType type = TransactionType.expense,
+    TransactionType? type = TransactionType.expense,
     String? selectedSlug,
     List<String> suggestions = const [],
   }) {
@@ -151,9 +157,29 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           for (final leaf in frequent)
             _leafTile(leaf, subtitle: leaf.groupLabel),
         ],
-        if (suggestions.isNotEmpty || frequent.isNotEmpty)
+        if (widget.type != null && (suggestions.isNotEmpty || frequent.isNotEmpty))
           const _SectionLabel('Toutes les catégories'),
-        for (final group in resolver.groupsOfType(widget.type))
+        ..._groupSections(resolver),
+      ],
+    );
+  }
+
+  /// The tree itself. Both sections are labelled when the sheet spans them,
+  /// so an income group cannot be read as one more expense group.
+  List<Widget> _groupSections(CategoryDisplayResolver resolver) {
+    final spansBothTypes = widget.type == null;
+
+    return [
+      for (final type in spansBothTypes
+          ? TransactionType.values
+          : [widget.type!]) ...[
+        if (spansBothTypes)
+          _SectionLabel(
+            type == TransactionType.expense
+                ? CategoryPickerSheet.expensesLabel
+                : CategoryPickerSheet.incomeLabel,
+          ),
+        for (final group in resolver.groupsOfType(type))
           _GroupSection(
             group: group,
             children: resolver.childrenOf(group.groupKey),
@@ -166,7 +192,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
             leafBuilder: _leafTile,
           ),
       ],
-    );
+    ];
   }
 
   Widget _leafTile(

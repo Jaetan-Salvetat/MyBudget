@@ -59,7 +59,7 @@ void main() {
     frequency: 'Mensuel',
   );
 
-  Future<List<String>> slugsFor(TransactionType type) async {
+  Future<List<String>> slugsFor(TransactionType? type) async {
     final container = ProviderContainer(
       overrides: [
         expenseRepositoryProvider.overrideWithValue(expenseRepository),
@@ -137,6 +137,18 @@ void main() {
       (await slugsFor(TransactionType.expense)).length,
       maxFrequentCategories,
     );
+  });
+
+  test('ranks expenses and revenues together when no type is given', () async {
+    when(() => expenseRepository.getActive()).thenReturn([
+      expense('transport.essence'),
+    ]);
+    when(() => revenueRepository.getActive()).thenReturn([
+      revenue('salaire.prime'),
+      revenue('salaire.prime'),
+    ]);
+
+    expect(await slugsFor(null), ['salaire.prime', 'transport.essence']);
   });
 
   test('reads revenues for the income type', () async {

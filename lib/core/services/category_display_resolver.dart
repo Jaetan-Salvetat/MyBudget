@@ -114,7 +114,8 @@ class CategoryDisplayResolver {
   /// moved to another group keeps its old prefix but belongs to the new group.
   String? groupKeyOf(String slug) => _taxonomy.groupOfSlug(slug)?.key;
 
-  List<CategoryDisplay> groupsOfType(TransactionType type) => _taxonomy
+  /// Groups of [type], or every group, expenses first, when it is null.
+  List<CategoryDisplay> groupsOfType(TransactionType? type) => _taxonomy
       .groupsOfType(type)
       .map((group) => resolveGroup(group.key)!)
       .toList();
@@ -130,9 +131,10 @@ class CategoryDisplayResolver {
       ? withoutOverrides.resolveGroup(category.groupKey)!
       : withoutOverrides.resolve(category.slug)!;
 
-  /// Selectable leaves of [type] whose label, or whose group label, matches
-  /// [query]. Empty for a blank query: the caller keeps showing the tree.
-  List<CategoryDisplay> search(String query, TransactionType type) {
+  /// Selectable leaves of [type], or of both types when it is null, whose
+  /// label or whose group label matches [query]. Empty for a blank query: the
+  /// caller keeps showing the tree.
+  List<CategoryDisplay> search(String query, TransactionType? type) {
     final needle = TextNormalizer.normalize(query);
     if (needle.isEmpty) return const [];
 

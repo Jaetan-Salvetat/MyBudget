@@ -81,6 +81,7 @@ class QuickAddDraft {
   QuickAddDraft copyWith({
     String? categorySlug,
     double? categoryConfidence,
+    TransactionType? type,
     DateTime? date,
     bool? isDatePinned,
   }) {
@@ -94,7 +95,7 @@ class QuickAddDraft {
       categorySlug: categorySlug ?? this.categorySlug,
       categoryConfidence: categoryConfidence ?? this.categoryConfidence,
       categorySuggestions: categorySuggestions,
-      type: type,
+      type: type ?? this.type,
       frequency: frequency,
       analysisError: analysisError,
       memoryKey: memoryKey,

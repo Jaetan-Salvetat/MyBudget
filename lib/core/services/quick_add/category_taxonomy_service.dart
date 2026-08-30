@@ -119,8 +119,10 @@ class CategoryTaxonomyService {
     return _groups[key];
   }
 
-  List<TaxonomyGroup> groupsOfType(TransactionType type) =>
-      _groups.values.where((group) => group.type == type).toList();
+  /// Groups of [type], or every group in taxonomy order when it is null.
+  List<TaxonomyGroup> groupsOfType(TransactionType? type) => _groups.values
+      .where((group) => type == null || group.type == type)
+      .toList();
 
   void _parseSection(Map<String, dynamic>? section, TransactionType type) {
     if (section == null) return;

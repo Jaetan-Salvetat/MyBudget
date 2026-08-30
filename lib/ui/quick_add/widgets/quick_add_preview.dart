@@ -117,7 +117,7 @@ class QuickAddPreview extends ConsumerWidget {
   ) async {
     final slug = await CategoryPickerSheet.show(
       context,
-      type: draft.type,
+      type: null,
       selectedSlug: draft.categorySlug,
       suggestions: draft.categorySuggestions,
     );
