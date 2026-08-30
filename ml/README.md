@@ -43,7 +43,7 @@ classifier/
 │   └── receipts/         #   style caisse : lexique, déformation, vérité FindIt
 ├── serving/              # contrat d'entrée/sortie — miroir Dart obligatoire
 ├── training/             # entraînement, finetune, export ONNX int8
-├── evaluation/           # world / generalization / quick_add / receipts / ONNX
+├── evaluation/           # world / generalization / quick_add / receipts / hard / ONNX
 └── tests/                # invariants du pipeline
 ```
 
@@ -57,6 +57,7 @@ uv run python -m evaluation.world           # mémorisation
 uv run python -m evaluation.generalization  # entités jamais vues — la mesure qui décide
 uv run python -m evaluation.quick_add       # non-régression quick-add
 uv run python -m evaluation.robustness      # fautes de frappe, par opérateur
+uv run python -m evaluation.hard            # cas durs quick-add + scan, par axe
 uv run python -m evaluation.receipts --cascade   # libellés de tickets (scan)
 uv run python -m training.export_onnx       # → output/best/model.onnx
 uv run python -m evaluation.onnx            # justesse et fidélité de l'export int8

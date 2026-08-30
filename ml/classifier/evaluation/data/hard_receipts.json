@@ -1,0 +1,958 @@
+{
+ "cases": [
+  {
+   "name": "DOLIPRANE 1000MG BT8",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "SPASFON LYOC 80MG",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "SERUM PHYSIO 5ML X20",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "PANSEMENTS AMPOULES X5",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "VITAMINE D3 GOUTTES",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "TEST ANTIGENIQUE COVID",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "SIROP TOUX SECHE 125ML",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "LAIT INFANTILE 2EME AGE 800G",
+   "axis": "hors_alimentaire",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "VIS BOIS 4X40 BTE 100",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "PEINTURE MAT BLANC 2.5L",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "SILICONE SANITAIRE TRANSP",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "FORET BETON D8 SDS",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "RUBAN ADHESIF TOILE 50M",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "PLINTHE CHENE 2M40",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "MORTIER COLLE 25KG",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "DISQUE A TRONCONNER 125",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "TSHIRT COL V NOIR TM",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "JEAN SLIM BRUT W32 L34",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "CHAUSSETTES LOT X5 39/42",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "PARKA MATELASSEE KAKI L",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "SOUTIEN GORGE 90B NOIR",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "BASKETS RUNNING P42",
+   "axis": "hors_alimentaire",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "CHARGEUR USB C 65W",
+   "axis": "hors_alimentaire",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "CABLE HDMI 2M 4K",
+   "axis": "hors_alimentaire",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "PILE LR6 ALCALINE X8",
+   "axis": "hors_alimentaire",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "CASQUE BLUETOOTH ANC",
+   "axis": "hors_alimentaire",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "CARTE SD 128GO CLASSE10",
+   "axis": "hors_alimentaire",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "AMPOULE HALOGENE G9 40W",
+   "axis": "hors_alimentaire",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "CAHIER 96P SEYES 24X32",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  },
+  {
+   "name": "STYLO BILLE BLEU X4",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  },
+  {
+   "name": "RAMETTE A4 80G 500F",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  },
+  {
+   "name": "CLASSEUR LEVIER DOS 8CM",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  },
+  {
+   "name": "COLLE BATON 21G",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  },
+  {
+   "name": "CROQUETTES CHAT 2KG",
+   "axis": "hors_alimentaire",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "FRIANDISES CHAT SAUMON 60G",
+   "axis": "hors_alimentaire",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "PATEE CHIEN BOEUF 400G",
+   "axis": "hors_alimentaire",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "COLLIER ANTIPUCES CHAT",
+   "axis": "hors_alimentaire",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "PANIER CHIEN TAILLE M",
+   "axis": "hors_alimentaire",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "ROMAN POCHE POLICIER",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.livre_presse",
+   "type": "expense"
+  },
+  {
+   "name": "MAGAZINE MENSUEL N°214",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.livre_presse",
+   "type": "expense"
+  },
+  {
+   "name": "BD TOME 3 CARTONNEE",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.livre_presse",
+   "type": "expense"
+  },
+  {
+   "name": "QUOTIDIEN REGIONAL",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.livre_presse",
+   "type": "expense"
+  },
+  {
+   "name": "COFFRET 250 BRIQUES CONSTRUCTION",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.activites_enfants",
+   "type": "expense"
+  },
+  {
+   "name": "JEU DE SOCIETE FAMILLE",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.activites_enfants",
+   "type": "expense"
+  },
+  {
+   "name": "PELUCHE OURS 30CM",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.activites_enfants",
+   "type": "expense"
+  },
+  {
+   "name": "PATE A MODELER 8 POTS",
+   "axis": "hors_alimentaire",
+   "category": "famille_education.activites_enfants",
+   "type": "expense"
+  },
+  {
+   "name": "COUSSIN DECO 40X40",
+   "axis": "hors_alimentaire",
+   "category": "shopping.mobilier_deco",
+   "type": "expense"
+  },
+  {
+   "name": "CADRE PHOTO 20X30 CHENE",
+   "axis": "hors_alimentaire",
+   "category": "shopping.mobilier_deco",
+   "type": "expense"
+  },
+  {
+   "name": "RIDEAU OCCULTANT 140X260",
+   "axis": "hors_alimentaire",
+   "category": "shopping.mobilier_deco",
+   "type": "expense"
+  },
+  {
+   "name": "TAPIS SALLE DE BAIN 50X80",
+   "axis": "hors_alimentaire",
+   "category": "shopping.mobilier_deco",
+   "type": "expense"
+  },
+  {
+   "name": "ETAGERE MURALE 60CM",
+   "axis": "hors_alimentaire",
+   "category": "shopping.mobilier_deco",
+   "type": "expense"
+  },
+  {
+   "name": "FEUILLES A ROULER SLIM X50",
+   "axis": "hors_alimentaire",
+   "category": "divers.tabac_jeux",
+   "type": "expense"
+  },
+  {
+   "name": "TICKET A GRATTER 2E",
+   "axis": "hors_alimentaire",
+   "category": "divers.tabac_jeux",
+   "type": "expense"
+  },
+  {
+   "name": "BRIQUET TEMPETE",
+   "axis": "hors_alimentaire",
+   "category": "divers.tabac_jeux",
+   "type": "expense"
+  },
+  {
+   "name": "FILTRE A HUILE REF 2043",
+   "axis": "hors_alimentaire",
+   "category": "transport.entretien_vehicule",
+   "type": "expense"
+  },
+  {
+   "name": "BOUGIE ALLUMAGE X4",
+   "axis": "hors_alimentaire",
+   "category": "transport.entretien_vehicule",
+   "type": "expense"
+  },
+  {
+   "name": "ANTIGEL RADIATEUR 1L",
+   "axis": "hors_alimentaire",
+   "category": "transport.entretien_vehicule",
+   "type": "expense"
+  },
+  {
+   "name": "PLAQUETTES FREIN AVANT",
+   "axis": "hors_alimentaire",
+   "category": "transport.entretien_vehicule",
+   "type": "expense"
+  },
+  {
+   "name": "BALLON FOOT TAILLE 5",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.sport",
+   "type": "expense"
+  },
+  {
+   "name": "TAPIS DE YOGA 6MM",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.sport",
+   "type": "expense"
+  },
+  {
+   "name": "CHAMBRE A AIR 700X25",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.sport",
+   "type": "expense"
+  },
+  {
+   "name": "CORDE A SAUTER LESTEE",
+   "axis": "hors_alimentaire",
+   "category": "loisirs.sport",
+   "type": "expense"
+  },
+  {
+   "name": "CARTE CADEAU 50E",
+   "axis": "hors_alimentaire",
+   "category": "divers.cadeau_offert",
+   "type": "expense"
+  },
+  {
+   "name": "PAPIER CADEAU ROULEAU",
+   "axis": "hors_alimentaire",
+   "category": "divers.cadeau_offert",
+   "type": "expense"
+  },
+  {
+   "name": "MENU DOUBLE STEAK FRITES BOISSON",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "WRAP POULET CRUDITES",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "MC FIRST POULET",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "FRITES GRANDE",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "TACOS 2 VIANDES",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "KEBAB ASSIETTE",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "SANDWICH GREC FRITES",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "NUGGETS X9",
+   "axis": "restauration",
+   "category": "restauration.fast_food",
+   "type": "expense"
+  },
+  {
+   "name": "FORMULE MIDI ENTREE PLAT",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "PLAT DU JOUR",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "ENTRECOTE FRITES",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "PIZZA 4 FROMAGES",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "MOULES MARINIERES",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "SALADE CESAR GRANDE",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "MENU ENFANT",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "COUVERT ADULTE BUFFET",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "TABLE 12 ADDITION",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "SUGGESTION DU CHEF",
+   "axis": "restauration",
+   "category": "restauration.restaurant",
+   "type": "expense"
+  },
+  {
+   "name": "DEMI BLONDE COMPTOIR",
+   "axis": "restauration",
+   "category": "restauration.bar",
+   "type": "expense"
+  },
+  {
+   "name": "PINTE BLONDE 50CL",
+   "axis": "restauration",
+   "category": "restauration.bar",
+   "type": "expense"
+  },
+  {
+   "name": "MOJITO",
+   "axis": "restauration",
+   "category": "restauration.bar",
+   "type": "expense"
+  },
+  {
+   "name": "SPRITZ APEROL",
+   "axis": "restauration",
+   "category": "restauration.bar",
+   "type": "expense"
+  },
+  {
+   "name": "PLANCHE CHARCUTERIE APERO",
+   "axis": "restauration",
+   "category": "restauration.bar",
+   "type": "expense"
+  },
+  {
+   "name": "EXPRESSO",
+   "axis": "restauration",
+   "category": "restauration.cafe",
+   "type": "expense"
+  },
+  {
+   "name": "CAFE GOURMAND",
+   "axis": "restauration",
+   "category": "restauration.cafe",
+   "type": "expense"
+  },
+  {
+   "name": "CAPPUCCINO GRANDE TAILLE",
+   "axis": "restauration",
+   "category": "restauration.cafe",
+   "type": "expense"
+  },
+  {
+   "name": "THE VERT SALON",
+   "axis": "restauration",
+   "category": "restauration.cafe",
+   "type": "expense"
+  },
+  {
+   "name": "CHOCOLAT VIENNOIS",
+   "axis": "restauration",
+   "category": "restauration.cafe",
+   "type": "expense"
+  },
+  {
+   "name": "LIVRAISON FRAIS DE SERVICE",
+   "axis": "restauration",
+   "category": "restauration.livraison",
+   "type": "expense"
+  },
+  {
+   "name": "COMMANDE LIVREE A DOMICILE",
+   "axis": "restauration",
+   "category": "restauration.livraison",
+   "type": "expense"
+  },
+  {
+   "name": "BISCUITS CHOCO 300G",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "PAQUET GATEAUX FOURRES",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "BAGUETTE TRADITION",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "BRIOCHE TRANCHEE 500G",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "PAIN DE MIE COMPLET",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "CHAUSSON AUX POMMES X2",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "CROISSANTS PUR BEURRE X6",
+   "axis": "confusable",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "COCA COLA 1.5L",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "PACK EAU 6X1.5L",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "NECTAR MULTIFRUITS 2L",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "CAFE MOULU 250G",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "THE VERT MENTHE X20",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "VIN ROUGE BORDEAUX 75CL",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "BIERE BLONDE 6X25CL",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "CIDRE BRUT BOUTEILLE 75CL",
+   "axis": "confusable",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "SHAMPOOING 250ML",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "MOUSSE A RASER PEAUX SENSIBLES",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "DENTIFRICE MENTHE 75ML",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "DEODORANT BILLE 50ML",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "MOUCHOIRS BOITE X100",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "LESSIVE LIQUIDE 30 LAVAGES",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "LIQUIDE VAISSELLE 500ML",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "FILM ETIRABLE ALIMENTAIRE 30M",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "GANTS MENAGE TAILLE M",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "ESSUIE TOUT X6",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "PALETTE FARDS A PAUPIERES",
+   "axis": "confusable",
+   "category": "sante_beaute.esthetique",
+   "type": "expense"
+  },
+  {
+   "name": "ROUGE A LEVRES MAT",
+   "axis": "confusable",
+   "category": "sante_beaute.esthetique",
+   "type": "expense"
+  },
+  {
+   "name": "VERNIS A ONGLES ROSE",
+   "axis": "confusable",
+   "category": "sante_beaute.esthetique",
+   "type": "expense"
+  },
+  {
+   "name": "MASCARA VOLUME NOIR",
+   "axis": "confusable",
+   "category": "sante_beaute.esthetique",
+   "type": "expense"
+  },
+  {
+   "name": "FOND DE TEINT BEIGE",
+   "axis": "confusable",
+   "category": "sante_beaute.esthetique",
+   "type": "expense"
+  },
+  {
+   "name": "STEAK HACHE 5% 2X125G",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "EMMENTAL RAPE 200G",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "YAOURT NATURE X8",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "SAUMON FUME 4 TRANCHES",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "SALADE VERTE BARQUETTE",
+   "axis": "confusable",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "*160G BLC PLT 4TR.F",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "*1/2 BAGUETTE 125G",
+   "axis": "abrege",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "*320G SALADE ANTIBE",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "BRK SQR 1L PJ POMM",
+   "axis": "abrege",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "150G SDW TR.POLAIR",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "50ML DEO BIL.NAT.P",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "*470G BOCAL MAYO",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "*500ML LIQ.VSL CRF",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "270G 30 TR BISCOTT",
+   "axis": "abrege",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "4X100G SSA POMME P",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "CRM FRAICH.EPAISSE",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "400G CROISSANTS CR",
+   "axis": "abrege",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "1L RHUM BLC AGR.",
+   "axis": "abrege",
+   "category": "alimentation.epicerie",
+   "type": "expense"
+  },
+  {
+   "name": "410G CACAH.GRILLE",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "250G BEUR MOUL SDG",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "PAT CREME FLEURETTE",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "MOTHAIS S/F.LT CHE.PAS.25%180G",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "CHOCO EXCELLENCE NR 85%",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "SLA LIT FRTS RGES 4X100G",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "BAGUETT.DE TRADITION FRANCAISE",
+   "axis": "abrege",
+   "category": "alimentation.boulangerie",
+   "type": "expense"
+  },
+  {
+   "name": "OEUFS PPA LABEL ROUGE BTE X6",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "POIS CASSES 500G",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "DCHE LT GUIMAUVE 250ML",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "P.TOIL DOUCE 2P X6",
+   "axis": "abrege",
+   "category": "alimentation.supermarche",
+   "type": "expense"
+  },
+  {
+   "name": "CRQ CHAT SAUM 1.5KG",
+   "axis": "abrege",
+   "category": "divers.animaux",
+   "type": "expense"
+  },
+  {
+   "name": "MEDIC PARACET 500 BT16",
+   "axis": "abrege",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense"
+  },
+  {
+   "name": "TSH MC COL ROND BLC",
+   "axis": "abrege",
+   "category": "shopping.vetements",
+   "type": "expense"
+  },
+  {
+   "name": "CHRG SECT USB 2P",
+   "axis": "abrege",
+   "category": "shopping.electronique",
+   "type": "expense"
+  },
+  {
+   "name": "VIS TF 3X30 BT200",
+   "axis": "abrege",
+   "category": "logement.travaux",
+   "type": "expense"
+  },
+  {
+   "name": "CAH TP 17X22 32P",
+   "axis": "abrege",
+   "category": "famille_education.fournitures",
+   "type": "expense"
+  }
+ ]
+}
