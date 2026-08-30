@@ -14,9 +14,6 @@ class TransactionActionsSheet {
   static const String _dropsTheMonth =
       'Le mois en cours perd son échéance, comme les suivants.';
 
-  /// [initialScope] is null for a rule with no recurrence : there is then no
-  /// month to argue about, and the dialog only confirms. Otherwise it is the
-  /// answer offered already filled in, which the reader is free to change.
   static void show({
     required BuildContext context,
     required String deleteConfirmationMessage,

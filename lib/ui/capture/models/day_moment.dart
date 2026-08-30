@@ -1,4 +1,3 @@
-/// The three parts of a day the journal groups its lines under.
 enum DayMoment {
   morning('Ce matin'),
   afternoon('Cet après-midi'),

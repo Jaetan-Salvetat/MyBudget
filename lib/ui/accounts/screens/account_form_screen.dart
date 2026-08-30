@@ -4,8 +4,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
 import 'package:mybudget/models/account_model.dart';
 
-/// Full-page account form. Returns the account to persist, or null when the
-/// user backs out.
 class AccountFormScreen extends StatefulWidget {
   final AccountModel? account;
 

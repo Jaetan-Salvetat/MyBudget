@@ -1,9 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-/// A circular progress indicator on the primary color.
-///
-/// Pass [value] (0–1) for determinate; leave it null for an indeterminate
-/// spinner. [size] sets the diameter.
 class FrostedCircularProgress extends StatelessWidget {
   const FrostedCircularProgress({this.value, this.size = 40, super.key});
 

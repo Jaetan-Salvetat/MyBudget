@@ -19,12 +19,8 @@ class InteractionStates {
   final bool pressed;
   final bool enabled;
 
-  /// The press ink of this surface, or null when nothing is interactive
-  /// here. Place it with [ink]; the splash itself comes from the theme.
   final PressInk? pressInk;
 
-  /// The state of a surface that carries no interaction at all, for
-  /// components that share one builder between a tappable and a plain form.
   static const InteractionStates inert = InteractionStates(
     hovered: false,
     focused: false,
@@ -33,18 +29,10 @@ class InteractionStates {
     pressInk: null,
   );
 
-  /// Lays the press ink under [child] — above the surface the builder drew,
-  /// below the label it carries. The ink takes its colour from the ambient
-  /// [ThemeData.splashColor]; pass the surface's [borderRadius] so it stops
-  /// at its corners.
-  Widget ink(Widget child, {BorderRadius? borderRadius}) {
+  Widget ink(Widget child) {
     final PressInk? pressInk = this.pressInk;
     if (pressInk == null) return child;
-    return PressInkHost(
-      ink: pressInk,
-      borderRadius: borderRadius,
-      child: child,
-    );
+    return PressInkHost(ink: pressInk, child: child);
   }
 }
 
@@ -76,11 +64,6 @@ class InteractiveSurface extends StatefulWidget {
 }
 
 class _InteractiveSurfaceState extends State<InteractiveSurface> {
-  /// A tap is routinely shorter than the press transition, so releasing on
-  /// tap-up reverses the morph before it has travelled far enough to read —
-  /// on a text button, whose resting surface is transparent, that leaves the
-  /// press invisible altogether. Holding the state for this long gives the
-  /// transition room to land before it comes back.
   static const Duration _minPressDuration = Duration(milliseconds: 160);
 
   bool _hovered = false;
@@ -114,9 +97,6 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
     _release();
   }
 
-  /// A press that never became a tap — the pointer scrolled away, or a nested
-  /// target took the gesture — takes its ink with it rather than playing out
-  /// a reaction to something that did not happen.
   void _abort() {
     _ink.cancel();
     _requestRelease();
@@ -137,9 +117,6 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
   static final Map<Type, Action<Intent>> _emptyActions =
       <Type, Action<Intent>>{};
 
-  /// Keyboard activation has no point to spread from, so its ink starts at
-  /// the middle of the surface and is confirmed at once — there is no press
-  /// to hold it open.
   Object? _activate() {
     _ink.start();
     _ink.confirm();
@@ -171,11 +148,6 @@ class _InteractiveSurfaceState extends State<InteractiveSurface> {
 
     Widget child = widget.builder(context, states);
 
-    // The ink itself is the builder's to place — only it knows which layer
-    // sits between its surface and its content — so this level only reports
-    // the press to [InteractionStates.pressInk]. Handling the tap here,
-    // rather than in an overlay stacked above the content, leaves any child (a
-    // trailing icon button, say) free to win the gesture arena on its own.
     child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _enabled ? widget.onTap : null,

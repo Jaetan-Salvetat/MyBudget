@@ -1,12 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_chip.dart';
 
-/// Grouping axis and one-tap category filters, on the row the axis chip used
-/// to hold alone.
 class RevenuesQuickFilters extends StatelessWidget {
   final RevenueGroupBy axis;
   final List<CategoryDisplay> categories;
@@ -33,7 +32,7 @@ class RevenuesQuickFilters extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
       child: Row(
         children: [
           RevenueGroupByChip(axis: axis, onTap: onOpenGroupBy),

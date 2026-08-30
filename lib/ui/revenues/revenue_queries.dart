@@ -8,8 +8,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'revenue_queries.g.dart';
 
-/// Every rule ever recorded, the closed ones included : reading only the open
-/// ones would erase the months a since-closed revenue was actually received.
 @Riverpod(keepAlive: true)
 List<RevenueModel> revenueHistory(Ref ref) {
   final open = ref.watch(revenueProvider).value ?? const <RevenueModel>[];
@@ -17,8 +15,6 @@ List<RevenueModel> revenueHistory(Ref ref) {
   return [...open, ...closed];
 }
 
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there : the revenue counterpart of [monthExpenses].
 @Riverpod(keepAlive: true)
 List<RevenueModel> monthRevenues(Ref ref) {
   final revenues = ref.watch(revenueHistoryProvider);

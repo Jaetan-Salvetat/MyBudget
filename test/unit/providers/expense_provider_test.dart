@@ -547,7 +547,7 @@ void main() {
     verifyNever(() => mockExpenseRepo.update(any()));
   });
 
-  test('updateExpense with name-only change propagates to chain', () async {
+  test('updateExpense with category-only change propagates to chain', () async {
     final existing = ExpenseModel.create(
       name: 'Ancien nom',
       amount: 100,
@@ -576,11 +576,12 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final updated = existing.copyWith(name: 'Nouveau nom');
+    final updated = existing.copyWith(categorySlug: 'finance.frais_bancaires');
     await container.read(expenseProvider.notifier).updateExpense(updated);
 
     verify(() => mockExpenseRepo.getChain(1)).called(1);
     verify(() => mockExpenseRepo.update(any())).called(2);
+    verifyNever(() => mockExpenseRepo.add(any()));
   });
 
   test(

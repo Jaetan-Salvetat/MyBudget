@@ -6,19 +6,12 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// Visual variants of [FrostedTabs].
 enum FrostedTabsVariant {
-  /// Equal-width tabs spanning the row. The active indicator hugs the label
-  /// width and is centered under it (M3 Expressive primary tabs). Falls back
-  /// to a leading-anchored scrollable row when the labels cannot fit.
   primary,
 
-  /// Compact, scrollable tabs anchored to the leading edge. The active
-  /// indicator spans the full tab width (M3 secondary tabs).
   secondary,
 }
 
-/// A single [FrostedTabs] destination.
 class FrostedTab {
   const FrostedTab({required this.label, this.icon});
 
@@ -26,11 +19,6 @@ class FrostedTab {
   final IconData? icon;
 }
 
-/// In-page content tabs with a single underline indicator that springs
-/// between destinations.
-///
-/// Opaque M3 surface — never glass. Pair with a [PageView] or [IndexedStack]
-/// in the body to switch the actual content.
 class FrostedTabs extends StatefulWidget {
   const FrostedTabs({
     required this.tabs,
@@ -90,8 +78,6 @@ class _FrostedTabsState extends State<FrostedTabs> {
     for (final FrostedTab tab in widget.tabs) _contentWidth(tab, scaler),
   ];
 
-  /// Leading edge of every tab in the scrollable row. A tab box is its content
-  /// plus the horizontal padding on both sides.
   List<double> _tabLefts(List<double> contentWidths) {
     final List<double> lefts = <double>[];
     double offset = 0;
@@ -102,8 +88,6 @@ class _FrostedTabsState extends State<FrostedTabs> {
     return lefts;
   }
 
-  /// Brings the selected tab back inside the viewport when the selection comes
-  /// from outside the row — a swipe on the paired page view, a deep link.
   void _revealSelected() {
     if (!_scroll.hasClients) return;
     final List<double> contentWidths = _contentWidths(
@@ -144,9 +128,6 @@ class _FrostedTabsState extends State<FrostedTabs> {
     onTap: () => widget.onTap(index),
   );
 
-  /// Leading-anchored, horizontally scrollable row — used by the secondary
-  /// variant, and by the primary variant when equal-width cells would be too
-  /// narrow to hold their content.
   Widget _scrollableRow({
     required List<double> contentWidths,
     required ColorScheme cs,

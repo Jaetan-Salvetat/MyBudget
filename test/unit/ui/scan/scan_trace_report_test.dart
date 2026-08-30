@@ -6,7 +6,6 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import '../../../helpers/receipt_line_factory.dart';
 
-/// Un tagger parfait : chaque ligne reçoit le rôle qu'on lui donne.
 RoleInference tagger(List<String> roles) =>
     (lines) => [
       for (final (index, _) in lines.indexed)

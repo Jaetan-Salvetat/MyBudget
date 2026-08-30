@@ -3,16 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../foundations/frosted_radius.dart';
 import '_carousel_arrangement.dart';
 
-/// An M3 Expressive multi-browse carousel.
-///
-/// Item sizes come from the real Material 3 arrangement algorithm (ported from
-/// androidx's `Arrangement` / `multiBrowseKeylineList`): large items target
-/// [preferredItemWidth], small items clamp to 40–56dp, a medium item bridges
-/// them, and the lowest-cost arrangement that fills the width wins. Those
-/// sizes drive the `flexWeights` of [CarouselView.weighted], which resizes
-/// items continuously as the list scrolls.
-///
-/// Items provide their own surface; corners follow [FrostedRadius.lg].
 class FrostedMultiBrowseCarousel extends StatelessWidget {
   const FrostedMultiBrowseCarousel({
     required this.items,
@@ -29,7 +19,6 @@ class FrostedMultiBrowseCarousel extends StatelessWidget {
   final double itemSpacing;
   final ValueChanged<int>? onTap;
 
-  // M3 CarouselDefaults.
   static const double _minSmall = 40;
   static const double _maxSmall = 56;
 
@@ -59,8 +48,6 @@ class FrostedMultiBrowseCarousel extends StatelessWidget {
     );
   }
 
-  /// Turns the lowest-cost M3 arrangement into integer flex weights — one per
-  /// visible item, in size order (large… medium, small).
   List<int> _flexWeights(double width) {
     final double targetLarge = preferredItemWidth.clamp(0, width);
     final double targetSmall = (targetLarge / 3)

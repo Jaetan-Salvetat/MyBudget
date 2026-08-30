@@ -7,10 +7,6 @@ import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 
-/// Header of one revenue bucket: what it is, what it weighs.
-///
-/// The share is what the grouping is for — knowing a beneficiary brings 2 000 €
-/// says less than knowing they bring 63% of the month.
 class RevenueGroupHeader extends StatelessWidget {
   static const double _fullShare = 1;
 

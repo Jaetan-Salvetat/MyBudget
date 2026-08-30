@@ -1,11 +1,3 @@
-/// Un groupe de mots qui recouvre deux lignes imprimées doit se rescinder.
-///
-/// Le regroupement compare chaque mot à l'enveloppe verticale du groupe, et
-/// cette enveloppe grandit en absorbant des mots inclinés : sur un ticket
-/// courbé elle finit par atteindre la ligne d'à côté. Les deux lignes
-/// imprimées n'en font plus qu'une, et la seconde y perd son montant.
-///
-/// Miroir de `ml/scan/research/tests/test_baseline_split.py`.
 library;
 
 import 'dart:math' as math;
@@ -28,7 +20,6 @@ Word wordAt(String text, int column, double centerY) {
   );
 }
 
-/// Une ligne imprimée, inclinée : chaque mot suit la pente à son abscisse.
 List<Word> printedLine(
   List<(String, int)> tokens,
   double baseline,
@@ -47,7 +38,6 @@ List<List<String>> textsOf(List<List<Word>> groups) => [
     ],
 ];
 
-/// Les deux lignes du bloc litière, telles que le regroupement les colle.
 List<Word> merged([double slope = 0.0]) => [
   ...printedLine([('PREM', 0), ('AGGLO', 6), ('16,99', 38)], 100.0, slope),
   ...printedLine([('Reduction', 0), ('-4,49', 38)], 140.0, slope),
@@ -56,9 +46,6 @@ List<Word> merged([double slope = 0.0]) => [
 void main() {
   group('une ligne imprimée seule ne se sépare jamais', () {
     test('deux mots restent ensemble quel que soit leur décalage', () {
-      // La droite ajustée passe exactement par deux points : aucun résidu,
-      // donc aucune séparation. C'est la garantie que le cas le plus courant —
-      // un libellé et son prix — ne se coupe jamais en deux.
       expect(
         splitBaselines([wordAt('PAIN', 0, 0.0), wordAt('2,50', 38, 200.0)]),
         hasLength(1),
@@ -75,8 +62,6 @@ void main() {
     });
 
     test('une ligne très inclinée reste un seul groupe', () {
-      // 6°, bien au-delà de ce qu'une photo tenue à la main produit : la pente
-      // est absorbée par l'ajustement, pas par un seuil.
       final slope = math.tan(6 * math.pi / 180);
       final line = printedLine(
         [('PAIN', 0), ('BIO', 6), ('2,50', 38)],
@@ -129,8 +114,6 @@ void main() {
 
   group('le regroupement utilise la séparation', () {
     test('un ticket courbé rend une ligne par ligne imprimée', () {
-      // Le cas Maxizoo réduit à l'os : l'inclinaison résiduelle fait dériver
-      // la bande d'une ligne jusqu'à absorber toute la suivante.
       final words = [
         ...printedLine([('PREM', 0), ('AGGLO', 6), ('16,99', 38)], 100.0, 0.03),
         ...printedLine([('Reduction', 0), ('-4,49', 38)], 125.0, 0.03),

@@ -7,18 +7,9 @@ import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 import '../actions/frosted_button.dart';
 
-/// A transient glass toast pinned above the bottom edge.
-///
-/// Call [FrostedSnackbar.show] from an action's call site — it owns its own
-/// [OverlayEntry] and auto-dismisses after [duration]. Not a widget you place
-/// in the tree (that's `FrostedBanner`).
 class FrostedSnackbar {
   const FrostedSnackbar._();
 
-  /// Shows a snackbar with [message] and an optional action.
-  ///
-  /// [bottomInset] lifts it above anything floating over the bottom edge — a
-  /// navigation pill, a docked bar — which the overlay cannot see on its own.
   static void show(
     BuildContext context, {
     required String message,

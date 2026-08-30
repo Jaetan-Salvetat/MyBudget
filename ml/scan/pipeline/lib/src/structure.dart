@@ -1,8 +1,3 @@
-/// Structure les lignes physiques d'un ticket en articles + prix + remises.
-///
-/// Règles géométriques et lexicales pures, sans modèle. Portage de référence
-/// de `ml/scan/research/reference/structure.py` : toute divergence de comportement
-/// avec la version Python est un bug.
 library;
 
 import 'dart:math' as math;
@@ -17,28 +12,12 @@ final RegExp weightPattern = RegExp(
 );
 final RegExp _missingSeparatorTotalPattern = RegExp(r'(\d{3,6})\s*$');
 final RegExp _articleCountPattern = RegExp(r'(\d{1,3})ARTICLE');
-/// Un numéro de téléphone français, retiré du texte avant toute recherche de
-/// date. Sans ce masque, « 05.46.27.02.12 » se lit « 27.02.12 » : mesuré, 170
-/// tickets de plus repartaient avec une fausse date.
-///
-/// Le séparateur doit être présent et le *même* entre les cinq paires. Sans
-/// l'exiger identique, « 08-03-2017 12:42 » compacté ressemblait à un numéro ;
-/// sans l'exiger présent, le masque avalait les codes de caisse — un ticket
-/// est plein de suites de dix chiffres commençant par zéro, et « 0002 G04
-/// 000643 22/02/2017 » y perdait sa date. Un numéro imprimé sans séparateur
-/// ne se confond avec aucune date, il n'a pas besoin d'être masqué.
 final RegExp _phonePattern = RegExp(r'(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)');
 
-/// Une date de ticket, année sur quatre chiffres ou sur deux. L'année courte
-/// exige une frontière à droite, sinon elle mord sur l'heure que le
-/// compactage des espaces a recollée (« 13/03/17 20:30 » → « 13/03/1720:30 »).
-/// Jour et mois peuvent n'avoir qu'un chiffre (« 7/10/15 », « 14/1/17 ») : le
-/// masque des numéros et la validation calendaire tiennent les faux positifs.
 final RegExp _datePattern = RegExp(
   r'(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))',
 );
 
-/// Mois en toutes lettres ou abrégé : un ticket sur six l'imprime ainsi.
 const List<String> _monthNames = [
   'JANV|JAN',
   'FEVR|FEV',
@@ -61,12 +40,9 @@ final RegExp _literalDatePattern = RegExp(
   caseSensitive: false,
 );
 
-/// Bornes d'une date de ticket : au-delà, l'année lue n'en est pas une.
 const int _minYear = 1990;
 const int _maxYear = 2035;
 
-/// Pivot POSIX pour les années sur deux chiffres. Un ticket de caisse est
-/// toujours du siècle courant, mais le pivot coûte moins qu'une hypothèse.
 const int _centuryPivot = 70;
 const int _maxDay = 31;
 const int _maxMonth = 12;
@@ -188,10 +164,6 @@ class ExtractedItem {
   final double amount;
   double discount;
 
-  /// Ligne dont l'article vient. Sans elle, impossible de confronter un
-  /// libellé à ce que le tagger de rôles dit de son voisinage — et la
-  /// majorité des tickets aux articles faux ont les bons montants, seul le
-  /// libellé est allé chercher la mauvaise ligne.
   final int? lineIndex;
 }
 
@@ -222,14 +194,6 @@ class ExtractedReceipt {
     items.fold(0.0, (sum, item) => sum + item.amount - item.discount),
   );
 
-  /// La somme des articles doit retomber sur un montant imprimé : le total
-  /// TTC en Europe, ou le sous-total hors taxe aux États-Unis. Le montant
-  /// débité par carte ne sert de référence que si aucun total n'a été lu :
-  /// quand un total lu ne colle pas, on flague — accepter sur la seule ligne
-  /// de paiement laisserait passer des extractions fausses. Deux références
-  /// de secours mesurées sur corpus : la somme des TTC de la table TVA
-  /// (décomposition imprimée du total), et la ligne CB quand le compteur
-  /// « N ARTICLE(S) » confirme qu'aucun article ne manque.
   bool get checksumOk {
     if (_matches(total) || _matches(subtotal)) return true;
     if (total == null && _matches(tvaTtcSum)) return true;
@@ -241,8 +205,6 @@ class ExtractedReceipt {
     return false;
   }
 
-  /// Le montant qui a réellement vérifié la somme des articles — c'est lui
-  /// qu'on affiche, jamais un total lu qui ne colle pas.
   double? get verifiedTotal {
     if (_matches(total)) return total;
     if (_matches(subtotal)) return subtotal;
@@ -317,9 +279,6 @@ String _stripEdges(String text, String chars) {
   return text.substring(start, end);
 }
 
-/// Prix dont l'OCR a confondu un chiffre avec une lettre (« 2.I8 »).
-/// Substitution seulement quand la forme est clairement un prix et que les
-/// chiffres restent majoritaires : le checksum valide derrière.
 String? _deglyphed(String text) {
   if (!_glyphPricePattern.hasMatch(text)) return null;
   final digits = _countDigits(text);
@@ -341,8 +300,6 @@ int _countLetters(String text) => _letterPattern.allMatches(text).length;
 final RegExp _fragmentHeadPattern = RegExp(r'^-?\d{1,4}[.,]$');
 final RegExp _fragmentTailPattern = RegExp(r'^\d{2}[€eE]?$');
 
-/// Refusionne un prix que l'OCR a coupé au séparateur décimal (« -1, 00 »,
-/// « 5. 16 ») quand les deux morceaux se touchent presque.
 PhysicalLine mergePriceFragments(PhysicalLine line) {
   final words = line.words;
   final merged = <Word>[];
@@ -416,29 +373,8 @@ PricedWord? rightmostPrice(PhysicalLine line) {
   return null;
 }
 
-/// Un montant décimal isolé de ce qui l'entoure par autre chose que des
-/// chiffres : la devise collée (« 2.15Eur »), la classe de TVA entre
-/// parenthèses (« 2.31(2) »), le signe égal d'une pesée (« 2 x 0.85EUR =
-/// 1.70EUR »). Rien n'y départage les montants d'une même ligne — c'est le
-/// décodeur qui tranche, au checksum.
 final RegExp laxPricePattern = RegExp(r'(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,])');
 
-/// Les montants que cette ligne peut porter, du plus sûr au moins sûr.
-///
-/// La laxité ne sert qu'à rendre lisible une ligne qui ne l'était pas : quand
-/// la lecture stricte aboutit, elle reste la seule. Rouvrir une ligne déjà lue
-/// donnerait au décodeur un degré de liberté qu'il n'a pas besoin d'avoir —
-/// mesuré, il s'en sert pour retomber sur la bonne somme avec quatre montants
-/// faux (prix unitaire au lieu du prix ligne).
-///
-/// Et l'élargissement ne vaut que sur les lignes auxquelles le tagger a donné
-/// un rôle porteur de montant : la laxité suit la décision du modèle, plus un
-/// lexique.
-///
-/// L'ordre encode un a priori, jamais une règle : de droite à gauche, parce
-/// que la colonne des prix est à droite. Un candidat plus loin dans la liste
-/// reste atteignable, à une pénalité près, si c'est lui qui fait retomber la
-/// somme.
 List<PricedWord> priceCandidates(PhysicalLine line, {required bool lax}) {
   final strict = rightmostPrice(line);
   if (strict != null) return [strict];
@@ -457,8 +393,6 @@ List<PricedWord> priceCandidates(PhysicalLine line, {required bool lax}) {
   return _distinctAmounts(candidates);
 }
 
-/// Un même montant lu deux fois n'est qu'un candidat : le premier, et le mot
-/// qui le porte est celui de la lecture la plus sûre.
 List<PricedWord> _distinctAmounts(List<PricedWord> candidates) {
   final seen = <int>{};
   final distinct = <PricedWord>[];
@@ -470,11 +404,6 @@ List<PricedWord> _distinctAmounts(List<PricedWord> candidates) {
 
 final RegExp _trailingJunkPricePattern = RegExp(r'^(-?\d{1,4}[.,]\d{2})\S$');
 
-/// Prix suivi d'un caractère parasite (« 7.074 », « 3.10D ») : lecture lâche,
-/// que le checksum valide derrière. Les features du tagger ne l'autorisent que
-/// sur une ligne total — elles décrivent, elles ne décident pas, et les changer
-/// invaliderait le modèle entraîné. La structuration, elle, l'ouvre à toute
-/// ligne que le tagger dit porteuse d'un montant.
 PricedWord? _trailingJunkPrice(PhysicalLine line) {
   for (final word in line.words.reversed) {
     final junk = _trailingJunkPricePattern.firstMatch(word.text);
@@ -488,8 +417,6 @@ PricedWord? _trailingJunkPrice(PhysicalLine line) {
   return null;
 }
 
-/// Récupère un prix dont le séparateur décimal n'a pas été lu : les gros
-/// totaux en gras sortent parfois « 54 50 » en deux mots adjacents.
 PricedWord? _splitPrice(PhysicalLine line) {
   final words = line.words;
   if (words.length < 2) return null;
@@ -506,11 +433,6 @@ PricedWord? _splitPrice(PhysicalLine line) {
   );
   return PricedWord(value, decimals);
 }
-
-
-/// Équivalent du NFD + suppression des diacritiques de la référence Python :
-/// couvre le latin de base et le latin étendu-A précomposés — l'OCR sort
-/// n'importe quel diacritique sur un ticket dégradé (« TŤC », « Š »).
 
 String foldAccents(String text) {
   final buffer = StringBuffer();
@@ -540,11 +462,6 @@ int levenshtein(String left, String right) {
   return previous.last;
 }
 
-/// Lexique total exact, ou un mot à une édition de « TOTAL » (« TO'AL »,
-/// « OTAL », « T0TAL ») : l'OCR abîme surtout cette ligne, imprimée en gras.
-/// Le texte compacté porte-t-il une date, sous l'une de ses formes ? Sert de
-/// feature au tagger de rôles : c'est le signal le plus direct qu'une ligne
-/// est celle de la date.
 bool hasDatePattern(String compact) =>
     _datePattern.hasMatch(compact) || _literalDatePattern.hasMatch(compact);
 
@@ -561,10 +478,6 @@ bool containsTotal(String text) {
       );
 }
 
-/// Compare aussi le texte compacté : l'OCR éclate ou fusionne des mots
-/// (« Monna ie », « TOTALA PAYER ») et le lexique doit y résister. Les
-/// entrées courtes exigent une frontière de mot : « TEL » ne doit pas
-/// matcher dans « TORTELL.PESTO ».
 bool containsEntry(String text, List<String> lexicon) {
   final upper = foldAccents(text.toUpperCase());
   final compact = upper.replaceAll(_whitespacePattern, '');
@@ -597,9 +510,6 @@ bool containsEntry(String text, List<String> lexicon) {
   return false;
 }
 
-/// Bord gauche minimal des prix : la colonne des prix est à droite du
-/// ticket, tout prix nettement à gauche (quantités, codes) n'en fait pas
-/// partie.
 double? _priceColumnLeft(List<PhysicalLine> lines) {
   final rights = <double>[];
   for (final line in lines) {
@@ -612,12 +522,6 @@ double? _priceColumnLeft(List<PhysicalLine> lines) {
   return medianRight * 0.75;
 }
 
-/// Le libellé occupe la zone de gauche du ticket ; les colonnes de droite ne
-/// portent que des nombres — prix, devise, classe de TVA, quantité. La
-/// frontière n'est pas un réglage : elle est mesurée sur ce ticket-là, au bord
-/// gauche de ses mots-prix. Le quantile absorbe les prix imprimés plus à
-/// gauche que la colonne (remise en pourcentage, prix unitaire entre
-/// parenthèses) sans laisser un seul d'entre eux déplacer la frontière.
 const double labelColumnQuantile = 0.20;
 
 double? labelColumnLeft(List<PhysicalLine> merged) {
@@ -631,7 +535,6 @@ double? labelColumnLeft(List<PhysicalLine> merged) {
   return lefts[(lefts.length * labelColumnQuantile).floor()];
 }
 
-/// Ce que la ligne imprime à gauche de la colonne des nombres.
 String labelZone(PhysicalLine line, double? column) {
   if (column == null) return line.text;
   return line.words
@@ -773,11 +676,6 @@ List<double> _linePrices(PhysicalLine line) => [
   for (final word in line.words) ?parsePrice(word.text),
 ];
 
-/// Montants de secours pour le checksum, quand le total régulier manque :
-/// total sans séparateur décimal sur une ligne « total » pâlie (« 2790 » =
-/// 27,90), et prix orphelin d'une ligne sans texte (total en gras dont le
-/// libellé a été détruit par l'OCR). Jamais utilisés seuls : une somme
-/// d'articles doit retomber dessus au centime.
 List<double> _fallbackReferences(List<PhysicalLine> merged) {
   final candidates = <double>[];
   for (final line in merged) {
@@ -798,9 +696,6 @@ List<double> _fallbackReferences(List<PhysicalLine> merged) {
   return candidates;
 }
 
-/// Somme des TTC de la table TVA (« B TVA 20.00 5.67 1.13 6.80 ») : une
-/// ligne-tableau porte au moins trois montants, le TTC est le plus à droite.
-/// Les lignes « TVA 10% : 0,81 » (montant de taxe seul) sont ignorées.
 double? _tvaTtcSum(List<PhysicalLine> merged) {
   var total = 0.0;
   var rows = 0;
@@ -815,8 +710,6 @@ double? _tvaTtcSum(List<PhysicalLine> merged) {
   return rows > 0 ? roundCents(total) : null;
 }
 
-/// Compteur d'articles imprimé (« 11 ARTICLE(S) »), compacté car l'OCR
-/// éclate ou colle les mots.
 int? printedCount(List<PhysicalLine> merged) {
   for (final line in merged) {
     final compact = line.text.toUpperCase().replaceAll(_whitespacePattern, '');
@@ -826,9 +719,6 @@ int? printedCount(List<PhysicalLine> merged) {
   return null;
 }
 
-/// Le total à payer est le DERNIER montant d'une ligne « total » du ticket :
-/// les enseignes impriment des sous-totaux par rayon (« TOTAL ALIMENTAIRE »)
-/// avant le « MONTANT A PAYER » final.
 (int?, double?) _findFinalTotal(List<PhysicalLine> merged) {
   int? totalIndex;
   double? total;
@@ -850,7 +740,6 @@ int? printedCount(List<PhysicalLine> merged) {
 
 final RegExp _embeddedPricePattern = RegExp(r'(\d{1,4}[.,]\d{2})\s*€?\s*$');
 
-/// Prix soudé au libellé par l'OCR (« TOTAL A PAYER14.59€ »).
 double? _embeddedPrice(String text) {
   final match = _embeddedPricePattern.firstMatch(text);
   if (match == null) return null;
@@ -861,10 +750,6 @@ final RegExp _detailTokenPattern = RegExp(
   r'^[\d.,()xX*/€%-]*(?:kg|KG|Kg|EUR|[A-Za-z])?$',
 );
 
-/// Ligne de détail sous un libellé : code-barres + prix (« 3177810004089
-/// 3.13 »), pesée de balance (« 0,070 10,00 »), décomposition pharmacie
-/// (« (2 x 15,92) »), ou rien du tout (prix seul sur sa ligne). Aucun mot :
-/// le libellé de l'article est sur la ligne du dessus.
 bool isDetailLine(String label) {
   final stripped = label.trim();
   if (stripped.isEmpty) return true;
@@ -872,9 +757,6 @@ bool isDetailLine(String label) {
   return stripped.split(_whitespacePattern).every(_detailTokenPattern.hasMatch);
 }
 
-/// Une ligne de remise commence par un mot du lexique (« REMISE FID. »).
-/// Un article dont le nom contient « (promotion) » n'en est pas une : seule
-/// la position en tête distingue les deux.
 bool _isDiscountLine(String label) {
   final upper = label.trim().toUpperCase();
   return discountWords.any(upper.startsWith);
@@ -886,8 +768,6 @@ final RegExp _trailingPricePattern = RegExp(r'\s?-?\d{1,4}[.,]\d{2}[€eE]?$');
 final RegExp _trailingEuroPattern = RegExp(r'\s+[€eE]$');
 final RegExp _multiSpacePattern = RegExp(r'\s{2,}');
 
-/// Libellé prêt pour la catégorisation : sans préfixe quantité, sans points
-/// de conduite ni prix unitaire résiduel.
 String cleanName(String label) {
   var cleaned = label.trim().replaceFirst(_quantityPrefixPattern, '');
   cleaned = cleaned.replaceAll(_leaderRunPattern, ' ');
@@ -903,32 +783,23 @@ String? plausibleLabel(String text) {
   return stripped;
 }
 
-/// L'année d'une date de ticket, sur deux ou quatre chiffres.
-///
-/// Compacter les espaces recolle l'heure à la date (« 13/03/17 20:30 »
-/// devient « 13/03/1720:30 ») : quatre chiffres qui ne forment pas une année
-/// plausible sont donc une année sur deux chiffres suivie de l'heure, et
-/// c'est ainsi qu'il faut les relire.
 String _yearOf(String digits) {
   var read = digits;
   if (read.length == 4) {
     final year = int.parse(read);
     if (year >= _minYear && year <= _maxYear) return read;
-    read = read.substring(0, 2); // l'heure avait été recollée à l'année
+    read = read.substring(0, 2);
   }
   final century = int.parse(read) < _centuryPivot ? 2000 : 1900;
   return '${century + int.parse(read)}';
 }
 
-/// L'OCR éclate parfois les dates (« 202 6 », « o9 ») : on compacte les
-/// espaces et on ramène o/O vers 0 avant de chercher le motif.
 bool _isCalendarDay(String day, String month) {
   final d = int.parse(day);
   final m = int.parse(month);
   return d >= 1 && d <= _maxDay && m >= 1 && m <= _maxMonth;
 }
 
-/// Le rang du mois nommé, sur deux chiffres.
 String? _monthNumber(String name) {
   final upper = name.toUpperCase();
   for (var index = 0; index < _monthNames.length; index++) {
@@ -939,8 +810,6 @@ String? _monthNumber(String name) {
   return null;
 }
 
-/// L'OCR confond o et 0 dans les chiffres — substitution réservée à cette
-/// lecture-ci, elle détruirait les mois en lettres (« OCTOBRE »).
 String? _numericDate(String compact) {
   final digitsOnly = compact.replaceAll('o', '0').replaceAll('O', '0');
   for (final match in _datePattern.allMatches(digitsOnly)) {
@@ -955,8 +824,6 @@ String? _numericDate(String compact) {
   return null;
 }
 
-/// Les mois s'impriment accentués (« août ») : la comparaison se fait sur la
-/// forme sans accent, comme le reste des lexiques.
 String? _literalDate(String compact) {
   final unaccented = foldAccents(compact);
   for (final match in _literalDatePattern.allMatches(unaccented)) {
@@ -970,13 +837,6 @@ String? _literalDate(String compact) {
   return null;
 }
 
-/// La date de l'achat, sous l'une de ses formes imprimées.
-///
-/// Les espaces sont compactés (l'OCR éclate « 202 6 ») et les numéros de
-/// téléphone masqués avant toute recherche. La forme numérique prime : elle
-/// est la plus courante et la moins ambiguë. La première occurrence *valide*
-/// gagne — un jour ou un mois impossible n'est pas une date, et la vraie est
-/// souvent plus loin sur la même ligne.
 String? findDate(List<PhysicalLine> lines) {
   for (final line in lines) {
     final compact = line.text

@@ -6,13 +6,6 @@ import 'package:flutter/painting.dart';
 import '../primitives/frosted_glass_level.dart';
 import 'frosted_glass_level_spec.dart';
 
-/// Liquid Glass material tokens.
-///
-/// Glass surfaces are reserved for *chrome* (tab bars, toolbars, sheets,
-/// modals). Never apply glass to scrollable content.
-///
-/// The token values express the material itself (sigma, veil opacities,
-/// borders, shadows, backdrop saturation) — never any seed-derived color.
 @immutable
 class FrostedGlassTokens {
   const FrostedGlassTokens({
@@ -26,6 +19,7 @@ class FrostedGlassTokens {
     required this.lightDetachedBorder,
     required this.darkDetachedBorder,
     required this.saturation,
+    required this.restingShadow,
     required this.floatingShadow,
     required this.liftedShadow,
     required this.scrim,
@@ -63,6 +57,13 @@ class FrostedGlassTokens {
       lightDetachedBorder: BorderSide(color: Color(0x1F000000), width: 0.5),
       darkDetachedBorder: BorderSide(color: Color(0x33FFFFFF), width: 0.5),
       saturation: 1.4,
+      restingShadow: <BoxShadow>[
+        BoxShadow(
+          color: Color(0x14000000),
+          offset: Offset(0, 3),
+          blurRadius: 18,
+        ),
+      ],
       floatingShadow: <BoxShadow>[
         BoxShadow(
           color: Color(0x1F000000),
@@ -90,19 +91,15 @@ class FrostedGlassTokens {
   final BorderSide lightBorder;
   final BorderSide darkBorder;
 
-  /// Hairline for glass that floats over the page instead of sitting flush in
-  /// it. Nothing frames such a surface but its own edge, so it needs a crisper
-  /// one than a panel the layout already delimits.
   final BorderSide lightDetachedBorder;
   final BorderSide darkDetachedBorder;
 
-  /// Backdrop saturation multiplier (1.0 = no boost).
   final double saturation;
 
+  final List<BoxShadow> restingShadow;
   final List<BoxShadow> floatingShadow;
   final List<BoxShadow> liftedShadow;
 
-  /// Scrim color used behind modal glass.
   final Color scrim;
 
   FrostedGlassLevelSpec specFor(FrostedGlassLevel level) {
@@ -131,6 +128,7 @@ class FrostedGlassTokens {
     BorderSide? lightDetachedBorder,
     BorderSide? darkDetachedBorder,
     double? saturation,
+    List<BoxShadow>? restingShadow,
     List<BoxShadow>? floatingShadow,
     List<BoxShadow>? liftedShadow,
     Color? scrim,
@@ -146,6 +144,7 @@ class FrostedGlassTokens {
       lightDetachedBorder: lightDetachedBorder ?? this.lightDetachedBorder,
       darkDetachedBorder: darkDetachedBorder ?? this.darkDetachedBorder,
       saturation: saturation ?? this.saturation,
+      restingShadow: restingShadow ?? this.restingShadow,
       floatingShadow: floatingShadow ?? this.floatingShadow,
       liftedShadow: liftedShadow ?? this.liftedShadow,
       scrim: scrim ?? this.scrim,
@@ -176,6 +175,7 @@ class FrostedGlassTokens {
         t,
       ),
       saturation: lerpDouble(a.saturation, b.saturation, t)!,
+      restingShadow: BoxShadow.lerpList(a.restingShadow, b.restingShadow, t)!,
       floatingShadow: BoxShadow.lerpList(
         a.floatingShadow,
         b.floatingShadow,

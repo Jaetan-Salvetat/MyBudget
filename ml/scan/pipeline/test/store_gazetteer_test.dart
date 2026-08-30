@@ -1,8 +1,3 @@
-/// Le répertoire des enseignes : reconnaître au lieu de recopier.
-///
-/// Miroir de `research/tests/test_store_gazetteer.py`. Le portage est spécifié
-/// par cette égalité — une entrée reconnue ici doit l'être là-bas, et
-/// réciproquement.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
@@ -34,8 +29,6 @@ void main() {
     });
 
     test('le nom le plus long gagne', () {
-      // « CARREFOUR MARKET » contient « CARREFOUR » : rendre le second
-      // perdrait l'enseigne réelle.
       expect(gazetteer.match('CARREFOUR MARKET GRENOBLE'), 'Carrefour Market');
     });
 
@@ -44,7 +37,6 @@ void main() {
     });
 
     test('une entrée courte doit être la ligne entière', () {
-      // « U » apparaîtrait dans presque toutes les lignes.
       expect(gazetteer.match('U'), 'U');
       expect(gazetteer.match('RUE DU MARCHE'), isNull);
     });

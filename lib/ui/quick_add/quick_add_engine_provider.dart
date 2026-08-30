@@ -11,9 +11,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_engine_provider.g.dart';
 
-/// Compose le moteur effectif. Toute raison de ne pas pouvoir appeler le
-/// distant — pas de clé, moteur dégradé, mode local — redonne simplement le
-/// moteur embarqué : l'ajout rapide n'a aucun état où il ne marche pas.
 @Riverpod(keepAlive: true)
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   final local = await ref.watch(quickAddClassifierProvider.future);
@@ -27,8 +24,6 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   final provider = ref.watch(selectedAiProviderProvider);
   final model = ref.watch(selectedAiModelProvider);
 
-  // Un trousseau verrouillé ou indisponible ne doit pas priver l'utilisateur
-  // de l'ajout rapide : on retombe sur le moteur embarqué.
   final String? apiKey;
   try {
     apiKey = await ref.watch(apiKeyServiceProvider).read(provider);
@@ -58,13 +53,6 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   );
 }
 
-/// Le moteur se chargeait au premier caractere tape : le modele et le
-/// tokenizer arrivaient pendant que l'utilisateur attendait sa categorie.
-/// Le declencher au splash sort ce cout du chemin critique — l'ecran dure
-/// deja plus longtemps que le chargement.
-///
-/// Un echec ne remonte pas : l'ajout rapide n'est pas ce qui doit empecher
-/// l'app de demarrer, et l'erreur se represente d'elle-meme au premier usage.
 @Riverpod(keepAlive: true)
 Future<void> quickAddWarmUp(Ref ref) async {
   if (!ref.read(quickAddEnabledProvider)) return;

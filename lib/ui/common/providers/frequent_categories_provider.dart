@@ -11,13 +11,8 @@ const int maxFrequentCategories = 5;
 
 typedef _Usage = ({int count, DateTime last});
 
-/// Categories the user assigns the most, most used first.
-///
-/// Counted per entry rather than per occurrence: expenses and revenues are
-/// recurrences, so a monthly rent would otherwise outweigh everything the user
-/// actually reaches for when picking a category.
 @Riverpod(keepAlive: true)
-List<CategoryDisplay> frequentCategories(Ref ref, TransactionType type) {
+List<CategoryDisplay> frequentCategories(Ref ref, TransactionType? type) {
   final resolver = ref.watch(categoryDisplayResolverProvider).value;
   if (resolver == null) return const [];
 
@@ -50,16 +45,24 @@ List<CategoryDisplay> frequentCategories(Ref ref, TransactionType type) {
 
 Iterable<({String? slug, DateTime date})> _entries(
   Ref ref,
-  TransactionType type,
+  TransactionType? type,
 ) {
   switch (type) {
     case TransactionType.expense:
-      return (ref.watch(expenseProvider).value ?? []).map(
-        (expense) => (slug: expense.categorySlug, date: expense.startDate),
-      );
+      return _expenses(ref);
     case TransactionType.income:
-      return (ref.watch(revenueProvider).value ?? []).map(
-        (revenue) => (slug: revenue.categorySlug, date: revenue.startDate),
-      );
+      return _revenues(ref);
+    case null:
+      return _expenses(ref).followedBy(_revenues(ref));
   }
 }
+
+Iterable<({String? slug, DateTime date})> _expenses(Ref ref) =>
+    (ref.watch(expenseProvider).value ?? []).map(
+      (expense) => (slug: expense.categorySlug, date: expense.startDate),
+    );
+
+Iterable<({String? slug, DateTime date})> _revenues(Ref ref) =>
+    (ref.watch(revenueProvider).value ?? []).map(
+      (revenue) => (slug: revenue.categorySlug, date: revenue.startDate),
+    );

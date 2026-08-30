@@ -15,14 +15,8 @@ const AnimationStyle _kSheetAnimation = AnimationStyle(
   reverseCurve: Cubic(0.32, 0.72, 0, 1),
 );
 
-/// Breathing room kept between the status bar and a full-height sheet, so its
-/// top corners stay visible instead of butting against the system inset.
 const double _kStatusBarGap = FrostedSpacing.sp2;
 
-/// Shows a [FrostedBottomSheet] as a modal route — a glass sheet that slides
-/// up from the bottom edge over a blurred scrim, draggable to dismiss.
-///
-/// Set [enableDrag] to false to keep the sheet from being dragged closed.
 Future<T?> showFrostedBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -47,9 +41,6 @@ Future<T?> showFrostedBottomSheet<T>({
   );
 }
 
-/// A [ModalBottomSheetRoute] whose scrim is Liquid Glass instead of a flat
-/// colour. Everything else — the drag-to-dismiss gesture, the scroll handling,
-/// the barrier semantics — is inherited.
 class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
   _FrostedBottomSheetRoute({
     required super.builder,
@@ -86,16 +77,11 @@ class _FrostedBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
   }
 }
 
-/// A bottom sheet: a Liquid Glass surface anchored to the bottom edge, with a
-/// drag handle and a top concentric corner radius.
-///
-/// Present it through [showFrostedBottomSheet].
 class FrostedBottomSheet extends StatelessWidget {
   const FrostedBottomSheet({required this.child, this.title, super.key});
 
   final Widget child;
 
-  /// Optional heading, rendered between the drag handle and [child].
   final String? title;
 
   @override

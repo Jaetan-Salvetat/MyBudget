@@ -1,16 +1,3 @@
-/// Features de ligne, pour *toutes* les lignes d'un ticket.
-///
-/// `line_features.dart` ne décrit que les lignes porteuses de prix : il
-/// fallait un prix pour calculer la plupart de ses colonnes. Or l'enseigne,
-/// la ligne de date et le libellé d'un article dont le prix est imprimé plus
-/// bas vivent sur des lignes sans prix — aucun modèle ne pouvait les
-/// apprendre.
-///
-/// Ces features-ci ne présupposent rien : géométrie relative au ticket, forme
-/// du texte, lexiques, et le voisinage immédiat. Miroir exact de
-/// `ml/scan/research/reference/line_features_all.py` ; toute divergence
-/// décale silencieusement les colonnes et le modèle décide autrement que la
-/// référence. `tool/parity.dart` vérifie l'égalité ligne à ligne.
 library;
 
 import 'dart:math' as math;
@@ -19,8 +6,6 @@ import 'line_signals.dart';
 import 'lines.dart';
 import 'structure.dart';
 
-/// Lexiques propres aux features de ligne. `changeWords` existe aussi dans
-/// `invariants.dart` : même contenu, deux usages sans dépendance entre eux.
 const List<String> featureChangeWords = ['RENDU', 'RENDRE', 'MONNAIE', 'CHANGE'];
 const List<String> featureCountWords = ['ARTICLE', 'ARTICLES', 'NOMBRE', 'QTE'];
 const double neighbourAbsent = -1.0;
@@ -31,14 +16,8 @@ final RegExp _letter = RegExp(r'\p{L}', unicode: true);
 final RegExp _digit = RegExp(r'\p{Nd}', unicode: true);
 final RegExp _upper = RegExp(r'\p{Lu}', unicode: true);
 
-/// Fenêtre du comptage de densité, de part et d'autre de la ligne.
 const int densityWindow = 3;
 
-/// Trigrammes de caractères hachés du texte de la ligne, chiffres masqués.
-///
-/// Les autres colonnes ne décrivent que la forme et la position : rien n'y dit
-/// ce que la ligne *raconte*. Or c'est le contenu qui sépare un nom de produit
-/// d'une raison sociale ou d'une mention de pied.
 const int trigramBuckets = 64;
 
 final List<String> featureNamesAll = [
@@ -51,10 +30,6 @@ final List<String> featureNamesAll = [
   'prev_has_price', 'next_has_price', 'prev_is_total', 'next_is_total',
   'prev_height_ratio', 'next_height_ratio',
   'priced_rank_ratio', 'after_first_total',
-  // Où la ligne se situe par rapport à la zone des articles. Sans elles, une
-  // ligne sans prix n'a aucune position connue dans cette zone —
-  // `priced_rank_ratio` vaut -1 — et rien ne distingue le libellé d'un article
-  // d'une ligne d'en-tête.
   'dist_prev_priced', 'dist_next_priced', 'in_priced_span', 'span_position',
   'priced_density', 'next_priced_not_total',
   ...[for (var b = 0; b < trigramBuckets; b++) 'tri_$b'],
@@ -81,7 +56,6 @@ double _medianHeight(List<PhysicalLine> lines) {
   return heights[heights.length ~/ 2];
 }
 
-/// Une ligne de features par ligne physique, dans l'ordre du ticket.
 List<List<double>> featurizeAll(List<PhysicalLine> lines) {
   if (lines.isEmpty) return const [];
   final merged = [for (final line in lines) mergePriceFragments(line)];
@@ -209,20 +183,13 @@ List<List<double>> featurizeAll(List<PhysicalLine> lines) {
   return rows;
 }
 
-/// Le rattachement d'un libellé se juge sur ce que portent les lignes juste
-/// au-dessus du prix, pas sur la ligne seule : une fenêtre glissante donne au
-/// modèle les mêmes colonnes pour la ligne et ses voisines immédiates.
 const int linkContext = 3;
 
-/// Les colonnes de la fenêtre : celles de la ligne, puis celles de chaque
-/// ligne précédente, suffixées par leur recul.
 List<String> windowFeatureNames([int context = linkContext]) => [
   for (var back = 0; back <= context; back++)
     for (final name in featureNamesAll) back == 0 ? name : '${name}_back$back',
 ];
 
-/// Les features de la ligne et des [context] lignes qui la précèdent,
-/// concaténées. Hors du ticket, la fenêtre est neutre.
 List<double> windowFeatures(
   List<List<double>> rows,
   int index, [

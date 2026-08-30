@@ -2,10 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_type_scale.dart';
 
-/// A thin two-handle range slider, matching [FrostedSlider]'s scrubber look.
-///
-/// Opaque M3 content surface. Pass [divisions] to make it discrete; value
-/// labels appear above each handle while dragging.
 class FrostedRangeSlider extends StatelessWidget {
   const FrostedRangeSlider({
     required this.values,

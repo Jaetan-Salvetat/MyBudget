@@ -2,12 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_radius.dart';
 
-/// A linear progress indicator following the M3 Expressive spec: a 4dp track
-/// with a rounded active bar, a 4dp gap before the remaining track, and a
-/// stop dot at the end.
-///
-/// Pass [value] (0–1) for determinate; leave it null for an indeterminate
-/// sweep.
 class FrostedLinearProgress extends StatelessWidget {
   const FrostedLinearProgress({this.value, super.key});
 

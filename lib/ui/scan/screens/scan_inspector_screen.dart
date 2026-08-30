@@ -11,12 +11,6 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_trace_report.dart';
 
-/// Ce que chaque étage du scan a produit, lecture par lecture.
-///
-/// Un article manquant ne se diagnostique pas depuis l'écran de validation :
-/// il faut voir ce que l'OCR a lu, quel rôle le tagger a donné à chaque ligne,
-/// et ce que le décodeur en a fait. Les trois sont ici, côte à côte, sur les
-/// données du scan qui vient d'avoir lieu — pas sur une reconstitution.
 class ScanInspectorScreen extends ConsumerWidget {
   const ScanInspectorScreen({super.key});
 
@@ -26,8 +20,6 @@ class ScanInspectorScreen extends ConsumerWidget {
     return FrostedScaffold(
       appBar: FrostedTopBar(
         title: 'Inspecteur de scan',
-        // Un écran ne se relit pas hors du téléphone : le rapport part au
-        // presse-papier et au log, d'où il se récupère par `adb logcat`.
         actions: [
           IconButton(
             icon: const Icon(Symbols.content_copy_rounded),
@@ -50,9 +42,6 @@ class ScanInspectorScreen extends ConsumerWidget {
     );
   }
 
-  /// Le presse-papier pour le relire tout de suite, un fichier pour le sortir
-  /// du téléphone : le stockage externe de l'app se récupère par `adb pull`
-  /// sans rien installer.
   Future<void> _export(BuildContext context, List<ReadTrace> trace) async {
     final report = scanTraceReport(trace);
     await Clipboard.setData(ClipboardData(text: report));
@@ -73,7 +62,6 @@ class ScanInspectorScreen extends ConsumerWidget {
   }
 }
 
-/// Une lecture tentée : passe 1, retry ou fusion.
 class _ReadCard extends StatelessWidget {
   const _ReadCard({required this.read});
 
@@ -133,7 +121,6 @@ String _decodingSummary(ReadTrace read) {
       '${decoding.laxRanks.length} ouvertes à la lecture lâche · $reference';
 }
 
-/// Un étage, replié par défaut : les trois tiennent alors sur un écran.
 class _StepSection extends StatelessWidget {
   const _StepSection({
     required this.title,
@@ -158,8 +145,6 @@ class _StepSection extends StatelessWidget {
   }
 }
 
-/// Les lignes telles que l'OCR les a rendues, mots et boîtes compris : c'est
-/// là qu'on voit deux lignes du ticket fusionnées en une seule.
 class _LinesTable extends StatelessWidget {
   const _LinesTable({required this.read});
 
@@ -187,8 +172,6 @@ class _LinesTable extends StatelessWidget {
   }
 }
 
-/// Le rôle retenu par ligne, et sa probabilité. Les rôles qui suivent disent
-/// ce que le modèle hésitait à répondre.
 class _RolesTable extends StatelessWidget {
   const _RolesTable({required this.read});
 
@@ -221,8 +204,6 @@ class _RolesTable extends StatelessWidget {
   }
 }
 
-/// Ce que le décodeur a fait de chaque ligne chiffrée : ses candidats de prix,
-/// si la laxité l'a ouverte, et l'étiquette retenue.
 class _DecodingTable extends StatelessWidget {
   const _DecodingTable({required this.read});
 
@@ -280,7 +261,6 @@ class _DecodingTable extends StatelessWidget {
   }
 }
 
-/// Une ligne du tableau : rang, texte, verdict, et le détail en dessous.
 class _Row extends StatelessWidget {
   const _Row({
     required this.leading,
@@ -346,8 +326,6 @@ class _Row extends StatelessWidget {
   }
 }
 
-/// Un ticket a plus de lignes qu'un écran n'en montre : le tableau défile dans
-/// sa propre boîte, sans jamais pousser la page.
 class _Scrollable extends StatelessWidget {
   const _Scrollable({required this.rows});
 

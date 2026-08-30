@@ -1,14 +1,3 @@
-/// Décodage sous contrainte checksum. Portage de référence de
-/// `decode_constrained.py` et `decoded_receipt.py`.
-///
-/// Le décodeur ne voit que les lignes porteuses de prix, et les montants
-/// sont recopiés de l'OCR, jamais générés. Le décodeur cherche
-/// l'étiquetage le plus probable dont la somme (articles − remises) retombe
-/// exactement sur une référence : subset-sum exact en centimes. Les
-/// références viennent de plusieurs sources indépendantes — lignes total du
-/// classifieur, dernier total lexical, décomposition TVA, espèces − rendu,
-/// Σ des rayons — fusionnées par montant : deux sources d'accord valent plus
-/// qu'une. Les invariants structurels ferment l'espace de recherche.
 library;
 
 import 'dart:math' as math;
@@ -19,8 +8,6 @@ import 'line_features.dart';
 import 'lines.dart';
 import 'structure.dart';
 
-/// Les cinq classes que le décodeur combine — miroir de `line_labels.py`.
-/// Les neuf rôles du tagger s'y projettent (`decode_roles.dart`).
 const int labelItem = 0;
 const int labelDiscount = 1;
 const int labelTotal = 2;
@@ -35,10 +22,6 @@ const double defaultMinReferenceProb = 0.5;
 const double _probabilityFloor = 1e-12;
 const List<int> labelOrder = [labelItem, labelDiscount, labelIgnore];
 
-/// Chaque lecture d'un cran moins sûre que la précédente vaut la moitié. Le
-/// rang est l'ordre dans lequel [priceCandidates] les a rendues, et la seconde
-/// passe OCR vient après : une lecture qu'une seule passe voit est un candidat
-/// comme un autre, pas une vérité concurrente.
 const double candidateProb = 0.5;
 const double softIgnoreProb = 0.5;
 const double evidenceProb = 0.5;
@@ -61,8 +44,6 @@ class LineOptions {
   final Map<int, double> logProbs;
   final List<int> candidates;
 
-  /// (variante, centimes, pénalité) : les montants que la ligne peut porter,
-  /// la lecture principale d'abord, chacun payant son rang.
   List<(int, int, double)> variants() {
     final amounts = candidates.isEmpty ? [cents] : candidates;
     return [
@@ -122,9 +103,6 @@ class Hypothesis {
   final List<int> cents;
 }
 
-/// Somme des remises possibles : borne la plage utile des sommes
-/// intermédiaires à [−D, cible + D] — un état au-delà ne peut plus retomber
-/// sur la cible, l'élaguer ne change pas l'optimum.
 int _discountCapacity(List<LineOptions> lines, double floor) {
   var capacity = 0;
   for (final line in lines) {
@@ -146,9 +124,6 @@ int _contribution(int label, int cents) {
   return 0;
 }
 
-/// Le nombre de variantes qu'il faut pour encoder n'importe quel choix de ce
-/// ticket. Une ligne peut en porter plus qu'une autre ; l'encodage est commun,
-/// donc il prend la plus large.
 int _variantCount(List<LineOptions> lines) => lines.fold(
   1,
   (widest, line) => math.max(widest, line.variants().length),
@@ -160,11 +135,6 @@ int _encode(int label, int variant, int variantCount) =>
 (int, int) _decodeChoice(int choice, int variantCount) =>
     (choice ~/ variantCount, choice % variantCount);
 
-/// Étiquetage maximisant Σ log P sous contrainte Σ contributions =
-/// [targetCents], avec pour chaque ligne le montant retenu (lecture
-/// principale ou alternative). Une étiquette dont la probabilité est sous
-/// [minProb] est interdite : on ne force jamais un rôle que le modèle juge
-/// impossible.
 Assignment? bestAssignmentDetail(
   List<LineOptions> lines,
   int targetCents, {
@@ -249,12 +219,6 @@ int _toCents(double price) => (price * 100).round();
 double _logOf(double probability) =>
     math.log(math.max(probability, _probabilityFloor));
 
-/// Options par ligne sous les invariants de ticket : rien ne compte après
-/// la référence (la monnaie rendue qui suit un paiement en espèces n'est
-/// jamais un article), un prix négatif n'est jamais un article, une ligne à
-/// 0 centime n'apporte aucune information de somme, les lignes
-/// structurellement exclues (taxe, HT, récap de remises) sont ignorées et un
-/// total de rayon détecté par l'arithmétique peut toujours l'être.
 List<LineOptions> lineOptions(
   List<PricedLine> lines,
   List<List<double>> probas,
@@ -308,13 +272,6 @@ List<LineOptions> lineOptions(
   return options;
 }
 
-/// Les montants que le décodeur peut retenir pour cette ligne : ses lectures,
-/// puis celle de l'autre passe OCR.
-///
-/// Tous gardent le signe de la lecture principale. Un article ne peut pas être
-/// négatif et une remise ne peut pas être positive : laisser le décodeur
-/// changer le signe d'une ligne pour faire tomber la somme lui donnerait un
-/// degré de liberté que le ticket n'a pas.
 List<int> _candidates(PricedLine priced, int cents, int? alternative) {
   final readings = [
     for (final price in priced.candidates) _toCents(price),
@@ -371,9 +328,6 @@ List<Reference> _evidenceReferences(
     ),
 ];
 
-/// Fusion par montant : la ligne imprimée fixe la coupure quand il y en a
-/// une, chaque source supplémentaire d'accord ajoute un bonus. L'ordre des
-/// montants à égalité de score suit leur première apparition.
 List<Reference> mergeReferences(List<Reference> references) {
   final byCents = <int, List<Reference>>{};
   for (final reference in references) {
@@ -491,9 +445,6 @@ Hypothesis? _bestTotalHypothesis(
   return best;
 }
 
-/// Un paiement ne sert de référence qu'en dernier recours et sans aucun
-/// flip : les articles tels que le modèle les voit doivent tomber pile sur
-/// le montant payé — deux signaux indépendants contre un total lu faux.
 Hypothesis? _paymentHypothesis(
   List<PricedLine> lines,
   List<List<double>> probas,
@@ -546,9 +497,6 @@ bool _noItemCandidate(List<LineOptions> options, double minProb) {
   );
 }
 
-/// Ticket sans aucune ligne d'article (parking, carburant) : un montant
-/// prouvé par l'arithmétique ET une seconde source, sans candidat article ni
-/// compteur d'articles contraire, est l'unique achat.
 Hypothesis? _singleItemHypothesis(
   List<PricedLine> lines,
   List<List<double>> probas,
@@ -656,10 +604,6 @@ Map<int, String?> _pendingLabels(
 String? _storeOf(List<PhysicalLine> merged) =>
     merged.isEmpty ? null : merged.first.text;
 
-/// Reçu structuré depuis les rôles par ligne. Un prix négatif est toujours
-/// une remise, quel que soit son label : un article ne peut pas être
-/// négatif. [referenceTotal] : montant de référence prouvé sans ligne total
-/// étiquetée (décomposition TVA, espèces − rendu).
 ExtractedReceipt? receiptFromLabels(
   List<PhysicalLine> merged,
   List<PricedLine> lines,
@@ -706,8 +650,6 @@ ExtractedReceipt? receiptFromLabels(
   );
 }
 
-/// Ticket sans ligne d'article : l'unique achat porte le montant prouvé et
-/// le nom de l'enseigne.
 ExtractedReceipt singleItemReceipt(List<PhysicalLine> merged, double total) {
   final store = _storeOf(merged);
   return ExtractedReceipt(
@@ -722,7 +664,6 @@ ExtractedReceipt singleItemReceipt(List<PhysicalLine> merged, double total) {
   );
 }
 
-/// Alternatives indexées par ligne fusionnée → par rang de ligne chiffrée.
 Map<int, int> rankAlternatives(
   List<PricedLine> lines,
   Map<int, int> alternatives,
@@ -730,8 +671,6 @@ Map<int, int> rankAlternatives(
   for (final (rank, priced) in lines.indexed) rank: ?alternatives[priced.index],
 };
 
-/// Réécrit le montant des seules lignes contributives dont le décodeur a
-/// retenu la lecture alternative.
 List<PricedLine> withChosenAmounts(
   List<PricedLine> lines,
   List<int> labels,

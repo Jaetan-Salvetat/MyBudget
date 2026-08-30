@@ -80,7 +80,7 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: JournalView()),
+          home: const Scaffold(body: JournalView(bottomInset: 0)),
         ),
       ),
     );
@@ -166,9 +166,6 @@ void main() {
             amount: 12,
           ),
         );
-    // Le rail de la fenêtre d'annulation tourne tant qu'elle dure : on ne
-    // laisse pas le test la traverser, il n'y aurait plus rien à annuler. Le
-    // créneau, lui, doit finir de s'ouvrir avant qu'on vise la ligne.
     await tester.pump();
     await tester.pump(JournalLanding.duration);
 
@@ -206,8 +203,6 @@ void main() {
         );
     await tester.pump();
 
-    // Seule la ligne qui vient d'être dite s'ouvre un créneau ; celle qu'elle
-    // décale reste entière au lieu de refaire son entrée.
     expect(find.byType(JournalLanding), findsOneWidget);
     expect(
       find.ancestor(
@@ -271,7 +266,6 @@ void main() {
     await pumpJournal(tester);
     await tester.pumpAndSettle();
 
-    // Its own month, the one after, and the current one.
     expect(find.text('Netflix'), findsNWidgets(3));
   });
 
@@ -315,5 +309,32 @@ void main() {
     expect(find.text(JournalView.emptyMessage), findsOneWidget);
     expect(find.text('HIER'), findsOneWidget);
     expect(find.text('Decathlon'), findsOneWidget);
+  });
+
+  group('le dégradé de bord', () {
+    const double height = 600;
+
+    test('laisse la première ligne franche tant que rien n\'est passé dessus', () {
+      final gradient = JournalView.edgeGradient(scrolled: 0, height: height);
+
+      expect(gradient.stops!.first, 0);
+      expect(gradient.colors[1], Colors.black);
+    });
+
+    test('dissout le haut à mesure que la liste passe sous le bord', () {
+      final gradient = JournalView.edgeGradient(
+        scrolled: JournalView.edgeFade,
+        height: height,
+      );
+
+      expect(gradient.stops![1], JournalView.edgeFade / height);
+    });
+
+    test('laisse la liste entière derrière les chromes du bas', () {
+      final gradient = JournalView.edgeGradient(scrolled: 0, height: height);
+
+      expect(gradient.stops!.last, 1);
+      expect(gradient.colors.last, Colors.black);
+    });
   });
 }

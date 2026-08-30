@@ -13,8 +13,6 @@ import 'package:mybudget/ui/common/widgets/form_text.dart';
 
 const String _defaultFrequency = 'Mensuel';
 
-/// Full-page expense form. Child pickers (category, date) stay as overlays;
-/// only the form itself was promoted from a sheet to a route.
 class ExpenseFormScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
   final ExpenseModel? expense;

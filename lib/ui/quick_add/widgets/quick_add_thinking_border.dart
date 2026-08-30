@@ -3,11 +3,6 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
-/// A gradient sweeping along the border of the field while the model reads
-/// the text : the field itself says it is thinking, no chip has to.
-///
-/// Pure stroke paint over the child — no backdrop involved, so the glass
-/// underneath never greys out.
 class QuickAddThinkingBorder extends StatefulWidget {
   static const Duration sweepPeriod = Duration(milliseconds: 1400);
   static const Duration fade = Duration(milliseconds: 240);
@@ -55,7 +50,6 @@ class _QuickAddThinkingBorderState extends State<QuickAddThinkingBorder>
     _fade.forward();
   }
 
-  /// The sweep only spins while there is something to see.
   void _onFadeStatus(AnimationStatus status) {
     if (status == AnimationStatus.dismissed) _sweep.stop();
   }
@@ -99,18 +93,13 @@ class _QuickAddThinkingBorderState extends State<QuickAddThinkingBorder>
   }
 }
 
-/// Strokes the field's rounded rect with a rotating comet-shaped gradient.
 class QuickAddThinkingBorderPainter extends CustomPainter {
   static const double strokeWidth = 2.5;
   static const double _cornerRadius = FrostedRadius.md;
   static const List<double> _stops = [0.0, 0.45, 0.7, 1.0];
 
-  /// The whole ring shifts colour while the model reads : the comet alone
-  /// would leave half the perimeter looking like the plain focus ring.
   static const double _baseRingAlpha = 0.45;
 
-  /// The soft halo the comet drags along : without it the sweep disappears
-  /// against the focus ring it runs on.
   static const double _glowStrokeWidth = 6;
   static const double _glowBlurSigma = 3;
   static const double _glowAlpha = 0.8;

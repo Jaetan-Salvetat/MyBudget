@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class StatsGreeting extends StatelessWidget {
@@ -19,7 +20,7 @@ class StatsGreeting extends StatelessWidget {
     final greeting = _greetingForHour(DateTime.now().hour);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+      padding: kMainFlowTopBarPadding,
       child: SizedBox(
         height: 48,
         child: Row(

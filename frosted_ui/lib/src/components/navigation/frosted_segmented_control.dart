@@ -6,10 +6,6 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-/// iOS-style segmented control.
-///
-/// Each segment is equally sized. The selected segment slides between
-/// positions with a spring-like ease.
 class FrostedSegmentedControl extends StatelessWidget {
   const FrostedSegmentedControl({
     required this.segments,
@@ -79,22 +75,24 @@ class FrostedSegmentedControl extends StatelessWidget {
                           semanticsSelected: i == currentIndex,
                           builder:
                               (BuildContext context, InteractionStates s) =>
-                                  s.ink(
+                                  ClipRRect(
                                     borderRadius: BorderRadius.circular(
                                       FrostedRadius.sm,
                                     ),
-                                    Center(
-                                      child: Text(
-                                        segments[i],
-                                        style: FrostedTypeScale.labelMedium
-                                            .copyWith(
-                                              color: i == currentIndex
-                                                  ? cs.onSurface
-                                                  : cs.onSurfaceVariant,
-                                              fontWeight: i == currentIndex
-                                                  ? FontWeight.w600
-                                                  : FontWeight.w500,
-                                            ),
+                                    child: s.ink(
+                                      Center(
+                                        child: Text(
+                                          segments[i],
+                                          style: FrostedTypeScale.labelMedium
+                                              .copyWith(
+                                                color: i == currentIndex
+                                                    ? cs.onSurface
+                                                    : cs.onSurfaceVariant,
+                                                fontWeight: i == currentIndex
+                                                    ? FontWeight.w600
+                                                    : FontWeight.w500,
+                                              ),
+                                        ),
                                       ),
                                     ),
                                   ),

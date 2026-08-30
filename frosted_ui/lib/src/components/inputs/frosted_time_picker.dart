@@ -11,11 +11,6 @@ import '../overlays/frosted_dialog.dart';
 import 'frosted_clock_dial.dart';
 import 'frosted_picker_field.dart';
 
-/// Opens the Frosted time picker — a glass shell with the M3 flow: two
-/// HH:MM selectors, a circular clock dial, and a toggle to the keyboard
-/// (TimeInput) mode. 24-hour.
-///
-/// Returns the picked [TimeOfDay], or null if dismissed.
 Future<TimeOfDay?> showFrostedTimePicker({
   required BuildContext context,
   required TimeOfDay initialTime,
@@ -222,6 +217,7 @@ class _Field extends StatelessWidget {
         return Container(
           width: _w,
           height: _h,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: overlay == 0
                 ? bg
@@ -229,7 +225,6 @@ class _Field extends StatelessWidget {
             borderRadius: BorderRadius.circular(FrostedRadius.lg),
           ),
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.lg),
             Center(
               child: Text(
                 text,
@@ -243,8 +238,6 @@ class _Field extends StatelessWidget {
   }
 }
 
-/// A field that displays the selected time and opens [showFrostedTimePicker]
-/// on tap.
 class FrostedTimeField extends StatelessWidget {
   const FrostedTimeField({
     required this.value,

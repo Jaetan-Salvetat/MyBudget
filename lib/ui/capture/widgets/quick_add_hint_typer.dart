@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-/// Types the example phrases into the empty field, one at a time. It is the
-/// only place that can show what the model takes, and it says it better than
-/// a row of chips. Stops for good at the first focus.
 class QuickAddHintTyper extends ChangeNotifier
     implements ValueListenable<String> {
   static const List<String> phrases = [
@@ -33,7 +30,6 @@ class QuickAddHintTyper extends ChangeNotifier
     _schedule(keyStroke);
   }
 
-  /// Freezes on the first phrase : the examples still read, nothing moves.
   void freeze() {
     if (_stopped) return;
     _stopped = true;
@@ -42,7 +38,6 @@ class QuickAddHintTyper extends ChangeNotifier
     _set(phrases.first);
   }
 
-  /// The user took over : the field hands its hint back to the static one.
   void stop() {
     if (_stopped && _value.isEmpty) return;
     _stopped = true;

@@ -212,7 +212,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
 
   Widget _hPad(Widget child) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
       child: child,
     );
   }
@@ -240,8 +240,6 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     );
   }
 
-  /// A month other than the one in progress is read : acting on it would mean
-  /// deciding what it should retroactively have been.
   bool get _isViewingCurrentMonth {
     final now = DateTime.now();
     final selectedMonth = ref.watch(selectedMonthProvider);
@@ -355,8 +353,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       accounts: accounts,
       beneficiaries: beneficiaries,
       highestAmount: _highestAmount(_monthRevenues()),
-      resultCount: (filter) =>
-          _filterRevenues(_monthRevenues(), filter).length,
+      resultCount: (filter) => _filterRevenues(_monthRevenues(), filter).length,
       onApply: (updated) => _filterNotifier.update(
         (current) => updated.copyWith(searchQuery: current.searchQuery),
       ),
@@ -403,7 +400,10 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     }
   }
 
-  Future<void> _deleteRevenue(RevenueModel revenue, RecurringDeletion scope) async {
+  Future<void> _deleteRevenue(
+    RevenueModel revenue,
+    RecurringDeletion scope,
+  ) async {
     try {
       await ref
           .read(revenueProvider.notifier)

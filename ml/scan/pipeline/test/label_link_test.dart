@@ -1,5 +1,3 @@
-/// Le rattachement du libellé : la ligne vient du modèle de lien, les mots du
-/// tagger de spans.
 library;
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
@@ -18,7 +16,6 @@ final lines = [
   line('2200017 CITIZEN'),
 ];
 
-/// Le tagger retient tous les mots de chaque ligne.
 List<List<double>> certain(List<PhysicalLine> source) => [
   for (final line in source) [for (final _ in line.words) 0.9],
 ];

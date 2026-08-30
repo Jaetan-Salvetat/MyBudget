@@ -9,11 +9,6 @@ import '../actions/_interactive_surface.dart';
 import 'frosted_badge.dart';
 import 'frosted_nav_item.dart';
 
-/// A Liquid Glass side drawer.
-///
-/// Drop directly into `Scaffold.drawer`. The drawer renders its content on a
-/// glass material; a [header] and [footer] slot accept any widget. Items are
-/// resolved via [currentIndex] / [onTap].
 class FrostedDrawer extends StatelessWidget {
   const FrostedDrawer({
     required this.items,
@@ -107,13 +102,13 @@ class _DrawerItem extends StatelessWidget {
       onTap: onTap,
       semanticsLabel: item.label,
       semanticsSelected: selected,
-      builder: (BuildContext context, InteractionStates s) => DecoratedBox(
+      builder: (BuildContext context, InteractionStates s) => Container(
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(FrostedRadius.md),
         ),
         child: s.ink(
-          borderRadius: BorderRadius.circular(FrostedRadius.md),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: FrostedSpacing.sp3,

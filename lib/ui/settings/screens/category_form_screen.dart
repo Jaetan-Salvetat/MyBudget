@@ -9,13 +9,10 @@ sealed class CategoryFormResult {
   const CategoryFormResult();
 }
 
-/// Drops the customisation and goes back to the taxonomy values.
 final class CategoryReset extends CategoryFormResult {
   const CategoryReset();
 }
 
-/// Only the fields that differ from the taxonomy are set; the others are null
-/// so the stored override stays as sparse as possible.
 final class CategoryCustomisation extends CategoryFormResult {
   final String? name;
   final String? icon;

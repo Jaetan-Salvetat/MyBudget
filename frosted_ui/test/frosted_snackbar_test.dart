@@ -35,8 +35,6 @@ void main() {
     final double bottom =
         screen.height - tester.getBottomLeft(find.text('Enregistré')).dy;
 
-    // Let it auto-dismiss so its timer and overlay entry do not leak into the
-    // next measurement.
     await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
 

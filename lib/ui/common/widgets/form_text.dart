@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Heading that opens a group of related fields inside a form.
 class FormSectionTitle extends StatelessWidget {
   final String text;
 
@@ -18,7 +17,6 @@ class FormSectionTitle extends StatelessWidget {
   }
 }
 
-/// Caption sitting directly above a field that carries no built-in label.
 class FormFieldLabel extends StatelessWidget {
   final String text;
 
@@ -37,7 +35,6 @@ class FormFieldLabel extends StatelessWidget {
   }
 }
 
-/// Validation message shown under a field; collapses when [message] is null.
 class FormFieldError extends StatelessWidget {
   final String? message;
 

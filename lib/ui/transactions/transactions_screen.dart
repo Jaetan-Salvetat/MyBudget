@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
 import 'package:mybudget/core/providers/expenses_view_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -34,7 +35,10 @@ class TransactionsScreen extends ConsumerWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            padding: kMainFlowTopBarPadding.copyWith(
+              left: kMainFlowGutter,
+              right: kMainFlowGutter,
+            ),
             child: SizedBox(
               height: 48,
               child: Row(
@@ -68,7 +72,7 @@ class TransactionsScreen extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            padding: const EdgeInsets.symmetric(horizontal: kMainFlowGutter),
             child: Row(
               children: [
                 const Expanded(
@@ -89,7 +93,12 @@ class TransactionsScreen extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              kMainFlowGutter,
+              12,
+              kMainFlowGutter,
+              0,
+            ),
             child: FrostedTabs(
               tabs: const <FrostedTab>[
                 FrostedTab(label: 'Dépenses'),

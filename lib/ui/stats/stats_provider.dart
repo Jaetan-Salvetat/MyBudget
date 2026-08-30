@@ -130,8 +130,6 @@ class StatsNotifier extends _$StatsNotifier {
     );
   }
 
-  /// Both lists already hold what falls on the selected month, so all that is
-  /// left is to tell a standing charge from a one-off.
   _MonthlyFlows _computeFlows(
     List<ExpenseModel> expenses,
     List<RevenueModel> revenues,
@@ -255,9 +253,6 @@ class StatsNotifier extends _$StatsNotifier {
     return movements;
   }
 
-  /// The day a standing rule still has to fall on this month. A rule that has
-  /// been closed owes nothing any more, and a one-off is not a movement to
-  /// come — it is one that was recorded.
   int? _movementDay(Frequency frequency, DateTime startDate, DateTime? endDate) {
     if (endDate != null || frequency == Frequency.oneTime) return null;
     return startDate.day;

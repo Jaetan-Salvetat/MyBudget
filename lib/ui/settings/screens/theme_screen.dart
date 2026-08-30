@@ -5,8 +5,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/theme/theme_mode_display.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 
-/// L'apparence s'applique à la sélection : la page reste ouverte pour laisser
-/// comparer les modes.
 class ThemeScreen extends ConsumerWidget {
   const ThemeScreen({super.key});
 

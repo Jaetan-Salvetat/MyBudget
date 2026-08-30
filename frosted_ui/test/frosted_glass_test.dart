@@ -115,6 +115,60 @@ void main() {
       return (decoration.border! as Border).top;
     }
 
+    List<BoxShadow>? shadowOf(WidgetTester tester) {
+      final Iterable<DecoratedBox> boxes = tester.widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(FrostedGlass),
+          matching: find.byType(DecoratedBox),
+        ),
+      );
+      return boxes
+          .map((DecoratedBox box) => box.decoration as BoxDecoration)
+          .firstWhere((BoxDecoration d) => d.borderRadius != null)
+          .boxShadow;
+    }
+
+    testWidgets('the elevation scale deepens one step at a time', (
+      WidgetTester tester,
+    ) async {
+      final List<double> alphas = <double>[];
+      for (final FrostedGlassElevation elevation in <FrostedGlassElevation>[
+        FrostedGlassElevation.resting,
+        FrostedGlassElevation.floating,
+        FrostedGlassElevation.lifted,
+      ]) {
+        await pumpElevated(
+          tester,
+          brightness: Brightness.light,
+          elevation: elevation,
+        );
+        alphas.add(shadowOf(tester)!.single.color.a);
+      }
+
+      expect(alphas[0], lessThan(alphas[1]));
+      expect(alphas[1], lessThan(alphas[2]));
+    });
+
+    testWidgets('a resting surface still reads as detached', (
+      WidgetTester tester,
+    ) async {
+      await pumpElevated(
+        tester,
+        brightness: Brightness.light,
+        elevation: FrostedGlassElevation.none,
+      );
+      final double flush = edgeOf(tester).color.a;
+
+      await pumpElevated(
+        tester,
+        brightness: Brightness.light,
+        elevation: FrostedGlassElevation.resting,
+      );
+
+      expect(shadowOf(tester), isNotNull);
+      expect(edgeOf(tester).color.a, greaterThan(flush));
+    });
+
     for (final Brightness brightness in Brightness.values) {
       testWidgets('a detached surface carries a crisper hairline in '
           '${brightness.name}', (WidgetTester tester) async {

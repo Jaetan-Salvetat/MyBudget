@@ -7,7 +7,6 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 
-/// Says where the transaction will land, before it lands.
 class QuickAddAccountLine extends ConsumerWidget {
   final VoidCallback onNoAccount;
 
@@ -46,26 +45,28 @@ class QuickAddAccountLine extends ConsumerWidget {
     List<AccountModel> accounts,
   ) async {
     final selectedId = ref.read(quickAddAccountProvider);
+    final notifier = ref.read(quickAddAccountProvider.notifier);
     final picked = await showFrostedBottomSheet<int>(
       context: context,
-      builder: (_) => FrostedBottomSheet(
+      builder: (sheetContext) => FrostedBottomSheet(
         title: 'Compte',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final account in accounts)
-              FrostedListTile(
-                title: account.name,
-                subtitle: account.bank,
-                selected: account.id == selectedId,
-                onTap: () => Navigator.pop(context, account.id),
-              ),
-          ],
+        child: SingleChildScrollView(
+          child: FrostedListSection(
+            tiles: [
+              for (final account in accounts)
+                FrostedListTile(
+                  title: account.name,
+                  subtitle: account.bank,
+                  selected: account.id == selectedId,
+                  onTap: () => Navigator.pop(sheetContext, account.id),
+                ),
+            ],
+          ),
         ),
       ),
     );
     if (picked == null) return;
-    ref.read(quickAddAccountProvider.notifier).select(picked);
+    notifier.select(picked);
   }
 }
 

@@ -2,9 +2,6 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 
-/// Draws an amount that counts towards its new value instead of jumping :
-/// money that just moved should be seen moving. A light pulse marks the
-/// landing without asking for a second glance.
 class AnimatedAmount extends StatefulWidget {
   static const Duration duration = Duration(milliseconds: 650);
   static const double pulseScale = 1.045;

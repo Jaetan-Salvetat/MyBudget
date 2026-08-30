@@ -1,7 +1,5 @@
 import 'dart:math';
 
-/// Bounds for the amount range slider: an upper bound that always covers the
-/// data, rounded up to a step a reader can reason about.
 class AmountSliderScale {
   static const double fallbackCeiling = 100;
   static const int _maxDivisions = 100;

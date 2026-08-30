@@ -5,11 +5,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import '../actions/frosted_button.dart';
 
-/// An inline informational bar on `secondaryContainer`: an optional icon, a
-/// message, and an optional call-to-action pill.
-///
-/// Opaque M3 content surface. Use it for contextual notices inside a screen,
-/// not for transient feedback (that's a snackbar).
 class FrostedBanner extends StatelessWidget {
   const FrostedBanner({
     required this.message,

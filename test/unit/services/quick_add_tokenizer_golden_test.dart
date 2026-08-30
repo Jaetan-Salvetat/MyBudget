@@ -4,9 +4,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 
-/// Le tokenizer binaire doit encoder exactement comme le `tokenizer.json`
-/// d'origine : ces attendus ont ete captures avec l'implementation JSON, toute
-/// divergence signifie que le modele recevrait autre chose qu'a l'entrainement.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

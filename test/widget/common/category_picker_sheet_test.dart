@@ -7,6 +7,7 @@ import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
@@ -55,6 +56,7 @@ void main() {
 
   Future<String? Function()> openPicker(
     WidgetTester tester, {
+    TransactionType? type = TransactionType.expense,
     String? selectedSlug,
     List<String> suggestions = const [],
   }) async {
@@ -79,6 +81,7 @@ void main() {
                 onPressed: () async {
                   picked = await CategoryPickerSheet.show(
                     context,
+                    type: type,
                     selectedSlug: selectedSlug,
                     suggestions: suggestions,
                   );
@@ -145,6 +148,38 @@ void main() {
 
     expect(find.text('FRÉQUENTES'), findsOneWidget);
     expect(find.text('Loyer'), findsOneWidget);
+  });
+
+  testWidgets('without a type, both sections are browsable', (tester) async {
+    final result = await openPicker(tester, type: null);
+
+    expect(find.text('DÉPENSES'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('REVENUS'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Salaire'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Salaire net'));
+    await tester.pumpAndSettle();
+
+    expect(result(), 'salaire.salaire_net');
+  });
+
+  testWidgets('without a type, search spans both sections', (tester) async {
+    final result = await openPicker(tester, type: null);
+
+    await tester.enterText(find.byType(TextField), 'prime');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Prime'));
+    await tester.pumpAndSettle();
+
+    expect(result(), 'salaire.prime');
   });
 
   testWidgets('a suggested category is not repeated in the frequent list', (

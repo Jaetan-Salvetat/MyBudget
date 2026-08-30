@@ -11,8 +11,6 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
-/// Full-page loan edit form. Returns the updated loan, or null when the user
-/// backs out.
 class LoanEditScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
 

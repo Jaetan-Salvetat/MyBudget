@@ -12,8 +12,6 @@ import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 const double _durationUnitToggleHeight = 50;
 
-/// Full-page loan creation wizard. Returns the loan to persist, or null when
-/// the user backs out.
 class LoanCreationScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
 

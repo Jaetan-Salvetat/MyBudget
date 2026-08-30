@@ -24,8 +24,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
 
-/// Le flow local, gardé en vie : les modèles de lignes et le moteur de
-/// reconnaissance coûtent plus cher à recréer qu'à garder.
 @Riverpod(keepAlive: true)
 Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
   final tagger = RoleTagger(
@@ -48,8 +46,6 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
           as Map<String, dynamic>,
     ),
   );
-  // Le répertoire n'est pas indispensable au flow : s'il manque de la
-  // release, on scanne sans, et l'enseigne redevient la ligne désignée.
   Gazetteer? gazetteer;
   try {
     gazetteer = Gazetteer(
@@ -84,16 +80,6 @@ Future<ReceiptScanComposer> receiptScanComposer(Ref ref) async {
   );
 }
 
-/// La trace de la dernière lecture, pour l'inspecteur de scan.
-///
-/// Délibérément hors de [ReceiptScanResultModel] : le modèle décrit ce que
-/// l'utilisateur valide, la trace explique comment on y est arrivé. Les mêler
-/// ferait voyager des détails de pipeline jusque dans la création de dépense.
-///
-/// Gardée en vie : elle est écrite pendant le scan, alors que personne ne
-/// l'écoute — l'inspecteur ne s'ouvre qu'après. Auto-disposée, elle serait
-/// détruite dans la foulée et l'écran n'aurait jamais rien à montrer. Ce
-/// qu'elle retient est la dernière lecture, remplacée au scan suivant.
 @Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
   @override
@@ -111,8 +97,6 @@ class ScanNotifier extends _$ScanNotifier {
     return const AsyncData(null);
   }
 
-  /// Le ticket est lu sur l'appareil : la photo ne part nulle part, il n'y a
-  /// ni clé, ni quota, ni réseau à gérer.
   Future<void> scanReceipt(Uint8List imageBytes) async {
     state = const AsyncLoading();
     try {

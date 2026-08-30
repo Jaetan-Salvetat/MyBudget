@@ -8,14 +8,11 @@ import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_stale.dart';
 
-/// The category the app believes the text belongs to, ready to be drawn.
 class QuickAddCategoryPreview {
   final String label;
   final IconData icon;
   final Color color;
 
-  /// The model is not confident enough to stand behind it : the pill says so
-  /// rather than passing it off as read.
   final bool isUncertain;
 
   const QuickAddCategoryPreview({
@@ -26,23 +23,15 @@ class QuickAddCategoryPreview {
   });
 }
 
-/// The transaction taking shape under the text : the amount in the app's own
-/// numerals, the category landing next to it, the metadata a quiet line
-/// below. Reads as the line it will become, not as a form.
 class QuickAddDraftLine extends StatelessWidget {
   final double? amount;
   final bool isIncome;
 
-  /// Null only while the first reading has yet to land : the pill then says
-  /// the model is still reading.
   final QuickAddCategoryPreview? category;
 
   final String? recurrenceLabel;
   final String? dateLabel;
 
-  /// The model has yet to read the text being typed. Only what it produces
-  /// dims and stops answering : the amount and the date are re-read at every
-  /// keystroke and are never behind.
   final bool isStale;
 
   final VoidCallback onPickCategory;
@@ -73,9 +62,11 @@ class QuickAddDraftLine extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: amount == null
-                  ? const SizedBox.shrink()
-                  : _DraftAmount(amount: amount!, isIncome: isIncome),
+              child: _DraftAmount(
+                amount: amount ?? 0,
+                isIncome: isIncome,
+                isAwaitingAmount: amount == null,
+              ),
             ),
             const SizedBox(width: FrostedSpacing.sp2),
             _CategoryPill(
@@ -100,23 +91,32 @@ class QuickAddDraftLine extends StatelessWidget {
   }
 }
 
-/// Le montant du brouillon, dans les chiffres serif de la figure du mois : ce
-/// qui se tape appartient déjà à l'app, pas à un formulaire.
 class _DraftAmount extends StatelessWidget {
   static const double _integerFontSize = 30;
   static const double _decimalFontSize = 19;
   static const double _decimalAlpha = 0.65;
+  static const double _awaitingAlpha = 0.35;
 
   final double amount;
   final bool isIncome;
 
-  const _DraftAmount({required this.amount, required this.isIncome});
+  final bool isAwaitingAmount;
+
+  const _DraftAmount({
+    required this.amount,
+    required this.isIncome,
+    required this.isAwaitingAmount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = isIncome
+    final scheme = Theme.of(context).colorScheme;
+    final signed = isIncome && !isAwaitingAmount;
+    final color = isAwaitingAmount
+        ? scheme.onSurfaceVariant.withValues(alpha: _awaitingAlpha)
+        : isIncome
         ? context.financeColors.income
-        : Theme.of(context).colorScheme.onSurface;
+        : scheme.onSurface;
 
     return AnimatedAmount(
       amount: amount,
@@ -132,7 +132,7 @@ class _DraftAmount extends StatelessWidget {
               color: color,
             ),
             children: [
-              TextSpan(text: '${isIncome ? '+ ' : ''}${parts.integer}'),
+              TextSpan(text: '${signed ? '+ ' : ''}${parts.integer}'),
               TextSpan(
                 text: ',${parts.decimals} €',
                 style: AppTextStyles.displaySerifItalic(
@@ -161,8 +161,6 @@ class _DraftAmount extends StatelessWidget {
   }
 }
 
-/// Where the category lands. A hollow shimmering pill while the model reads,
-/// an outline it does not fully stand behind, a filled tint once it does.
 class _CategoryPill extends StatelessWidget {
   static const double _fillAlpha = 0.14;
   static const double _outlineAlpha = 0.5;
@@ -290,8 +288,6 @@ class _PillSurface extends StatelessWidget {
   }
 }
 
-/// Date and recurrence in the quiet mono register of the account line :
-/// metadata, not peers of the amount.
 class _MetaLine extends StatelessWidget {
   static const double _fontSize = 11;
 

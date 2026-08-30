@@ -29,12 +29,6 @@ class QuickAddClassifierService implements QuickAddEngine {
     await _modelRunner.load();
   }
 
-  /// Reads everything the text carries. The amount stays null while the user
-  /// has not typed one : classifying is understanding, not validating.
-  ///
-  /// Le modèle lit la forme canonique — minuscules, sans accents, ponctuation
-  /// décollée, celle du corpus — mais le nom retenu reste ce que l'utilisateur
-  /// a tapé : normaliser sert le modèle, pas l'affichage.
   @override
   Future<QuickAddClassification> classify(String input) async {
     final facts = QuickAddTextReader.read(input);
@@ -73,9 +67,6 @@ class QuickAddClassifierService implements QuickAddEngine {
     );
   }
 
-  /// Catégorie brute d'un texte déjà normalisé. Le scan passe des libellés de
-  /// caisse, pas une saisie utilisateur : ni montant ni date à en extraire,
-  /// seule la tête catégorie est lue.
   Future<({String slug, double confidence})> categoryOf(String text) async {
     final output = await _modelRunner.run(_tokenizer.encode(text));
     return (

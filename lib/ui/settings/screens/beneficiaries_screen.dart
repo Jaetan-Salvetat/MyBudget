@@ -7,9 +7,6 @@ import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
-/// Flat list of beneficiaries, mirroring the categories screen: plain rows on
-/// the page surface, no dividers, and a search field once the list outgrows a
-/// single glance.
 class BeneficiariesScreen extends ConsumerStatefulWidget {
   const BeneficiariesScreen({super.key});
 

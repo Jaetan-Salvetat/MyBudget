@@ -9,11 +9,6 @@ import '_interactive_surface.dart';
 const double _kBoxSize = 20;
 const double _kBorderWidth = 2;
 
-/// A square checkbox with rounded corners.
-///
-/// Supports the boolean states `true` (checked), `false` (unchecked) and,
-/// when [tristate] is true, `null` (indeterminate — rendered as a horizontal
-/// bar instead of a checkmark).
 class FrostedCheckbox extends StatelessWidget {
   const FrostedCheckbox({
     required this.value,
@@ -49,27 +44,32 @@ class FrostedCheckbox extends StatelessWidget {
             : cs.onSurface.withValues(alpha: 0.38);
         final Color glyph = enabled ? cs.onPrimary : cs.surface;
 
-        return s.ink(
-          borderRadius: BorderRadius.circular(FrostedRadius.full),
-          Padding(
-            padding: const EdgeInsets.all(FrostedSpacing.sp3),
-            child: AnimatedContainer(
-              duration: motion.duration,
-              curve: motion.curve,
-              width: _kBoxSize,
-              height: _kBoxSize,
-              decoration: BoxDecoration(
-                color: fill,
-                borderRadius: BorderRadius.circular(FrostedRadius.xs),
-                border: filled
-                    ? null
-                    : Border.all(color: borderColor, width: _kBorderWidth),
+        return ClipOval(
+          child: s.ink(
+            Padding(
+              padding: const EdgeInsets.all(FrostedSpacing.sp3),
+              child: AnimatedContainer(
+                duration: motion.duration,
+                curve: motion.curve,
+                width: _kBoxSize,
+                height: _kBoxSize,
+                decoration: BoxDecoration(
+                  color: fill,
+                  borderRadius: BorderRadius.circular(FrostedRadius.xs),
+                  border: filled
+                      ? null
+                      : Border.all(color: borderColor, width: _kBorderWidth),
+                ),
+                child: isIndeterminate
+                    ? Center(
+                        child: Container(width: 12, height: 2, color: glyph),
+                      )
+                    : (isChecked
+                          ? CustomPaint(
+                              painter: _CheckmarkPainter(color: glyph),
+                            )
+                          : const SizedBox.shrink()),
               ),
-              child: isIndeterminate
-                  ? Center(child: Container(width: 12, height: 2, color: glyph))
-                  : (isChecked
-                        ? CustomPaint(painter: _CheckmarkPainter(color: glyph))
-                        : const SizedBox.shrink()),
             ),
           ),
         );

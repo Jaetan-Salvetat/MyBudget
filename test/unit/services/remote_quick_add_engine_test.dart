@@ -8,7 +8,6 @@ import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/remote_quick_add_engine.dart';
 
-/// Rejoue une file de réponses : la deuxième sert à observer la reprise.
 class _ScriptedChatClient implements AiChatClient {
   _ScriptedChatClient(this.responses);
 

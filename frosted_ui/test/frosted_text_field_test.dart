@@ -14,6 +14,45 @@ void main() {
     );
   }
 
+  group('FrostedTextField trailing', () {
+    const Key marker = Key('trailing');
+
+    testWidgets('hangs a widget where the trailing glyph would go', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        const FrostedTextField(trailing: SizedBox(key: marker, width: 24)),
+      );
+
+      final double input = tester.getBottomRight(find.byType(TextField)).dx;
+      expect(tester.getTopLeft(find.byKey(marker)).dx, greaterThan(input));
+    });
+
+    testWidgets('takes the slot over from the glyph', (
+      WidgetTester tester,
+    ) async {
+      await pump(
+        tester,
+        const FrostedTextField(
+          trailingIcon: Icons.close,
+          trailing: SizedBox(key: marker, width: 24),
+        ),
+      );
+
+      expect(find.byKey(marker), findsOneWidget);
+      expect(find.byIcon(Icons.close), findsNothing);
+    });
+
+    testWidgets('leaves the row alone when neither is given', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, const FrostedTextField());
+
+      expect(find.byKey(marker), findsNothing);
+    });
+  });
+
   group('FrostedTextField autofocus', () {
     testWidgets('takes focus on mount when set', (WidgetTester tester) async {
       await pump(tester, const FrostedTextField(autofocus: true));

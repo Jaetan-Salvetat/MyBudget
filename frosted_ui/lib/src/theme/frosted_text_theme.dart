@@ -2,10 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../foundations/frosted_type_scale.dart';
 
-/// Build a Material [TextTheme] backed by the Glass Expressive type scale.
-///
-/// `displayLarge` through `labelSmall` map 1:1 with the corresponding
-/// [FrostedTypeScale] entries.
 TextTheme buildFrostedTextTheme() {
   return TextTheme(
     displayLarge: FrostedTypeScale.displayLarge,

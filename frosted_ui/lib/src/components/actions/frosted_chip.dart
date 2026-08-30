@@ -9,8 +9,6 @@ import '_interactive_surface.dart';
 
 enum _ChipVariant { assist, filter, input, readOnly, suggestion }
 
-/// A compact, label-driven control used for filtering, tagging, suggesting,
-/// or triggering a contextual action.
 class FrostedChip extends StatelessWidget {
   const FrostedChip._({
     super.key,
@@ -24,7 +22,6 @@ class FrostedChip extends StatelessWidget {
     this.onDelete,
   }) : _variant = variant;
 
-  /// Contextual action — never carries a selected state.
   factory FrostedChip.assist({
     Key? key,
     required String label,
@@ -38,8 +35,6 @@ class FrostedChip extends StatelessWidget {
     onTap: onTap,
   );
 
-  /// On/off filter — shape morphs from rounded-rect to stadium when
-  /// selected.
   factory FrostedChip.filter({
     Key? key,
     required String label,
@@ -57,7 +52,6 @@ class FrostedChip extends StatelessWidget {
     onSelected: onSelected,
   );
 
-  /// Input tag with optional avatar and a trailing close affordance.
   factory FrostedChip.input({
     Key? key,
     required String label,
@@ -73,8 +67,6 @@ class FrostedChip extends StatelessWidget {
     onDelete: onDelete,
   );
 
-  /// Settled value the user cannot act on — filled, never greyed out. Use it
-  /// to display something the app has resolved, not something to tap.
   factory FrostedChip.readOnly({
     Key? key,
     required String label,
@@ -86,7 +78,6 @@ class FrostedChip extends StatelessWidget {
     icon: icon,
   );
 
-  /// Suggested option — outlined, primary-tinted label.
   factory FrostedChip.suggestion({
     Key? key,
     required String label,
@@ -134,13 +125,13 @@ class FrostedChip extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: _height,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: _shape(s),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            borderRadius: _shape(s),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: FrostedSpacing.sp3,
@@ -267,8 +258,6 @@ class FrostedChip extends StatelessWidget {
   }
 }
 
-/// The close target on an input chip. It carries its own surface so the ink
-/// stays on the icon rather than washing the whole chip behind it.
 class _DeleteAffordance extends StatelessWidget {
   const _DeleteAffordance({required this.onDelete, required this.color});
 
@@ -281,9 +270,8 @@ class _DeleteAffordance extends StatelessWidget {
   Widget build(BuildContext context) {
     return InteractiveSurface(
       onTap: onDelete,
-      builder: (BuildContext context, InteractionStates s) => s.ink(
-        borderRadius: BorderRadius.circular(FrostedRadius.full),
-        Icon(Icons.close, size: _glyphSize, color: color),
+      builder: (BuildContext context, InteractionStates s) => ClipOval(
+        child: s.ink(Icon(Icons.close, size: _glyphSize, color: color)),
       ),
     );
   }

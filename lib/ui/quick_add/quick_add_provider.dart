@@ -13,28 +13,21 @@ import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_provider.g.dart';
 
-/// Reads the input as it is typed : the amount lands at every keystroke, the
-/// model runs on the pause. Submitting creates the transaction straight away,
-/// the snackbar owns the way back.
 @riverpod
 class QuickAddNotifier extends _$QuickAddNotifier {
-  /// Long enough for a pause to read as one, short enough to feel live.
   static const Duration analysisDebounce = Duration(milliseconds: 200);
 
-  /// Shown when the model could not read the text. It names what the user has
-  /// left to do, not what broke : the cause goes to the logs.
   static const String unreadInputMessage =
       'Catégorie non reconnue, choisis-la.';
 
   Timer? _debounce;
   int _analysisSeq = 0;
 
-  /// The reading currently running, awaited when the user submits before it
-  /// has landed.
   Future<void>? _analysisRun;
 
   @override
@@ -59,8 +52,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     });
   }
 
-  /// Pins the day the user picked : it outlives every later reading, and only
-  /// goes away with the draft itself.
   void selectDate(DateTime date) {
     if (state.isEmpty) return;
     state = state.copyWith(date: date, isDatePinned: true);
@@ -70,8 +61,15 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     if (state.isEmpty || state.isStale) return;
 
     ref.read(categoryMemoryProvider).remember(state.memoryKey, slug);
-    state = state.copyWith(categorySlug: slug, categoryConfidence: 1.0);
+    state = state.copyWith(
+      categorySlug: slug,
+      categoryConfidence: 1.0,
+      type: _typeOfCategory(slug),
+    );
   }
+
+  TransactionType? _typeOfCategory(String slug) =>
+      ref.read(categoryDisplayResolverProvider).value?.resolve(slug)?.type;
 
   Future<QuickAddSubmission> submit(int accountId) async {
     await _settleAnalysis();
@@ -126,9 +124,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     );
   }
 
-  /// Une transaction dite aujourd'hui garde l'heure où elle l'a été : le
-  /// journal la range dans son moment de la journée. Un jour passé n'a pas
-  /// d'heure à retenir.
   DateTime _recordedAt(DateTime? date) {
     final now = DateTime.now();
     if (date == null) return now;
@@ -162,9 +157,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     _analysisSeq++;
   }
 
-  /// Brings the reading up to the text being submitted : the pause is cut
-  /// short, and a reading already running is waited on. Submitting must never
-  /// record what the model saw one keystroke ago.
   Future<void> _settleAnalysis() async {
     final pending = _debounce;
     if (pending != null && pending.isActive) {
@@ -175,9 +167,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     await _analysisRun;
   }
 
-  /// What regex alone can tell, without waiting for the model. The previously
-  /// understood category is carried over so the chips refresh instead of
-  /// blinking out at every keystroke.
   QuickAddDraft _instantDraft(String input) {
     final previous = state;
     final facts = QuickAddTextReader.read(input);
@@ -214,8 +203,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     String input,
     QuickAddClassification classification,
   ) {
-    // La memoire s'applique apres le modele : elle ne porte que la categorie,
-    // le type et la recurrence restent ceux qui viennent d'etre predits.
     final remembered = ref
         .read(categoryMemoryProvider)
         .recall(classification.cleanedText);
@@ -239,8 +226,6 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     );
   }
 
-  /// A reading that failed is still a reading that landed : the draft stops
-  /// waiting and keeps what regex alone could tell.
   QuickAddDraft _failedDraft(String input, String message) {
     final previous = state;
     final facts = QuickAddTextReader.read(input);

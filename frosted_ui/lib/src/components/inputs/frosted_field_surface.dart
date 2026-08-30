@@ -6,12 +6,6 @@ import '../../primitives/frosted_glass_level.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 
-/// The filled block shared by the form inputs (text field, search, dropdown,
-/// pickers).
-///
-/// Solid by default. When [glass] is true the fill becomes the standard Liquid
-/// Glass material — the same `regular` settings as the chrome bars — letting
-/// whatever sits behind the field show through. Opt-in per field.
 class FrostedFieldSurface extends StatelessWidget {
   const FrostedFieldSurface({
     required this.child,

@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
-/// The numeric values driving a single [FrostedGlassLevel].
 @immutable
 class FrostedGlassLevelSpec {
   const FrostedGlassLevelSpec({
@@ -11,15 +10,10 @@ class FrostedGlassLevelSpec {
     required this.darkVeilOpacity,
   });
 
-  /// Gaussian blur sigma applied to the backdrop.
   final double blurSigma;
 
-  /// Opacity of the white veil placed over the blurred backdrop when the
-  /// glass uses a light tone.
   final double lightVeilOpacity;
 
-  /// Opacity of the black veil placed over the blurred backdrop when the
-  /// glass uses a dark tone.
   final double darkVeilOpacity;
 
   FrostedGlassLevelSpec copyWith({

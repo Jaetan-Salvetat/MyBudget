@@ -10,7 +10,6 @@ import '_interactive_surface.dart';
 
 enum _SplitVariant { filled, tonal, outlined }
 
-/// A single menu item for a [FrostedSplitButton].
 class FrostedSplitMenuItem {
   const FrostedSplitMenuItem({
     required this.label,
@@ -23,12 +22,6 @@ class FrostedSplitMenuItem {
   final VoidCallback onTap;
 }
 
-/// A two-zone button: a primary action on the leading edge and a dropdown
-/// chevron on the trailing edge that surfaces a menu of related actions.
-///
-/// The two zones are separate segments split by a small gap. Outer corners
-/// are fully rounded; the inner corners (facing the gap) are softer. The
-/// chevron morphs to a circle while its menu is open, per M3 Expressive.
 class FrostedSplitButton extends StatelessWidget {
   const FrostedSplitButton._({
     super.key,
@@ -171,7 +164,7 @@ class _MainAction extends StatelessWidget {
           duration: motion.duration,
           curve: motion.curve,
           height: FrostedSplitButton._height,
-          alignment: Alignment.center,
+          clipBehavior: Clip.antiAlias,
           decoration: _decoration(
             cs: cs,
             s: s,
@@ -179,23 +172,24 @@ class _MainAction extends StatelessWidget {
             borderRadius: radius,
           ),
           child: s.ink(
-            borderRadius: radius,
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FrostedSpacing.sp5,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  if (icon != null) ...<Widget>[
-                    Icon(icon, size: 18, color: fg),
-                    const SizedBox(width: FrostedSpacing.sp2),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp5,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (icon != null) ...<Widget>[
+                      Icon(icon, size: 18, color: fg),
+                      const SizedBox(width: FrostedSpacing.sp2),
+                    ],
+                    Text(
+                      label,
+                      style: FrostedTypeScale.labelLarge.copyWith(color: fg),
+                    ),
                   ],
-                  Text(
-                    label,
-                    style: FrostedTypeScale.labelLarge.copyWith(color: fg),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -267,7 +261,7 @@ class _ChevronAction extends StatelessWidget {
               curve: motion.curve,
               height: FrostedSplitButton._height,
               width: FrostedSplitButton._height,
-              alignment: Alignment.center,
+              clipBehavior: Clip.antiAlias,
               decoration: _decoration(
                 cs: cs,
                 s: s,
@@ -275,12 +269,13 @@ class _ChevronAction extends StatelessWidget {
                 borderRadius: radius,
               ),
               child: s.ink(
-                borderRadius: radius,
-                AnimatedRotation(
-                  duration: motion.duration,
-                  curve: motion.curve,
-                  turns: open ? 0.5 : 0,
-                  child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+                Center(
+                  child: AnimatedRotation(
+                    duration: motion.duration,
+                    curve: motion.curve,
+                    turns: open ? 0.5 : 0,
+                    child: Icon(Icons.keyboard_arrow_down, size: 22, color: fg),
+                  ),
                 ),
               ),
             );

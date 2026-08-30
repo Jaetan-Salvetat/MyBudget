@@ -12,11 +12,6 @@ class CategoryOverrideNotifier extends _$CategoryOverrideNotifier {
     return ref.watch(categoryOverrideRepositoryProvider).getAll();
   }
 
-  /// Replaces the customisation of [slug] with the given state.
-  ///
-  /// A null field means "back to the taxonomy value", not "leave as is": the
-  /// caller always knows the full state it wants, and merging would make a
-  /// field impossible to reset. The row is dropped once nothing differs.
   Future<void> customize(
     String slug, {
     String? name,

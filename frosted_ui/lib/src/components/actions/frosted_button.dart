@@ -9,14 +9,6 @@ import '_interactive_surface.dart';
 
 enum _ButtonVariant { filled, tonal, outlined, text }
 
-/// A standard text button.
-///
-/// Comes in four flavours via named constructors: [filled], [tonal],
-/// [outlined], [text]. Pass `onPressed: null` to disable.
-///
-/// [shape] picks the resting form — [FrostedShape.rounded] by default, or
-/// [FrostedShape.pill] for the fully rounded form. A press morphs it into the
-/// other one and back, so the two shapes are each other's press state.
 class FrostedButton extends StatelessWidget {
   const FrostedButton._({
     super.key,
@@ -30,7 +22,6 @@ class FrostedButton extends StatelessWidget {
     this.destructive = false,
   }) : _variant = variant;
 
-  /// Solid filled button — primary action on a page.
   factory FrostedButton.filled({
     Key? key,
     required String label,
@@ -52,7 +43,6 @@ class FrostedButton extends StatelessWidget {
     destructive: destructive,
   );
 
-  /// Tonal button — secondary action, sits next to a filled one.
   factory FrostedButton.tonal({
     Key? key,
     required String label,
@@ -74,7 +64,6 @@ class FrostedButton extends StatelessWidget {
     destructive: destructive,
   );
 
-  /// Outlined button — alternative action, low emphasis.
   factory FrostedButton.outlined({
     Key? key,
     required String label,
@@ -96,7 +85,6 @@ class FrostedButton extends StatelessWidget {
     destructive: destructive,
   );
 
-  /// Text button — least emphasis. No background or border.
   factory FrostedButton.text({
     Key? key,
     required String label,
@@ -124,27 +112,17 @@ class FrostedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool expanded;
 
-  /// Swaps the primary role for the error role, marking the action as
-  /// irreversible. Disabled buttons stay neutral.
   final bool destructive;
 
-  /// The resting form. A press morphs it into [FrostedShape.opposite].
   final FrostedShape shape;
 
   final _ButtonVariant _variant;
 
-  /// Buttons carry a fixed height so the pill radius is exactly half of it,
-  /// which keeps the morph to [FrostedShape.rounded] a linear interpolation.
   static const double _height = 46;
   static const Size _box = Size(double.infinity, _height);
 
-  /// Easing for a surface that appears from nothing rather than shifting one
-  /// already on screen. Symmetric, so the first frames carry visible travel.
   static const Curve _arrivalCurve = Curves.easeInOutCubic;
 
-  /// Pressed state-layer weight. On a text button the layer is the whole
-  /// visible surface instead of a modulation of an opaque one, so it takes
-  /// more alpha to read at all.
   static const double _pressedOverlayAlpha = 0.12;
   static const double _pressedBareOverlayAlpha = 0.16;
 
@@ -154,11 +132,6 @@ class FrostedButton extends StatelessWidget {
     final FrostedMotionTokens motionTokens = context.frostedTokens.motion;
     final bool isText = _variant == _ButtonVariant.text;
 
-    // Every other variant already carries a surface at rest, so a press only
-    // shifts one that is on screen and the near-instant snappy settle reads
-    // fine. A text button has nothing at rest: its state layer has to arrive
-    // from transparent, and the spring-settle tokens are front-loaded enough
-    // to turn that arrival into a pop rather than a fade.
     final FrostedMotion motion = isText
         ? FrostedMotion(
             duration: motionTokens.snappy.duration,
@@ -174,10 +147,6 @@ class FrostedButton extends StatelessWidget {
         final Color fg = _resolveFg(cs, s);
         final BorderSide? border = _resolveBorder(cs, s);
 
-        // The padding sits inside the ripple rather than on the container, so
-        // the ink spreads over the whole surface instead of only the box the
-        // label occupies. Clipping is the container's job for the same reason:
-        // it follows the radius as the shape morphs.
         final Widget core = AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,

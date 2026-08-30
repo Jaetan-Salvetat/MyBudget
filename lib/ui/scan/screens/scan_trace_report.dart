@@ -2,25 +2,11 @@ import 'dart:convert';
 
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-/// La trace de scan en texte brut, une ligne par fait.
-///
-/// L'inspecteur montre les mêmes données, mais un écran ne se relit pas hors
-/// du téléphone : ce rapport se copie, se colle dans un ticket, et se rejoue
-/// contre la référence Python. Chaque ligne porte le préfixe [reportTag] pour
-/// être isolable d'un `logcat` bavard.
 const String reportTag = '[scan-trace]';
 
-/// Les fichiers déposés dans le stockage externe de l'app, à récupérer par
-/// `adb pull` : le rapport à lire, et les mots à rejouer.
 const String reportFileName = 'scan_trace.txt';
 const String wordsFileName = 'scan_trace.json';
 
-/// Les mots de chaque lecture, boîtes comprises, au format que la référence
-/// Python sait relire.
-///
-/// Le rapport se lit mais ne se rejoue pas : sans géométrie, impossible de
-/// refaire tourner le regroupement de lignes sur le cas qui a échoué. Ce sont
-/// les mots d'après le déskew — l'entrée exacte de `clusterLines`.
 String scanTraceWords(List<ReadTrace> trace) => const JsonEncoder.withIndent(
   '  ',
 ).convert({

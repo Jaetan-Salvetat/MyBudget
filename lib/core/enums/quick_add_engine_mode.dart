@@ -1,5 +1,3 @@
-/// Le moteur qui lit la saisie de l'ajout rapide. Seul ce choix est persisté :
-/// « clé saisie mais pas encore vérifiée » n'est pas un état durable.
 enum QuickAddEngineMode {
   onDevice(id: 'onDevice', label: 'Sur l\'appareil'),
   apiKey(id: 'apiKey', label: 'Clé personnelle');

@@ -5,7 +5,6 @@ import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-/// Rend la prédiction inscrite pour un libellé, `divers.autre` sinon.
 class _ScriptedLineClassifier implements ReceiptLineClassifier {
   _ScriptedLineClassifier(this.predictions);
 

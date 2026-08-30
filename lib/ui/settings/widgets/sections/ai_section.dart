@@ -49,8 +49,6 @@ class AiSection extends ConsumerWidget {
               MaterialPageRoute(builder: (_) => const QuickAddEngineScreen()),
             ),
           ),
-        // La clé et le modèle ne concernent que le moteur distant : ils
-        // n'apparaissent qu'une fois celui-ci choisi.
         if (quickAddEnabled && usesRemoteEngine) ...[
           FrostedListTile(
             title: 'Clé API',
@@ -79,7 +77,6 @@ class AiSection extends ConsumerWidget {
     );
   }
 
-  /// La mention « sur l'appareil » disparaît dès que ce n'est plus vrai.
   String _quickAddSubtitle(WidgetRef ref) {
     final bool isLocal =
         ref.watch(quickAddEngineModeProvider) ==

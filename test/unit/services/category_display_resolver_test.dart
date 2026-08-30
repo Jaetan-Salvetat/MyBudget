@@ -64,6 +64,20 @@ void main() {
       expect(resolver.groupsOfType(TransactionType.income).length, 4);
     });
 
+    test('lists every group, expenses first, when no type is given', () {
+      final groups = resolver.groupsOfType(null);
+
+      expect(groups.length, 16);
+      expect(
+        groups.take(12).map((group) => group.type),
+        everyElement(TransactionType.expense),
+      );
+      expect(
+        groups.skip(12).map((group) => group.type),
+        everyElement(TransactionType.income),
+      );
+    });
+
     test('lists the children of a group', () {
       expect(resolver.childrenOf('voyage').map((child) => child.label), [
         'Avion & train',
@@ -153,8 +167,6 @@ void main() {
   });
 
   group('moved nodes', () {
-    // Un noeud deplace garde son ancien slug (les transactions le referencent)
-    // et pointe vers sa nouvelle destination via alias_of.
     late CategoryDisplayResolver resolver;
 
     setUp(() {
@@ -275,7 +287,7 @@ void main() {
 
     setUp(() => resolver = resolverWith([]));
 
-    List<String> slugs(String query, TransactionType type) =>
+    List<String> slugs(String query, TransactionType? type) =>
         resolver.search(query, type).map((leaf) => leaf.slug).toList();
 
     test('returns nothing for a blank query', () {
@@ -311,6 +323,11 @@ void main() {
         slugs('salaire', TransactionType.income),
         contains('salaire.salaire_net'),
       );
+    });
+
+    test('searches both types when no type is given', () {
+      expect(slugs('salaire', null), contains('salaire.salaire_net'));
+      expect(slugs('cafe', null), contains('restauration.cafe'));
     });
 
     test('searches the customised label, not the taxonomy one', () {

@@ -1,8 +1,5 @@
 import 'dart:math' as math;
 
-/// A combination of large / medium / small item sizes that fits the carousel,
-/// with a cost heuristic. Direct port of M3's `Arrangement`
-/// (androidx.compose.material3.carousel) used by the multi-browse strategy.
 class CarouselArrangement {
   const CarouselArrangement({
     required this.priority,
@@ -40,8 +37,6 @@ class CarouselArrangement {
     return (targetLargeSize - largeSize).abs() * priority;
   }
 
-  /// Searches every permutation of the provided counts and returns the
-  /// arrangement with the lowest cost (closest to the target large size).
   static CarouselArrangement? findLowestCost({
     required double availableSpace,
     required double itemSpacing,

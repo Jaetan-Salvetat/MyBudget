@@ -8,9 +8,6 @@ import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
 
-/// Choisir « clé personnelle » ne change rien tant qu'aucune clé n'a été
-/// vérifiée : l'écran renvoie vers la saisie de clé plutôt que de basculer un
-/// moteur qui ne répondrait pas.
 class QuickAddEngineScreen extends ConsumerWidget {
   const QuickAddEngineScreen({super.key});
 

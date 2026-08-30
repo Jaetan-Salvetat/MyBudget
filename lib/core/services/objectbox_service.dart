@@ -16,8 +16,6 @@ import 'package:mybudget/objectbox.g.dart';
 class ObjectBoxService {
   late Store store;
 
-  /// The store browser, served on the device in debug builds only : the
-  /// release artifact does not carry it, so [Admin.isAvailable] answers no.
   Admin? _admin;
 
   late Box<BeneficiaryModel> beneficiaryBox;

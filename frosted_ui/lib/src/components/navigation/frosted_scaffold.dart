@@ -3,15 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../primitives/frosted_glass.dart';
 import '../../primitives/frosted_glass_level.dart';
 
-/// A [Scaffold] wrapper that builds its own drawer overlay so the scrim
-/// (blur + light voile) sits **above** the app bar instead of underneath it.
-///
-/// All standard Scaffold knobs are exposed; in addition, a custom drawer
-/// animation is managed internally. Reach for `FrostedScaffold.of(context)`
-/// to open or close the drawer from descendants.
-///
-/// `extendBody` and `extendBodyBehindAppBar` default to `true` — every
-/// Frosted UI chrome floats above content.
 class FrostedScaffold extends StatefulWidget {
   const FrostedScaffold({
     super.key,
@@ -44,24 +35,14 @@ class FrostedScaffold extends StatefulWidget {
   final bool extendBodyBehindAppBar;
   final bool resizeToAvoidBottomInset;
 
-  /// Width of the drawer panel. The drawer widget you pass should match (or
-  /// be constrained by) this value.
   final double drawerWidth;
 
-  /// Glass level of the scrim painted behind the drawer.
   final FrostedGlassLevel scrimLevel;
 
-  /// Glass tone of the scrim. Defaults to [FrostedGlassTone.dark] so the page
-  /// behind the drawer dims regardless of the ambient theme brightness.
   final FrostedGlassTone scrimTone;
 
-  /// Fires with `true` when the drawer finishes opening, `false` when it
-  /// finishes closing.
   final ValueChanged<bool>? onDrawerChanged;
 
-  /// Resolve the nearest [FrostedScaffoldState] from a descendant.
-  ///
-  /// Throws when no [FrostedScaffold] is found in the ancestor chain.
   static FrostedScaffoldState of(BuildContext context) {
     final FrostedScaffoldState? state = context
         .findAncestorStateOfType<FrostedScaffoldState>();
@@ -110,18 +91,15 @@ class FrostedScaffoldState extends State<FrostedScaffold>
     }
   }
 
-  /// Slide the drawer in.
   void openDrawer() {
     if (widget.drawer == null) return;
     _controller.forward();
   }
 
-  /// Slide the drawer out.
   void closeDrawer() {
     _controller.reverse();
   }
 
-  /// Open if closed, close if open.
   void toggleDrawer() {
     if (_controller.value >= 0.5) {
       closeDrawer();
@@ -130,7 +108,6 @@ class FrostedScaffoldState extends State<FrostedScaffold>
     }
   }
 
-  /// True once the drawer animation is past halfway.
   bool get isDrawerOpen => _controller.value > 0.5;
 
   @override

@@ -10,7 +10,6 @@ const double _kTrackHeight = 32;
 const double _kThumbSize = 24;
 const double _kPadding = 4;
 
-/// An iOS-style on/off toggle.
 class FrostedSwitch extends StatelessWidget {
   const FrostedSwitch({
     required this.value,
@@ -40,13 +39,13 @@ class FrostedSwitch extends StatelessWidget {
           curve: motion.curve,
           width: _kTrackWidth,
           height: _kTrackHeight,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: trackColor,
             borderRadius: BorderRadius.circular(FrostedRadius.full),
             border: border != null ? Border.fromBorderSide(border) : null,
           ),
           child: s.ink(
-            borderRadius: BorderRadius.circular(FrostedRadius.full),
             Padding(
               padding: const EdgeInsets.all(_kPadding),
               child: AnimatedAlign(

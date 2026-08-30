@@ -8,22 +8,6 @@ import '../../primitives/frosted_glass_level.dart';
 const double _kCompactHeight = 56;
 const double _kDefaultLargeHeight = 56;
 
-/// A collapsible top app bar in Liquid Glass, designed for use inside a
-/// `CustomScrollView`.
-///
-/// The bar starts expanded — a 56dp action row above a [largeTitleHeight]
-/// area reserved for the large title — and shrinks down to just the action
-/// row as the user scrolls. Pin it to the top via [SliverPersistentHeader].
-///
-/// Place it as the first sliver of a `CustomScrollView`:
-/// ```dart
-/// CustomScrollView(
-///   slivers: <Widget>[
-///     FrostedSliverTopBar(title: 'Library'),
-///     SliverList(...),
-///   ],
-/// )
-/// ```
 class FrostedSliverTopBar extends StatelessWidget {
   const FrostedSliverTopBar({
     required this.title,

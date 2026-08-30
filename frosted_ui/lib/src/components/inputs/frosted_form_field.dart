@@ -3,12 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 
-/// Wraps an arbitrary input [child] with a consistent label and
-/// helper / error line.
-///
-/// Use it to give a uniform vertical rhythm to controls that don't carry
-/// their own label (sliders, custom widgets). Pass [errorText] to drive the
-/// error state; it takes priority over [helperText].
 class FrostedFormField extends StatelessWidget {
   const FrostedFormField({
     required this.child,

@@ -4,11 +4,6 @@ import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 import 'frosted_field_surface.dart';
 
-/// A rounded search input.
-///
-/// Opaque M3 content surface on `surfaceContainerHigh`, with a leading search
-/// glyph and a trailing clear affordance that appears once text is entered.
-/// Set [glass] to render it on a blurred translucent veil (off-spec, opt-in).
 class FrostedSearchField extends StatefulWidget {
   const FrostedSearchField({
     this.controller,

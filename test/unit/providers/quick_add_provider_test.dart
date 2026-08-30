@@ -5,6 +5,7 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/services/category_memory_service.dart';
@@ -16,6 +17,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -25,6 +27,9 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
 class MockCategoryMemoryService extends Mock implements CategoryMemoryService {}
+
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
@@ -126,7 +131,6 @@ QuickAddClassification incomeClassification() {
   );
 }
 
-/// Long enough for the debounced analysis to have fired and settled.
 Future<void> pumpAnalysis() {
   return Future<void>.delayed(
     QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 120),
@@ -134,14 +138,24 @@ Future<void> pumpAnalysis() {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockExpenseRepository expenseRepository;
   late MockRevenueRepository revenueRepository;
   late MockClassifierService classifier;
   late MockCategoryMemoryService memory;
+  late MockCategoryOverrideRepository overrideRepository;
 
   setUpAll(() {
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeRevenueModel());
+  });
+
+  late CategoryTaxonomyService taxonomy;
+
+  setUpAll(() async {
+    taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
   });
 
   setUp(() async {
@@ -152,6 +166,9 @@ void main() {
     revenueRepository = MockRevenueRepository();
     classifier = MockClassifierService();
     memory = MockCategoryMemoryService();
+    overrideRepository = MockCategoryOverrideRepository();
+
+    when(() => overrideRepository.getAll()).thenReturn({});
 
     when(() => memory.recall(any())).thenReturn(null);
     when(() => memory.remember(any(), any())).thenAnswer((_) {});
@@ -175,11 +192,13 @@ void main() {
         revenueRepositoryProvider.overrideWithValue(revenueRepository),
         categoryMemoryProvider.overrideWithValue(memory),
         quickAddClassifierProvider.overrideWith((ref) => classifier),
+        categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          overrideRepository,
+        ),
       ],
     );
     addTearDown(container.dispose);
-    // The draft is auto-disposed: in the app a widget watches it, here the
-    // subscription plays that role.
     container.listen(quickAddProvider, (_, _) {}, fireImmediately: true);
     return container;
   }
@@ -469,6 +488,54 @@ void main() {
       final draft = container.read(quickAddProvider);
       expect(draft.categorySlug, 'restauration.bar');
       expect(draft.isCategoryUncertain, isFalse);
+    });
+
+    test('an income category turns the draft into a revenue', () async {
+      final container = makeContainer();
+      await container.read(categoryDisplayResolverProvider.future);
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      notifier.selectCategory('salaire.prime');
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.categorySlug, 'salaire.prime');
+      expect(draft.type, TransactionType.income);
+    });
+
+    test('an expense category turns the draft back into an expense', () async {
+      when(
+        () => classifier.classify(any()),
+      ).thenAnswer((_) async => incomeClassification());
+
+      final container = makeContainer();
+      await container.read(categoryDisplayResolverProvider.future);
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('salaire 2500');
+      await pumpAnalysis();
+
+      notifier.selectCategory('restauration.bar');
+
+      final draft = container.read(quickAddProvider);
+      expect(draft.type, TransactionType.expense);
+    });
+
+    test('a revenue is recorded when the pick changed the type', () async {
+      final container = makeContainer();
+      await container.read(categoryDisplayResolverProvider.future);
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+      notifier.selectCategory('salaire.prime');
+
+      await notifier.submit(3);
+
+      final revenue =
+          verify(() => revenueRepository.add(captureAny())).captured.single
+              as RevenueModel;
+      expect(revenue.categorySlug, 'salaire.prime');
+      verifyNever(() => expenseRepository.add(any()));
     });
   });
 

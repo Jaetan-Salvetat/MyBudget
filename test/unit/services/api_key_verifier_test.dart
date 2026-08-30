@@ -9,8 +9,6 @@ import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_verifier.dart';
 import 'package:openai_dart/openai_dart.dart';
 
-/// Un client qui répond ce qu'on lui dit, et qui note s'il a été appelé :
-/// un refus de format ne doit coûter aucun appel.
 class _StubChatClient implements AiChatClient {
   _StubChatClient({this.error});
 

@@ -1,7 +1,6 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 
-/// A date stripped of its hour, so two moments of the same day compare equal.
 DateTime dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
 bool isActiveForMonth(DateTime startDate, DateTime? endDate, DateTime month) {
@@ -12,15 +11,6 @@ bool isActiveForMonth(DateTime startDate, DateTime? endDate, DateTime month) {
   return true;
 }
 
-/// Whether a rule lands on [month] at all : it has to be alive that month,
-/// its frequency has to bring it round, and the day it lands on has to fall
-/// inside its own life.
-///
-/// That last check is what a month-wide window cannot say : a rule closed on
-/// the 29th never paid the 30th, even though both sit in the same month.
-///
-/// This is the single answer to "does this count for this month ?" — the
-/// lists and the totals both read it, so neither can drift from the other.
 bool occursInMonth(
   DateTime startDate,
   DateTime? endDate,
@@ -43,9 +33,6 @@ bool occursInMonth(
   return endDate == null || !landing.isAfter(dayOnly(endDate));
 }
 
-/// The date a rule lands on inside [month]. A recurring rule keeps the day it
-/// started on, brought back to the last day of shorter months ; a one-off
-/// keeps the moment it was recorded at.
 DateTime dayInMonthOf(
   DateTime startDate,
   Frequency frequency,
@@ -60,10 +47,6 @@ DateTime dayInMonthOf(
   );
 }
 
-/// Whether the rule's occurrence for the month of [asOf] has already fallen.
-///
-/// It is what tells a deletion apart : a month that has been paid has
-/// something to keep, a month still waiting for its turn has not.
 bool hasOccurredThisMonth(
   DateTime startDate,
   DateTime? endDate,
@@ -76,11 +59,6 @@ bool hasOccurredThisMonth(
   return !dayInMonthOf(startDate, frequency, month).isAfter(dayOnly(asOf));
 }
 
-/// The day a deletion stops the rule on.
-///
-/// Leaving the month its due, the rule ran until the deletion. Taking the
-/// month too, it stopped the eve of the occurrence it must not honour — which
-/// leaves every earlier month exactly as it was.
 DateTime closingDateOf(
   RecurringDeletion scope,
   DateTime startDate,
@@ -100,14 +78,9 @@ DateTime closingDateOf(
   }
 }
 
-/// Whether a rule has already lived by [asOf] : it has, from the day it
-/// starts on. One that has not has nothing to archive — closing it would
-/// write an end before its own start, and leave a row belonging to no month.
 bool hasStarted(DateTime startDate, DateTime asOf) =>
     !dayOnly(startDate).isAfter(dayOnly(asOf));
 
-/// The first day the rule taking over lands on : the next occurrence of
-/// [paymentDay], this month if it has not come round yet.
 DateTime computeNewStartDate(DateTime now, int paymentDay) {
   final clampedDay = clampDayOfMonth(now.year, now.month, paymentDay);
   if (now.day > clampedDay) {
@@ -120,19 +93,11 @@ DateTime computeNewStartDate(DateTime now, int paymentDay) {
   return DateTime(now.year, now.month, clampedDay);
 }
 
-/// The day of the month a recurring transaction lands on, brought back to the
-/// last day when the month is too short for it.
 int clampDayOfMonth(int year, int month, int day) {
   final maxDay = DateTime(year, month + 1, 0).day;
   return day > maxDay ? maxDay : day;
 }
 
-/// Whether a transaction falls on [day] : the day-level counterpart of
-/// [isActiveForMonth]. A recurring transaction lands on the day of the month
-/// it was started on, clamped to the last day of shorter months.
-///
-/// The bounds are read at day resolution, not month : a rule closed on the
-/// 3rd never lands on the 15th of the month it closed in.
 bool occursOnDay(
   DateTime startDate,
   DateTime? endDate,

@@ -10,29 +10,16 @@ import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
-/// One transaction of the journal. Every line carries the same typographic
-/// weight : what tells them apart is the avatar, the category colour and the
-/// place in the day — never a bigger number.
-///
-/// The avatar is the app's own [TransactionAvatar], the one the expenses and
-/// revenues lists already draw : one transaction, one face, wherever it is
-/// read.
 class JournalLine extends StatelessWidget {
   static const double radius = 18;
 
-  /// Le rail de la fenêtre d'annulation longe la ligne sans entrer dans sa
-  /// mise en page : rien ne se décale quand il apparaît.
   static const double _railInset = 6;
 
   final JournalEntry entry;
   final CategoryDisplay? category;
 
-  /// The slice the line sits in already names the day : the meta then shows
-  /// the hour. Further back it is the day that has to be said.
   final bool keepsTheHour;
 
-  /// La ligne vient de se poser : elle garde son rail et sa porte de sortie
-  /// le temps de la fenêtre d'annulation, puis rentre dans le rang.
   final bool isFresh;
 
   final VoidCallback? onUndo;
@@ -164,9 +151,6 @@ class JournalLine extends StatelessWidget {
   }
 }
 
-/// Le temps qu'il reste pour revenir en arrière, lisible d'un coup d'œil :
-/// un rail qui se vide le long de la ligne, jamais un aplat de couleur sur
-/// toute sa largeur.
 class _UndoRail extends StatelessWidget {
   static const double width = 2;
 
@@ -194,8 +178,6 @@ class _UndoRail extends StatelessWidget {
   }
 }
 
-/// La porte de sortie, dans le registre mono du reste de la ligne : elle se
-/// lit, elle ne se dispute pas la couleur de la catégorie.
 class _UndoLink extends StatelessWidget {
   final VoidCallback onTap;
 

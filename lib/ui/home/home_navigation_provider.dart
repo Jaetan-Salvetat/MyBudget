@@ -33,9 +33,6 @@ class HomeNavigationNotifier extends Notifier<HomeNavigationState> {
     state = state.copyWith(tab: tab);
   }
 
-  /// Android hands a top-level destination back to the start destination
-  /// before letting the back gesture leave the app. Returns whether the pop
-  /// was consumed here.
   bool handleBack() {
     if (state.tab == HomeTab.capture) return false;
     selectTab(HomeTab.capture);

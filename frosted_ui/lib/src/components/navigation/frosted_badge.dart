@@ -4,18 +4,9 @@ import '../../foundations/frosted_radius.dart';
 import '../../foundations/frosted_spacing.dart';
 import '../../foundations/frosted_type_scale.dart';
 
-/// A status badge that can decorate a navigation item, an avatar, an icon
-/// button, etc.
-///
-/// Two flavours are supported:
-///   - [FrostedBadge.dot]: a small filled disc, used to signal *some* new
-///     activity without a number.
-///   - [FrostedBadge.count]: a pill with an integer count, capped at [max]
-///     (overflow renders as `max+`).
 sealed class FrostedBadge {
   const FrostedBadge({this.color});
 
-  /// Override the badge background. Defaults to `Theme.colorScheme.error`.
   final Color? color;
 
   const factory FrostedBadge.dot({Color? color}) = _DotBadge;
@@ -34,10 +25,6 @@ class _CountBadge extends FrostedBadge {
   final int max;
 }
 
-/// Renders a [FrostedBadge] as a widget.
-///
-/// The badge sizes itself; wrap it in a [Stack] / [Positioned] to overlay it
-/// on top of another widget.
 class FrostedBadgeView extends StatelessWidget {
   const FrostedBadgeView({required this.badge, super.key});
 

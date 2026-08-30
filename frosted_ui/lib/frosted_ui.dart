@@ -23,6 +23,7 @@ export 'src/components/inputs/frosted_text_field.dart';
 export 'src/components/inputs/frosted_time_picker.dart';
 export 'src/components/navigation/frosted_adaptive_navigation.dart';
 export 'src/components/navigation/frosted_badge.dart';
+export 'src/components/navigation/frosted_bottom_bar.dart';
 export 'src/components/navigation/frosted_breadcrumb.dart';
 export 'src/components/navigation/frosted_drawer.dart';
 export 'src/components/navigation/frosted_fade_through_view.dart';

@@ -7,19 +7,6 @@ import 'frosted_scaffold.dart';
 import 'frosted_sidebar.dart';
 import 'frosted_nav_pill.dart';
 
-/// A complete adaptive screen layout that picks the right navigation
-/// component for the current window size:
-///
-/// | Width            | Navigation                                  |
-/// |------------------|---------------------------------------------|
-/// | < 600            | [FrostedNavPill] at the bottom                 |
-/// | 600 – 839        | Collapsed [FrostedNavigationRail] on the    |
-/// |                  | leading side                                |
-/// | 840 – 1239       | Extended [FrostedNavigationRail] leading    |
-/// | ≥ 1240           | [sidebar] when provided, else extended rail |
-///
-/// Place this widget at the root of a route — it builds the [FrostedScaffold]
-/// itself, so don't wrap it in another Scaffold.
 class FrostedAdaptiveNavigation extends StatelessWidget {
   const FrostedAdaptiveNavigation({
     required this.items,

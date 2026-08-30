@@ -12,9 +12,6 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import 'frosted_fab.dart';
 
-/// One entry in a [FrostedExpandableFab]'s fan-out.
-///
-/// The optional [label] rides on a chip to the left of its mini FAB.
 @immutable
 class FrostedFabAction {
   const FrostedFabAction({
@@ -28,13 +25,6 @@ class FrostedFabAction {
   final String? label;
 }
 
-/// A FAB that fans a stack of secondary actions out above itself.
-///
-/// The trigger stays put; the actions rise from behind it one after another
-/// over a glass scrim. Tapping the scrim, or any action, folds them back.
-///
-/// Drive it from the outside with a `GlobalKey<FrostedExpandableFabState>`
-/// when a screen needs to open or close it on its own.
 class FrostedExpandableFab extends StatefulWidget {
   const FrostedExpandableFab({
     required this.actions,
@@ -46,11 +36,8 @@ class FrostedExpandableFab extends StatefulWidget {
 
   final List<FrostedFabAction> actions;
 
-  /// Glyph shown while closed.
   final IconData icon;
 
-  /// Glyph shown while open. It replaces [icon] only once the fan-out has
-  /// fully deployed, where a quarter-turned [icon] already reads as it.
   final IconData closeIcon;
 
   final String? tooltip;
@@ -71,7 +58,6 @@ class FrostedExpandableFabState extends State<FrostedExpandableFab>
     duration: const Duration(milliseconds: 320),
   );
 
-  /// Whether the fan-out is deployed or on its way there.
   bool get isOpen => _portal.isShowing;
 
   @override
@@ -173,8 +159,6 @@ class FrostedExpandableFabState extends State<FrostedExpandableFab>
     );
   }
 
-  /// Actions read top-down in list order but deploy bottom-up, each one a
-  /// slice behind the one below it.
   Animation<double> _staggered(int index) {
     final int count = widget.actions.length;
     final int rank = count - 1 - index;

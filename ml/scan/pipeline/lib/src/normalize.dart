@@ -1,10 +1,3 @@
-/// Forme canonique d'un texte avant le modèle : le ticket comme la saisie.
-///
-/// Miroir exact de `ml/classifier/serving/normalize.py`, vérifié par
-/// `test/normalization_test.dart` sur les fixtures
-/// `receipt_line_normalization.json` et `query_normalization.json`. Une
-/// divergence ici enverrait au modèle un texte qu'il n'a pas vu à
-/// l'entraînement.
 library;
 
 import 'accent_fold.dart';
@@ -32,8 +25,6 @@ final RegExp _spaces = RegExp(r'\s+');
 final RegExp _dotGlue = RegExp(r'(?<=[^\W\d])\.(?=[^\W\d])');
 final RegExp _edgePunctuation = RegExp(r'^[ .,;:\-*]+|[ .,;:\-*]+$');
 
-/// Apostrophes typographiques, tirets longs et espaces insécables : ce que les
-/// claviers et les copier-coller glissent à la place du caractère ASCII.
 const Map<String, String> _substitutions = {
   '’': "'",
   '‘': "'",
@@ -50,21 +41,14 @@ const Map<String, String> _substitutions = {
   ' ': ' ',
 };
 
-/// Écrite en toutes lettres et non `[^\w\s]` : `\w` couvre les lettres
-/// accentuées chez Python et l'ASCII seul chez Dart, et le miroir divergerait
-/// sur « ø » ou « æ ».
 final RegExp _repeatedPunctuation = RegExp(
   '([' r'''&+/\\,;:!?()\[\]{}<>|="«»*#~.'\-_@%''' r'])\1+',
 );
 
-/// La ponctuation qui colle deux mots : « father &son » est « father & son ».
 final RegExp _spacedPunctuation = RegExp(
   '([' r'&+/\\,;:!?()\[\]{}<>|="«»*#~' '])',
 );
 
-/// Un texte peut arriver décomposé (macOS et iOS écrivent « café » en NFD) : la
-/// lettre est alors nue et l'accent la suit en caractère séparé, qu'aucune table
-/// de précomposés ne peut attraper. Mêmes plages que la référence Python.
 const List<List<int>> _combiningRanges = [
   [0x0300, 0x0370],
   [0x1AB0, 0x1B00],
@@ -81,10 +65,6 @@ bool _isCombining(String char) {
   return false;
 }
 
-/// Minuscules, sans accents, ponctuation décollée — la forme exacte du corpus.
-///
-/// Ce que cette fonction traite, le modèle n'a pas à l'apprendre : « father
-/// &son » et « Father & Son » sont la même chaîne avant de l'atteindre.
 String normalizeQuery(String text) {
   final buffer = StringBuffer();
   for (final char in text.split('')) {
@@ -98,10 +78,6 @@ String normalizeQuery(String text) {
   return out.replaceAll(_spaces, ' ').trim();
 }
 
-/// Un libellé imprimé, débarrassé de ce que personne ne tape : astérisques de
-/// tête, code-barres, contenance (« 4X125G »), compteur (« X6 »). Rien n'est
-/// réécrit, on ne fait que retirer, puis la forme canonique est la même que
-/// celle d'une saisie.
 String normalizeReceiptLine(String line) {
   var text = line.replaceFirst(_leadingMarkers, '');
   text = text.replaceFirst(_trailingMarkers, '');

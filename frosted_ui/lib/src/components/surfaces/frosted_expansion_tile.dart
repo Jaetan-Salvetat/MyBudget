@@ -8,10 +8,6 @@ import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 import 'frosted_list_tile.dart';
 
-/// A collapsible section built on the segmented-list surface: a filled,
-/// rounded header (icon + title, a chevron that rotates) that reveals [child]
-/// on tap. Shares [FrostedTilePosition] with [FrostedListTile] so it can sit
-/// inside a [FrostedListSection] as one of the group.
 class FrostedExpansionTile extends StatefulWidget {
   const FrostedExpansionTile({
     required this.title,
@@ -19,6 +15,8 @@ class FrostedExpansionTile extends StatefulWidget {
     this.leading,
     this.subtitle,
     this.initiallyExpanded = false,
+    this.expanded,
+    this.onExpansionChanged,
     this.position = FrostedTilePosition.single,
     super.key,
   });
@@ -28,15 +26,21 @@ class FrostedExpansionTile extends StatefulWidget {
   final Widget? leading;
   final Widget child;
   final bool initiallyExpanded;
+
+  final bool? expanded;
+
+  final ValueChanged<bool>? onExpansionChanged;
+
   final FrostedTilePosition position;
 
-  /// Copy with a resolved [position] — used by [FrostedListSection].
   FrostedExpansionTile withPosition(FrostedTilePosition value) =>
       FrostedExpansionTile(
         title: title,
         subtitle: subtitle,
         leading: leading,
         initiallyExpanded: initiallyExpanded,
+        expanded: expanded,
+        onExpansionChanged: onExpansionChanged,
         position: value,
         key: key,
         child: child,
@@ -47,14 +51,20 @@ class FrostedExpansionTile extends StatefulWidget {
 }
 
 class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
-  late bool _expanded = widget.initiallyExpanded;
+  late bool _ownExpanded = widget.initiallyExpanded;
+
+  bool get _expanded => widget.expanded ?? _ownExpanded;
+
+  void _handleTap() {
+    final bool next = !_expanded;
+    if (widget.expanded == null) setState(() => _ownExpanded = next);
+    widget.onExpansionChanged?.call(next);
+  }
 
   static const double _outer = FrostedRadius.lg;
   static const double _inner = FrostedRadius.sm;
   static const double _headerHeight = 56;
 
-  // When expanded, the header's bottom corners stay tight against the revealed
-  // body so the two read as one block; the body carries the bottom rounding.
   BorderRadius _shape(InteractionStates s, {required bool header}) {
     if (s.pressed && !_expanded) return BorderRadius.circular(_outer);
 
@@ -80,7 +90,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
     final Radius bottom = roundBottom ? outerR : innerR;
 
     if (header) {
-      // Expanded → flat bottom so it meets the body seamlessly.
       return BorderRadius.only(
         topLeft: topLeading,
         topRight: topTrailing,
@@ -88,7 +97,6 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
         bottomRight: _expanded ? Radius.zero : bottom,
       );
     }
-    // Body: only bottom corners.
     return BorderRadius.only(bottomLeft: bottom, bottomRight: bottom);
   }
 
@@ -98,7 +106,7 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
 
     final Widget header = InteractiveSurface(
-      onTap: () => setState(() => _expanded = !_expanded),
+      onTap: _handleTap,
       semanticsLabel: widget.title,
       semanticsSelected: _expanded,
       builder: (BuildContext context, InteractionStates s) {
@@ -119,12 +127,12 @@ class _FrostedExpansionTileState extends State<FrostedExpansionTile> {
         return AnimatedContainer(
           duration: motion.duration,
           curve: motion.curve,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: fill,
             borderRadius: _shape(s, header: true),
           ),
           child: s.ink(
-            borderRadius: _shape(s, header: true),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: _headerHeight),
               child: Padding(

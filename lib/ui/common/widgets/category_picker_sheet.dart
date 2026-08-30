@@ -10,12 +10,11 @@ import 'package:mybudget/ui/common/widgets/expandable_group.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Two-level taxonomy picker: pick a group, then one of its subcategories.
-///
-/// Only leaves can be picked: a group slug stored on a transaction would not
-/// resolve and the amount would fall into "Non catégorisé".
 class CategoryPickerSheet extends ConsumerStatefulWidget {
-  final TransactionType type;
+  static const String expensesLabel = 'Dépenses';
+  static const String incomeLabel = 'Revenus';
+
+  final TransactionType? type;
   final String? selectedSlug;
   final List<String> suggestions;
 
@@ -28,7 +27,7 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
 
   static Future<String?> show(
     BuildContext context, {
-    TransactionType type = TransactionType.expense,
+    TransactionType? type = TransactionType.expense,
     String? selectedSlug,
     List<String> suggestions = const [],
   }) {
@@ -93,8 +92,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     );
   }
 
-  /// The group of the current selection starts open, but only until the user
-  /// touches the tree: reopening it on every rebuild would fight their taps.
   void _openSelectedGroupOnce(CategoryDisplayResolver resolver) {
     if (_didOpenSelectedGroup) return;
     _didOpenSelectedGroup = true;
@@ -151,9 +148,27 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           for (final leaf in frequent)
             _leafTile(leaf, subtitle: leaf.groupLabel),
         ],
-        if (suggestions.isNotEmpty || frequent.isNotEmpty)
+        if (widget.type != null && (suggestions.isNotEmpty || frequent.isNotEmpty))
           const _SectionLabel('Toutes les catégories'),
-        for (final group in resolver.groupsOfType(widget.type))
+        ..._groupSections(resolver),
+      ],
+    );
+  }
+
+  List<Widget> _groupSections(CategoryDisplayResolver resolver) {
+    final spansBothTypes = widget.type == null;
+
+    return [
+      for (final type in spansBothTypes
+          ? TransactionType.values
+          : [widget.type!]) ...[
+        if (spansBothTypes)
+          _SectionLabel(
+            type == TransactionType.expense
+                ? CategoryPickerSheet.expensesLabel
+                : CategoryPickerSheet.incomeLabel,
+          ),
+        for (final group in resolver.groupsOfType(type))
           _GroupSection(
             group: group,
             children: resolver.childrenOf(group.groupKey),
@@ -166,7 +181,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
             leafBuilder: _leafTile,
           ),
       ],
-    );
+    ];
   }
 
   Widget _leafTile(

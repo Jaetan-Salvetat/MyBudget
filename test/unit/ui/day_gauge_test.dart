@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
@@ -42,12 +43,79 @@ void main() {
     );
   });
 
+  const double gaugeWidth = 400;
+
+  List<GaugeSegment> segmentsOf(List<double> weights) => [
+    for (final weight in weights) GaugeSegment(color: fallback, weight: weight),
+  ];
+
+  Future<void> pumpGauge(WidgetTester tester, List<GaugeSegment> segments) {
+    return tester.pumpWidget(
+      MaterialApp(
+        theme: FrostedTheme.light(seedColor: fallback),
+        home: Center(
+          child: SizedBox(
+            width: gaugeWidth,
+            child: DayGauge(segments: segments),
+          ),
+        ),
+      ),
+    );
+  }
+
+  double drawnWidth(WidgetTester tester) {
+    final bars = find.descendant(
+      of: find.byType(DayGauge),
+      matching: find.byType(DecoratedBox),
+    );
+
+    return tester
+        .widgetList<DecoratedBox>(bars)
+        .indexed
+        .fold(0.0, (sum, bar) => sum + tester.getSize(bars.at(bar.$1)).width);
+  }
+
+  testWidgets('the bars fill the width they are given, no more', (
+    WidgetTester tester,
+  ) async {
+    await pumpGauge(tester, segmentsOf([60, 40]));
+    await tester.pumpAndSettle();
+
+    expect(drawnWidth(tester), lessThanOrEqualTo(gaugeWidth));
+    expect(
+      drawnWidth(tester),
+      moreOrLessEquals(gaugeWidth - DayGauge.gap, epsilon: 0.01),
+    );
+  });
+
+  testWidgets('a day changing shape never overflows mid-animation', (
+    WidgetTester tester,
+  ) async {
+    await pumpGauge(tester, segmentsOf([60, 40]));
+    await tester.pumpAndSettle();
+
+    await pumpGauge(tester, segmentsOf([20, 20, 20, 20, 20]));
+
+    for (var frame = 0; frame < 20; frame++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.takeException(), isNull);
+      expect(drawnWidth(tester), lessThanOrEqualTo(gaugeWidth));
+    }
+
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   test('one segment per category, heaviest first', () {
-    final segments = GaugeSegment.forDay([
-      entryOf(id: 1, amount: 4, categorySlug: 'alimentation.supermarche'),
-      entryOf(id: 2, amount: 68, categorySlug: 'transport.essence'),
-      entryOf(id: 3, amount: 42, categorySlug: 'alimentation.supermarche'),
-    ], resolver, fallback);
+    final segments = GaugeSegment.forDay(
+      [
+        entryOf(id: 1, amount: 4, categorySlug: 'alimentation.supermarche'),
+        entryOf(id: 2, amount: 68, categorySlug: 'transport.essence'),
+        entryOf(id: 3, amount: 42, categorySlug: 'alimentation.supermarche'),
+      ],
+      resolver,
+      fallback,
+    );
 
     expect(segments.length, 2);
     expect(segments.first.weight, 68);
@@ -55,36 +123,46 @@ void main() {
   });
 
   test('leaves revenues out : the gauge reads what the day cost', () {
-    final segments = GaugeSegment.forDay([
-      entryOf(id: 1, amount: 42, categorySlug: 'alimentation.supermarche'),
-      entryOf(
-        id: 2,
-        amount: 2000,
-        categorySlug: 'revenus.salaire',
-        type: TransactionType.income,
-      ),
-    ], resolver, fallback);
+    final segments = GaugeSegment.forDay(
+      [
+        entryOf(id: 1, amount: 42, categorySlug: 'alimentation.supermarche'),
+        entryOf(
+          id: 2,
+          amount: 2000,
+          categorySlug: 'revenus.salaire',
+          type: TransactionType.income,
+        ),
+      ],
+      resolver,
+      fallback,
+    );
 
     expect(segments.single.weight, 42);
   });
 
   test('an uncategorised line still weighs on the day', () {
-    final segments = GaugeSegment.forDay([
-      entryOf(id: 1, amount: 12),
-    ], resolver, fallback);
+    final segments = GaugeSegment.forDay(
+      [entryOf(id: 1, amount: 12)],
+      resolver,
+      fallback,
+    );
 
     expect(segments.single.color, fallback);
   });
 
   test('never draws more segments than it can show', () {
-    final segments = GaugeSegment.forDay([
-      entryOf(id: 1, amount: 10, categorySlug: 'alimentation.supermarche'),
-      entryOf(id: 2, amount: 20, categorySlug: 'transport.essence'),
-      entryOf(id: 3, amount: 30, categorySlug: 'logement.loyer'),
-      entryOf(id: 4, amount: 40, categorySlug: 'sante.pharmacie'),
-      entryOf(id: 5, amount: 50, categorySlug: 'loisirs.sport'),
-      entryOf(id: 6, amount: 60, categorySlug: 'restauration.cafe'),
-    ], resolver, fallback);
+    final segments = GaugeSegment.forDay(
+      [
+        entryOf(id: 1, amount: 10, categorySlug: 'alimentation.supermarche'),
+        entryOf(id: 2, amount: 20, categorySlug: 'transport.essence'),
+        entryOf(id: 3, amount: 30, categorySlug: 'logement.loyer'),
+        entryOf(id: 4, amount: 40, categorySlug: 'sante.pharmacie'),
+        entryOf(id: 5, amount: 50, categorySlug: 'loisirs.sport'),
+        entryOf(id: 6, amount: 60, categorySlug: 'restauration.cafe'),
+      ],
+      resolver,
+      fallback,
+    );
 
     expect(segments.length, lessThanOrEqualTo(DayGauge.maxSegments));
   });

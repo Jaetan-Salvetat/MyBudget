@@ -28,6 +28,7 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
 
@@ -153,10 +154,22 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsNothing);
   });
 
-  testWidgets('offers a way out as soon as the field is focused', (
+  testWidgets('n\'offre pas de sortie sur un champ vide, meme vise', (
     tester,
   ) async {
     await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.close_rounded), findsNothing);
+  });
+
+  testWidgets('offers a way out as soon as there is something to clear', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'mc do');
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
@@ -232,6 +245,9 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  Color glyphColor(WidgetTester tester, IconData icon) =>
+      tester.widget<Icon>(find.byIcon(icon)).color!;
+
   BoxDecoration roundButtonSkin(WidgetTester tester, IconData icon) {
     final button = tester.widget<AnimatedContainer>(
       find
@@ -245,26 +261,139 @@ void main() {
     return button.decoration! as BoxDecoration;
   }
 
-  testWidgets('le bouton d\'envoi n\'a qu\'une peau, du brouillon au check', (
+  testWidgets('l\'envoi vit dans le champ, pas a cote', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    expect(
+      find.descendant(
+        of: find.byType(FrostedTextField),
+        matching: find.byIcon(Symbols.arrow_upward_rounded),
+      ),
+      findsOneWidget,
+    );
+
+    final field = tester.getRect(find.byType(FrostedTextField));
+    final send = tester.getRect(find.byIcon(Symbols.arrow_upward_rounded));
+    expect(field.contains(send.center), isTrue);
+  });
+
+  void classifyAmountOnlyWithDigits() {
+    when(() => classifier.classify(any())).thenAnswer((invocation) async {
+      final input = invocation.positionalArguments.first as String;
+      return QuickAddClassification(
+        type: TransactionType.expense,
+        category: taxonomy.resolve('restauration.fast_food')!,
+        frequency: Frequency.oneTime,
+        date: DateTime(2026, 8, 20),
+        amount: input.contains(RegExp(r'\d')) ? 12.0 : null,
+        name: 'Mc do',
+        typeConfidence: 0.99,
+        categoryConfidence: 0.9,
+        recurrenceConfidence: 0.9,
+        cleanedText: 'mc do',
+      );
+    });
+  }
+
+  testWidgets('la sortie tient le bord du champ tant qu\'il n\'y a rien a '
+      'envoyer', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    classifyAmountOnlyWithDigits();
+
+    await typeAndAnalyze(tester, 'mc do');
+    final alone = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await typeAndAnalyze(tester, 'mc do 12');
+    final shifted = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    expect(shifted.right, lessThan(alone.right));
+    expect(
+      alone.right - shifted.right,
+      moreOrLessEquals(
+        QuickAddSendAction.slot + FrostedSpacing.sp2,
+        epsilon: 0.5,
+      ),
+    );
+  });
+
+  testWidgets('la sortie glisse au lieu de sauter quand l\'envoi arrive', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    classifyAmountOnlyWithDigits();
+
+    await typeAndAnalyze(tester, 'mc do');
+    final alone = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await tester.enterText(find.byType(TextField), 'mc do 12');
+    await tester.pump(
+      QuickAddNotifier.analysisDebounce + const Duration(milliseconds: 50),
+    );
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 40));
+    final midway = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    await tester.pumpAndSettle();
+    final settled = tester.getRect(find.byIcon(Symbols.close_rounded));
+
+    expect(midway.right, lessThan(alone.right));
+    expect(midway.right, greaterThan(settled.right));
+  });
+
+  testWidgets('l\'envoi n\'apparait que quand il y a de quoi envoyer', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
+
+    classifyAmountOnlyWithDigits();
+    await typeAndAnalyze(tester, 'mc do');
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsNothing);
+
+    await typeAndAnalyze(tester, 'mc do 12');
+    expect(find.byIcon(Symbols.arrow_upward_rounded), findsOneWidget);
+  });
+
+  testWidgets('l\'envoi garde sa couleur, de la fleche au check', (
     tester,
   ) async {
     await pumpBar(tester);
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
-    final ready = roundButtonSkin(tester, Symbols.arrow_upward_rounded);
-    expect(ready.border, isNull);
-    expect(ready.boxShadow, isNull);
+    final ready = glyphColor(tester, Symbols.arrow_upward_rounded);
 
     await tester.tap(find.byIcon(Symbols.arrow_upward_rounded));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
-    expect(roundButtonSkin(tester, Symbols.check_rounded).color, ready.color);
+    expect(glyphColor(tester, Symbols.check_rounded), ready);
 
     await tester.pump(QuickAddBarState.sentFlash);
     await tester.pump(QuickAddRecentSubmissions.retention);
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('l\'accent tient a l\'envoi, le scan reste le second geste', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+    await typeAndAnalyze(tester, 'mc do 12');
+
+    final scheme = AppTheme.light().colorScheme;
+
+    expect(glyphColor(tester, Symbols.arrow_upward_rounded), scheme.primary);
+    expect(
+      roundButtonSkin(tester, Symbols.photo_camera_rounded).color,
+      isNot(scheme.primary),
+    );
   });
 
   testWidgets('la ligne de compte s\'aligne sur le champ, pas sur le scan', (
@@ -285,8 +414,6 @@ void main() {
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 
-    // The journal is what keeps the submission alive in the app ; here it
-    // stands in for it.
     final container = ProviderScope.containerOf(
       tester.element(find.byType(QuickAddBar)),
     );
@@ -324,7 +451,6 @@ void main() {
     await tester.pump(QuickAddBarState.sentFlash);
     await tester.pumpAndSettle();
 
-    // Le brouillon est reparti à vide : le bouton redevient le raccourci scan.
     expect(find.byIcon(Symbols.check_rounded), findsNothing);
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
 
@@ -353,8 +479,6 @@ void main() {
 
     expect(container.read(quickAddProvider).isEmpty, isTrue);
 
-    // Vider le champ n'est pas en sortir : la frappe suivante part tout de
-    // suite, sans re-viser le champ.
     final field = tester.widget<TextField>(find.byType(TextField));
     expect(field.controller!.text, '');
     expect(field.focusNode!.hasFocus, isTrue);

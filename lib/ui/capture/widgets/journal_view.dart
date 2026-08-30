@@ -22,31 +22,31 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
-/// The past read backwards from now, in slices that coarsen as they age :
-/// today flush against the top, then yesterday, the week, the month, and
-/// every month before it. The list is what the page is about — the figure
-/// above only says what it costs.
-///
-/// Rows are laid out flat and built on demand : a couple of years of history
-/// is a couple of thousand lines, and none of the ones off screen are worth
-/// an element.
 class JournalView extends ConsumerStatefulWidget {
-  /// How far the top of the list dissolves once it has been scrolled. At rest
-  /// there is no fade at all : nothing has gone under the edge yet.
   static const double edgeFade = 40;
 
   static const String emptyMessage =
       'Rien encore. Dis-le comme ça te vient, ou photographie le ticket.';
 
-  /// Past the first few lines the stagger stops : the rest is scrolled to,
-  /// not opened onto.
   static const int staggeredLines = 8;
 
-  /// La liste se dissout sur son bord bas plutôt que d'être coupée net par
-  /// le dock : on lit deux plans, pas deux calques.
-  static const double bottomFade = 28;
+  final double bottomInset;
 
-  const JournalView({super.key});
+  const JournalView({required this.bottomInset, super.key});
+
+  static LinearGradient edgeGradient({
+    required double scrolled,
+    required double height,
+  }) {
+    final top = (scrolled.clamp(0.0, edgeFade) / height).clamp(0.0, 1.0);
+
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: const [Colors.transparent, Colors.black, Colors.black],
+      stops: [0, top, 1],
+    );
+  }
 
   @override
   ConsumerState<JournalView> createState() => _JournalViewState();
@@ -55,12 +55,8 @@ class JournalView extends ConsumerStatefulWidget {
 class _JournalViewState extends ConsumerState<JournalView> {
   final ScrollController _scroll = ScrollController();
 
-  /// Months the reader has folded away. Everything opens open.
   final Set<String> _folded = <String>{};
 
-  /// La cascade d'ouverture n'appartient qu'à l'arrivée sur la page. Passé la
-  /// première frame, une ligne qui s'insère ne doit pas rejouer l'ouverture de
-  /// toutes celles qu'elle décale.
   bool _opened = false;
 
   @override
@@ -99,7 +95,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
         controller: _scroll,
         physics: const BouncingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(bottom: FrostedSpacing.sp3),
+        padding: EdgeInsets.only(bottom: widget.bottomInset),
         itemCount: rows.length,
         itemBuilder: (context, index) =>
             _buildRow(context, rows[index], resolver, submissions),
@@ -135,7 +131,6 @@ class _JournalViewState extends ConsumerState<JournalView> {
 
       DayMoment? previousMoment;
       for (final entry in bucket.entries) {
-        // Moments only ever cut a day up : anything coarser dates its lines.
         final moment = bucket.keepsTheHour && entry.hasTime
             ? DayMoment.ofHour(entry.at.hour)
             : null;
@@ -234,12 +229,8 @@ class _JournalViewState extends ConsumerState<JournalView> {
       onUndo: fresh == null ? null : () => _undo(ref, fresh),
     );
 
-    // Seule la dernière dite ouvre un créneau : dans une rafale, les
-    // précédentes sont déjà posées, elles n'ont pas à se reposer.
     final landing = submissions.isNotEmpty && _isLast(entry, submissions);
     if (landing) {
-      // Une clé par occurrence, sinon la liste recycle l'élément de la ligne
-      // d'avant et la nouvelle hérite d'un créneau déjà ouvert.
       return JournalLanding(
         key: ValueKey<String>(
           '${entry.source.name}-${entry.id}-${entry.at.microsecondsSinceEpoch}',
@@ -258,8 +249,6 @@ class _JournalViewState extends ConsumerState<JournalView> {
     return entry.sameTransaction(last.type, last.id);
   }
 
-  /// Today always opens the list, even with nothing on it : the page has to
-  /// say where "now" is before it says what came before.
   List<JournalBucket> _withToday(List<JournalBucket> buckets) {
     if (buckets.isNotEmpty && buckets.first.kind == JournalBucketKind.today) {
       return buckets;
@@ -275,27 +264,10 @@ class _JournalViewState extends ConsumerState<JournalView> {
     ];
   }
 
-  /// Le haut ne dissout que ce qui est passé sous le bord — rien, au repos,
-  /// donc la première ligne reste franche. Le bas se dissout toujours : c'est
-  /// là que la liste passe sous le dock.
-  Shader _fade(Rect bounds) {
-    final scrolled = _scroll.hasClients ? _scroll.offset : 0.0;
-    final bottom = 1 - JournalView.bottomFade / bounds.height;
-    final top = (scrolled.clamp(0.0, JournalView.edgeFade) / bounds.height)
-        .clamp(0.0, bottom);
-
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: const [
-        Colors.transparent,
-        Colors.black,
-        Colors.black,
-        Colors.transparent,
-      ],
-      stops: [0, top, bottom, 1],
-    ).createShader(bounds);
-  }
+  Shader _fade(Rect bounds) => JournalView.edgeGradient(
+    scrolled: _scroll.hasClients ? _scroll.offset : 0,
+    height: bounds.height,
+  ).createShader(bounds);
 
   Future<void> _undo(WidgetRef ref, QuickAddSubmission submission) async {
     ref.read(quickAddRecentSubmissionsProvider.notifier).dismiss(submission);
@@ -472,8 +444,6 @@ class _MomentLabel extends StatelessWidget {
   }
 }
 
-/// The first lines land one after another rather than all at once : the eye
-/// follows the list instead of meeting a block.
 class _Rise extends StatefulWidget {
   static const Duration duration = Duration(milliseconds: 460);
   static const Duration step = Duration(milliseconds: 45);

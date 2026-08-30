@@ -5,7 +5,6 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-/// Read-only field showing the picked category, tapping opens the picker.
 class CategoryField extends ConsumerWidget {
   final String? slug;
   final VoidCallback onTap;

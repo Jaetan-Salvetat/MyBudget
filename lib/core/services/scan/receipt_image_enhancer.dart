@@ -6,10 +6,6 @@ const int _unsharpRadius = 2;
 const double _unsharpAmount = 1.5;
 const int _jpegQuality = 90;
 
-/// Prétraitement de la seconde passe OCR quand le checksum échoue :
-/// autocontrast + unsharp + upscale 2400 px. Récupère ~10 % des échecs de la
-/// première passe (mesuré sur corpus, voir ml/scan/README.md). Tourne dans un
-/// isolate : plusieurs secondes de calcul pur Dart sur une photo de téléphone.
 Future<Uint8List> enhanceReceiptForRetry(Uint8List bytes) {
   return compute(_enhance, bytes);
 }
@@ -31,9 +27,6 @@ Uint8List _enhance(Uint8List bytes) {
   return Uint8List.fromList(img.encodeJpg(image, quality: _jpegQuality));
 }
 
-/// Les décodeurs du paquet `image` signalent une entrée corrompue de plusieurs
-/// façons — null, ou une erreur d'indice levée depuis le format sondé. Le
-/// prétraitement n'en connaît qu'une : l'image n'est pas lisible.
 img.Image _decode(Uint8List bytes) {
   final img.Image? decoded;
   try {

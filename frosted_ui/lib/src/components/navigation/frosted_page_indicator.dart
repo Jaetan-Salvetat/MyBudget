@@ -4,16 +4,12 @@ import '../../foundations/frosted_radius.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 
-/// Visual styles for [FrostedPageIndicator].
 enum FrostedPageIndicatorStyle {
-  /// Round dots; the active dot is filled with the primary color.
   dots,
 
-  /// Pill segments; the active segment is filled and elongated.
   bar,
 }
 
-/// A compact page indicator for carousels and onboarding flows.
 class FrostedPageIndicator extends StatelessWidget {
   const FrostedPageIndicator({
     required this.count,

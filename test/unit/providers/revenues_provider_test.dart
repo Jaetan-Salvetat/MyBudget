@@ -77,7 +77,10 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    expect(container.read(monthlyRevenuesProvider), 0.0);
+    expect(
+      container.read(monthlyRevenuesProvider),
+      0.0,
+    );
   });
 
   test(
@@ -310,7 +313,7 @@ void main() {
     verifyNever(() => mockRepository.update(any()));
   });
 
-  test('updateRevenue with name-only change propagates to chain', () async {
+  test('updateRevenue with category-only change propagates to chain', () async {
     final existing = RevenueModel.create(
       name: 'Ancien nom',
       amount: 1000,
@@ -337,11 +340,12 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    final updated = existing.copyWith(name: 'Nouveau nom');
+    final updated = existing.copyWith(categorySlug: 'finance.frais_bancaires');
     await container.read(revenueProvider.notifier).updateRevenue(updated);
 
     verify(() => mockRepository.getChain(1)).called(1);
     verify(() => mockRepository.update(any())).called(2);
+    verifyNever(() => mockRepository.add(any()));
   });
 
   test(

@@ -1,17 +1,3 @@
-/// Le libellé d'un article, décidé mot à mot sur la ligne qui le porte.
-///
-/// Le modèle de lien désigne la ligne ; ce modèle-ci dit quels mots de cette
-/// ligne composent le nom. Il remplace la coupe de colonne des règles et le
-/// nettoyage par expressions régulières : un ticket imprime plusieurs
-/// colonnes de nombres, et une coupe unique laisse passer le code article à
-/// gauche comme la quantité à droite.
-///
-/// Le décodage impose ce que le libellé est par nature — un intervalle
-/// contigu de mots portant des lettres — et rien de plus. Aucun seuil :
-/// l'intervalle retenu est celui dont la somme des log-odds est la plus
-/// forte, et un mot n'y entre que s'il rapporte plus qu'il ne coûte.
-///
-/// Miroir de `ml/scan/research/reference/spans_ml.py`.
 library;
 
 import 'dart:math' as math;
@@ -20,8 +6,6 @@ import 'classifier.dart';
 import 'lines.dart';
 import 'word_features.dart';
 
-/// Un libellé nomme un article : il porte des lettres. Deux, pour écarter
-/// l'initiale isolée qu'un OCR laisse traîner à côté d'un nombre.
 const int minLabelLetters = 2;
 const double _probabilityClip = 1e-6;
 
@@ -56,8 +40,6 @@ class LabelSpanModel {
 
   final LineClassifier _model;
 
-  /// Pour chaque mot de chaque ligne, la probabilité qu'il appartienne au
-  /// libellé d'un article.
   List<List<double>> probabilities(List<PhysicalLine> lines) {
     final rows = featurizeWords(lines);
     return [
@@ -83,8 +65,6 @@ int _letters(List<String> texts, int start, int end) {
   return count;
 }
 
-/// L'intervalle de log-odds maximale parmi ceux qui portent des lettres, ou
-/// null si la ligne n'en porte aucune.
 LabelSpan? bestSpan(List<String> texts, List<double> probabilities) {
   if (texts.isEmpty) return null;
   final odds = [for (final probability in probabilities) _logit(probability)];
@@ -118,7 +98,6 @@ LabelSpan? bestSpan(List<String> texts, List<double> probabilities) {
 String spanText(List<String> texts, LabelSpan span) =>
     texts.sublist(span.start, span.end).join(' ').trim();
 
-/// Le libellé que porte cette ligne, ou null si elle n'en porte pas.
 String? labelOf(PhysicalLine line, List<double> probabilities) {
   final texts = [for (final word in line.words) word.text];
   final span = bestSpan(texts, probabilities);

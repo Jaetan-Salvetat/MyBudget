@@ -6,16 +6,6 @@ import '../../primitives/frosted_glass_level.dart';
 
 const double _kToolbarHeight = 56;
 
-/// An edge-to-edge top app bar in Liquid Glass.
-///
-/// Spans the full width of the surrounding [Scaffold], attaches to the top
-/// edge, and gives back a rounded-bottom silhouette. The status-bar inset is
-/// handled internally, so [preferredSize] only advertises the [toolbarHeight]
-/// — pair the [FrostedScaffold]'s default `extendBodyBehindAppBar: true` with
-/// [bodyTopPadding] to lay out the body below the bar.
-///
-/// The glass material is fixed (`regular` level, auto tone, no shadow) and is
-/// not customizable.
 class FrostedTopBar extends StatelessWidget implements PreferredSizeWidget {
   const FrostedTopBar({
     required this.title,
@@ -33,12 +23,6 @@ class FrostedTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(toolbarHeight);
 
-  /// Top padding the body should reserve so its first item clears the bar.
-  ///
-  /// Use it in the body's `padding`:
-  /// ```dart
-  /// padding: EdgeInsets.only(top: FrostedTopBar.bodyTopPadding(context))
-  /// ```
   static double bodyTopPadding(
     BuildContext context, {
     double toolbarHeight = _kToolbarHeight,

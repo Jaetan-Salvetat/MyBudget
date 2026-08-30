@@ -1,10 +1,6 @@
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:objectbox/objectbox.dart';
 
-/// User customisation of a taxonomy node.
-///
-/// Rows exist only for nodes the user actually renamed or restyled: the
-/// taxonomy asset stays the source of truth for everything else.
 @Entity()
 class CategoryOverrideModel {
   @Id()
