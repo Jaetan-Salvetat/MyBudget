@@ -1,6 +1,7 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,57 +51,63 @@ class ExpenseNotifier extends _$ExpenseNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      // What the rule costs, how often, and which account it leaves : change
-      // any of that and it is another agreement, so the months already paid
-      // keep the one they were paid under.
+      // What the rule is, costs, how often, and which account it leaves :
+      // change any of that and it is another agreement, so the months already
+      // paid keep the one they were paid under. Only the category escapes
+      // that rule — see _recategorizeChain.
       final bool changesTerms =
           updated.amount != old.amount ||
           updated.frequency != old.frequency ||
-          updated.accountId != old.accountId;
+          updated.accountId != old.accountId ||
+          updated.name != old.name ||
+          updated.beneficiaryId != old.beneficiaryId;
 
-      // Everything else only describes the rule. Filing a subscription under
-      // the right category is a correction, and a correction is true of every
-      // month it ever ran — so it reaches the whole chain and splits nothing.
-      if (!changesTerms) {
-        for (final entry in repo.getChain(old.parentId ?? old.id)) {
-          repo.update(
-            entry
-              ..name = updated.name
-              ..categorySlug = updated.categorySlug
-              ..beneficiaryId = updated.beneficiaryId,
+      if (changesTerms) {
+        if (old.frequencyEnum != Frequency.oneTime) {
+          final now = DateTime.now();
+          final newStartDate = computeNewStartDate(now, old.startDate.day);
+          if (hasStarted(old.startDate, now)) {
+            repo.update(old.copyWith(endDate: dayOnly(now)));
+          } else {
+            repo.delete(old.id);
+          }
+          final newExpense = ExpenseModel.create(
+            name: updated.name,
+            amount: updated.amount,
+            categorySlug: updated.categorySlug,
+            startDate: newStartDate,
+            frequency: updated.frequency,
+            accountId: updated.accountId,
+            beneficiaryId: updated.beneficiaryId,
+            parentId: old.parentId ?? old.id,
           );
+          repo.add(newExpense);
+        } else {
+          repo.update(updated);
         }
-        ref.invalidateSelf();
-        await future;
-        return;
       }
 
-      if (old.frequencyEnum != Frequency.oneTime) {
-        final now = DateTime.now();
-        final newStartDate = computeNewStartDate(now, old.startDate.day);
-        if (hasStarted(old.startDate, now)) {
-          repo.update(old.copyWith(endDate: dayOnly(now)));
-        } else {
-          repo.delete(old.id);
-        }
-        final newExpense = ExpenseModel.create(
-          name: updated.name,
-          amount: updated.amount,
-          categorySlug: updated.categorySlug,
-          startDate: newStartDate,
-          frequency: updated.frequency,
-          accountId: updated.accountId,
-          beneficiaryId: updated.beneficiaryId,
-          parentId: old.parentId ?? old.id,
-        );
-        repo.add(newExpense);
-      } else {
-        repo.update(updated);
-      }
+      _recategorizeChain(repo, old, updated);
+
       ref.invalidateSelf();
       await future;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Filing a rule under another category is a correction, never a new
+  /// agreement : it says what the rule always was, so it reaches every month
+  /// it ever ran and splits nothing on its own.
+  void _recategorizeChain(
+    ExpenseRepository repo,
+    ExpenseModel old,
+    ExpenseModel updated,
+  ) {
+    if (updated.categorySlug == old.categorySlug) return;
+
+    for (final entry in repo.getChain(old.parentId ?? old.id)) {
+      repo.update(entry..categorySlug = updated.categorySlug);
     }
   }
 

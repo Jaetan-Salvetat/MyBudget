@@ -122,17 +122,15 @@ void main() {
 
   group('a deletion that takes the month in progress too', () {
     // A rule due on the 1st, so its turn has already come round.
-    ExpenseModel dueEarlyInTheMonth() => subscription(
-      startDate: DateTime(today.year, today.month - 2, 1),
-    );
+    ExpenseModel dueEarlyInTheMonth() =>
+        subscription(startDate: DateTime(today.year, today.month - 2, 1));
 
     test('stops it the eve of the due date it must not honour', () async {
       final expense = dueEarlyInTheMonth();
 
-      await (await notifierWith(expense)).deleteExpense(
-        7,
-        scope: RecurringDeletion.includingThisMonth,
-      );
+      await (await notifierWith(
+        expense,
+      )).deleteExpense(7, scope: RecurringDeletion.includingThisMonth);
 
       expect(
         closed!.endDate,
@@ -143,10 +141,9 @@ void main() {
     test('drops it from the month in progress', () async {
       final expense = dueEarlyInTheMonth();
 
-      await (await notifierWith(expense)).deleteExpense(
-        7,
-        scope: RecurringDeletion.includingThisMonth,
-      );
+      await (await notifierWith(
+        expense,
+      )).deleteExpense(7, scope: RecurringDeletion.includingThisMonth);
 
       expect(
         occursInMonth(
@@ -162,10 +159,9 @@ void main() {
     test('leaves the month before it untouched', () async {
       final expense = dueEarlyInTheMonth();
 
-      await (await notifierWith(expense)).deleteExpense(
-        7,
-        scope: RecurringDeletion.includingThisMonth,
-      );
+      await (await notifierWith(
+        expense,
+      )).deleteExpense(7, scope: RecurringDeletion.includingThisMonth);
 
       expect(
         occursInMonth(
@@ -183,10 +179,9 @@ void main() {
         startDate: DateTime(today.year, today.month, 1),
       );
 
-      await (await notifierWith(expense)).deleteExpense(
-        7,
-        scope: RecurringDeletion.includingThisMonth,
-      );
+      await (await notifierWith(
+        expense,
+      )).deleteExpense(7, scope: RecurringDeletion.includingThisMonth);
 
       expect(deleted, [7]);
       expect(closed, isNull);
@@ -256,7 +251,7 @@ void main() {
     });
   });
 
-  group('correcting how a rule is described', () {
+  group('refiling a rule under another category', () {
     late List<ExpenseModel> chain;
     late List<ExpenseModel> written;
 
@@ -264,9 +259,8 @@ void main() {
       final august = subscription(
         startDate: DateTime(today.year, today.month - 2, 1),
       )..endDate = DateTime(today.year, today.month - 1, 1);
-      final live = subscription(
-        startDate: DateTime(today.year, today.month, 1),
-      )..id = 9;
+      final live = subscription(startDate: DateTime(today.year, today.month, 1))
+        ..id = 9;
       chain = [august, live];
       written = [];
 
@@ -277,7 +271,7 @@ void main() {
       });
     });
 
-    test('a new category reaches every month the rule ever ran', () async {
+    test('reaches every month the rule ever ran, and splits nothing', () async {
       final expense = chain.first;
       final notifier = await notifierWith(expense);
 
@@ -293,28 +287,33 @@ void main() {
       verifyNever(() => repo.add(any()));
     });
 
-    test('a new beneficiary reaches the whole chain too', () async {
+    test('reaches the whole chain even when the amount changes with '
+        'it', () async {
       final expense = chain.first;
       final notifier = await notifierWith(expense);
 
-      await notifier.updateExpense(expense.copyWith(beneficiaryId: 4));
+      await notifier.updateExpense(
+        expense.copyWith(amount: 35, categorySlug: 'finance.frais_bancaires'),
+      );
 
-      expect(written.every((e) => e.beneficiaryId == 4), isTrue);
-      verifyNever(() => repo.add(any()));
+      expect(
+        chain.every((e) => e.categorySlug == 'finance.frais_bancaires'),
+        isTrue,
+      );
+      verify(() => repo.add(any())).called(1);
     });
 
-    test('a new name still reaches the whole chain', () async {
+    test('leaves the past months alone when nothing else is touched', () async {
       final expense = chain.first;
       final notifier = await notifierWith(expense);
 
       await notifier.updateExpense(expense.copyWith(name: 'Sumeria Pro'));
 
-      expect(written.every((e) => e.name == 'Sumeria Pro'), isTrue);
-      verifyNever(() => repo.add(any()));
+      expect(written.any((e) => e.name == 'Sumeria Pro'), isFalse);
     });
   });
 
-  group('changing what a rule costs', () {
+  group('changing the agreement itself', () {
     test('a new amount opens a rule taking over', () async {
       final expense = subscription(
         startDate: DateTime(today.year, today.month - 2, 1),
@@ -322,6 +321,32 @@ void main() {
       final notifier = await notifierWith(expense);
 
       await notifier.updateExpense(expense.copyWith(amount: 35));
+
+      verify(() => repo.add(any())).called(1);
+    });
+
+    test(
+      'a new name opens one too : the past months kept the old one',
+      () async {
+        final expense = subscription(
+          startDate: DateTime(today.year, today.month - 2, 1),
+        );
+        final notifier = await notifierWith(expense);
+
+        await notifier.updateExpense(expense.copyWith(name: 'Sumeria Pro'));
+
+        verify(() => repo.add(any())).called(1);
+        expect(dayOnly(closed!.endDate!), today);
+      },
+    );
+
+    test('a new beneficiary opens one as well', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(beneficiaryId: 4));
 
       verify(() => repo.add(any())).called(1);
     });

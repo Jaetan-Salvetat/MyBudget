@@ -1,6 +1,7 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,54 +51,62 @@ class RevenueNotifier extends _$RevenueNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      // What the rule pays, how often, and which account it lands on : see
-      // ExpenseNotifier.updateExpense for why that splits the rule and the
-      // rest only corrects it.
+      // What the rule is, pays, how often, and which account it lands on :
+      // see ExpenseNotifier.updateExpense for why that splits the rule and
+      // why the category alone corrects the whole chain instead.
       final bool changesTerms =
           updated.amount != old.amount ||
           updated.frequency != old.frequency ||
-          updated.accountId != old.accountId;
+          updated.accountId != old.accountId ||
+          updated.name != old.name ||
+          updated.beneficiaryId != old.beneficiaryId;
 
-      if (!changesTerms) {
-        for (final entry in repo.getChain(old.parentId ?? old.id)) {
-          repo.update(
-            entry
-              ..name = updated.name
-              ..categorySlug = updated.categorySlug
-              ..beneficiaryId = updated.beneficiaryId,
+      if (changesTerms) {
+        if (old.frequencyEnum != Frequency.oneTime) {
+          final now = DateTime.now();
+          final newStartDate = computeNewStartDate(now, old.startDate.day);
+          if (hasStarted(old.startDate, now)) {
+            repo.update(old.copyWith(endDate: dayOnly(now)));
+          } else {
+            repo.delete(old.id);
+          }
+          final newRevenue = RevenueModel.create(
+            name: updated.name,
+            amount: updated.amount,
+            categorySlug: updated.categorySlug,
+            startDate: newStartDate,
+            accountId: updated.accountId,
+            frequency: updated.frequency,
+            beneficiaryId: updated.beneficiaryId,
+            parentId: old.parentId ?? old.id,
           );
+          repo.add(newRevenue);
+        } else {
+          repo.update(updated);
         }
-        ref.invalidateSelf();
-        await future;
-        return;
       }
 
-      if (old.frequencyEnum != Frequency.oneTime) {
-        final now = DateTime.now();
-        final newStartDate = computeNewStartDate(now, old.startDate.day);
-        if (hasStarted(old.startDate, now)) {
-          repo.update(old.copyWith(endDate: dayOnly(now)));
-        } else {
-          repo.delete(old.id);
-        }
-        final newRevenue = RevenueModel.create(
-          name: updated.name,
-          amount: updated.amount,
-          categorySlug: updated.categorySlug,
-          startDate: newStartDate,
-          accountId: updated.accountId,
-          frequency: updated.frequency,
-          beneficiaryId: updated.beneficiaryId,
-          parentId: old.parentId ?? old.id,
-        );
-        repo.add(newRevenue);
-      } else {
-        repo.update(updated);
-      }
+      _recategorizeChain(repo, old, updated);
+
       ref.invalidateSelf();
       await future;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Filing a rule under another category is a correction, never a new
+  /// agreement : it says what the rule always was, so it reaches every month
+  /// it ever ran and splits nothing on its own.
+  void _recategorizeChain(
+    RevenueRepository repo,
+    RevenueModel old,
+    RevenueModel updated,
+  ) {
+    if (updated.categorySlug == old.categorySlug) return;
+
+    for (final entry in repo.getChain(old.parentId ?? old.id)) {
+      repo.update(entry..categorySlug = updated.categorySlug);
     }
   }
 
@@ -154,5 +163,4 @@ class RevenueNotifier extends _$RevenueNotifier {
       (state.value ?? const <RevenueModel>[])
           .where((revenue) => revenue.accountId == accountId)
           .toList();
-
 }
