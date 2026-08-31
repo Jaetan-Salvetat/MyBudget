@@ -4,8 +4,8 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/entities/transaction_change_entry.dart';
 import 'package:mybudget/core/entities/transaction_rule_summary.dart';
-import 'package:mybudget/core/entities/transaction_rule_version.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
@@ -15,7 +15,7 @@ import 'package:mybudget/ui/common/widgets/detail/detail_row.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 import 'package:mybudget/ui/transaction_details/widgets/receipt_card.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_detail_hero.dart';
-import 'package:mybudget/ui/transaction_details/widgets/transaction_history_card.dart';
+import 'package:mybudget/ui/transaction_details/widgets/transaction_timeline_card.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 const String _uncategorizedLabel = 'Non catégorisé';
@@ -35,7 +35,7 @@ class TransactionDetailsView extends StatelessWidget {
   final DateTime startDate;
   final DateTime? endDate;
   final TransactionRuleSummary summary;
-  final List<TransactionRuleVersion> versions;
+  final List<TransactionChangeEntry> timeline;
   final bool isIncome;
   final IconData fallbackIcon;
   final Color fallbackColor;
@@ -53,7 +53,7 @@ class TransactionDetailsView extends StatelessWidget {
     required this.frequency,
     required this.startDate,
     required this.summary,
-    required this.versions,
+    required this.timeline,
     required this.isIncome,
     required this.fallbackIcon,
     required this.fallbackColor,
@@ -105,8 +105,7 @@ class TransactionDetailsView extends StatelessWidget {
             const SizedBox(height: 14),
             _buildKpiCard(),
             DetailInfoCard(title: _detailsTitle, rows: _buildDetailRows()),
-            if (versions.length > 1)
-              TransactionHistoryCard(versions: versions),
+            if (timeline.length > 1) TransactionTimelineCard(entries: timeline),
             if (path != null) ReceiptCard(path: path),
             if (isEditable) ...[
               const SizedBox(height: 20),

@@ -8,19 +8,13 @@ part of 'quick_add_recent_submissions_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The transactions the quick-add just recorded, each shown long enough to be
-/// undone then let go on its own : the rafale never waits on a snackbar.
 
 @ProviderFor(QuickAddRecentSubmissions)
 final quickAddRecentSubmissionsProvider = QuickAddRecentSubmissionsProvider._();
 
-/// The transactions the quick-add just recorded, each shown long enough to be
-/// undone then let go on its own : the rafale never waits on a snackbar.
 final class QuickAddRecentSubmissionsProvider
     extends
         $NotifierProvider<QuickAddRecentSubmissions, List<QuickAddSubmission>> {
-  /// The transactions the quick-add just recorded, each shown long enough to be
-  /// undone then let go on its own : the rafale never waits on a snackbar.
   QuickAddRecentSubmissionsProvider._()
     : super(
         from: null,
@@ -50,9 +44,6 @@ final class QuickAddRecentSubmissionsProvider
 
 String _$quickAddRecentSubmissionsHash() =>
     r'e25d64961a0e78e6957252b27aec9b352f673510';
-
-/// The transactions the quick-add just recorded, each shown long enough to be
-/// undone then let go on its own : the rafale never waits on a snackbar.
 
 abstract class _$QuickAddRecentSubmissions
     extends $Notifier<List<QuickAddSubmission>> {

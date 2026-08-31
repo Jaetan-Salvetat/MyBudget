@@ -33,7 +33,7 @@ final class RevenueNotifierProvider
   RevenueNotifier create() => RevenueNotifier();
 }
 
-String _$revenueNotifierHash() => r'17ab3c17033391ad0e5898183c8e2ecddcc741d5';
+String _$revenueNotifierHash() => r'c9ca274f6f52443d1a218ff181d8a74822543cb0';
 
 abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
   FutureOr<List<RevenueModel>> build();

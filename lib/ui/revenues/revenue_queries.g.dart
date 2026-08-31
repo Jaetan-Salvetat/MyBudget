@@ -8,14 +8,9 @@ part of 'revenue_queries.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Every rule ever recorded, the closed ones included : reading only the open
-/// ones would erase the months a since-closed revenue was actually received.
 
 @ProviderFor(revenueHistory)
 final revenueHistoryProvider = RevenueHistoryProvider._();
-
-/// Every rule ever recorded, the closed ones included : reading only the open
-/// ones would erase the months a since-closed revenue was actually received.
 
 final class RevenueHistoryProvider
     extends
@@ -25,8 +20,6 @@ final class RevenueHistoryProvider
           List<RevenueModel>
         >
     with $Provider<List<RevenueModel>> {
-  /// Every rule ever recorded, the closed ones included : reading only the open
-  /// ones would erase the months a since-closed revenue was actually received.
   RevenueHistoryProvider._()
     : super(
         from: null,
@@ -63,14 +56,8 @@ final class RevenueHistoryProvider
 
 String _$revenueHistoryHash() => r'601d44e7096774c31d47c263b075d69dee99776e';
 
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there : the revenue counterpart of [monthExpenses].
-
 @ProviderFor(monthRevenues)
 final monthRevenuesProvider = MonthRevenuesProvider._();
-
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there : the revenue counterpart of [monthExpenses].
 
 final class MonthRevenuesProvider
     extends
@@ -80,8 +67,6 @@ final class MonthRevenuesProvider
           List<RevenueModel>
         >
     with $Provider<List<RevenueModel>> {
-  /// The rules that fall on the selected month, each dated on the day it lands
-  /// there : the revenue counterpart of [monthExpenses].
   MonthRevenuesProvider._()
     : super(
         from: null,
@@ -294,3 +279,86 @@ final class UpcomingRevenuesProvider
 }
 
 String _$upcomingRevenuesHash() => r'c3677c5e943e6b1d04781a051646d84d8b995a06';
+
+@ProviderFor(revenueEvents)
+final revenueEventsProvider = RevenueEventsFamily._();
+
+final class RevenueEventsProvider
+    extends
+        $FunctionalProvider<
+          List<TransactionEventModel>,
+          List<TransactionEventModel>,
+          List<TransactionEventModel>
+        >
+    with $Provider<List<TransactionEventModel>> {
+  RevenueEventsProvider._({
+    required RevenueEventsFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'revenueEventsProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$revenueEventsHash();
+
+  @override
+  String toString() {
+    return r'revenueEventsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<List<TransactionEventModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<TransactionEventModel> create(Ref ref) {
+    final argument = this.argument as int;
+    return revenueEvents(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<TransactionEventModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<TransactionEventModel>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RevenueEventsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$revenueEventsHash() => r'77f9e1ccfc86e24f601bb921a773a14354a7cf7f';
+
+final class RevenueEventsFamily extends $Family
+    with $FunctionalFamilyOverride<List<TransactionEventModel>, int> {
+  RevenueEventsFamily._()
+    : super(
+        retry: null,
+        name: r'revenueEventsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  RevenueEventsProvider call(int rootId) =>
+      RevenueEventsProvider._(argument: rootId, from: this);
+
+  @override
+  String toString() => r'revenueEventsProvider';
+}

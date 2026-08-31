@@ -8,16 +8,9 @@ part of 'expense_queries.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Every rule ever recorded, the closed ones included. Editing or deleting a
-/// recurring expense closes its row and opens another : reading only the open
-/// ones would erase the months the closed one was actually paid in.
 
 @ProviderFor(expenseHistory)
 final expenseHistoryProvider = ExpenseHistoryProvider._();
-
-/// Every rule ever recorded, the closed ones included. Editing or deleting a
-/// recurring expense closes its row and opens another : reading only the open
-/// ones would erase the months the closed one was actually paid in.
 
 final class ExpenseHistoryProvider
     extends
@@ -27,9 +20,6 @@ final class ExpenseHistoryProvider
           List<ExpenseModel>
         >
     with $Provider<List<ExpenseModel>> {
-  /// Every rule ever recorded, the closed ones included. Editing or deleting a
-  /// recurring expense closes its row and opens another : reading only the open
-  /// ones would erase the months the closed one was actually paid in.
   ExpenseHistoryProvider._()
     : super(
         from: null,
@@ -66,16 +56,8 @@ final class ExpenseHistoryProvider
 
 String _$expenseHistoryHash() => r'c36546d58f1ea40b3639382cb783115638e5722f';
 
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there. The list drawn on screen and the total announced above it read the
-/// same rule, so one can never say something the other denies.
-
 @ProviderFor(monthExpenses)
 final monthExpensesProvider = MonthExpensesProvider._();
-
-/// The rules that fall on the selected month, each dated on the day it lands
-/// there. The list drawn on screen and the total announced above it read the
-/// same rule, so one can never say something the other denies.
 
 final class MonthExpensesProvider
     extends
@@ -85,9 +67,6 @@ final class MonthExpensesProvider
           List<ExpenseModel>
         >
     with $Provider<List<ExpenseModel>> {
-  /// The rules that fall on the selected month, each dated on the day it lands
-  /// there. The list drawn on screen and the total announced above it read the
-  /// same rule, so one can never say something the other denies.
   MonthExpensesProvider._()
     : super(
         from: null,
@@ -342,18 +321,8 @@ final class UpcomingExpensesProvider
 
 String _$upcomingExpensesHash() => r'8908328bd73786860ade4a4427ef726b3d45604b';
 
-/// Monthly totals per taxonomy group key, for the dashboard breakdown.
-///
-/// Aggregation happens at group level: 11 expense groups stay readable where 59
-/// leaves would not.
-
 @ProviderFor(expensesByGroup)
 final expensesByGroupProvider = ExpensesByGroupProvider._();
-
-/// Monthly totals per taxonomy group key, for the dashboard breakdown.
-///
-/// Aggregation happens at group level: 11 expense groups stay readable where 59
-/// leaves would not.
 
 final class ExpensesByGroupProvider
     extends
@@ -363,10 +332,6 @@ final class ExpensesByGroupProvider
           Map<String, double>
         >
     with $Provider<Map<String, double>> {
-  /// Monthly totals per taxonomy group key, for the dashboard breakdown.
-  ///
-  /// Aggregation happens at group level: 11 expense groups stay readable where 59
-  /// leaves would not.
   ExpensesByGroupProvider._()
     : super(
         from: null,
@@ -402,3 +367,86 @@ final class ExpensesByGroupProvider
 }
 
 String _$expensesByGroupHash() => r'bd2cba0277c57c6528d82372ce24d9af1a8aef23';
+
+@ProviderFor(expenseEvents)
+final expenseEventsProvider = ExpenseEventsFamily._();
+
+final class ExpenseEventsProvider
+    extends
+        $FunctionalProvider<
+          List<TransactionEventModel>,
+          List<TransactionEventModel>,
+          List<TransactionEventModel>
+        >
+    with $Provider<List<TransactionEventModel>> {
+  ExpenseEventsProvider._({
+    required ExpenseEventsFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'expenseEventsProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$expenseEventsHash();
+
+  @override
+  String toString() {
+    return r'expenseEventsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<List<TransactionEventModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<TransactionEventModel> create(Ref ref) {
+    final argument = this.argument as int;
+    return expenseEvents(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<TransactionEventModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<TransactionEventModel>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ExpenseEventsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$expenseEventsHash() => r'c5380a51d18b842b0a327589b38d6c56ab082023';
+
+final class ExpenseEventsFamily extends $Family
+    with $FunctionalFamilyOverride<List<TransactionEventModel>, int> {
+  ExpenseEventsFamily._()
+    : super(
+        retry: null,
+        name: r'expenseEventsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  ExpenseEventsProvider call(int rootId) =>
+      ExpenseEventsProvider._(argument: rootId, from: this);
+
+  @override
+  String toString() => r'expenseEventsProvider';
+}

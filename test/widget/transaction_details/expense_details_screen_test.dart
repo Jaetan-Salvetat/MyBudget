@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -17,7 +19,10 @@ import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/core/entities/transaction_change_entry.dart';
+import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -36,6 +41,9 @@ class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
 
 void main() {
   late MockAccountRepository accountRepository;
@@ -57,7 +65,16 @@ void main() {
     await taxonomy.load();
   });
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
+    when(
+      () => events.getForRoot(any(), TransactionType.expense),
+    ).thenReturn([]);
+    when(
+      () => events.getForRoot(any(), TransactionType.income),
+    ).thenReturn([]);
     accountRepository = MockAccountRepository();
     expenseRepository = MockExpenseRepository();
     revenueRepository = MockRevenueRepository();
@@ -131,6 +148,7 @@ void main() {
           categoryOverrideRepositoryProvider.overrideWithValue(
             categoryOverrideRepository,
           ),
+          transactionEventRepositoryProvider.overrideWithValue(events),
           beneficiaryRepositoryProvider.overrideWithValue(beneficiaryRepository),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],
@@ -181,7 +199,7 @@ void main() {
     expect(find.text('7 échéances passées'), findsOneWidget);
   });
 
-  testWidgets('lays out the amount history of a revised rule', (tester) async {
+  testWidgets('tells the price a revised rule left behind', (tester) async {
     await pumpDetails(
       tester,
       expenseId: 2,
@@ -197,15 +215,41 @@ void main() {
       ],
     );
 
-    expect(find.text('HISTORIQUE DU MONTANT'), findsOneWidget);
-    expect(find.text(formatter.format(800)), findsOneWidget);
-    expect(find.text(formatter.format(900)), findsWidgets);
+    expect(find.text('HISTORIQUE'), findsOneWidget);
+    expect(find.text('Montant'), findsWidgets);
+    expect(
+      find.text('${formatter.format(800)} → ${formatter.format(900)}'),
+      findsOneWidget,
+    );
+    expect(find.text('Création'), findsOneWidget);
+  });
+
+  testWidgets('tells a recorded change of category', (tester) async {
+    when(
+      () => events.getForRoot(any(), TransactionType.expense),
+    ).thenReturn([
+      TransactionEventModel.create(
+        rootId: 1,
+        type: TransactionType.expense,
+        entry: TransactionChangeEntry(
+          at: monthsAgo(1, 4),
+          change: TransactionChange.category,
+          from: 'logement.loyer',
+          to: 'logement.charges',
+        ),
+      ),
+    ]);
+
+    await pumpDetails(tester, open: [rent(id: 1)]);
+
+    expect(find.text('Catégorie'), findsWidgets);
+    expect(find.text('Loyer → Charges'), findsOneWidget);
   });
 
   testWidgets('keeps the history out of an untouched rule', (tester) async {
     await pumpDetails(tester, open: [rent(id: 1)]);
 
-    expect(find.text('HISTORIQUE DU MONTANT'), findsNothing);
+    expect(find.text('HISTORIQUE'), findsNothing);
   });
 
   testWidgets('offers to edit and delete an open rule', (tester) async {

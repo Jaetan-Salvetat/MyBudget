@@ -20,6 +20,7 @@ import 'package:mybudget/core/services/loan_payoff_service.dart';
 import 'package:mybudget/core/services/loan_schedule_service.dart';
 import 'package:mybudget/core/services/loan_service.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
@@ -167,6 +168,12 @@ LoanPayoffService loanPayoffService(Ref ref) {
 RevenueRepository revenueRepository(Ref ref) {
   final obs = ref.watch(objectBoxServiceProvider).requireValue;
   return RevenueRepository(obs.revenueBox);
+}
+
+@Riverpod(keepAlive: true)
+TransactionEventRepository transactionEventRepository(Ref ref) {
+  final obs = ref.watch(objectBoxServiceProvider).requireValue;
+  return TransactionEventRepository(obs.transactionEventBox);
 }
 
 @Riverpod(keepAlive: true)

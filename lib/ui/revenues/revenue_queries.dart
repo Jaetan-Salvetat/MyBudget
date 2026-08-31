@@ -1,6 +1,8 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
@@ -100,4 +102,12 @@ List<RevenueModel> upcomingRevenues(Ref ref) {
   }).toList();
   upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
   return upcoming;
+}
+
+@Riverpod(keepAlive: true)
+List<TransactionEventModel> revenueEvents(Ref ref, int rootId) {
+  ref.watch(revenueProvider);
+  return ref
+      .watch(transactionEventRepositoryProvider)
+      .getForRoot(rootId, TransactionType.income);
 }

@@ -11,10 +11,12 @@ void main() {
     Frequency frequency = Frequency.monthly,
   }) {
     return TransactionRuleVersion(
+      name: 'Loyer',
       amount: amount,
       startDate: startDate,
       endDate: endDate,
       frequency: frequency,
+      accountLabel: 'Courant',
     );
   }
 

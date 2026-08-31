@@ -1,10 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/entities/transaction_rule_version.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
+import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -14,11 +17,13 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/transaction_details/transaction_event_presenter.dart';
 import 'package:mybudget/ui/transaction_details/widgets/missing_transaction_view.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_details_view.dart';
 
 const String _screenTitle = 'Détail de la dépense';
 const String _missingMessage = 'Cette dépense n\'existe plus';
+const String _unknownAccount = 'Compte inconnu';
 const String _deleteMessage = 'Voulez-vous vraiment supprimer cette dépense ?';
 
 class ExpenseDetailsScreen extends ConsumerStatefulWidget {
@@ -71,31 +76,26 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       );
     }
 
-    final chain = _chainOf(history, expense);
-    final versions = [
-      for (final entry in chain)
-        TransactionRuleVersion(
-          amount: entry.amount,
-          startDate: entry.startDate,
-          endDate: entry.endDate,
-          frequency: entry.frequencyEnum,
-        ),
-    ];
-
     final accounts = ref.watch(accountProvider).value ?? [];
+    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
+    final resolver = ref.watch(categoryDisplayResolverProvider).value;
+
     final account = accounts
         .where((a) => a.id == expense.accountId)
         .firstOrNull;
-    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
-    final beneficiary = expense.beneficiaryId == null
-        ? null
-        : beneficiaries
-              .where((b) => b.id == expense.beneficiaryId)
-              .firstOrNull;
+    final beneficiary = _beneficiaryOf(expense.beneficiaryId, beneficiaries);
     final slug = expense.categorySlug;
-    final category = slug == null
-        ? null
-        : ref.watch(categoryDisplayResolverProvider).value?.resolve(slug);
+    final category = slug == null ? null : resolver?.resolve(slug);
+
+    final chain = _chainOf(history, expense);
+    final versions = _versionsOf(chain, accounts, beneficiaries);
+    final rootId = expense.parentId ?? expense.id;
+    final presenter = TransactionEventPresenter(
+      resolver: resolver,
+      accounts: accounts,
+      beneficiaries: beneficiaries,
+      formatter: _formatter,
+    );
 
     return TransactionDetailsView(
       screenTitle: _screenTitle,
@@ -111,7 +111,14 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
         versions,
         asOf: DateTime.now(),
       ),
-      versions: versions,
+      timeline: TransactionTimelineService.build(
+        versions: versions,
+        recorded: [
+          for (final event in ref.watch(expenseEventsProvider(rootId)))
+            presenter.describe(event),
+        ],
+        formatAmount: _formatter.format,
+      ),
       isIncome: false,
       fallbackIcon: Symbols.receipt_long_rounded,
       fallbackColor: context.financeColors.expense,
@@ -121,6 +128,40 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       onEdit: () => _openEditScreen(expense),
       onDelete: _deleteExpense,
     );
+  }
+
+  static final NumberFormat _formatter = NumberFormat.currency(
+    locale: 'fr_FR',
+    symbol: '€',
+  );
+
+  List<TransactionRuleVersion> _versionsOf(
+    List<ExpenseModel> chain,
+    List<AccountModel> accounts,
+    List<Beneficiary> beneficiaries,
+  ) {
+    return [
+      for (final entry in chain)
+        TransactionRuleVersion(
+          name: entry.name,
+          amount: entry.amount,
+          startDate: entry.startDate,
+          endDate: entry.endDate,
+          frequency: entry.frequencyEnum,
+          accountLabel:
+              accounts.where((a) => a.id == entry.accountId).firstOrNull?.name ??
+              _unknownAccount,
+          beneficiaryLabel: _beneficiaryOf(
+            entry.beneficiaryId,
+            beneficiaries,
+          )?.name,
+        ),
+    ];
+  }
+
+  Beneficiary? _beneficiaryOf(int? id, List<Beneficiary> beneficiaries) {
+    if (id == null) return null;
+    return beneficiaries.where((b) => b.id == id).firstOrNull;
   }
 
   List<ExpenseModel> _chainOf(
@@ -135,7 +176,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
   }
 
   String _accountLabel(AccountModel? account) {
-    if (account == null) return 'Compte inconnu';
+    if (account == null) return _unknownAccount;
     return account.bank.isEmpty
         ? account.name
         : '${account.name} · ${account.bank}';

@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -37,6 +39,9 @@ class MockCategoryOverrideRepository extends Mock
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
+
 void main() {
   late MockAccountRepository accountRepository;
   late MockExpenseRepository expenseRepository;
@@ -57,7 +62,16 @@ void main() {
     await taxonomy.load();
   });
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
+    when(
+      () => events.getForRoot(any(), TransactionType.expense),
+    ).thenReturn([]);
+    when(
+      () => events.getForRoot(any(), TransactionType.income),
+    ).thenReturn([]);
     accountRepository = MockAccountRepository();
     expenseRepository = MockExpenseRepository();
     revenueRepository = MockRevenueRepository();
@@ -122,6 +136,7 @@ void main() {
           categoryOverrideRepositoryProvider.overrideWithValue(
             categoryOverrideRepository,
           ),
+          transactionEventRepositoryProvider.overrideWithValue(events),
           beneficiaryRepositoryProvider.overrideWithValue(beneficiaryRepository),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],

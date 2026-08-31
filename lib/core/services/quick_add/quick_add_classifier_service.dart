@@ -37,6 +37,14 @@ class QuickAddClassifierService implements QuickAddEngine {
     final tokens = _tokenizer.encode(normalizeQuery(cleanedText));
     final output = await _modelRunner.run(tokens);
 
+    if (output.category.classCount != QuickAddLabels.categories.length) {
+      throw QuickAddClassificationException(
+        message:
+            'Modèle incompatible : ${output.category.classCount} classes '
+            'pour ${QuickAddLabels.categories.length} catégories',
+      );
+    }
+
     final slug = QuickAddLabels.categories[output.category.index];
     final category = _taxonomy.resolve(slug);
     if (category == null) {

@@ -3,8 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
@@ -12,10 +15,16 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() => registerFallbackValue(FakeExpenseModel()));
+  setUpAll(() {
+    registerFallbackValue(FakeExpenseModel());
+    registerFallbackValue(TransactionEventModel());
+  });
 
   late MockExpenseRepository repo;
   late ExpenseModel? closed;
@@ -38,7 +47,10 @@ void main() {
     return expense;
   }
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     repo = MockExpenseRepository();
     closed = null;
     deleted = [];
@@ -61,7 +73,10 @@ void main() {
     when(() => repo.get(7)).thenReturn(expense);
     when(() => repo.getActive()).thenReturn([expense]);
     final container = ProviderContainer(
-      overrides: [expenseRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        expenseRepositoryProvider.overrideWithValue(repo),
+        transactionEventRepositoryProvider.overrideWithValue(events),
+      ],
     );
     addTearDown(container.dispose);
     await container.read(expenseProvider.future);
@@ -418,6 +433,56 @@ void main() {
           );
         }
       }
+    });
+  });
+
+  group('the trail an edit leaves behind', () {
+    List<TransactionEventModel> recorded() {
+      return verify(() => events.add(captureAny())).captured
+          .cast<TransactionEventModel>();
+    }
+
+    test('a refiling is written down, the chain cannot tell it', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      )..categorySlug = 'logement.loyer';
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(
+        expense.copyWith(categorySlug: 'finance.frais_bancaires'),
+      );
+
+      final written = recorded().single;
+      expect(written.changeEnum, TransactionChange.category);
+      expect(written.previousValue, 'logement.loyer');
+      expect(written.nextValue, 'finance.frais_bancaires');
+      expect(written.rootId, 7);
+    });
+
+    test('a new price on a recurring rule is left to the chain', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(amount: 30));
+
+      verifyNever(() => events.add(any()));
+    });
+
+    test('a new price on a one-off is written down', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month, 1),
+        frequency: 'Ponctuel',
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(amount: 30));
+
+      final written = recorded().single;
+      expect(written.changeEnum, TransactionChange.amount);
+      expect(written.previousValue, '20.0');
+      expect(written.nextValue, '30.0');
     });
   });
 }

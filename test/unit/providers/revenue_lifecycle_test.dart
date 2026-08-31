@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
@@ -10,6 +11,9 @@ import 'package:mybudget/utils/history_utils.dart';
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +41,10 @@ void main() {
     return revenue;
   }
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     repo = MockRevenueRepository();
     closed = null;
     deleted = [];
@@ -60,7 +67,10 @@ void main() {
     when(() => repo.get(7)).thenReturn(revenue);
     when(() => repo.getActive()).thenReturn([revenue]);
     final container = ProviderContainer(
-      overrides: [revenueRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        revenueRepositoryProvider.overrideWithValue(repo),
+        transactionEventRepositoryProvider.overrideWithValue(events),
+      ],
     );
     addTearDown(container.dispose);
     await container.read(revenueProvider.future);

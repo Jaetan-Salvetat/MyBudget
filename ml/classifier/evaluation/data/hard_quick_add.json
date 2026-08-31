@@ -2610,6 +2610,55 @@
    "category": "restauration.restaurant",
    "type": "expense",
    "recurrence": "ponctuel"
+  },
+  {
+   "input": "assurance téléphone",
+   "axis": "sans_entite",
+   "category": "finance.assurance_autre",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Celside",
+   "axis": "marque_nue",
+   "category": "finance.assurance_autre",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "assurance du portable 6,90 par mois",
+   "axis": "chiffre",
+   "category": "finance.assurance_autre",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "j'ai pris une assurance pour le vélo",
+   "axis": "phrase_libre",
+   "category": "finance.assurance_autre",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "King Jouet",
+   "axis": "marque_nue",
+   "category": "famille_education.enfant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "couches et lingettes pour le petit",
+   "axis": "phrase_libre",
+   "category": "famille_education.enfant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "argent de poche des enfants",
+   "axis": "recurrence",
+   "category": "famille_education.enfant",
+   "type": "expense",
+   "recurrence": "fixe"
   }
  ]
 }

@@ -23,6 +23,7 @@ import 'models/legacy_category_model.dart';
 import 'models/loan_event_model.dart';
 import 'models/loan_model.dart';
 import 'models/revenue_model.dart';
+import 'models/transaction_event_model.dart';
 import 'models/transfer_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -618,6 +619,59 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(11, 7981549147354617825),
+    name: 'TransactionEventModel',
+    lastPropertyId: const obx_int.IdUid(7, 2300762050684801568),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5621941304765792308),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 7769571246329802436),
+        name: 'rootId',
+        type: 6,
+        flags: 8,
+        indexId: const obx_int.IdUid(11, 8271769439371245867),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 6708190324143525288),
+        name: 'transactionType',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 907520306410394687),
+        name: 'change',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 3510274508242355065),
+        name: 'previousValue',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 5459888584421500536),
+        name: 'nextValue',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 2300762050684801568),
+        name: 'at',
+        type: 10,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -663,8 +717,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(10, 5282442622348339601),
-    lastIndexId: const obx_int.IdUid(10, 8794940862762798163),
+    lastEntityId: const obx_int.IdUid(11, 7981549147354617825),
+    lastIndexId: const obx_int.IdUid(11, 8271769439371245867),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -1347,6 +1401,56 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    TransactionEventModel: obx_int.EntityDefinition<TransactionEventModel>(
+      model: _entities[10],
+      toOneRelations: (TransactionEventModel object) => [],
+      toManyRelations: (TransactionEventModel object) => {},
+      getId: (TransactionEventModel object) => object.id,
+      setId: (TransactionEventModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (TransactionEventModel object, fb.Builder fbb) {
+        final transactionTypeOffset = fbb.writeString(object.transactionType);
+        final changeOffset = fbb.writeString(object.change);
+        final previousValueOffset = object.previousValue == null
+            ? null
+            : fbb.writeString(object.previousValue!);
+        final nextValueOffset = object.nextValue == null
+            ? null
+            : fbb.writeString(object.nextValue!);
+        fbb.startTable(8);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.rootId);
+        fbb.addOffset(2, transactionTypeOffset);
+        fbb.addOffset(3, changeOffset);
+        fbb.addOffset(4, previousValueOffset);
+        fbb.addOffset(5, nextValueOffset);
+        fbb.addInt64(6, object.at.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+
+        final object = TransactionEventModel()
+          ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+          ..rootId = const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0)
+          ..transactionType = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '')
+          ..change = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 10, '')
+          ..previousValue = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 12)
+          ..nextValue = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 14)
+          ..at = DateTime.fromMillisecondsSinceEpoch(
+            const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0),
+          );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -1779,5 +1883,43 @@ class LoanEventModel_ {
   /// See [LoanEventModel.exemptionId].
   static final exemptionId = obx.QueryStringProperty<LoanEventModel>(
     _entities[9].properties[6],
+  );
+}
+
+/// [TransactionEventModel] entity fields to define ObjectBox queries.
+class TransactionEventModel_ {
+  /// See [TransactionEventModel.id].
+  static final id = obx.QueryIntegerProperty<TransactionEventModel>(
+    _entities[10].properties[0],
+  );
+
+  /// See [TransactionEventModel.rootId].
+  static final rootId = obx.QueryIntegerProperty<TransactionEventModel>(
+    _entities[10].properties[1],
+  );
+
+  /// See [TransactionEventModel.transactionType].
+  static final transactionType = obx.QueryStringProperty<TransactionEventModel>(
+    _entities[10].properties[2],
+  );
+
+  /// See [TransactionEventModel.change].
+  static final change = obx.QueryStringProperty<TransactionEventModel>(
+    _entities[10].properties[3],
+  );
+
+  /// See [TransactionEventModel.previousValue].
+  static final previousValue = obx.QueryStringProperty<TransactionEventModel>(
+    _entities[10].properties[4],
+  );
+
+  /// See [TransactionEventModel.nextValue].
+  static final nextValue = obx.QueryStringProperty<TransactionEventModel>(
+    _entities[10].properties[5],
+  );
+
+  /// See [TransactionEventModel.at].
+  static final at = obx.QueryDateProperty<TransactionEventModel>(
+    _entities[10].properties[6],
   );
 }

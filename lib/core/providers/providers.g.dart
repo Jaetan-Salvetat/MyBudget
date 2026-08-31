@@ -867,6 +867,55 @@ final class RevenueRepositoryProvider
 
 String _$revenueRepositoryHash() => r'ade2b8fcb7478cd0e8a080c90b5414d6adebd54d';
 
+@ProviderFor(transactionEventRepository)
+final transactionEventRepositoryProvider =
+    TransactionEventRepositoryProvider._();
+
+final class TransactionEventRepositoryProvider
+    extends
+        $FunctionalProvider<
+          TransactionEventRepository,
+          TransactionEventRepository,
+          TransactionEventRepository
+        >
+    with $Provider<TransactionEventRepository> {
+  TransactionEventRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionEventRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionEventRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionEventRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransactionEventRepository create(Ref ref) {
+    return transactionEventRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionEventRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionEventRepository>(value),
+    );
+  }
+}
+
+String _$transactionEventRepositoryHash() =>
+    r'ca7372e14cc32a147cc533b97eefb83cf0d6c91e';
+
 @ProviderFor(transferRepository)
 final transferRepositoryProvider = TransferRepositoryProvider._();
 

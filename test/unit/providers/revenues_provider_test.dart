@@ -4,12 +4,16 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
 
 void main() {
   late MockRevenueRepository mockRepository;
@@ -18,8 +22,12 @@ void main() {
     registerFallbackValue(FakeRevenueModel());
   });
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     mockRepository = MockRevenueRepository();
+    when(() => mockRepository.getChain(any())).thenReturn([]);
     when(() => mockRepository.getAll()).thenReturn([]);
     when(() => mockRepository.getActive()).thenReturn([]);
     when(() => mockRepository.getClosed()).thenReturn([]);
@@ -27,7 +35,10 @@ void main() {
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
-      overrides: [revenueRepositoryProvider.overrideWithValue(mockRepository)],
+      overrides: [
+        revenueRepositoryProvider.overrideWithValue(mockRepository),
+        transactionEventRepositoryProvider.overrideWithValue(events),
+      ],
     );
   }
 

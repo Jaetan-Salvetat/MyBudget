@@ -130,11 +130,9 @@ void main() {
       expect(taxonomy.groupsOfType(TransactionType.income).length, 4);
     });
 
-    test('live leaves cover every model label', () {
+    test('leaves cover every model label, in the order of the head', () {
       expect(
-        taxonomy.leaves
-            .where((leaf) => !leaf.isDeprecated)
-            .map((leaf) => leaf.slug),
+        taxonomy.leaves.map((leaf) => leaf.slug),
         QuickAddLabels.categories,
       );
     });
@@ -176,10 +174,7 @@ void main() {
   group('load', () {
     test('is idempotent', () async {
       await taxonomy.load();
-      expect(
-        taxonomy.leaves.where((leaf) => !leaf.isDeprecated).length,
-        QuickAddLabels.categories.length,
-      );
+      expect(taxonomy.leaves.length, QuickAddLabels.categories.length);
     });
   });
 

@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -53,6 +54,9 @@ ExpenseModel expenseOf({
   return expense;
 }
 
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -61,12 +65,20 @@ void main() {
   late MockCategoryOverrideRepository overrides;
   late MockAccountRepository accounts;
   late MockBeneficiaryRepository beneficiaries;
+  late MockTransactionEventRepository events;
 
   final now = DateTime.now();
   DateTime todayAt(int hour, int minute) =>
       DateTime(now.year, now.month, now.day, hour, minute);
 
   setUp(() async {
+    events = MockTransactionEventRepository();
+    when(
+      () => events.getForRoot(any(), TransactionType.expense),
+    ).thenReturn([]);
+    when(
+      () => events.getForRoot(any(), TransactionType.income),
+    ).thenReturn([]);
     await initializeDateFormatting('fr_FR');
     expenses = MockExpenseRepository();
     revenues = MockRevenueRepository();
@@ -92,6 +104,7 @@ void main() {
           expenseRepositoryProvider.overrideWithValue(expenses),
           revenueRepositoryProvider.overrideWithValue(revenues),
           categoryOverrideRepositoryProvider.overrideWithValue(overrides),
+          transactionEventRepositoryProvider.overrideWithValue(events),
           accountRepositoryProvider.overrideWithValue(accounts),
           beneficiaryRepositoryProvider.overrideWithValue(beneficiaries),
         ],

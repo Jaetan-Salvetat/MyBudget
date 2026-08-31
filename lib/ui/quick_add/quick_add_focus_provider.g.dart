@@ -8,18 +8,12 @@ part of 'quick_add_focus_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Lets a caller far from the input ask for it — the nav pill action, from
-/// another tab. Only the change matters, the counter is the signal.
 
 @ProviderFor(QuickAddFocusRequest)
 final quickAddFocusRequestProvider = QuickAddFocusRequestProvider._();
 
-/// Lets a caller far from the input ask for it — the nav pill action, from
-/// another tab. Only the change matters, the counter is the signal.
 final class QuickAddFocusRequestProvider
     extends $NotifierProvider<QuickAddFocusRequest, int> {
-  /// Lets a caller far from the input ask for it — the nav pill action, from
-  /// another tab. Only the change matters, the counter is the signal.
   QuickAddFocusRequestProvider._()
     : super(
         from: null,
@@ -49,9 +43,6 @@ final class QuickAddFocusRequestProvider
 
 String _$quickAddFocusRequestHash() =>
     r'12796afe02484579bfa47ff74ca0e0de213cf917';
-
-/// Lets a caller far from the input ask for it — the nav pill action, from
-/// another tab. Only the change matters, the counter is the signal.
 
 abstract class _$QuickAddFocusRequest extends $Notifier<int> {
   int build();

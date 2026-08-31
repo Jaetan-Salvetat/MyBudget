@@ -1,6 +1,10 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/entities/transaction_change_entry.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/transaction_change_service.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
@@ -57,6 +61,8 @@ class RevenueNotifier extends _$RevenueNotifier {
           updated.name != old.name ||
           updated.beneficiaryId != old.beneficiaryId;
 
+      final forked = changesTerms && old.frequencyEnum != Frequency.oneTime;
+
       if (changesTerms) {
         if (old.frequencyEnum != Frequency.oneTime) {
           final now = DateTime.now();
@@ -82,6 +88,7 @@ class RevenueNotifier extends _$RevenueNotifier {
         }
       }
 
+      _recordChanges(old, updated, forked: forked);
       _recategorizeChain(repo, old, updated);
 
       ref.invalidateSelf();
@@ -89,6 +96,41 @@ class RevenueNotifier extends _$RevenueNotifier {
     } catch (e) {
       rethrow;
     }
+  }
+
+  void _recordChanges(
+    RevenueModel old,
+    RevenueModel updated, {
+    required bool forked,
+  }) {
+    final changes = TransactionChangeService.inPlaceChanges(
+      old,
+      updated,
+      at: DateTime.now(),
+      forked: forked,
+    );
+    if (changes.isEmpty) return;
+
+    final events = ref.read(transactionEventRepositoryProvider);
+    final rootId = old.parentId ?? old.id;
+    for (final TransactionChangeEntry change in changes) {
+      events.add(
+        TransactionEventModel.create(
+          rootId: rootId,
+          type: TransactionType.income,
+          entry: change,
+        ),
+      );
+    }
+  }
+
+  void _forgetOrphanEvents(RevenueRepository repo, RevenueModel deleted) {
+    final rootId = deleted.parentId ?? deleted.id;
+    if (repo.getChain(rootId).isNotEmpty) return;
+
+    ref
+        .read(transactionEventRepositoryProvider)
+        .deleteForRoot(rootId, TransactionType.income);
   }
 
   void _recategorizeChain(
@@ -104,7 +146,10 @@ class RevenueNotifier extends _$RevenueNotifier {
   }
 
   Future<void> deletePermanently(int id) async {
-    ref.read(revenueRepositoryProvider).delete(id);
+    final repo = ref.read(revenueRepositoryProvider);
+    final revenue = repo.get(id);
+    repo.delete(id);
+    if (revenue != null) _forgetOrphanEvents(repo, revenue);
     ref.invalidateSelf();
     await future;
   }
