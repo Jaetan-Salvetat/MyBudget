@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
-class LoanDetailKpiCard extends StatelessWidget {
+class DetailKpiCard extends StatelessWidget {
   final String leftLabel;
   final String leftValue;
   final String? leftHint;
@@ -10,7 +10,7 @@ class LoanDetailKpiCard extends StatelessWidget {
   final String rightValue;
   final String? rightHint;
 
-  const LoanDetailKpiCard({
+  const DetailKpiCard({
     required this.leftLabel,
     required this.leftValue,
     required this.rightLabel,

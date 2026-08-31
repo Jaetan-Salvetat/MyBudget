@@ -28,6 +28,7 @@ import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
+import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
@@ -271,6 +272,11 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       beneficiary: beneficiary,
       category: category,
       showDivider: showDivider,
+      onOpen: () => RevenueDetailsScreen.push(
+        context: context,
+        revenueId: revenue.id,
+        isCurrentMonth: _isViewingCurrentMonth,
+      ),
       onEdit: () => _openEditScreen(revenue, accounts),
       onDelete: (scope) => _deleteRevenue(revenue, scope),
     );

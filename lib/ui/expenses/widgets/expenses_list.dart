@@ -29,6 +29,7 @@ import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
+import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_group_header.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_sort_menu.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_quick_filters.dart';
@@ -366,6 +367,11 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       beneficiary: beneficiary,
       showDivider: showDivider,
       showDate: showDate,
+      onOpen: () => ExpenseDetailsScreen.push(
+        context: context,
+        expenseId: expense.id,
+        isCurrentMonth: _isViewingCurrentMonth,
+      ),
       onEdit: () => _openEditScreen(expense),
       onDelete: (scope) => _deleteExpense(expense, scope),
     );

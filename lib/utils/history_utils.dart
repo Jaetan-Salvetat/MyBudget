@@ -109,3 +109,16 @@ bool occursOnDay(
 
   return dayOnly(dayInMonthOf(startDate, frequency, month)) == dayOnly(day);
 }
+
+RecurringDeletion? initialDeletionScopeOf(
+  DateTime startDate,
+  DateTime? endDate,
+  Frequency frequency,
+  DateTime asOf,
+) {
+  if (frequency == Frequency.oneTime) return null;
+
+  return hasOccurredThisMonth(startDate, endDate, frequency, asOf)
+      ? RecurringDeletion.afterThisMonth
+      : RecurringDeletion.includingThisMonth;
+}

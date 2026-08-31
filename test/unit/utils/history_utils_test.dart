@@ -481,4 +481,42 @@ void main() {
       );
     });
   });
+
+  group('initialDeletionScopeOf', () {
+    test('leaves a one-time rule without any scope', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 6, 5),
+          null,
+          Frequency.oneTime,
+          DateTime(2026, 6, 20),
+        ),
+        isNull,
+      );
+    });
+
+    test('spares the month already charged', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 3, 5),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 6, 20),
+        ),
+        RecurringDeletion.afterThisMonth,
+      );
+    });
+
+    test('drops the month still to be charged', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 3, 25),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 6, 20),
+        ),
+        RecurringDeletion.includingThisMonth,
+      );
+    });
+  });
 }

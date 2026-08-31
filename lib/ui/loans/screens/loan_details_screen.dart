@@ -10,9 +10,9 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/widgets/loan_detail_hero.dart';
-import 'package:mybudget/ui/loans/widgets/loan_detail_info_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_detail_kpi_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_detail_row.dart';
+import 'package:mybudget/ui/common/widgets/detail/detail_info_card.dart';
+import 'package:mybudget/ui/common/widgets/detail/detail_kpi_card.dart';
+import 'package:mybudget/ui/common/widgets/detail/detail_row.dart';
 import 'package:mybudget/ui/loans/screens/loan_schedule_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
 import 'package:mybudget/ui/loans/screens/loan_edit_screen.dart';
@@ -75,11 +75,11 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
           children: [
             LoanDetailHero(loan: updatedLoan),
             _buildKpiCard(updatedLoan),
-            LoanDetailInfoCard(
+            DetailInfoCard(
               title: 'Détails du prêt',
               rows: _buildLoanRows(updatedLoan, account),
             ),
-            LoanDetailInfoCard(
+            DetailInfoCard(
               title: 'Assurance',
               rows: _buildInsuranceRows(updatedLoan),
             ),
@@ -168,7 +168,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     final durationLabel = loan.duration > 0
         ? '${loan.duration}'
         : '${_monthsBetween(loan.startDate, loan.endDate)}';
-    return LoanDetailKpiCard(
+    return DetailKpiCard(
       leftLabel: 'Capital restant',
       leftValue: _compactFormatter.format(loan.remainingCapital),
       rightLabel: 'Mois restants',
@@ -177,71 +177,71 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     );
   }
 
-  List<LoanDetailRow> _buildLoanRows(Loan loan, AccountModel account) {
-    final rows = <LoanDetailRow>[
-      LoanDetailRow(
+  List<DetailRow> _buildLoanRows(Loan loan, AccountModel account) {
+    final rows = <DetailRow>[
+      DetailRow(
         label: 'Montant emprunté',
         value: _compactFormatter.format(loan.amount),
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Taux d\'intérêt',
         value: '${loan.interestRate.toStringAsFixed(2).replaceAll('.', ',')} %',
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Durée',
         value: loan.hasEarlyRepayment
             ? '${loan.installments.length} mois (au lieu de ${_durationMonths(loan)})'
             : '${_durationMonths(loan)} mois',
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Type',
         value: loan.repaymentType.label,
         icon: Symbols.trending_down_rounded,
       ),
       if (loan.deferredMonths > 0) ...[
-        LoanDetailRow(
+        DetailRow(
           label: 'Mois de différé',
           value: '${loan.deferredMonths}',
         ),
-        LoanDetailRow(
+        DetailRow(
           label: 'Type de différé',
           value: loan.deferralType.label,
         ),
       ],
-      LoanDetailRow(
+      DetailRow(
         label: 'Date de début',
         value: _dateFormatter.format(loan.startDate),
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Date de fin',
         value: _dateFormatter.format(loan.endDate),
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Jour de prélèvement',
         value: 'Le ${loan.dayOfMonth}',
       ),
       if (loan.fees > 0)
-        LoanDetailRow(
+        DetailRow(
           label: 'Frais de dossier',
           value: _formatter.format(loan.fees),
         ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Coût total',
         value: _formatter.format(loan.totalCost),
       ),
-      LoanDetailRow(label: 'Type de prêt', value: loan.purpose.label),
+      DetailRow(label: 'Type de prêt', value: loan.purpose.label),
       if (!loan.hasIndemnityClause)
-        const LoanDetailRow(
+        const DetailRow(
           label: 'Indemnité anticipée',
           value: 'Non prévue au contrat',
         ),
-      LoanDetailRow(
+      DetailRow(
         label: 'TAEG',
         value:
             '${loan.annualPercentageRate.toStringAsFixed(2).replaceAll('.', ',')} %',
         icon: Symbols.percent_rounded,
       ),
-      LoanDetailRow(
+      DetailRow(
         label: 'Compte',
         value: account.bank.isEmpty
             ? account.name
@@ -252,10 +252,10 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     return rows;
   }
 
-  List<LoanDetailRow> _buildInsuranceRows(Loan loan) {
+  List<DetailRow> _buildInsuranceRows(Loan loan) {
     if (loan.insuranceType == LoanInsuranceType.none) {
       return const [
-        LoanDetailRow(label: 'Type', value: 'Aucune', showDivider: false),
+        DetailRow(label: 'Type', value: 'Aucune', showDivider: false),
       ];
     }
 
@@ -264,9 +264,9 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         : '${loan.insuranceValue.toStringAsFixed(2).replaceAll('.', ',')} %';
 
     return [
-      LoanDetailRow(label: 'Type', value: loan.insuranceType.label),
-      LoanDetailRow(label: 'Montant', value: amountLabel),
-      LoanDetailRow(
+      DetailRow(label: 'Type', value: loan.insuranceType.label),
+      DetailRow(label: 'Montant', value: amountLabel),
+      DetailRow(
         label: 'Mode de calcul',
         value: loan.insuranceCalculationMode.label,
         showDivider: false,

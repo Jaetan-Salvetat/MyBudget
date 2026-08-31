@@ -19,12 +19,14 @@ class CompactExpenseRow extends StatelessWidget {
 
   final bool isCurrentMonth;
   final bool showDate;
+  final VoidCallback onOpen;
   final VoidCallback onEdit;
   final ValueChanged<RecurringDeletion> onDelete;
 
   const CompactExpenseRow({
     required this.expense,
     required this.isCurrentMonth,
+    required this.onOpen,
     required this.onEdit,
     required this.onDelete,
     this.category,
@@ -49,7 +51,7 @@ class CompactExpenseRow extends StatelessWidget {
     ];
 
     return InkWell(
-      onTap: _isReadOnly ? null : onEdit,
+      onTap: onOpen,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -148,18 +150,12 @@ class CompactExpenseRow extends StatelessWidget {
 
   bool get _isReadOnly => !isCurrentMonth || expense.endDate != null;
 
-  RecurringDeletion? get _initialDeletionScope {
-    if (expense.frequencyEnum == Frequency.oneTime) return null;
-
-    return hasOccurredThisMonth(
-      expense.startDate,
-      expense.endDate,
-      expense.frequencyEnum,
-      DateTime.now(),
-    )
-        ? RecurringDeletion.afterThisMonth
-        : RecurringDeletion.includingThisMonth;
-  }
+  RecurringDeletion? get _initialDeletionScope => initialDeletionScopeOf(
+    expense.startDate,
+    expense.endDate,
+    expense.frequencyEnum,
+    DateTime.now(),
+  );
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(
