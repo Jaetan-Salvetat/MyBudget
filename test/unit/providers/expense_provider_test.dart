@@ -4,12 +4,16 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
 
 void main() {
   late MockExpenseRepository mockExpenseRepo;
@@ -18,16 +22,23 @@ void main() {
     registerFallbackValue(FakeExpenseModel());
   });
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     mockExpenseRepo = MockExpenseRepository();
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
     when(() => mockExpenseRepo.getClosed()).thenReturn([]);
+    when(() => mockExpenseRepo.getChain(any())).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
-      overrides: [expenseRepositoryProvider.overrideWithValue(mockExpenseRepo)],
+      overrides: [
+        expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
+        transactionEventRepositoryProvider.overrideWithValue(events),
+      ],
     );
   }
 

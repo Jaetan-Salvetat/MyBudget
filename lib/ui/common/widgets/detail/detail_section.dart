@@ -1,15 +1,16 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/ui/loans/widgets/loan_detail_row.dart';
 
-class LoanDetailInfoCard extends StatelessWidget {
+class DetailSection extends StatelessWidget {
   final String title;
-  final List<LoanDetailRow> rows;
+  final Widget child;
+  final EdgeInsets padding;
 
-  const LoanDetailInfoCard({
+  const DetailSection({
     required this.title,
-    required this.rows,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
     super.key,
   });
 
@@ -31,10 +32,7 @@ class LoanDetailInfoCard extends StatelessWidget {
             ),
           ),
         ),
-        FrostedCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-          child: Column(children: rows),
-        ),
+        FrostedCard(padding: padding, child: child),
       ],
     );
   }

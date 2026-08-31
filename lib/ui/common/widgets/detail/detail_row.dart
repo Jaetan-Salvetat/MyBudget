@@ -1,13 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 
-class LoanDetailRow extends StatelessWidget {
+class DetailRow extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
   final Color? valueColor;
   final bool showDivider;
 
-  const LoanDetailRow({
+  const DetailRow({
     required this.label,
     required this.value,
     this.icon,

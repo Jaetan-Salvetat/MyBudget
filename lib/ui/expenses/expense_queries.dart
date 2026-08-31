@@ -1,6 +1,8 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -138,4 +140,12 @@ Map<String, double> expensesByGroup(Ref ref) {
     totals.update(groupKey, (value) => value + amount, ifAbsent: () => amount);
   }
   return totals;
+}
+
+@Riverpod(keepAlive: true)
+List<TransactionEventModel> expenseEvents(Ref ref, int rootId) {
+  ref.watch(expenseProvider);
+  return ref
+      .watch(transactionEventRepositoryProvider)
+      .getForRoot(rootId, TransactionType.expense);
 }

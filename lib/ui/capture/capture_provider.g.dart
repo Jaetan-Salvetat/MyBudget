@@ -8,23 +8,13 @@ part of 'capture_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// What the month has left once everything it already owes is counted. The
-/// capture screen shows that figure and nothing else : it is the consequence
-/// of what was just typed, not a summary of the month.
 
 @ProviderFor(remainingThisMonth)
 final remainingThisMonthProvider = RemainingThisMonthProvider._();
 
-/// What the month has left once everything it already owes is counted. The
-/// capture screen shows that figure and nothing else : it is the consequence
-/// of what was just typed, not a summary of the month.
-
 final class RemainingThisMonthProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  /// What the month has left once everything it already owes is counted. The
-  /// capture screen shows that figure and nothing else : it is the consequence
-  /// of what was just typed, not a summary of the month.
   RemainingThisMonthProvider._()
     : super(
         from: null,
@@ -61,14 +51,8 @@ final class RemainingThisMonthProvider
 String _$remainingThisMonthHash() =>
     r'9136ff2a5737a2ca0440aea27772a0441c7e3844';
 
-/// The past cut into slices that get coarser as they get older, newest first
-/// throughout. Empty slices are dropped rather than drawn hollow.
-
 @ProviderFor(journalBuckets)
 final journalBucketsProvider = JournalBucketsProvider._();
-
-/// The past cut into slices that get coarser as they get older, newest first
-/// throughout. Empty slices are dropped rather than drawn hollow.
 
 final class JournalBucketsProvider
     extends
@@ -78,8 +62,6 @@ final class JournalBucketsProvider
           List<JournalBucket>
         >
     with $Provider<List<JournalBucket>> {
-  /// The past cut into slices that get coarser as they get older, newest first
-  /// throughout. Empty slices are dropped rather than drawn hollow.
   JournalBucketsProvider._()
     : super(
         from: null,
@@ -116,14 +98,8 @@ final class JournalBucketsProvider
 
 String _$journalBucketsHash() => r'e3bb61e56ee7a848a5db48c98e07557a1c50d0b5';
 
-/// Today alone, for the figure above the list and for the hint that only
-/// types itself out while the day is still bare.
-
 @ProviderFor(todayJournal)
 final todayJournalProvider = TodayJournalProvider._();
-
-/// Today alone, for the figure above the list and for the hint that only
-/// types itself out while the day is still bare.
 
 final class TodayJournalProvider
     extends
@@ -133,8 +109,6 @@ final class TodayJournalProvider
           List<JournalEntry>
         >
     with $Provider<List<JournalEntry>> {
-  /// Today alone, for the figure above the list and for the hint that only
-  /// types itself out while the day is still bare.
   TodayJournalProvider._()
     : super(
         from: null,

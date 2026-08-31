@@ -62,18 +62,11 @@ abstract class _$QuickAddEnabledNotifier extends $Notifier<bool> {
   }
 }
 
-/// Le moteur retenu. Il ne bascule sur [QuickAddEngineMode.apiKey] qu'après une
-/// vérification aboutie : cocher l'option ne suffit pas.
-
 @ProviderFor(QuickAddEngineModeNotifier)
 final quickAddEngineModeProvider = QuickAddEngineModeNotifierProvider._();
 
-/// Le moteur retenu. Il ne bascule sur [QuickAddEngineMode.apiKey] qu'après une
-/// vérification aboutie : cocher l'option ne suffit pas.
 final class QuickAddEngineModeNotifierProvider
     extends $NotifierProvider<QuickAddEngineModeNotifier, QuickAddEngineMode> {
-  /// Le moteur retenu. Il ne bascule sur [QuickAddEngineMode.apiKey] qu'après une
-  /// vérification aboutie : cocher l'option ne suffit pas.
   QuickAddEngineModeNotifierProvider._()
     : super(
         from: null,
@@ -103,9 +96,6 @@ final class QuickAddEngineModeNotifierProvider
 
 String _$quickAddEngineModeNotifierHash() =>
     r'c7e8ab4c511aba935b4512b4bfeeed2dd822fd38';
-
-/// Le moteur retenu. Il ne bascule sur [QuickAddEngineMode.apiKey] qu'après une
-/// vérification aboutie : cocher l'option ne suffit pas.
 
 abstract class _$QuickAddEngineModeNotifier
     extends $Notifier<QuickAddEngineMode> {
@@ -179,18 +169,11 @@ abstract class _$SelectedAiProviderNotifier extends $Notifier<AiProvider> {
   }
 }
 
-/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
-/// la clé ni le moteur : seul l'identifiant envoyé au service change.
-
 @ProviderFor(SelectedAiModelNotifier)
 final selectedAiModelProvider = SelectedAiModelNotifierProvider._();
 
-/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
-/// la clé ni le moteur : seul l'identifiant envoyé au service change.
 final class SelectedAiModelNotifierProvider
     extends $NotifierProvider<SelectedAiModelNotifier, AiModel> {
-  /// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
-  /// la clé ni le moteur : seul l'identifiant envoyé au service change.
   SelectedAiModelNotifierProvider._()
     : super(
         from: null,
@@ -220,9 +203,6 @@ final class SelectedAiModelNotifierProvider
 
 String _$selectedAiModelNotifierHash() =>
     r'b996ee92726a2001f3b0ec29a90b1d8d420ff1e2';
-
-/// Le modèle interrogé avec la clé de l'utilisateur. Le changer ne touche ni
-/// la clé ni le moteur : seul l'identifiant envoyé au service change.
 
 abstract class _$SelectedAiModelNotifier extends $Notifier<AiModel> {
   AiModel build();
@@ -295,20 +275,12 @@ abstract class _$AiCloudConsentNotifier extends $Notifier<bool> {
   }
 }
 
-/// Vrai quand la clé du fournisseur courant est dans le trousseau. La clé
-/// elle-même ne remonte jamais jusqu'à l'UI.
-
 @ProviderFor(hasStoredApiKey)
 final hasStoredApiKeyProvider = HasStoredApiKeyProvider._();
-
-/// Vrai quand la clé du fournisseur courant est dans le trousseau. La clé
-/// elle-même ne remonte jamais jusqu'à l'UI.
 
 final class HasStoredApiKeyProvider
     extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
     with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Vrai quand la clé du fournisseur courant est dans le trousseau. La clé
-  /// elle-même ne remonte jamais jusqu'à l'UI.
   HasStoredApiKeyProvider._()
     : super(
         from: null,
@@ -336,23 +308,12 @@ final class HasStoredApiKeyProvider
 
 String _$hasStoredApiKeyHash() => r'c3bd7ffc5feaf55cb2c745b2952d6dfde4661659';
 
-/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
-/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
-/// sans avoir à ouvrir les réglages.
-
 @ProviderFor(quickAddUsesRemote)
 final quickAddUsesRemoteProvider = QuickAddUsesRemoteProvider._();
-
-/// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
-/// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
-/// sans avoir à ouvrir les réglages.
 
 final class QuickAddUsesRemoteProvider
     extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  /// Vrai quand une saisie part réellement sur le réseau. C'est ce que la barre
-  /// d'ajout rapide montre, discrètement : l'utilisateur doit pouvoir le voir
-  /// sans avoir à ouvrir les réglages.
   QuickAddUsesRemoteProvider._()
     : super(
         from: null,
@@ -389,18 +350,11 @@ final class QuickAddUsesRemoteProvider
 String _$quickAddUsesRemoteHash() =>
     r'bfd386d9c34851a3785caf377a19e143af04607e';
 
-/// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
-/// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
-
 @ProviderFor(QuickAddDegradationNotifier)
 final quickAddDegradationProvider = QuickAddDegradationNotifierProvider._();
 
-/// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
-/// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 final class QuickAddDegradationNotifierProvider
     extends $NotifierProvider<QuickAddDegradationNotifier, bool> {
-  /// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
-  /// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
   QuickAddDegradationNotifierProvider._()
     : super(
         from: null,
@@ -430,9 +384,6 @@ final class QuickAddDegradationNotifierProvider
 
 String _$quickAddDegradationNotifierHash() =>
     r'3dafc99d4f2c62e85748c0429e9dd388d241aef8';
-
-/// L'ajout rapide est-il retombé en local malgré une clé active. Ne passe à
-/// vrai qu'une fois : l'utilisateur est prévenu une seule fois.
 
 abstract class _$QuickAddDegradationNotifier extends $Notifier<bool> {
   bool build();

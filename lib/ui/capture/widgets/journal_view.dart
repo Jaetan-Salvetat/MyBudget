@@ -17,9 +17,13 @@ import 'package:mybudget/ui/capture/widgets/day_gauge.dart';
 import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 import 'package:mybudget/ui/capture/widgets/journal_line.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
+import 'package:mybudget/ui/loans/loan_queries.dart';
+import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
+import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class JournalView extends ConsumerStatefulWidget {
@@ -207,6 +211,42 @@ class _JournalViewState extends ConsumerState<JournalView> {
     }
   }
 
+  void _openDetails(JournalEntry entry) {
+    switch (entry.source) {
+      case JournalEntrySource.expense:
+        ExpenseDetailsScreen.push(
+          context: context,
+          expenseId: entry.id,
+          isCurrentMonth: _landsThisMonth(entry),
+        );
+      case JournalEntrySource.revenue:
+        RevenueDetailsScreen.push(
+          context: context,
+          revenueId: entry.id,
+          isCurrentMonth: _landsThisMonth(entry),
+        );
+      case JournalEntrySource.loan:
+        _openLoanDetails(entry.id);
+    }
+  }
+
+  bool _landsThisMonth(JournalEntry entry) {
+    final now = DateTime.now();
+    return entry.at.year == now.year && entry.at.month == now.month;
+  }
+
+  void _openLoanDetails(int loanId) {
+    final loan = ref
+        .read(activeLoansProvider)
+        .where((candidate) => candidate.id == loanId)
+        .firstOrNull;
+    if (loan == null) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => LoanDetailsScreen(loan: loan)),
+    );
+  }
+
   Widget _line(
     _LineRow row,
     CategoryDisplayResolver? resolver,
@@ -227,6 +267,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
       keepsTheHour: row.keepsTheHour,
       isFresh: fresh != null,
       onUndo: fresh == null ? null : () => _undo(ref, fresh),
+      onTap: () => _openDetails(entry),
     );
 
     final landing = submissions.isNotEmpty && _isLast(entry, submissions);

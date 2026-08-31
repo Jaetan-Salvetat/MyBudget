@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
@@ -12,13 +16,20 @@ class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class FakeExpenseModel extends Fake implements ExpenseModel {}
 
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() => registerFallbackValue(FakeExpenseModel()));
+  setUpAll(() {
+    registerFallbackValue(FakeExpenseModel());
+    registerFallbackValue(TransactionEventModel());
+  });
 
   late MockExpenseRepository repo;
   late ExpenseModel? closed;
+  late ExpenseModel? opened;
   late List<int> deleted;
 
   final today = dayOnly(DateTime.now());
@@ -38,9 +49,13 @@ void main() {
     return expense;
   }
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     repo = MockExpenseRepository();
     closed = null;
+    opened = null;
     deleted = [];
 
     when(() => repo.getActive()).thenReturn([]);
@@ -53,7 +68,10 @@ void main() {
       deleted.add(invocation.positionalArguments.first as int);
       return true;
     });
-    when(() => repo.add(any())).thenReturn(8);
+    when(() => repo.add(any())).thenAnswer((invocation) {
+      opened = invocation.positionalArguments.first as ExpenseModel;
+      return 8;
+    });
     when(() => repo.getChain(any())).thenReturn([]);
   });
 
@@ -61,7 +79,10 @@ void main() {
     when(() => repo.get(7)).thenReturn(expense);
     when(() => repo.getActive()).thenReturn([expense]);
     final container = ProviderContainer(
-      overrides: [expenseRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        expenseRepositoryProvider.overrideWithValue(repo),
+        transactionEventRepositoryProvider.overrideWithValue(events),
+      ],
     );
     addTearDown(container.dispose);
     await container.read(expenseProvider.future);
@@ -220,7 +241,7 @@ void main() {
   });
 
   group('editing a rule that has already run', () {
-    test('closes the old row on the day of the edit', () async {
+    test('closes the old row the eve of the one taking over', () async {
       final expense = subscription(
         startDate: DateTime(today.year, today.month - 2, 1),
       );
@@ -228,7 +249,174 @@ void main() {
 
       await notifier.updateExpense(expense.copyWith(amount: 35));
 
-      expect(dayOnly(closed!.endDate!), today);
+      expect(
+        closed!.endDate,
+        dayOnly(opened!.startDate).subtract(const Duration(days: 1)),
+      );
+      expect(deleted, isEmpty);
+    });
+
+    test('leaves no month holding both rows, nor neither', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(amount: 35));
+
+      for (final month in [
+        DateTime(today.year, today.month - 1),
+        DateTime(today.year, today.month),
+        DateTime(today.year, today.month + 1),
+      ]) {
+        final held = [closed!, opened!]
+            .where(
+              (e) => occursInMonth(
+                e.startDate,
+                e.endDate,
+                e.frequencyEnum,
+                month,
+              ),
+            )
+            .length;
+        expect(held, 1, reason: 'month $month');
+      }
+    });
+  });
+
+  group('an edit told to take effect this month', () {
+    ExpenseModel dueEarlyInTheMonth() =>
+        subscription(startDate: DateTime(today.year, today.month - 2, 1));
+
+    test('opens the rule taking over on the month in progress', () async {
+      final notifier = await notifierWith(dueEarlyInTheMonth());
+
+      await notifier.updateExpense(
+        dueEarlyInTheMonth().copyWith(amount: 35),
+        effectiveMonth: EffectiveMonth.thisMonth,
+      );
+
+      expect(
+        occursInMonth(
+          opened!.startDate,
+          opened!.endDate,
+          opened!.frequencyEnum,
+          DateTime(today.year, today.month),
+        ),
+        isTrue,
+      );
+    });
+
+    test('takes the month in progress away from the old row', () async {
+      final notifier = await notifierWith(dueEarlyInTheMonth());
+
+      await notifier.updateExpense(
+        dueEarlyInTheMonth().copyWith(amount: 35),
+        effectiveMonth: EffectiveMonth.thisMonth,
+      );
+
+      expect(
+        occursInMonth(
+          closed!.startDate,
+          closed!.endDate,
+          closed!.frequencyEnum,
+          DateTime(today.year, today.month),
+        ),
+        isFalse,
+      );
+    });
+
+    test('leaves the months before it on the old row', () async {
+      final notifier = await notifierWith(dueEarlyInTheMonth());
+
+      await notifier.updateExpense(
+        dueEarlyInTheMonth().copyWith(amount: 35),
+        effectiveMonth: EffectiveMonth.thisMonth,
+      );
+
+      expect(
+        occursInMonth(
+          closed!.startDate,
+          closed!.endDate,
+          closed!.frequencyEnum,
+          DateTime(today.year, today.month - 1),
+        ),
+        isTrue,
+      );
+    });
+  });
+
+  group('an edit told to take effect next month', () {
+    ExpenseModel dueLateInTheMonth() =>
+        subscription(startDate: DateTime(today.year, today.month - 2, 28));
+
+    test('leaves the month in progress on the old row', () async {
+      final notifier = await notifierWith(dueLateInTheMonth());
+
+      await notifier.updateExpense(
+        dueLateInTheMonth().copyWith(amount: 35),
+        effectiveMonth: EffectiveMonth.nextMonth,
+      );
+
+      expect(
+        occursInMonth(
+          closed!.startDate,
+          closed!.endDate,
+          closed!.frequencyEnum,
+          DateTime(today.year, today.month),
+        ),
+        isTrue,
+      );
+    });
+
+    test('opens the rule taking over on the month after', () async {
+      final notifier = await notifierWith(dueLateInTheMonth());
+
+      await notifier.updateExpense(
+        dueLateInTheMonth().copyWith(amount: 35),
+        effectiveMonth: EffectiveMonth.nextMonth,
+      );
+
+      final nextMonth = DateTime(today.year, today.month + 1);
+      expect(opened!.startDate.month, nextMonth.month);
+      expect(
+        occursInMonth(
+          opened!.startDate,
+          opened!.endDate,
+          opened!.frequencyEnum,
+          nextMonth,
+        ),
+        isTrue,
+      );
+    });
+  });
+
+  group('editing the day a rule falls on', () {
+    test('opens a rule on the new day', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 10),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(
+        expense.copyWith(startDate: DateTime(today.year, today.month - 2, 22)),
+      );
+
+      expect(opened!.startDate.day, 22);
+    });
+
+    test('leaves the rule alone when only the month read from moved', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 10),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(
+        expense.copyWith(startDate: DateTime(today.year, today.month, 10)),
+      );
+
+      expect(opened, isNull);
+      expect(closed, isNull);
       expect(deleted, isEmpty);
     });
   });
@@ -332,7 +520,10 @@ void main() {
         await notifier.updateExpense(expense.copyWith(name: 'Sumeria Pro'));
 
         verify(() => repo.add(any())).called(1);
-        expect(dayOnly(closed!.endDate!), today);
+        expect(
+          closed!.endDate,
+          dayOnly(opened!.startDate).subtract(const Duration(days: 1)),
+        );
       },
     );
 
@@ -373,7 +564,7 @@ void main() {
       await notifier.updateExpense(asSeenInAPastMonth);
 
       expect(closed!.startDate, expense.startDate);
-      expect(dayOnly(closed!.endDate!), today);
+      expect(closed!.endDate!.isAfter(dayOnly(expense.startDate)), isTrue);
     });
 
     test('opens the rule taking over on the next occurrence, not that '
@@ -382,11 +573,6 @@ void main() {
         startDate: DateTime(today.year, today.month - 4, 12),
       );
       final notifier = await notifierWith(expense);
-      ExpenseModel? opened;
-      when(() => repo.add(any())).thenAnswer((invocation) {
-        opened = invocation.positionalArguments.first as ExpenseModel;
-        return 8;
-      });
 
       await notifier.updateExpense(
         expense.copyWith(
@@ -418,6 +604,56 @@ void main() {
           );
         }
       }
+    });
+  });
+
+  group('the trail an edit leaves behind', () {
+    List<TransactionEventModel> recorded() {
+      return verify(() => events.add(captureAny())).captured
+          .cast<TransactionEventModel>();
+    }
+
+    test('a refiling is written down, the chain cannot tell it', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      )..categorySlug = 'logement.loyer';
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(
+        expense.copyWith(categorySlug: 'finance.frais_bancaires'),
+      );
+
+      final written = recorded().single;
+      expect(written.changeEnum, TransactionChange.category);
+      expect(written.previousValue, 'logement.loyer');
+      expect(written.nextValue, 'finance.frais_bancaires');
+      expect(written.rootId, 7);
+    });
+
+    test('a new price on a recurring rule is left to the chain', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month - 2, 1),
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(amount: 30));
+
+      verifyNever(() => events.add(any()));
+    });
+
+    test('a new price on a one-off is written down', () async {
+      final expense = subscription(
+        startDate: DateTime(today.year, today.month, 1),
+        frequency: 'Ponctuel',
+      );
+      final notifier = await notifierWith(expense);
+
+      await notifier.updateExpense(expense.copyWith(amount: 30));
+
+      final written = recorded().single;
+      expect(written.changeEnum, TransactionChange.amount);
+      expect(written.previousValue, '20.0');
+      expect(written.nextValue, '30.0');
     });
   });
 }

@@ -8,22 +8,9 @@ part of 'frequent_categories_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Categories the user assigns the most, most used first. A null [type] ranks
-/// expenses and revenues together.
-///
-/// Counted per entry rather than per occurrence: expenses and revenues are
-/// recurrences, so a monthly rent would otherwise outweigh everything the user
-/// actually reaches for when picking a category.
 
 @ProviderFor(frequentCategories)
 final frequentCategoriesProvider = FrequentCategoriesFamily._();
-
-/// Categories the user assigns the most, most used first. A null [type] ranks
-/// expenses and revenues together.
-///
-/// Counted per entry rather than per occurrence: expenses and revenues are
-/// recurrences, so a monthly rent would otherwise outweigh everything the user
-/// actually reaches for when picking a category.
 
 final class FrequentCategoriesProvider
     extends
@@ -33,12 +20,6 @@ final class FrequentCategoriesProvider
           List<CategoryDisplay>
         >
     with $Provider<List<CategoryDisplay>> {
-  /// Categories the user assigns the most, most used first. A null [type] ranks
-  /// expenses and revenues together.
-  ///
-  /// Counted per entry rather than per occurrence: expenses and revenues are
-  /// recurrences, so a monthly rent would otherwise outweigh everything the user
-  /// actually reaches for when picking a category.
   FrequentCategoriesProvider._({
     required FrequentCategoriesFamily super.from,
     required TransactionType? super.argument,
@@ -94,13 +75,6 @@ final class FrequentCategoriesProvider
 String _$frequentCategoriesHash() =>
     r'0770cbdab37cf2b418ef18392c09cae30706b1cf';
 
-/// Categories the user assigns the most, most used first. A null [type] ranks
-/// expenses and revenues together.
-///
-/// Counted per entry rather than per occurrence: expenses and revenues are
-/// recurrences, so a monthly rent would otherwise outweigh everything the user
-/// actually reaches for when picking a category.
-
 final class FrequentCategoriesFamily extends $Family
     with $FunctionalFamilyOverride<List<CategoryDisplay>, TransactionType?> {
   FrequentCategoriesFamily._()
@@ -111,13 +85,6 @@ final class FrequentCategoriesFamily extends $Family
         $allTransitiveDependencies: null,
         isAutoDispose: false,
       );
-
-  /// Categories the user assigns the most, most used first. A null [type] ranks
-  /// expenses and revenues together.
-  ///
-  /// Counted per entry rather than per occurrence: expenses and revenues are
-  /// recurrences, so a monthly rent would otherwise outweigh everything the user
-  /// actually reaches for when picking a category.
 
   FrequentCategoriesProvider call(TransactionType? type) =>
       FrequentCategoriesProvider._(argument: type, from: this);

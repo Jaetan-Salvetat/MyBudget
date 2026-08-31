@@ -43,11 +43,11 @@ class TransactionActionsSheet {
               ),
               onTap: () {
                 Navigator.pop(sheetContext);
-                _confirmDelete(
-                  context,
-                  deleteConfirmationMessage,
-                  initialScope,
-                  onDelete,
+                confirmDelete(
+                  context: context,
+                  message: deleteConfirmationMessage,
+                  initialScope: initialScope,
+                  onDelete: onDelete,
                 );
               },
             ),
@@ -57,12 +57,12 @@ class TransactionActionsSheet {
     );
   }
 
-  static void _confirmDelete(
-    BuildContext context,
-    String message,
+  static void confirmDelete({
+    required BuildContext context,
+    required String message,
+    required ValueChanged<RecurringDeletion> onDelete,
     RecurringDeletion? initialScope,
-    ValueChanged<RecurringDeletion> onDelete,
-  ) {
+  }) {
     var scope = initialScope ?? RecurringDeletion.afterThisMonth;
 
     showFrostedDialog<void>(

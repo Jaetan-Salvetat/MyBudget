@@ -325,6 +325,15 @@ LEXICON: dict[str, list[str]] = {
         "assurance dentaire", "prévoyance", "health insurance", "medical insurance",
         "dental cover", "private health cover", "health plan",
     ],
+    "finance.assurance_autre": [
+        "assurance téléphone", "assurance mobile", "assurance smartphone",
+        "assurance portable", "assurance appareils", "garantie casse",
+        "assurance casse écran", "assurance scolaire", "assurance animaux",
+        "assurance chien", "assurance chat", "assurance voyage",
+        "assurance annulation", "assurance bagages", "assurance vélo",
+        "assurance trottinette", "protection juridique", "assurance juridique",
+        "assurance obsèques", "prime d'assurance", "cotisation assurance",
+    ],
     "finance.epargne_investissement": [
         "épargne", "virement épargne", "livret", "livret A", "PEL", "PEA", "assurance vie",
         "bourse", "actions", "ETF", "obligations", "crypto", "bitcoin", "placement",
@@ -380,6 +389,13 @@ LEXICON: dict[str, list[str]] = {
         "pension alimentaire", "contribution éducation", "versement pension",
         "aide aux parents", "aide à mon fils", "aide à ma fille", "child support",
         "child maintenance", "maintenance payment", "alimony", "family support payment",
+    ],
+    "famille_education.enfant": [
+        "dépense enfant", "achat pour les enfants", "argent de poche",
+        "couches", "lingettes bébé", "biberon", "puériculture",
+        "matériel bébé", "poussette", "siège auto bébé", "lit bébé",
+        "chaise haute", "jouet", "jouets", "peluche", "doudou",
+        "trousse de l'école", "affaires du petit",
     ],
     "voyage.transport_longue_distance": [
         "billet de train", "billet d'avion", "avion", "vol", "train", "TGV", "car",

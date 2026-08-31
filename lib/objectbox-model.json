@@ -512,10 +512,56 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "11:7981549147354617825",
+      "lastPropertyId": "7:2300762050684801568",
+      "name": "TransactionEventModel",
+      "properties": [
+        {
+          "id": "1:5621941304765792308",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7769571246329802436",
+          "name": "rootId",
+          "indexId": "11:8271769439371245867",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:6708190324143525288",
+          "name": "transactionType",
+          "type": 9
+        },
+        {
+          "id": "4:907520306410394687",
+          "name": "change",
+          "type": 9
+        },
+        {
+          "id": "5:3510274508242355065",
+          "name": "previousValue",
+          "type": 9
+        },
+        {
+          "id": "6:5459888584421500536",
+          "name": "nextValue",
+          "type": 9
+        },
+        {
+          "id": "7:2300762050684801568",
+          "name": "at",
+          "type": 10
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "10:5282442622348339601",
-  "lastIndexId": "10:8794940862762798163",
+  "lastEntityId": "11:7981549147354617825",
+  "lastIndexId": "11:8271769439371245867",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

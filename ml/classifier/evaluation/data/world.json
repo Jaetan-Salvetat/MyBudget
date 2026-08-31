@@ -1162,6 +1162,34 @@
       "category": "divers.animaux",
       "recurrence": "ponctuel",
       "axis": "product"
+    },
+    {
+      "input": "assurance téléphone",
+      "type": "expense",
+      "category": "finance.assurance_autre",
+      "recurrence": "fixe",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Celside",
+      "type": "expense",
+      "category": "finance.assurance_autre",
+      "recurrence": "fixe",
+      "axis": "service_online"
+    },
+    {
+      "input": "King Jouet",
+      "type": "expense",
+      "category": "famille_education.enfant",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "poussette",
+      "type": "expense",
+      "category": "famille_education.enfant",
+      "recurrence": "ponctuel",
+      "axis": "product"
     }
   ]
 }

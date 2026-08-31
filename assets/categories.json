@@ -108,6 +108,7 @@
                 "assurance_habitation": { "label": "Assurance habitation", "icon": "shield" },
                 "assurance_auto": { "label": "Assurance auto", "icon": "car_crash" },
                 "assurance_sante": { "label": "Mutuelle santé", "icon": "medical_services" },
+                "assurance_autre": { "label": "Autre assurance", "icon": "policy" },
                 "epargne_investissement": { "label": "Épargne & investissement", "icon": "savings" },
                 "credit_pret": { "label": "Crédit & prêt", "icon": "credit_score" }
             }
@@ -123,7 +124,8 @@
                 "garde_enfant": { "label": "Garde d'enfant", "icon": "child_care" },
                 "cantine": { "label": "Cantine", "icon": "lunch_dining" },
                 "activites_enfants": { "label": "Activités enfants", "icon": "toys" },
-                "pension_alimentaire": { "label": "Pension alimentaire", "icon": "family_restroom" }
+                "pension_alimentaire": { "label": "Pension alimentaire", "icon": "family_restroom" },
+                "enfant": { "label": "Enfant", "icon": "child_friendly" }
             }
         },
         "voyage": {

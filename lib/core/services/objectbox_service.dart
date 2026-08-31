@@ -8,6 +8,7 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/legacy_category_model.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:path/path.dart' as p;
 
@@ -28,6 +29,7 @@ class ObjectBoxService {
   late Box<LoanEventModel> loanEventBox;
   late Box<TransferModel> transferBox;
   late Box<LegacyCategoryModel> legacyCategoryBox;
+  late Box<TransactionEventModel> transactionEventBox;
 
   static ObjectBoxService? _instance;
 
@@ -57,6 +59,7 @@ class ObjectBoxService {
     loanEventBox = Box<LoanEventModel>(store);
     transferBox = Box<TransferModel>(store);
     legacyCategoryBox = Box<LegacyCategoryModel>(store);
+    transactionEventBox = Box<TransactionEventModel>(store);
   }
 
   void closeStore() {

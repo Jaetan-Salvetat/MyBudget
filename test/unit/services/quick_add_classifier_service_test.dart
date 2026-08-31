@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/constants/quick_add_labels.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
@@ -26,6 +27,7 @@ void main() {
     required int typeIndex,
     required String category,
     required int recurrenceIndex,
+    int? classCount,
   }) {
     return (
       type: (index: typeIndex, confidence: 0.99),
@@ -36,6 +38,7 @@ void main() {
           QuickAddLabels.categories.indexOf(category),
           QuickAddLabels.categories.indexOf('restauration.bar'),
         ],
+        classCount: classCount ?? QuickAddLabels.categories.length,
       ),
       recurrence: (index: recurrenceIndex, confidence: 0.9),
     );
@@ -205,5 +208,21 @@ void main() {
       expect(result.categoryConfidence, 0.95);
       expect(result.recurrenceConfidence, 0.9);
     });
+  });
+
+  test('refuses a model whose label space is not ours', () async {
+    when(() => runner.run(any())).thenAnswer(
+      (_) async => outputFor(
+        typeIndex: 0,
+        category: 'alimentation.supermarche',
+        recurrenceIndex: 0,
+        classCount: QuickAddLabels.categories.length - 1,
+      ),
+    );
+
+    expect(
+      () => classifier.classify('Carrefour'),
+      throwsA(isA<QuickAddClassificationException>()),
+    );
   });
 }

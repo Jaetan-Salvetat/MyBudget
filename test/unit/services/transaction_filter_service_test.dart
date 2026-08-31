@@ -17,25 +17,28 @@ class _Transaction implements FilterableTransaction {
   final String? categorySlug;
   @override
   final Frequency frequencyEnum;
+  @override
+  final DateTime startDate;
 
-  const _Transaction({
+  _Transaction({
     this.name = 'Loyer',
     this.amount = 500,
     this.accountId = 1,
     this.beneficiaryId,
     this.categorySlug,
     this.frequencyEnum = Frequency.monthly,
-  });
+    DateTime? startDate,
+  }) : startDate = startDate ?? DateTime(2026, 1, 12);
 }
 
 void main() {
   bool matches(
     TransactionFilterData filter, {
-    _Transaction transaction = const _Transaction(),
+    _Transaction? transaction,
     String? groupKey,
   }) {
     return TransactionFilterService.matches(
-      transaction,
+      transaction ?? _Transaction(),
       filter,
       groupKey: groupKey,
     );
@@ -58,7 +61,7 @@ void main() {
       expect(
         matches(
           const TransactionFilterData(maxAmount: 600),
-          transaction: const _Transaction(amount: 900),
+          transaction: _Transaction(amount: 900),
         ),
         isFalse,
       );
@@ -88,7 +91,7 @@ void main() {
 
       expect(matches(filter), isFalse);
       expect(
-        matches(filter, transaction: const _Transaction(accountId: 2)),
+        matches(filter, transaction: _Transaction(accountId: 2)),
         isTrue,
       );
     });
@@ -98,7 +101,7 @@ void main() {
 
       expect(matches(filter), isFalse);
       expect(
-        matches(filter, transaction: const _Transaction(beneficiaryId: 7)),
+        matches(filter, transaction: _Transaction(beneficiaryId: 7)),
         isTrue,
       );
     });
@@ -110,7 +113,7 @@ void main() {
       expect(
         matches(
           filter,
-          transaction: const _Transaction(frequencyEnum: Frequency.oneTime),
+          transaction: _Transaction(frequencyEnum: Frequency.oneTime),
         ),
         isTrue,
       );
@@ -125,7 +128,7 @@ void main() {
 
       expect(matches(filter), isTrue);
       expect(
-        matches(filter, transaction: const _Transaction(accountId: 9)),
+        matches(filter, transaction: _Transaction(accountId: 9)),
         isFalse,
       );
     });
@@ -133,7 +136,7 @@ void main() {
 
   group('TransactionFilterService.apply', () {
     test('keeps only the transactions matching the filter', () {
-      const transactions = [
+      final transactions = [
         _Transaction(name: 'Loyer', categorySlug: 'rent'),
         _Transaction(name: 'Courses', categorySlug: 'food'),
       ];

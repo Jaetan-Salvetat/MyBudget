@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/utils/history_utils.dart';
@@ -368,41 +369,279 @@ void main() {
     });
   });
 
-  group('computeNewStartDate', () {
-    test('already paid returns next month paymentDay', () {
-      final now = DateTime(2024, 6, 20);
-      const paymentDay = 15;
-
-      final result = computeNewStartDate(now, paymentDay);
-
-      expect(result, DateTime(2024, 7, 15));
+  group('startDateFor, on a monthly rule', () {
+    test('starts this month on the day chosen', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 10),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2024, 6, 15),
+      );
     });
 
-    test('not yet paid returns this month paymentDay', () {
-      final now = DateTime(2024, 6, 10);
-      const paymentDay = 15;
-
-      final result = computeNewStartDate(now, paymentDay);
-
-      expect(result, DateTime(2024, 6, 15));
+    test('starts this month even when the day is already behind us', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2024, 6, 15),
+      );
     });
 
-    test('December edge case: next month is January of next year', () {
-      final now = DateTime(2024, 12, 20);
-      const paymentDay = 15;
-
-      final result = computeNewStartDate(now, paymentDay);
-
-      expect(result, DateTime(2025, 1, 15));
+    test('starts next month on the same day', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 10),
+          scope: EffectiveMonth.nextMonth,
+        ),
+        DateTime(2024, 7, 15),
+      );
     });
 
-    test('day 31 clamping in next month with fewer days', () {
-      final now = DateTime(2024, 1, 31);
-      const paymentDay = 30;
+    test('rolls into January when next month leaves the year', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 12, 15),
+          asOf: DateTime(2024, 12, 20),
+          scope: EffectiveMonth.nextMonth,
+        ),
+        DateTime(2025, 1, 15),
+      );
+    });
 
-      final result = computeNewStartDate(now, paymentDay);
+    test('brings the 30th back to the last day of a shorter month', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 1, 30),
+          asOf: DateTime(2024, 1, 31),
+          scope: EffectiveMonth.nextMonth,
+        ),
+        DateTime(2024, 2, 29),
+      );
+    });
 
-      expect(result, DateTime(2024, 2, 29));
+    test('reads the day off the anchor, never its month', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2023, 2, 8),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2024, 6, 8),
+      );
+    });
+  });
+
+  group('startDateFor, on a yearly rule', () {
+    test('takes this year when the anniversary is still ahead', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.annual,
+          anchor: DateTime(2020, 9, 12),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2024, 9, 12),
+      );
+    });
+
+    test('waits for next year once the anniversary has passed', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.annual,
+          anchor: DateTime(2020, 3, 12),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2025, 3, 12),
+      );
+    });
+
+    test('keeps the anniversary of the very day', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.annual,
+          anchor: DateTime(2020, 6, 20),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2024, 6, 20),
+      );
+    });
+
+    test('brings a 29 February back to the 28th of a common year', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.annual,
+          anchor: DateTime(2024, 2, 29),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.thisMonth,
+        ),
+        DateTime(2025, 2, 28),
+      );
+    });
+
+    test('ignores the scope, its month is its own', () {
+      expect(
+        startDateFor(
+          frequency: Frequency.annual,
+          anchor: DateTime(2020, 9, 12),
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.nextMonth,
+        ),
+        DateTime(2024, 9, 12),
+      );
+    });
+  });
+
+  group('startDateFor, on a one-off', () {
+    test('keeps the date it was given, scope or not', () {
+      final anchor = DateTime(2024, 3, 2);
+
+      expect(
+        startDateFor(
+          frequency: Frequency.oneTime,
+          anchor: anchor,
+          asOf: DateTime(2024, 6, 20),
+          scope: EffectiveMonth.nextMonth,
+        ),
+        anchor,
+      );
+    });
+  });
+
+  group('defaultEffectiveMonth', () {
+    test('offers this month while the day is still to come', () {
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 10),
+        ),
+        EffectiveMonth.thisMonth,
+      );
+    });
+
+    test('offers this month on the day itself', () {
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 15),
+        ),
+        EffectiveMonth.thisMonth,
+      );
+    });
+
+    test('offers next month once the day is behind us', () {
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 6, 15),
+          asOf: DateTime(2024, 6, 16),
+        ),
+        EffectiveMonth.nextMonth,
+      );
+    });
+
+    test('offers this month on a day the month is too short to hold', () {
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.monthly,
+          anchor: DateTime(2024, 1, 31),
+          asOf: DateTime(2024, 2, 28),
+        ),
+        EffectiveMonth.thisMonth,
+      );
+    });
+
+    test('leaves a yearly rule and a one-off on this month', () {
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.annual,
+          anchor: DateTime(2024, 3, 12),
+          asOf: DateTime(2024, 6, 20),
+        ),
+        EffectiveMonth.thisMonth,
+      );
+      expect(
+        defaultEffectiveMonth(
+          frequency: Frequency.oneTime,
+          anchor: DateTime(2024, 3, 12),
+          asOf: DateTime(2024, 6, 20),
+        ),
+        EffectiveMonth.thisMonth,
+      );
+    });
+  });
+
+  group('sameSchedule', () {
+    test('a monthly rule is told by its day alone', () {
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12),
+          DateTime(2024, 9, 12),
+          Frequency.monthly,
+        ),
+        isTrue,
+      );
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12),
+          DateTime(2024, 6, 13),
+          Frequency.monthly,
+        ),
+        isFalse,
+      );
+    });
+
+    test('a yearly rule is told by its day and its month', () {
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12),
+          DateTime(2026, 6, 12),
+          Frequency.annual,
+        ),
+        isTrue,
+      );
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12),
+          DateTime(2024, 7, 12),
+          Frequency.annual,
+        ),
+        isFalse,
+      );
+    });
+
+    test('a one-off is told by its whole date, and not by its hour', () {
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12, 9),
+          DateTime(2024, 6, 12, 18),
+          Frequency.oneTime,
+        ),
+        isTrue,
+      );
+      expect(
+        sameSchedule(
+          DateTime(2024, 6, 12),
+          DateTime(2025, 6, 12),
+          Frequency.oneTime,
+        ),
+        isFalse,
+      );
     });
   });
 
@@ -478,6 +717,44 @@ void main() {
           DateTime(2026, 8, 5),
         ),
         isFalse,
+      );
+    });
+  });
+
+  group('initialDeletionScopeOf', () {
+    test('leaves a one-time rule without any scope', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 6, 5),
+          null,
+          Frequency.oneTime,
+          DateTime(2026, 6, 20),
+        ),
+        isNull,
+      );
+    });
+
+    test('spares the month already charged', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 3, 5),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 6, 20),
+        ),
+        RecurringDeletion.afterThisMonth,
+      );
+    });
+
+    test('drops the month still to be charged', () {
+      expect(
+        initialDeletionScopeOf(
+          DateTime(2026, 3, 25),
+          null,
+          Frequency.monthly,
+          DateTime(2026, 6, 20),
+        ),
+        RecurringDeletion.includingThisMonth,
       );
     });
   });

@@ -15,6 +15,7 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/core/services/transaction_filter_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transaction_filter_data.dart';
@@ -24,10 +25,12 @@ import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
+import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
@@ -271,6 +274,11 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       beneficiary: beneficiary,
       category: category,
       showDivider: showDivider,
+      onOpen: () => RevenueDetailsScreen.push(
+        context: context,
+        revenueId: revenue.id,
+        isCurrentMonth: _isViewingCurrentMonth,
+      ),
       onEdit: () => _openEditScreen(revenue, accounts),
       onDelete: (scope) => _deleteRevenue(revenue, scope),
     );
@@ -386,10 +394,27 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       accounts: accounts,
       revenue: revenue,
     );
-    if (updatedRevenue == null) return;
+    if (updatedRevenue == null || !mounted) return;
 
+    await RecurringEditScopeDialog.submit(
+      context: context,
+      before: revenue,
+      after: updatedRevenue,
+      onConfirmed: (effectiveMonth) => _saveRevenue(
+        updatedRevenue,
+        effectiveMonth: effectiveMonth,
+      ),
+    );
+  }
+
+  Future<void> _saveRevenue(
+    RevenueModel revenue, {
+    required EffectiveMonth? effectiveMonth,
+  }) async {
     try {
-      await ref.read(revenueProvider.notifier).updateRevenue(updatedRevenue);
+      await ref
+          .read(revenueProvider.notifier)
+          .updateRevenue(revenue, effectiveMonth: effectiveMonth);
     } catch (e) {
       if (mounted) {
         FrostedSnackbar.show(

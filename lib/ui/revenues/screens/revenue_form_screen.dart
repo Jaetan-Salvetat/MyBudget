@@ -5,13 +5,16 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/category_field.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class RevenueFormScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
@@ -62,6 +65,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
   int? _parentId;
+  EffectiveMonth _effectiveMonth = EffectiveMonth.thisMonth;
 
   bool get _isEditing => widget.revenue != null;
 
@@ -81,6 +85,17 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedBeneficiaryId = widget.revenue?.beneficiaryId;
     _beneficiaryEnabled = widget.revenue?.beneficiaryId != null;
+    _resetEffectiveMonth();
+  }
+
+  Frequency get _frequency => Frequency.fromString(_selectedFrequency);
+
+  void _resetEffectiveMonth() {
+    _effectiveMonth = defaultEffectiveMonth(
+      frequency: _frequency,
+      anchor: _selectedDate,
+      asOf: DateTime.now(),
+    );
   }
 
   @override
@@ -176,8 +191,20 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
           onChanged: (frequency, date) => setState(() {
             _selectedFrequency = frequency;
             _selectedDate = date;
+            _resetEffectiveMonth();
           }),
         ),
+        if (!_isEditing && offersEffectiveMonthChoice(_frequency)) ...[
+          const SizedBox(height: 16),
+          EffectiveMonthField(
+            value: _effectiveMonth,
+            frequency: _frequency,
+            anchor: _selectedDate,
+            label: 'Compter dès ce mois-ci',
+            dueLabel: 'Première échéance',
+            onChanged: (value) => setState(() => _effectiveMonth = value),
+          ),
+        ],
         const SizedBox(height: 24),
         BeneficiarySelector(
           initialBeneficiaryId: widget.revenue?.beneficiaryId,
@@ -232,6 +259,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
       _selectedDate = DateTime.now();
+      _resetEffectiveMonth();
     });
   }
 
@@ -274,6 +302,13 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
       ),
     );
   }
+
+  DateTime _createStartDate() => startDateFor(
+    frequency: _frequency,
+    anchor: _selectedDate,
+    asOf: DateTime.now(),
+    scope: _effectiveMonth,
+  );
 
   void _handleSubmit() {
     setState(() {
@@ -319,7 +354,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         : RevenueModel.create(
             name: _nameController.text.trim(),
             amount: amount,
-            startDate: _selectedDate,
+            startDate: _createStartDate(),
             accountId: _selectedAccountId!,
             frequency: _selectedFrequency,
             beneficiaryId: _selectedBeneficiaryId,

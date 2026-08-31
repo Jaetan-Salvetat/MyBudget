@@ -7,6 +7,8 @@ import 'package:mybudget/core/constants/quick_add_labels.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   const sections = ['expenses', 'income'];
   final slugPattern = RegExp(r'^[a-z0-9_]+$');
 
@@ -146,8 +148,23 @@ void main() {
       }
     });
 
-    test('model labels match the taxonomy slugs in order', () {
-      expect(QuickAddLabels.categories, orderedSlugs().toList());
+    test('model labels match every taxonomy slug in order', () {
+      expect(
+        QuickAddLabels.categories,
+        subcategories().map((entry) => entry.key).toList(),
+        reason:
+            'La tête ONNX est exportée sur tous les slugs, dépréciés compris',
+      );
+    });
+
+    test('a deprecated label still lands on a live category', () async {
+      final service = CategoryTaxonomyService();
+      await service.load();
+
+      for (final entry in subcategories()) {
+        if (entry.value['deprecated'] != true) continue;
+        expect(service.resolve(entry.key)?.slug, entry.value['alias_of']);
+      }
     });
   });
 

@@ -17,6 +17,7 @@ typedef CategoryPrediction = ({
   int index,
   double confidence,
   List<int> topIndices,
+  int classCount,
 });
 
 typedef QuickAddModelOutput = ({
@@ -144,7 +145,12 @@ class QuickAddModelRunner {
     final ranked = List<int>.generate(probs.length, (i) => i)
       ..sort((a, b) => probs[b].compareTo(probs[a]));
     final top = ranked.take(kCategorySuggestionCount).toList();
-    return (index: top.first, confidence: probs[top.first], topIndices: top);
+    return (
+      index: top.first,
+      confidence: probs[top.first],
+      topIndices: top,
+      classCount: probs.length,
+    );
   }
 
   List<double> _softmax(List<double> logits) {

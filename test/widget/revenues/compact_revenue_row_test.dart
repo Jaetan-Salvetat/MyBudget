@@ -31,6 +31,7 @@ void main() {
     RevenueModel revenue, {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
+    VoidCallback? onOpen,
     bool isCurrentMonth = true,
   }) {
     return tester.pumpWidget(
@@ -41,6 +42,7 @@ void main() {
             revenue: revenue,
             isCurrentMonth: isCurrentMonth,
             accountName: 'Compte courant',
+            onOpen: onOpen ?? () {},
             onEdit: onEdit,
             onDelete: (_) => onDelete(),
           ),
@@ -49,19 +51,20 @@ void main() {
     );
   }
 
-  testWidgets('an open rule opens its form on a tap', (tester) async {
-    var edited = false;
+  testWidgets('an open rule opens its details on a tap', (tester) async {
+    var opened = false;
     await pumpRow(
       tester,
       salary(),
-      onEdit: () => edited = true,
+      onOpen: () => opened = true,
+      onEdit: () {},
       onDelete: () {},
     );
 
     await tester.tap(find.text('Chomage'));
     await tester.pumpAndSettle();
 
-    expect(edited, isTrue);
+    expect(opened, isTrue);
   });
 
   testWidgets('an open rule offers its actions', (tester) async {
@@ -70,19 +73,20 @@ void main() {
     expect(find.byIcon(Symbols.more_vert_rounded), findsOneWidget);
   });
 
-  testWidgets('a closed rule opens nothing on a tap', (tester) async {
-    var edited = false;
+  testWidgets('a closed rule still opens its details', (tester) async {
+    var opened = false;
     await pumpRow(
       tester,
       salary(endDate: DateTime(2026, 8, 12)),
-      onEdit: () => edited = true,
+      onOpen: () => opened = true,
+      onEdit: () {},
       onDelete: () {},
     );
 
     await tester.tap(find.text('Chomage'));
     await tester.pumpAndSettle();
 
-    expect(edited, isFalse);
+    expect(opened, isTrue);
   });
 
   testWidgets('a closed rule offers no actions at all', (tester) async {
@@ -96,12 +100,13 @@ void main() {
     expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);
   });
 
-  testWidgets('a past month opens nothing on a tap', (tester) async {
-    var edited = false;
+  testWidgets('a past month still opens its details', (tester) async {
+    var opened = false;
     await pumpRow(
       tester,
       salary(),
-      onEdit: () => edited = true,
+      onOpen: () => opened = true,
+      onEdit: () {},
       onDelete: () {},
       isCurrentMonth: false,
     );
@@ -109,7 +114,7 @@ void main() {
     await tester.tap(find.text('Chomage'));
     await tester.pumpAndSettle();
 
-    expect(edited, isFalse);
+    expect(opened, isTrue);
   });
 
   testWidgets('a past month offers no actions either', (tester) async {
@@ -122,5 +127,22 @@ void main() {
     );
 
     expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);
+  });
+
+  testWidgets('a closed rule keeps its amount aligned with an open one', (
+    tester,
+  ) async {
+    await pumpRow(tester, salary(), onEdit: () {}, onDelete: () {});
+    final openAmount = tester.getTopRight(find.textContaining('963,00'));
+
+    await pumpRow(
+      tester,
+      salary(endDate: DateTime(2026, 8, 12)),
+      onEdit: () {},
+      onDelete: () {},
+    );
+    final closedAmount = tester.getTopRight(find.textContaining('963,00'));
+
+    expect(closedAmount.dx, openAmount.dx);
   });
 }
