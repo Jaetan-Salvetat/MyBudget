@@ -16,6 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from corpus.quick_add.examples import EXAMPLES
+from corpus.quick_add.verbs import VERB_PHRASES, VERB_SOURCE
 from knowledge.build import SOURCE_PRIORITY
 from knowledge.entities import TIER_HEAD, Entity, normalize, read_entities
 from paths import DATASET_DIR, ENTITIES_PATH
@@ -170,10 +171,27 @@ SENTENCE_RATIO = 0.30
 TAIL_RATIO = 0.45
 
 
+# NSI et Wikidata rapportent le monde entier ; leur tier dit déjà si l'entité
+# appartient à un marché où nos utilisateurs achètent. 11 360 des 28 709 entités
+# n'en sont pas — « Morgunblaðið », « Gibraltar Chronicle », « Kyunghyang
+# Shinmun ». Les décliner en trois ou quatre formes n'apprend pas une enseigne,
+# ça apprend que tout syntagme nominal en alphabet latin appartient à leur
+# classe : `loisirs.livre_presse` avalait à lui seul 12 des 59 échecs du corpus
+# dur, dont « le dentiste » et « Le Fournil de Sarah ». Le nom est gardé — un
+# utilisateur peut le taper — mais il ne reçoit plus une once d'amplification.
+GEOGRAPHIC_SOURCES = frozenset({"nsi", "wikidata"})
+FOREIGN_MARKET_BUDGET = 1
+VERB_FORMS_BUDGET = 8
+
+
 def _forms_budget(entity: Entity) -> int:
     priority = SOURCE_PRIORITY.get(entity.source, 0)
     if entity.source == CURATED_SOURCE:
         return 13
+    if entity.source == VERB_SOURCE:
+        return VERB_FORMS_BUDGET
+    if entity.source in GEOGRAPHIC_SOURCES and entity.tier != TIER_HEAD:
+        return FOREIGN_MARKET_BUDGET
     if priority >= 4:
         return 12
     if priority == 3:
@@ -187,6 +205,23 @@ def _rank(entity: Entity) -> tuple[int, int]:
     if entity.source == CURATED_SOURCE:
         return 6, entity.tier
     return SOURCE_PRIORITY.get(entity.source, 0), entity.tier
+
+
+def _decorate_clause(text: str, rng: random.Random) -> tuple[str, bool]:
+    """Une clause déjà conjuguée ne prend qu'un repère de temps, une queue, un montant.
+
+    Lui appliquer les préfixes nominaux rendrait « achat j'ai fait le plein », et
+    les enveloppes « petit j'ai fait le plein ». Ce qui se colle à une phrase se
+    colle après elle, pas devant.
+    """
+    out = text
+    if rng.random() < 0.45:
+        out = f"{out} {rng.choice(FR_SUFFIXES)}"
+    if rng.random() < TAIL_RATIO:
+        out = f"{out} {rng.choice(FRENCH_TAILS)}"
+    if rng.random() < AMOUNT_RATIO:
+        out = f"{out} {rng.choice(AMOUNTS)}"
+    return out, False
 
 
 def _decorate(text: str, is_income: bool, rng: random.Random) -> tuple[str, bool]:
@@ -252,7 +287,10 @@ def _surface_forms(
     while len(forms) < budget and attempts < budget * 4:
         attempts += 1
         base = rng.choice(surfaces)
-        text, marked = _decorate(base, is_income, rng)
+        if entity.source == VERB_SOURCE:
+            text, marked = _decorate_clause(base, rng)
+        else:
+            text, marked = _decorate(base, is_income, rng)
         push(text, RECURRING if marked else entity.recurrence)
     return forms[:budget]
 
@@ -274,12 +312,21 @@ def _curated_entities() -> list[Entity]:
     return out
 
 
+def _verb_entities() -> list[Entity]:
+    """Les groupes verbaux, promus au rang d'entités de leur classe."""
+    return [
+        Entity(name=clause, slug=slug, source=VERB_SOURCE, tier=TIER_HEAD)
+        for slug, clauses in VERB_PHRASES.items()
+        for clause in clauses
+    ]
+
+
 def load_entities() -> list[Entity]:
     if not ENTITIES_PATH.exists():
         raise FileNotFoundError(
             f"{ENTITIES_PATH} absent : lancer d'abord `python -m knowledge.build`"
         )
-    return _curated_entities() + list(read_entities(ENTITIES_PATH))
+    return _curated_entities() + _verb_entities() + list(read_entities(ENTITIES_PATH))
 
 
 def validate_coverage(entities: list[Entity]) -> None:

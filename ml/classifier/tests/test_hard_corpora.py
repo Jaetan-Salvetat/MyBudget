@@ -168,3 +168,24 @@ def test_no_receipt_label_is_learnt_verbatim():
         if normalize_receipt_line(case["name"]) in trained
     ]
     assert leaked == []
+
+
+def test_verb_phrases_never_copy_the_hard_corpus():
+    """Le lexique verbal vise la capacité que l'axe mesure, jamais ses phrases.
+
+    Il a été écrit après avoir constaté l'échec de `phrase_libre` : sans cette
+    barrière, corriger le modèle reviendrait à recopier la grille dans le
+    corpus, et l'axe cesserait de mesurer quoi que ce soit.
+    """
+    from corpus.quick_add.verbs import VERB_PHRASES
+
+    written = {normalize_query(clause) for clauses in VERB_PHRASES.values() for clause in clauses}
+    measured = {normalize_query(case["input"]) for case in cases(HARD_QUICK_ADD)}
+    assert written & measured == set()
+
+
+def test_verb_phrases_stay_inside_the_active_taxonomy():
+    from corpus.quick_add.verbs import VERB_PHRASES
+
+    for slug in VERB_PHRASES:
+        assert canonical(slug) in ACTIVE_LABELS, slug

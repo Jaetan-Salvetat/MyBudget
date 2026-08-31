@@ -261,19 +261,39 @@ restauration en compte **zéro**. Répondre « supermarché » à tout y valait 
 Les axes ne sont pas décoratifs : c'est la seule lecture qui désigne où
 investir. Relevé du modèle livré, catégorie stricte :
 
-| Quick-add | | Scan | |
-|---|---|---|---|
-| `marque_nue` (témoin) | 90,0 % | `confusable` | 88,6 % |
-| `contexte` | 91,1 % | `abrege` | 83,3 % |
-| `sans_entite` | 90,9 % | `hors_alimentaire` | 76,6 % |
-| `commerce_local` | 88,6 % | **`restauration`** | **60,0 %** |
-| `chiffre` | 86,7 % | | |
-| `revenu` | 85,0 % | | |
-| `argot` | 82,1 % | | |
-| `homographe` | 81,1 % | | |
-| `recurrence` | 73,5 % | | |
-| **`phrase_libre`** | **60,5 %** | | |
-| **ensemble** | **83,1 %** | **ensemble** | **77,4 %** |
+| Quick-add | v13 livré | + cadres | **+ correctifs** | Scan | v13 | **v2** |
+|---|---|---|---|---|---|---|
+| `sans_entite` | 90,9 % | 92,7 % | **94,5 %** | `confusable` | 88,6 % | **91,4 %** |
+| `commerce_local` | 88,6 % | 88,6 % | **94,3 %** | `hors_alimentaire` | 76,6 % | **78,1 %** |
+| `contexte` | 91,1 % | 93,3 % | **93,3 %** | `abrege` | 83,3 % | 76,7 % |
+| `marque_nue` (témoin) | 90,0 % | 85,0 % | **90,0 %** | `restauration` | 60,0 % | **63,3 %** |
+| `recurrence` | 73,5 % | 79,4 % | **88,2 %** | **ensemble** | 77,4 % | **78,0 %** |
+| `revenu` | 85,0 % | 85,0 % | 85,0 % | | | |
+| **`phrase_libre`** | **60,5 %** | **60,5 %** | **84,2 %** | | | |
+| `homographe` | 81,1 % | 78,4 % | **83,8 %** | | | |
+| `chiffre` | 86,7 % | 90,0 % | 83,3 % | | | |
+| `argot` | 82,1 % | 84,6 % | 79,5 % | | | |
+| **ensemble** | **83,1 %** | 84,2 % | **87,9 %** | | | |
+
+Deux leviers, deux effets nets. **Retirer l'amplification des marchés
+étrangers** — 11 360 des 28 709 entités de `nsi` et `wikidata` gardent leur nom
+et rien de plus — divise par plus de deux le poids de `loisirs.livre_presse`
+(9 000 exemples au plafond, 3 726 après) et lui retire son rôle de classe où
+tombe tout syntagme inconnu. **Le lexique de groupes verbaux**
+(`corpus/quick_add/verbs.py`, 144 clauses sur 60 classes) rend à `phrase_libre`
+les 23,7 points qui lui manquaient : `lexicon.py` apprenait que des noms portent
+une classe, rien n'apprenait qu'une action en porte une.
+
+Ce que ça coûte : `argot` recule de 2,6 points et `chiffre` de 3,4, l'abrégé du
+scan de 6,6. Le corpus a perdu 20 000 exemples, et ce sont les axes les plus
+courts — un mot d'argot, une référence produit, un libellé tronqué — qui payent
+la coupe.
+
+**À lire avec réserve.** Le lexique verbal a été écrit *après* avoir constaté
+l'échec de `phrase_libre`. Aucune de ses phrases n'y est recopiée —
+`test_verb_phrases_never_copy_the_hard_corpus` l'interdit, et il a mordu dès la
+première écriture — mais il vise la même capacité, et cet axe n'est plus une
+mesure aveugle. Le confirmer demande un lot de phrases neuves.
 
 Le rapport sépare aussi ce que le modèle a retenu de ce qu'il déduit — 93,9 %
 sur les 49 cas présents tels quels dans `train.jsonl`, **81,5 % sur les 324
