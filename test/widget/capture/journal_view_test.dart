@@ -5,17 +5,22 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/account_repository.dart';
+import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
+import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
+import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -23,6 +28,10 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
+
+class MockAccountRepository extends Mock implements AccountRepository {}
+
+class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
 ExpenseModel expenseOf({
   required int id,
@@ -50,6 +59,8 @@ void main() {
   late MockExpenseRepository expenses;
   late MockRevenueRepository revenues;
   late MockCategoryOverrideRepository overrides;
+  late MockAccountRepository accounts;
+  late MockBeneficiaryRepository beneficiaries;
 
   final now = DateTime.now();
   DateTime todayAt(int hour, int minute) =>
@@ -60,6 +71,10 @@ void main() {
     expenses = MockExpenseRepository();
     revenues = MockRevenueRepository();
     overrides = MockCategoryOverrideRepository();
+    accounts = MockAccountRepository();
+    beneficiaries = MockBeneficiaryRepository();
+    when(() => accounts.getAll()).thenReturn([]);
+    when(() => beneficiaries.getAll()).thenReturn([]);
 
     when(() => expenses.getActive()).thenReturn([]);
 
@@ -77,6 +92,8 @@ void main() {
           expenseRepositoryProvider.overrideWithValue(expenses),
           revenueRepositoryProvider.overrideWithValue(revenues),
           categoryOverrideRepositoryProvider.overrideWithValue(overrides),
+          accountRepositoryProvider.overrideWithValue(accounts),
+          beneficiaryRepositoryProvider.overrideWithValue(beneficiaries),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -336,5 +353,55 @@ void main() {
       expect(gradient.stops!.last, 1);
       expect(gradient.colors.last, Colors.black);
     });
+  });
+
+  RevenueModel revenueOf({
+    required int id,
+    required String name,
+    required double amount,
+    required DateTime startDate,
+  }) {
+    final revenue = RevenueModel.create(
+      name: name,
+      amount: amount,
+      startDate: startDate,
+      accountId: 1,
+      frequency: 'Ponctuel',
+    );
+    revenue.id = id;
+    return revenue;
+  }
+
+  testWidgets('a tap on an expense line opens its details', (tester) async {
+    when(() => expenses.getActive()).thenReturn([
+      expenseOf(
+        id: 3,
+        name: 'Carrefour',
+        amount: 42.30,
+        startDate: todayAt(12, 4),
+      ),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Carrefour'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ExpenseDetailsScreen), findsOneWidget);
+  });
+
+  testWidgets('a tap on a revenue line opens its details', (tester) async {
+    when(() => revenues.getActive()).thenReturn([
+      revenueOf(id: 5, name: 'Prime', amount: 300, startDate: todayAt(9, 0)),
+    ]);
+
+    await pumpJournal(tester);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Prime'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(RevenueDetailsScreen), findsOneWidget);
   });
 }

@@ -232,4 +232,32 @@ void main() {
     expect(find.text('Modifier'), findsNothing);
     expect(find.text('Supprimer'), findsNothing);
   });
+
+  testWidgets('scopes the deletion of a recurring rule', (tester) async {
+    await pumpDetails(tester, open: [rent(id: 1)]);
+
+    await tester.tap(find.text('Supprimer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Retirer aussi le mois en cours'), findsOneWidget);
+  });
+
+  testWidgets('has nothing to scope on a one-off', (tester) async {
+    final groceries = ExpenseModel.create(
+      name: 'Courses',
+      amount: 42,
+      categorySlug: 'logement.loyer',
+      startDate: DateTime.now(),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    )..id = 1;
+
+    await pumpDetails(tester, open: [groceries]);
+
+    await tester.tap(find.text('Supprimer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Confirmer la suppression'), findsOneWidget);
+    expect(find.text('Retirer aussi le mois en cours'), findsNothing);
+  });
 }
