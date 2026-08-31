@@ -9,9 +9,11 @@ import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
 import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
@@ -187,10 +189,29 @@ class _RevenueDetailsScreenState extends ConsumerState<RevenueDetailsScreen> {
       accounts: ref.read(accountProvider).value ?? [],
       revenue: revenue,
     );
-    if (updated == null) return;
+    if (updated == null || !mounted) return;
 
+    await RecurringEditScopeDialog.submit(
+      context: context,
+      before: revenue,
+      after: updated,
+      onConfirmed: (effectiveMonth) => _saveRevenue(
+        revenue,
+        updated,
+        effectiveMonth: effectiveMonth,
+      ),
+    );
+  }
+
+  Future<void> _saveRevenue(
+    RevenueModel revenue,
+    RevenueModel updated, {
+    required EffectiveMonth? effectiveMonth,
+  }) async {
     try {
-      await ref.read(revenueProvider.notifier).updateRevenue(updated);
+      await ref
+          .read(revenueProvider.notifier)
+          .updateRevenue(updated, effectiveMonth: effectiveMonth);
       _followChain(revenue);
     } catch (e) {
       if (mounted) {

@@ -19,6 +19,7 @@ class RevenueModel implements FilterableTransaction {
   @override
   late double amount;
 
+  @override
   @Property(uid: 1213904468792118615)
   late DateTime startDate;
 

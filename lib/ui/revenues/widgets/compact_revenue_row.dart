@@ -130,18 +130,19 @@ class CompactRevenueRow extends StatelessWidget {
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-            if (!_isReadOnly)
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  iconSize: 18,
-                  icon: const Icon(Symbols.more_vert_rounded),
-                  color: scheme.onSurfaceVariant,
-                  onPressed: () => _showOptionsBottomSheet(context),
-                ),
-              ),
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: _isReadOnly
+                  ? null
+                  : IconButton(
+                      padding: EdgeInsets.zero,
+                      iconSize: 18,
+                      icon: const Icon(Symbols.more_vert_rounded),
+                      color: scheme.onSurfaceVariant,
+                      onPressed: () => _showOptionsBottomSheet(context),
+                    ),
+            ),
           ],
         ),
       ),

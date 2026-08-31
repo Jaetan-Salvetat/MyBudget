@@ -1,9 +1,22 @@
 import 'package:mybudget/core/entities/filterable_transaction.dart';
 import 'package:mybudget/core/entities/transaction_change_entry.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class TransactionChangeService {
   const TransactionChangeService._();
+
+  static bool changesTerms(
+    FilterableTransaction before,
+    FilterableTransaction after,
+  ) {
+    return before.name != after.name ||
+        before.amount != after.amount ||
+        before.accountId != after.accountId ||
+        before.beneficiaryId != after.beneficiaryId ||
+        before.frequencyEnum != after.frequencyEnum ||
+        !sameSchedule(before.startDate, after.startDate, after.frequencyEnum);
+  }
 
   static List<TransactionChangeEntry> inPlaceChanges(
     FilterableTransaction before,

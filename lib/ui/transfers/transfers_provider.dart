@@ -64,9 +64,20 @@ class TransferNotifier extends _$TransferNotifier {
 
       if (isStructural && old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final newStartDate = computeNewStartDate(now, old.startDate.day);
-        if (hasStarted(old.startDate, now)) {
-          repo.update(old.copyWith(endDate: dayOnly(now)));
+        final frequency = updated.frequencyEnum;
+        final newStartDate = startDateFor(
+          frequency: frequency,
+          anchor: updated.startDate,
+          asOf: now,
+          scope: defaultEffectiveMonth(
+            frequency: frequency,
+            anchor: updated.startDate,
+            asOf: now,
+          ),
+        );
+        final closing = dayOnly(newStartDate).subtract(const Duration(days: 1));
+        if (hasStarted(old.startDate, closing)) {
+          repo.update(old.copyWith(endDate: closing));
         } else {
           repo.delete(old.id);
         }

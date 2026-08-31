@@ -9,9 +9,11 @@ import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
 import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
@@ -188,10 +190,29 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       accounts: ref.read(accountProvider).value ?? [],
       expense: expense,
     );
-    if (updated == null) return;
+    if (updated == null || !mounted) return;
 
+    await RecurringEditScopeDialog.submit(
+      context: context,
+      before: expense,
+      after: updated,
+      onConfirmed: (effectiveMonth) => _saveExpense(
+        expense,
+        updated,
+        effectiveMonth: effectiveMonth,
+      ),
+    );
+  }
+
+  Future<void> _saveExpense(
+    ExpenseModel expense,
+    ExpenseModel updated, {
+    required EffectiveMonth? effectiveMonth,
+  }) async {
     try {
-      await ref.read(expenseProvider.notifier).updateExpense(updated);
+      await ref
+          .read(expenseProvider.notifier)
+          .updateExpense(updated, effectiveMonth: effectiveMonth);
       _followChain(expense);
     } catch (e) {
       if (mounted) {

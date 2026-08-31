@@ -13,6 +13,9 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -36,6 +39,7 @@ void main() {
   setUpAll(() async {
     taxonomy = CategoryTaxonomyService();
     await taxonomy.load();
+    await initializeDateFormatting('fr_FR', null);
   });
 
   setUp(() {
@@ -58,6 +62,7 @@ void main() {
   Future<ExpenseModel? Function()> pushForm(
     WidgetTester tester, {
     ExpenseModel? expense,
+    List<ExpenseModel> closedExpenses = const [],
   }) async {
     ExpenseModel? submitted;
     late BuildContext pageContext;
@@ -97,6 +102,7 @@ void main() {
         context: pageContext,
         accounts: [account],
         expense: expense,
+        closedExpenses: closedExpenses,
       ).then((value) => submitted = value),
     );
     await tester.pumpAndSettle();
@@ -180,5 +186,97 @@ void main() {
 
     expect(submitted(), isNull);
     expect(find.byType(ExpenseFormScreen), findsNothing);
+  });
+
+  group('the month a new expense starts on', () {
+    final closed = ExpenseModel.create(
+      name: 'Netflix',
+      amount: 15.99,
+      startDate: DateTime(2026, 1, 12),
+      accountId: 1,
+      frequency: 'Mensuel',
+      categorySlug: 'loisirs.abonnements',
+    )..id = 3;
+
+    Future<ExpenseModel? Function()> formFilledFromClosed(
+      WidgetTester tester,
+    ) async {
+      final submitted = await pushForm(tester, closedExpenses: [closed]);
+
+      await tester.tap(find.text('Reprendre une ancienne dépense'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Netflix'));
+      await tester.pumpAndSettle();
+
+      return submitted;
+    }
+
+    Finder theSwitch() => find.descendant(
+      of: find.byType(EffectiveMonthField),
+      matching: find.byType(FrostedSwitch),
+    );
+
+    testWidgets('is offered on a monthly expense', (tester) async {
+      await pushForm(tester);
+
+      expect(find.byType(EffectiveMonthField), findsOneWidget);
+    });
+
+    testWidgets('is not offered on a one-off', (tester) async {
+      await pushForm(tester);
+
+      await tester.tap(find.text('Ponctuel'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EffectiveMonthField), findsNothing);
+    });
+
+    testWidgets('is not offered when editing an expense', (tester) async {
+      final expense = ExpenseModel.create(
+        name: 'Loyer',
+        amount: 800,
+        startDate: DateTime(2026, 1, 1),
+        accountId: account.id,
+        frequency: 'Mensuel',
+        categorySlug: 'logement.loyer',
+      )..id = 7;
+
+      await pushForm(tester, expense: expense);
+
+      expect(find.byType(EffectiveMonthField), findsNothing);
+    });
+
+    testWidgets('is the month in progress by default', (tester) async {
+      final submitted = await formFilledFromClosed(tester);
+
+      await submit(tester, 'Ajouter');
+
+      final now = DateTime.now();
+      expect(submitted()?.startDate, DateTime(now.year, now.month, now.day));
+    });
+
+    testWidgets('moves to the month after once the switch is off', (
+      tester,
+    ) async {
+      final submitted = await formFilledFromClosed(tester);
+
+      await tester.ensureVisible(theSwitch());
+      await tester.pumpAndSettle();
+      await tester.tap(theSwitch());
+      await tester.pumpAndSettle();
+      await submit(tester, 'Ajouter');
+
+      final now = DateTime.now();
+      final nextMonth = DateTime(now.year, now.month + 1);
+      final daysInNextMonth = DateTime(now.year, now.month + 2, 0).day;
+      expect(
+        submitted()?.startDate,
+        DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          now.day > daysInNextMonth ? daysInNextMonth : now.day,
+        ),
+      );
+    });
   });
 }

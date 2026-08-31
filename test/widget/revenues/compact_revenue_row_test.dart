@@ -128,4 +128,21 @@ void main() {
 
     expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);
   });
+
+  testWidgets('a closed rule keeps its amount aligned with an open one', (
+    tester,
+  ) async {
+    await pumpRow(tester, salary(), onEdit: () {}, onDelete: () {});
+    final openAmount = tester.getTopRight(find.textContaining('963,00'));
+
+    await pumpRow(
+      tester,
+      salary(endDate: DateTime(2026, 8, 12)),
+      onEdit: () {},
+      onDelete: () {},
+    );
+    final closedAmount = tester.getTopRight(find.textContaining('963,00'));
+
+    expect(closedAmount.dx, openAmount.dx);
+  });
 }

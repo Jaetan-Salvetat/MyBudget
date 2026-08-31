@@ -1,3 +1,4 @@
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/entities/transaction_change_entry.dart';
@@ -48,44 +49,22 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     }
   }
 
-  Future<void> updateExpense(ExpenseModel updated) async {
+  Future<void> updateExpense(
+    ExpenseModel updated, {
+    EffectiveMonth? effectiveMonth,
+  }) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool changesTerms =
-          updated.amount != old.amount ||
-          updated.frequency != old.frequency ||
-          updated.accountId != old.accountId ||
-          updated.name != old.name ||
-          updated.beneficiaryId != old.beneficiaryId;
-
+      final changesTerms = TransactionChangeService.changesTerms(old, updated);
       final forked = changesTerms && old.frequencyEnum != Frequency.oneTime;
 
-      if (changesTerms) {
-        if (old.frequencyEnum != Frequency.oneTime) {
-          final now = DateTime.now();
-          final newStartDate = computeNewStartDate(now, old.startDate.day);
-          if (hasStarted(old.startDate, now)) {
-            repo.update(old.copyWith(endDate: dayOnly(now)));
-          } else {
-            repo.delete(old.id);
-          }
-          final newExpense = ExpenseModel.create(
-            name: updated.name,
-            amount: updated.amount,
-            categorySlug: updated.categorySlug,
-            startDate: newStartDate,
-            frequency: updated.frequency,
-            accountId: updated.accountId,
-            beneficiaryId: updated.beneficiaryId,
-            parentId: old.parentId ?? old.id,
-          );
-          repo.add(newExpense);
-        } else {
-          repo.update(updated);
-        }
+      if (forked) {
+        _fork(repo, old, updated, effectiveMonth);
+      } else if (changesTerms) {
+        repo.update(updated);
       }
 
       _recordChanges(old, updated, forked: forked);
@@ -96,6 +75,49 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     } catch (e) {
       rethrow;
     }
+  }
+
+  void _fork(
+    ExpenseRepository repo,
+    ExpenseModel old,
+    ExpenseModel updated,
+    EffectiveMonth? effectiveMonth,
+  ) {
+    final now = DateTime.now();
+    final frequency = updated.frequencyEnum;
+    final scope =
+        effectiveMonth ??
+        defaultEffectiveMonth(
+          frequency: frequency,
+          anchor: updated.startDate,
+          asOf: now,
+        );
+    final startDate = startDateFor(
+      frequency: frequency,
+      anchor: updated.startDate,
+      asOf: now,
+      scope: scope,
+    );
+    final closing = startDate.subtract(const Duration(days: 1));
+
+    if (hasStarted(old.startDate, closing)) {
+      repo.update(old.copyWith(endDate: dayOnly(closing)));
+    } else {
+      repo.delete(old.id);
+    }
+
+    repo.add(
+      ExpenseModel.create(
+        name: updated.name,
+        amount: updated.amount,
+        categorySlug: updated.categorySlug,
+        startDate: startDate,
+        frequency: updated.frequency,
+        accountId: updated.accountId,
+        beneficiaryId: updated.beneficiaryId,
+        parentId: old.parentId ?? old.id,
+      ),
+    );
   }
 
   void _recordChanges(

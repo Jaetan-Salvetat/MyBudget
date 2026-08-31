@@ -25,6 +25,7 @@ import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
@@ -37,6 +38,7 @@ import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
@@ -490,10 +492,27 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       accounts: ref.read(accountProvider).value ?? [],
       expense: expense,
     );
-    if (updatedExpense == null) return;
+    if (updatedExpense == null || !mounted) return;
 
+    await RecurringEditScopeDialog.submit(
+      context: context,
+      before: expense,
+      after: updatedExpense,
+      onConfirmed: (effectiveMonth) => _saveExpense(
+        updatedExpense,
+        effectiveMonth: effectiveMonth,
+      ),
+    );
+  }
+
+  Future<void> _saveExpense(
+    ExpenseModel expense, {
+    required EffectiveMonth? effectiveMonth,
+  }) async {
     try {
-      await ref.read(expenseProvider.notifier).updateExpense(updatedExpense);
+      await ref
+          .read(expenseProvider.notifier)
+          .updateExpense(expense, effectiveMonth: effectiveMonth);
     } catch (e) {
       if (mounted) {
         FrostedSnackbar.show(

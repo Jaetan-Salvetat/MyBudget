@@ -13,12 +13,13 @@ void main() {
     String frequency = 'Mensuel',
     int accountId = 1,
     int? beneficiaryId,
+    DateTime? startDate,
   }) {
     return ExpenseModel.create(
       name: name,
       amount: amount,
       categorySlug: categorySlug,
-      startDate: DateTime(2026, 1, 10),
+      startDate: startDate ?? DateTime(2026, 1, 10),
       frequency: frequency,
       accountId: accountId,
       beneficiaryId: beneficiaryId,
@@ -125,6 +126,112 @@ void main() {
       );
 
       expect(changes, isEmpty);
+    });
+  });
+
+  group('the terms of a rule', () {
+    test('are untouched when nothing but the category moved', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(),
+          expense(categorySlug: 'logement.charges'),
+        ),
+        isFalse,
+      );
+    });
+
+    test('are untouched when only the month it is read from moved', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(startDate: DateTime(2026, 1, 10)),
+          expense(startDate: DateTime(2026, 5, 10)),
+        ),
+        isFalse,
+      );
+    });
+
+    test('move with the price', () {
+      expect(
+        TransactionChangeService.changesTerms(expense(), expense(amount: 900)),
+        isTrue,
+      );
+    });
+
+    test('move with the name', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(),
+          expense(name: 'Loyer parking'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('move with the account', () {
+      expect(
+        TransactionChangeService.changesTerms(expense(), expense(accountId: 2)),
+        isTrue,
+      );
+    });
+
+    test('move with the beneficiary', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(),
+          expense(beneficiaryId: 4),
+        ),
+        isTrue,
+      );
+    });
+
+    test('move with the frequency', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(),
+          expense(frequency: 'Annuel'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('move with the day of the month it falls on', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(startDate: DateTime(2026, 1, 10)),
+          expense(startDate: DateTime(2026, 1, 20)),
+        ),
+        isTrue,
+      );
+    });
+
+    test('move with the month a yearly rule falls on', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(frequency: 'Annuel', startDate: DateTime(2026, 1, 10)),
+          expense(frequency: 'Annuel', startDate: DateTime(2026, 3, 10)),
+        ),
+        isTrue,
+      );
+    });
+
+    test('leave a yearly rule alone when only its year moved', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(frequency: 'Annuel', startDate: DateTime(2026, 1, 10)),
+          expense(frequency: 'Annuel', startDate: DateTime(2027, 1, 10)),
+        ),
+        isFalse,
+      );
+    });
+
+    test('move with the date of a one-off', () {
+      expect(
+        TransactionChangeService.changesTerms(
+          expense(frequency: 'Ponctuel', startDate: DateTime(2026, 1, 10)),
+          expense(frequency: 'Ponctuel', startDate: DateTime(2026, 2, 10)),
+        ),
+        isTrue,
+      );
     });
   });
 }

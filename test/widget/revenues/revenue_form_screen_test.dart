@@ -13,6 +13,9 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -36,6 +39,7 @@ void main() {
   setUpAll(() async {
     taxonomy = CategoryTaxonomyService();
     await taxonomy.load();
+    await initializeDateFormatting('fr_FR', null);
   });
 
   setUp(() {
@@ -58,6 +62,7 @@ void main() {
   Future<RevenueModel? Function()> pushForm(
     WidgetTester tester, {
     RevenueModel? revenue,
+    List<RevenueModel> closedRevenues = const [],
   }) async {
     RevenueModel? submitted;
     late BuildContext pageContext;
@@ -97,6 +102,7 @@ void main() {
         context: pageContext,
         accounts: [account],
         revenue: revenue,
+        closedRevenues: closedRevenues,
       ).then((value) => submitted = value),
     );
     await tester.pumpAndSettle();
@@ -180,5 +186,60 @@ void main() {
 
     expect(submitted(), isNull);
     expect(find.byType(RevenueFormScreen), findsNothing);
+  });
+
+  group('the month a new revenue starts on', () {
+    final closed = RevenueModel.create(
+      name: 'Prime',
+      amount: 250,
+      startDate: DateTime(2026, 1, 12),
+      accountId: 1,
+      frequency: 'Mensuel',
+      categorySlug: 'salaire.prime',
+    )..id = 3;
+
+    testWidgets('is offered on a monthly revenue', (tester) async {
+      await pushForm(tester);
+
+      expect(find.byType(EffectiveMonthField), findsOneWidget);
+    });
+
+    testWidgets('moves to the month after once the switch is off', (
+      tester,
+    ) async {
+      final submitted = await pushForm(tester, closedRevenues: [closed]);
+
+      await tester.tap(find.text('Reprendre un ancien revenu'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Prime'));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byType(EffectiveMonthField),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(EffectiveMonthField),
+          matching: find.byType(FrostedSwitch),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await submit(tester, 'Ajouter');
+
+      final now = DateTime.now();
+      final nextMonth = DateTime(now.year, now.month + 1);
+      final daysInNextMonth = DateTime(now.year, now.month + 2, 0).day;
+      expect(
+        submitted()?.startDate,
+        DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          now.day > daysInNextMonth ? daysInNextMonth : now.day,
+        ),
+      );
+    });
   });
 }

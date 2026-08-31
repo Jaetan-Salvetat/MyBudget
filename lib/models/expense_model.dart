@@ -23,6 +23,7 @@ class ExpenseModel implements FilterableTransaction {
   @Property(uid: 6567315342602454646)
   int? legacyCategoryId;
 
+  @override
   @Property(uid: 7133072174613285923)
   late DateTime startDate;
 

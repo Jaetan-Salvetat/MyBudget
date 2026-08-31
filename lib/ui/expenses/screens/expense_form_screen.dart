@@ -3,13 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/category_field.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 const String _defaultFrequency = 'Mensuel';
 
@@ -62,6 +66,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   int? _selectedBeneficiaryId;
   bool _beneficiaryEnabled = false;
   int? _parentId;
+  EffectiveMonth _effectiveMonth = EffectiveMonth.thisMonth;
 
   bool get _isEditing => widget.expense != null;
 
@@ -81,6 +86,17 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedBeneficiaryId = widget.expense?.beneficiaryId;
     _beneficiaryEnabled = widget.expense?.beneficiaryId != null;
+    _resetEffectiveMonth();
+  }
+
+  Frequency get _frequency => Frequency.fromString(_selectedFrequency);
+
+  void _resetEffectiveMonth() {
+    _effectiveMonth = defaultEffectiveMonth(
+      frequency: _frequency,
+      anchor: _selectedDate,
+      asOf: DateTime.now(),
+    );
   }
 
   @override
@@ -158,8 +174,20 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
           onChanged: (frequency, date) => setState(() {
             _selectedFrequency = frequency;
             _selectedDate = date;
+            _resetEffectiveMonth();
           }),
         ),
+        if (!_isEditing && offersEffectiveMonthChoice(_frequency)) ...[
+          const SizedBox(height: 16),
+          EffectiveMonthField(
+            value: _effectiveMonth,
+            frequency: _frequency,
+            anchor: _selectedDate,
+            label: 'Compter dès ce mois-ci',
+            dueLabel: 'Première échéance',
+            onChanged: (value) => setState(() => _effectiveMonth = value),
+          ),
+        ],
         const SizedBox(height: 24),
         const FormSectionTitle('Compte'),
         const SizedBox(height: 12),
@@ -258,6 +286,13 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     return isValid;
   }
 
+  DateTime _createStartDate() => startDateFor(
+    frequency: _frequency,
+    anchor: _selectedDate,
+    asOf: DateTime.now(),
+    scope: _effectiveMonth,
+  );
+
   void _handleSubmit() {
     if (!_validateFields()) return;
 
@@ -275,7 +310,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
             name: _nameController.text.trim(),
             amount: _parsedAmount,
             categorySlug: _selectedCategorySlug,
-            startDate: _selectedDate,
+            startDate: _createStartDate(),
             frequency: _selectedFrequency,
             accountId: _selectedAccountId!,
             beneficiaryId: _selectedBeneficiaryId,
@@ -296,6 +331,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
       _selectedDate = DateTime.now();
+      _resetEffectiveMonth();
     });
   }
 

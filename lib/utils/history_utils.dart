@@ -1,3 +1,4 @@
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 
@@ -81,16 +82,68 @@ DateTime closingDateOf(
 bool hasStarted(DateTime startDate, DateTime asOf) =>
     !dayOnly(startDate).isAfter(dayOnly(asOf));
 
-DateTime computeNewStartDate(DateTime now, int paymentDay) {
-  final clampedDay = clampDayOfMonth(now.year, now.month, paymentDay);
-  if (now.day > clampedDay) {
-    final nextMonth = now.month == 12
-        ? DateTime(now.year + 1, 1, 1)
-        : DateTime(now.year, now.month + 1, 1);
-    final clampedNext = clampDayOfMonth(nextMonth.year, nextMonth.month, paymentDay);
-    return DateTime(nextMonth.year, nextMonth.month, clampedNext);
+DateTime startDateFor({
+  required Frequency frequency,
+  required DateTime anchor,
+  required DateTime asOf,
+  required EffectiveMonth scope,
+}) {
+  switch (frequency) {
+    case Frequency.oneTime:
+      return anchor;
+    case Frequency.annual:
+      return _nextAnniversaryOf(anchor, asOf);
+    case Frequency.monthly:
+      return _dueDateIn(_monthOf(scope, asOf), anchor.day);
   }
-  return DateTime(now.year, now.month, clampedDay);
+}
+
+bool offersEffectiveMonthChoice(Frequency frequency) =>
+    frequency == Frequency.monthly;
+
+EffectiveMonth defaultEffectiveMonth({
+  required Frequency frequency,
+  required DateTime anchor,
+  required DateTime asOf,
+}) {
+  if (!offersEffectiveMonthChoice(frequency)) return EffectiveMonth.thisMonth;
+
+  final due = _dueDateIn(DateTime(asOf.year, asOf.month), anchor.day);
+  return due.isBefore(dayOnly(asOf))
+      ? EffectiveMonth.nextMonth
+      : EffectiveMonth.thisMonth;
+}
+
+bool sameSchedule(DateTime a, DateTime b, Frequency frequency) {
+  switch (frequency) {
+    case Frequency.oneTime:
+      return dayOnly(a) == dayOnly(b);
+    case Frequency.annual:
+      return a.month == b.month && a.day == b.day;
+    case Frequency.monthly:
+      return a.day == b.day;
+  }
+}
+
+DateTime _monthOf(EffectiveMonth scope, DateTime asOf) {
+  return switch (scope) {
+    EffectiveMonth.thisMonth => DateTime(asOf.year, asOf.month),
+    EffectiveMonth.nextMonth => DateTime(asOf.year, asOf.month + 1),
+  };
+}
+
+DateTime _dueDateIn(DateTime month, int day) {
+  return DateTime(
+    month.year,
+    month.month,
+    clampDayOfMonth(month.year, month.month, day),
+  );
+}
+
+DateTime _nextAnniversaryOf(DateTime anchor, DateTime asOf) {
+  final thisYear = _dueDateIn(DateTime(asOf.year, anchor.month), anchor.day);
+  if (!thisYear.isBefore(dayOnly(asOf))) return thisYear;
+  return _dueDateIn(DateTime(asOf.year + 1, anchor.month), anchor.day);
 }
 
 int clampDayOfMonth(int year, int month, int day) {
