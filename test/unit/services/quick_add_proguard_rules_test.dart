@@ -14,4 +14,16 @@ void main() {
       expect(rules, contains('-dontwarn ai.onnxruntime.**'));
     });
   });
+
+  group('proguard-rules.pro — Gemini Nano', () {
+    final rules = File('android/app/proguard-rules.pro').readAsStringSync();
+
+    test('garde le schéma généré, résolu par réflexion par ML Kit', () {
+      expect(rules, contains('-keep class fr.jaetan.mybudget.nano.** { *; }'));
+    });
+
+    test('garde les classes ML Kit GenAI', () {
+      expect(rules, contains('-keep class com.google.mlkit.genai.** { *; }'));
+    });
+  });
 }

@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/ai/gemini_nano_chat_client.dart';
+import 'package:mybudget/core/services/quick_add/gemini_nano_unavailable_engine.dart';
+import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/racing_quick_add_engine.dart';
-import 'package:mybudget/core/services/quick_add/remote_quick_add_engine.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,11 +15,21 @@ part 'quick_add_engine_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
+  final mode = ref.watch(quickAddEngineModeProvider);
+
+  if (mode == QuickAddEngineMode.geminiNano) {
+    final status = await ref.watch(geminiNanoStatusProvider.future);
+    if (!status.isReady) return GeminiNanoUnavailableEngine.forStatus(status);
+
+    return PromptQuickAddEngine(
+      client: const GeminiNanoChatClient(),
+      taxonomy: await ref.watch(categoryTaxonomyProvider.future),
+    );
+  }
+
   final local = await ref.watch(quickAddClassifierProvider.future);
 
-  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
-    return local;
-  }
+  if (mode != QuickAddEngineMode.apiKey) return local;
 
   if (ref.watch(quickAddDegradationProvider)) return local;
 
@@ -44,7 +56,7 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
 
   return RacingQuickAddEngine(
     local: local,
-    remote: RemoteQuickAddEngine(
+    remote: PromptQuickAddEngine(
       client: client,
       taxonomy: await ref.watch(categoryTaxonomyProvider.future),
     ),
@@ -59,6 +71,9 @@ Future<void> quickAddWarmUp(Ref ref) async {
 
   try {
     await ref.read(quickAddEngineProvider.future);
+    if (ref.read(quickAddEngineModeProvider) == QuickAddEngineMode.geminiNano) {
+      await ref.read(geminiNanoServiceProvider).warmUp();
+    }
   } catch (error, stackTrace) {
     debugPrint(
       'Prechargement de l\'ajout rapide impossible : '

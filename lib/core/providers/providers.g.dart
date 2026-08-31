@@ -309,6 +309,92 @@ final class QuickAddEngineHealthProvider
 String _$quickAddEngineHealthHash() =>
     r'bb601c3615d72ae1d982e9996ff99a42ba12fc1f';
 
+@ProviderFor(geminiNanoService)
+final geminiNanoServiceProvider = GeminiNanoServiceProvider._();
+
+final class GeminiNanoServiceProvider
+    extends
+        $FunctionalProvider<
+          GeminiNanoService,
+          GeminiNanoService,
+          GeminiNanoService
+        >
+    with $Provider<GeminiNanoService> {
+  GeminiNanoServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geminiNanoServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geminiNanoServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<GeminiNanoService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GeminiNanoService create(Ref ref) {
+    return geminiNanoService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GeminiNanoService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GeminiNanoService>(value),
+    );
+  }
+}
+
+String _$geminiNanoServiceHash() => r'd648a249c89620c908ec217aff0a653f6adf8a64';
+
+@ProviderFor(geminiNanoStatus)
+final geminiNanoStatusProvider = GeminiNanoStatusProvider._();
+
+final class GeminiNanoStatusProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GeminiNanoStatus>,
+          GeminiNanoStatus,
+          FutureOr<GeminiNanoStatus>
+        >
+    with $FutureModifier<GeminiNanoStatus>, $FutureProvider<GeminiNanoStatus> {
+  GeminiNanoStatusProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geminiNanoStatusProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geminiNanoStatusHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GeminiNanoStatus> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GeminiNanoStatus> create(Ref ref) {
+    return geminiNanoStatus(ref);
+  }
+}
+
+String _$geminiNanoStatusHash() => r'7874c7bf658c920ce09a5f8a5e08f591872bcf6e';
+
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();
 

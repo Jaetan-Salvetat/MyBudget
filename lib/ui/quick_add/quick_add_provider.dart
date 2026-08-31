@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:mybudget/core/enums/ai_request_failure.dart';
+import 'package:mybudget/core/enums/gemini_nano_failure.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -11,8 +14,10 @@ import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/quick_add/quick_add_alert_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -195,8 +200,24 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     } catch (error, stackTrace) {
       debugPrint('Analyse de l\'ajout rapide impossible : $error\n$stackTrace');
       if (seq != _analysisSeq) return;
+
+      final engineFailure = _engineFailureMessage(error);
+      if (engineFailure != null) {
+        ref.read(quickAddAlertProvider.notifier).report(engineFailure);
+        state = _failedDraft(input, null);
+        return;
+      }
       state = _failedDraft(input, unreadInputMessage);
     }
+  }
+
+  String? _engineFailureMessage(Object error) {
+    if (error is GeminiNanoException) return error.message;
+    if (error is AiRequestException &&
+        ref.read(quickAddEngineModeProvider) == QuickAddEngineMode.geminiNano) {
+      return GeminiNanoFailure.malformedResponse.message;
+    }
+    return null;
   }
 
   QuickAddDraft _draftFrom(
@@ -226,7 +247,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     );
   }
 
-  QuickAddDraft _failedDraft(String input, String message) {
+  QuickAddDraft _failedDraft(String input, String? message) {
     final previous = state;
     final facts = QuickAddTextReader.read(input);
     return QuickAddDraft(

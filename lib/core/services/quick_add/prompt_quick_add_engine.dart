@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:mybudget/core/constants/quick_add_schema.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
@@ -9,8 +10,8 @@ import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 
-class RemoteQuickAddEngine implements QuickAddEngine {
-  RemoteQuickAddEngine({required this._client, required this._taxonomy});
+class PromptQuickAddEngine implements QuickAddEngine {
+  PromptQuickAddEngine({required this._client, required this._taxonomy});
 
   static const int maxInputLength = 280;
 
@@ -18,7 +19,6 @@ class RemoteQuickAddEngine implements QuickAddEngine {
 
   static const String _recurringLabel = 'fixe';
   static const String _oneTimeLabel = 'ponctuel';
-  static const String _schemaName = 'quick_add';
   static const int _maxAlternatives = 3;
 
   static const String _fallbackExpenseSlug = 'divers.autre';
@@ -40,7 +40,7 @@ class RemoteQuickAddEngine implements QuickAddEngine {
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       final raw = await _client.complete(
         prompt: _promptFor(_truncate(cleanedText), isRetry: attempt > 1),
-        schemaName: _schemaName,
+        schemaName: QuickAddSchema.name,
         schema: schema,
       );
 

@@ -3,21 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
+import 'package:mybudget/ui/settings/screens/gemini_nano_screen.dart';
 
 class QuickAddEngineScreen extends ConsumerWidget {
   const QuickAddEngineScreen({super.key});
 
+  static const String recommendedLabel = 'Recommandé';
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuickAddEngineMode mode = ref.watch(
-      quickAddEngineModeProvider,
-    );
-    final bool hasKey =
-        ref.watch(hasStoredApiKeyProvider).value ?? false;
+    final QuickAddEngineMode mode = ref.watch(quickAddEngineModeProvider);
+    final GeminiNanoStatus nano =
+        ref.watch(geminiNanoStatusProvider).value ?? GeminiNanoStatus.unavailable;
+    final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
     final bool isDegraded = ref.watch(quickAddDegradationProvider);
     final ColorScheme colors = Theme.of(context).colorScheme;
 
@@ -38,9 +42,24 @@ class QuickAddEngineScreen extends ConsumerWidget {
           FrostedListSection(
             tiles: [
               FrostedListTile(
-                title: 'Sur l\'appareil',
+                title: QuickAddEngineMode.geminiNano.label,
+                subtitle: _nanoSubtitle(nano),
+                leading: FrostedRadio<QuickAddEngineMode>(
+                  value: QuickAddEngineMode.geminiNano,
+                  groupValue: mode,
+                  onChanged: nano.isSelectable
+                      ? (_) => _selectNano(context, ref, nano)
+                      : null,
+                ),
+                trailing: FrostedChip.readOnly(label: recommendedLabel),
+                onTap: nano.isSelectable
+                    ? () => _selectNano(context, ref, nano)
+                    : null,
+              ),
+              FrostedListTile(
+                title: QuickAddEngineMode.onDevice.label,
                 subtitle:
-                    'Rien ne quitte le téléphone. Fonctionne hors ligne.',
+                    'Le modèle embarqué de MyBudget. Fonctionne hors ligne.',
                 leading: FrostedRadio<QuickAddEngineMode>(
                   value: QuickAddEngineMode.onDevice,
                   groupValue: mode,
@@ -62,7 +81,7 @@ class QuickAddEngineScreen extends ConsumerWidget {
               ),
             ],
           ),
-          if (isDegraded) ...[
+          if (isDegraded && mode == QuickAddEngineMode.apiKey) ...[
             const SizedBox(height: FrostedSpacing.sp4),
             _Note(
               icon: Symbols.warning_rounded,
@@ -77,17 +96,44 @@ class QuickAddEngineScreen extends ConsumerWidget {
           _Note(
             icon: Symbols.info_rounded,
             color: colors.onSurfaceVariant,
-            text:
-                'Le modèle embarqué reste utilisé en secours dans tous les cas.',
+            text: mode == QuickAddEngineMode.geminiNano
+                ? 'Gemini Nano n\'a pas de secours : si l\'analyse échoue, '
+                      'l\'erreur s\'affiche et la catégorie reste à choisir.'
+                : 'Le modèle embarqué reste utilisé en secours dans tous les '
+                      'cas.',
           ),
         ],
       ),
     );
   }
 
+  String _nanoSubtitle(GeminiNanoStatus status) {
+    return switch (status) {
+      GeminiNanoStatus.available =>
+        'Le modèle de Google, sur l\'appareil. Rien ne quitte le téléphone.',
+      GeminiNanoStatus.downloadable =>
+        'À télécharger une fois. Rien ne quitte ensuite le téléphone.',
+      GeminiNanoStatus.downloading => 'Téléchargement du modèle en cours.',
+      GeminiNanoStatus.unavailable =>
+        'Cet appareil ne propose pas Gemini Nano.',
+    };
+  }
+
   Future<void> _select(WidgetRef ref, QuickAddEngineMode mode) async {
     await ref.read(quickAddEngineModeProvider.notifier).setMode(mode);
     ref.invalidate(quickAddEngineProvider);
+  }
+
+  Future<void> _selectNano(
+    BuildContext context,
+    WidgetRef ref,
+    GeminiNanoStatus status,
+  ) async {
+    if (status.isReady) {
+      await _select(ref, QuickAddEngineMode.geminiNano);
+      return;
+    }
+    await _openNanoScreen(context);
   }
 
   Future<void> _selectApiKey(
@@ -100,6 +146,13 @@ class QuickAddEngineScreen extends ConsumerWidget {
       return;
     }
     await _openKeyScreen(context);
+  }
+
+  Future<void> _openNanoScreen(BuildContext context) {
+    return Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => const GeminiNanoScreen()),
+    );
   }
 
   Future<void> _openKeyScreen(BuildContext context) {
