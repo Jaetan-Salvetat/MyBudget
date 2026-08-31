@@ -21,6 +21,7 @@ training/train.py  ──►  output/best/            ← poids PyTorch, les deu
         ├──►  evaluation/world.py               ← mémorisation vs généralisation
         ├──►  evaluation/quick_add.py           ← non-régression quick-add
         ├──►  evaluation/receipts.py            ← libellés de tickets réels
+        ├──►  evaluation/hard.py                ← les cas durs des deux entrées, par axe
         │
         ▼
 training/export_onnx.py  ──►  output/best/model.onnx  ──►  publish.sh
@@ -36,7 +37,7 @@ se classe seul, l'app n'a plus de décision à porter après le modèle (§8).
 ```bash
 cd ml/classifier
 uv sync                 # environnement Python
-uv run python -m pytest # 30 tests, < 3 s, aucun accès réseau
+uv run python -m pytest # 159 tests, < 20 s, aucun accès réseau
 ```
 
 Compter ~4 Go de RAM, 2 Go de disque pour les checkpoints, et une connexion
@@ -140,8 +141,47 @@ tokenizer et par `normalizeReceiptLine` pour le scan ; la parité est vérifiée
 sur 3 022 noms d'entités et 3 845 libellés golden par
 `ml/scan/pipeline/test/normalization_test.dart`.
 
-Ordre de grandeur attendu : ~124 000 exemples d'entraînement, ~8 300
-d'évaluation, entre 780 et 6 000 exemples par classe.
+**La grammaire avant le vocabulaire.** Les sept formes ci-dessus ne produisent
+que du syntagme décoré. Mesuré sur le corpus qu'elles rendaient : médiane
+**4 mots**, p90 7, et **5 % seulement** des exemples atteignaient 8 mots — quand
+l'utilisateur, lui, en tape 8 de médiane. Sur 124 000 exemples, pas une phrase à
+verbe conjugué en dehors des 47 préfixes figés. L'axe `phrase_libre` de
+`evaluation/hard.py` le payait 60,5 %, contre 83 % ailleurs.
+
+C'est aussi ce qui interdit d'apprendre l'argot. « zinc » vaut bar, café ou
+avion ; « mazout » fioul ou gazole ; « baille » eau ou bateau. Ce qui tranche,
+ce sont les mots autour — et un syntagme de quatre mots n'a pas la place de les
+porter. Moissonner du vocabulaire familier dans un corpus de cette forme
+importerait l'ambiguïté sans sa résolution, et `drop_contradictions`
+supprimerait justement les termes polysémiques.
+
+`FRENCH_EXPENSE_SENTENCES` et `FRENCH_INCOME_SENTENCES` portent donc 42 cadres à
+verbe, complétés dans 45 % des cas par une queue de phrase (`FRENCH_TAILS`) qui
+allonge sans rien dire de la classe — exactement ce que le modèle doit apprendre
+à ignorer. L'entité y arrive toujours après un verbe ou une préposition : c'est
+la seule position lisible pour une enseigne comme pour un nom commun, sans rien
+savoir de son genre. Un tirage sur trois passe par un cadre.
+
+| | avant | après |
+|---|---|---|
+| exemples d'entraînement | 124 345 | **172 426** |
+| longueur médiane | 4 mots | 4 mots |
+| p90 / max | 7 / 15 | **10 / 23** |
+| exemples de 8 mots ou plus | 5,0 % | **18,3 %** |
+
+La médiane ne bouge pas, et c'est voulu : deux tirages sur trois restent du
+syntagme court, parce que c'est ce que les gens tapent le plus. Ce qui change
+est la queue de distribution, là où il n'y avait rien.
+
+Ordre de grandeur attendu : ~172 000 exemples d'entraînement, ~10 700
+d'évaluation, entre 850 et 9 000 exemples par classe.
+
+**Une limite connue de la coupe :** elle se fait par entité, jamais par texte,
+et deux entités différentes peuvent produire la même surface décorée
+(« abonnement musique », « abo vol »). 3,4 % des textes d'évaluation existent
+aussi côté entraînement pour cette raison — c'était 4,2 % avant l'ajout des
+cadres. Le nom, lui, ne traverse jamais
+(`test_split_never_lets_a_name_cross_sides`).
 
 ## 3. Entraîner
 
@@ -197,7 +237,140 @@ uv run python -m evaluation.generalization  # entités jamais vues, 8 307 exempl
 uv run python -m evaluation.quick_add       # non-régression, 153 cas
 uv run python -m evaluation.robustness      # ce que coûte une faute de frappe
 uv run python -m evaluation.build_typos     # régénère le corpus des fautes réelles
+uv run python -m evaluation.hard            # les cas durs des deux entrées, par axe
 ```
+
+### Le corpus dur, et pourquoi les autres mentaient
+
+`world.py` annonce 95 %, `quick_add.py` 98 %, et l'app ne rend visiblement pas
+ça. Les deux corpus expliquaient l'écart à eux seuls : écrits à la main dans le
+vocabulaire de `corpus/quick_add/build.py` — les mêmes préfixes, les mêmes
+suffixes, les mêmes contextes — ils mesuraient le gabarit du générateur. Côté
+scan c'est pire et plus simple : **805 des 1 077 articles de `receipts.json`
+sont `alimentation.supermarche`**, 17 classes sur 79 sont représentées, la
+restauration en compte **zéro**. Répondre « supermarché » à tout y valait déjà
+75 %.
+
+`evaluation/hard.py` lit deux corpus écrits contre ces deux dérives :
+
+| Corpus | Cas | Ce qu'il tient |
+|---|---|---|
+| `data/hard_quick_add.json` | 373 | 79 classes sur 79, aucune au-dessus de 6 %, 10 axes de difficulté |
+| `data/hard_receipts.json` | 159 | 22 classes, dont les 62 que le golden ne mesure sur aucun article |
+
+Les axes ne sont pas décoratifs : c'est la seule lecture qui désigne où
+investir. Relevé du modèle livré, catégorie stricte :
+
+| Quick-add | v13 livré | + cadres | **+ correctifs** | Scan | v13 | **v2** |
+|---|---|---|---|---|---|---|
+| `sans_entite` | 90,9 % | 92,7 % | **94,5 %** | `confusable` | 88,6 % | **91,4 %** |
+| `commerce_local` | 88,6 % | 88,6 % | **94,3 %** | `hors_alimentaire` | 76,6 % | **78,1 %** |
+| `contexte` | 91,1 % | 93,3 % | **93,3 %** | `abrege` | 83,3 % | 76,7 % |
+| `marque_nue` (témoin) | 90,0 % | 85,0 % | **90,0 %** | `restauration` | 60,0 % | **63,3 %** |
+| `recurrence` | 73,5 % | 79,4 % | **88,2 %** | **ensemble** | 77,4 % | **78,0 %** |
+| `revenu` | 85,0 % | 85,0 % | 85,0 % | | | |
+| **`phrase_libre`** | **60,5 %** | **60,5 %** | **84,2 %** | | | |
+| `homographe` | 81,1 % | 78,4 % | **83,8 %** | | | |
+| `chiffre` | 86,7 % | 90,0 % | 83,3 % | | | |
+| `argot` | 82,1 % | 84,6 % | 79,5 % | | | |
+| **ensemble** | **83,1 %** | 84,2 % | **87,9 %** | | | |
+
+Deux leviers, deux effets nets. **Retirer l'amplification des marchés
+étrangers** — 11 360 des 28 709 entités de `nsi` et `wikidata` gardent leur nom
+et rien de plus — divise par plus de deux le poids de `loisirs.livre_presse`
+(9 000 exemples au plafond, 3 726 après) et lui retire son rôle de classe où
+tombe tout syntagme inconnu. **Le lexique de groupes verbaux**
+(`corpus/quick_add/verbs.py`, 144 clauses sur 60 classes) rend à `phrase_libre`
+les 23,7 points qui lui manquaient : `lexicon.py` apprenait que des noms portent
+une classe, rien n'apprenait qu'une action en porte une.
+
+Ce que ça coûte : `argot` recule de 2,6 points et `chiffre` de 3,4, l'abrégé du
+scan de 6,6. Le corpus a perdu 20 000 exemples, et ce sont les axes les plus
+courts — un mot d'argot, une référence produit, un libellé tronqué — qui payent
+la coupe.
+
+**À lire avec réserve.** Le lexique verbal a été écrit *après* avoir constaté
+l'échec de `phrase_libre`. Aucune de ses phrases n'y est recopiée —
+`test_verb_phrases_never_copy_the_hard_corpus` l'interdit, et il a mordu dès la
+première écriture — mais il vise la même capacité, et cet axe n'est plus une
+mesure aveugle. Le confirmer demande un lot de phrases neuves.
+
+Le rapport sépare aussi ce que le modèle a retenu de ce qu'il déduit — 93,9 %
+sur les 49 cas présents tels quels dans `train.jsonl`, **81,5 % sur les 324
+autres**. Le partage se calcule au lancement, jamais dans le JSON : écrit dans
+le corpus, il vieillirait au premier `corpus.quick_add.build`.
+
+Ce que le corpus dur a rendu visible et qu'aucun autre ne voyait :
+
+- **la phrase libre s'effondre.** « on a mangé sur le pouce entre deux
+  rendez-vous », « j'ai fait remplir le réservoir avant de partir » : le
+  générateur n'écrit que des syntagmes décorés, jamais une phrase à verbe
+  conjugué, et le modèle n'en a vu aucune ;
+- **la restauration de ticket n'était pas mesurée du tout.** 60 % sur des
+  libellés que l'entraînement couvre pourtant à 5 258 lignes ;
+- **deux classes-aimant absorbent l'inconnu.** Sur 99 erreurs,
+  `alimentation.supermarche` en prend 27 et `loisirs.livre_presse` 12 — cette
+  dernière parce que 1 224 de ses 1 467 entités sont des titres de presse
+  Wikidata du monde entier (« Kyunghyang Shinmun », « 24 sata »). La classe est
+  devenue le sac où tombe tout syntagme nominal inconnu ;
+- **treize mots-outils français sont des entités de la base** : `de`, `du`,
+  `et`, `je`, `les`, `ou`, `tu` viennent de codes IATA Wikidata (Condor,
+  Ethiopian, Tunisair), `avec`, `plus`, `son`, `ta`, `tous` d'enseignes NSI et
+  d'une marque Open Food Facts. Chacune produit ses formes de surface à
+  l'entraînement ;
+- **la base se trompe parfois** : `nike air max` y est `shopping.electronique`,
+  `galaxy` `alimentation.supermarche`. Le modèle répond alors juste selon ses
+  données et faux selon l'utilisateur.
+
+### Le corpus dur est écrit sans faute, l'utilisateur ne tape pas sans faute
+
+Restaient trois écarts entre 83,1 % et ce que l'app rend. Mesurés, deux sont
+nuls et le troisième porte tout :
+
+| | Cas durs quick-add |
+|---|---|
+| poids PyTorch, texte propre | 83,1 % |
+| **ONNX int8**, texte propre | 83,4 % |
+| ONNX int8, montant tapé puis retiré par le pipeline | 83,4 % |
+| **ONNX int8, une faute de frappe** | **71,6 %** |
+
+La quantification ne coûte rien et le pipeline de saisie non plus. Une seule
+faute en coûte douze points, et `measure_typed_input` la mesure désormais axe
+par axe — mêmes opérateurs que `robustness.py`, tenus à l'écart de ceux de
+l'entraînement :
+
+| Axe | propre | une faute | chute |
+|---|---|---|---|
+| **`argot`** | 82,1 % | **53,8 %** | **−28,2** |
+| `chiffre` | 86,7 % | 70,0 % | −16,7 |
+| `revenu` | 85,0 % | 72,5 % | −12,5 |
+| `sans_entite` | 90,9 % | 81,8 % | −9,1 |
+| `phrase_libre` | 60,5 % | 52,6 % | −7,9 |
+| `marque_nue` | 90,0 % | 90,0 % | 0,0 |
+| **ensemble** | **83,1 %** | **74,0 %** | **−9,1** |
+
+L'argot s'effondre parce qu'il est court : « macdo », « kawa », « muscu » ne
+survivent pas à la lettre qui ripe, là où « Boulangerie Lefèvre » garde assez de
+matière. Le témoin `marque_nue` ne bouge pas d'un point — une enseigne apprise
+par cœur résiste, ce qui est déduit non.
+
+**Un bug de l'app est sorti de cette mesure.** `PriceParserService` prend le
+dernier nombre de la saisie pour le montant, quel que soit ce qu'il désigne :
+sans prix tapé, 23 des 373 cas arrivent amputés au modèle — `iPhone 15` →
+`iPhone`, `Microsoft 365` → `Microsoft`, `Galaxy S24` → `Galaxy S`, `plein de
+SP98` → `plein de SP`, `A10 péage` → `A péage`. Sur ces 23 saisies la justesse
+tombe de 87,0 % à 73,9 %. Ça se corrige côté Dart, pas côté modèle.
+
+**Ce qu'un cas doit valoir pour entrer.** `tests/test_hard_corpora.py` tient
+chaque règle ; les deux qui ont sauvé le corpus à l'écriture sont la fuite et la
+vérité contestable. Vingt-deux libellés de ticket se retrouvaient mot pour mot
+dans `receipts_train.jsonl` après normalisation — vingt et un portaient
+d'ailleurs la même classe que l'entraînement, ce qui a confirmé la convention
+suivie ; tous ont été réécrits. Sept cas quick-add ont été retirés faute de
+vérité tranchée (« Krys nouvelles lunettes » — opticien ou parapharmacie ?
+« sushis à emporter » — restaurant ou vente à emporter ?). Un cas qu'on ne
+saurait pas trancher devant l'utilisateur ne mesure pas le modèle, il mesure
+notre hésitation.
 
 **Sans `evaluation/generalization.py`, la grille ment.** `world.py` affiche
 `couverture de la base : 100%` : chacun de ses cas a son entité dans
@@ -288,8 +461,20 @@ coupé) sont ce que le modèle doit comprendre seul.
 | ECE | `world.py` | ≤ 5 % |
 | une faute de frappe | `robustness.py` | chute < 10 points sous le propre |
 | casse et accents | `robustness.py` | égal au propre, à 1 point près |
+| **cas durs quick-add, ensemble** | `hard.py` | **> 83,1 %**, la valeur du modèle livré |
+| **cas durs scan, ensemble** | `hard.py` | **> 77,4 %** |
+| phrase libre | `hard.py` | > 60,5 % |
+| restauration de ticket | `hard.py` | > 60,0 % |
+| **cas durs, une faute de frappe** | `hard.py` | **> 74,0 %** |
+| argot, une faute de frappe | `hard.py` | > 53,8 % |
 
-La ligne qui décide est celle des entités jamais vues : c'est la seule qui
+Les deux lignes `hard.py` sont celles qui bougent quand l'app s'améliore : ce
+sont les seules mesurées sur des formulations que le générateur n'écrit pas et
+sur les classes que le golden ne contient pas. Aucun axe ne doit reculer, même
+si l'ensemble progresse — une moyenne qui monte pendant qu'un axe tombe est un
+déplacement de l'erreur, pas un gain.
+
+La ligne qui décide côté connaissance reste celle des entités jamais vues : c'est la seule qui
 mesure ce que le modèle fera d'un nom qu'un utilisateur invente ou d'une
 enseigne que la moisson n'a pas vue.
 

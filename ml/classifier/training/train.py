@@ -1,4 +1,5 @@
 import json
+import os
 import random
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,6 +17,7 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
+from transformers import TrainerCallback
 from transformers.trainer_pt_utils import LengthGroupedSampler
 from transformers.utils import ModelOutput
 
@@ -23,11 +25,26 @@ from paths import DATASET_DIR, OUTPUT_DIR
 from taxonomy import LABELS
 from training.corruption import corrupt
 
-MODEL_NAME = "jhu-clsp/mmBERT-small"
+# Le backbone se surcharge par l'environnement, comme `CLASSIFIER_OUTPUT` : un
+# banc entre deux tailles doit se lancer sans toucher au fichier, sinon les deux
+# runs ne sortent pas de la même recette. Toute famille ModernBERT convient —
+# `BudgetClassifier` monte ses têtes sur `ModernBertModel`.
+MODEL_NAME = os.environ.get("CLASSIFIER_BACKBONE", "jhu-clsp/mmBERT-small")
 
 
 MAX_LENGTH = 64
-BATCH_SIZE = 32
+# Le lot se scinde par l'environnement sans changer la recette : ce qui compte
+# pour l'optimiseur est `BATCH_SIZE × ACCUMULATION_STEPS`, et il vaut 32 des
+# deux côtés du banc. mmBERT-base à 288 M paramètres s'est fait tuer par le
+# système au step 4 550 avec un lot de 32 ; le scinder en deux demi-lots divise
+# la mémoire d'activations sans toucher au gradient appliqué.
+BATCH_SIZE = int(os.environ.get("CLASSIFIER_BATCH", "32"))
+ACCUMULATION_STEPS = int(os.environ.get("CLASSIFIER_ACCUMULATION", "1"))
+# Recalculer les activations au lieu de les garder coûte ~30 % de temps et
+# rend la mémoire du backbone. Le gradient appliqué est identique — c'est ce
+# qui permet de mesurer un backbone plus large sans changer la recette.
+GRADIENT_CHECKPOINTING = os.environ.get("CLASSIFIER_CHECKPOINTING") == "1"
+MPS_CACHE_EVERY = int(os.environ.get("CLASSIFIER_MPS_CACHE_EVERY", "0"))
 NUM_EPOCHS = 5
 LEARNING_RATE = 5e-5
 
@@ -95,6 +112,9 @@ class BudgetClassifier(PreTrainedModel):
     """ModernBERT backbone with 3 classification heads: type, category, recurrence."""
 
     config_class = BudgetClassifierConfig
+    # Le backbone sait recalculer ses activations ; sans cette déclaration sur
+    # l'enveloppe, `gradient_checkpointing_enable` refuse et rien ne propage.
+    supports_gradient_checkpointing = True
 
     def __init__(self, config: BudgetClassifierConfig):
         super().__init__(config)
@@ -135,6 +155,24 @@ class BudgetClassifier(PreTrainedModel):
             category_logits=category_logits,
             recurrence_logits=recurrence_logits,
         )
+
+
+class MpsCacheCleaner(TrainerCallback):
+    """Rend au système ce que l'allocateur MPS garde en réserve.
+
+    Le gradient de la matrice d'embedding fait 750 Mio d'un bloc — 256 000 × 768
+    × 4 octets — et il est redemandé à chaque rétropropagation. L'allocateur
+    garde les blocs libérés, la mémoire unifiée se fragmente, et l'échec arrive
+    sur une demande que la machine pourrait pourtant servir. Vider le cache
+    régulièrement ne change aucun calcul : c'est de l'hygiène d'allocateur.
+    """
+
+    def __init__(self, every: int):
+        self.every = every
+
+    def on_step_end(self, args, state, control, **kwargs):
+        if self.every and state.global_step % self.every == 0:
+            torch.mps.empty_cache()
 
 
 class MultiHeadTrainer(Trainer):
@@ -314,6 +352,8 @@ def main() -> None:
         output_dir=str(OUTPUT_DIR),
         num_train_epochs=NUM_EPOCHS,
         per_device_train_batch_size=BATCH_SIZE,
+        gradient_accumulation_steps=ACCUMULATION_STEPS,
+        gradient_checkpointing=GRADIENT_CHECKPOINTING,
         per_device_eval_batch_size=BATCH_SIZE * 2,
         remove_unused_columns=False,
         eval_strategy="epoch",
@@ -339,6 +379,7 @@ def main() -> None:
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
         data_collator=MultiLabelDataCollator(tokenizer, random.Random(CORRUPTION_SEED)),
+        callbacks=[MpsCacheCleaner(MPS_CACHE_EVERY)] if MPS_CACHE_EVERY else None,
     )
 
     trainer.train()

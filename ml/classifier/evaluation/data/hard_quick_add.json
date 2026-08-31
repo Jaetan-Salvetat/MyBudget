@@ -1,0 +1,2615 @@
+{
+ "cases": [
+  {
+   "input": "Lidl",
+   "axis": "marque_nue",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Grand Frais",
+   "axis": "marque_nue",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Picard",
+   "axis": "marque_nue",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Flunch",
+   "axis": "marque_nue",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Starbucks",
+   "axis": "marque_nue",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Deliveroo",
+   "axis": "marque_nue",
+   "category": "restauration.livraison",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Total",
+   "axis": "marque_nue",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Blablacar",
+   "axis": "marque_nue",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Vinci Autoroutes",
+   "axis": "marque_nue",
+   "category": "transport.peage",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "EDF",
+   "axis": "marque_nue",
+   "category": "logement.energie",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Veolia",
+   "axis": "marque_nue",
+   "category": "logement.eau",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Sosh",
+   "axis": "marque_nue",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Spotify",
+   "axis": "marque_nue",
+   "category": "loisirs.musique",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Canal+",
+   "axis": "marque_nue",
+   "category": "loisirs.streaming",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Steam",
+   "axis": "marque_nue",
+   "category": "loisirs.jeux_video",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Decathlon",
+   "axis": "marque_nue",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Zara",
+   "axis": "marque_nue",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Ikea",
+   "axis": "marque_nue",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Yves Rocher",
+   "axis": "marque_nue",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Croix-Rouge",
+   "axis": "marque_nue",
+   "category": "divers.don",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Boulanger lave-linge",
+   "axis": "homographe",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "chez le boulanger ce matin",
+   "axis": "homographe",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Boulanger télé 4K",
+   "axis": "homographe",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pain chez le boulanger",
+   "axis": "homographe",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Casino courses du soir",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "soirée casino Enghien",
+   "axis": "homographe",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "forfait mobile Orange",
+   "axis": "homographe",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "un filet d'oranges au marché",
+   "axis": "homographe",
+   "category": "alimentation.marche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Galeries Lafayette manteau",
+   "axis": "homographe",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Pharmacie Lafayette ordonnance",
+   "axis": "homographe",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Bricomarché perceuse",
+   "axis": "homographe",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Intermarché caddie plein",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Paul viennoiseries",
+   "axis": "homographe",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Paul m'a rendu ce qu'il me devait",
+   "axis": "homographe",
+   "category": "transfert.remboursement_ami",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Nespresso capsules",
+   "axis": "homographe",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Sephora fond de teint",
+   "axis": "homographe",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Fnac roman policier",
+   "axis": "homographe",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Cultura carnet de croquis",
+   "axis": "homographe",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Bureau Vallée ramette de papier",
+   "axis": "homographe",
+   "category": "famille_education.fournitures",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Nike survêtement",
+   "axis": "homographe",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Le Coq Sportif baskets",
+   "axis": "homographe",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Basic-Fit",
+   "axis": "homographe",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Maisons du Monde étagère",
+   "axis": "homographe",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Leroy Merlin pot de peinture",
+   "axis": "homographe",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Monsieur Bricolage joint silicone",
+   "axis": "homographe",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Franprix dépannage du soir",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Monoprix courses rapides",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Biocoop vrac",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Naturalia légumes bio",
+   "axis": "homographe",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "La Poste timbres",
+   "axis": "homographe",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Yves Rocher crème mains",
+   "axis": "homographe",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Norauto plaquettes de frein",
+   "axis": "homographe",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Feu Vert vidange",
+   "axis": "homographe",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Speedy amortisseurs",
+   "axis": "homographe",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Gifi rangement plastique",
+   "axis": "homographe",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Action éponges et sopalin",
+   "axis": "homographe",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Conforama canapé",
+   "axis": "homographe",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Leclerc plein de gazole",
+   "axis": "contexte",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Leclerc courses de la semaine",
+   "axis": "contexte",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Leclerc espace culturel BD",
+   "axis": "contexte",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Carrefour station-service",
+   "axis": "contexte",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Carrefour drive retrait",
+   "axis": "contexte",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Auchan pneus hiver",
+   "axis": "contexte",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Amazon clavier mécanique",
+   "axis": "contexte",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Amazon roman de poche",
+   "axis": "contexte",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Amazon Prime",
+   "axis": "contexte",
+   "category": "loisirs.streaming",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Fnac billet de concert",
+   "axis": "contexte",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Fnac casque bluetooth",
+   "axis": "contexte",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Ikea déjeuner au restaurant du magasin",
+   "axis": "contexte",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Ikea bibliothèque Billy",
+   "axis": "contexte",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Decathlon vélo de route",
+   "axis": "contexte",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Decathlon tente de camping",
+   "axis": "contexte",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Uber course jusqu'à la gare",
+   "axis": "contexte",
+   "category": "transport.taxi_vtc",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Uber Eats commande du soir",
+   "axis": "contexte",
+   "category": "restauration.livraison",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Google One stockage",
+   "axis": "contexte",
+   "category": "numerique.stockage_cloud",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Apple Music",
+   "axis": "contexte",
+   "category": "loisirs.musique",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "iCloud 200 Go",
+   "axis": "contexte",
+   "category": "numerique.stockage_cloud",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Apple Store écran cassé réparé",
+   "axis": "contexte",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "SNCF billet Paris Lyon",
+   "axis": "contexte",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Air France supplément bagage",
+   "axis": "contexte",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Booking nuit à Rome",
+   "axis": "contexte",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Airbnb week-end en Bretagne",
+   "axis": "contexte",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "MAIF assurance de la voiture",
+   "axis": "contexte",
+   "category": "finance.assurance_auto",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "MAIF assurance de l'appartement",
+   "axis": "contexte",
+   "category": "finance.assurance_habitation",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "EDF régularisation annuelle",
+   "axis": "contexte",
+   "category": "logement.energie",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Netflix carte cadeau pour ma soeur",
+   "axis": "contexte",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Indigo parking gare",
+   "axis": "contexte",
+   "category": "transport.parking",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Vinci péage sur l'A10",
+   "axis": "contexte",
+   "category": "transport.peage",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "La Poste colis Vinted expédié",
+   "axis": "contexte",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Crous repas du midi",
+   "axis": "contexte",
+   "category": "famille_education.cantine",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "CPAM remboursement des soins",
+   "axis": "contexte",
+   "category": "transfert.remboursement_sante",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "CAF versement du mois",
+   "axis": "contexte",
+   "category": "aide_allocation.allocation_familiale",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Doctolib consultation réglée",
+   "axis": "contexte",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Sephora carte cadeau pour ma mère",
+   "axis": "contexte",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Leroy Merlin location de la ponceuse",
+   "axis": "contexte",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Total lavage auto",
+   "axis": "contexte",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Carrefour croquettes du chat",
+   "axis": "contexte",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Auchan cartable et trousse",
+   "axis": "contexte",
+   "category": "famille_education.fournitures",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Fnac carte cadeau anniversaire",
+   "axis": "contexte",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Decathlon licence du club",
+   "axis": "contexte",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Leclerc cartouches d'encre",
+   "axis": "contexte",
+   "category": "famille_education.fournitures",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Intermarché essence sans plomb",
+   "axis": "contexte",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "réparation de la fuite sous l'évier",
+   "axis": "sans_entite",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le plombier est passé ce matin",
+   "axis": "sans_entite",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "devis du maçon pour le mur",
+   "axis": "sans_entite",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "électricien pour le tableau",
+   "axis": "sans_entite",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "recharge du pass de transport",
+   "axis": "sans_entite",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "changement des plaquettes de frein",
+   "axis": "sans_entite",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "contrôle technique de la voiture",
+   "axis": "sans_entite",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "carte grise du véhicule",
+   "axis": "sans_entite",
+   "category": "finance.impots_taxes",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "amende de stationnement",
+   "axis": "sans_entite",
+   "category": "finance.amende",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "excès de vitesse sur l'autoroute",
+   "axis": "sans_entite",
+   "category": "finance.amende",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "taxe foncière",
+   "axis": "sans_entite",
+   "category": "finance.impots_taxes",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "acompte des impôts sur le revenu",
+   "axis": "sans_entite",
+   "category": "finance.impots_taxes",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "retrait au distributeur",
+   "axis": "sans_entite",
+   "category": "finance.retrait_dab",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "frais de tenue de compte",
+   "axis": "sans_entite",
+   "category": "finance.frais_bancaires",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "agios du mois",
+   "axis": "sans_entite",
+   "category": "finance.frais_bancaires",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "versement sur le livret A",
+   "axis": "sans_entite",
+   "category": "finance.epargne_investissement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "mensualité du prêt immobilier",
+   "axis": "sans_entite",
+   "category": "finance.credit_pret",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "cantine des enfants",
+   "axis": "sans_entite",
+   "category": "famille_education.cantine",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "la nounou du mercredi",
+   "axis": "sans_entite",
+   "category": "famille_education.garde_enfant",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "crèche du petit",
+   "axis": "sans_entite",
+   "category": "famille_education.garde_enfant",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "cours de piano de Lila",
+   "axis": "sans_entite",
+   "category": "famille_education.activites_enfants",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "inscription au conservatoire",
+   "axis": "sans_entite",
+   "category": "famille_education.activites_enfants",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "fournitures de la rentrée",
+   "axis": "sans_entite",
+   "category": "famille_education.fournitures",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "frais de scolarité du semestre",
+   "axis": "sans_entite",
+   "category": "famille_education.scolarite",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "formation en ligne sur le développement web",
+   "axis": "sans_entite",
+   "category": "famille_education.formation",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "toilettage du chien",
+   "axis": "sans_entite",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "croquettes du chat",
+   "axis": "sans_entite",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "vaccin du chat chez le vétérinaire",
+   "axis": "sans_entite",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "cadeau d'anniversaire pour ma mère",
+   "axis": "sans_entite",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "don à une association",
+   "axis": "sans_entite",
+   "category": "divers.don",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "paquet de cigarettes",
+   "axis": "sans_entite",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "ticket à gratter",
+   "axis": "sans_entite",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "coupe chez le coiffeur",
+   "axis": "sans_entite",
+   "category": "sante_beaute.coiffeur",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "épilation à la cire",
+   "axis": "sans_entite",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "consultation chez le dentiste",
+   "axis": "sans_entite",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "ordonnance récupérée à la pharmacie",
+   "axis": "sans_entite",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "séance de kiné",
+   "axis": "sans_entite",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "rendez-vous chez l'ostéopathe",
+   "axis": "sans_entite",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "cotisation de la mutuelle",
+   "axis": "sans_entite",
+   "category": "finance.assurance_sante",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "place de cinéma",
+   "axis": "sans_entite",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "escape game entre amis",
+   "axis": "sans_entite",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "billetterie du festival",
+   "axis": "sans_entite",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "charges de copropriété",
+   "axis": "sans_entite",
+   "category": "logement.charges",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "loyer de septembre",
+   "axis": "sans_entite",
+   "category": "logement.loyer",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "facture d'électricité",
+   "axis": "sans_entite",
+   "category": "logement.energie",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "facture d'eau du trimestre",
+   "axis": "sans_entite",
+   "category": "logement.eau",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "box internet de l'appartement",
+   "axis": "sans_entite",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "nom de domaine renouvelé",
+   "axis": "sans_entite",
+   "category": "numerique.hebergement_domaine",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "billet de train pour Marseille",
+   "axis": "sans_entite",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "nuit d'hôtel avant le vol",
+   "axis": "sans_entite",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "location de voiture pour le week-end",
+   "axis": "sans_entite",
+   "category": "voyage.location_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "visite guidée du château",
+   "axis": "sans_entite",
+   "category": "voyage.activite_visite",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pension alimentaire",
+   "axis": "sans_entite",
+   "category": "famille_education.pension_alimentaire",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "tickets de métro",
+   "axis": "sans_entite",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "place de parking en centre-ville",
+   "axis": "sans_entite",
+   "category": "transport.parking",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "macdo ce midi",
+   "axis": "argot",
+   "category": "restauration.fast_food",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un grec avec des frites",
+   "axis": "argot",
+   "category": "restauration.fast_food",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "tacos poulet",
+   "axis": "argot",
+   "category": "restauration.fast_food",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "resto avec les collègues",
+   "axis": "argot",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "apéro chez le voisin",
+   "axis": "argot",
+   "category": "restauration.bar",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "des bières au comptoir",
+   "axis": "argot",
+   "category": "restauration.bar",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un kawa avant le boulot",
+   "axis": "argot",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "des clopes",
+   "axis": "argot",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai fait le plein",
+   "axis": "argot",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "plein de gasoil",
+   "axis": "argot",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le sans plomb monte encore",
+   "axis": "argot",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "bagnole au garage",
+   "axis": "argot",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "les courses de la semaine",
+   "axis": "argot",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai fait les courses",
+   "axis": "argot",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un caddie complet",
+   "axis": "argot",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une baguette et deux croissants",
+   "axis": "argot",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "ciné avec Léa",
+   "axis": "argot",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "abo salle de muscu",
+   "axis": "argot",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "séance de muscu",
+   "axis": "argot",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "forfait tel",
+   "axis": "argot",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "le loyer",
+   "axis": "argot",
+   "category": "logement.loyer",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "les impôts",
+   "axis": "argot",
+   "category": "finance.impots_taxes",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un PV",
+   "axis": "argot",
+   "category": "finance.amende",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "chez le toubib",
+   "axis": "argot",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le dentiste",
+   "axis": "argot",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "brushing chez le coiffeur",
+   "axis": "argot",
+   "category": "sante_beaute.coiffeur",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "manucure",
+   "axis": "argot",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "des fringues",
+   "axis": "argot",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une paire de baskets",
+   "axis": "argot",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "nouveau casque audio",
+   "axis": "argot",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un jeu sur la console",
+   "axis": "argot",
+   "category": "loisirs.jeux_video",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "bouquin de la rentrée",
+   "axis": "argot",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le péage",
+   "axis": "argot",
+   "category": "transport.peage",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un taxi jusqu'à l'aéroport",
+   "axis": "argot",
+   "category": "transport.taxi_vtc",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pizza livrée ce soir",
+   "axis": "argot",
+   "category": "restauration.livraison",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le pressing",
+   "axis": "argot",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "croquettes du clebs",
+   "axis": "argot",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un grattage",
+   "axis": "argot",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "la mutuelle",
+   "axis": "argot",
+   "category": "finance.assurance_sante",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "on est allés manger un bout après le film",
+   "axis": "phrase_libre",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le chauffe-eau a lâché, il a fallu appeler quelqu'un",
+   "axis": "phrase_libre",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "je me suis pris un café en attendant le train",
+   "axis": "phrase_libre",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "il a fallu remplacer le pare-brise fissuré",
+   "axis": "phrase_libre",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai avancé les places de concert pour tout le groupe",
+   "axis": "phrase_libre",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a réservé une nuit avant le mariage de Chloé",
+   "axis": "phrase_libre",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai renouvelé mon abonnement de séries",
+   "axis": "phrase_libre",
+   "category": "loisirs.streaming",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "le petit avait besoin de nouvelles chaussures",
+   "axis": "phrase_libre",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai dû racheter des cartouches pour l'imprimante",
+   "axis": "phrase_libre",
+   "category": "famille_education.fournitures",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le chat est passé chez le véto pour ses rappels",
+   "axis": "phrase_libre",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a partagé l'addition à cinq",
+   "axis": "phrase_libre",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai rechargé la carte de transport pour le mois",
+   "axis": "phrase_libre",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "il restait des travaux de peinture dans la chambre",
+   "axis": "phrase_libre",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "je suis passé prendre du pain en rentrant",
+   "axis": "phrase_libre",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a pris un verre après le boulot",
+   "axis": "phrase_libre",
+   "category": "restauration.bar",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai payé la moitié du cadeau commun pour Marc",
+   "axis": "phrase_libre",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "la voiture a passé la révision des 60 000 km",
+   "axis": "phrase_libre",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai réglé la facture du dentiste",
+   "axis": "phrase_libre",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "je me suis inscrit à un cours du soir",
+   "axis": "phrase_libre",
+   "category": "famille_education.formation",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a loué une voiture pour descendre dans le sud",
+   "axis": "phrase_libre",
+   "category": "voyage.location_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a acheté de quoi repeindre le salon",
+   "axis": "phrase_libre",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai pris un abonnement à la salle près du bureau",
+   "axis": "phrase_libre",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "le forfait de la ligne fixe a été prélevé",
+   "axis": "phrase_libre",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "j'ai fait remplir le réservoir avant de partir",
+   "axis": "phrase_libre",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a mangé sur le pouce entre deux rendez-vous",
+   "axis": "phrase_libre",
+   "category": "restauration.fast_food",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai racheté de la lessive et du produit vaisselle",
+   "axis": "phrase_libre",
+   "category": "alimentation.supermarche",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le vétérinaire a stérilisé la chatte",
+   "axis": "phrase_libre",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai réglé l'inscription au tournoi de tennis",
+   "axis": "phrase_libre",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a offert un bouquet à ma belle-mère",
+   "axis": "phrase_libre",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai fait refaire les clés de l'appartement",
+   "axis": "phrase_libre",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "la carte de la médiathèque a été renouvelée",
+   "axis": "phrase_libre",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "je suis allé chercher des médicaments en urgence",
+   "axis": "phrase_libre",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a payé l'acompte du voyage en Italie",
+   "axis": "phrase_libre",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai réglé la cotisation annuelle de l'association",
+   "axis": "phrase_libre",
+   "category": "divers.don",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "le stationnement souterrain m'a coûté une fortune",
+   "axis": "phrase_libre",
+   "category": "transport.parking",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai acheté un cadre pour la photo du salon",
+   "axis": "phrase_libre",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "on a fait garder les enfants samedi soir",
+   "axis": "phrase_libre",
+   "category": "famille_education.garde_enfant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai commandé un nouveau chargeur pour le téléphone",
+   "axis": "phrase_libre",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "abonnement à la salle de sport",
+   "axis": "recurrence",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "cotisation annuelle du club de tennis",
+   "axis": "recurrence",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "prélèvement de l'électricité",
+   "axis": "recurrence",
+   "category": "logement.energie",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "échéance de l'assurance auto",
+   "axis": "recurrence",
+   "category": "finance.assurance_auto",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "mensualité du crédit voiture",
+   "axis": "recurrence",
+   "category": "finance.credit_pret",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "forfait mobile prélevé",
+   "axis": "recurrence",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "renouvellement de l'hébergement du site",
+   "axis": "recurrence",
+   "category": "numerique.hebergement_domaine",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "abonnement au magazine",
+   "axis": "recurrence",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "abonnement au journal papier",
+   "axis": "recurrence",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "prélèvement de la cantine scolaire",
+   "axis": "recurrence",
+   "category": "famille_education.cantine",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "place de parking louée au mois",
+   "axis": "recurrence",
+   "category": "transport.parking",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "assurance habitation annuelle",
+   "axis": "recurrence",
+   "category": "finance.assurance_habitation",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "cotisation de la complémentaire santé",
+   "axis": "recurrence",
+   "category": "finance.assurance_sante",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "virement automatique vers l'épargne",
+   "axis": "recurrence",
+   "category": "finance.epargne_investissement",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "abonnement à la médiathèque",
+   "axis": "recurrence",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "licence de foot du petit",
+   "axis": "recurrence",
+   "category": "famille_education.activites_enfants",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "un café pris au comptoir",
+   "axis": "recurrence",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "achat unique d'un jeu vidéo",
+   "axis": "recurrence",
+   "category": "loisirs.jeux_video",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une place de cinéma",
+   "axis": "recurrence",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un livre acheté d'occasion",
+   "axis": "recurrence",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un plein d'essence",
+   "axis": "recurrence",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une nuit à l'hôtel",
+   "axis": "recurrence",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un aller-retour en train",
+   "axis": "recurrence",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une consultation chez le médecin",
+   "axis": "recurrence",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un retrait au distributeur",
+   "axis": "recurrence",
+   "category": "finance.retrait_dab",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "des fleurs pour la maison",
+   "axis": "recurrence",
+   "category": "shopping.mobilier_deco",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un jouet pour le petit",
+   "axis": "recurrence",
+   "category": "famille_education.activites_enfants",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "une coupe de cheveux",
+   "axis": "recurrence",
+   "category": "sante_beaute.coiffeur",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un ticket de métro à l'unité",
+   "axis": "recurrence",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "le loyer du mois d'octobre",
+   "axis": "recurrence",
+   "category": "logement.loyer",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "les charges trimestrielles",
+   "axis": "recurrence",
+   "category": "logement.charges",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "la pension versée chaque mois",
+   "axis": "recurrence",
+   "category": "famille_education.pension_alimentaire",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "abonnement au service de streaming musical",
+   "axis": "recurrence",
+   "category": "loisirs.musique",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "abonnement au cloud de stockage",
+   "axis": "recurrence",
+   "category": "numerique.stockage_cloud",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "salaire de septembre",
+   "axis": "revenu",
+   "category": "salaire.salaire_net",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "mon salaire est tombé",
+   "axis": "revenu",
+   "category": "salaire.salaire_net",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "prime de fin d'année",
+   "axis": "revenu",
+   "category": "salaire.prime",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "prime d'intéressement versée",
+   "axis": "revenu",
+   "category": "salaire.prime",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "facture réglée par le client",
+   "axis": "revenu",
+   "category": "salaire.freelance",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "mission freelance payée",
+   "axis": "revenu",
+   "category": "salaire.freelance",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pension de retraite",
+   "axis": "revenu",
+   "category": "salaire.retraite",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "allocations familiales",
+   "axis": "revenu",
+   "category": "aide_allocation.allocation_familiale",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "aide au logement versée",
+   "axis": "revenu",
+   "category": "aide_allocation.aide_logement",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "indemnités chômage",
+   "axis": "revenu",
+   "category": "aide_allocation.chomage",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "bourse du semestre",
+   "axis": "revenu",
+   "category": "aide_allocation.bourse",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "virement de mon père",
+   "axis": "revenu",
+   "category": "transfert.virement_recu",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "ma soeur m'a viré sa part",
+   "axis": "revenu",
+   "category": "transfert.virement_recu",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Julie m'a remboursé le restaurant",
+   "axis": "revenu",
+   "category": "transfert.remboursement_ami",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "les collègues m'ont rendu leur part du cadeau",
+   "axis": "revenu",
+   "category": "transfert.remboursement_ami",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "remboursement de la sécurité sociale",
+   "axis": "revenu",
+   "category": "transfert.remboursement_sante",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "la mutuelle a remboursé les lunettes",
+   "axis": "revenu",
+   "category": "transfert.remboursement_sante",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "remboursement des soins dentaires",
+   "axis": "revenu",
+   "category": "transfert.remboursement_sante",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "trop-perçu des impôts restitué",
+   "axis": "revenu",
+   "category": "transfert.remboursement_impots",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "remboursement d'impôts",
+   "axis": "revenu",
+   "category": "transfert.remboursement_impots",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "vendu mon ancien vélo",
+   "axis": "revenu",
+   "category": "exceptionnel.vente_occasion",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "vente d'une commode d'occasion",
+   "axis": "revenu",
+   "category": "exceptionnel.vente_occasion",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "j'ai vendu deux pulls sur Vinted",
+   "axis": "revenu",
+   "category": "exceptionnel.vente_occasion",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "cadeau de ma grand-mère",
+   "axis": "revenu",
+   "category": "exceptionnel.don_recu",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "étrennes reçues",
+   "axis": "revenu",
+   "category": "exceptionnel.don_recu",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "intérêts du livret A",
+   "axis": "revenu",
+   "category": "exceptionnel.interets",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "intérêts versés par la banque",
+   "axis": "revenu",
+   "category": "exceptionnel.interets",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "loyer encaissé du studio",
+   "axis": "revenu",
+   "category": "exceptionnel.loyer_percu",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "le locataire a payé son loyer",
+   "axis": "revenu",
+   "category": "exceptionnel.loyer_percu",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "treizième mois",
+   "axis": "revenu",
+   "category": "salaire.prime",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "acompte sur salaire",
+   "axis": "revenu",
+   "category": "salaire.salaire_net",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "heures supplémentaires payées",
+   "axis": "revenu",
+   "category": "salaire.salaire_net",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "bourse au mérite",
+   "axis": "revenu",
+   "category": "aide_allocation.bourse",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "allocation de rentrée scolaire",
+   "axis": "revenu",
+   "category": "aide_allocation.allocation_familiale",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "remboursement des frais de transport par l'employeur",
+   "axis": "revenu",
+   "category": "salaire.salaire_net",
+   "type": "income",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "dividendes du PEA",
+   "axis": "revenu",
+   "category": "exceptionnel.interets",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "revente de la console",
+   "axis": "revenu",
+   "category": "exceptionnel.vente_occasion",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "un ami m'a rendu ce que je lui avais avancé",
+   "axis": "revenu",
+   "category": "transfert.remboursement_ami",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "virement reçu de la famille",
+   "axis": "revenu",
+   "category": "transfert.virement_recu",
+   "type": "income",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pension versée par mon ex",
+   "axis": "revenu",
+   "category": "famille_education.pension_alimentaire",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "iPhone 15",
+   "axis": "chiffre",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Galaxy S24",
+   "axis": "chiffre",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "essence 95",
+   "axis": "chiffre",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "plein de SP98",
+   "axis": "chiffre",
+   "category": "transport.essence",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Windows 11 licence",
+   "axis": "chiffre",
+   "category": "numerique.logiciel_service",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "RED by SFR",
+   "axis": "chiffre",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "B&You",
+   "axis": "chiffre",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Free mobile",
+   "axis": "chiffre",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Microsoft 365",
+   "axis": "chiffre",
+   "category": "numerique.logiciel_service",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Google One 100 Go",
+   "axis": "chiffre",
+   "category": "numerique.stockage_cloud",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "révision de la 208",
+   "axis": "chiffre",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Ouigo Paris Bordeaux",
+   "axis": "chiffre",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "TGV Inoui",
+   "axis": "chiffre",
+   "category": "voyage.transport_longue_distance",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pass Navigo du mois",
+   "axis": "chiffre",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "ChatGPT Plus",
+   "axis": "chiffre",
+   "category": "numerique.ia",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Levi's 501",
+   "axis": "chiffre",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Nike Air Max",
+   "axis": "chiffre",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "PlayStation 5",
+   "axis": "chiffre",
+   "category": "loisirs.jeux_video",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "manette Xbox",
+   "axis": "chiffre",
+   "category": "loisirs.jeux_video",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "MacBook Air",
+   "axis": "chiffre",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "écran 27 pouces",
+   "axis": "chiffre",
+   "category": "shopping.electronique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "ampoules LED",
+   "axis": "chiffre",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "bouteille de gaz",
+   "axis": "chiffre",
+   "category": "logement.energie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "pack de 6 bouteilles d'eau",
+   "axis": "chiffre",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "A10 péage",
+   "axis": "chiffre",
+   "category": "transport.peage",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "2 places de cinéma",
+   "axis": "chiffre",
+   "category": "loisirs.cinema_sortie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "carte 10 voyages",
+   "axis": "chiffre",
+   "category": "transport.transport_commun",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "forfait 100 Go",
+   "axis": "chiffre",
+   "category": "numerique.telecom",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "assurance tous risques",
+   "axis": "chiffre",
+   "category": "finance.assurance_auto",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "chaussures taille 42",
+   "axis": "chiffre",
+   "category": "shopping.vetements",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Boulangerie Lefèvre",
+   "axis": "commerce_local",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Le Fournil de Sarah",
+   "axis": "commerce_local",
+   "category": "alimentation.boulangerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Boucherie Morel",
+   "axis": "commerce_local",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Poissonnerie du Port",
+   "axis": "commerce_local",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Épicerie Chez Rachid",
+   "axis": "commerce_local",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Cave à vins Delaunay",
+   "axis": "commerce_local",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Chez Momo",
+   "axis": "commerce_local",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Le Petit Bistrot de la Place",
+   "axis": "commerce_local",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Brasserie du Théâtre",
+   "axis": "commerce_local",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Snack du Stade",
+   "axis": "commerce_local",
+   "category": "restauration.fast_food",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Le Bar du Coin",
+   "axis": "commerce_local",
+   "category": "restauration.bar",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Café de la Poste",
+   "axis": "commerce_local",
+   "category": "restauration.cafe",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Tabac de la Gare",
+   "axis": "commerce_local",
+   "category": "divers.tabac_jeux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Garage Dupuis vidange",
+   "axis": "commerce_local",
+   "category": "transport.entretien_vehicule",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Taxi Bernard",
+   "axis": "commerce_local",
+   "category": "transport.taxi_vtc",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Cabinet dentaire Rousseau",
+   "axis": "commerce_local",
+   "category": "sante_beaute.medecin",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Pharmacie du Marché",
+   "axis": "commerce_local",
+   "category": "sante_beaute.pharmacie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Salon de coiffure Émilie",
+   "axis": "commerce_local",
+   "category": "sante_beaute.coiffeur",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Institut de beauté Lina",
+   "axis": "commerce_local",
+   "category": "sante_beaute.esthetique",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Clinique vétérinaire des Ormes",
+   "axis": "commerce_local",
+   "category": "divers.animaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Crèche Les Petits Loups",
+   "axis": "commerce_local",
+   "category": "famille_education.garde_enfant",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Librairie La Page",
+   "axis": "commerce_local",
+   "category": "loisirs.livre_presse",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Club de judo de Bezons",
+   "axis": "commerce_local",
+   "category": "loisirs.sport",
+   "type": "expense",
+   "recurrence": "fixe"
+  },
+  {
+   "input": "Maçonnerie Sanchez",
+   "axis": "commerce_local",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Électricité Ravel dépannage",
+   "axis": "commerce_local",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Camping Les Pins",
+   "axis": "commerce_local",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Gîte du Lac",
+   "axis": "commerce_local",
+   "category": "voyage.hebergement",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Auto-école Victor",
+   "axis": "commerce_local",
+   "category": "famille_education.formation",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Pressing Blanchisserie Centrale",
+   "axis": "commerce_local",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Cordonnerie de la Halle",
+   "axis": "commerce_local",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Menuiserie Lambert devis",
+   "axis": "commerce_local",
+   "category": "logement.travaux",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Fleuriste Rose et Compagnie",
+   "axis": "commerce_local",
+   "category": "divers.cadeau_offert",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Photographe Studio Vasseur",
+   "axis": "commerce_local",
+   "category": "divers.autre",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Traiteur Le Gourmet",
+   "axis": "commerce_local",
+   "category": "alimentation.epicerie",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  },
+  {
+   "input": "Pizzeria Da Vinci sur place",
+   "axis": "commerce_local",
+   "category": "restauration.restaurant",
+   "type": "expense",
+   "recurrence": "ponctuel"
+  }
+ ]
+}

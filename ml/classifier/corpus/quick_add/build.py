@@ -16,6 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from corpus.quick_add.examples import EXAMPLES
+from corpus.quick_add.verbs import VERB_PHRASES, VERB_SOURCE
 from knowledge.build import SOURCE_PRIORITY
 from knowledge.entities import TIER_HEAD, Entity, normalize, read_entities
 from paths import DATASET_DIR, ENTITIES_PATH
@@ -24,8 +25,8 @@ from taxonomy import ACTIVE_LABELS, LABELS, NUM_EXPENSE, RECURRING, type_of
 
 SEED = 42
 EVAL_ENTITY_RATIO = 0.08
-CLASS_SAMPLE_CAP = 6000
-CLASS_SAMPLE_FLOOR = 900
+CLASS_SAMPLE_CAP = 9000
+CLASS_SAMPLE_FLOOR = 1200
 CURATED_SOURCE = "curated"
 AMOUNT_RATIO = 0.15
 
@@ -88,24 +89,139 @@ FRENCH_RECURRING_WRAPPERS = [
 ]
 RECURRING_RATIO = 0.18
 
+# Les sept formes ci-dessus ne produisent que du syntagme décoré : le corpus
+# tenait dans 4 mots de médiane quand l'utilisateur en tape 8, et l'axe
+# `phrase_libre` de `evaluation/hard.py` le payait 60,5 % contre 83 % ailleurs.
+# Rien dans 124 000 exemples n'avait de verbe conjugué hors des préfixes figés.
+#
+# C'est aussi ce qui interdisait d'apprendre l'argot : « zinc » vaut bar, café
+# ou avion, « mazout » fioul ou gazole, et un syntagme de quatre mots n'a pas
+# la place syntaxique de porter ce qui tranche. La grammaire vient donc avant
+# le vocabulaire — ce sont les cadres qui font la place, les mots la remplissent.
+#
+# L'entité arrive toujours après un verbe ou une préposition : c'est la seule
+# position qui reste lisible pour une enseigne comme pour un nom commun, sans
+# rien savoir de son genre ni de son nombre.
+FRENCH_EXPENSE_SENTENCES = [
+    "j'ai fini par payer {text}",
+    "il a fallu régler {text}",
+    "il a fallu repasser par {text}",
+    "on est passés par {text} en rentrant",
+    "je suis repassé prendre {text}",
+    "je suis allé chercher {text}",
+    "j'ai encore dû sortir la carte pour {text}",
+    "ça m'a coûté un bras chez {text}",
+    "on a partagé l'addition pour {text}",
+    "j'ai oublié de noter {text}",
+    "j'ai réglé ce qu'il restait sur {text}",
+    "on a fini par prendre {text}",
+    "je me suis laissé tenter par {text}",
+    "il restait à payer {text}",
+    "on a dû avancer {text}",
+    "j'ai profité d'une promo sur {text}",
+    "je suis tombé en rade, direction {text}",
+    "on n'avait plus rien, donc {text}",
+    "j'ai claqué ce qu'il me restait en {text}",
+    "je suis passé devant et j'ai pris {text}",
+    "on a craqué pour {text}",
+    "j'ai fait un saut à {text}",
+    "il a bien fallu remplacer {text}",
+    "j'ai reçu la facture de {text}",
+    "on m'a facturé {text}",
+    "j'ai dû rappeler pour {text}",
+    "ça faisait longtemps que je repoussais {text}",
+    "je me suis décidé pour {text}",
+    "on a réservé {text} il y a deux semaines",
+    "j'ai pris un abonnement pour {text}",
+]
+FRENCH_INCOME_SENTENCES = [
+    "j'ai enfin touché {text}",
+    "il est tombé ce matin, {text}",
+    "on m'a viré {text}",
+    "j'ai reçu {text} sans rien demander",
+    "ça a fini par arriver, {text}",
+    "il me restait à encaisser {text}",
+    "on m'a remboursé {text}",
+    "j'ai récupéré {text}",
+    "le virement est passé pour {text}",
+    "j'attendais {text} depuis un moment",
+    "ils ont enfin versé {text}",
+    "j'ai vendu et récupéré {text}",
+]
+# Ce qui allonge la phrase sans rien dire de la classe : c'est exactement ce
+# que le modèle doit apprendre à ignorer.
+FRENCH_TAILS = [
+    "et je ne l'avais pas prévu",
+    "comme tous les mois",
+    "avant de partir en week-end",
+    "juste avant la fin du mois",
+    "parce qu'il n'y avait plus le choix",
+    "en rentrant du boulot",
+    "pendant que j'y étais",
+    "sans faire attention au prix",
+    "alors que j'avais dit que non",
+    "et ça pique un peu",
+    "après avoir hésité longtemps",
+    "en même temps que le reste",
+    "au dernier moment",
+    "pour ne pas avoir à y revenir",
+    "et je crois que c'est la dernière fois",
+]
+SENTENCE_RATIO = 0.30
+TAIL_RATIO = 0.45
+
+
+# NSI et Wikidata rapportent le monde entier ; leur tier dit déjà si l'entité
+# appartient à un marché où nos utilisateurs achètent. 11 360 des 28 709 entités
+# n'en sont pas — « Morgunblaðið », « Gibraltar Chronicle », « Kyunghyang
+# Shinmun ». Les décliner en trois ou quatre formes n'apprend pas une enseigne,
+# ça apprend que tout syntagme nominal en alphabet latin appartient à leur
+# classe : `loisirs.livre_presse` avalait à lui seul 12 des 59 échecs du corpus
+# dur, dont « le dentiste » et « Le Fournil de Sarah ». Le nom est gardé — un
+# utilisateur peut le taper — mais il ne reçoit plus une once d'amplification.
+GEOGRAPHIC_SOURCES = frozenset({"nsi", "wikidata"})
+FOREIGN_MARKET_BUDGET = 1
+VERB_FORMS_BUDGET = 8
+
 
 def _forms_budget(entity: Entity) -> int:
     priority = SOURCE_PRIORITY.get(entity.source, 0)
     if entity.source == CURATED_SOURCE:
-        return 9
+        return 13
+    if entity.source == VERB_SOURCE:
+        return VERB_FORMS_BUDGET
+    if entity.source in GEOGRAPHIC_SOURCES and entity.tier != TIER_HEAD:
+        return FOREIGN_MARKET_BUDGET
     if priority >= 4:
-        return 8
+        return 12
     if priority == 3:
-        return 5 if entity.tier == TIER_HEAD else 3
+        return 7 if entity.tier == TIER_HEAD else 4
     if priority == 2:
-        return 3 if entity.tier == TIER_HEAD else 2
-    return 2
+        return 4 if entity.tier == TIER_HEAD else 3
+    return 3
 
 
 def _rank(entity: Entity) -> tuple[int, int]:
     if entity.source == CURATED_SOURCE:
         return 6, entity.tier
     return SOURCE_PRIORITY.get(entity.source, 0), entity.tier
+
+
+def _decorate_clause(text: str, rng: random.Random) -> tuple[str, bool]:
+    """Une clause déjà conjuguée ne prend qu'un repère de temps, une queue, un montant.
+
+    Lui appliquer les préfixes nominaux rendrait « achat j'ai fait le plein », et
+    les enveloppes « petit j'ai fait le plein ». Ce qui se colle à une phrase se
+    colle après elle, pas devant.
+    """
+    out = text
+    if rng.random() < 0.45:
+        out = f"{out} {rng.choice(FR_SUFFIXES)}"
+    if rng.random() < TAIL_RATIO:
+        out = f"{out} {rng.choice(FRENCH_TAILS)}"
+    if rng.random() < AMOUNT_RATIO:
+        out = f"{out} {rng.choice(AMOUNTS)}"
+    return out, False
 
 
 def _decorate(text: str, is_income: bool, rng: random.Random) -> tuple[str, bool]:
@@ -116,6 +232,15 @@ def _decorate(text: str, is_income: bool, rng: random.Random) -> tuple[str, bool
 
     if rng.random() < RECURRING_RATIO:
         return rng.choice(FRENCH_RECURRING_WRAPPERS).format(text=text.lower()), True
+
+    if rng.random() < SENTENCE_RATIO:
+        frames = FRENCH_INCOME_SENTENCES if is_income else FRENCH_EXPENSE_SENTENCES
+        out = rng.choice(frames).format(text=text.lower())
+        if rng.random() < TAIL_RATIO:
+            out = f"{out} {rng.choice(FRENCH_TAILS)}"
+        if rng.random() < AMOUNT_RATIO:
+            out = f"{out} {rng.choice(AMOUNTS)}"
+        return out, False
 
     shape = rng.randrange(7)
     if shape == 0:
@@ -162,7 +287,10 @@ def _surface_forms(
     while len(forms) < budget and attempts < budget * 4:
         attempts += 1
         base = rng.choice(surfaces)
-        text, marked = _decorate(base, is_income, rng)
+        if entity.source == VERB_SOURCE:
+            text, marked = _decorate_clause(base, rng)
+        else:
+            text, marked = _decorate(base, is_income, rng)
         push(text, RECURRING if marked else entity.recurrence)
     return forms[:budget]
 
@@ -184,12 +312,21 @@ def _curated_entities() -> list[Entity]:
     return out
 
 
+def _verb_entities() -> list[Entity]:
+    """Les groupes verbaux, promus au rang d'entités de leur classe."""
+    return [
+        Entity(name=clause, slug=slug, source=VERB_SOURCE, tier=TIER_HEAD)
+        for slug, clauses in VERB_PHRASES.items()
+        for clause in clauses
+    ]
+
+
 def load_entities() -> list[Entity]:
     if not ENTITIES_PATH.exists():
         raise FileNotFoundError(
             f"{ENTITIES_PATH} absent : lancer d'abord `python -m knowledge.build`"
         )
-    return _curated_entities() + list(read_entities(ENTITIES_PATH))
+    return _curated_entities() + _verb_entities() + list(read_entities(ENTITIES_PATH))
 
 
 def validate_coverage(entities: list[Entity]) -> None:
