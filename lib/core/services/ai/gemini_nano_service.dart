@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 
@@ -17,11 +19,14 @@ class GeminiNanoService {
       'fr.jaetan.mybudget/gemini_nano/download';
 
   static const String statusMethod = 'status';
+  static const String modelNameMethod = 'modelName';
   static const String warmUpMethod = 'warmUp';
   static const String generateMethod = 'generate';
 
   static const String promptArgument = 'prompt';
   static const String schemaArgument = 'schema';
+  static const String channelArgument = 'channel';
+  static const String preferenceArgument = 'preference';
 
   static const String eventKey = 'event';
   static const String totalBytesKey = 'totalBytes';
@@ -39,12 +44,15 @@ class GeminiNanoService {
   bool get isSupportedPlatform =>
       defaultTargetPlatform == TargetPlatform.android;
 
-  Future<GeminiNanoStatus> status() async {
+  Future<GeminiNanoStatus> status(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async {
     if (!isSupportedPlatform) return GeminiNanoStatus.unavailable;
 
     try {
       return GeminiNanoStatus.fromId(
-        await _channel.invokeMethod<String>(statusMethod),
+        await _channel.invokeMethod<String>(statusMethod, _argumentsFor(channel, preference)),
       );
     } on PlatformException catch (error, stackTrace) {
       debugPrint('Statut Gemini Nano illisible : $error\n$stackTrace');
@@ -55,11 +63,34 @@ class GeminiNanoService {
     }
   }
 
-  Future<void> warmUp() async {
+  Future<String?> modelName(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async {
+    if (!isSupportedPlatform) return null;
+
+    try {
+      return await _channel.invokeMethod<String>(
+        modelNameMethod,
+        _argumentsFor(channel, preference),
+      );
+    } on PlatformException catch (error, stackTrace) {
+      debugPrint('Nom du modèle Gemini Nano illisible : $error\n$stackTrace');
+      return null;
+    } on MissingPluginException catch (error, stackTrace) {
+      debugPrint('Canal Gemini Nano absent : $error\n$stackTrace');
+      return null;
+    }
+  }
+
+  Future<void> warmUp(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async {
     if (!isSupportedPlatform) return;
 
     try {
-      await _channel.invokeMethod<void>(warmUpMethod);
+      await _channel.invokeMethod<void>(warmUpMethod, _argumentsFor(channel, preference));
     } on PlatformException catch (error, stackTrace) {
       debugPrint('Préchauffage Gemini Nano impossible : $error\n$stackTrace');
     } on MissingPluginException catch (error, stackTrace) {
@@ -70,6 +101,8 @@ class GeminiNanoService {
   Future<String> generate({
     required String prompt,
     required String schema,
+    required GeminiNanoChannel channel,
+    required GeminiNanoPreference preference,
   }) async {
     if (!isSupportedPlatform) {
       throw const GeminiNanoException(GeminiNanoFailure.unavailable);
@@ -80,6 +113,7 @@ class GeminiNanoService {
       raw = await _channel.invokeMethod<String>(generateMethod, {
         promptArgument: prompt,
         schemaArgument: schema,
+        ..._argumentsFor(channel, preference),
       });
     } on PlatformException catch (error) {
       throw GeminiNanoException(
@@ -96,14 +130,17 @@ class GeminiNanoService {
     return raw;
   }
 
-  Stream<GeminiNanoDownload> download() {
+  Stream<GeminiNanoDownload> download(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) {
     if (!isSupportedPlatform) {
       return Stream<GeminiNanoDownload>.value(
         const GeminiNanoDownloadFailed(GeminiNanoFailure.unavailable),
       );
     }
 
-    return _downloads.receiveBroadcastStream().transform(
+    return _downloads.receiveBroadcastStream(_argumentsFor(channel, preference)).transform(
       StreamTransformer<dynamic, GeminiNanoDownload>.fromHandlers(
         handleData: (event, sink) {
           final step = _stepFrom(event);
@@ -118,6 +155,11 @@ class GeminiNanoService {
       ),
     );
   }
+
+  static Map<String, String> _argumentsFor(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) => {channelArgument: channel.id, preferenceArgument: preference.id};
 
   GeminiNanoDownload? _stepFrom(Object? event) {
     if (event is! Map) return null;

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -28,7 +29,10 @@ class GeminiNanoDownloadNotifier extends _$GeminiNanoDownloadNotifier {
     state = const GeminiNanoDownloadStarted(totalBytes: 0);
     _subscription = ref
         .read(geminiNanoServiceProvider)
-        .download()
+        .download(
+          ref.read(geminiNanoChannelProvider),
+          GeminiNanoPreference.quickAdd,
+        )
         .listen(_onStep, onDone: _stop);
   }
 

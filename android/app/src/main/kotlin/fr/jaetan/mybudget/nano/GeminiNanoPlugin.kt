@@ -6,6 +6,10 @@ import com.google.mlkit.genai.common.FeatureStatus
 import com.google.mlkit.genai.common.GenAiException
 import com.google.mlkit.genai.prompt.Generation
 import com.google.mlkit.genai.prompt.GenerativeModel
+import com.google.mlkit.genai.prompt.ModelPreference
+import com.google.mlkit.genai.prompt.ModelReleaseStage
+import com.google.mlkit.genai.prompt.generationConfig
+import com.google.mlkit.genai.prompt.modelConfig
 import com.google.mlkit.genai.prompt.TextPart
 import com.google.mlkit.genai.prompt.generateContentRequest
 import com.google.mlkit.genai.prompt.generateTypedContentRequest
@@ -36,13 +40,14 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         setStreamHandler(this@GeminiNanoPlugin)
     }
 
-    private var model: GenerativeModel? = null
+    private val models = mutableMapOf<String, GenerativeModel>()
     private var downloadJob: Job? = null
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
-            STATUS_METHOD -> scope.launch { replyStatus(result) }
-            WARM_UP_METHOD -> scope.launch { replyWarmUp(result) }
+            STATUS_METHOD -> scope.launch { replyStatus(call, result) }
+            MODEL_NAME_METHOD -> scope.launch { replyModelName(call, result) }
+            WARM_UP_METHOD -> scope.launch { replyWarmUp(call, result) }
             GENERATE_METHOD -> scope.launch { replyGenerate(call, result) }
             else -> result.notImplemented()
         }
@@ -50,7 +55,7 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
         downloadJob?.cancel()
-        downloadJob = scope.launch { streamDownload(events) }
+        downloadJob = scope.launch { streamDownload(arguments, events) }
     }
 
     override fun onCancel(arguments: Any?) {
@@ -62,16 +67,47 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         methods.setMethodCallHandler(null)
         downloads.setStreamHandler(null)
         scope.cancel()
-        model?.close()
-        model = null
+        models.values.forEach(GenerativeModel::close)
+        models.clear()
     }
 
-    private fun model(): GenerativeModel =
-        model ?: Generation.getClient().also { model = it }
+    private fun model(arguments: Any?): GenerativeModel {
+        val channel = idOf(arguments, CHANNEL_ARGUMENT)
+        val preference = idOf(arguments, PREFERENCE_ARGUMENT)
 
-    private suspend fun replyStatus(result: MethodChannel.Result) {
+        return models.getOrPut("$channel/$preference") {
+            Generation.getClient(
+                generationConfig {
+                    modelConfig = modelConfig {
+                        this.preference = preferenceOf(preference)
+                        this.releaseStage = releaseStageOf(channel)
+                    }
+                },
+            )
+        }
+    }
+
+    private fun idOf(arguments: Any?, key: String): String? =
+        (arguments as? Map<*, *>)?.get(key) as? String
+
+    private fun preferenceOf(id: String?): Int =
+        if (id == FULL_PREFERENCE) ModelPreference.FULL else ModelPreference.FAST
+
+    private fun releaseStageOf(id: String?): Int =
+        if (id == PREVIEW_CHANNEL) ModelReleaseStage.PREVIEW else ModelReleaseStage.STABLE
+
+    private suspend fun replyStatus(call: MethodCall, result: MethodChannel.Result) {
         try {
-            result.success(statusId(model().checkStatus()))
+            val model = model(call.arguments)
+            val status = model.checkStatus()
+            if (status == FeatureStatus.AVAILABLE &&
+                !model.isStructuredOutputFeatureAvailable()
+            ) {
+                Log.w(TAG, "Gemini Nano est là mais sans sortie structurée")
+                result.success(UNAVAILABLE_STATUS)
+                return
+            }
+            result.success(statusId(status))
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
@@ -80,9 +116,20 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         }
     }
 
-    private suspend fun replyWarmUp(result: MethodChannel.Result) {
+    private suspend fun replyModelName(call: MethodCall, result: MethodChannel.Result) {
         try {
-            model().warmup()
+            result.success(model(call.arguments).getBaseModelName())
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(TAG, "Nom du modèle Gemini Nano illisible", error)
+            result.success(null)
+        }
+    }
+
+    private suspend fun replyWarmUp(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            model(call.arguments).warmup()
             result.success(null)
         } catch (error: CancellationException) {
             throw error
@@ -111,7 +158,11 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
                 generateContentRequest(TextPart(prompt)) { temperature = TEMPERATURE },
                 QuickAddOutput::class,
             )
-            val output = model().generateContent(request).candidates.firstOrNull()?.response
+            val output = model(call.arguments)
+                .generateContent(request)
+                .candidates
+                .firstOrNull()
+                ?.response
             if (output == null) {
                 result.error(
                     STRUCTURED_OUTPUT_RESPONSE_ERROR_CODE.toString(),
@@ -130,10 +181,10 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         }
     }
 
-    private suspend fun streamDownload(events: EventChannel.EventSink) {
+    private suspend fun streamDownload(arguments: Any?, events: EventChannel.EventSink) {
         var total = 0L
         try {
-            model().download().collect { status ->
+            model(arguments).download().collect { status ->
                 when (status) {
                     is DownloadStatus.DownloadStarted -> {
                         total = status.bytesToDownload
@@ -197,11 +248,17 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         const val DOWNLOAD_CHANNEL = "fr.jaetan.mybudget/gemini_nano/download"
 
         const val STATUS_METHOD = "status"
+        const val MODEL_NAME_METHOD = "modelName"
         const val WARM_UP_METHOD = "warmUp"
         const val GENERATE_METHOD = "generate"
 
         const val PROMPT_ARGUMENT = "prompt"
         const val SCHEMA_ARGUMENT = "schema"
+        const val CHANNEL_ARGUMENT = "channel"
+        const val PREFERENCE_ARGUMENT = "preference"
+
+        const val PREVIEW_CHANNEL = "preview"
+        const val FULL_PREFERENCE = "full"
 
         const val QUICK_ADD_SCHEMA = "quick_add"
 

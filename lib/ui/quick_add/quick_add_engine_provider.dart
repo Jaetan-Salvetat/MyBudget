@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
@@ -22,7 +23,10 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
     if (!status.isReady) return GeminiNanoUnavailableEngine.forStatus(status);
 
     return PromptQuickAddEngine(
-      client: const GeminiNanoChatClient(),
+      client: GeminiNanoChatClient(
+        channel: ref.watch(geminiNanoChannelProvider),
+        preference: GeminiNanoPreference.quickAdd,
+      ),
       taxonomy: await ref.watch(categoryTaxonomyProvider.future),
     );
   }
@@ -72,7 +76,12 @@ Future<void> quickAddWarmUp(Ref ref) async {
   try {
     await ref.read(quickAddEngineProvider.future);
     if (ref.read(quickAddEngineModeProvider) == QuickAddEngineMode.geminiNano) {
-      await ref.read(geminiNanoServiceProvider).warmUp();
+      await ref
+          .read(geminiNanoServiceProvider)
+          .warmUp(
+            ref.read(geminiNanoChannelProvider),
+            GeminiNanoPreference.quickAdd,
+          );
     }
   } catch (error, stackTrace) {
     debugPrint(

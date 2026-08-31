@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
@@ -9,9 +11,11 @@ import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel(GeminiNanoService.methodChannelName);
-  const downloads = EventChannel(GeminiNanoService.downloadChannelName);
+  const methods = MethodChannel(GeminiNanoService.methodChannelName);
+  const events = EventChannel(GeminiNanoService.downloadChannelName);
   const service = GeminiNanoService();
+  const channel = GeminiNanoChannel.stable;
+  const preference = GeminiNanoPreference.fast;
 
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -19,19 +23,19 @@ void main() {
   final List<MethodCall> calls = <MethodCall>[];
 
   void answer(Future<Object?> Function(MethodCall call) handler) {
-    messenger.setMockMethodCallHandler(channel, (call) {
+    messenger.setMockMethodCallHandler(methods, (call) {
       calls.add(call);
       return handler(call);
     });
   }
 
-  void emit(List<Object?> events) {
+  void emit(List<Object?> steps) {
     messenger.setMockStreamHandler(
-      downloads,
+      events,
       MockStreamHandler.inline(
         onListen: (arguments, sink) {
-          for (final event in events) {
-            sink.success(event);
+          for (final step in steps) {
+            sink.success(step);
           }
           sink.endOfStream();
         },
@@ -46,30 +50,53 @@ void main() {
 
   tearDown(() {
     debugDefaultTargetPlatformOverride = null;
-    messenger.setMockMethodCallHandler(channel, null);
-    messenger.setMockStreamHandler(downloads, null);
+    messenger.setMockMethodCallHandler(methods, null);
+    messenger.setMockStreamHandler(
+      events, null);
   });
 
   group('status', () {
     test('traduit l\'identifiant rendu par le natif', () async {
       answer((_) async => GeminiNanoStatus.downloadable.id);
 
-      expect(await service.status(), GeminiNanoStatus.downloadable);
+      expect(
+        await service.status(channel, preference),
+        GeminiNanoStatus.downloadable,
+      );
       expect(calls.single.method, GeminiNanoService.statusMethod);
+      expect(calls.single.arguments, {
+        GeminiNanoService.channelArgument: channel.id,
+        GeminiNanoService.preferenceArgument: preference.id,
+      });
     });
 
     test('rend unavailable quand le canal échoue', () async {
       answer((_) async => throw PlatformException(code: '8'));
 
-      expect(await service.status(), GeminiNanoStatus.unavailable);
+      expect(await service.status(channel, preference), GeminiNanoStatus.unavailable);
     });
 
     test('rend unavailable hors Android sans toucher au canal', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       answer((_) async => GeminiNanoStatus.available.id);
 
-      expect(await service.status(), GeminiNanoStatus.unavailable);
+      expect(await service.status(channel, preference), GeminiNanoStatus.unavailable);
       expect(calls, isEmpty);
+    });
+  });
+
+  group('modelName', () {
+    test('rend le nom du modèle servi par AICore', () async {
+      answer((_) async => 'nano-v3-full');
+
+      expect(await service.modelName(channel, preference), 'nano-v3-full');
+      expect(calls.single.method, GeminiNanoService.modelNameMethod);
+    });
+
+    test('rend null quand le natif ne sait pas répondre', () async {
+      answer((_) async => throw PlatformException(code: '8'));
+
+      expect(await service.modelName(channel, preference), isNull);
     });
   });
 
@@ -77,13 +104,15 @@ void main() {
     test('transmet la saisie et le nom du schéma', () async {
       answer((_) async => '{"category_slug":"divers.autre"}');
 
-      final raw = await service.generate(prompt: 'resto', schema: 'quick_add');
+      final raw = await service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference);
 
       expect(raw, '{"category_slug":"divers.autre"}');
       expect(calls.single.method, GeminiNanoService.generateMethod);
       expect(calls.single.arguments, {
         GeminiNanoService.promptArgument: 'resto',
         GeminiNanoService.schemaArgument: 'quick_add',
+        GeminiNanoService.channelArgument: channel.id,
+        GeminiNanoService.preferenceArgument: preference.id,
       });
     });
 
@@ -96,7 +125,7 @@ void main() {
       );
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add'),
+        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -111,7 +140,7 @@ void main() {
       answer((_) async => '');
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add'),
+        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -123,10 +152,10 @@ void main() {
     });
 
     test('signale l\'absence du canal comme indisponibilité', () async {
-      messenger.setMockMethodCallHandler(channel, null);
+      messenger.setMockMethodCallHandler(methods, null);
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add'),
+        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -153,7 +182,7 @@ void main() {
         {GeminiNanoService.eventKey: GeminiNanoService.completedEvent},
       ]);
 
-      final steps = await service.download().toList();
+      final steps = await service.download(channel, preference).toList();
 
       expect(steps, hasLength(3));
       expect((steps[0] as GeminiNanoDownloadStarted).totalBytes, 1000);
@@ -169,7 +198,7 @@ void main() {
         },
       ]);
 
-      final steps = await service.download().toList();
+      final steps = await service.download(channel, preference).toList();
 
       expect(
         (steps.single as GeminiNanoDownloadFailed).failure,
@@ -184,7 +213,7 @@ void main() {
         {GeminiNanoService.eventKey: GeminiNanoService.completedEvent},
       ]);
 
-      final steps = await service.download().toList();
+      final steps = await service.download(channel, preference).toList();
 
       expect(steps, hasLength(1));
       expect(steps.single, isA<GeminiNanoDownloadCompleted>());
@@ -193,7 +222,7 @@ void main() {
     test('rend un échec hors Android sans écouter le canal', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
 
-      final steps = await service.download().toList();
+      final steps = await service.download(channel, preference).toList();
 
       expect(
         (steps.single as GeminiNanoDownloadFailed).failure,

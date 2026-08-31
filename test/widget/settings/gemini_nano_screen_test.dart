@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
@@ -21,13 +23,29 @@ class _StubService extends GeminiNanoService {
   final StreamController<GeminiNanoDownload> steps;
 
   int downloads = 0;
+  GeminiNanoChannel? askedChannel;
+  GeminiNanoPreference? askedPreference;
 
   @override
-  Future<GeminiNanoStatus> status() async => answer;
+  Future<GeminiNanoStatus> status(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => answer;
 
   @override
-  Stream<GeminiNanoDownload> download() {
+  Future<String?> modelName(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => 'nano-v3-full';
+
+  @override
+  Stream<GeminiNanoDownload> download(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) {
     downloads++;
+    askedChannel = channel;
+    askedPreference = preference;
     return steps.stream;
   }
 }
@@ -61,10 +79,45 @@ void main() {
   tearDown(() => steps.close());
 
   group('GeminiNanoScreen', () {
+    testWidgets('propose les deux canaux, stable par défaut', (tester) async {
+      await pumpScreen(tester, GeminiNanoStatus.downloadable);
+
+      expect(find.text(GeminiNanoChannel.stable.label), findsOneWidget);
+      expect(find.text(GeminiNanoChannel.preview.label), findsOneWidget);
+
+      final radio = tester.widget<FrostedRadio<GeminiNanoChannel>>(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is FrostedRadio<GeminiNanoChannel> &&
+              widget.value == GeminiNanoChannel.preview,
+        ),
+      );
+      expect(radio.groupValue, GeminiNanoChannel.stable);
+    });
+
+    testWidgets('retient le canal choisi et resonde le statut', (tester) async {
+      await pumpScreen(tester, GeminiNanoStatus.downloadable);
+
+      await tester.tap(find.text(GeminiNanoChannel.preview.label));
+      await tester.pumpAndSettle();
+
+      expect(
+        PreferencesService.getGeminiNanoChannel(),
+        GeminiNanoChannel.preview,
+      );
+
+      await tester.tap(find.text('Télécharger le modèle'));
+      await tester.pump();
+
+      expect(service.askedChannel, GeminiNanoChannel.preview);
+      expect(service.askedPreference, GeminiNanoPreference.quickAdd);
+    });
+
     testWidgets('annonce un modèle prêt', (tester) async {
       await pumpScreen(tester, GeminiNanoStatus.available);
 
       expect(find.text('Le modèle est installé et prêt.'), findsOneWidget);
+      expect(find.text('Modèle : nano-v3-full'), findsOneWidget);
       expect(find.text('Télécharger le modèle'), findsNothing);
     });
 

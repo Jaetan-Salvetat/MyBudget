@@ -356,6 +356,60 @@ final class GeminiNanoServiceProvider
 
 String _$geminiNanoServiceHash() => r'd648a249c89620c908ec217aff0a653f6adf8a64';
 
+@ProviderFor(GeminiNanoChannelNotifier)
+final geminiNanoChannelProvider = GeminiNanoChannelNotifierProvider._();
+
+final class GeminiNanoChannelNotifierProvider
+    extends $NotifierProvider<GeminiNanoChannelNotifier, GeminiNanoChannel> {
+  GeminiNanoChannelNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geminiNanoChannelProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geminiNanoChannelNotifierHash();
+
+  @$internal
+  @override
+  GeminiNanoChannelNotifier create() => GeminiNanoChannelNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GeminiNanoChannel value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GeminiNanoChannel>(value),
+    );
+  }
+}
+
+String _$geminiNanoChannelNotifierHash() =>
+    r'f1b05d3cc0b64297945b6faeaa1eca777c465b9c';
+
+abstract class _$GeminiNanoChannelNotifier
+    extends $Notifier<GeminiNanoChannel> {
+  GeminiNanoChannel build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<GeminiNanoChannel, GeminiNanoChannel>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<GeminiNanoChannel, GeminiNanoChannel>,
+              GeminiNanoChannel,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(geminiNanoStatus)
 final geminiNanoStatusProvider = GeminiNanoStatusProvider._();
 
@@ -393,7 +447,41 @@ final class GeminiNanoStatusProvider
   }
 }
 
-String _$geminiNanoStatusHash() => r'7874c7bf658c920ce09a5f8a5e08f591872bcf6e';
+String _$geminiNanoStatusHash() => r'087a044f6cbb8c6fbfe686f90b500be2eb9088fe';
+
+@ProviderFor(geminiNanoModelName)
+final geminiNanoModelNameProvider = GeminiNanoModelNameProvider._();
+
+final class GeminiNanoModelNameProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  GeminiNanoModelNameProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'geminiNanoModelNameProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$geminiNanoModelNameHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return geminiNanoModelName(ref);
+  }
+}
+
+String _$geminiNanoModelNameHash() =>
+    r'4aa5d52705eb6ba319a8b6c6a5161355f6e89a29';
 
 @ProviderFor(accountRepository)
 final accountRepositoryProvider = AccountRepositoryProvider._();

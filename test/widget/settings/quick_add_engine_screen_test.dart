@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
@@ -19,10 +21,16 @@ class _StubService extends GeminiNanoService {
   final GeminiNanoStatus answer;
 
   @override
-  Future<GeminiNanoStatus> status() async => answer;
+  Future<GeminiNanoStatus> status(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => answer;
 
   @override
-  Stream<GeminiNanoDownload> download() => const Stream.empty();
+  Stream<GeminiNanoDownload> download(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) => const Stream.empty();
 }
 
 void main() {

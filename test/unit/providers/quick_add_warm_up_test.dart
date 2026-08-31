@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -16,10 +18,16 @@ class _CountingNanoService extends GeminiNanoService {
   int warmUps = 0;
 
   @override
-  Future<GeminiNanoStatus> status() async => GeminiNanoStatus.available;
+  Future<GeminiNanoStatus> status(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => GeminiNanoStatus.available;
 
   @override
-  Future<void> warmUp() async => warmUps++;
+  Future<void> warmUp(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => warmUps++;
 }
 
 void main() {

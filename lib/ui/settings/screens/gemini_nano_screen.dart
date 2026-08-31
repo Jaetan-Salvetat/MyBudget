@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
 
 const int _bytesPerMegabyte = 1024 * 1024;
@@ -45,6 +47,8 @@ class GeminiNanoScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: FrostedSpacing.sp5),
+          const _ChannelPicker(),
+          const SizedBox(height: FrostedSpacing.sp5),
           switch (status) {
             AsyncData(:final value) => _Status(status: value),
             AsyncError() => const _Note(
@@ -56,6 +60,40 @@ class GeminiNanoScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _ChannelPicker extends ConsumerWidget {
+  const _ChannelPicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final GeminiNanoChannel selected = ref.watch(geminiNanoChannelProvider);
+
+    return FrostedListSection(
+      label: 'Canal',
+      tiles: [
+        for (final channel in GeminiNanoChannel.values)
+          FrostedListTile(
+            title: channel.label,
+            subtitle: channel.description,
+            leading: FrostedRadio<GeminiNanoChannel>(
+              value: channel,
+              groupValue: selected,
+              onChanged: (_) => _select(ref, channel),
+            ),
+            onTap: () => _select(ref, channel),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _select(WidgetRef ref, GeminiNanoChannel channel) async {
+    if (channel == ref.read(geminiNanoChannelProvider)) return;
+
+    await ref.read(geminiNanoChannelProvider.notifier).select(channel);
+    ref.invalidate(geminiNanoDownloadProvider);
+    ref.invalidate(quickAddEngineProvider);
   }
 }
 
@@ -73,10 +111,7 @@ class _Status extends ConsumerWidget {
     }
 
     return switch (status) {
-      GeminiNanoStatus.available => const _Note(
-        icon: Symbols.check_circle_rounded,
-        text: 'Le modèle est installé et prêt.',
-      ),
+      GeminiNanoStatus.available => const _Ready(),
       GeminiNanoStatus.downloading => _Action(
         note:
             'Le système télécharge déjà le modèle. Il se partage avec les '
@@ -96,6 +131,29 @@ class _Status extends ConsumerWidget {
             'compatible AICore, à jour, et dont le bootloader est verrouillé.',
       ),
     };
+  }
+}
+
+class _Ready extends ConsumerWidget {
+  const _Ready();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final String? name = ref.watch(geminiNanoModelNameProvider).value;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _Note(
+          icon: Symbols.check_circle_rounded,
+          text: 'Le modèle est installé et prêt.',
+        ),
+        if (name != null) ...[
+          const SizedBox(height: FrostedSpacing.sp3),
+          _Note(icon: Symbols.memory_rounded, text: 'Modèle : $name'),
+        ],
+      ],
+    );
   }
 }
 
