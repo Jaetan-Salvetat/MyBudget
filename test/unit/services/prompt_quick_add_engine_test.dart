@@ -6,6 +6,7 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/core/services/quick_add/cloud_quick_add_prompt.dart';
 import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
 
 class _ScriptedChatClient implements AiChatClient {
@@ -51,7 +52,11 @@ void main() {
   }
 
   PromptQuickAddEngine engineWith(_ScriptedChatClient client) =>
-      PromptQuickAddEngine(client: client, taxonomy: taxonomy);
+      PromptQuickAddEngine(
+        client: client,
+        taxonomy: taxonomy,
+        prompt: CloudQuickAddPrompt(taxonomy.selectableLeaves),
+      );
 
   setUpAll(() async {
     taxonomy = CategoryTaxonomyService();

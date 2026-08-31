@@ -3,43 +3,40 @@ import 'dart:convert';
 import 'package:mybudget/core/constants/quick_add_schema.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
+import 'package:mybudget/core/services/quick_add/quick_add_prompt.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 
 class PromptQuickAddEngine implements QuickAddEngine {
-  PromptQuickAddEngine({required this._client, required this._taxonomy});
+  PromptQuickAddEngine({
+    required this._client,
+    required this._taxonomy,
+    required this._prompt,
+  });
 
   static const int maxInputLength = 280;
 
   static const int maxAttempts = 2;
 
-  static const String _recurringLabel = 'fixe';
-  static const String _oneTimeLabel = 'ponctuel';
-  static const int _maxAlternatives = 3;
-
-  static const String _fallbackExpenseSlug = 'divers.autre';
-
   final AiChatClient _client;
   final CategoryTaxonomyService _taxonomy;
+  final QuickAddPrompt _prompt;
 
-  List<TaxonomyNode>? _selectableNodes;
-  String? _catalogue;
 
   @override
   Future<QuickAddClassification> classify(String input) async {
     final facts = QuickAddTextReader.read(input);
     final cleanedText = facts.modelText;
 
-    final slugs = _nodes().map((node) => node.slug).toList();
+    final slugs = _taxonomy.selectableLeaves.map((node) => node.slug).toList();
     final schema = _schemaFor(slugs);
 
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       final raw = await _client.complete(
-        prompt: _promptFor(_truncate(cleanedText), isRetry: attempt > 1),
+        prompt: _prompt.forInput(_truncate(cleanedText), isRetry: attempt > 1),
         schemaName: QuickAddSchema.name,
         schema: schema,
       );
@@ -49,34 +46,6 @@ class PromptQuickAddEngine implements QuickAddEngine {
     }
 
     throw const AiRequestException(AiRequestFailure.malformedResponse);
-  }
-
-  List<TaxonomyNode> _nodes() {
-    return _selectableNodes ??= _taxonomy.leaves
-        .where((node) => !node.isDeprecated && node.aliasOf == null)
-        .toList();
-  }
-
-  String _catalogueOfCategories() {
-    if (_catalogue != null) return _catalogue!;
-
-    final byGroup = <TaxonomyGroup, List<TaxonomyNode>>{};
-    for (final node in _nodes()) {
-      byGroup.putIfAbsent(node.group, () => []).add(node);
-    }
-
-    final buffer = StringBuffer();
-    for (final entry in byGroup.entries) {
-      final kind = entry.key.type == TransactionType.income
-          ? 'revenu'
-          : 'dépense';
-      final leaves = entry.value
-          .map((node) => '${node.slug} = ${node.label}')
-          .join(' · ');
-      buffer.writeln('${entry.key.label} ($kind) : $leaves');
-    }
-
-    return _catalogue = buffer.toString();
   }
 
   static String _truncate(String text) => text.length <= maxInputLength
@@ -90,83 +59,18 @@ class PromptQuickAddEngine implements QuickAddEngine {
         'category_slug': {'type': 'string', 'enum': slugs},
         'alternatives': {
           'type': 'array',
-          'maxItems': _maxAlternatives,
+          'maxItems': QuickAddSchema.maxAlternatives,
           'items': {'type': 'string', 'enum': slugs},
         },
         'recurrence': {
           'type': 'string',
-          'enum': [_oneTimeLabel, _recurringLabel],
+          'enum': [QuickAddSchema.oneTimeLabel, QuickAddSchema.recurringLabel],
         },
         'name': {'type': 'string'},
       },
       'required': ['category_slug', 'alternatives', 'recurrence', 'name'],
       'additionalProperties': false,
     };
-  }
-
-  String _promptFor(String text, {required bool isRetry}) {
-    final buffer = StringBuffer()
-      ..writeln(
-        'Tu ranges une saisie de dépense ou de revenu dans une taxonomie '
-        'fermée. Tu réponds uniquement avec le schéma demandé.',
-      )
-      ..writeln()
-      ..writeln('Règles :')
-      ..writeln(
-        '- "category_slug" : la feuille la plus précise du catalogue. '
-        'Un revenu se range sous une catégorie de revenu, une dépense sous '
-        'une catégorie de dépense.',
-      )
-      ..writeln(
-        '- Si rien ne correspond vraiment, prends $_fallbackExpenseSlug plutôt '
-        'que de forcer une catégorie voisine.',
-      )
-      ..writeln(
-        '- "alternatives" : les $_maxAlternatives feuilles les plus proches '
-        'après celle retenue, sans la répéter. Liste vide si le choix est net.',
-      )
-      ..writeln(
-        '- "recurrence" : "$_recurringLabel" pour un abonnement, un loyer, une '
-        'assurance, un salaire — ce qui revient chaque mois. Sinon '
-        '"$_oneTimeLabel". Dans le doute, "$_oneTimeLabel".',
-      )
-      ..writeln(
-        '- "name" : la saisie remise au propre, capitalisée, dans la langue '
-        'de la saisie. Corrige les fautes et développe une abréviation '
-        'seulement si elle est sans ambiguïté. N\'ajoute rien qui ne soit '
-        'pas dans la saisie.',
-      )
-      ..writeln(
-        '- Le montant et la date ont déjà été retirés de la saisie. '
-        'N\'en invente aucun, et n\'en remets pas dans "name".',
-      )
-      ..writeln()
-      ..writeln('Exemples :')
-      ..writeln(
-        'resto italien → restauration.restaurant · $_oneTimeLabel · '
-        '"Resto italien"',
-      )
-      ..writeln('netflix → loisirs.streaming · $_recurringLabel · "Netflix"')
-      ..writeln('virement mamie → transfert.virement_recu · $_oneTimeLabel · '
-          '"Virement mamie"')
-      ..writeln()
-      ..writeln('Catalogue :')
-      ..write(_catalogueOfCategories());
-
-    if (isRetry) {
-      buffer
-        ..writeln()
-        ..writeln(
-          'Ta réponse précédente était inexploitable. Reprends en n\'utilisant '
-          'que des valeurs du catalogue ci-dessus.',
-        );
-    }
-
-    buffer
-      ..writeln()
-      ..writeln('Saisie : "$text"');
-
-    return buffer.toString();
   }
 
   QuickAddClassification? _parse(
@@ -195,7 +99,7 @@ class PromptQuickAddEngine implements QuickAddEngine {
     return QuickAddClassification(
       type: category.group.type,
       category: category,
-      frequency: recurrence == _recurringLabel
+      frequency: recurrence == QuickAddSchema.recurringLabel
           ? Frequency.monthly
           : Frequency.oneTime,
       date: facts.date,
@@ -217,7 +121,7 @@ class PromptQuickAddEngine implements QuickAddEngine {
     return alternatives
         .whereType<String>()
         .where((slug) => slug != chosenSlug && _taxonomy.resolve(slug) != null)
-        .take(_maxAlternatives)
+        .take(QuickAddSchema.maxAlternatives)
         .toList();
   }
 
