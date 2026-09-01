@@ -140,6 +140,48 @@ final class NanoReceiptReaderProvider
 
 String _$nanoReceiptReaderHash() => r'd26a8240c5ed6725485bf69a1a94a8a6f613ff1d';
 
+@ProviderFor(receiptScanAvailable)
+final receiptScanAvailableProvider = ReceiptScanAvailableProvider._();
+
+final class ReceiptScanAvailableProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  ReceiptScanAvailableProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'receiptScanAvailableProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$receiptScanAvailableHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return receiptScanAvailable(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$receiptScanAvailableHash() =>
+    r'f67c395c2f51d22b00554d06f346d906cc1f579a';
+
 @ProviderFor(ScanTrace)
 final scanTraceProvider = ScanTraceProvider._();
 
@@ -227,7 +269,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'097a627594391b8e27462efeb3005240624f145f';
+String _$scanNotifierHash() => r'eb6ca66ba467bea7b19885a317f301f2f6e17885';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {

@@ -10,6 +10,7 @@ import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
+import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class CaptureDock extends ConsumerStatefulWidget {
@@ -105,11 +106,13 @@ class _ManualDock extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: FrostedSpacing.sp2),
-        FrostedIconButton.tonal(
-          icon: Symbols.photo_camera_rounded,
-          onPressed: () => showReceiptScanSourceSheet(context),
-        ),
+        if (ref.watch(receiptScanAvailableProvider)) ...[
+          const SizedBox(width: FrostedSpacing.sp2),
+          FrostedIconButton.tonal(
+            icon: Symbols.photo_camera_rounded,
+            onPressed: () => showReceiptScanSourceSheet(context),
+          ),
+        ],
       ],
     );
   }

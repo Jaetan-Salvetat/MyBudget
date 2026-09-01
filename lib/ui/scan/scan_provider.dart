@@ -91,6 +91,10 @@ NanoReceiptReader? nanoReceiptReader(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
+bool receiptScanAvailable(Ref ref) =>
+    ref.watch(nanoReceiptReaderProvider) != null;
+
+@Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
   @override
   List<ReadTrace> build() => const [];
@@ -108,16 +112,19 @@ class ScanNotifier extends _$ScanNotifier {
   }
 
   Future<void> scanReceipt(Uint8List imageBytes) async {
+    final nano = ref.read(nanoReceiptReaderProvider);
+    if (nano == null) {
+      state = AsyncError(const ScanUnavailableException(), StackTrace.current);
+      return;
+    }
+
     state = const AsyncLoading();
     try {
       final watch = Stopwatch()..start();
       final scanner = await ref.read(localReceiptScannerProvider.future);
       final composer = await ref.read(receiptScanComposerProvider.future);
       debugPrint('[scan] chargement des modèles : ${watch.elapsedMilliseconds} ms');
-      final read = await scanner.scan(
-        imageBytes,
-        nano: ref.read(nanoReceiptReaderProvider),
-      );
+      final read = await scanner.scan(imageBytes, nano: nano);
       ref.read(scanTraceProvider.notifier).record(read.trace);
       final beforeCategories = watch.elapsedMilliseconds;
       state = AsyncData(await composer.compose(read));

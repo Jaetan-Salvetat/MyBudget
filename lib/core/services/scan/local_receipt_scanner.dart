@@ -17,6 +17,8 @@ class LocalReceiptScanner {
 
   final Gazetteer? _gazetteer;
 
+  final bool _localDecoder;
+
   const LocalReceiptScanner({
     required this._recognizer,
     required this._tagger,
@@ -24,6 +26,7 @@ class LocalReceiptScanner {
     required this._span,
     this._gazetteer,
     this._enhance = enhanceReceiptForRetry,
+    this._localDecoder = false,
   });
 
   Future<LocalReceiptScan> scan(
@@ -50,6 +53,8 @@ class LocalReceiptScanner {
       step('lecture Gemini Nano (${read?.items.length ?? 0} articles)');
       if (read != null) return read;
     }
+
+    if (!_localDecoder) throw const ScanUnavailableException();
 
     final outcome = await decideLocal(
       pass1,

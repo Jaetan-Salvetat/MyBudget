@@ -28,6 +28,7 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
+import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
@@ -114,10 +115,15 @@ void main() {
     );
   });
 
-  Future<void> pumpBar(WidgetTester tester, {bool focused = true}) {
+  Future<void> pumpBar(
+    WidgetTester tester, {
+    bool focused = true,
+    bool scanAvailable = true,
+  }) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
+          receiptScanAvailableProvider.overrideWithValue(scanAvailable),
           expenseRepositoryProvider.overrideWithValue(expenseRepository),
           revenueRepositoryProvider.overrideWithValue(revenueRepository),
           accountProvider.overrideWith(
@@ -180,6 +186,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
+  });
+
+  testWidgets('le scan disparait quand la lecture n\'est pas disponible', (
+    tester,
+  ) async {
+    await pumpBar(tester, focused: false, scanAvailable: false);
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
   });
 
   testWidgets('the send button only ever sends, the scan keeps its own', (

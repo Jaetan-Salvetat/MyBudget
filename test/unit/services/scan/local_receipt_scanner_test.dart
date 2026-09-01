@@ -152,6 +152,7 @@ void main() {
   LocalReceiptScanner scannerOf(
     _ScriptedRecognizer recognizer, {
     ReceiptImageEnhancer enhance = _fakeEnhance,
+    bool localDecoder = true,
   }) {
     return LocalReceiptScanner(
       recognizer: recognizer,
@@ -159,6 +160,7 @@ void main() {
       link: link,
       span: span,
       enhance: enhance,
+      localDecoder: localDecoder,
     );
   }
 
@@ -283,6 +285,50 @@ void main() {
         () => scannerOf(recognizer).scan(_photo),
         throwsA(isA<ScanUnreadableException>()),
       );
+    });
+
+    test('le décodeur local est débranché par défaut', () async {
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      expect(
+        () => LocalReceiptScanner(
+          recognizer: recognizer,
+          tagger: tagger,
+          link: link,
+          span: span,
+        ).scan(_photo),
+        throwsA(isA<ScanUnavailableException>()),
+      );
+    });
+
+    test('sans Gemini Nano il n\'y a plus de lecture du tout', () async {
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      await expectLater(
+        scannerOf(recognizer, localDecoder: false).scan(_photo),
+        throwsA(isA<ScanUnavailableException>()),
+      );
+      expect(recognizer.received, [_photo]);
+    });
+
+    test('un échec de Gemini Nano ne réveille pas le décodeur local', () async {
+      final service = _StubNanoService(failure: GeminiNanoFailure.quotaExceeded);
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      await expectLater(
+        scannerOf(recognizer, localDecoder: false).scan(
+          _photo,
+          nano: NanoReceiptReader(service: service),
+        ),
+        throwsA(isA<ScanUnavailableException>()),
+      );
+      expect(recognizer.received, [_photo]);
     });
 
     test('du texte sans aucun article est signalé à part', () async {

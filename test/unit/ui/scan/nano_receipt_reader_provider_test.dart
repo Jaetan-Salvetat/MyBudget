@@ -71,4 +71,19 @@ void main() {
       expect(container.read(nanoReceiptReaderProvider), isNull);
     });
   });
+
+  group('receiptScanAvailableProvider', () {
+    test('le scan est fermé sans Gemini Nano', () async {
+      final container = await containerOf(GeminiNanoStatus.downloadable);
+
+      expect(container.read(receiptScanAvailableProvider), isFalse);
+    });
+
+    test('le scan ouvre dès que Gemini Nano peut lire', () async {
+      await PreferencesService.setGeminiNanoScanEnabled(true);
+      final container = await containerOf(GeminiNanoStatus.available);
+
+      expect(container.read(receiptScanAvailableProvider), isTrue);
+    });
+  });
 }

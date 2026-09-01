@@ -17,3 +17,8 @@ final class ScanNoItemsException extends ScanException {
 final class ScanGenericException extends ScanException {
   const ScanGenericException({required super.message});
 }
+
+final class ScanUnavailableException extends ScanException {
+  const ScanUnavailableException()
+    : super(message: 'La lecture de tickets demande Gemini Nano');
+}

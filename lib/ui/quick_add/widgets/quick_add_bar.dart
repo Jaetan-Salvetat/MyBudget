@@ -18,6 +18,7 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
+import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 final double _kFieldOffset =
@@ -200,12 +201,13 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         ),
         Row(
           children: [
-            FrostedIconButton.tonal(
-              icon: Symbols.photo_camera_rounded,
-              shape: FrostedShape.pill,
-              tooltip: 'Photographier le ticket',
-              onPressed: _scan,
-            ),
+            if (ref.watch(receiptScanAvailableProvider))
+              FrostedIconButton.tonal(
+                icon: Symbols.photo_camera_rounded,
+                shape: FrostedShape.pill,
+                tooltip: 'Photographier le ticket',
+                onPressed: _scan,
+              ),
             Expanded(child: _field(draft)),
           ],
         ),
