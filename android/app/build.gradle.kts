@@ -5,6 +5,7 @@ import java.io.File
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("com.google.devtools.ksp")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -28,6 +29,7 @@ android {
 
     buildFeatures {
         resValues = true
+        buildConfig = true
     }
 
     signingConfigs {
@@ -113,6 +115,11 @@ configurations {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     debugImplementation("io.objectbox:objectbox-android-objectbrowser:5.4.2")
+
+    implementation("com.google.mlkit:genai-prompt:1.0.0-beta4")
+    implementation("com.google.mlkit:genai-schema:1.0.0-alpha1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    ksp("com.google.mlkit:genai-schema-compiler:1.0.0-alpha1")
 }
 
 flutter {

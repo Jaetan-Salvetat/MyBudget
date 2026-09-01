@@ -195,6 +195,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     } catch (error, stackTrace) {
       debugPrint('Analyse de l\'ajout rapide impossible : $error\n$stackTrace');
       if (seq != _analysisSeq) return;
+
       state = _failedDraft(input, unreadInputMessage);
     }
   }

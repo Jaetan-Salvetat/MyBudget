@@ -3,9 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/quick_add/cloud_quick_add_prompt.dart';
+import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/racing_quick_add_engine.dart';
-import 'package:mybudget/core/services/quick_add/remote_quick_add_engine.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,11 +14,11 @@ part 'quick_add_engine_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
+  final mode = ref.watch(quickAddEngineModeProvider);
+
   final local = await ref.watch(quickAddClassifierProvider.future);
 
-  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
-    return local;
-  }
+  if (mode != QuickAddEngineMode.apiKey) return local;
 
   if (ref.watch(quickAddDegradationProvider)) return local;
 
@@ -41,12 +42,14 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   ref.onDispose(client.close);
 
   final degradation = ref.read(quickAddDegradationProvider.notifier);
+  final taxonomy = await ref.watch(categoryTaxonomyProvider.future);
 
   return RacingQuickAddEngine(
     local: local,
-    remote: RemoteQuickAddEngine(
+    remote: PromptQuickAddEngine(
       client: client,
-      taxonomy: await ref.watch(categoryTaxonomyProvider.future),
+      taxonomy: taxonomy,
+      prompt: CloudQuickAddPrompt(taxonomy.selectableLeaves),
     ),
     onRemoteFailure: degradation.reportFailure,
     onRemoteSuccess: degradation.reportSuccess,

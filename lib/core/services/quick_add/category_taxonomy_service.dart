@@ -73,6 +73,12 @@ class CategoryTaxonomyService {
 
   List<TaxonomyNode> get leaves => List.unmodifiable(_nodes.values);
 
+  List<TaxonomyNode> get selectableLeaves => List.unmodifiable(
+    _nodes.values.where(
+      (node) => !node.isDeprecated && node.aliasOf == null,
+    ),
+  );
+
   Future<void> load() async {
     if (_loaded) return;
 

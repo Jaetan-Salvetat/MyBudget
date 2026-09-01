@@ -2,6 +2,9 @@ sealed class QuickAddException implements Exception {
   final String message;
 
   const QuickAddException({required this.message});
+
+  @override
+  String toString() => '$runtimeType: $message';
 }
 
 final class QuickAddNoAmountException extends QuickAddException {

@@ -72,5 +72,41 @@ void main() {
 
       expect(result!.remaining, 'resto midi');
     });
+
+    // Un chiffre collé à des lettres appartient au nom, jamais au montant :
+    // « plein de SP98 » arrivait au modèle comme « plein de SP », et il n'a
+    // plus de quoi reconnaître du carburant.
+    test('ignores a number glued to letters', () {
+      expect(PriceParserService.parse('plein de SP98'), isNull);
+      expect(PriceParserService.parse('A10 péage'), isNull);
+      expect(PriceParserService.parse('Galaxy S24'), isNull);
+    });
+
+    test('still reads an amount glued to a currency symbol', () {
+      final result = PriceParserService.parse('courses 45€');
+
+      expect(result!.price, 45.0);
+    });
+
+    test('reads the amount when a glued number precedes it', () {
+      final result = PriceParserService.parse('SP98 72,40');
+
+      expect(result!.price, 72.40);
+      expect(result.remaining, 'SP98');
+    });
+
+    // Une quantité porte son unité ; un montant n'en porte pas.
+    test('ignores a number carrying a unit', () {
+      expect(PriceParserService.parse('forfait 100 Go'), isNull);
+      expect(PriceParserService.parse('2 kg de pommes'), isNull);
+      expect(PriceParserService.parse('abonnement 12 mois'), isNull);
+    });
+
+    test('reads the amount when a quantity precedes it', () {
+      final result = PriceParserService.parse('50 cl de bière 6,80');
+
+      expect(result!.price, 6.80);
+      expect(result.remaining, '50 cl de bière');
+    });
   });
 }

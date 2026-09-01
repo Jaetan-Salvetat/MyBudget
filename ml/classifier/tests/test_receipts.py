@@ -5,6 +5,7 @@ from corpus.receipts.labels import EXCLUDED_ITEMS, ITEM_OVERRIDES, STORE_LABELS
 from corpus.receipts.lexicon import RECEIPT_LEXICON, STORE_ABBREVIATIONS
 from corpus.receipts.style import format_quantity, receipt_line
 from corpus.receipts.truth import item_label
+from serving.contract import write_taxonomy_stamp
 from serving.normalize import normalize_query, normalize_receipt_line
 from taxonomy import LABELS, NUM_EXPENSE
 from training.train import training_rows
@@ -85,6 +86,7 @@ def test_store_abbreviations_are_uppercase_receipt_headers():
 
 def _write_jsonl(path, rows):
     path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+    write_taxonomy_stamp(path)
 
 
 def test_training_rows_merges_receipts_when_present(tmp_path):

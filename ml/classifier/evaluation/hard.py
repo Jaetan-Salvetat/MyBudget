@@ -1,4 +1,4 @@
-"""Les cas durs des deux entrées, mesurés par axe de difficulté.
+"""Les cas durs des deux entrées, mesurés par axe, par section et par classe.
 
 `world.py` et `quick_add.py` affichent 95 à 98 % pendant que `generalization.py`
 en rend 75,8 %, et le scan annonce 68 % sur un corpus dont 75 % des articles
@@ -9,14 +9,23 @@ générateur, et le golden FindIt ne mesure qu'une classe sur quatre-vingts.
 Deux corpus répondent à ça, un par consommateur du modèle :
 
 - `data/hard_quick_add.json` — ce qu'un francophone tape vraiment, hors des
-  gabarits de `corpus/quick_add/build.py`, avec les 79 classes couvertes et
-  aucune au-dessus de 5 % du corpus ;
+  gabarits de `corpus/quick_add/build.py`, les 81 classes couvertes, aucune
+  au-dessus de 6 % et aucune sous dix cas ;
 - `data/hard_receipts.json` — des libellés de caisse dans les classes que le
   golden ne mesure sur aucun article, la restauration en tête.
 
-La moyenne d'un corpus dur ne veut rien dire : c'est la colonne par axe qui
-désigne où investir. Un axe qui s'effondre est un trou de connaissance ou une
-formulation jamais vue, jamais « le modèle est moins bon ».
+La moyenne d'un corpus dur ne veut rien dire, et la moyenne d'un axe non plus :
+un axe à 88 % peut porter deux classes à 40 %, qui sont précisément celles que
+l'utilisateur saisit. La cible — plus de 95 % sur toute dépense et toute entrée
+— se lit dans `report_by_class`, et nulle part ailleurs. Un axe qui s'effondre
+est un trou de connaissance ou une formulation jamais vue, jamais « le modèle
+est moins bon ».
+
+Trois axes ont été ajoutés le 1er septembre parce que le corpus écrivait un
+français que personne ne tape dans un champ rapide : `abrege` (télégraphique,
+« coiff », « retrait 50 »), `releve_bancaire` (le libellé de relevé recopié tel
+quel, « PRLV SEPA ENGIE ») et `enumeration` (une liste d'articles sans verbe ni
+enseigne, « cahiers stylos et colle »).
 """
 
 import json
@@ -30,7 +39,7 @@ from evaluation.generalization import family
 from evaluation.robustness import phonetic_vowels, qwerty_key, triple_letter
 from paths import DATASET_DIR, EVAL_DATA_DIR, MODEL_DIR
 from serving.normalize import normalize_query, normalize_receipt_line
-from taxonomy import LABELS
+from taxonomy import ACTIVE_LABELS, LABELS, canonical, type_of
 from training.train import MAX_LENGTH, BudgetClassifier
 
 QUICK_ADD_PATH = EVAL_DATA_DIR / "hard_quick_add.json"
@@ -40,6 +49,12 @@ TYPO_SEED = 11
 
 TYPE_LABELS = ["expense", "income"]
 RECURRENCE_LABELS = ["ponctuel", "fixe"]
+
+# « On considérera BERT bon une fois qu'il aura atteint +95 % de succès tout
+# type de dépense / entrée » : la cible porte sur chaque classe, pas sur la
+# moyenne. Un axe à 88 % peut cacher deux classes à 40 %, et c'est exactement
+# ce que l'utilisateur rencontre — celles qu'il saisit, lui.
+TARGET = 0.95
 
 # Le corpus dur porte des formulations courantes — « taxe foncière », « place
 # de cinéma » — dont certaines figurent telles quelles à l'entraînement. Les
@@ -135,6 +150,8 @@ def measure_quick_add(model, tokenizer) -> None:
         scored,
         ("strict", "family", "type", "recurrence", "confidence"),
     )
+    report_by_section(cases, predictions)
+    report_by_class(cases, predictions)
 
     trained = seen_texts(DATASET_DIR / "train.jsonl")
     split: dict[str, list] = defaultdict(list)
@@ -155,6 +172,54 @@ def measure_quick_add(model, tokenizer) -> None:
     print(f"\n  {len(failures)} échecs de catégorie :")
     for axis, text, got, expected, confidence in failures:
         print(f"    [{axis}] '{text}' → {got} ({confidence:.0%}) au lieu de {expected}")
+
+
+def report_by_section(cases: list[dict], predictions: list[dict]) -> None:
+    """Dépenses et entrées ne se valent pas : seize classes portent l'argent qui rentre."""
+    sections: dict[str, list] = defaultdict(list)
+    for case, prediction in zip(cases, predictions):
+        sections[case["type"]].append((case, prediction))
+    report(
+        "QUICK-ADD — dépense contre entrée",
+        {key: score(rows) for key, rows in sorted(sections.items())},
+        ("strict", "family", "confidence"),
+    )
+
+
+def score_by_class(cases: list[dict], predictions: list[dict]) -> dict[str, dict]:
+    rows: dict[str, list] = defaultdict(list)
+    for case, prediction in zip(cases, predictions):
+        rows[canonical(case["category"])].append((case, prediction))
+    return {slug: score(values) for slug, values in rows.items()}
+
+
+def classes_below_target(scored: dict[str, dict]) -> list[tuple[str, dict]]:
+    """Ce qu'il reste à faire, la pire classe d'abord."""
+    return sorted(
+        ((slug, values) for slug, values in scored.items() if values["strict"] < TARGET),
+        key=lambda item: (item[1]["strict"], item[0]),
+    )
+
+
+def report_by_class(cases: list[dict], predictions: list[dict]) -> None:
+    """La cible se lit classe par classe, et ne se lit que là.
+
+    Une moyenne d'axe monte dès que les classes fournies vont bien. Ce tableau
+    ne montre que ce qui reste sous la cible, la pire d'abord : c'est la liste
+    de ce qu'il reste à faire, et elle est vide le jour où le modèle est bon.
+    """
+    scored = score_by_class(cases, predictions)
+    below = classes_below_target(scored)
+    reached = len(scored) - len(below)
+    print(f"\n{'=' * 74}\n  QUICK-ADD — les classes sous la cible de {TARGET:.0%}")
+    print(f"  {reached} / {len(ACTIVE_LABELS)} classes atteignent la cible")
+    print(f"  {'classe':<40}{'n':>5}{'strict':>11}{'famille':>11}")
+    for slug, values in below:
+        section = "entrée" if type_of(slug) else "dépense"
+        print(
+            f"  {slug:<40}{values['n']:>5}{values['strict']:>10.1%}"
+            f"{values['family']:>11.1%}  {section}"
+        )
 
 
 def measure_typed_input(model, tokenizer) -> None:

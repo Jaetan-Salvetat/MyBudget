@@ -22,6 +22,7 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 from transformers.utils import ModelOutput
 
 from paths import DATASET_DIR, OUTPUT_DIR
+from serving.contract import assert_category_head, assert_taxonomy_stamp
 from taxonomy import LABELS
 from training.corruption import corrupt
 
@@ -118,6 +119,10 @@ class BudgetClassifier(PreTrainedModel):
 
     def __init__(self, config: BudgetClassifierConfig):
         super().__init__(config)
+        # Un checkpoint plus vieux que la taxonomie répond encore, sous les
+        # mauvais noms : c'est le seul endroit que tous les chargements
+        # traversent, donc le seul où la dérive ne peut pas passer.
+        assert_category_head(config.num_categories, type(self).__name__)
         self.backbone = ModernBertModel(config)
         h = config.hidden_size
         self.type_head = ClassificationHead(h, config.num_types)
@@ -252,6 +257,7 @@ def compute_metrics(eval_pred) -> dict:
 
 
 def read_jsonl(path: Path) -> list[dict]:
+    assert_taxonomy_stamp(path)
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 

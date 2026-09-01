@@ -6,7 +6,8 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
-import 'package:mybudget/core/services/quick_add/remote_quick_add_engine.dart';
+import 'package:mybudget/core/services/quick_add/cloud_quick_add_prompt.dart';
+import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
 
 class _ScriptedChatClient implements AiChatClient {
   _ScriptedChatClient(this.responses);
@@ -50,15 +51,19 @@ void main() {
     });
   }
 
-  RemoteQuickAddEngine engineWith(_ScriptedChatClient client) =>
-      RemoteQuickAddEngine(client: client, taxonomy: taxonomy);
+  PromptQuickAddEngine engineWith(_ScriptedChatClient client) =>
+      PromptQuickAddEngine(
+        client: client,
+        taxonomy: taxonomy,
+        prompt: CloudQuickAddPrompt(taxonomy.selectableLeaves),
+      );
 
   setUpAll(() async {
     taxonomy = CategoryTaxonomyService();
     await taxonomy.load();
   });
 
-  group('RemoteQuickAddEngine', () {
+  group('PromptQuickAddEngine', () {
     test('reads a well-formed answer', () async {
       final engine = engineWith(_ScriptedChatClient([answer()]));
 
@@ -129,11 +134,11 @@ void main() {
 
       expect(
         client.prompts.single,
-        contains('a' * RemoteQuickAddEngine.maxInputLength),
+        contains('a' * PromptQuickAddEngine.maxInputLength),
       );
       expect(
         client.prompts.single,
-        isNot(contains('a' * (RemoteQuickAddEngine.maxInputLength + 1))),
+        isNot(contains('a' * (PromptQuickAddEngine.maxInputLength + 1))),
       );
     });
 
@@ -193,7 +198,7 @@ void main() {
           ),
         ),
       );
-      expect(client.prompts.length, RemoteQuickAddEngine.maxAttempts);
+      expect(client.prompts.length, PromptQuickAddEngine.maxAttempts);
     });
 
     test('falls back on the cleaned text when the name is empty', () async {

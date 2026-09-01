@@ -7,6 +7,7 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
 import 'package:mybudget/core/services/scan/label_link_asset.dart';
 import 'package:mybudget/core/services/scan/label_span_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
@@ -19,6 +20,7 @@ import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -81,6 +83,14 @@ Future<ReceiptScanComposer> receiptScanComposer(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
+NanoReceiptReader? nanoReceiptReader(Ref ref) {
+  if (!ref.watch(geminiNanoScanProvider)) return null;
+  if (ref.watch(geminiNanoStatusProvider).value?.isReady != true) return null;
+
+  return NanoReceiptReader(service: ref.watch(geminiNanoServiceProvider));
+}
+
+@Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
   @override
   List<ReadTrace> build() => const [];
@@ -104,7 +114,10 @@ class ScanNotifier extends _$ScanNotifier {
       final scanner = await ref.read(localReceiptScannerProvider.future);
       final composer = await ref.read(receiptScanComposerProvider.future);
       debugPrint('[scan] chargement des modèles : ${watch.elapsedMilliseconds} ms');
-      final read = await scanner.scan(imageBytes);
+      final read = await scanner.scan(
+        imageBytes,
+        nano: ref.read(nanoReceiptReaderProvider),
+      );
       ref.read(scanTraceProvider.notifier).record(read.trace);
       final beforeCategories = watch.elapsedMilliseconds;
       state = AsyncData(await composer.compose(read));

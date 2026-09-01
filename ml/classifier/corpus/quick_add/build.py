@@ -20,6 +20,7 @@ from corpus.quick_add.verbs import VERB_PHRASES, VERB_SOURCE
 from knowledge.build import SOURCE_PRIORITY
 from knowledge.entities import TIER_HEAD, Entity, normalize, read_entities
 from paths import DATASET_DIR, ENTITIES_PATH
+from serving.contract import write_taxonomy_stamp
 from serving.normalize import normalize_query
 from taxonomy import ACTIVE_LABELS, LABELS, NUM_EXPENSE, RECURRING, type_of
 
@@ -429,6 +430,7 @@ def save_jsonl(rows: list[dict], path: Path) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    write_taxonomy_stamp(path)
 
 
 def main() -> None:

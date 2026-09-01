@@ -1,31 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
+import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
 import 'package:mybudget/core/services/scan/receipt_image_enhancer.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 typedef ReceiptImageEnhancer = Future<Uint8List> Function(Uint8List bytes);
-
-class LocalReceiptScan {
-  const LocalReceiptScan({
-    required this.source,
-    required this.store,
-    required this.date,
-    required this.total,
-    required this.items,
-    this.trace = const [],
-  });
-
-  final ReadSource source;
-  final String? store;
-  final String? date;
-  final double? total;
-  final List<ExtractedItem> items;
-
-  final List<ReadTrace> trace;
-
-  bool get verified => verifiedSources.contains(source);
-}
 
 class LocalReceiptScanner {
   final ReceiptLineRecognizer _recognizer;
@@ -45,7 +26,10 @@ class LocalReceiptScanner {
     this._enhance = enhanceReceiptForRetry,
   });
 
-  Future<LocalReceiptScan> scan(Uint8List imageBytes) async {
+  Future<LocalReceiptScan> scan(
+    Uint8List imageBytes, {
+    NanoReceiptReader? nano,
+  }) async {
     final watch = Stopwatch()..start();
     var mark = 0;
     void step(String label) {
@@ -53,9 +37,19 @@ class LocalReceiptScanner {
       mark = watch.elapsedMilliseconds;
     }
 
+    final Future<void>? warmingUp = nano?.warmUp();
+
     final pass1 = await _recognizer.recognize(imageBytes);
     step('OCR passe 1 (${pass1.length} lignes)');
     if (pass1.isEmpty) throw const ScanUnreadableException();
+
+    if (nano != null) {
+      await warmingUp;
+      step('préchauffage Gemini Nano');
+      final read = await nano.read(pass1);
+      step('lecture Gemini Nano (${read?.items.length ?? 0} articles)');
+      if (read != null) return read;
+    }
 
     final outcome = await decideLocal(
       pass1,
@@ -72,13 +66,11 @@ class LocalReceiptScanner {
     final spans = _span.probabilities(lines);
     step('lien et spans (${lines.length} lignes)');
 
-    return LocalReceiptScan(
-      source: outcome.source,
+    return LocalReceiptScan.fromOutcome(
+      outcome,
       store: storeOf(lines, roles, gazetteer: _gazetteer),
       date: dateOf(lines, roles),
-      total: outcome.total,
       items: relabel(outcome.items, lines, offsets, spans),
-      trace: outcome.trace,
     );
   }
 

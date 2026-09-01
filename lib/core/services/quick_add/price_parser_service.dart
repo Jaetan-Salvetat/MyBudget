@@ -18,6 +18,15 @@ abstract final class PriceParserService {
 
   static final RegExp _integerAmount = RegExp(r'\d+');
 
+  static final RegExp _letter = RegExp(r'[a-zA-ZÀ-ÿ]');
+
+  /// Une quantité porte son unité, un montant n'en porte pas : « forfait 100
+  /// Go » n'a pas de prix, et le retirer laissait « forfait Go » au modèle.
+  static final RegExp _trailingUnit = RegExp(
+    r'^\s?(?:go|mo|ko|to|gb|mb|kb|tb|kg|mg|cl|ml|km|cm|mm|min|g|l|m|h|j|jours?|semaines?|mois|ans?)\b',
+    caseSensitive: false,
+  );
+
   static PriceParseResult? parse(String input) {
     if (input.trim().isEmpty) return null;
 
@@ -30,10 +39,23 @@ abstract final class PriceParserService {
     );
   }
 
+  /// Ce que la saisie désigne par un nombre n'est pas toujours un montant.
+  ///
+  /// Collé à des lettres, il fait partie du nom — « SP98 », « A10 », « S24 » ;
+  /// suivi d'une unité, c'est une quantité. Dans les deux cas le retirer
+  /// ampute le texte que lit le modèle, et « plein de SP » ne ressemble plus à
+  /// du carburant.
+  static bool _isAnAmount(String input, int start, int end) {
+    if (start > 0 && _letter.hasMatch(input[start - 1])) return false;
+    if (end < input.length && _letter.hasMatch(input[end])) return false;
+    return !_trailingUnit.hasMatch(input.substring(end));
+  }
+
   static _PriceMatch? _findPrice(String input) {
     final candidates = <_PriceMatch>[];
 
     for (final match in _thousandsSepFr.allMatches(input)) {
+      if (!_isAnAmount(input, match.start, match.end)) continue;
       final intPart = match.group(1)!.replaceAll(' ', '');
       final decPart = match.group(2);
       final value = decPart != null
@@ -46,6 +68,7 @@ abstract final class PriceParserService {
 
     for (final match in _thousandsSepEn.allMatches(input)) {
       if (_isAlreadyCovered(candidates, match.start, match.end)) continue;
+      if (!_isAnAmount(input, match.start, match.end)) continue;
       final intPart = match.group(1)!.replaceAll(',', '');
       final decPart = match.group(2);
       final value = decPart != null
@@ -58,6 +81,7 @@ abstract final class PriceParserService {
 
     for (final match in _decimalAmount.allMatches(input)) {
       if (_isAlreadyCovered(candidates, match.start, match.end)) continue;
+      if (!_isAnAmount(input, match.start, match.end)) continue;
       final value = double.parse('${match.group(1)!}.${match.group(2)!}');
       candidates.add(
         _PriceMatch(value: value, start: match.start, end: match.end),
@@ -66,6 +90,7 @@ abstract final class PriceParserService {
 
     for (final match in _integerAmount.allMatches(input)) {
       if (_isAlreadyCovered(candidates, match.start, match.end)) continue;
+      if (!_isAnAmount(input, match.start, match.end)) continue;
       final value = double.parse(match.group(0)!);
       candidates.add(
         _PriceMatch(value: value, start: match.start, end: match.end),

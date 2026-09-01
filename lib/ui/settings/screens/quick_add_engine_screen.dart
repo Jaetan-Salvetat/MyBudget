@@ -13,11 +13,8 @@ class QuickAddEngineScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuickAddEngineMode mode = ref.watch(
-      quickAddEngineModeProvider,
-    );
-    final bool hasKey =
-        ref.watch(hasStoredApiKeyProvider).value ?? false;
+    final QuickAddEngineMode mode = ref.watch(quickAddEngineModeProvider);
+    final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
     final bool isDegraded = ref.watch(quickAddDegradationProvider);
     final ColorScheme colors = Theme.of(context).colorScheme;
 
@@ -38,9 +35,9 @@ class QuickAddEngineScreen extends ConsumerWidget {
           FrostedListSection(
             tiles: [
               FrostedListTile(
-                title: 'Sur l\'appareil',
+                title: QuickAddEngineMode.onDevice.label,
                 subtitle:
-                    'Rien ne quitte le téléphone. Fonctionne hors ligne.',
+                    'Le modèle embarqué de MyBudget. Fonctionne hors ligne.',
                 leading: FrostedRadio<QuickAddEngineMode>(
                   value: QuickAddEngineMode.onDevice,
                   groupValue: mode,
@@ -62,7 +59,7 @@ class QuickAddEngineScreen extends ConsumerWidget {
               ),
             ],
           ),
-          if (isDegraded) ...[
+          if (isDegraded && mode == QuickAddEngineMode.apiKey) ...[
             const SizedBox(height: FrostedSpacing.sp4),
             _Note(
               icon: Symbols.warning_rounded,

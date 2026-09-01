@@ -29,15 +29,59 @@ training/export_onnx.py  ──►  output/best/model.onnx  ──►  publish.s
 
 `serving/` porte le contrat d'entrée/sortie du modèle : `normalize.py` a son
 miroir exact dans `ml/scan/pipeline/lib/src/normalize.dart`, vérifié par la
-fixture de parité. Il n'y a rien d'autre à y mettre — depuis que chaque article
-se classe seul, l'app n'a plus de décision à porter après le modèle (§8).
+fixture de parité, et `contract.py` tient l'ordre des classes. Il n'y a rien
+d'autre à y mettre — depuis que chaque article se classe seul, l'app n'a plus
+de décision à porter après le modèle (§8).
+
+### L'ordre des classes est un contrat, et il s'est cassé en silence
+
+**`assets/categories.json` est la seule source de vérité, mais quatre artefacts
+en dépendent par leur position, pas par leur nom :** les poids entraînés
+(`num_categories` sorties), l'ONNX publié, `dataset/*.jsonl` où chaque exemple
+range sa classe dans un entier, et `QuickAddLabels.categories` côté Dart qui
+retraduit l'argmax. Insérer une classe décale tout ce qui la suit dans les
+quatre.
+
+Le 31 août, `finance.assurance_autre` a été insérée à l'index 46 et
+`famille_education.enfant` à l'index 56. Rien n'a levé d'erreur : l'argmax
+restait valide, seule sa traduction mentait. `evaluation/hard.py` est passé de
+**87,9 % à 59,7 %** sans qu'un seul poids bouge, l'axe `revenu` à 2,5 % — les
+seize classes de revenus sont toutes au-delà de l'index 56, donc toutes
+décalées de deux. Le diagnostic se lit dans la forme des erreurs, jamais dans
+la moyenne : `voyage.hebergement` répondait systématiquement
+`famille_education.enfant`, sa voisine deux crans plus tôt.
+
+Le corpus portait la même dérive et sans bruit : `receipts_train.jsonl`
+enseignait `voyage.activite_visite` là où il voulait dire `divers.animaux`.
+Réentraîner sur un corpus périmé aurait produit un modèle correctement aligné
+sur des classes fausses.
+
+Une dérive muette ne s'attrape que par une vérification de forme, donc il y en
+a une à chaque frontière :
+
+| Où | Ce qui est vérifié | Quand ça mord |
+|---|---|---|
+| `BudgetClassifier.__init__` | `num_categories` contre la taxonomie | tout chargement de poids, entraînement comme évaluation |
+| `read_jsonl` | le repère `*.labels.json` écrit par les générateurs | à l'ouverture de tout corpus d'entraînement |
+| `tests/test_model_contract.py` | l'ONNX publié dans `assets/models/` | à chaque `pytest` |
+| `tests/test_model_contract.py` | `QuickAddLabels.categories` contre la taxonomie | à chaque `pytest` |
+| `QuickAddClassifierService.classify` | le nombre de classes rendu par l'ONNX | à l'exécution, dans l'app |
+
+Le garde-fou Dart existait déjà et c'est le seul qui a tenu : l'app levait une
+exception au lieu de proposer une mauvaise catégorie. Côté Python il n'y avait
+rien, et c'est ce qui a laissé mesurer et publier trois artefacts périmés.
+
+**Ce que ça impose.** Ajouter une classe à `assets/categories.json` n'est jamais
+une modification isolée : il faut rejouer `knowledge.build`, les deux
+générateurs de corpus, l'entraînement et l'export. Tant que ce n'est pas fait,
+`pytest` reste rouge sur `test_model_contract`, et c'est voulu.
 
 ## 0. Prérequis
 
 ```bash
 cd ml/classifier
 uv sync                 # environnement Python
-uv run python -m pytest # 159 tests, < 20 s, aucun accès réseau
+uv run python -m pytest # 174 tests, < 20 s, aucun accès réseau
 ```
 
 Compter ~4 Go de RAM, 2 Go de disque pour les checkpoints, et une connexion
@@ -255,11 +299,42 @@ restauration en compte **zéro**. Répondre « supermarché » à tout y valait 
 
 | Corpus | Cas | Ce qu'il tient |
 |---|---|---|
-| `data/hard_quick_add.json` | 373 | 79 classes sur 79, aucune au-dessus de 6 %, 10 axes de difficulté |
+| `data/hard_quick_add.json` | 827 | 81 classes sur 81, **au moins 10 cas chacune**, aucune au-dessus de 6 %, 13 axes |
 | `data/hard_receipts.json` | 159 | 22 classes, dont les 62 que le golden ne mesure sur aucun article |
 
+### Une moyenne d'axe ne dit pas si le modèle est bon
+
+La cible est « plus de 95 % de succès sur tout type de dépense et d'entrée ».
+Elle porte sur **chaque classe**, et le corpus ne savait pas la lire : à 373
+cas pour 81 classes, vingt classes en portaient deux ou moins. Une classe à
+deux cas ne rend que 0, 50 ou 100 % — `aide_allocation.chomage`,
+`salaire.retraite`, `voyage.activite_visite`, `numerique.ia` n'étaient pas
+mesurées, elles étaient tirées à pile ou face. Le plancher de dix cas par
+classe est ce qui rend le seuil opposable, et `report_by_class` n'affiche que
+ce qui reste en dessous : la liste est le reste à faire, et elle est vide le
+jour où le modèle est bon.
+
+**Trois axes manquaient, tous les trois quotidiens.** Le corpus écrivait un
+français soigné que personne ne tape dans un champ rapide :
+
+| Axe | Ce qu'il mesure | Exemple |
+|---|---|---|
+| `abrege` | le télégraphique du champ rapide | « coiff », « retrait 50 », « permis code » |
+| `releve_bancaire` | le libellé de relevé recopié tel quel | « PRLV SEPA ENGIE », « VIR SEPA CAF APL » |
+| `enumeration` | une liste d'articles, sans verbe ni enseigne | « cahiers stylos et colle » |
+
+`releve_bancaire` est le plus proche de l'usage réel et le plus absent de
+l'entraînement : le générateur écrit des syntagmes décorés, jamais les
+majuscules sans accent d'un relevé, alors que recopier sa banque est une des
+façons les plus courantes de saisir une dépense passée. Le pipeline de saisie
+retire la date et le montant avant le modèle, donc « CB CARREFOUR MARKET 31/08 »
+lui arrive comme « CB CARREFOUR MARKET » : c'est cette forme-là qui est écrite
+dans le corpus.
+
 Les axes ne sont pas décoratifs : c'est la seule lecture qui désigne où
-investir. Relevé du modèle livré, catégorie stricte :
+investir. Relevé du modèle livré, catégorie stricte — **mesuré sur les 373 cas
+d'avant le 1er septembre**, donc sans les trois axes ajoutés depuis et sans le
+plancher par classe ; les colonnes ne se comparent qu'entre elles :
 
 | Quick-add | v13 livré | + cadres | **+ correctifs** | Scan | v13 | **v2** |
 |---|---|---|---|---|---|---|
@@ -322,6 +397,79 @@ Ce que le corpus dur a rendu visible et qu'aucun autre ne voyait :
   `galaxy` `alimentation.supermarche`. Le modèle répond alors juste selon ses
   données et faux selon l'utilisateur.
 
+### Où en est le modèle face à la cible (2026-09-01, `output/run_v3`)
+
+Corpus reconstruit sur 82 classes, 5 epochs, meilleur checkpoint à l'epoch 3.
+Le réentraînement était obligatoire — pas pour gagner des points, pour exister :
+les deux classes ajoutées n'avaient aucun exemple.
+
+| Mesure | v13 livré | **v3** |
+|---|---|---|
+| entités jamais vues, catégorie stricte | 66,3 % | **75,9 %** |
+| mémorisation (`world.py`) | 95 % | 95 % |
+| ECE | 3,4 % | **2,8 %** |
+| cas durs, **corpus du 31 août à l'identique** | 86,3 % | **86,3 %** |
+| cas durs, **corpus de 827** | — | **81,1 %** |
+| accord ONNX int8 / PyTorch | — | 99,1 % |
+
+**La ligne à lire est la quatrième :** sur exactement les mêmes 380 cas, le
+modèle n'a pas bougé. Ce que le réentraînement a rendu, c'est l'alignement — en
+production le quick-add passe de « lève une exception à chaque saisie » à
+86,3 %. Les 9,6 points gagnés sur les entités jamais vues viennent du corpus
+reconstruit, pas de la recette.
+
+**La cinquième ligne est celle qui compte, et elle est loin.** Sur le corpus qui
+mesure vraiment : **12 classes sur 81 atteignent 95 %**. Les axes, du meilleur
+au pire :
+
+| Axe | strict | | Axe | strict |
+|---|---|---|---|---|
+| `abrege` | 97,5 % | | `argot` | 85,5 % |
+| `contexte` | 91,9 % | | `chiffre` | 84,1 % |
+| `releve_bancaire` | 86,1 % | | `commerce_local` | 80,5 % |
+| `revenu` | 85,0 % | | `recurrence` | 80,0 % |
+| `homographe` | 78,0 % | | `sans_entite` | 77,3 % |
+| **`phrase_libre`** | **72,0 %** | | **`enumeration`** | **71,4 %** |
+
+`releve_bancaire` à 86,1 % est la surprise : l'axe était aveugle — aucun libellé
+de relevé n'existe dans l'entraînement — et le modèle y tient parce que le nom
+d'enseigne porte tout (`PRLV SEPA ENGIE` se réduit à `engie`). `abrege` à
+97,5 % dit la même chose : moins de mots, moins de bruit, et l'enseigne suffit.
+Les deux axes qui s'effondrent sont ceux **sans entité du tout** —
+`phrase_libre` et `enumeration` demandent de lire une intention, et rien dans le
+corpus d'entraînement n'apprend ça au-delà des 144 clauses de `verbs.py`.
+
+**Trois défauts nommés, par ordre de coût :**
+
+1. **La direction de la transaction se trompe une fois sur vingt.** La tête de
+   type rend 95,4 % d'ensemble mais **85,0 % sur l'axe `revenu`** : « le
+   gestionnaire a reversé le loyer net » sort en dépense, « quittance du studio
+   que je loue » en revenu. Le générateur écrit ses revenus avec des préfixes
+   de revenu, donc la direction s'apprend au préfixe et pas au verbe — `reversé`,
+   `encaissé`, `perçu`, `versé par` ne portent rien. C'est le défaut le plus
+   cher : une erreur de catégorie se corrige d'un geste, une dépense comptée
+   comme une entrée fausse le solde ;
+2. **`loisirs.livre_presse` reste la classe-aimant** — 13 des 159 erreurs, sur
+   des syntagmes nominaux qu'elle n'a aucune raison d'attirer (« pension du
+   régime général », « indemnités journalières »). Le déplafonnement des
+   marchés étrangers a réduit la classe sans lui retirer ce rôle ;
+3. **Les seize classes de revenus se confondent entre elles.** `income` rend
+   78,1 % contre 81,9 % pour `expense`, et les confusions sont systématiques :
+   `remboursement_ami` absorbe tout ce qui contient « part de », `salaire.retraite`
+   tout ce qui contient « pension ». `generalization.py` le confirme sur les
+   entités jamais vues — `salaire.salaire_net` à 26 %, `salaire.freelance` à
+   39 %, `exceptionnel.vente_occasion` à 37 %.
+
+**Ce qu'il ne faut pas faire pour y répondre.** `phrase_libre` a déjà été
+corrigé une fois en écrivant `verbs.py` après avoir constaté son échec, et
+l'axe a cessé d'être une mesure aveugle. Écrire maintenant des gabarits de
+relevé bancaire ou des tournures de revenu en visant ces axes referait la même
+erreur en pire : le seul chiffre qui resterait honnête serait celui des entités
+jamais vues. Le corpus d'entraînement doit gagner ces capacités par une source
+indépendante — un lexique de verbes de direction construit sans regarder le
+corpus dur, et une amplification des classes de revenus sur les entités déjà
+moissonnées — et l'axe reste le juge, jamais le modèle.
+
 ### Le corpus dur est écrit sans faute, l'utilisateur ne tape pas sans faute
 
 Restaient trois écarts entre 83,1 % et ce que l'app rend. Mesurés, deux sont
@@ -354,12 +502,22 @@ survivent pas à la lettre qui ripe, là où « Boulangerie Lefèvre » garde as
 matière. Le témoin `marque_nue` ne bouge pas d'un point — une enseigne apprise
 par cœur résiste, ce qui est déduit non.
 
-**Un bug de l'app est sorti de cette mesure.** `PriceParserService` prend le
-dernier nombre de la saisie pour le montant, quel que soit ce qu'il désigne :
-sans prix tapé, 23 des 373 cas arrivent amputés au modèle — `iPhone 15` →
-`iPhone`, `Microsoft 365` → `Microsoft`, `Galaxy S24` → `Galaxy S`, `plein de
-SP98` → `plein de SP`, `A10 péage` → `A péage`. Sur ces 23 saisies la justesse
-tombe de 87,0 % à 73,9 %. Ça se corrige côté Dart, pas côté modèle.
+**Un bug de l'app est sorti de cette mesure, et il est corrigé.**
+`PriceParserService` prenait le dernier nombre de la saisie pour le montant,
+quel que soit ce qu'il désigne : sans prix tapé, 23 des 373 cas arrivaient
+amputés au modèle — `Galaxy S24` → `Galaxy S`, `plein de SP98` → `plein de
+SP`, `A10 péage` → `A péage`, `forfait 100 Go` → `forfait Go`. Sur ces 23
+saisies la justesse tombait de 87,0 % à 73,9 %.
+
+Deux règles générales suffisent, et aucune ne nomme un cas : **un nombre collé
+à des lettres appartient au nom** (`SP98`, `A10`, `S24`, `W32`), **un nombre
+suivi d'une unité est une quantité** (`100 Go`, `2 kg`, `12 mois`). Le symbole
+monétaire collé reste un montant — `45€` est lu comme avant.
+
+Reste `iPhone 15` : rien dans la forme ne le distingue de `carrefour 45`, et
+c'est la seconde qui est la saisie courante. Le montant s'affiche et se
+corrige, la catégorie non : le doute est tranché en faveur du montant, et cette
+saisie-là arrive encore tronquée au modèle.
 
 **Ce qu'un cas doit valoir pour entrer.** `tests/test_hard_corpora.py` tient
 chaque règle ; les deux qui ont sauvé le corpus à l'écriture sont la fuite et la
@@ -452,23 +610,29 @@ coupé) sont ce que le modèle doit comprendre seul.
 
 | Mesure | Où | Cible |
 |---|---|---|
-| mémorisation | `world.py` | ≥ 97 % |
-| **entités jamais vues, catégorie stricte** | `generalization.py` | **> 66,3 %**, la valeur du modèle livré |
-| entités jamais vues, à la famille près | `generalization.py` | > 68,7 % |
+| mémorisation | `world.py` | ≥ 95 % |
+| **entités jamais vues, catégorie stricte** | `generalization.py` | **> 75,9 %**, la valeur de `run_v3` |
 | justesse sur les 50 % plus confiants | `generalization.py` | ≥ 93 % |
 | niveau `app` | `quick_add.py` | ≥ 95 % |
 | type (dépense/revenu) | `world.py` | 100 % |
 | ECE | `world.py` | ≤ 5 % |
 | une faute de frappe | `robustness.py` | chute < 10 points sous le propre |
 | casse et accents | `robustness.py` | égal au propre, à 1 point près |
-| **cas durs quick-add, ensemble** | `hard.py` | **> 83,1 %**, la valeur du modèle livré |
-| **cas durs scan, ensemble** | `hard.py` | **> 77,4 %** |
-| phrase libre | `hard.py` | > 60,5 % |
+| **toute classe, quick-add** | `hard.py` | **> 95 %** — la cible produit, 12/81 aujourd'hui |
+| **direction de la transaction, axe `revenu`** | `hard.py` | **100 %** — 85,0 % aujourd'hui |
+| **cas durs quick-add, ensemble** | `hard.py` | **> 81,1 %**, la valeur de `run_v3` |
+| **cas durs scan, ensemble** | `hard.py` | **> 73,6 %** |
+| classes en sortie du modèle et de l'ONNX | `test_model_contract.py` | égal à la taxonomie, sans exception |
+| phrase libre | `hard.py` | > 72,0 % |
+| énumération | `hard.py` | > 71,4 % |
 | restauration de ticket | `hard.py` | > 60,0 % |
-| **cas durs, une faute de frappe** | `hard.py` | **> 74,0 %** |
-| argot, une faute de frappe | `hard.py` | > 53,8 % |
+| **cas durs, une faute de frappe** | `hard.py` | **> 69,8 %** |
+| argot, une faute de frappe | `hard.py` | > 61,8 % |
 
-Les deux lignes `hard.py` sont celles qui bougent quand l'app s'améliore : ce
+La première ligne prime sur toutes les autres : un ensemble à 88 % qui laisse
+`aide_allocation.bourse` à 40 % n'est pas un modèle à 88 % pour l'utilisateur
+qui touche une bourse, c'est un modèle qui se trompe une fois sur deux. Les
+lignes `hard.py` d'ensemble sont celles qui bougent quand l'app s'améliore : ce
 sont les seules mesurées sur des formulations que le générateur n'écrit pas et
 sur les classes que le golden ne contient pas. Aucun axe ne doit reculer, même
 si l'ensemble progresse — une moyenne qui monte pendant qu'un axe tombe est un
@@ -855,6 +1019,7 @@ deux corpus est le premier correctif à tenter.**
 | 80 classes, vérité d'article (2026-08-29, `output/item_truth`, epoch 4, non publié) | corpus ticket refait : 50 216 lignes dont 85 209 libellés de caisse réels d'Open Prices, vérité par code-barres et non par enseigne ; 0 contradiction, 0 fuite T1-test | **98 %** — ECE 2,4 %, entités jamais vues 75,8 % | catégorie 100 % (`app`), hard 88 % |
 
 | 80 classes, quatre bases produit (2026-08-29, `output/four_bases`) | + Open Products Facts et Open Pet Food Facts, Open Beauty Facts déplafonné : 55 774 lignes, 86 095 libellés sans ambiguïté ; 0 contradiction, 0 fuite | **95 %** — ECE 4,8 %, entités jamais vues 75,8 % ; **sous la cible de mémorisation** | catégorie 100 % (`app`), hard 88 % |
+| **82 classes, alignement rétabli (2026-09-01, `output/run_v3`, epoch 3)** | deux classes ajoutées à la taxonomie le 31 août sans rien reconstruire : poids, ONNX et corpus décalés de deux crans. Connaissance et deux corpus refaits sur 82 classes ; 154 962 + 50 000 exemples | **95 %** — ECE 2,8 %, entités jamais vues **75,9 %** | corpus dur porté à 827 cas : **81,1 %**, dont **12 classes sur 81 au-dessus de 95 %** |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.

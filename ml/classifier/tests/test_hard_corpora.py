@@ -30,6 +30,10 @@ HARD_RECEIPTS = EVAL_DATA_DIR / "hard_receipts.json"
 QUICK_ADD_AXES = {
     "marque_nue", "homographe", "contexte", "sans_entite", "argot",
     "phrase_libre", "recurrence", "revenu", "chiffre", "commerce_local",
+    # Trois façons de saisir que le corpus ignorait et que l'app reçoit tous
+    # les jours : le télégraphique du champ rapide, le libellé de relevé
+    # recopié tel quel, et la liste d'articles sans verbe ni enseigne.
+    "abrege", "releve_bancaire", "enumeration",
 }
 RECEIPTS_AXES = {"hors_alimentaire", "restauration", "confusable", "abrege"}
 
@@ -40,6 +44,11 @@ RECURRENCES = {"ponctuel", "fixe"}
 # qui faisait annoncer 68 % au scan quand « supermarché » partout en valait 75.
 QUICK_ADD_CLASS_CAP = 0.06
 RECEIPTS_CLASS_CAP = 0.25
+
+# La cible est « plus de 95 % sur tout type de dépense et d'entrée », donc par
+# classe et non en moyenne. Une classe à deux cas ne peut rendre que 0, 50 ou
+# 100 % : elle ne mesure rien, et vingt classes étaient dans cet état.
+QUICK_ADD_CLASS_FLOOR = 10
 
 # Le générateur ne connaît qu'une vingtaine de préfixes et une quarantaine de
 # suffixes. Un corpus qui les reprend mesure le gabarit, pas l'utilisateur.
@@ -95,6 +104,16 @@ def test_quick_add_corpus_covers_every_active_class():
     """Une classe sans cas dur est une classe dont on ne saura rien."""
     covered = {canonical(case["category"]) for case in cases(HARD_QUICK_ADD)}
     assert set(ACTIVE_LABELS) - covered == set()
+
+
+def test_every_class_carries_enough_cases_to_be_read_alone():
+    """Le seuil de 95 % se lit par classe : encore faut-il qu'elle mesure."""
+    counts: dict[str, int] = {}
+    for case in cases(HARD_QUICK_ADD):
+        slug = canonical(case["category"])
+        counts[slug] = counts.get(slug, 0) + 1
+    thin = {slug: counts[slug] for slug in ACTIVE_LABELS if counts[slug] < QUICK_ADD_CLASS_FLOOR}
+    assert thin == {}
 
 
 @pytest.mark.parametrize(
