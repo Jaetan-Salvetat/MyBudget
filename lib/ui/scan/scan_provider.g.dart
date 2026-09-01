@@ -93,6 +93,53 @@ final class ReceiptScanComposerProvider
 String _$receiptScanComposerHash() =>
     r'5929bea723a0e84dc4a8f4004b8f347be224d2ac';
 
+@ProviderFor(nanoReceiptReader)
+final nanoReceiptReaderProvider = NanoReceiptReaderProvider._();
+
+final class NanoReceiptReaderProvider
+    extends
+        $FunctionalProvider<
+          NanoReceiptReader?,
+          NanoReceiptReader?,
+          NanoReceiptReader?
+        >
+    with $Provider<NanoReceiptReader?> {
+  NanoReceiptReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'nanoReceiptReaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$nanoReceiptReaderHash();
+
+  @$internal
+  @override
+  $ProviderElement<NanoReceiptReader?> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NanoReceiptReader? create(Ref ref) {
+    return nanoReceiptReader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NanoReceiptReader? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NanoReceiptReader?>(value),
+    );
+  }
+}
+
+String _$nanoReceiptReaderHash() => r'd26a8240c5ed6725485bf69a1a94a8a6f613ff1d';
+
 @ProviderFor(ScanTrace)
 final scanTraceProvider = ScanTraceProvider._();
 
@@ -180,7 +227,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'f9aff8b80ccd913e96b363ec9b8ef7fdf527d135';
+String _$scanNotifierHash() => r'097a627594391b8e27462efeb3005240624f145f';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {

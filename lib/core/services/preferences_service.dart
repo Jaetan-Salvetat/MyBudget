@@ -23,6 +23,7 @@ class PreferencesService {
 
   static const String keyQuickAddEnabled = 'quickAddEnabled';
   static const String keyQuickAddEngineMode = 'quickAddEngineMode';
+  static const String keyGeminiNanoScan = 'geminiNanoScan';
   static const String keyAiProvider = 'aiProvider';
   static const String keyAiModel = 'aiModel';
   static const String keyAiCloudConsent = 'aiCloudConsent';
@@ -119,6 +120,14 @@ class PreferencesService {
 
   static Future<void> setQuickAddEnabled(bool enabled) async {
     await _prefs.setBool(keyQuickAddEnabled, enabled);
+  }
+
+  static bool isGeminiNanoScanEnabled() {
+    return _prefs.getBool(keyGeminiNanoScan) ?? false;
+  }
+
+  static Future<void> setGeminiNanoScanEnabled(bool enabled) async {
+    await _prefs.setBool(keyGeminiNanoScan, enabled);
   }
 
   static QuickAddEngineMode getQuickAddEngineMode() {

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
-import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
@@ -21,11 +21,11 @@ class _ScriptedLineClassifier implements ReceiptLineClassifier {
 LocalReceiptScan scanOf({
   String? store = 'CARREFOUR',
   String? date = '2026-08-01',
-  ReadSource source = ReadSource.pass1,
+  bool verified = true,
   List<(String, double, double)> items = const [('PAIN', 2.0, 0.0)],
 }) {
   return LocalReceiptScan(
-    source: source,
+    verified: verified,
     store: store,
     date: date,
     total: 2.0,
@@ -112,7 +112,7 @@ void main() {
       final verified = await composerOf(const {}).compose(scanOf());
       final flagged = await composerOf(
         const {},
-      ).compose(scanOf(source: ReadSource.confirm));
+      ).compose(scanOf(verified: false));
 
       expect(verified.verified, isTrue);
       expect(flagged.verified, isFalse);

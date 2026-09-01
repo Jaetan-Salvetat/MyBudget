@@ -1,5 +1,5 @@
 import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';

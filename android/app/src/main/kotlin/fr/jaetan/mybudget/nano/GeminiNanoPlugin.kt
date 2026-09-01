@@ -146,7 +146,7 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         val prompt = call.argument<String>(PROMPT_ARGUMENT)
         val schema = call.argument<String>(SCHEMA_ARGUMENT)
 
-        if (prompt.isNullOrBlank() || schema != QUICK_ADD_SCHEMA) {
+        if (prompt.isNullOrBlank() || schema != RECEIPT_SCHEMA) {
             result.error(
                 NOT_SUPPORTED_CODE.toString(),
                 "Schéma inconnu du canal natif : $schema",
@@ -158,7 +158,7 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         try {
             val request = generateTypedContentRequest(
                 generateContentRequest(TextPart(prompt)) { temperature = TEMPERATURE },
-                QuickAddOutput::class,
+                ReceiptOutput::class,
             )
             val startedAt = SystemClock.elapsedRealtime()
             val candidate = model(call.arguments)
@@ -246,12 +246,17 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         else -> UNAVAILABLE_STATUS
     }
 
-    private fun QuickAddOutput.toJson(): String = JSONObject()
-        .put(CATEGORY_SLUG_KEY, categorySlug)
-        .put(ALTERNATIVES_KEY, JSONArray(alternatives))
-        .put(RECURRENCE_KEY, recurrence)
-        .put(NAME_KEY, name)
+    private fun ReceiptOutput.toJson(): String = JSONObject()
+        .put(STORE_KEY, store)
+        .put(DATE_KEY, date)
+        .put(TOTAL_KEY, total)
+        .put(ITEMS_KEY, JSONArray(items.map(::itemJson)))
         .toString()
+
+    private fun itemJson(item: ReceiptItemOutput): JSONObject = JSONObject()
+        .put(NAME_KEY, item.name)
+        .put(AMOUNT_KEY, item.amount)
+        .put(DISCOUNT_KEY, item.discount)
 
     private companion object {
         const val TAG = "GeminiNano"
@@ -272,7 +277,7 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         const val PREVIEW_CHANNEL = "preview"
         const val FULL_PREFERENCE = "full"
 
-        const val QUICK_ADD_SCHEMA = "quick_add"
+        const val RECEIPT_SCHEMA = "receipt"
 
         const val AVAILABLE_STATUS = "available"
         const val DOWNLOADABLE_STATUS = "downloadable"
@@ -289,10 +294,13 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         const val COMPLETED_EVENT = "completed"
         const val FAILED_EVENT = "failed"
 
-        const val CATEGORY_SLUG_KEY = "category_slug"
-        const val ALTERNATIVES_KEY = "alternatives"
-        const val RECURRENCE_KEY = "recurrence"
+        const val STORE_KEY = "store"
+        const val DATE_KEY = "date"
+        const val TOTAL_KEY = "total"
+        const val ITEMS_KEY = "items"
         const val NAME_KEY = "name"
+        const val AMOUNT_KEY = "amount"
+        const val DISCOUNT_KEY = "discount"
 
         const val FINISH_REASON_STOP = 0
 

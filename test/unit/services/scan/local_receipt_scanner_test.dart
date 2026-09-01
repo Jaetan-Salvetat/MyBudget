@@ -4,28 +4,68 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_failure.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
+import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
+import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import '../../../helpers/receipt_line_factory.dart';
 
 class _ScriptedRecognizer implements ReceiptLineRecognizer {
-  _ScriptedRecognizer(this.passes);
+  _ScriptedRecognizer(this.passes, {this.onRecognize});
 
   final List<List<PhysicalLine>> passes;
+  final void Function()? onRecognize;
   final List<Uint8List> received = [];
   bool closed = false;
 
   @override
   Future<List<PhysicalLine>> recognize(Uint8List imageBytes) async {
     received.add(imageBytes);
+    onRecognize?.call();
     return passes[received.length - 1];
   }
 
   @override
   Future<void> close() async => closed = true;
 }
+
+class _StubNanoService extends GeminiNanoService {
+  _StubNanoService({this.answer, this.failure});
+
+  final String? answer;
+  final GeminiNanoFailure? failure;
+
+  int calls = 0;
+  final List<String> steps = [];
+
+  @override
+  Future<void> warmUp(
+    GeminiNanoChannel channel,
+    GeminiNanoPreference preference,
+  ) async => steps.add('warmUp');
+
+  @override
+  Future<String> generate({
+    required String prompt,
+    required String schema,
+    required GeminiNanoChannel channel,
+    required GeminiNanoPreference preference,
+  }) async {
+    calls++;
+    steps.add('generate');
+    if (failure != null) throw GeminiNanoException(failure!);
+    return answer!;
+  }
+}
+
+const String _nanoReceipt =
+    '{"store":"MONOPRIX","date":"2026-08-02","total":5.0,'
+    '"items":[{"name":"CAFE","amount":5.0,"discount":0.0}]}';
 
 final Uint8List _photo = Uint8List.fromList([1, 2, 3]);
 final Uint8List _enhanced = Uint8List.fromList([4, 5, 6]);
@@ -130,7 +170,6 @@ void main() {
 
       final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.source, ReadSource.pass1);
       expect(scan.verified, isTrue);
       expect(scan.total, 5.0);
       expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
@@ -146,7 +185,7 @@ void main() {
 
       final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.source, ReadSource.retry);
+      expect(scan.verified, isTrue);
       expect(recognizer.received, [_photo, _enhanced]);
     });
 
@@ -161,7 +200,6 @@ void main() {
       ).scan(_photo);
 
       expect(scan.verified, isFalse);
-      expect(scan.source, ReadSource.confirm);
       expect([for (final item in scan.items) item.amount], [2.0]);
     });
 
@@ -201,6 +239,41 @@ void main() {
 
       expect(scan.verified, isTrue);
       expect([for (final item in scan.items) item.amount], [2.15, 3.0]);
+    });
+
+    test('Gemini Nano prend la main sur le décodeur local quand il lit',
+        () async {
+      final service = _StubNanoService(answer: _nanoReceipt);
+      final recognizer = _ScriptedRecognizer(
+        [receiptLinesOf(_verifiedReceipt)],
+        onRecognize: () => service.steps.add('ocr'),
+      );
+
+      final scan = await scannerOf(recognizer).scan(
+        _photo,
+        nano: NanoReceiptReader(service: service),
+      );
+
+      expect(service.steps, ['warmUp', 'ocr', 'generate']);
+      expect(scan.store, 'MONOPRIX');
+      expect(scan.date, '2026-08-02');
+      expect([for (final item in scan.items) item.name], ['CAFE']);
+    });
+
+    test('un échec de Gemini Nano rend la main au décodeur local', () async {
+      final service = _StubNanoService(failure: GeminiNanoFailure.quotaExceeded);
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      final scan = await scannerOf(recognizer).scan(
+        _photo,
+        nano: NanoReceiptReader(service: service),
+      );
+
+      expect(service.calls, 1);
+      expect(scan.verified, isTrue);
+      expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
     });
 
     test('une photo sans texte est signalée telle quelle', () async {

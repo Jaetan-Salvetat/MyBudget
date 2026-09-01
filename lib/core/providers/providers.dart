@@ -26,6 +26,10 @@ import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/ai/api_key_verifier.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
+import 'package:mybudget/core/enums/gemini_nano_status.dart';
+import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/ai/quick_add_engine_health.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
@@ -98,6 +102,26 @@ ApiKeyVerifier apiKeyVerifier(Ref ref) {
 
 @Riverpod(keepAlive: true)
 QuickAddEngineHealth quickAddEngineHealth(Ref ref) => QuickAddEngineHealth();
+
+@Riverpod(keepAlive: true)
+GeminiNanoService geminiNanoService(Ref ref) => const GeminiNanoService();
+
+@Riverpod(keepAlive: true)
+Future<GeminiNanoStatus> geminiNanoStatus(Ref ref) {
+  return ref
+      .watch(geminiNanoServiceProvider)
+      .status(GeminiNanoChannel.fallback, GeminiNanoPreference.scan);
+}
+
+@Riverpod(keepAlive: true)
+Future<String?> geminiNanoModelName(Ref ref) async {
+  final status = await ref.watch(geminiNanoStatusProvider.future);
+  if (!status.isReady) return null;
+
+  return ref
+      .watch(geminiNanoServiceProvider)
+      .modelName(GeminiNanoChannel.fallback, GeminiNanoPreference.scan);
+}
 
 @Riverpod(keepAlive: true)
 AccountRepository accountRepository(Ref ref) {
