@@ -1,21 +1,11 @@
 enum QuickAddEngineMode {
-  geminiNano(
-    id: 'geminiNano',
-    label: 'Gemini Nano',
-    isRecommended: true,
-  ),
   onDevice(id: 'onDevice', label: 'Sur l\'appareil'),
   apiKey(id: 'apiKey', label: 'Clé personnelle');
 
-  const QuickAddEngineMode({
-    required this.id,
-    required this.label,
-    this.isRecommended = false,
-  });
+  const QuickAddEngineMode({required this.id, required this.label});
 
   final String id;
   final String label;
-  final bool isRecommended;
 
   static const QuickAddEngineMode fallback = onDevice;
 

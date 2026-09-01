@@ -40,7 +40,7 @@ void main() {
     final service = _StubService(response);
     final client = GeminiNanoChatClient(
       channel: GeminiNanoChannel.preview,
-      preference: GeminiNanoPreference.quickAdd,
+      preference: GeminiNanoPreference.fast,
       service: service,
     );
 
@@ -60,7 +60,7 @@ void main() {
   test('refuse un schéma que le natif ne connaît pas', () {
     final client = GeminiNanoChatClient(
       channel: GeminiNanoChannel.stable,
-      preference: GeminiNanoPreference.quickAdd,
+      preference: GeminiNanoPreference.fast,
       service: _StubService(response),
     );
 
@@ -77,7 +77,7 @@ void main() {
   test('refuse une image', () {
     final client = GeminiNanoChatClient(
       channel: GeminiNanoChannel.stable,
-      preference: GeminiNanoPreference.quickAdd,
+      preference: GeminiNanoPreference.fast,
       service: _StubService(response),
     );
 

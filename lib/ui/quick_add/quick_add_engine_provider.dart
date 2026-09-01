@@ -1,13 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/cloud_quick_add_prompt.dart';
-import 'package:mybudget/core/services/quick_add/gemini_nano_unavailable_engine.dart';
-import 'package:mybudget/core/services/quick_add/nano_quick_add_prompt.dart';
 import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/racing_quick_add_engine.dart';
@@ -19,21 +15,6 @@ part 'quick_add_engine_provider.g.dart';
 @Riverpod(keepAlive: true)
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   final mode = ref.watch(quickAddEngineModeProvider);
-
-  if (mode == QuickAddEngineMode.geminiNano) {
-    final status = await ref.watch(geminiNanoStatusProvider.future);
-    if (!status.isReady) return GeminiNanoUnavailableEngine.forStatus(status);
-
-    final taxonomy = await ref.watch(categoryTaxonomyProvider.future);
-    return PromptQuickAddEngine(
-      client: GeminiNanoChatClient(
-        channel: ref.watch(geminiNanoChannelProvider),
-        preference: GeminiNanoPreference.quickAdd,
-      ),
-      taxonomy: taxonomy,
-      prompt: NanoQuickAddPrompt(taxonomy.selectableLeaves),
-    );
-  }
 
   final local = await ref.watch(quickAddClassifierProvider.future);
 
@@ -81,14 +62,6 @@ Future<void> quickAddWarmUp(Ref ref) async {
 
   try {
     await ref.read(quickAddEngineProvider.future);
-    if (ref.read(quickAddEngineModeProvider) == QuickAddEngineMode.geminiNano) {
-      await ref
-          .read(geminiNanoServiceProvider)
-          .warmUp(
-            ref.read(geminiNanoChannelProvider),
-            GeminiNanoPreference.quickAdd,
-          );
-    }
   } catch (error, stackTrace) {
     debugPrint(
       'Prechargement de l\'ajout rapide impossible : '

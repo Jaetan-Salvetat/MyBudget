@@ -14,15 +14,5 @@ void main() {
       expect(QuickAddEngineMode.fromId(null), QuickAddEngineMode.onDevice);
     });
 
-    test('ne recommande que Gemini Nano', () {
-      expect(
-        QuickAddEngineMode.values.where((mode) => mode.isRecommended),
-        [QuickAddEngineMode.geminiNano],
-      );
-    });
-
-    test('présente Gemini Nano en premier', () {
-      expect(QuickAddEngineMode.values.first, QuickAddEngineMode.geminiNano);
-    });
   });
 }

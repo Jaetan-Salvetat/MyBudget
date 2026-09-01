@@ -1,6 +1,8 @@
 package fr.jaetan.mybudget.nano
 
+import android.os.SystemClock
 import android.util.Log
+import fr.jaetan.mybudget.BuildConfig
 import com.google.mlkit.genai.common.DownloadStatus
 import com.google.mlkit.genai.common.FeatureStatus
 import com.google.mlkit.genai.common.GenAiException
@@ -158,20 +160,30 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
                 generateContentRequest(TextPart(prompt)) { temperature = TEMPERATURE },
                 QuickAddOutput::class,
             )
-            val output = model(call.arguments)
+            val startedAt = SystemClock.elapsedRealtime()
+            val candidate = model(call.arguments)
                 .generateContent(request)
                 .candidates
                 .firstOrNull()
-                ?.response
-            if (output == null) {
+            val elapsed = SystemClock.elapsedRealtime() - startedAt
+
+            val output = candidate?.response
+            val finishReason = candidate?.finishReason
+            if (output == null || finishReason != FINISH_REASON_STOP) {
+                Log.w(TAG, "Inference abandonnee en ${elapsed}ms, fin=$finishReason")
                 result.error(
                     STRUCTURED_OUTPUT_RESPONSE_ERROR_CODE.toString(),
-                    "Gemini Nano n'a rendu aucun candidat exploitable",
+                    "Gemini Nano a interrompu sa reponse (fin=$finishReason)",
                     null,
                 )
                 return
             }
-            result.success(output.toJson())
+
+            val json = output.toJson()
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Inference ${elapsed}ms -> $json")
+            }
+            result.success(json)
         } catch (error: CancellationException) {
             throw error
         } catch (error: GenAiException) {
@@ -281,6 +293,8 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         const val ALTERNATIVES_KEY = "alternatives"
         const val RECURRENCE_KEY = "recurrence"
         const val NAME_KEY = "name"
+
+        const val FINISH_REASON_STOP = 0
 
         const val UNKNOWN_CODE = 0
         const val NOT_SUPPORTED_CODE = 16

@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
-import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,6 @@ class PreferencesService {
 
   static const String keyQuickAddEnabled = 'quickAddEnabled';
   static const String keyQuickAddEngineMode = 'quickAddEngineMode';
-  static const String keyGeminiNanoChannel = 'geminiNanoChannel';
   static const String keyAiProvider = 'aiProvider';
   static const String keyAiModel = 'aiModel';
   static const String keyAiCloudConsent = 'aiCloudConsent';
@@ -129,14 +127,6 @@ class PreferencesService {
 
   static Future<void> setQuickAddEngineMode(QuickAddEngineMode mode) async {
     await _prefs.setString(keyQuickAddEngineMode, mode.id);
-  }
-
-  static GeminiNanoChannel getGeminiNanoChannel() {
-    return GeminiNanoChannel.fromId(_prefs.getString(keyGeminiNanoChannel));
-  }
-
-  static Future<void> setGeminiNanoChannel(GeminiNanoChannel channel) async {
-    await _prefs.setString(keyGeminiNanoChannel, channel.id);
   }
 
   static AiProvider getAiProvider() {

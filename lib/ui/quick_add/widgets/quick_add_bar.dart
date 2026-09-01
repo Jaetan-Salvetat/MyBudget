@@ -10,7 +10,6 @@ import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
-import 'package:mybudget/ui/quick_add/quick_add_alert_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
@@ -102,12 +101,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     );
   }
 
-  void _onAlertChanged(QuickAddAlert? previous, QuickAddAlert? alert) {
-    if (alert == null || !mounted) return;
-
-    FrostedSnackbar.show(context, message: alert.message);
-  }
-
   void _onChanged(String value) {
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
@@ -184,7 +177,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
       _focusNode.requestFocus();
     });
     ref.listen(quickAddDegradationProvider, _onDegradationChanged);
-    ref.listen<QuickAddAlert?>(quickAddAlertProvider, _onAlertChanged);
     ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);

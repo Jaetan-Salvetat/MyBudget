@@ -4,13 +4,10 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:mybudget/core/enums/ai_model.dart';
-import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/screens/ai_model_screen.dart';
 import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
-import 'package:mybudget/ui/settings/screens/gemini_nano_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 
 class AiSection extends ConsumerWidget {
@@ -21,9 +18,8 @@ class AiSection extends ConsumerWidget {
     final bool quickAddEnabled = ref.watch(quickAddEnabledProvider);
     final bool hasKey =
         ref.watch(hasStoredApiKeyProvider).value ?? false;
-    final QuickAddEngineMode engineMode = ref.watch(quickAddEngineModeProvider);
-    final bool usesRemoteEngine = engineMode == QuickAddEngineMode.apiKey;
-    final bool usesNano = engineMode == QuickAddEngineMode.geminiNano;
+    final bool usesRemoteEngine =
+        ref.watch(quickAddEngineModeProvider) == QuickAddEngineMode.apiKey;
     final AiModel model = ref.watch(selectedAiModelProvider);
 
     void setEnabled(bool enabled) =>
@@ -51,19 +47,6 @@ class AiSection extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const QuickAddEngineScreen()),
-            ),
-          ),
-        if (quickAddEnabled && usesNano)
-          FrostedListTile(
-            title: QuickAddEngineMode.geminiNano.label,
-            subtitle: _nanoSubtitle(ref),
-            leading: const FrostedListAvatar(
-              icon: Symbols.auto_awesome_rounded,
-            ),
-            trailing: const Icon(Symbols.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GeminiNanoScreen()),
             ),
           ),
         if (quickAddEnabled && usesRemoteEngine) ...[
@@ -100,15 +83,6 @@ class AiSection extends ConsumerWidget {
     return isLocal
         ? 'Analyse une saisie en langage naturel, sur l\'appareil'
         : 'Analyse une saisie en langage naturel';
-  }
-
-  String _nanoSubtitle(WidgetRef ref) {
-    return switch (ref.watch(geminiNanoStatusProvider).value) {
-      GeminiNanoStatus.available => 'Modèle installé',
-      GeminiNanoStatus.downloading => 'Téléchargement en cours',
-      GeminiNanoStatus.downloadable => 'Modèle à télécharger',
-      _ => 'Indisponible sur cet appareil',
-    };
   }
 
   String _engineSubtitle(WidgetRef ref) {

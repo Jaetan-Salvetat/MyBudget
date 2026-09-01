@@ -46,7 +46,7 @@ final class QuickAddEngineProvider
   }
 }
 
-String _$quickAddEngineHash() => r'2a37f374b0319a28552821be8f49e9a75276f67d';
+String _$quickAddEngineHash() => r'dc4b6f8a05908fa186ca1fd505c3f17cbdd5fcdc';
 
 @ProviderFor(quickAddWarmUp)
 final quickAddWarmUpProvider = QuickAddWarmUpProvider._();
@@ -79,4 +79,4 @@ final class QuickAddWarmUpProvider
   }
 }
 
-String _$quickAddWarmUpHash() => r'ce5df507ef61bbe5c6aea67644bf0c18f41babd8';
+String _$quickAddWarmUpHash() => r'5605a998379aea0cf1d19d6f2ae25631db388c19';
