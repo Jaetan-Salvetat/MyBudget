@@ -1,14 +1,39 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _StubKeyService implements ApiKeyService {
+  _StubKeyService(this.key);
+
+  final String? key;
+
+  @override
+  Future<String?> read(AiProvider provider) async => key;
+
+  @override
+  Future<bool> has(AiProvider provider) async => key != null;
+
+  @override
+  Future<void> save(AiProvider provider, String rawKey) async {}
+
+  @override
+  Future<void> delete(AiProvider provider) async {}
+
+  @override
+  Future<void> migrateLegacyGeminiKey() async {}
+}
 
 class _StubService extends GeminiNanoService {
   const _StubService(this.answer);
@@ -25,14 +50,19 @@ class _StubService extends GeminiNanoService {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<ProviderContainer> containerOf(GeminiNanoStatus status) async {
+  Future<ProviderContainer> containerOf(
+    GeminiNanoStatus status, {
+    String? apiKey,
+  }) async {
     final container = ProviderContainer(
       overrides: [
         geminiNanoServiceProvider.overrideWithValue(_StubService(status)),
+        apiKeyServiceProvider.overrideWithValue(_StubKeyService(apiKey)),
       ],
     );
     addTearDown(container.dispose);
     await container.read(geminiNanoStatusProvider.future);
+    await container.read(hasStoredApiKeyProvider.future);
     return container;
   }
 
@@ -72,6 +102,37 @@ void main() {
     });
   });
 
+  group('cloudReceiptReaderProvider', () {
+    test('rien tant que le moteur reste sur l\'appareil', () async {
+      final container = await containerOf(
+        GeminiNanoStatus.downloadable,
+        apiKey: 'AIza-cle',
+      );
+
+      expect(await container.read(cloudReceiptReaderProvider.future), isNull);
+    });
+
+    test('rien tant qu\'aucune clé n\'est enregistrée', () async {
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
+      final container = await containerOf(GeminiNanoStatus.downloadable);
+
+      expect(await container.read(cloudReceiptReaderProvider.future), isNull);
+    });
+
+    test('un lecteur dès que la clé est là et le moteur choisi', () async {
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
+      final container = await containerOf(
+        GeminiNanoStatus.downloadable,
+        apiKey: 'AIza-cle',
+      );
+
+      expect(
+        await container.read(cloudReceiptReaderProvider.future),
+        isNotNull,
+      );
+    });
+  });
+
   group('receiptScanAvailableProvider', () {
     test('le scan est fermé sans Gemini Nano', () async {
       final container = await containerOf(GeminiNanoStatus.downloadable);
@@ -82,6 +143,16 @@ void main() {
     test('le scan ouvre dès que Gemini Nano peut lire', () async {
       await PreferencesService.setGeminiNanoScanEnabled(true);
       final container = await containerOf(GeminiNanoStatus.available);
+
+      expect(container.read(receiptScanAvailableProvider), isTrue);
+    });
+
+    test('le scan ouvre aussi sur la seule clé personnelle', () async {
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
+      final container = await containerOf(
+        GeminiNanoStatus.downloadable,
+        apiKey: 'AIza-cle',
+      );
 
       expect(container.read(receiptScanAvailableProvider), isTrue);
     });

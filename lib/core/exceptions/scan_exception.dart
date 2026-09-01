@@ -20,5 +20,5 @@ final class ScanGenericException extends ScanException {
 
 final class ScanUnavailableException extends ScanException {
   const ScanUnavailableException()
-    : super(message: 'La lecture de tickets demande Gemini Nano');
+    : super(message: 'La lecture de tickets n\'est pas disponible');
 }

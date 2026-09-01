@@ -211,6 +211,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
         icon = Symbols.receipt_long_rounded;
         title = scanError.message;
         subtitle = 'Vérifiez que la partie articles du ticket est visible';
+      case ScanUnavailableException():
+        icon = Symbols.neurology_rounded;
+        title = scanError.message;
+        subtitle =
+            'Activez Gemini Nano ou renseignez une clé personnelle '
+            'dans les réglages';
       case ScanGenericException():
         icon = Symbols.error_rounded;
         title = scanError.message;

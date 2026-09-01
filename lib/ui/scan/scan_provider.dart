@@ -5,7 +5,11 @@ import 'package:flutter/services.dart';
 
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/scan/cloud_receipt_reader.dart';
+import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
 import 'package:mybudget/core/services/scan/label_link_asset.dart';
@@ -19,6 +23,7 @@ import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
@@ -91,8 +96,41 @@ NanoReceiptReader? nanoReceiptReader(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
+bool cloudScanSelected(Ref ref) {
+  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
+    return false;
+  }
+  return ref.watch(hasStoredApiKeyProvider).value ?? false;
+}
+
+@Riverpod(keepAlive: true)
+Future<CloudReceiptReader?> cloudReceiptReader(Ref ref) async {
+  if (!ref.watch(cloudScanSelectedProvider)) return null;
+
+  final provider = ref.watch(selectedAiProviderProvider);
+  final String? apiKey;
+  try {
+    apiKey = await ref.watch(apiKeyServiceProvider).read(provider);
+  } catch (error, stackTrace) {
+    debugPrint('[scan] lecture de la clé API impossible : $error\n$stackTrace');
+    return null;
+  }
+  if (apiKey == null) return null;
+
+  final client = OpenAiCompatibleChatClient(
+    provider: provider,
+    model: ref.watch(selectedAiModelProvider),
+    apiKey: apiKey,
+  );
+  ref.onDispose(client.close);
+
+  return CloudReceiptReader(client: client);
+}
+
+@Riverpod(keepAlive: true)
 bool receiptScanAvailable(Ref ref) =>
-    ref.watch(nanoReceiptReaderProvider) != null;
+    ref.watch(nanoReceiptReaderProvider) != null ||
+    ref.watch(cloudScanSelectedProvider);
 
 @Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
@@ -112,19 +150,11 @@ class ScanNotifier extends _$ScanNotifier {
   }
 
   Future<void> scanReceipt(Uint8List imageBytes) async {
-    final nano = ref.read(nanoReceiptReaderProvider);
-    if (nano == null) {
-      state = AsyncError(const ScanUnavailableException(), StackTrace.current);
-      return;
-    }
-
     state = const AsyncLoading();
     try {
       final watch = Stopwatch()..start();
-      final scanner = await ref.read(localReceiptScannerProvider.future);
+      final read = await _read(imageBytes);
       final composer = await ref.read(receiptScanComposerProvider.future);
-      debugPrint('[scan] chargement des modèles : ${watch.elapsedMilliseconds} ms');
-      final read = await scanner.scan(imageBytes, nano: nano);
       ref.read(scanTraceProvider.notifier).record(read.trace);
       final beforeCategories = watch.elapsedMilliseconds;
       state = AsyncData(await composer.compose(read));
@@ -142,6 +172,20 @@ class ScanNotifier extends _$ScanNotifier {
         stackTrace,
       );
     }
+  }
+
+  Future<LocalReceiptScan> _read(Uint8List imageBytes) async {
+    final cloud = await ref.read(cloudReceiptReaderProvider.future);
+    if (cloud != null) {
+      final read = await cloud.read(imageBytes);
+      if (read != null) return read;
+    }
+
+    final nano = ref.read(nanoReceiptReaderProvider);
+    if (nano == null) throw const ScanUnavailableException();
+
+    final scanner = await ref.read(localReceiptScannerProvider.future);
+    return scanner.scan(imageBytes, nano: nano);
   }
 
   void updateItemCategory(int index, String categorySlug, String categoryName) {

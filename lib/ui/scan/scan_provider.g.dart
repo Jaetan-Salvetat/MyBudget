@@ -140,6 +140,89 @@ final class NanoReceiptReaderProvider
 
 String _$nanoReceiptReaderHash() => r'd26a8240c5ed6725485bf69a1a94a8a6f613ff1d';
 
+@ProviderFor(cloudScanSelected)
+final cloudScanSelectedProvider = CloudScanSelectedProvider._();
+
+final class CloudScanSelectedProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  CloudScanSelectedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cloudScanSelectedProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cloudScanSelectedHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return cloudScanSelected(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$cloudScanSelectedHash() => r'f6df0de2cc35a7d8cdad289942effa09d00def06';
+
+@ProviderFor(cloudReceiptReader)
+final cloudReceiptReaderProvider = CloudReceiptReaderProvider._();
+
+final class CloudReceiptReaderProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CloudReceiptReader?>,
+          CloudReceiptReader?,
+          FutureOr<CloudReceiptReader?>
+        >
+    with
+        $FutureModifier<CloudReceiptReader?>,
+        $FutureProvider<CloudReceiptReader?> {
+  CloudReceiptReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cloudReceiptReaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cloudReceiptReaderHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<CloudReceiptReader?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CloudReceiptReader?> create(Ref ref) {
+    return cloudReceiptReader(ref);
+  }
+}
+
+String _$cloudReceiptReaderHash() =>
+    r'c3f1b1a9d533424f8f2ebae707bb5af8299722f8';
+
 @ProviderFor(receiptScanAvailable)
 final receiptScanAvailableProvider = ReceiptScanAvailableProvider._();
 
@@ -180,7 +263,7 @@ final class ReceiptScanAvailableProvider
 }
 
 String _$receiptScanAvailableHash() =>
-    r'f67c395c2f51d22b00554d06f346d906cc1f579a';
+    r'db3dc5f06813d847624f575b8a7f377065e020f1';
 
 @ProviderFor(ScanTrace)
 final scanTraceProvider = ScanTraceProvider._();
@@ -269,7 +352,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'eb6ca66ba467bea7b19885a317f301f2f6e17885';
+String _$scanNotifierHash() => r'ee5c3aaba0f9050fd850a79b09eacb14d8d3de39';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {
