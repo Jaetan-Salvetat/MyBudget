@@ -44,6 +44,7 @@ from paths import (
     OPEN_PRICES_PATH,
     SCAN_GOLDEN_DIR,
 )
+from serving.contract import write_taxonomy_stamp
 from serving.normalize import normalize_receipt_line
 from taxonomy import EXPENSE_TYPE, LABEL_INDEX, ONE_TIME
 
@@ -288,6 +289,7 @@ def save_jsonl(rows: list[dict], path: Path) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for entry in rows:
             handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    write_taxonomy_stamp(path)
 
 
 def main() -> None:
