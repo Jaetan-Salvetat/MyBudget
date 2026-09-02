@@ -52,17 +52,6 @@ class SelectedAiModelNotifier extends _$SelectedAiModelNotifier {
 }
 
 @Riverpod(keepAlive: true)
-class AiCloudConsentNotifier extends _$AiCloudConsentNotifier {
-  @override
-  bool build() => PreferencesService.hasAcceptedAiCloudConsent();
-
-  Future<void> accept() async {
-    await PreferencesService.setAiCloudConsent(true);
-    state = true;
-  }
-}
-
-@Riverpod(keepAlive: true)
 Future<bool> hasStoredApiKey(Ref ref) {
   final provider = ref.watch(selectedAiProviderProvider);
   return ref.watch(apiKeyServiceProvider).has(provider);

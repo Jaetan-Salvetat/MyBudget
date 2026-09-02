@@ -26,7 +26,6 @@ class PreferencesService {
   static const String keyGeminiNanoScan = 'geminiNanoScan';
   static const String keyAiProvider = 'aiProvider';
   static const String keyAiModel = 'aiModel';
-  static const String keyAiCloudConsent = 'aiCloudConsent';
 
   static const String keyQuickAddAccountId = 'quickAddAccountId';
 
@@ -151,14 +150,6 @@ class PreferencesService {
 
   static Future<void> setAiModel(AiModel model) async {
     await _prefs.setString(keyAiModel, model.id);
-  }
-
-  static bool hasAcceptedAiCloudConsent() {
-    return _prefs.getBool(keyAiCloudConsent) ?? false;
-  }
-
-  static Future<void> setAiCloudConsent(bool accepted) async {
-    await _prefs.setBool(keyAiCloudConsent, accepted);
   }
 
   static int? getQuickAddAccountId() {

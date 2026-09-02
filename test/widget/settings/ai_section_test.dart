@@ -62,27 +62,33 @@ void main() {
   });
 
   group('AiSection', () {
-    testWidgets('hides the key entry while nothing uses a key', (tester) async {
+    testWidgets('names the switch after what it actually replaces', (
+      tester,
+    ) async {
       await pumpSection(tester);
 
-      expect(find.text('Ajout rapide'), findsOneWidget);
-      expect(find.text('Moteur d\'analyse'), findsOneWidget);
-      expect(find.text('Clé API'), findsNothing);
-      expect(find.text('Modèle'), findsNothing);
+      expect(find.text('Saisie en langage naturel'), findsOneWidget);
+      expect(find.text('Ajout rapide'), findsNothing);
+      expect(
+        find.text('Écrire « resto 25 » au lieu de remplir un formulaire'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('keeps the key entry hidden while the engine is local', (
+    testWidgets('hides the cloud entry while the engine is local', (
       tester,
     ) async {
       await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
 
+      expect(find.text('Moteur d\'analyse'), findsOneWidget);
+      expect(find.text('Gemini cloud'), findsNothing);
       expect(find.text('Clé API'), findsNothing);
       expect(find.text('Modèle'), findsNothing);
     });
 
-    testWidgets('shows the key and the model once the engine is remote', (
+    testWidgets('gathers the cloud settings behind a single entry', (
       tester,
     ) async {
       await PreferencesService.setQuickAddEngineMode(
@@ -92,45 +98,55 @@ void main() {
 
       await pumpSection(tester);
 
-      expect(find.text('Clé API'), findsOneWidget);
-      expect(find.text('Enregistrée'), findsOneWidget);
-      expect(find.text('Modèle'), findsOneWidget);
-      expect(find.text(AiModel.fallback.label), findsOneWidget);
+      expect(find.text('Gemini cloud'), findsOneWidget);
+      expect(
+        find.text('Clé enregistrée · ${AiModel.fallback.label}'),
+        findsOneWidget,
+      );
+      expect(find.text('Clé API'), findsNothing);
+      expect(find.text('Modèle'), findsNothing);
     });
 
-    testWidgets('names the selected model under the model entry', (
+    testWidgets('names the selected model under the cloud entry', (
       tester,
     ) async {
       await PreferencesService.setQuickAddEngineMode(
         QuickAddEngineMode.apiKey,
       );
       await PreferencesService.setAiModel(AiModel.flash37);
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
 
-      expect(find.text(AiModel.flash37.label), findsOneWidget);
+      expect(
+        find.text('Clé enregistrée · ${AiModel.flash37.label}'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('hides the key and the model when quick add is off', (
-      tester,
-    ) async {
+    testWidgets('calls out a remote engine left without a key', (tester) async {
       await PreferencesService.setQuickAddEngineMode(
         QuickAddEngineMode.apiKey,
       );
-      await PreferencesService.setQuickAddEnabled(false);
 
       await pumpSection(tester);
 
-      expect(find.text('Clé API'), findsNothing);
-      expect(find.text('Modèle'), findsNothing);
+      expect(find.text('Aucune clé enregistrée'), findsOneWidget);
     });
 
-    testWidgets('hides the engine entry when quick add is off', (tester) async {
+    testWidgets('keeps the engine reachable when the input switch is off', (
+      tester,
+    ) async {
       await PreferencesService.setQuickAddEnabled(false);
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
+      await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
 
-      expect(find.text('Moteur d\'analyse'), findsNothing);
+      expect(find.text('Moteur d\'analyse'), findsOneWidget);
+      expect(find.text('Gemini cloud'), findsOneWidget);
     });
 
     testWidgets('hides Gemini Nano on a device that does not offer it', (
@@ -139,6 +155,19 @@ void main() {
       await pumpSection(tester);
 
       expect(find.text('Gemini Nano'), findsNothing);
+    });
+
+    testWidgets('hides Gemini Nano while the engine runs in the cloud', (
+      tester,
+    ) async {
+      await PreferencesService.setQuickAddEngineMode(
+        QuickAddEngineMode.apiKey,
+      );
+
+      await pumpSection(tester, nano: GeminiNanoStatus.available);
+
+      expect(find.text('Gemini Nano'), findsNothing);
+      expect(find.text('Gemini cloud'), findsOneWidget);
     });
 
     testWidgets('offers Gemini Nano as soon as the model can be installed', (
@@ -168,7 +197,7 @@ void main() {
       expect(find.text('Lit les tickets sur l\'appareil'), findsOneWidget);
     });
 
-    testWidgets('keeps Gemini Nano visible when quick add is off', (
+    testWidgets('keeps Gemini Nano reachable while the engine is local', (
       tester,
     ) async {
       await PreferencesService.setQuickAddEnabled(false);
@@ -176,9 +205,10 @@ void main() {
       await pumpSection(tester, nano: GeminiNanoStatus.available);
 
       expect(find.text('Gemini Nano'), findsOneWidget);
+      expect(find.text('Gemini cloud'), findsNothing);
     });
 
-    testWidgets('drops the on-device promise once the engine changed', (
+    testWidgets('reads the current engine under the engine entry', (
       tester,
     ) async {
       await PreferencesService.setQuickAddEngineMode(
@@ -187,11 +217,7 @@ void main() {
 
       await pumpSection(tester);
 
-      expect(
-        find.text('Analyse une saisie en langage naturel'),
-        findsOneWidget,
-      );
-      expect(find.text('Clé personnelle'), findsOneWidget);
+      expect(find.text(QuickAddEngineMode.apiKey.label), findsOneWidget);
     });
   });
 }

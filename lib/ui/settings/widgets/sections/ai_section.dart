@@ -3,27 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
-import 'package:mybudget/ui/settings/screens/ai_model_screen.dart';
-import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
+import 'package:mybudget/ui/settings/screens/gemini_cloud_screen.dart';
 import 'package:mybudget/ui/settings/screens/gemini_nano_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 
 class AiSection extends ConsumerWidget {
   const AiSection({super.key});
 
+  static const String naturalInputTitle = 'Saisie en langage naturel';
+
+  static const String naturalInputSubtitle =
+      'Écrire « resto 25 » au lieu de remplir un formulaire';
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool quickAddEnabled = ref.watch(quickAddEnabledProvider);
-    final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
-    final bool usesRemoteEngine =
-        ref.watch(quickAddEngineModeProvider) == QuickAddEngineMode.apiKey;
-    final AiModel model = ref.watch(selectedAiModelProvider);
+    final bool naturalInputEnabled = ref.watch(quickAddEnabledProvider);
+    final QuickAddEngineMode engine = ref.watch(quickAddEngineModeProvider);
+    final bool usesCloud = engine == QuickAddEngineMode.apiKey;
     final GeminiNanoStatus? nano = ref.watch(geminiNanoStatusProvider).value;
 
     void setEnabled(bool enabled) =>
@@ -33,63 +34,51 @@ class AiSection extends ConsumerWidget {
       label: 'Intelligence artificielle',
       tiles: [
         FrostedListTile(
-          title: 'Ajout rapide',
-          subtitle: _quickAddSubtitle(ref),
+          title: naturalInputTitle,
+          subtitle: naturalInputSubtitle,
           leading: const FrostedListAvatar(icon: Symbols.bolt_rounded),
           trailing: FrostedSwitch(
-            value: quickAddEnabled,
+            value: naturalInputEnabled,
             onChanged: setEnabled,
           ),
-          onTap: () => setEnabled(!quickAddEnabled),
+          onTap: () => setEnabled(!naturalInputEnabled),
         ),
-        if (quickAddEnabled)
+        FrostedListTile(
+          title: 'Moteur d\'analyse',
+          subtitle: engine.label,
+          leading: const FrostedListAvatar(icon: Symbols.tune_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
+          onTap: () => _open(context, const QuickAddEngineScreen()),
+        ),
+        if (usesCloud)
           FrostedListTile(
-            title: 'Moteur d\'analyse',
-            subtitle: _engineSubtitle(ref),
-            leading: const FrostedListAvatar(icon: Symbols.tune_rounded),
+            title: GeminiCloudScreen.title,
+            subtitle: _cloudSubtitle(ref),
+            leading: const FrostedListAvatar(icon: Symbols.cloud_rounded),
             trailing: const Icon(Symbols.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const QuickAddEngineScreen()),
-            ),
+            onTap: () => _open(context, const GeminiCloudScreen()),
           ),
-        if (quickAddEnabled && usesRemoteEngine) ...[
-          FrostedListTile(
-            title: 'Clé API',
-            subtitle: hasKey ? 'Enregistrée' : 'Aucune clé enregistrée',
-            leading: const FrostedListAvatar(icon: Symbols.key_rounded),
-            trailing: const Icon(Symbols.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
-            ),
-          ),
-          FrostedListTile(
-            title: 'Modèle',
-            subtitle: model.label,
-            leading: const FrostedListAvatar(
-              icon: Symbols.auto_awesome_rounded,
-            ),
-            trailing: const Icon(Symbols.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AiModelScreen()),
-            ),
-          ),
-        ],
-        if (nano != null && nano.isSelectable)
+        if (!usesCloud && nano != null && nano.isSelectable)
           FrostedListTile(
             title: 'Gemini Nano',
             subtitle: _nanoSubtitle(ref, nano),
             leading: const FrostedListAvatar(icon: Symbols.neurology_rounded),
             trailing: const Icon(Symbols.chevron_right_rounded),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GeminiNanoScreen()),
-            ),
+            onTap: () => _open(context, const GeminiNanoScreen()),
           ),
       ],
     );
+  }
+
+  void _open(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+
+  String _cloudSubtitle(WidgetRef ref) {
+    final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
+    if (!hasKey) return 'Aucune clé enregistrée';
+
+    return 'Clé enregistrée · ${ref.watch(selectedAiModelProvider).label}';
   }
 
   String _nanoSubtitle(WidgetRef ref, GeminiNanoStatus status) {
@@ -99,15 +88,4 @@ class AiSection extends ConsumerWidget {
         ? 'Lit les tickets sur l\'appareil'
         : 'Installé, pas encore utilisé';
   }
-
-  String _quickAddSubtitle(WidgetRef ref) {
-    final bool isLocal =
-        ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey;
-    return isLocal
-        ? 'Analyse une saisie en langage naturel, sur l\'appareil'
-        : 'Analyse une saisie en langage naturel';
-  }
-
-  String _engineSubtitle(WidgetRef ref) =>
-      ref.watch(quickAddEngineModeProvider).label;
 }
