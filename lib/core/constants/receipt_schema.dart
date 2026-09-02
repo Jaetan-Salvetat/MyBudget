@@ -1,5 +1,9 @@
 abstract final class ReceiptSchema {
   static const String name = 'receipt';
+  static const String storeName = 'receiptStore';
+  static const String dateName = 'receiptDate';
+  static const String itemsName = 'receiptItems';
+  static const String totalName = 'receiptTotal';
 
   static const String storeKey = 'store';
   static const String dateKey = 'date';

@@ -25,6 +25,12 @@ class GeminiNanoService {
 
   static const String promptArgument = 'prompt';
   static const String schemaArgument = 'schema';
+  static const String imageArgument = 'image';
+  static const String temperatureArgument = 'temperature';
+  static const String seedArgument = 'seed';
+  static const String schemaInPromptArgument = 'schemaInPrompt';
+  static const String thinkingArgument = 'thinking';
+  static const String candidatesArgument = 'candidates';
   static const String channelArgument = 'channel';
   static const String preferenceArgument = 'preference';
 
@@ -103,6 +109,12 @@ class GeminiNanoService {
     required String schema,
     required GeminiNanoChannel channel,
     required GeminiNanoPreference preference,
+    Uint8List? image,
+    double? temperature,
+    int? seed,
+    bool schemaInPrompt = false,
+    bool thinking = false,
+    int? candidates,
   }) async {
     if (!isSupportedPlatform) {
       throw const GeminiNanoException(GeminiNanoFailure.unavailable);
@@ -113,6 +125,12 @@ class GeminiNanoService {
       raw = await _channel.invokeMethod<String>(generateMethod, {
         promptArgument: prompt,
         schemaArgument: schema,
+        imageArgument: ?image,
+        temperatureArgument: ?temperature,
+        seedArgument: ?seed,
+        schemaInPromptArgument: schemaInPrompt,
+        thinkingArgument: thinking,
+        candidatesArgument: ?candidates,
         ..._argumentsFor(channel, preference),
       });
     } on PlatformException catch (error) {

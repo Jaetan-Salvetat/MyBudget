@@ -49,7 +49,7 @@ class LocalReceiptScanner {
     if (nano != null) {
       await warmingUp;
       step('préchauffage Gemini Nano');
-      final read = await nano.read(pass1);
+      final read = await nano.read(imageBytes, pass1);
       step('lecture Gemini Nano (${read?.items.length ?? 0} articles)');
       if (read != null) return read;
     }

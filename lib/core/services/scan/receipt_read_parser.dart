@@ -27,8 +27,48 @@ LocalReceiptScan? receiptScanOf(String raw) {
     date: _dateOf(decoded[ReceiptSchema.dateKey]),
     total: total,
     items: items,
-    verified: _proves(items, total),
+    verified: proves(items, total),
   );
+}
+
+/// Lecture d'une section : l'enseigne seule.
+String? sectionStoreOf(String raw) => _textOf(_decode(raw)?[ReceiptSchema.storeKey]);
+
+/// Lecture d'une section : la date seule, écartée si elle n'est pas ISO.
+String? sectionDateOf(String raw) => _dateOf(_decode(raw)?[ReceiptSchema.dateKey]);
+
+/// Lecture d'une section : le total seul.
+double? sectionTotalOf(String raw) => _amountOf(_decode(raw)?[ReceiptSchema.totalKey]);
+
+/// Lecture d'une section : les articles et le total que le modèle leur associe.
+({double? total, List<ExtractedItem> items})? sectionArticlesOf(String raw) {
+  final decoded = _decode(raw);
+  if (decoded == null) return null;
+
+  final items = _itemsOf(decoded[ReceiptSchema.itemsKey]);
+  if (items.isEmpty) return null;
+
+  return (total: _amountOf(decoded[ReceiptSchema.totalKey]), items: items);
+}
+
+/// La somme d'une liste d'articles, remises déduites.
+double sumOf(List<ExtractedItem> items) => roundCents(
+  items.fold(0.0, (sum, item) => sum + item.amount - item.discount),
+);
+
+bool proves(List<ExtractedItem> items, double? total) =>
+    total != null &&
+    (sumOf(items) - total).abs() < ReceiptSchema.checksumTolerance;
+
+Map<Object?, Object?>? _decode(String raw) {
+  final Object? decoded;
+  try {
+    decoded = jsonDecode(raw);
+  } on FormatException catch (error) {
+    debugPrint('[scan] section illisible : $error');
+    return null;
+  }
+  return decoded is Map ? decoded : null;
 }
 
 List<ExtractedItem> _itemsOf(Object? value) {
@@ -52,15 +92,6 @@ List<ExtractedItem> _itemsOf(Object? value) {
     );
   }
   return items;
-}
-
-bool _proves(List<ExtractedItem> items, double? total) {
-  if (total == null) return false;
-
-  final sum = roundCents(
-    items.fold(0.0, (sum, item) => sum + item.amount - item.discount),
-  );
-  return (sum - total).abs() < ReceiptSchema.checksumTolerance;
 }
 
 String? _textOf(Object? value) {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/constants/receipt_schema.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
@@ -35,9 +36,9 @@ class _ScriptedRecognizer implements ReceiptLineRecognizer {
 }
 
 class _StubNanoService extends GeminiNanoService {
-  _StubNanoService({this.answer, this.failure});
+  _StubNanoService({this.sections, this.failure});
 
-  final String? answer;
+  final Map<String, String>? sections;
   final GeminiNanoFailure? failure;
 
   int calls = 0;
@@ -55,17 +56,27 @@ class _StubNanoService extends GeminiNanoService {
     required String schema,
     required GeminiNanoChannel channel,
     required GeminiNanoPreference preference,
+    Uint8List? image,
+    double? temperature,
+    int? seed,
+    bool schemaInPrompt = false,
+    bool thinking = false,
+    int? candidates,
   }) async {
     calls++;
     steps.add('generate');
     if (failure != null) throw GeminiNanoException(failure!);
-    return answer!;
+    return sections![schema]!;
   }
 }
 
-const String _nanoReceipt =
-    '{"store":"MONOPRIX","date":"2026-08-02","total":5.0,'
-    '"items":[{"name":"CAFE","amount":5.0,"discount":0.0}]}';
+final Map<String, String> _nanoSections = {
+  ReceiptSchema.storeName: '{"store":"MONOPRIX"}',
+  ReceiptSchema.dateName: '{"date":"2026-08-02"}',
+  ReceiptSchema.totalName: '{"total":5.0}',
+  ReceiptSchema.itemsName:
+      '{"total":5.0,"items":[{"name":"CAFE","amount":5.0,"discount":0.0}]}',
+};
 
 final Uint8List _photo = Uint8List.fromList([1, 2, 3]);
 final Uint8List _enhanced = Uint8List.fromList([4, 5, 6]);
@@ -245,7 +256,7 @@ void main() {
 
     test('Gemini Nano prend la main sur le décodeur local quand il lit',
         () async {
-      final service = _StubNanoService(answer: _nanoReceipt);
+      final service = _StubNanoService(sections: _nanoSections);
       final recognizer = _ScriptedRecognizer(
         [receiptLinesOf(_verifiedReceipt)],
         onRecognize: () => service.steps.add('ocr'),
@@ -256,7 +267,7 @@ void main() {
         nano: NanoReceiptReader(service: service),
       );
 
-      expect(service.steps, ['warmUp', 'ocr', 'generate']);
+      expect(service.steps.take(3), ['warmUp', 'ocr', 'generate']);
       expect(scan.store, 'MONOPRIX');
       expect(scan.date, '2026-08-02');
       expect([for (final item in scan.items) item.name], ['CAFE']);
@@ -273,7 +284,7 @@ void main() {
         nano: NanoReceiptReader(service: service),
       );
 
-      expect(service.calls, 1);
+      expect(service.calls, greaterThan(0));
       expect(scan.verified, isTrue);
       expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
     });

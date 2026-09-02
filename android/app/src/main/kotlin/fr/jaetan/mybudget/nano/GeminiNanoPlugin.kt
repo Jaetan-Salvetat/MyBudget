@@ -1,17 +1,20 @@
 package fr.jaetan.mybudget.nano
 
+import android.graphics.BitmapFactory
 import android.os.SystemClock
 import android.util.Log
 import fr.jaetan.mybudget.BuildConfig
 import com.google.mlkit.genai.common.DownloadStatus
 import com.google.mlkit.genai.common.FeatureStatus
 import com.google.mlkit.genai.common.GenAiException
+import com.google.mlkit.genai.prompt.GenerateContentRequest
 import com.google.mlkit.genai.prompt.Generation
 import com.google.mlkit.genai.prompt.GenerativeModel
 import com.google.mlkit.genai.prompt.ModelPreference
 import com.google.mlkit.genai.prompt.ModelReleaseStage
 import com.google.mlkit.genai.prompt.generationConfig
 import com.google.mlkit.genai.prompt.modelConfig
+import com.google.mlkit.genai.prompt.ImagePart
 import com.google.mlkit.genai.prompt.TextPart
 import com.google.mlkit.genai.prompt.generateContentRequest
 import com.google.mlkit.genai.prompt.generateTypedContentRequest
@@ -146,7 +149,7 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         val prompt = call.argument<String>(PROMPT_ARGUMENT)
         val schema = call.argument<String>(SCHEMA_ARGUMENT)
 
-        if (prompt.isNullOrBlank() || schema != RECEIPT_SCHEMA) {
+        if (prompt.isNullOrBlank() || schema !in SCHEMAS) {
             result.error(
                 NOT_SUPPORTED_CODE.toString(),
                 "Schéma inconnu du canal natif : $schema",
@@ -155,42 +158,95 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
             return
         }
 
-        try {
-            val request = generateTypedContentRequest(
-                generateContentRequest(TextPart(prompt)) { temperature = TEMPERATURE },
-                ReceiptOutput::class,
+        val image = call.argument<ByteArray>(IMAGE_ARGUMENT)
+        val photo = image?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+        if (image != null && photo == null) {
+            result.error(
+                NOT_SUPPORTED_CODE.toString(),
+                "Image illisible par le canal natif",
+                null,
             )
+            return
+        }
+
+        val heat = call.argument<Double>(TEMPERATURE_ARGUMENT)?.toFloat() ?: TEMPERATURE
+        val grain = call.argument<Int>(SEED_ARGUMENT)
+        val inPrompt = call.argument<Boolean>(SCHEMA_IN_PROMPT_ARGUMENT) ?: false
+        val thinking = call.argument<Boolean>(THINKING_ARGUMENT) ?: false
+        val wanted = call.argument<Int>(CANDIDATES_ARGUMENT) ?: 1
+
+        val content = if (photo == null) {
+            generateContentRequest(TextPart(prompt)) {
+                temperature = heat
+                seed = grain
+                enableThinking = thinking
+                candidateCount = wanted
+            }
+        } else {
+            generateContentRequest(ImagePart(photo), TextPart(prompt)) {
+                temperature = heat
+                seed = grain
+                enableThinking = thinking
+                candidateCount = wanted
+            }
+        }
+
+        try {
             val startedAt = SystemClock.elapsedRealtime()
-            val candidate = model(call.arguments)
-                .generateContent(request)
-                .candidates
-                .firstOrNull()
+            val json = when (schema) {
+                STORE_SCHEMA -> read(call, content, inPrompt, ReceiptStoreOutput::class) { it.toJson() }
+                DATE_SCHEMA -> read(call, content, inPrompt, ReceiptDateOutput::class) { it.toJson() }
+                TOTAL_SCHEMA -> read(call, content, inPrompt, ReceiptTotalOutput::class) { it.toJson() }
+                else -> read(call, content, inPrompt, ReceiptItemsOutput::class) { it.toJson() }
+            }
             val elapsed = SystemClock.elapsedRealtime() - startedAt
 
-            val output = candidate?.response
-            val finishReason = candidate?.finishReason
-            if (output == null || finishReason != FINISH_REASON_STOP) {
-                Log.w(TAG, "Inference abandonnee en ${elapsed}ms, fin=$finishReason")
+            if (json == null) {
                 result.error(
                     STRUCTURED_OUTPUT_RESPONSE_ERROR_CODE.toString(),
-                    "Gemini Nano a interrompu sa reponse (fin=$finishReason)",
+                    "Gemini Nano a interrompu sa reponse",
                     null,
                 )
                 return
             }
-
-            val json = output.toJson()
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Inference ${elapsed}ms -> $json")
+                Log.d(TAG, "Inference $schema ${elapsed}ms -> $json")
             }
             result.success(json)
         } catch (error: CancellationException) {
             throw error
         } catch (error: GenAiException) {
+            Log.w(TAG, "Inference $schema refusee, code=${error.errorCode} : ${error.message}")
             result.error(error.errorCode.toString(), error.message, null)
         } catch (error: Exception) {
             result.error(UNKNOWN_CODE.toString(), error.message, null)
         }
+    }
+
+    private suspend fun <T : Any> read(
+        call: MethodCall,
+        content: GenerateContentRequest,
+        includeSchemaInPrompt: Boolean,
+        outputClass: kotlin.reflect.KClass<T>,
+        toJson: (T) -> String,
+    ): String? {
+        val candidates = model(call.arguments)
+            .generateContent(
+                generateTypedContentRequest(content, outputClass, includeSchemaInPrompt),
+            )
+            .candidates
+
+        val kept = candidates
+            .filter { it.finishReason == FINISH_REASON_STOP }
+            .mapNotNull { it.response?.let(toJson) }
+
+        if (kept.isEmpty()) {
+            Log.w(TAG, "Inference abandonnee, fins=${candidates.map { it.finishReason }}")
+            return null
+        }
+        if (candidates.size == 1) return kept.first()
+
+        return kept.joinToString(prefix = "[", postfix = "]")
     }
 
     private suspend fun streamDownload(arguments: Any?, events: EventChannel.EventSink) {
@@ -246,9 +302,19 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
         else -> UNAVAILABLE_STATUS
     }
 
-    private fun ReceiptOutput.toJson(): String = JSONObject()
+    private fun ReceiptStoreOutput.toJson(): String = JSONObject()
         .put(STORE_KEY, store)
+        .toString()
+
+    private fun ReceiptDateOutput.toJson(): String = JSONObject()
         .put(DATE_KEY, date)
+        .toString()
+
+    private fun ReceiptTotalOutput.toJson(): String = JSONObject()
+        .put(TOTAL_KEY, total)
+        .toString()
+
+    private fun ReceiptItemsOutput.toJson(): String = JSONObject()
         .put(TOTAL_KEY, total)
         .put(ITEMS_KEY, JSONArray(items.map(::itemJson)))
         .toString()
@@ -271,13 +337,24 @@ class GeminiNanoPlugin(messenger: BinaryMessenger) :
 
         const val PROMPT_ARGUMENT = "prompt"
         const val SCHEMA_ARGUMENT = "schema"
+        const val IMAGE_ARGUMENT = "image"
+        const val TEMPERATURE_ARGUMENT = "temperature"
+        const val SEED_ARGUMENT = "seed"
+        const val SCHEMA_IN_PROMPT_ARGUMENT = "schemaInPrompt"
+        const val THINKING_ARGUMENT = "thinking"
+        const val CANDIDATES_ARGUMENT = "candidates"
         const val CHANNEL_ARGUMENT = "channel"
         const val PREFERENCE_ARGUMENT = "preference"
 
         const val PREVIEW_CHANNEL = "preview"
         const val FULL_PREFERENCE = "full"
 
-        const val RECEIPT_SCHEMA = "receipt"
+        const val STORE_SCHEMA = "receiptStore"
+        const val DATE_SCHEMA = "receiptDate"
+        const val ITEMS_SCHEMA = "receiptItems"
+        const val TOTAL_SCHEMA = "receiptTotal"
+
+        val SCHEMAS = setOf(STORE_SCHEMA, DATE_SCHEMA, ITEMS_SCHEMA, TOTAL_SCHEMA)
 
         const val AVAILABLE_STATUS = "available"
         const val DOWNLOADABLE_STATUS = "downloadable"
