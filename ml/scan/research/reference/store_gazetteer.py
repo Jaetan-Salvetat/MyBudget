@@ -31,6 +31,7 @@ import re
 import unicodedata
 from collections import Counter
 
+from annotate.dataset import is_held_out
 from paths import ANNOTATIONS_DIR, MODELS_DIR
 from reference.structure import levenshtein
 
@@ -120,18 +121,34 @@ def load() -> Gazetteer:
     return _gazetteer
 
 
-def _training_receipts():
+def _training_paths():
+    """Les annotations d'entraînement : ni les corpus réservés, ni la tranche
+    d'évaluation d'`open_prices` — un répertoire appris sur le jeu qui le juge
+    ne mesurerait rien."""
     for corpus in sorted(ANNOTATIONS_DIR.iterdir()):
         if not corpus.is_dir() or corpus.name in HELD_OUT_CORPORA:
             continue
-        for path in corpus.glob("*.json"):
-            stored = json.loads(path.read_text())
-            store = (stored.get("annotation", {}) or {}).get("store")
-            texts = [
-                " ".join(word["text"] for word in line["words"])
-                for line in stored.get("lines", [])
-            ]
-            yield normalize(store or ""), [normalize(text) for text in texts]
+        for path in sorted(corpus.glob("*.json")):
+            if not is_held_out(path.stem):
+                yield path
+
+
+TrainingRecord = tuple[str, list[str]]
+
+
+def _training_records() -> list[tuple[str, list[str]]]:
+    """Chaque ticket d'entraînement : l'enseigne annotée telle qu'imprimée et
+    ses lignes normalisées."""
+    records = []
+    for path in _training_paths():
+        stored = json.loads(path.read_text())
+        store = (stored.get("annotation", {}) or {}).get("store") or ""
+        texts = [
+            " ".join(word["text"] for word in line["words"])
+            for line in stored.get("lines", [])
+        ]
+        records.append((store.strip(), [normalize(text) for text in texts]))
+    return records
 
 
 def _discriminant(
@@ -166,36 +183,37 @@ def _discriminant(
     return kept
 
 
-def build() -> dict[str, str]:
+def build_from(records: list[TrainingRecord]) -> Gazetteer:
     """Chaque nom normalisé, rendu sous sa graphie la plus fréquente, filtré
     de ceux qui ne distinguent rien."""
     spellings: dict[str, Counter[str]] = {}
     receipts = []
-    for key, texts in _training_receipts():
+    for store, texts in records:
+        key = normalize(store)
         receipts.append((key, texts))
         if key:
-            spellings.setdefault(key, Counter())
-    for corpus in sorted(ANNOTATIONS_DIR.iterdir()):
-        if not corpus.is_dir() or corpus.name in HELD_OUT_CORPORA:
-            continue
-        for path in corpus.glob("*.json"):
-            store = json.loads(path.read_text()).get("annotation", {}).get("store")
-            key = normalize(store or "")
-            if key:
-                spellings[key][store.strip()] += 1
+            spellings.setdefault(key, Counter())[store] += 1
     kept = _discriminant(spellings, receipts)
-    return {
-        key: counts.most_common(1)[0][0]
-        for key, counts in spellings.items()
-        if key in kept and counts
-    }
+    return Gazetteer(
+        {
+            key: counts.most_common(1)[0][0]
+            for key, counts in spellings.items()
+            if key in kept and counts
+        }
+    )
+
+
+def build() -> Gazetteer:
+    return build_from(_training_records())
 
 
 def main() -> int:
-    entries = build()
+    gazetteer = build()
     GAZETTEER_PATH.parent.mkdir(parents=True, exist_ok=True)
-    GAZETTEER_PATH.write_text(json.dumps(entries, ensure_ascii=False, indent=1))
-    print(f"{len(entries)} enseignes → {GAZETTEER_PATH}")
+    GAZETTEER_PATH.write_text(
+        json.dumps(gazetteer.canonical, ensure_ascii=False, indent=1)
+    )
+    print(f"{len(gazetteer.canonical)} enseignes → {GAZETTEER_PATH}")
     return 0
 
 

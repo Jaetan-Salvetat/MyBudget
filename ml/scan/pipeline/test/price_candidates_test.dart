@@ -56,6 +56,11 @@ void main() {
       expect(amounts('MERCI DE VOTRE VISITE', lax: true), isEmpty);
     });
 
+    test('a percentage is never an amount', () {
+      expect(amounts('(Remise de -14.29%)', lax: true), isEmpty);
+      expect(amounts('Remise -15.65% 2.10', lax: true), [2.10]);
+    });
+
     test('the same amount read twice is one candidate', () {
       expect(amounts('PAIN 1.20Eur 1.20Eur', lax: true), [1.20]);
     });

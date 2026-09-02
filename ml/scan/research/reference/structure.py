@@ -51,6 +51,19 @@ PHONE_PATTERN = re.compile(r"(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)")
 # masque des numéros et la validation calendaire tiennent les faux positifs.
 DATE_PATTERN = re.compile(r"(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))")
 
+# La même date, lue sur le texte où les mots gardent leurs frontières : une
+# date ne touche ni un chiffre ni un séparateur. « 408264/07/12/02 » contient
+# « 07/12/02 », valide au calendrier, fragment d'un code de caisse ; les
+# secondes de « 17:25:01 7/02/2025 » ne prêtent pas leurs chiffres au jour.
+BOUNDED_DATE_PATTERN = re.compile(
+    r"(?<![\d/.\-])(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?![\d/.\-])"
+)
+# Jour, mois et année pleine séparés par des espaces (« samedi 31 5 2025 »).
+# L'année sur quatre chiffres est ce qui la distingue d'une suite de codes.
+SPACED_DATE_PATTERN = re.compile(
+    r"(?<![\d/.\-])(\d{1,2}) (\d{1,2}) (\d{4})(?![\d/.\-])"
+)
+
 # Mois en toutes lettres ou abrégé : un ticket sur six de T1-test l'imprime
 # ainsi. Les accents sont retirés en amont, la casse est indifférente.
 MONTH_NAMES = (
@@ -73,6 +86,30 @@ LITERAL_DATE_PATTERN = re.compile(
     + r")[A-Z]*[/.\- ]?(\d{4}|\d{2})",
     re.IGNORECASE,
 )
+# Un mois que l'OCR a abîmé (« jufllet », « jurilet ») : un mot de lettres
+# entre un jour et une année, rapproché d'un nom de mois complet.
+DAMAGED_LITERAL_DATE_PATTERN = re.compile(
+    r"(?<![A-Z\d])(\d{1,2})(?:ER)? ?([A-Z]{5,9}) ?(\d{4}|\d{2})(?![\d/.\-])",
+    re.IGNORECASE,
+)
+FULL_MONTH_NAMES = (
+    "JANVIER",
+    "FEVRIER",
+    "MARS",
+    "AVRIL",
+    "MAI",
+    "JUIN",
+    "JUILLET",
+    "AOUT",
+    "SEPTEMBRE",
+    "OCTOBRE",
+    "NOVEMBRE",
+    "DECEMBRE",
+)
+# Une lettre fausse tolérée sur un nom de cinq ou six lettres, deux à partir
+# de sept : en dessous, un mot voisin d'un mois en est un autre.
+DAMAGED_MONTH_MIN_LENGTH = 5
+DAMAGED_MONTH_LONG_LENGTH = 7
 # Bornes d'une date de ticket : au-delà, l'année lue n'en est pas une.
 MIN_YEAR, MAX_YEAR = 1990, 2035
 MAX_DAY, MAX_MONTH = 31, 12
@@ -362,7 +399,7 @@ def _rightmost_price(line: PhysicalLine) -> tuple[float, Word] | None:
 # parenthèses (« 2.31(2) »), le signe égal d'une pesée (« 2 x 0.85EUR =
 # 1.70EUR »). Rien n'y départage les montants d'une même ligne — c'est le
 # décodeur qui tranche, au checksum.
-LAX_PRICE_PATTERN = re.compile(r"(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,])")
+LAX_PRICE_PATTERN = re.compile(r"(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,%])")
 
 
 def price_candidates(line: PhysicalLine, lax: bool) -> list[tuple[float, Word]]:
@@ -852,25 +889,53 @@ def _month_number(name: str) -> str:
     raise ValueError(f"mois inconnu : {name}")
 
 
-def _numeric_date(compact: str) -> str | None:
+def _numeric_date(text: str, pattern: re.Pattern[str] = DATE_PATTERN) -> str | None:
     """L'OCR confond o et 0 dans les chiffres — substitution réservée à cette
     lecture-ci, elle détruirait les mois en lettres (« OCTOBRE »)."""
-    digits_only = compact.replace("o", "0").replace("O", "0")
-    for match in DATE_PATTERN.finditer(digits_only):
+    digits_only = text.replace("o", "0").replace("O", "0")
+    for match in pattern.finditer(digits_only):
         day, month, year = match.groups()
         if _is_calendar_day(day, month):
             return f"{_year_of(year)}-{int(month):02d}-{int(day):02d}"
     return None
 
 
+def _damaged_month_number(word: str) -> str | None:
+    """Le mois dont ce mot est la lecture abîmée, s'il n'y en a qu'un."""
+    upper = word.upper()
+    if len(upper) < DAMAGED_MONTH_MIN_LENGTH:
+        return None
+    tolerance = 2 if len(upper) >= DAMAGED_MONTH_LONG_LENGTH else 1
+    close = [
+        index
+        for index, name in enumerate(FULL_MONTH_NAMES, start=1)
+        if levenshtein(upper, name) <= tolerance
+    ]
+    return f"{close[0]:02d}" if len(close) == 1 else None
+
+
+def _damaged_literal_date(text: str) -> str | None:
+    unaccented = _unaccented(text)
+    for match in DAMAGED_LITERAL_DATE_PATTERN.finditer(unaccented):
+        day, word, year = match.groups()
+        month = _damaged_month_number(word)
+        if month is not None and _is_calendar_day(day, month):
+            return f"{_year_of(year)}-{month}-{int(day):02d}"
+    return None
+
+
+def _unaccented(text: str) -> str:
+    return "".join(
+        char
+        for char in unicodedata.normalize("NFD", text)
+        if not unicodedata.combining(char)
+    )
+
+
 def _literal_date(compact: str) -> str | None:
     """Les mois s'impriment accentués (« août ») : la comparaison se fait sur
     la forme sans accent, comme le reste des lexiques."""
-    unaccented = "".join(
-        char
-        for char in unicodedata.normalize("NFD", compact)
-        if not unicodedata.combining(char)
-    )
+    unaccented = _unaccented(compact)
     for match in LITERAL_DATE_PATTERN.finditer(unaccented):
         day, name, year = match.groups()
         month = _month_number(name)
@@ -879,17 +944,30 @@ def _literal_date(compact: str) -> str | None:
     return None
 
 
-def _find_date(lines: list[PhysicalLine]) -> str | None:
-    """La date de l'achat, sous l'une de ses formes imprimées.
+def _date_in(text: str) -> str | None:
+    """La date d'une ligne, lue d'abord sur le texte aux mots séparés — les
+    frontières y sont une information — puis, à défaut, sur le texte compacté
+    qui recolle ce que l'OCR a éclaté (« 202 6 »). La forme numérique prime :
+    elle est la plus courante et la moins ambiguë. La première occurrence
+    *valide* gagne — un jour ou un mois impossible n'est pas une date, et la
+    vraie est souvent plus loin sur la même ligne."""
+    spaced = PHONE_PATTERN.sub(" ", re.sub(r"\s+", " ", text)).strip()
+    compact = PHONE_PATTERN.sub(" ", re.sub(r"\s+", "", text))
+    return (
+        _numeric_date(spaced, BOUNDED_DATE_PATTERN)
+        or _literal_date(spaced)
+        or _damaged_literal_date(spaced)
+        or _numeric_date(spaced, SPACED_DATE_PATTERN)
+        or _numeric_date(compact)
+        or _literal_date(compact)
+    )
 
-    Les espaces sont compactés (l'OCR éclate « 202 6 ») et les numéros de
-    téléphone masqués avant toute recherche. La forme numérique prime : elle
-    est la plus courante et la moins ambiguë. La première occurrence *valide*
-    gagne — un jour ou un mois impossible n'est pas une date, et la vraie est
-    souvent plus loin sur la même ligne."""
+
+def _find_date(lines: list[PhysicalLine]) -> str | None:
+    """La date de l'achat, sous l'une de ses formes imprimées, sur la
+    première ligne qui en porte une."""
     for line in lines:
-        compact = PHONE_PATTERN.sub(" ", re.sub(r"\s+", "", line.text))
-        found = _numeric_date(compact) or _literal_date(compact)
+        found = _date_in(line.text)
         if found is not None:
             return found
     return None

@@ -22,10 +22,6 @@ const int roleStore = 0;
 const int roleDateLine = 1;
 const int roleItemIndex = 2;
 
-const int headerFallbackLines = 12;
-
-const double recognitionMinProbability = 0.05;
-
 const double minRoleProbability = 0.5;
 
 class RoleTagger {
@@ -59,43 +55,15 @@ int? bestLineFor(List<List<double>> probabilities, int role) {
   return probabilities[best][role] > minRoleProbability ? best : null;
 }
 
-int headerZone(List<PhysicalLine> lines, List<List<double>> probabilities) {
-  for (var index = 0; index < probabilities.length; index++) {
-    if (argmax(probabilities[index]) == roleItemIndex) return index;
-  }
-  return lines.length < headerFallbackLines ? lines.length : headerFallbackLines;
-}
-
-String? _recognizedStore(
-  List<PhysicalLine> lines,
-  List<List<double>> probabilities,
-  Gazetteer gazetteer,
-) {
-  final end = headerZone(lines, probabilities);
-  final ranked = [for (var index = 0; index < end; index++) index]
-    ..sort(
-      (a, b) => probabilities[b][roleStore].compareTo(probabilities[a][roleStore]),
-    );
-  for (final index in ranked) {
-    if (probabilities[index][roleStore] < recognitionMinProbability) return null;
-    final found = gazetteer.match(lines[index].text);
-    if (found != null) return found;
-  }
-  return null;
-}
-
 String? storeOf(
   List<PhysicalLine> lines,
   List<List<double>> probabilities, {
   Gazetteer? gazetteer,
 }) {
-  if (probabilities.isEmpty) return null;
-  if (gazetteer != null) {
-    final found = _recognizedStore(lines, probabilities, gazetteer);
-    if (found != null) return found;
-  }
   final index = bestLineFor(probabilities, roleStore);
-  return index == null ? null : lines[index].text;
+  if (index == null) return null;
+  final text = lines[index].text;
+  return gazetteer?.match(text) ?? text;
 }
 
 String? dateOf(List<PhysicalLine> lines, List<List<double>> probabilities) {

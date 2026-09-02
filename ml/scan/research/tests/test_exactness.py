@@ -22,6 +22,7 @@ from bench.exactness import (
     WIDE,
     ExtractedName,
     compare_items,
+    label_strictness,
     name_matches,
     name_widens,
     receipt_exactness,
@@ -90,30 +91,33 @@ class TestNameMatches:
 class TestCompareItems:
     def test_tout_juste(self) -> None:
         got = [item("PAIN", 2.50), item("LAIT", 1.20)]
-        assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]) == []
+        assert (
+            compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]) == []
+        )
 
     def test_un_nom_faux_sur_un_montant_juste_est_un_libelle_faux(self) -> None:
         """L'utilisateur ne voit pas que ce nom appartient à l'article
         d'à côté : la somme tombe juste et la ligne a l'air normale."""
         got = [item("PAIN", 2.50), item("EUR", 1.20)]
-        assert compare_items(
-            got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]
-        ) == [LABEL]
+        assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]) == [
+            LABEL
+        ]
 
     def test_un_montant_faux_sur_un_nom_juste_est_un_montant_faux(self) -> None:
         """Celui-là se corrige en deux gestes : le nom désigne la ligne du
         ticket à relire."""
         got = [item("PAIN", 2.50), item("LAIT", 9.99)]
-        assert compare_items(
-            got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]
-        ) == [AMOUNT]
+        assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]) == [
+            AMOUNT
+        ]
 
     def test_libelles_permutes(self) -> None:
         """Zéro correction pour `count_edits`, deux libellés faux ici."""
         got = [item("LAIT", 2.50), item("PAIN", 1.20)]
-        assert compare_items(
-            got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]
-        ) == [LABEL, LABEL]
+        assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]) == [
+            LABEL,
+            LABEL,
+        ]
 
     def test_article_manquant(self) -> None:
         assert compare_items(
@@ -127,9 +131,10 @@ class TestCompareItems:
     def test_un_article_faux_de_bout_en_bout_manque_et_est_en_trop(self) -> None:
         """Ni le nom ni le montant ne concordent : rien ne dit que ces deux
         articles sont le même, et la métrique ne le devine pas."""
-        assert compare_items(
-            [item("SAVON", 9.99)], [expected("PAIN", 2.50)]
-        ) == [EXTRA, MISSING]
+        assert compare_items([item("SAVON", 9.99)], [expected("PAIN", 2.50)]) == [
+            EXTRA,
+            MISSING,
+        ]
 
     def test_la_remise_compte_dans_le_montant_net(self) -> None:
         got = [item("PAIN", 2.50, discount=0.50)]
@@ -138,13 +143,17 @@ class TestCompareItems:
 
     def test_deux_articles_de_meme_prix_et_meme_nom(self) -> None:
         got = [item("PAIN", 2.50), item("PAIN", 2.50)]
-        assert compare_items(got, [expected("PAIN", 2.50), expected("PAIN", 2.50)]) == []
+        assert (
+            compare_items(got, [expected("PAIN", 2.50), expected("PAIN", 2.50)]) == []
+        )
 
     def test_appariement_prefere_le_couple_complet(self) -> None:
         """Deux articles au même prix, libellés différents : l'appariement
         ne doit pas fabriquer deux libellés faux à cause de l'ordre."""
         got = [item("LAIT", 2.50), item("PAIN", 2.50)]
-        assert compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 2.50)]) == []
+        assert (
+            compare_items(got, [expected("PAIN", 2.50), expected("LAIT", 2.50)]) == []
+        )
 
     def test_un_nom_qui_contient_le_nom_attendu_est_large_pas_faux(self) -> None:
         """Le calibre ou le code de TVA ramassé en plus laisse l'utilisateur
@@ -162,6 +171,39 @@ class TestCompareItems:
         savoir."""
         got = [item("YAOURT", 3.59)]
         assert compare_items(got, [expected("YAOURT MYRTILLE", 3.59)]) == [LABEL]
+
+
+class TestLabelStrictness:
+    def test_libelles_identiques_sont_exacts(self) -> None:
+        got = [item("PAIN", 2.50), item("LAIT", 1.20)]
+        assert label_strictness(
+            got, [expected("PAIN", 2.50), expected("LAIT", 1.20)]
+        ) == (2, 0)
+
+    def test_la_casse_et_la_ponctuation_ne_comptent_pas(self) -> None:
+        assert label_strictness(
+            [item("pain, complet", 2.50)], [expected("PAIN COMPLET", 2.50)]
+        ) == (1, 0)
+
+    def test_un_degat_ocr_est_tolere_mais_pas_exact(self) -> None:
+        """BERT reçoit « 120GENU », pas « 120GENV » : la métrique produit
+        l'accepte, la stricte le compte à part."""
+        assert label_strictness(
+            [item("120GENU", 2.50)], [expected("120GENV", 2.50)]
+        ) == (0, 1)
+
+    def test_un_nom_rogne_tolere_n_est_pas_exact(self) -> None:
+        assert label_strictness(
+            [item("WASA FIBRE", 1.89)], [expected("WASA FIBRES", 1.89)]
+        ) == (0, 1)
+
+    def test_un_libelle_faux_ne_compte_nulle_part(self) -> None:
+        assert label_strictness([item("EUR", 1.20)], [expected("LAIT", 1.20)]) == (0, 0)
+
+    def test_un_nom_large_ne_compte_nulle_part(self) -> None:
+        assert label_strictness(
+            [item("230G WASA FIBRES", 1.89)], [expected("WASA FIBRES", 1.89)]
+        ) == (0, 0)
 
 
 class TestNameWidens:
@@ -223,6 +265,13 @@ class TestReceiptExactness:
         result = receipt_exactness("CARREFOUR CITY", "2619-07-01", 3.70, ITEMS, GOLDEN)
         assert not result.exact and result.wrong == [DATE]
 
+    def test_une_enseigne_que_la_verite_ignore_n_est_pas_jugee(self) -> None:
+        """L'annotateur n'a pas su lire l'enseigne : ce qu'on rend à sa place
+        n'est ni juste ni faux, et le ticket ne doit pas en pâtir."""
+        blind = {"receipt": {**GOLDEN["receipt"], "store": None}}
+        result = receipt_exactness("Auchan", "2017-02-24", 3.70, ITEMS, blind)
+        assert result.exact and not result.store_judged
+
     def test_une_enseigne_fausse_suffit_a_invalider(self) -> None:
         result = receipt_exactness("MAXI ZOO", "2017-02-24", 3.70, ITEMS, GOLDEN)
         assert result.wrong == [STORE]
@@ -258,6 +307,19 @@ class TestReceiptExactness:
             "CARREFOUR CITY", "2017-02-24", 3.70, permuted, GOLDEN
         )
         assert result.counts == {LABEL: 2}
+
+    def test_expose_la_strictesse_des_libelles(self) -> None:
+        damaged = [item("PAIN", 2.50), item("LA1T", 1.20)]
+        result = receipt_exactness(
+            "CARREFOUR CITY", "2017-02-24", 3.70, damaged, GOLDEN
+        )
+        assert result.exact
+        assert (result.exact_labels, result.tolerated_labels) == (1, 1)
+        assert not result.labels_all_exact
+
+    def test_un_ticket_parfait_a_tous_ses_libelles_exacts(self) -> None:
+        result = receipt_exactness("CARREFOUR CITY", "2017-02-24", 3.70, ITEMS, GOLDEN)
+        assert result.labels_all_exact
 
     def test_cumule_toutes_les_divergences(self) -> None:
         result = receipt_exactness("MAXI ZOO", "2619-07-01", 58.98, [], GOLDEN)

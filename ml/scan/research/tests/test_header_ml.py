@@ -48,27 +48,35 @@ def test_aucune_enseigne_si_le_tagger_hesite() -> None:
     assert store_of(LINES, scores, Gazetteer({})) is None
 
 
-def test_un_nom_connu_rattrape_l_hesitation() -> None:
-    """Le tagger hésite, mais la ligne nomme une enseigne du répertoire : ne
-    rien rendre serait perdre une information certaine."""
-    scores = probabilities({STORE: 0.3}, {STORE: 0.4}, {})
-    assert store_of(LINES, scores, KNOWN) == "Quick"
-
-
-def test_un_nom_connu_prime_sur_la_ligne_designee() -> None:
-    """Mesuré : le tagger désigne « -SP » quand la ligne d'à côté dit
-    « McDonald's ». Reconnaître bat recopier."""
-    scores = probabilities({STORE: 0.2}, {STORE: 0.8}, {})
-    lines = [line("Quick"), line("-SP"), line("Le 24/02/2017 a 10:49")]
+def test_un_nom_connu_normalise_la_ligne_designee() -> None:
+    """`E.Leclerc L`, `ToysMus` : la ligne recopiée telle quelle garde ce que
+    l'OCR y a laissé. Le répertoire rend la graphie connue."""
+    scores = probabilities({}, {STORE: 0.9}, {})
+    lines = [line("Burger Restaurant"), line("Quick Rochefort"), line("x")]
     assert store_of(lines, scores, KNOWN) == "Quick"
 
 
-def test_une_ligne_ecartee_par_le_tagger_ne_nomme_rien() -> None:
-    """« Cours Maréchal Leclerc » est une rue : sous le plancher de
-    plausibilité, un nom connu ne doit pas fabriquer une enseigne."""
-    scores = probabilities({STORE: 0.9}, {STORE: 0.001}, {})
-    lines = [line("HYPER U"), line("Cours Marechal Carrefour"), line("x")]
-    assert store_of(lines, scores, KNOWN) == "HYPER U"
+def test_une_ligne_designee_inconnue_est_rendue_telle_quelle() -> None:
+    scores = probabilities({STORE: 0.9}, {}, {})
+    lines = [line("BOUCHERIE PHILIBERTINE"), line("Quick"), line("x")]
+    assert store_of(lines, scores, KNOWN) == "BOUCHERIE PHILIBERTINE"
+
+
+def test_le_repertoire_ne_choisit_jamais_la_ligne() -> None:
+    """Le modèle désigne « -SP », le répertoire connaît « Quick » sur la
+    ligne d'à côté : c'est le modèle qui décide, la ligne désignée est rendue."""
+    scores = probabilities({STORE: 0.2}, {STORE: 0.8}, {})
+    lines = [line("Quick"), line("-SP"), line("Le 24/02/2017 a 10:49")]
+    assert store_of(lines, scores, KNOWN) == "-SP"
+
+
+def test_sans_ligne_designee_aucun_nom_n_est_cherche_ailleurs() -> None:
+    """« www.auchan.fr » en tête et le tagger qui hésite : pas d'enseigne.
+    Un lexique ne remplace pas le modèle."""
+    known = Gazetteer({"AUCHAN": "Auchan"})
+    scores = probabilities({STORE: 0.3}, {}, {"item": 0.9})
+    lines = [line("STALINGRAD"), line("www.auchan.fr"), line("LAIT 1,20")]
+    assert store_of(lines, scores, known) is None
 
 
 def test_la_date_est_lue_sur_la_ligne_designee() -> None:

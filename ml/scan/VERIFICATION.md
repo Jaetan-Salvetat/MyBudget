@@ -123,14 +123,21 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
    l'OCR, jamais générés — y compris en fusion des lectures, où chaque
    montant alternatif vient de l'autre passe OCR.
 4b. Les invariants structurels (`research/reference/invariants.py`) ferment l'espace
-   de recherche sans modèle : ligne de taxe ou HT jamais article,
-   récapitulatif de remises ignoré, total de rayon = somme courante, total
-   final = dernier total lexical avant le premier paiement, sous-total
-   référence seulement si aucune remise ne le suit. Références acceptées :
+   de recherche sans modèle : lignes consommées par une décomposition HT +
+   taxe jamais articles, récapitulatif de remises ignoré, total de rayon =
+   somme courante, total final = dernier total lexical avant le premier
+   paiement, sous-total référence seulement si aucune remise ne le suit. Une
+   ligne qui *ressemble* à une taxe (taux en tête, mot TVA/TTC) n'est plus
+   exclue d'office : c'est le tagger qui décide (2026-09-02, +10 points de
+   vérifiés sur photos réelles, zéro faux de plus). Références acceptées :
    total lu, décomposition TVA (HT + taxe à taux légal), espèces − rendu,
    Σ des totaux de rayon — fusionnées par montant.
 4c. Le total affiché est `verified_total` : la référence qui a réellement
    vérifié la somme des articles, jamais un total lu qui ne colle pas.
+4b'. L'enseigne est la ligne que le tagger désigne (probabilité > 0,5), et
+   rien s'il ne désigne rien. Le répertoire d'enseignes ne choisit jamais la
+   ligne : il **normalise** le texte désigné quand il y reconnaît un nom
+   connu (`E.Leclerc L` → `E.Leclerc`), et le rend tel quel sinon.
 4d. Ticket sans ligne d'article (parking, carburant) : un montant prouvé par
    une source arithmétique et une seconde source, sans candidat article ni
    compteur d'articles contraire, devient l'unique achat (nom = enseigne).

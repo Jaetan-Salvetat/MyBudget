@@ -485,18 +485,12 @@ Evidence? _sectionsEvidence(
   );
 }
 
-Set<int> _taxRows(List<PricedLine> lines) => {
-  for (final (rank, priced) in lines.indexed)
-    if (_isTaxRow(priced) && !_isFinalTotalCandidate(priced)) rank,
-};
-
 Constraints constraints(List<PricedLine> lines) {
   final (tax, taxIgnored) = taxEvidence(lines);
   final summaries = summaryDiscountRanks(lines);
   final forced = <int>{
     ...taxIgnored,
     ...summaries,
-    ..._taxRows(lines),
     ...discountRecapRanks(lines),
   };
   final sections = sectionTotals(lines, forced);

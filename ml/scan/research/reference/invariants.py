@@ -480,22 +480,10 @@ def _sections_evidence(
     return Evidence(total, sections[-1], SECTIONS, None)
 
 
-def _tax_rows(lines: list[PricedLine]) -> set[int]:
-    """Une ligne de taxe n'est jamais un article, même sans partenaire HT ;
-    un total « TVA incluse » reste un total."""
-    return {
-        rank
-        for rank, priced in enumerate(lines)
-        if _is_tax_row(priced) and not _is_final_total_candidate(priced)
-    }
-
-
 def constraints(lines: list[PricedLine]) -> Constraints:
     tax, tax_ignored = tax_evidence(lines)
     summaries = summary_discount_ranks(lines)
-    forced = frozenset(
-        tax_ignored | summaries | _tax_rows(lines) | discount_recap_ranks(lines)
-    )
+    forced = frozenset(tax_ignored | summaries | discount_recap_ranks(lines))
     sections = section_totals(lines, set(forced))
     evidences: list[Evidence] = []
     if tax is not None:

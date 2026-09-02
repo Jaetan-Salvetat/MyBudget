@@ -372,7 +372,7 @@ class TestTaxRowsNeverItems:
         )
         assert constraints(lines).forced_ignore == frozenset()
 
-    def test_tax_lexicon_line_is_forced_ignore_even_without_a_partner(self):
+    def test_tax_lexicon_line_without_partner_is_left_to_the_tagger(self):
         lines = priced(
             [
                 [("BURGER", 0), ("8,95", 38)],
@@ -380,7 +380,51 @@ class TestTaxRowsNeverItems:
                 [("TOTAL", 0), ("9,69", 38)],
             ]
         )
-        assert constraints(lines).forced_ignore == frozenset({1})
+        assert constraints(lines).forced_ignore == frozenset()
+
+    def test_rate_headed_item_line_is_left_to_the_tagger(self):
+        lines = priced(
+            [
+                [
+                    ("5.5%", 0),
+                    ("510G", 5),
+                    ("MAYO", 10),
+                    ("1", 24),
+                    ("x", 26),
+                    ("2.75", 30),
+                    ("2.75", 38),
+                ],
+                [
+                    ("5.5%", 0),
+                    ("250G", 5),
+                    ("BEURRE", 10),
+                    ("1", 24),
+                    ("x", 26),
+                    ("2.19", 30),
+                    ("2.19", 38),
+                ],
+                [("Total", 0), ("a", 6), ("payer", 8), ("4.94", 38)],
+            ]
+        )
+        assert constraints(lines).forced_ignore == frozenset()
+
+    def test_ttc_word_inside_an_item_line_is_left_to_the_tagger(self):
+        lines = priced(
+            [
+                [
+                    ("RIZ", 0),
+                    ("LONG", 4),
+                    ("1KG", 9),
+                    ("TTC", 13),
+                    ("0.97", 30),
+                    ("TUA", 35),
+                    ("2", 38),
+                ],
+                [("CREME", 0), ("1.55", 30), ("2", 38)],
+                [("2.52", 38)],
+            ]
+        )
+        assert constraints(lines).forced_ignore == frozenset()
 
     def test_tax_inclusive_total_line_stays_a_reference(self):
         lines = priced(

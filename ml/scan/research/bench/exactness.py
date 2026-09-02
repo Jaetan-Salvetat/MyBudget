@@ -60,6 +60,12 @@ TOTAL = "total"
 # permet de s'en apercevoir. Elle reste un libellé faux.
 WIDE = "libellé large"
 
+# Ce que la catégorisation reçoit : un nom toléré par la métrique produit
+# (dégât OCR, mot rogné) n'est pas le nom que BERT a appris. Compté à part,
+# sans changer le verdict du ticket.
+EXACT_LABEL = "libellé exact"
+TOLERATED_LABEL = "libellé toléré"
+
 
 @dataclass(frozen=True)
 class ExtractedName:
@@ -81,10 +87,17 @@ class Exactness:
 
     wrong: list[str] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
+    exact_labels: int = 0
+    tolerated_labels: int = 0
+    store_judged: bool = True
 
     @property
     def exact(self) -> bool:
         return not self.wrong
+
+    @property
+    def labels_all_exact(self) -> bool:
+        return self.tolerated_labels == 0 and not ({LABEL, WIDE} & set(self.wrong))
 
     @property
     def silent(self) -> list[str]:
@@ -149,7 +162,10 @@ def name_widens(extracted: str, expected: str) -> bool:
 def store_matches(extracted: str | None, expected: str | None) -> bool:
     """L'enseigne est lue sur un logo déformé et le golden la nomme
     proprement (« city » pour « CARREFOUR CITY ») : on accepte qu'un nom soit
-    contenu dans l'autre, on refuse deux enseignes différentes."""
+    contenu dans l'autre, on refuse deux enseignes différentes.
+
+    Une vérité vide ne dit pas « pas d'enseigne » mais « l'annotateur n'a pas
+    su » : `receipt_exactness` ne juge pas ce champ dans ce cas."""
     left, right = normalize_name(extracted), normalize_name(expected)
     if not left or not right:
         return left == right
@@ -223,6 +239,31 @@ def compare_items(
     ]
 
 
+def label_strictness(
+    extracted: list[ExtractedName], expected: list[ExtractedName]
+) -> tuple[int, int]:
+    """Parmi les articles appariés au montant et au nom, ceux dont le nom est
+    **exactement** celui attendu (casse, accents et ponctuation mises à part)
+    et ceux que la tolérance seule a acceptés."""
+    left, right = list(extracted), list(expected)
+    strict = _take(
+        left,
+        right,
+        lambda a, b: (
+            abs(a.net - b.net) < AMOUNT_EPSILON
+            and normalize_name(a.name) == normalize_name(b.name)
+        ),
+    )
+    tolerated = _take(
+        left,
+        right,
+        lambda a, b: (
+            abs(a.net - b.net) < AMOUNT_EPSILON and name_matches(a.name, b.name)
+        ),
+    )
+    return strict, tolerated
+
+
 def receipt_exactness(
     store: str | None,
     date: str | None,
@@ -233,7 +274,7 @@ def receipt_exactness(
     """Confronte une lecture complète au golden. Tout doit tomber juste."""
     expected = golden["receipt"]
     wrong = []
-    if not store_matches(store, expected.get("store")):
+    if expected.get("store") and not store_matches(store, expected["store"]):
         wrong.append(STORE)
     if (date or None) != (expected.get("date") or None):
         wrong.append(DATE)
@@ -258,4 +299,11 @@ def receipt_exactness(
     wrong.extend(
         name for name in (LABEL, WIDE, AMOUNT, EXTRA, MISSING) if name in counts
     )
-    return Exactness(wrong=wrong, counts=counts)
+    strict, tolerated = label_strictness(items, golden_items)
+    return Exactness(
+        wrong=wrong,
+        counts=counts,
+        exact_labels=strict,
+        tolerated_labels=tolerated,
+        store_judged=bool(expected.get("store")),
+    )

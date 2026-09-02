@@ -29,7 +29,15 @@ from reference.decode_constrained import (
 from reference.decoded_receipt import receipt_from_labels, single_item_receipt
 from reference.header_ml import role_probabilities
 from reference.line_features import PricedLine, priced_lines
-from reference.line_labels import DISCOUNT, IGNORE, ITEM, PAYMENT, TAGGER_ROLES, TOTAL
+from reference.line_labels import (
+    AMOUNT_BEARING_ROLES,
+    DISCOUNT,
+    IGNORE,
+    ITEM,
+    PAYMENT,
+    TAGGER_ROLES,
+    TOTAL,
+)
 from reference.lines import PhysicalLine
 from reference.structure import ExtractedReceipt, _printed_count
 
@@ -47,9 +55,8 @@ ROLE_TO_DECODER_CLASS = {
 
 DECODER_CLASSES = 5
 
-# Les rôles qui portent un montant sont exactement ceux que le décodeur sait
-# combiner : c'est la même table, lue dans l'autre sens.
-AMOUNT_BEARING_ROLES = frozenset(ROLE_TO_DECODER_CLASS)
+if frozenset(ROLE_TO_DECODER_CLASS) != AMOUNT_BEARING_ROLES:
+    raise ImportError("la table du décodeur et les rôles porteurs de montant divergent")
 
 
 def lax_ranks(role_probas: np.ndarray) -> frozenset[int]:
