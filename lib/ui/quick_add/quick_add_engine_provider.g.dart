@@ -24,7 +24,7 @@ final class QuickAddEngineProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: failFast,
         name: r'quickAddEngineProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -46,7 +46,7 @@ final class QuickAddEngineProvider
   }
 }
 
-String _$quickAddEngineHash() => r'c260d64f8530f1e50bfb61e8975089615f4d7c81';
+String _$quickAddEngineHash() => r'c5dfb1a7ba5f6901777df126950d3c9f4996d59a';
 
 @ProviderFor(quickAddWarmUp)
 final quickAddWarmUpProvider = QuickAddWarmUpProvider._();

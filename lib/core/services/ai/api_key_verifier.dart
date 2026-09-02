@@ -29,6 +29,7 @@ class ApiKeyVerifier {
     required String rawKey,
   }) async {
     final key = ApiKeyService.sanitize(rawKey);
+    if (key.isEmpty) return _deny(ApiKeyDenialReason.emptyKey, provider);
 
     final foreignVendor = AiProvider.foreignVendorOf(key);
     if (foreignVendor != null) {
@@ -37,10 +38,6 @@ class ApiKeyVerifier {
         provider,
         foreignVendor: foreignVendor,
       );
-    }
-
-    if (!provider.matchesKeyFormat(key)) {
-      return _deny(ApiKeyDenialReason.invalidFormat, provider);
     }
 
     final client = _clientFactory(provider, model, key);

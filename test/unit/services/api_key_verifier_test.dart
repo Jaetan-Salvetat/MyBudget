@@ -37,6 +37,7 @@ class _StubChatClient implements AiChatClient {
 
 void main() {
   const validKey = 'AIzaSyA01234567890123456789012345678901';
+  const authKey = 'AQ.Ab8RN6JzQv0000000000000000000000000000000000';
 
   late _StubChatClient client;
   late ApiKeyVerifier verifier;
@@ -75,15 +76,17 @@ void main() {
       expect(await verify('  $validKey \n'), isA<ApiKeyAccepted>());
     });
 
-    test('refuses a malformed key without calling the service', () async {
-      final check = await verify('nope');
+    test('refuses an empty key without calling the service', () async {
+      final check = await verify('   \n ');
 
       expect(check, isA<ApiKeyDenied>());
-      expect(
-        (check as ApiKeyDenied).reason,
-        ApiKeyDenialReason.invalidFormat,
-      );
+      expect((check as ApiKeyDenied).reason, ApiKeyDenialReason.emptyKey);
       expect(client.calls, 0);
+    });
+
+    test('lets the service judge a key whose shape we do not know', () async {
+      expect(await verify(authKey), isA<ApiKeyAccepted>());
+      expect(client.calls, 1);
     });
 
     test('names the vendor when the key comes from another service', () async {

@@ -7,6 +7,7 @@ import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
@@ -161,8 +162,7 @@ void main() {
     'getUpcomingExpenses includes monthly expense due later this month',
     () async {
       final now = DateTime.now();
-      final futureDay = now.day + 3;
-      if (futureDay > 28) return;
+      final futureDay = clampDayOfMonth(now.year, now.month, now.day + 3);
 
       final upcoming = ExpenseModel.create(
         name: 'Upcoming',
@@ -325,22 +325,31 @@ void main() {
     },
   );
 
-  test('getUpcomingExpenses excludes oneTime expenses', () async {
-    final now = DateTime.now();
-    final futureDay = now.day + 3;
-    if (futureDay > 28) return;
-
-    final oneTime = ExpenseModel.create(
+  test('getUpcomingExpenses holds a one-off still to come', () async {
+    final today = dayOnly(DateTime.now());
+    final stillToCome = ExpenseModel.create(
       name: 'One-time Upcoming',
       amount: 400,
       categorySlug: 'restauration.cafe',
-      startDate: DateTime(now.year, now.month, futureDay),
+      startDate: today.add(const Duration(days: 3)),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    );
+    final alreadyPassed = ExpenseModel.create(
+      name: 'One-time Passed',
+      amount: 400,
+      categorySlug: 'restauration.cafe',
+      startDate: today.subtract(const Duration(days: 3)),
       frequency: 'Ponctuel',
       accountId: 1,
     );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
+    when(
+      () => mockExpenseRepo.getAll(),
+    ).thenReturn([stillToCome, alreadyPassed]);
+    when(
+      () => mockExpenseRepo.getActive(),
+    ).thenReturn([stillToCome, alreadyPassed]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -349,13 +358,12 @@ void main() {
 
     final result = container.read(upcomingExpensesProvider);
 
-    expect(result, isEmpty);
+    expect(result.map((e) => e.name), ['One-time Upcoming']);
   });
 
   test('getUpcomingExpenses includes annual expense due this month', () async {
     final now = DateTime.now();
-    final futureDay = now.day + 2;
-    if (futureDay > 28) return;
+    final futureDay = clampDayOfMonth(now.year, now.month, now.day + 2);
 
     final annualThisMonth = ExpenseModel.create(
       name: 'Annual This Month',

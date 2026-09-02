@@ -65,7 +65,7 @@ final class CategoryTaxonomyProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: failFast,
         name: r'categoryTaxonomyProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -87,7 +87,7 @@ final class CategoryTaxonomyProvider
   }
 }
 
-String _$categoryTaxonomyHash() => r'e51bd73a55feed4804c327a578c57c120b15b9c5';
+String _$categoryTaxonomyHash() => r'00f210f3f62b4879c7b9d830817982dbdf99a079';
 
 @ProviderFor(quickAddClassifier)
 final quickAddClassifierProvider = QuickAddClassifierProvider._();
@@ -106,7 +106,7 @@ final class QuickAddClassifierProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: failFast,
         name: r'quickAddClassifierProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -129,7 +129,7 @@ final class QuickAddClassifierProvider
 }
 
 String _$quickAddClassifierHash() =>
-    r'2236a78741d07fe4d5913ef9c856ad7e53a522a0';
+    r'a99512fbd0f13741d051bdea15e264eec87e96ad';
 
 @ProviderFor(legacyBackupUpgrader)
 final legacyBackupUpgraderProvider = LegacyBackupUpgraderProvider._();

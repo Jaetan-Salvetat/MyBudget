@@ -1,7 +1,7 @@
 import 'package:mybudget/core/enums/ai_provider.dart';
 
 enum ApiKeyDenialReason {
-  invalidFormat,
+  emptyKey,
   foreignProvider,
   invalidKey,
   permissionDenied,
@@ -13,7 +13,7 @@ enum ApiKeyDenialReason {
 
   String messageFor(AiProvider provider, {String? foreignVendor}) {
     return switch (this) {
-      invalidFormat => provider.keyFormatHint,
+      emptyKey => provider.keyFormatHint,
       foreignProvider =>
         'Cette clé vient de ${foreignVendor ?? 'un autre service'}. '
             'Choisissez ${provider.label} ou collez une clé ${provider.label}.',

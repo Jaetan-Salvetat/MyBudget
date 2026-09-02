@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/providers/retry_policy.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/quick_add/cloud_quick_add_prompt.dart';
 import 'package:mybudget/core/services/quick_add/prompt_quick_add_engine.dart';
@@ -12,7 +13,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_engine_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: failFast)
 Future<QuickAddEngine> quickAddEngine(Ref ref) async {
   if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
     return ref.watch(quickAddClassifierProvider.future);

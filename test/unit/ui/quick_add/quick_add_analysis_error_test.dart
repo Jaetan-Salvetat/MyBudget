@@ -28,6 +28,7 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    container.listen(quickAddProvider, (_, _) {});
 
     container.read(quickAddProvider.notifier).onInputChanged('café 3€');
     await Future<void>.delayed(

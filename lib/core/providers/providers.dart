@@ -1,6 +1,7 @@
 import 'package:app_updater/app_updater.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/core/providers/retry_policy.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
@@ -60,14 +61,14 @@ Future<ObjectBoxService> objectBoxService(Ref ref) async {
   return service;
 }
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: failFast)
 Future<CategoryTaxonomyService> categoryTaxonomy(Ref ref) async {
   final taxonomy = CategoryTaxonomyService();
   await taxonomy.load();
   return taxonomy;
 }
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: failFast)
 Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
   final service = QuickAddClassifierService(
     tokenizer: QuickAddTokenizer(),
