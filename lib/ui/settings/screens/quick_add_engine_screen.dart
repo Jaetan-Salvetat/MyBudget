@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
+import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
@@ -42,19 +43,25 @@ class QuickAddEngineScreen extends ConsumerWidget {
                   groupValue: mode,
                   onChanged: (_) => _select(ref, QuickAddEngineMode.onDevice),
                 ),
+                trailing: FrostedChip.readOnly(label: recommendedEngineLabel),
                 onTap: () => _select(ref, QuickAddEngineMode.onDevice),
               ),
               FrostedListTile(
                 title: 'Clé API personnelle',
-                subtitle:
-                    'Vous fournissez la clé d\'un service externe. '
-                    'Votre saisie lui est envoyée.',
+                subtitle: isCloudQuickAddEngineAvailable
+                    ? 'Vous fournissez la clé d\'un service externe. '
+                          'Votre saisie lui est envoyée.'
+                    : cloudQuickAddEngineUnavailableNotice,
                 leading: FrostedRadio<QuickAddEngineMode>(
                   value: QuickAddEngineMode.apiKey,
                   groupValue: mode,
-                  onChanged: (_) => _selectApiKey(context, ref, hasKey),
+                  onChanged: isCloudQuickAddEngineAvailable
+                      ? (_) => _selectApiKey(context, ref, hasKey)
+                      : null,
                 ),
-                onTap: () => _selectApiKey(context, ref, hasKey),
+                onTap: isCloudQuickAddEngineAvailable
+                    ? () => _selectApiKey(context, ref, hasKey)
+                    : null,
               ),
             ],
           ),

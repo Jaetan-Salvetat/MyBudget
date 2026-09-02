@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -50,7 +51,7 @@ class AiSection extends ConsumerWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => _open(context, const QuickAddEngineScreen()),
         ),
-        if (usesCloud)
+        if (usesCloud && isCloudQuickAddEngineAvailable)
           FrostedListTile(
             title: GeminiCloudScreen.title,
             subtitle: _cloudSubtitle(ref),

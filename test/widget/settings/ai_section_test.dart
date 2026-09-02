@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -105,7 +106,7 @@ void main() {
       );
       expect(find.text('Clé API'), findsNothing);
       expect(find.text('Modèle'), findsNothing);
-    });
+    }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('names the selected model under the cloud entry', (
       tester,
@@ -122,7 +123,7 @@ void main() {
         find.text('Clé enregistrée · ${AiModel.flash37.label}'),
         findsOneWidget,
       );
-    });
+    }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('calls out a remote engine left without a key', (tester) async {
       await PreferencesService.setQuickAddEngineMode(
@@ -132,7 +133,7 @@ void main() {
       await pumpSection(tester);
 
       expect(find.text('Aucune clé enregistrée'), findsOneWidget);
-    });
+    }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('keeps the engine reachable when the input switch is off', (
       tester,
@@ -147,7 +148,7 @@ void main() {
 
       expect(find.text('Moteur d\'analyse'), findsOneWidget);
       expect(find.text('Gemini cloud'), findsOneWidget);
-    });
+    }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('hides Gemini Nano on a device that does not offer it', (
       tester,
@@ -168,7 +169,7 @@ void main() {
 
       expect(find.text('Gemini Nano'), findsNothing);
       expect(find.text('Gemini cloud'), findsOneWidget);
-    });
+    }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('offers Gemini Nano as soon as the model can be installed', (
       tester,
