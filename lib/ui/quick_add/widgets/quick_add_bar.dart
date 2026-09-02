@@ -21,11 +21,15 @@ import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
+const double _kScanGap = QuickAddBar.gutter - FrostedIconButton.inset * 2;
+
 final double _kFieldOffset =
-    FrostedIconButtonSize.medium.box + FrostedSpacing.sp1 * 2;
+    FrostedIconButtonSize.medium.box + QuickAddBar.gutter;
 
 class QuickAddBar extends ConsumerStatefulWidget {
   static const String staticHint = 'courses carrefour 42';
+
+  static const double gutter = FrostedSpacing.sp4;
 
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
@@ -184,6 +188,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     final motion = context.frostedTokens.motion.snappy;
     final showContext = widget.focused || !draft.isEmpty;
+    final scanAvailable = ref.watch(receiptScanAvailableProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,19 +200,24 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           child: draft.isEmpty
               ? const SizedBox(width: double.infinity)
               : const Padding(
-                  padding: EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                  padding: EdgeInsets.only(bottom: FrostedSpacing.sp2),
                   child: QuickAddPreview(),
                 ),
         ),
         Row(
           children: [
-            if (ref.watch(receiptScanAvailableProvider))
-              FrostedIconButton.tonal(
-                icon: Symbols.photo_camera_rounded,
-                shape: FrostedShape.pill,
-                tooltip: 'Photographier le ticket',
-                onPressed: _scan,
+            if (scanAvailable) ...[
+              Transform.translate(
+                offset: const Offset(-FrostedIconButton.inset, 0),
+                child: FrostedIconButton.tonal(
+                  icon: Symbols.photo_camera_rounded,
+                  shape: FrostedShape.pill,
+                  tooltip: 'Photographier le ticket',
+                  onPressed: _scan,
+                ),
               ),
+              const SizedBox(width: _kScanGap),
+            ],
             Expanded(child: _field(draft)),
           ],
         ),
@@ -218,8 +228,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           child: showContext
               ? Padding(
                   padding: EdgeInsets.only(
-                    left: _kFieldOffset,
-                    top: FrostedSpacing.sp1,
+                    left: scanAvailable ? _kFieldOffset : 0,
+                    top: FrostedSpacing.sp2,
                   ),
                   child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
                 )
@@ -266,10 +276,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     return ValueListenableBuilder<String>(
       valueListenable: hint,
-      builder: (context, typed, _) => _fieldWithHint(
-        draft,
-        typed.isEmpty ? QuickAddBar.staticHint : typed,
-      ),
+      builder: (context, typed, _) =>
+          _fieldWithHint(draft, typed.isEmpty ? QuickAddBar.staticHint : typed),
     );
   }
 
