@@ -25,7 +25,6 @@ import 'package:mybudget/ui/capture/widgets/journal_view.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -97,7 +96,6 @@ void main() {
   }) async {
     final container = ProviderContainer(
       overrides: [
-        receiptScanAvailableProvider.overrideWithValue(true),
         accountRepositoryProvider.overrideWithValue(accounts),
         expenseRepositoryProvider.overrideWithValue(expenses),
         revenueRepositoryProvider.overrideWithValue(revenues),

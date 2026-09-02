@@ -28,7 +28,6 @@ import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 
 class MockClassifierService extends Mock implements QuickAddClassifierService {}
@@ -115,15 +114,10 @@ void main() {
     );
   });
 
-  Future<void> pumpBar(
-    WidgetTester tester, {
-    bool focused = true,
-    bool scanAvailable = true,
-  }) {
+  Future<void> pumpBar(WidgetTester tester, {bool focused = true}) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          receiptScanAvailableProvider.overrideWithValue(scanAvailable),
           expenseRepositoryProvider.overrideWithValue(expenseRepository),
           revenueRepositoryProvider.overrideWithValue(revenueRepository),
           accountProvider.overrideWith(
@@ -188,15 +182,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Symbols.photo_camera_rounded), findsOneWidget);
-  });
-
-  testWidgets('le scan disparait quand la lecture n\'est pas disponible', (
-    tester,
-  ) async {
-    await pumpBar(tester, focused: false, scanAvailable: false);
-    await tester.pumpAndSettle();
-
-    expect(find.byIcon(Symbols.photo_camera_rounded), findsNothing);
   });
 
   testWidgets('the send button only ever sends, the scan keeps its own', (
@@ -304,19 +289,6 @@ void main() {
       field.left - scan.right,
       moreOrLessEquals(QuickAddBar.gutter, epsilon: 0.5),
     );
-  });
-
-  testWidgets('le champ tient tout le bord quand le scan est absent', (
-    tester,
-  ) async {
-    await pumpBar(tester, scanAvailable: false);
-    await tester.pumpAndSettle();
-
-    final bar = tester.getRect(find.byType(QuickAddBar));
-    final field = tester.getRect(find.byType(FrostedTextField));
-
-    expect(field.left, moreOrLessEquals(bar.left, epsilon: 0.5));
-    expect(field.right, moreOrLessEquals(bar.right, epsilon: 0.5));
   });
 
   testWidgets('l\'envoi vit dans le champ, pas a cote', (tester) async {
@@ -458,19 +430,6 @@ void main() {
     tester,
   ) async {
     await pumpBar(tester);
-    await tester.pumpAndSettle();
-    await typeAndAnalyze(tester, 'mc do 12');
-
-    expect(
-      tester.getTopLeft(find.byType(QuickAddAccountLine)).dx,
-      tester.getTopLeft(find.byType(FrostedTextField)).dx,
-    );
-  });
-
-  testWidgets('la ligne de compte suit le champ meme sans scan', (
-    tester,
-  ) async {
-    await pumpBar(tester, scanAvailable: false);
     await tester.pumpAndSettle();
     await typeAndAnalyze(tester, 'mc do 12');
 

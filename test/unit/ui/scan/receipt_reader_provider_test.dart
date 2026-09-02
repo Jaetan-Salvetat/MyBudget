@@ -143,37 +143,4 @@ void main() {
       );
     });
   });
-
-  group('receiptScanAvailableProvider', () {
-    test('le scan est fermé sans Gemini Nano', () async {
-      final container = await containerOf(GeminiNanoStatus.downloadable);
-
-      expect(container.read(receiptScanAvailableProvider), isFalse);
-    });
-
-    test('le scan ouvre dès que Gemini Nano peut lire', () async {
-      await PreferencesService.setGeminiNanoScanEnabled(true);
-      final container = await containerOf(GeminiNanoStatus.available);
-
-      expect(container.read(receiptScanAvailableProvider), isTrue);
-    });
-
-    test('le scan ouvre aussi sur la seule clé personnelle', () async {
-      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
-      final container = await containerOf(
-        GeminiNanoStatus.downloadable,
-        apiKey: 'AIza-cle',
-      );
-
-      expect(container.read(receiptScanAvailableProvider), isTrue);
-    });
-
-    test('le mode clé personnelle sans clé ferme le scan', () async {
-      await PreferencesService.setGeminiNanoScanEnabled(true);
-      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
-      final container = await containerOf(GeminiNanoStatus.available);
-
-      expect(container.read(receiptScanAvailableProvider), isFalse);
-    });
-  });
 }

@@ -20,11 +20,6 @@ final class ScanGenericException extends ScanException {
   const ScanGenericException({required super.message});
 }
 
-final class ScanUnavailableException extends ScanException {
-  const ScanUnavailableException()
-    : super(message: 'La lecture de tickets n\'est pas disponible');
-}
-
 final class ScanUnreadablePhotoException extends ScanException {
   const ScanUnreadablePhotoException()
     : super(message: 'Cette photo n\'a pas pu être ouverte');

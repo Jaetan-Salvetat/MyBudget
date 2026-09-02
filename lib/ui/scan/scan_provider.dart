@@ -153,11 +153,6 @@ Future<CloudReceiptReader?> cloudReceiptReader(Ref ref) async {
 }
 
 @Riverpod(keepAlive: true)
-bool receiptScanAvailable(Ref ref) =>
-    ref.watch(nanoReceiptReaderProvider) != null ||
-    ref.watch(cloudScanSelectedProvider);
-
-@Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
   @override
   List<ReadTrace> build() => const [];
@@ -221,13 +216,10 @@ class ScanNotifier extends _$ScanNotifier {
     final cloud = await ref.read(cloudReceiptReaderProvider.future);
     if (cloud != null) return cloud.read(imageBytes);
 
-    final nano = ref.read(nanoReceiptReaderProvider);
-    if (nano == null) throw const ScanUnavailableException();
-
     final scanner = await ref.read(localReceiptScannerProvider.future);
     return scanner.scan(
       imageBytes,
-      nano: nano,
+      nano: ref.read(nanoReceiptReaderProvider),
       onPart: ref.read(scanProgressProvider.notifier).report,
     );
   }

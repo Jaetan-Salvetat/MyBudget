@@ -1770,19 +1770,29 @@ séparées par un jeton, mots des lignes sans libellé ignorés dans la perte,
 décodage `best_span` identique au GBDT pour que les chiffres se comparent.
 1 678 tickets d'entraînement, 590 du held-out, 3 709 lignes jugées.
 
-| intervalles exacts, held-out | |
+| intervalles exacts, held-out (3 709 lignes) | |
 |---|---|
-| GBDT par mot (livré) | 3 550 (95,7 %) |
-| mmBERT-small, ticket entier, 1 époque | 3 507 (94,6 %) |
-| mmBERT-small, ticket entier, 2 époques | **3 547 (95,6 %)** |
+| GBDT par mot (livré) | **3 550 (95,7 %)** |
+| mmBERT-small, ticket entier, époque 1 | 3 394 (91,5 %) |
+| époque 2 | 3 534 (95,3 %) |
+| époque 3 | 3 534 (95,3 %) |
+| époque 4 | **3 549 (95,7 %)** |
+| époque 5 | 3 517 (94,8 %) |
 
-Égal au bruit près après deux époques — mais la courbe montait encore
-(94,6 → 95,6, perte 0,085 → 0,049), et le budget de deux époques venait de la
-sonde par ligne du 27/08, qui se dégradait dès la deuxième. Conclure sur une
-mesure tronquée serait une erreur : la sonde est relancée à cinq époques,
-évaluation après chacune, résultat à reporter ici. Deux époques sur MPS
-prennent une heure, en tranches de sept minutes avec point de reprise : les
-processus de plus de dix minutes sont tués dans cet environnement.
+Une première série à deux époques donnait 3 507 puis 3 547 ; conclure là
+aurait été une mesure tronquée, la courbe montait encore. Relancée à cinq
+époques avec évaluation après chacune : le modèle rejoint le GBDT à l'époque 4
+(−1 ligne) et redescend à la cinquième, la perte d'entraînement continuant de
+baisser (0,087 → 0,021) — le surapprentissage classique de 10 400 lignes pour
+140 M de paramètres. Au mieux égal, jamais au-dessus.
+
+Le contexte du ticket entier n'apporte donc rien que la ligne et ses features
+tabulaires n'aient déjà. Rien à porter : le plafond du découpage n'est pas un
+plafond de modèle mais de vérité et de métrique (voir « Huit leviers »,
+27/08). Sept heures de MPS au total, en tranches de cinq minutes avec point de
+reprise : les processus de plus de dix minutes sont tués dans cet
+environnement, et deux tranches lancées en parallèle se partagent le GPU sans
+qu'aucune n'aboutisse.
 
 ### Bilan (2026-09-02, soir)
 

@@ -18,7 +18,6 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_preview.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_send_action.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 const double _kScanGap = QuickAddBar.gutter - FrostedIconButton.inset * 2;
@@ -178,7 +177,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     final motion = context.frostedTokens.motion.snappy;
     final showContext = widget.focused || !draft.isEmpty;
-    final scanAvailable = ref.watch(receiptScanAvailableProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,18 +194,16 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
         ),
         Row(
           children: [
-            if (scanAvailable) ...[
-              Transform.translate(
-                offset: const Offset(-FrostedIconButton.inset, 0),
-                child: FrostedIconButton.tonal(
-                  icon: Symbols.photo_camera_rounded,
-                  shape: FrostedShape.pill,
-                  tooltip: 'Photographier le ticket',
-                  onPressed: _scan,
-                ),
+            Transform.translate(
+              offset: const Offset(-FrostedIconButton.inset, 0),
+              child: FrostedIconButton.tonal(
+                icon: Symbols.photo_camera_rounded,
+                shape: FrostedShape.pill,
+                tooltip: 'Photographier le ticket',
+                onPressed: _scan,
               ),
-              const SizedBox(width: _kScanGap),
-            ],
+            ),
+            const SizedBox(width: _kScanGap),
             Expanded(child: _field(draft)),
           ],
         ),
@@ -218,7 +214,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           child: showContext
               ? Padding(
                   padding: EdgeInsets.only(
-                    left: scanAvailable ? _kFieldOffset : 0,
+                    left: _kFieldOffset,
                     top: FrostedSpacing.sp2,
                   ),
                   child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),

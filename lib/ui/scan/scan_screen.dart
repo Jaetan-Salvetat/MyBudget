@@ -212,10 +212,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     ref.read(scanProvider.notifier).updateDate(picked);
   }
 
-  Future<void> _pickCategory(
-    int index,
-    ReceiptScanResultModel result,
-  ) async {
+  Future<void> _pickCategory(int index, ReceiptScanResultModel result) async {
     if (index < 0 || index >= result.items.length) return;
     final item = result.items[index];
 
@@ -244,10 +241,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     ref
         .read(scanProvider.notifier)
         .addItem(
-          ScannedItemModel(
-            name: ScanScreen.missingLineName,
-            amount: gap,
-          ),
+          ScannedItemModel(name: ScanScreen.missingLineName, amount: gap),
         );
     _focusIndex(result.items.length);
   }
@@ -302,7 +296,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       if (!mounted) return;
       setState(() => _createdIds = created);
     } catch (error, stackTrace) {
-      debugPrint('[scan] création des dépenses impossible : $error\n$stackTrace');
+      debugPrint(
+        '[scan] création des dépenses impossible : $error\n$stackTrace',
+      );
       if (!mounted) return;
       FrostedSnackbar.show(
         context,
@@ -394,21 +390,8 @@ class _ErrorView extends StatelessWidget {
         scanError.message,
         'Vérifiez que la partie articles du ticket est visible',
       ),
-      ScanUnavailableException() => (
-        Symbols.neurology_rounded,
-        scanError.message,
-        'Activez Gemini Nano ou renseignez une clé personnelle dans les réglages',
-      ),
-      ScanGenericException() => (
-        Symbols.error_rounded,
-        scanError.message,
-        '',
-      ),
-      _ => (
-        Symbols.error_rounded,
-        'Une erreur est survenue',
-        '$scanError',
-      ),
+      ScanGenericException() => (Symbols.error_rounded, scanError.message, ''),
+      _ => (Symbols.error_rounded, 'Une erreur est survenue', '$scanError'),
     };
 
     return Center(

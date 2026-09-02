@@ -49,7 +49,7 @@ final class LocalReceiptScannerProvider
 }
 
 String _$localReceiptScannerHash() =>
-    r'6f850866bb4ef295d6e97c6aee66ea841baaba24';
+    r'a6fc58ad8a890a40d5aa30461e061ed0715fda4a';
 
 @ProviderFor(receiptScanComposer)
 final receiptScanComposerProvider = ReceiptScanComposerProvider._();
@@ -223,48 +223,6 @@ final class CloudReceiptReaderProvider
 String _$cloudReceiptReaderHash() =>
     r'c3f1b1a9d533424f8f2ebae707bb5af8299722f8';
 
-@ProviderFor(receiptScanAvailable)
-final receiptScanAvailableProvider = ReceiptScanAvailableProvider._();
-
-final class ReceiptScanAvailableProvider
-    extends $FunctionalProvider<bool, bool, bool>
-    with $Provider<bool> {
-  ReceiptScanAvailableProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'receiptScanAvailableProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$receiptScanAvailableHash();
-
-  @$internal
-  @override
-  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  bool create(Ref ref) {
-    return receiptScanAvailable(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$receiptScanAvailableHash() =>
-    r'db3dc5f06813d847624f575b8a7f377065e020f1';
-
 @ProviderFor(ScanTrace)
 final scanTraceProvider = ScanTraceProvider._();
 
@@ -404,7 +362,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'099aaf1cbca4f46447aa8fa69745a9c48ce4561b';
+String _$scanNotifierHash() => r'f871515c83fd74f1972922982d6a7fefdf9aace6';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {
