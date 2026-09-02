@@ -15,7 +15,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final QuickAddEngineMode mode = ref.watch(quickAddEngineModeProvider);
     final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
-    final bool isDegraded = ref.watch(quickAddDegradationProvider);
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return FrostedScaffold(
@@ -59,17 +58,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
               ),
             ],
           ),
-          if (isDegraded && mode == QuickAddEngineMode.apiKey) ...[
-            const SizedBox(height: FrostedSpacing.sp4),
-            _Note(
-              icon: Symbols.warning_rounded,
-              color: colors.tertiary,
-              text:
-                  'L\'analyse est repassée sur l\'appareil : le service '
-                  'externe n\'a pas répondu. Elle reprendra dès qu\'un appel '
-                  'aboutira.',
-            ),
-          ],
           const SizedBox(height: FrostedSpacing.sp4),
           _Note(
             icon: Symbols.info_rounded,

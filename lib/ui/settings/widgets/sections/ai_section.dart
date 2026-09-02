@@ -20,8 +20,7 @@ class AiSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool quickAddEnabled = ref.watch(quickAddEnabledProvider);
-    final bool hasKey =
-        ref.watch(hasStoredApiKeyProvider).value ?? false;
+    final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
     final bool usesRemoteEngine =
         ref.watch(quickAddEngineModeProvider) == QuickAddEngineMode.apiKey;
     final AiModel model = ref.watch(selectedAiModelProvider);
@@ -109,12 +108,6 @@ class AiSection extends ConsumerWidget {
         : 'Analyse une saisie en langage naturel';
   }
 
-  String _engineSubtitle(WidgetRef ref) {
-    final QuickAddEngineMode mode = ref.watch(quickAddEngineModeProvider);
-    if (mode != QuickAddEngineMode.apiKey) return mode.label;
-
-    return ref.watch(quickAddDegradationProvider)
-        ? 'Sur l\'appareil (secours)'
-        : QuickAddEngineMode.apiKey.label;
-  }
+  String _engineSubtitle(WidgetRef ref) =>
+      ref.watch(quickAddEngineModeProvider).label;
 }

@@ -28,3 +28,13 @@ class LocalReceiptScan {
 
   final List<ReadTrace> trace;
 }
+
+class ReceiptReadPart {
+  const ReceiptReadPart({this.store, this.date, this.total});
+
+  final String? store;
+  final String? date;
+  final double? total;
+}
+
+typedef ReceiptReadListener = void Function(ReceiptReadPart part);

@@ -261,54 +261,6 @@ final class ApiKeyVerifierProvider
 
 String _$apiKeyVerifierHash() => r'7c6d16941eaa49ed2bc82385fe7e51959b005bd7';
 
-@ProviderFor(quickAddEngineHealth)
-final quickAddEngineHealthProvider = QuickAddEngineHealthProvider._();
-
-final class QuickAddEngineHealthProvider
-    extends
-        $FunctionalProvider<
-          QuickAddEngineHealth,
-          QuickAddEngineHealth,
-          QuickAddEngineHealth
-        >
-    with $Provider<QuickAddEngineHealth> {
-  QuickAddEngineHealthProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'quickAddEngineHealthProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$quickAddEngineHealthHash();
-
-  @$internal
-  @override
-  $ProviderElement<QuickAddEngineHealth> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  QuickAddEngineHealth create(Ref ref) {
-    return quickAddEngineHealth(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(QuickAddEngineHealth value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<QuickAddEngineHealth>(value),
-    );
-  }
-}
-
-String _$quickAddEngineHealthHash() =>
-    r'bb601c3615d72ae1d982e9996ff99a42ba12fc1f';
-
 @ProviderFor(geminiNanoService)
 final geminiNanoServiceProvider = GeminiNanoServiceProvider._();
 

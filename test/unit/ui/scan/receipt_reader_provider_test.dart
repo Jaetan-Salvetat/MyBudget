@@ -92,6 +92,17 @@ void main() {
       expect(container.read(nanoReceiptReaderProvider), isNotNull);
     });
 
+    test('le mode clé personnelle écarte le lecteur sur l\'appareil', () async {
+      await PreferencesService.setGeminiNanoScanEnabled(true);
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
+      final container = await containerOf(
+        GeminiNanoStatus.available,
+        apiKey: 'AIza-cle',
+      );
+
+      expect(container.read(nanoReceiptReaderProvider), isNull);
+    });
+
     test('couper le réglage retire le lecteur', () async {
       await PreferencesService.setGeminiNanoScanEnabled(true);
       final container = await containerOf(GeminiNanoStatus.available);
@@ -155,6 +166,14 @@ void main() {
       );
 
       expect(container.read(receiptScanAvailableProvider), isTrue);
+    });
+
+    test('le mode clé personnelle sans clé ferme le scan', () async {
+      await PreferencesService.setGeminiNanoScanEnabled(true);
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
+      final container = await containerOf(GeminiNanoStatus.available);
+
+      expect(container.read(receiptScanAvailableProvider), isFalse);
     });
   });
 }

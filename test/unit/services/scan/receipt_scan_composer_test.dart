@@ -22,13 +22,14 @@ LocalReceiptScan scanOf({
   String? store = 'CARREFOUR',
   String? date = '2026-08-01',
   bool verified = true,
+  double? total = 2.0,
   List<(String, double, double)> items = const [('PAIN', 2.0, 0.0)],
 }) {
   return LocalReceiptScan(
     verified: verified,
     store: store,
     date: date,
-    total: 2.0,
+    total: total,
     items: [
       for (final (name, amount, discount) in items)
         ExtractedItem(name: name, amount: amount, discount: discount),
@@ -116,6 +117,43 @@ void main() {
 
       expect(verified.verified, isTrue);
       expect(flagged.verified, isFalse);
+    });
+
+    test('le total imprimé arrive jusqu\'à l\'écran', () async {
+      final read = await composerOf(const {}).compose(scanOf(total: 3.75));
+      final blind = await composerOf(const {}).compose(scanOf(total: null));
+
+      expect(read.printedTotal, 3.75);
+      expect(read.gap, 1.75);
+      expect(blind.printedTotal, isNull);
+      expect(blind.hasGap, isFalse);
+    });
+
+    test('la confiance du classifieur arrive jusqu\'à l\'écran', () async {
+      final result = await composerOf({
+        'pain': (slug: 'alimentation.boulangerie', confidence: 0.31),
+      }).compose(scanOf());
+
+      expect(result.items.single.categoryConfidence, 0.31);
+      expect(result.items.single.isCategoryUncertain, isTrue);
+    });
+
+    test('une catégorie inconnue ne garde pas la confiance du modèle',
+        () async {
+      final result = await composerOf({
+        'pain': (slug: 'categorie.disparue', confidence: 0.99),
+      }).compose(scanOf());
+
+      expect(result.items.single.categoryConfidence, 0);
+      expect(result.items.single.needsAttention, isTrue);
+    });
+
+    test('les libellés affichés ne crient plus', () async {
+      final result = await composerOf(const {}).compose(
+        scanOf(items: const [('LAIT ECREME 6X1L', 6.54, 0.0)]),
+      );
+
+      expect(result.items.single.name, 'Lait ecreme 6X1L');
     });
 
     test('la remise lue est conservée', () async {

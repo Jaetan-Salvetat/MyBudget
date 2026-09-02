@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/scan/cloud_receipt_reader.dart';
 
@@ -74,8 +75,7 @@ void main() {
 
       final scan = await _readerOf(client).read(_photo);
 
-      expect(scan, isNotNull);
-      expect(scan!.store, 'CARREFOUR');
+      expect(scan.store, 'CARREFOUR');
       expect(scan.date, '2026-08-01');
       expect(scan.total, 5.0);
       expect([for (final item in scan.items) item.name], ['PAIN', 'LAIT']);
@@ -97,32 +97,64 @@ void main() {
 
       final scan = await _readerOf(client).read(_photo);
 
-      expect(scan?.verified, isFalse);
+      expect(scan.verified, isFalse);
     });
 
-    test('une requête refusée ne rend rien', () async {
+    test('une requête refusée remonte la panne du service', () async {
       final client = _StubChatClient(failure: AiRequestFailure.invalidKey);
 
-      expect(await _readerOf(client).read(_photo), isNull);
+      await expectLater(
+        _readerOf(client).read(_photo),
+        throwsA(
+          isA<ScanRemoteException>().having(
+            (error) => error.failure,
+            'failure',
+            AiRequestFailure.invalidKey,
+          ),
+        ),
+      );
     });
 
-    test('une réponse illisible ne rend rien', () async {
+    test('une panne réseau garde sa cause', () async {
+      final client = _StubChatClient(failure: AiRequestFailure.offline);
+
+      await expectLater(
+        _readerOf(client).read(_photo),
+        throwsA(
+          isA<ScanRemoteException>().having(
+            (error) => error.message,
+            'message',
+            AiRequestFailure.offline.label,
+          ),
+        ),
+      );
+    });
+
+    test('une réponse illisible se dit comme telle', () async {
       final client = _StubChatClient(answer: 'pas du json');
 
-      expect(await _readerOf(client).read(_photo), isNull);
+      await expectLater(
+        _readerOf(client).read(_photo),
+        throwsA(isA<ScanNoItemsException>()),
+      );
     });
 
-    test('un ticket sans article ne rend rien', () async {
+    test('un ticket sans article se dit comme tel', () async {
       final client = _StubChatClient(answer: _payload(items: const []));
 
-      expect(await _readerOf(client).read(_photo), isNull);
+      await expectLater(
+        _readerOf(client).read(_photo),
+        throwsA(isA<ScanNoItemsException>()),
+      );
     });
 
     test('une photo impossible à préparer ne part pas au réseau', () async {
       final client = _StubChatClient(answer: _payload());
 
-      expect(await _readerOf(client, prepare: _failingPrepare).read(_photo),
-          isNull);
+      await expectLater(
+        _readerOf(client, prepare: _failingPrepare).read(_photo),
+        throwsA(isA<ScanUnreadablePhotoException>()),
+      );
       expect(client.askedImage, isNull);
     });
   });

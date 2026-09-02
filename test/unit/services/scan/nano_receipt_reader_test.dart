@@ -6,6 +6,7 @@ import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
+import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
@@ -95,11 +96,12 @@ void main() {
       expect(
         [for (final call in service.calls) call.schema],
         [
+          ReceiptSchema.totalName,
           ReceiptSchema.storeName,
           ReceiptSchema.dateName,
-          ReceiptSchema.totalName,
           ReceiptSchema.itemsName,
         ],
+        reason: 'le total est lu en premier : c\'est lui que l\'écran pose',
       );
       expect(
         [for (final call in service.calls) call.prompt],
@@ -112,6 +114,42 @@ void main() {
       expect(scan.total, 5.0);
       expect([for (final item in scan.items) item.name], ['PAIN', 'LAIT']);
       expect(scan.verified, isTrue);
+    });
+
+    test('chaque section est rendue dès qu\'elle tombe', () async {
+      final service = _StubService(
+        sections: _sections(),
+        attempts: const [_pairOfItems],
+      );
+      final parts = <ReceiptReadPart>[];
+
+      await NanoReceiptReader(service: service).read(
+        _photo,
+        _lines,
+        onPart: parts.add,
+      );
+
+      expect(parts.length, 3);
+      expect(parts[0].total, 5.0);
+      expect(parts[1].store, 'CARREFOUR CITY');
+      expect(parts[2].date, '2017-02-24');
+    });
+
+    test('une section manquée n\'est pas rendue', () async {
+      final service = _StubService(
+        sections: _sections(store: GeminiNanoFailure.unknown),
+        attempts: const [_pairOfItems],
+      );
+      final parts = <ReceiptReadPart>[];
+
+      await NanoReceiptReader(service: service).read(
+        _photo,
+        _lines,
+        onPart: parts.add,
+      );
+
+      expect([for (final part in parts) part.store], everyElement(isNull));
+      expect(parts.length, 2);
     });
 
     test('l\'enseigne et la date raisonnent, le total non', () async {
@@ -213,9 +251,20 @@ void main() {
       expect(scan.items, hasLength(2));
     });
 
-    test('une date hors format ISO est écartée', () async {
+    test('une date au format français est rendue en ISO', () async {
       final service = _StubService(
         sections: _sections(date: '{"date":"24/02/2017"}'),
+        attempts: const [_pairOfItems],
+      );
+
+      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+
+      expect(scan?.date, '2017-02-24');
+    });
+
+    test('une date illisible reste écartée', () async {
+      final service = _StubService(
+        sections: _sections(date: '{"date":"hier"}'),
         attempts: const [_pairOfItems],
       );
 

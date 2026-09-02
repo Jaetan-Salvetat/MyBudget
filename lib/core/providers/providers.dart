@@ -30,7 +30,6 @@ import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/ai/quick_add_engine_health.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
@@ -99,9 +98,6 @@ ApiKeyVerifier apiKeyVerifier(Ref ref) {
     ),
   );
 }
-
-@Riverpod(keepAlive: true)
-QuickAddEngineHealth quickAddEngineHealth(Ref ref) => QuickAddEngineHealth();
 
 @Riverpod(keepAlive: true)
 GeminiNanoService geminiNanoService(Ref ref) => const GeminiNanoService();

@@ -97,15 +97,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.read(quickAddProvider.notifier).reset();
   }
 
-  void _onDegradationChanged(bool? previous, bool degraded) {
-    if (!degraded || previous == true || !mounted) return;
-
-    FrostedSnackbar.show(
-      context,
-      message: 'L\'ajout rapide est repassé sur l\'appareil.',
-    );
-  }
-
   void _onChanged(String value) {
     ref.read(quickAddProvider.notifier).onInputChanged(value);
   }
@@ -181,7 +172,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.listen(quickAddFocusRequestProvider, (_, _) {
       _focusNode.requestFocus();
     });
-    ref.listen(quickAddDegradationProvider, _onDegradationChanged);
     ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);

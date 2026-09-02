@@ -41,10 +41,21 @@ class NanoReceiptReader {
 
   Future<LocalReceiptScan?> read(
     Uint8List imageBytes,
-    List<PhysicalLine> lines,
-  ) async {
+    List<PhysicalLine> lines, {
+    ReceiptReadListener? onPart,
+  }) async {
     final transcript = receiptTranscript(lines);
     if (transcript == null) return null;
+
+    final total = await _section(
+      totalSectionPrompt,
+      ReceiptSchema.totalName,
+      transcript,
+      imageBytes,
+      thinking: false,
+    );
+    final printed = total == null ? null : sectionTotalOf(total);
+    if (printed != null) onPart?.call(ReceiptReadPart(total: printed));
 
     final store = await _section(
       storeSectionPrompt,
@@ -53,6 +64,9 @@ class NanoReceiptReader {
       imageBytes,
       thinking: true,
     );
+    final storeName = store == null ? null : sectionStoreOf(store);
+    if (storeName != null) onPart?.call(ReceiptReadPart(store: storeName));
+
     final date = await _section(
       dateSectionPrompt,
       ReceiptSchema.dateName,
@@ -60,21 +74,15 @@ class NanoReceiptReader {
       imageBytes,
       thinking: true,
     );
-    final total = await _section(
-      totalSectionPrompt,
-      ReceiptSchema.totalName,
-      transcript,
-      imageBytes,
-      thinking: false,
-    );
+    final readDate = date == null ? null : sectionDateOf(date);
+    if (readDate != null) onPart?.call(ReceiptReadPart(date: readDate));
 
-    final printed = total == null ? null : sectionTotalOf(total);
     final articles = await _articles(transcript, imageBytes, printed);
     if (articles == null) return null;
 
     return LocalReceiptScan(
-      store: store == null ? null : sectionStoreOf(store),
-      date: date == null ? null : sectionDateOf(date),
+      store: storeName,
+      date: readDate,
       total: articles.total ?? printed,
       items: articles.items,
       verified: articles.proven,

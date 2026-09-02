@@ -1,6 +1,5 @@
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
-import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -74,29 +73,5 @@ bool quickAddUsesRemote(Ref ref) {
   if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
     return false;
   }
-  if (ref.watch(quickAddDegradationProvider)) return false;
   return ref.watch(hasStoredApiKeyProvider).value ?? false;
-}
-
-@Riverpod(keepAlive: true)
-class QuickAddDegradationNotifier extends _$QuickAddDegradationNotifier {
-  @override
-  bool build() => ref.watch(quickAddEngineHealthProvider).isDegraded;
-
-  Future<void> reportFailure(AiRequestFailure failure) async {
-    final justDegraded = await ref
-        .read(quickAddEngineHealthProvider)
-        .recordFailure(failure);
-    if (justDegraded) state = true;
-  }
-
-  Future<void> reportSuccess() async {
-    await ref.read(quickAddEngineHealthProvider).recordSuccess();
-    if (state) state = false;
-  }
-
-  Future<void> clear() async {
-    await ref.read(quickAddEngineHealthProvider).reset();
-    state = false;
-  }
 }

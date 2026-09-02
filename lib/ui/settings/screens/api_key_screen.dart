@@ -189,7 +189,6 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
     await ref
         .read(quickAddEngineModeProvider.notifier)
         .setMode(QuickAddEngineMode.apiKey);
-    await ref.read(quickAddDegradationProvider.notifier).clear();
     ref.invalidate(hasStoredApiKeyProvider);
     ref.invalidate(quickAddEngineProvider);
     ref.invalidate(cloudReceiptReaderProvider);
@@ -221,10 +220,9 @@ class _ApiKeyScreenState extends ConsumerState<ApiKeyScreen> {
     if (confirmed != true || !mounted) return;
 
     await ref.read(apiKeyServiceProvider).delete(provider);
-    await ref.read(quickAddEngineModeProvider.notifier).setMode(
-      QuickAddEngineMode.onDevice,
-    );
-    await ref.read(quickAddDegradationProvider.notifier).clear();
+    await ref
+        .read(quickAddEngineModeProvider.notifier)
+        .setMode(QuickAddEngineMode.onDevice);
     ref.invalidate(hasStoredApiKeyProvider);
     ref.invalidate(quickAddEngineProvider);
     ref.invalidate(cloudReceiptReaderProvider);

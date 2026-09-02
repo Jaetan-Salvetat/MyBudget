@@ -6,7 +6,9 @@ import 'package:mybudget/core/constants/receipt_schema.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
-final RegExp _isoDate = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+final RegExp _isoDate = RegExp(r'^(\d{4})-(\d{1,2})-(\d{1,2})$');
+
+final RegExp _frenchDate = RegExp(r'^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2}|\d{4})$');
 
 LocalReceiptScan? receiptScanOf(String raw) {
   final Object? decoded;
@@ -34,7 +36,6 @@ LocalReceiptScan? receiptScanOf(String raw) {
 /// Lecture d'une section : l'enseigne seule.
 String? sectionStoreOf(String raw) => _textOf(_decode(raw)?[ReceiptSchema.storeKey]);
 
-/// Lecture d'une section : la date seule, écartée si elle n'est pas ISO.
 String? sectionDateOf(String raw) => _dateOf(_decode(raw)?[ReceiptSchema.dateKey]);
 
 /// Lecture d'une section : le total seul.
@@ -102,10 +103,42 @@ String? _textOf(Object? value) {
 }
 
 String? _dateOf(Object? value) {
-  final text = _textOf(value);
-  if (text == null || !_isoDate.hasMatch(text)) return null;
+  final text = _textOf(value)?.trim();
+  if (text == null) return null;
 
-  return DateTime.tryParse(text) == null ? null : text;
+  final iso = _isoDate.firstMatch(text);
+  if (iso != null) {
+    return _isoOf(
+      int.parse(iso[1]!),
+      int.parse(iso[2]!),
+      int.parse(iso[3]!),
+    );
+  }
+
+  final french = _frenchDate.firstMatch(text);
+  if (french == null) return null;
+
+  return _isoOf(
+    _yearOf(french[3]!),
+    int.parse(french[2]!),
+    int.parse(french[1]!),
+  );
+}
+
+int _yearOf(String digits) {
+  final year = int.parse(digits);
+  return digits.length == 4 ? year : 2000 + year;
+}
+
+String? _isoOf(int year, int month, int day) {
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  final date = DateTime(year, month, day);
+  if (date.year != year || date.month != month || date.day != day) return null;
+
+  return '${year.toString().padLeft(4, '0')}-'
+      '${month.toString().padLeft(2, '0')}-'
+      '${day.toString().padLeft(2, '0')}';
 }
 
 double? _amountOf(Object? value) {

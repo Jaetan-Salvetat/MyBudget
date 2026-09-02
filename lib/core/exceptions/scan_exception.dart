@@ -1,3 +1,5 @@
+import 'package:mybudget/core/enums/ai_request_failure.dart';
+
 sealed class ScanException implements Exception {
   final String message;
 
@@ -21,4 +23,15 @@ final class ScanGenericException extends ScanException {
 final class ScanUnavailableException extends ScanException {
   const ScanUnavailableException()
     : super(message: 'La lecture de tickets n\'est pas disponible');
+}
+
+final class ScanUnreadablePhotoException extends ScanException {
+  const ScanUnreadablePhotoException()
+    : super(message: 'Cette photo n\'a pas pu être ouverte');
+}
+
+final class ScanRemoteException extends ScanException {
+  ScanRemoteException(this.failure) : super(message: failure.label);
+
+  final AiRequestFailure failure;
 }

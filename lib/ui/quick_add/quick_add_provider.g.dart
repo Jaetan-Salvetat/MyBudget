@@ -41,7 +41,7 @@ final class QuickAddNotifierProvider
   }
 }
 
-String _$quickAddNotifierHash() => r'a96f92f2582d1e9790a96ce6f4d08c52f23273a8';
+String _$quickAddNotifierHash() => r'db7dd1f1e13f02eb964e22f721b7170503d803bb';
 
 abstract class _$QuickAddNotifier extends $Notifier<QuickAddDraft> {
   QuickAddDraft build();

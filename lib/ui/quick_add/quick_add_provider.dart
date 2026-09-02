@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -196,9 +197,15 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       debugPrint('Analyse de l\'ajout rapide impossible : $error\n$stackTrace');
       if (seq != _analysisSeq) return;
 
-      state = _failedDraft(input, unreadInputMessage);
+      state = _failedDraft(input, _messageOf(error));
     }
   }
+
+  String _messageOf(Object error) => switch (error) {
+    QuickAddException(:final message) => message,
+    AiRequestException(:final failure) => failure.label,
+    _ => unreadInputMessage,
+  };
 
   QuickAddDraft _draftFrom(
     String input,
