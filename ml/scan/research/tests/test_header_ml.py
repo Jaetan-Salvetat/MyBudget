@@ -8,11 +8,14 @@ import pytest
 from annotate.schema import DATE_LINE, ROLES, STORE
 from reference.header_ml import date_of, store_of
 from reference.lines import PhysicalLine, Word
+from reference.store_classifier import OTHER, StoreClassifier
 from reference.store_gazetteer import Gazetteer
 
 # Un répertoire de test, pour que ces cas ne dépendent pas de l'artefact
 # construit depuis le corpus.
 KNOWN = Gazetteer({"QUICK": "Quick", "CARREFOUR": "Carrefour"})
+# Un classifieur qui dit toujours « autre » : ces cas jugent la ligne désignée.
+NO_STORE = StoreClassifier(classes=[OTHER], intercepts=[0.0], weights=[{}])
 
 
 def line(text: str) -> PhysicalLine:
@@ -38,14 +41,14 @@ LINES = [line("Burger Restaurant"), line("Quick"), line("Le 24/02/2017 a 10:49")
 def test_l_enseigne_est_la_ligne_designee_pas_la_premiere() -> None:
     """51 tickets sur 500 ont un slogan ou une adresse en première ligne."""
     scores = probabilities({STORE: 0.1}, {STORE: 0.9}, {})
-    assert store_of(LINES, scores, Gazetteer({})) == "Quick"
+    assert store_of(LINES, scores, Gazetteer({}), classifier=NO_STORE) == "Quick"
 
 
 def test_aucune_enseigne_si_le_tagger_hesite() -> None:
     """Mieux vaut pas d'enseigne qu'une ligne prise au hasard — tant qu'aucun
     nom connu n'est en vue."""
     scores = probabilities({STORE: 0.3}, {STORE: 0.4}, {})
-    assert store_of(LINES, scores, Gazetteer({})) is None
+    assert store_of(LINES, scores, Gazetteer({}), classifier=NO_STORE) is None
 
 
 def test_un_nom_connu_normalise_la_ligne_designee() -> None:
@@ -53,13 +56,15 @@ def test_un_nom_connu_normalise_la_ligne_designee() -> None:
     l'OCR y a laissé. Le répertoire rend la graphie connue."""
     scores = probabilities({}, {STORE: 0.9}, {})
     lines = [line("Burger Restaurant"), line("Quick Rochefort"), line("x")]
-    assert store_of(lines, scores, KNOWN) == "Quick"
+    assert store_of(lines, scores, KNOWN, classifier=NO_STORE) == "Quick"
 
 
 def test_une_ligne_designee_inconnue_est_rendue_telle_quelle() -> None:
     scores = probabilities({STORE: 0.9}, {}, {})
     lines = [line("BOUCHERIE PHILIBERTINE"), line("Quick"), line("x")]
-    assert store_of(lines, scores, KNOWN) == "BOUCHERIE PHILIBERTINE"
+    assert (
+        store_of(lines, scores, KNOWN, classifier=NO_STORE) == "BOUCHERIE PHILIBERTINE"
+    )
 
 
 def test_le_repertoire_ne_choisit_jamais_la_ligne() -> None:
@@ -67,7 +72,7 @@ def test_le_repertoire_ne_choisit_jamais_la_ligne() -> None:
     ligne d'à côté : c'est le modèle qui décide, la ligne désignée est rendue."""
     scores = probabilities({STORE: 0.2}, {STORE: 0.8}, {})
     lines = [line("Quick"), line("-SP"), line("Le 24/02/2017 a 10:49")]
-    assert store_of(lines, scores, KNOWN) == "-SP"
+    assert store_of(lines, scores, KNOWN, classifier=NO_STORE) == "-SP"
 
 
 def test_sans_ligne_designee_aucun_nom_n_est_cherche_ailleurs() -> None:
@@ -76,7 +81,36 @@ def test_sans_ligne_designee_aucun_nom_n_est_cherche_ailleurs() -> None:
     known = Gazetteer({"AUCHAN": "Auchan"})
     scores = probabilities({STORE: 0.3}, {}, {"item": 0.9})
     lines = [line("STALINGRAD"), line("www.auchan.fr"), line("LAIT 1,20")]
-    assert store_of(lines, scores, known) is None
+    assert store_of(lines, scores, known, classifier=NO_STORE) is None
+
+
+def test_le_classifieur_du_ticket_prime_sur_la_ligne_designee() -> None:
+    """Le tagger désigne « PESSAC », le ticket entier dit Auchan : la question
+    posée au ticket entier est la bonne, la ligne n'est que le repli."""
+    classifier = StoreClassifier(
+        classes=[OTHER, "Auchan"], intercepts=[0.0, -1.0], weights=[{}, {}]
+    )
+    scores = probabilities({STORE: 0.9}, {}, {})
+    lines = [line("PESSAC"), line("www.auchan.fr"), line("x")]
+    assert store_of(lines, scores, KNOWN, classifier=_always("Auchan")) == "Auchan"
+    assert store_of(lines, scores, KNOWN, classifier=classifier) == "PESSAC"
+
+
+def test_quand_le_classifieur_dit_autre_la_ligne_designee_parle() -> None:
+    scores = probabilities({STORE: 0.9}, {}, {})
+    lines = [line("BOUCHERIE PHILIBERTINE"), line("x"), line("y")]
+    assert (
+        store_of(lines, scores, KNOWN, classifier=_always(None))
+        == "BOUCHERIE PHILIBERTINE"
+    )
+
+
+def _always(store: str | None) -> StoreClassifier:
+    if store is None:
+        return StoreClassifier(classes=[OTHER], intercepts=[0.0], weights=[{}])
+    return StoreClassifier(
+        classes=[OTHER, store], intercepts=[0.0, 1.0], weights=[{}, {}]
+    )
 
 
 def test_la_date_est_lue_sur_la_ligne_designee() -> None:

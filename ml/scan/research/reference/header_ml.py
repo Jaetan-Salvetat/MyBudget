@@ -7,6 +7,11 @@ la ligne désignée quand il y reconnaît un nom connu (`E.Leclerc L` →
 `E.Leclerc`), et rend la ligne telle quelle sinon. Quand le tagger ne désigne
 rien, il n'y a pas d'enseigne : c'est le modèle qui décide, jamais un lexique.
 
+Avant la ligne, le ticket : `store_classifier` lit le ticket entier et rend
+l'enseigne parmi celles que le corpus connaît, ou « autre ». Sur les tickets
+où le nom n'est qu'un domaine web ou un pied de ticket, aucune ligne n'est à
+désigner, et seule cette question-là a une réponse.
+
 La date, elle, échoue pour la raison inverse — la bonne ligne, mal lue — et
 reste donc au parsing seul.
 """
@@ -21,6 +26,8 @@ from paths import ROLE_MODEL_PATH
 from reference.line_features_all import featurize
 from reference.line_labels import TAGGER_ROLES
 from reference.lines import PhysicalLine
+from reference.store_classifier import StoreClassifier
+from reference.store_classifier import load as load_classifier
 from reference.store_gazetteer import Gazetteer
 from reference.store_gazetteer import load as load_gazetteer
 from reference.structure import _find_date
@@ -64,9 +71,16 @@ def store_of(
     lines: list[PhysicalLine],
     probabilities: np.ndarray,
     gazetteer: Gazetteer | None = None,
+    classifier: StoreClassifier | None = None,
 ) -> str | None:
-    """L'enseigne de la ligne que le tagger désigne, rendue sous sa graphie
-    connue quand le répertoire l'y reconnaît, telle quelle sinon."""
+    """L'enseigne que le ticket entier désigne (`store_classifier`) ; quand il
+    dit « autre », la ligne que le tagger désigne, rendue sous sa graphie
+    connue si le répertoire l'y reconnaît, telle quelle sinon."""
+    if not len(probabilities):
+        return None
+    known = (classifier or load_classifier()).predict(lines)
+    if known is not None:
+        return known
     index = _best_line(lines, probabilities, STORE)
     if index is None:
         return None

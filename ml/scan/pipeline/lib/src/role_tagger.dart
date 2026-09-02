@@ -3,6 +3,7 @@ library;
 import 'classifier.dart';
 import 'line_features_all.dart';
 import 'lines.dart';
+import 'store_classifier.dart';
 import 'store_gazetteer.dart';
 import 'structure.dart';
 
@@ -59,7 +60,11 @@ String? storeOf(
   List<PhysicalLine> lines,
   List<List<double>> probabilities, {
   Gazetteer? gazetteer,
+  StoreClassifier? classifier,
 }) {
+  if (probabilities.isEmpty) return null;
+  final known = classifier?.predict(lines);
+  if (known != null) return known;
   final index = bestLineFor(probabilities, roleStore);
   if (index == null) return null;
   final text = lines[index].text;

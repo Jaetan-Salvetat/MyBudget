@@ -1696,18 +1696,114 @@ bench rapporte désormais, sans changer le verdict :
 
 ### Bilan du jour
 
-| held-out `open_prices` (592) | 2026-08-28 | 2026-09-02 |
+| held-out `open_prices` (592) | 2026-08-28 | après-midi |
 |---|---|---|
 | vérifiés | 508 (85,8 %) | **570 (96,3 %)** |
 | tickets parfaits | 383 (64,7 %) | **458 (77,4 %)** |
 | erreurs silencieuses | 19 | 19 |
 | FindIt somme prouvée / faux auto-validés | 864 / 2 | 867 / 2 |
-| parité Dart (flow 699 tickets, répertoire 9 397 lignes) | 0 | 0 |
+| parité Dart (flow 699 tickets, répertoire 14 600 lignes) | 0 | 0 |
 
-Ce qui reste : libellé large 46, enseigne 44, libellé 19, total 10, date 10,
-montant 7. L'enseigne est redevenue le premier poste avec le libellé, et
-c'est un problème de tagger. Et la réserve de toujours : ce held-out juge des lignes Apple
+Ce qui reste à ce point : libellé large 46, enseigne 44, libellé 19, total
+10, date 10, montant 7. L'enseigne est redevenue le premier poste, et c'est
+la question posée au modèle qui est en cause — voir la section suivante. Et la réserve de toujours : ce held-out juge des lignes Apple
 Vision ; l'app lit ML Kit, et rien ne mesure l'app sur ces 592 photos.
+
+
+### L'enseigne, posée au ticket entier (2026-09-02, soir)
+
+Le répertoire ramené à la normalisation, l'enseigne redevenait le premier
+poste (44). La question posée au tagger — *quelle ligne* — n'a pas de réponse
+sur les tickets où le nom n'est qu'un domaine web ou un pied de ticket. La
+question *quel ticket* en a une : `reference/store_classifier.py`, régression
+logistique multinomiale sur les mots et bigrammes hachés de toutes les lignes
+(65 536 seaux, CRC32 comme les trigrammes du tagger), classes = enseignes vues
+sur ≥ 5 tickets d'entraînement, plus « autre » apprise comme les autres. Quand
+le modèle dit « autre », la ligne désignée par le tagger parle, normalisée par
+le répertoire. Aucun seuil de confiance.
+
+Les trois constantes (support 5, C = 10, 3 000 poids gardés par classe) viennent
+d'une validation croisée par ticket sur l'entraînement seul
+(`line_classifier/train_store.py`) : élaguer à 3 000 coûte 3 tickets sur
+2 165, à 1 000 douze, à 300 trente-quatre. Le held-out n'a servi qu'à
+constater.
+
+| held-out, 540 tickets à enseigne connue | justes |
+|---|---|
+| ligne désignée seule (normalisée) | 493 |
+| **ticket puis ligne** | **519** (le classifieur parle sur 465) |
+
+| held-out, 592 tickets | parfaits | enseigne fausse |
+|---|---|---|
+| ligne désignée + répertoire | 458 (77,4 %) | 44 |
+| **classifieur du ticket, puis ligne** | **481 (81,2 %)** | 18 |
+
+Miroir Dart `pipeline/lib/src/store_classifier.dart`, parité 592/592 tickets.
+Nouvel asset `store_classifier_%s.json` (2,5 Mo, poids arrondis à quatre
+décimales) déclaré dans `tool/models/registry.env` et chargé par l'app quand
+il est présent — **à publier** pour que l'app en bénéficie.
+
+### Large ou rogné : BERT a tranché
+
+La question laissée ouverte le 27/08 — la métrique refuse un mot de trop et
+tolère un mot de moins, le produit voudrait l'inverse — se mesure : passer au
+classifieur de catégories le libellé rendu et le libellé vrai, et compter les
+catégories qui changent.
+
+| paires du held-out | catégorie changée (famille) |
+|---|---|
+| libellé **large** (calibre, code en plus) | 7 / 84 (8 %) |
+| libellé **rogné** (un mot de moins) | 2 / 53 (4 %) |
+
+L'hypothèse produit était fausse sur ce corpus : le bruit autour du nom
+dérange BERT deux fois plus que le rognage. La métrique reste telle qu'elle
+est, et le modèle de span ne sera pas repondéré vers l'inclusion.
+
+### L'étiqueteur de séquence au niveau du ticket : mesuré, égal
+
+La dernière famille non essayée sur le découpage (27/08) : un étiqueteur de
+séquence pré-entraîné, mais sur le **ticket entier** au lieu de la ligne, pour
+qu'il voie la mise en page que l'enseigne répète. Sonde en Python seul :
+`jhu-clsp/mmBERT-small` (l'encodeur que l'app embarque déjà pour l'ajout
+rapide), tête de classification par mot « dans le libellé / hors », lignes
+séparées par un jeton, mots des lignes sans libellé ignorés dans la perte,
+décodage `best_span` identique au GBDT pour que les chiffres se comparent.
+1 678 tickets d'entraînement, 590 du held-out, 3 709 lignes jugées.
+
+| intervalles exacts, held-out | |
+|---|---|
+| GBDT par mot (livré) | 3 550 (95,7 %) |
+| mmBERT-small, ticket entier, 1 époque | 3 507 (94,6 %) |
+| mmBERT-small, ticket entier, 2 époques | **3 547 (95,6 %)** |
+
+Égal au bruit près après deux époques — mais la courbe montait encore
+(94,6 → 95,6, perte 0,085 → 0,049), et le budget de deux époques venait de la
+sonde par ligne du 27/08, qui se dégradait dès la deuxième. Conclure sur une
+mesure tronquée serait une erreur : la sonde est relancée à cinq époques,
+évaluation après chacune, résultat à reporter ici. Deux époques sur MPS
+prennent une heure, en tranches de sept minutes avec point de reprise : les
+processus de plus de dix minutes sont tués dans cet environnement.
+
+### Bilan (2026-09-02, soir)
+
+| held-out `open_prices` (592) | 2026-08-28 | 2026-09-02 |
+|---|---|---|
+| vérifiés | 508 (85,8 %) | **570 (96,3 %)** |
+| tickets parfaits | 383 (64,7 %) | **481 (81,2 %)** |
+| erreurs silencieuses | 19 | 19 |
+
+Reste : libellé large 46, libellé 19, enseigne 18, total 10, date 10, montant 7.
+
+### À faire avant toute suite : mesurer l'app réelle
+
+Tout ce qui précède est mesuré sur des lignes **Apple Vision** (OCR du Mac,
+`bench/held_out.py`). L'app lit **ML Kit** sur Android. Le harnais Flutter qui
+produisait les dumps device (`data/results/device_*`) a été supprimé lors de la
+réorganisation de `ml/`, et rien ne sait le régénérer. Préalable, pas
+raffinement : réoutiller un harnais qui prend les 592 images du held-out
+`open_prices`, les passe dans ML Kit sur un appareil (Pixel 8 Pro) et écrit
+les dumps au format de `bench/local.py`, puis rejouer `held_out` dessus. Tant
+que ce chiffre n'existe pas, un gain mesuré ici est un gain « Apple Vision ».
 
 
 ## Contenu

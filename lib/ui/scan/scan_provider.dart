@@ -18,6 +18,7 @@ import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.da
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
 import 'package:mybudget/core/services/scan/role_tagger_asset.dart';
+import 'package:mybudget/core/services/scan/store_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/store_gazetteer_asset.dart';
 import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -74,6 +75,19 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
   } on StateError catch (error) {
     debugPrint('[scan] répertoire d\'enseignes absent : $error');
   }
+  StoreClassifier? classifier;
+  try {
+    classifier = StoreClassifier.fromJson(
+      jsonDecode(
+            await rootBundle.loadString(
+              await storeClassifierAssetFromManifest(),
+            ),
+          )
+          as Map<String, dynamic>,
+    );
+  } on StateError catch (error) {
+    debugPrint("[scan] classifieur d'enseigne absent : $error");
+  }
   final recognizer = MlKitReceiptLineRecognizer();
   ref.onDispose(recognizer.close);
   return LocalReceiptScanner(
@@ -82,6 +96,7 @@ Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
     link: link,
     span: span,
     gazetteer: gazetteer,
+    classifier: classifier,
   );
 }
 

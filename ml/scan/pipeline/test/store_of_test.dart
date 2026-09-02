@@ -71,6 +71,47 @@ void main() {
     expect(storeOf(lines, scores, gazetteer: known), isNull);
   });
 
+  StoreClassifier always(String? store) => store == null
+      ? StoreClassifier(
+          classes: [storeClassifierOther],
+          intercepts: [0.0],
+          weights: [{}],
+        )
+      : StoreClassifier(
+          classes: [storeClassifierOther, store],
+          intercepts: [0.0, 1.0],
+          weights: [{}, {}],
+        );
+
+  test('le classifieur du ticket prime sur la ligne désignée', () {
+    final lines = [line('PESSAC'), line('www.auchan.fr'), line('x')];
+    final scores = probabilities([
+      {roleStore: 0.9},
+      {},
+      {},
+    ]);
+    expect(
+      storeOf(lines, scores, gazetteer: known, classifier: always('Auchan')),
+      'Auchan',
+    );
+    expect(
+      storeOf(lines, scores, gazetteer: known, classifier: always(null)),
+      'PESSAC',
+    );
+  });
+
+  test('quand le classifieur dit autre, la ligne désignée parle', () {
+    final lines = [line('BOUCHERIE PHILIBERTINE'), line('x')];
+    final scores = probabilities([
+      {roleStore: 0.9},
+      {},
+    ]);
+    expect(
+      storeOf(lines, scores, gazetteer: known, classifier: always(null)),
+      'BOUCHERIE PHILIBERTINE',
+    );
+  });
+
   test('sans répertoire, la ligne désignée', () {
     final scores = probabilities([
       {roleStore: 0.9},

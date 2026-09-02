@@ -16,6 +16,7 @@ class LocalReceiptScanner {
   final ReceiptImageEnhancer _enhance;
 
   final Gazetteer? _gazetteer;
+  final StoreClassifier? _classifier;
 
   final bool _localDecoder;
 
@@ -25,6 +26,7 @@ class LocalReceiptScanner {
     required this._link,
     required this._span,
     this._gazetteer,
+    this._classifier,
     this._enhance = enhanceReceiptForRetry,
     this._localDecoder = false,
   });
@@ -74,7 +76,12 @@ class LocalReceiptScanner {
 
     return LocalReceiptScan.fromOutcome(
       outcome,
-      store: storeOf(lines, roles, gazetteer: _gazetteer),
+      store: storeOf(
+        lines,
+        roles,
+        gazetteer: _gazetteer,
+        classifier: _classifier,
+      ),
       date: dateOf(lines, roles),
       items: relabel(outcome.items, lines, offsets, spans),
     );

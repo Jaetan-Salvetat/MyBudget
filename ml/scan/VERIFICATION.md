@@ -134,10 +134,14 @@ Le mode local ne demande ni clé API, ni réseau, ni cooldown : aucun de ces
    Σ des totaux de rayon — fusionnées par montant.
 4c. Le total affiché est `verified_total` : la référence qui a réellement
    vérifié la somme des articles, jamais un total lu qui ne colle pas.
-4b'. L'enseigne est la ligne que le tagger désigne (probabilité > 0,5), et
-   rien s'il ne désigne rien. Le répertoire d'enseignes ne choisit jamais la
-   ligne : il **normalise** le texte désigné quand il y reconnaît un nom
-   connu (`E.Leclerc L` → `E.Leclerc`), et le rend tel quel sinon.
+4b'. L'enseigne est d'abord une question posée au ticket entier
+   (`store_classifier`, asset `store_classifier_vN.json`) : une classe parmi
+   les enseignes connues du corpus, ou « autre ». Sur « autre », la ligne que
+   le tagger désigne (probabilité > 0,5), et rien s'il ne désigne rien. Le
+   répertoire d'enseignes ne choisit jamais la ligne : il **normalise** le
+   texte désigné quand il y reconnaît un nom connu (`E.Leclerc L` →
+   `E.Leclerc`), et le rend tel quel sinon. Sans l'asset du classifieur, l'app
+   retombe sur la ligne désignée.
 4d. Ticket sans ligne d'article (parking, carburant) : un montant prouvé par
    une source arithmétique et une seconde source, sans candidat article ni
    compteur d'articles contraire, devient l'unique achat (nom = enseigne).
