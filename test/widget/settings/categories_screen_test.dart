@@ -114,12 +114,12 @@ void main() {
   testWidgets('a group reveals its leaves once tapped', (tester) async {
     await pumpScreen(tester);
 
-    expect(find.text('Supermarché'), findsNothing);
+    expect(find.text('Courses'), findsNothing);
 
     await tester.tap(find.text('Alimentation'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Supermarché'), findsOneWidget);
+    expect(find.text('Courses'), findsOneWidget);
   });
 
   testWidgets('search keeps only the matching leaves, group included', (
@@ -143,8 +143,8 @@ void main() {
     await tester.enterText(find.byType(TextField), 'alimentation');
     await tester.pumpAndSettle();
 
-    expect(find.text('Supermarché'), findsOneWidget);
-    expect(find.text('Boulangerie'), findsOneWidget);
+    expect(find.text('Courses'), findsOneWidget);
+    expect(find.text('Pain & pâtisserie'), findsOneWidget);
   });
 
   testWidgets('marks a customised category', (tester) async {

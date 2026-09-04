@@ -119,6 +119,18 @@ abstract final class CategoryDefaults {
     'smart_toy': Symbols.smart_toy_rounded,
     'dns': Symbols.dns_rounded,
     'hard_drive': Symbols.hard_drive_rounded,
+    'garage': Symbols.garage_rounded,
+    'cleaning_services': Symbols.cleaning_services_rounded,
+    'local_shipping': Symbols.local_shipping_rounded,
+    'dentistry': Symbols.dentistry_rounded,
+    'eyeglasses': Symbols.eyeglasses_rounded,
+    'face': Symbols.face_rounded,
+    'theater_comedy': Symbols.theater_comedy_rounded,
+    'palette': Symbols.palette_rounded,
+    'business_center': Symbols.business_center_rounded,
+    'handshake': Symbols.handshake_rounded,
+    'assignment_return': Symbols.assignment_return_rounded,
+    'currency_exchange': Symbols.currency_exchange_rounded,
   };
 
   static const String defaultIcon = 'label';

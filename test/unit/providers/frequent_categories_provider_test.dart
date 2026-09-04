@@ -83,29 +83,29 @@ void main() {
 
   test('ranks by number of entries, most used first', () async {
     when(() => expenseRepository.getActive()).thenReturn([
-      expense('transport.essence'),
+      expense('transport.carburant'),
       expense('restauration.cafe'),
       expense('restauration.cafe'),
       expense('restauration.cafe'),
-      expense('alimentation.marche'),
-      expense('alimentation.marche'),
+      expense('alimentation.courses'),
+      expense('alimentation.courses'),
     ]);
 
     expect(await slugsFor(TransactionType.expense), [
       'restauration.cafe',
-      'alimentation.marche',
-      'transport.essence',
+      'alimentation.courses',
+      'transport.carburant',
     ]);
   });
 
   test('breaks ties with the most recent start date', () async {
     when(() => expenseRepository.getActive()).thenReturn([
-      expense('transport.essence', day: 20),
+      expense('transport.carburant', day: 20),
       expense('restauration.cafe', day: 5),
     ]);
 
     expect(await slugsFor(TransactionType.expense), [
-      'transport.essence',
+      'transport.carburant',
       'restauration.cafe',
     ]);
   });
@@ -114,21 +114,21 @@ void main() {
     when(() => expenseRepository.getActive()).thenReturn([
       expense(null),
       expense('inconnu.autre'),
-      expense('transport.essence'),
+      expense('transport.carburant'),
     ]);
 
-    expect(await slugsFor(TransactionType.expense), ['transport.essence']);
+    expect(await slugsFor(TransactionType.expense), ['transport.carburant']);
   });
 
   test('caps the result at maxFrequentCategories', () async {
     when(() => expenseRepository.getActive()).thenReturn([
       for (final leaf in [
-        'transport.essence',
+        'transport.carburant',
         'transport.parking',
         'transport.peage',
         'restauration.cafe',
         'restauration.bar',
-        'alimentation.marche',
+        'alimentation.courses',
       ])
         expense(leaf),
     ]);
@@ -141,20 +141,20 @@ void main() {
 
   test('ranks expenses and revenues together when no type is given', () async {
     when(() => expenseRepository.getActive()).thenReturn([
-      expense('transport.essence'),
+      expense('transport.carburant'),
     ]);
     when(() => revenueRepository.getActive()).thenReturn([
       revenue('salaire.prime'),
       revenue('salaire.prime'),
     ]);
 
-    expect(await slugsFor(null), ['salaire.prime', 'transport.essence']);
+    expect(await slugsFor(null), ['salaire.prime', 'transport.carburant']);
   });
 
   test('reads revenues for the income type', () async {
     when(
       () => expenseRepository.getActive(),
-    ).thenReturn([expense('transport.essence')]);
+    ).thenReturn([expense('transport.carburant')]);
     when(
       () => revenueRepository.getActive(),
     ).thenReturn([revenue('salaire.prime')]);
@@ -164,14 +164,14 @@ void main() {
 
   test('resolves through the user customisation', () async {
     when(() => overrideRepository.getAll()).thenReturn({
-      'transport.essence': CategoryOverrideModel.create(
-        slug: 'transport.essence',
+      'transport.carburant': CategoryOverrideModel.create(
+        slug: 'transport.carburant',
         name: 'Carburant',
       ),
     });
     when(
       () => expenseRepository.getActive(),
-    ).thenReturn([expense('transport.essence')]);
+    ).thenReturn([expense('transport.carburant')]);
 
     final container = ProviderContainer(
       overrides: [

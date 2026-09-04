@@ -33,8 +33,8 @@ void main() {
         .cast<Map<String, dynamic>>();
 
     expect(expenses.map((e) => e['categorySlug']), [
-      'alimentation.supermarche',
-      'transport.essence',
+      'alimentation.courses',
+      'transport.carburant',
       LegacyCategoryMapper.fallback,
     ]);
   });

@@ -271,7 +271,7 @@ void main() {
     ).captured.cast<ExpenseModel>();
 
     expect(imported.map((e) => e.categorySlug), [
-      'alimentation.supermarche',
+      'alimentation.courses',
       LegacyCategoryMapper.fallback,
     ]);
     expect(imported.first.startDate, DateTime(2026, 1, 5));

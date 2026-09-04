@@ -77,8 +77,9 @@ void main() {
 
       expect(slugs, [
         'voyage.transport_longue_distance',
-        'voyage.hebergement',
+        'voyage.sejour',
         'voyage.location_vehicule',
+        'voyage.hebergement',
         'voyage.activite_visite',
       ]);
     });
@@ -107,7 +108,10 @@ void main() {
         'logement.charges',
         'logement.energie',
         'logement.eau',
-        'logement.travaux',
+        'logement.bricolage_jardin',
+        'logement.services',
+        'logement.demenagement',
+        'logement.assurance_habitation',
       ]);
     });
 
@@ -130,11 +134,23 @@ void main() {
       expect(taxonomy.groupsOfType(TransactionType.income).length, 4);
     });
 
-    test('leaves cover every model label, in the order of the head', () {
-      expect(
-        taxonomy.leaves.map((leaf) => leaf.slug),
-        QuickAddLabels.categories,
-      );
+    test(
+      'selectable leaves cover every model label, in the order of the head',
+      () {
+        expect(
+          taxonomy.selectableLeaves.map((leaf) => leaf.slug),
+          QuickAddLabels.categories,
+        );
+      },
+    );
+
+    test('deprecated leaves stay out of the model head', () {
+      final deprecated = taxonomy.leaves.where((leaf) => leaf.isDeprecated);
+
+      expect(deprecated, isNotEmpty);
+      for (final leaf in deprecated) {
+        expect(QuickAddLabels.categories, isNot(contains(leaf.slug)));
+      }
     });
   });
 
@@ -174,7 +190,10 @@ void main() {
   group('load', () {
     test('is idempotent', () async {
       await taxonomy.load();
-      expect(taxonomy.leaves.length, QuickAddLabels.categories.length);
+      expect(
+        taxonomy.selectableLeaves.length,
+        QuickAddLabels.categories.length,
+      );
     });
   });
 
