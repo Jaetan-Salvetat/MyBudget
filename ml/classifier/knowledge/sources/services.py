@@ -103,7 +103,7 @@ SERVICES: dict[str, list[str]] = {
         "1Password", "Dashlane", "Bitwarden", "LastPass", "NordVPN", "ExpressVPN", "Surfshark",
         "ProtonVPN", "Proton|Proton Mail", "Grammarly", "DeepL", "LinkedIn Premium", "Zapier",
         "Shopify", "Squarespace", "Wix", "WordPress", "Mailchimp", "Brevo", "Sendinblue",
-        "QuickBooks", "Xero", "Sage", "Pennylane", "Indy", "Freebe", "Salesforce", "HubSpot",
+        "QuickBooks", "Sage", "Salesforce", "HubSpot",
         "Sketch", "Affinity", "JetBrains", "GitHub", "GitLab", "Setapp", "CleanMyMac",
         "Apple One", "Antivirus|Norton|McAfee|Avast|Bitdefender|Kaspersky", "Malwarebytes",
         "TeamViewer", "Dropbox Sign", "DocuSign", "Calendly", "Typeform", "Webflow",
@@ -157,7 +157,7 @@ SERVICES: dict[str, list[str]] = {
     "logement.charges": [
         "Foncia", "Citya", "Nexity", "Immo de France", "Sergic", "Loiselet & Daigremont",
         "syndic", "charges de copropriété", "appel de fonds", "service charge", "ground rent",
-        "council tax", "taxe d'ordures ménagères",
+        "taxe d'ordures ménagères",
     ],
     "logement.loyer": [
         "Century 21", "Orpi", "Laforêt", "Guy Hoquet", "Stéphane Plaza Immobilier",
@@ -166,7 +166,7 @@ SERVICES: dict[str, list[str]] = {
     ],
     "finance.frais_bancaires": [
         "Revolut", "N26", "BoursoBank|Boursorama", "Fortuneo", "Hello bank!|Hello bank",
-        "Monabanq", "Nickel", "Lydia", "Sumeria", "Wise|TransferWise", "Qonto", "Shine",
+        "Monabanq", "Nickel", "Lydia", "Sumeria", "Wise|TransferWise",
         "Bunq", "Monzo", "Starling Bank", "Chime", "Cash App", "Venmo", "PayPal", "SumUp",
         "Curve", "Vivid", "Trade Republic carte", "Western Union", "MoneyGram", "Remitly",
         "frais bancaires", "cotisation carte", "agios", "commission d'intervention",
@@ -187,10 +187,10 @@ SERVICES: dict[str, list[str]] = {
         "student loan",
     ],
     "finance.impots_taxes": [
-        "impots.gouv|impots.gouv.fr", "DGFiP", "Trésor Public", "URSSAF", "taxe foncière",
+        "impots.gouv|impots.gouv.fr", "DGFiP", "Trésor Public", "taxe foncière",
         "taxe d'habitation", "prélèvement à la source", "impôt sur le revenu", "TVA",
-        "cotisation foncière", "CFE", "redevance télé", "HMRC", "IRS", "income tax",
-        "council tax", "self assessment", "property tax", "sales tax", "national insurance",
+        "cotisation foncière", "redevance télé", "HMRC", "IRS", "income tax",
+        "self assessment", "property tax", "sales tax", "national insurance",
     ],
     "finance.amende": [
         "ANTAI", "amendes.gouv|amendes.gouv.fr", "PV stationnement", "contravention",
@@ -200,7 +200,7 @@ SERVICES: dict[str, list[str]] = {
     "logement.assurance_habitation": [
         "AXA", "MAIF", "MACIF", "MAAF", "Matmut", "Groupama", "Allianz", "GMF", "Generali",
         "Swiss Life", "Aviva", "MMA", "Pacifica", "Luko", "Lemonade", "Lovys", "Leocare",
-        "Direct Assurance", "L'olivier", "Admiral", "Direct Line", "Hiscox", "Homeserve",
+        "Direct Assurance", "L'olivier", "Admiral", "Direct Line", "Homeserve",
         "assurance habitation", "assurance logement", "multirisque habitation",
         "home insurance", "contents insurance", "renters insurance", "assurance appartement",
     ],
@@ -386,7 +386,7 @@ SERVICES: dict[str, list[str]] = {
     "divers.don": [
         "Croix-Rouge|Croix Rouge française", "Restos du Cœur", "Secours Populaire",
         "Secours Catholique", "UNICEF", "WWF", "Médecins Sans Frontières|MSF",
-        "Médecins du Monde", "Greenpeace", "Amnesty International", "Téléthon", "SPA",
+        "Médecins du Monde", "Greenpeace", "Amnesty International", "Téléthon",
         "Fondation Abbé Pierre", "Institut Pasteur", "GoFundMe", "Tipeee", "Patreon",
         "Ko-fi", "Wikipédia don", "Oxfam", "Cancer Research UK", "British Red Cross",
         "don mensuel", "donation", "charity donation", "parrainage",
@@ -446,7 +446,7 @@ SERVICES: dict[str, list[str]] = {
     "aide_allocation.aide_sociale": [
         "RSA", "prime d'activité", "AAH", "ASS", "APA", "PCH", "CCAS", "MDPH", "pension d'invalidité",
         "allocation adulte handicapé", "revenu de solidarité active", "aide sociale départementale",
-        "Universal Credit", "PIP", "Disability Living Allowance", "Jobseeker's Allowance",
+        "Universal Credit", "PIP", "Disability Living Allowance",
         "aide exceptionnelle CAF", "chèque énergie", "aide alimentaire", "secours du CCAS",
     ],
     "transfert.remboursement_achat": [
@@ -478,7 +478,7 @@ SERVICES: dict[str, list[str]] = {
     ],
     "aide_allocation.chomage": [
         "France Travail", "Pôle emploi", "ARE", "allocation chômage", "indemnités chômage",
-        "Jobcentre", "Universal Credit", "jobseeker's allowance", "unemployment benefit",
+        "Jobcentre", "jobseeker's allowance", "unemployment benefit",
     ],
     "aide_allocation.aide_logement": [
         "APL", "aide au logement", "ALS", "ALF", "CAF logement", "housing benefit",

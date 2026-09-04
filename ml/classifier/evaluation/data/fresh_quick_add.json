@@ -93,7 +93,7 @@
 {"input": "PRLV SEPA FONCIA LOYER", "axis": "releve_bancaire", "category": "logement.loyer", "type": "expense", "recurrence": "fixe"},
 {"input": "loyer du mois de mars", "axis": "recurrence", "category": "logement.loyer", "type": "expense", "recurrence": "fixe"},
 {"input": "j'ai viré le loyer au proprio", "axis": "phrase_libre", "category": "logement.loyer", "type": "expense", "recurrence": "fixe"},
-{"input": "caution apart", "axis": "sans_entite", "category": "logement.loyer", "type": "expense", "recurrence": "ponctuel"},
+{"input": "caution apart", "axis": "sans_entite", "category": "logement.demenagement", "type": "expense", "recurrence": "ponctuel"},
 {"input": "ma part du loyer de la coloc", "axis": "sans_entite", "category": "logement.loyer", "type": "expense", "recurrence": "fixe"},
 {"input": "charges de copro mensuelles", "axis": "recurrence", "category": "logement.charges", "type": "expense", "recurrence": "fixe"},
 {"input": "PRLV SEPA SYNDIC CITYA", "axis": "releve_bancaire", "category": "logement.charges", "type": "expense", "recurrence": "fixe"},

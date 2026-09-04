@@ -95,7 +95,7 @@ LEXICON: dict[str, list[str]] = {
         "taxi", "VTC", "course taxi", "course VTC", "chauffeur", "voiture avec chauffeur",
         "taxi de nuit", "taxi aéroport", "cab", "ride", "rideshare", "airport taxi",
         "uber ride", "bolt ride", "airport transfer", "trajet en VTC", "retour en taxi",
-        "minicab", "car service",
+        "minicab",
     ],
     "transport.parking": [
         "parking", "stationnement", "horodateur", "place de parking", "parking souterrain",
@@ -116,9 +116,9 @@ LEXICON: dict[str, list[str]] = {
     ],
     "logement.loyer": [
         "loyer", "loyer du mois", "loyer appartement", "loyer studio", "quittance",
-        "caution", "dépôt de garantie", "frais d'agence", "colocation", "part de loyer",
+        "caution", "colocation", "part de loyer",
         "caution appartement", "caution logement", "rent", "monthly rent", "rent payment",
-        "deposit", "letting fee", "room rent",
+        "letting fee", "room rent",
         "flatshare rent",
     ],
     "logement.charges": [
@@ -226,7 +226,7 @@ LEXICON: dict[str, list[str]] = {
         "parc d'attractions", "bowling", "escape game", "laser game", "karaoké",
         "billet spectacle", "sortie", "cinema", "movie", "movie ticket", "film night",
         "theatre", "show", "gig", "concert ticket", "festival ticket", "exhibition",
-        "bowling", "escape room", "night out", "comedy show",
+        "bowling", "escape room", "comedy show",
         "visite", "entrée musée", "billet monument", "visite guidée", "excursion",
         "activité vacances", "parc national", "croisière", "plongée", "ski", "forfait ski",
         "location ski", "randonnée guidée", "attraction", "guided tour", "day trip",
@@ -243,10 +243,10 @@ LEXICON: dict[str, list[str]] = {
     "loisirs.sport": [
         "sport", "salle de sport", "abonnement salle", "musculation", "fitness", "yoga",
         "pilates", "natation", "piscine", "escalade", "tennis", "padel", "foot", "football",
-        "basket", "running", "course à pied", "vélo", "licence sportive", "cotisation club",
+        "basket", "running", "course à pied", "licence sportive", "cotisation club",
         "équipement sport", "chaussures de running", "raquette", "cours collectif",
         "coach sportif", "gym", "gym membership", "workout", "swimming", "swim session",
-        "climbing", "tennis court", "pitch hire", "sports gear", "trainers", "running shoes",
+        "climbing", "tennis court", "pitch hire", "sports gear", "running shoes",
         "personal trainer", "club fees",
     ],
     "loisirs.livre_presse": [
@@ -323,10 +323,10 @@ LEXICON: dict[str, list[str]] = {
         "meuble", "meubles", "canapé", "fauteuil", "table", "chaise", "lit", "matelas",
         "armoire", "étagère", "bureau meuble", "commode", "tapis", "rideaux", "coussin",
         "lampe", "luminaire", "miroir", "cadre photo", "déco", "décoration", "vaisselle",
-        "assiettes", "verres", "casseroles", "linge de maison", "draps", "serviettes",
+        "assiettes", "casseroles", "linge de maison", "draps", "serviettes",
         "plantes déco", "bougie", "furniture", "sofa", "armchair", "table", "chair",
         "bed", "mattress", "wardrobe", "shelf", "desk", "rug", "curtains", "cushion",
-        "lamp", "mirror", "picture frame", "home decor", "crockery", "plates", "glasses",
+        "lamp", "mirror", "picture frame", "home decor", "crockery", "plates",
         "pans", "bedding", "towels", "candle",
     ],
     "finance.retrait_dab": [
@@ -337,15 +337,15 @@ LEXICON: dict[str, list[str]] = {
     "finance.frais_bancaires": [
         "frais bancaires", "frais de tenue de compte", "cotisation carte bancaire",
         "agios", "commission d'intervention", "frais de découvert", "frais virement",
-        "frais à l'étranger", "frais de change", "commission", "bank fees", "account fee",
+        "frais à l'étranger", "frais de change", "bank fees", "account fee",
         "card fee", "overdraft fee", "transaction fee", "foreign exchange fee",
         "transfer fee", "monthly banking fee",
     ],
     "finance.impots_taxes": [
         "impôts", "impôt", "taxe", "taxes", "taxe foncière", "taxe d'habitation",
-        "impôt sur le revenu", "prélèvement à la source", "TVA", "cotisations sociales",
-        "URSSAF", "redevance", "acompte impôt", "tiers provisionnel", "tax", "taxes",
-        "income tax", "council tax", "property tax", "vat", "national insurance",
+        "impôt sur le revenu", "prélèvement à la source", "TVA",
+        "redevance", "acompte impôt", "tiers provisionnel", "tax", "taxes",
+        "income tax", "property tax", "vat",
         "self assessment", "tax payment", "tax bill",
     ],
     "finance.amende": [
@@ -381,7 +381,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "finance.epargne_investissement": [
         "épargne", "virement épargne", "livret", "livret A", "PEL", "PEA", "assurance vie",
-        "bourse", "actions", "ETF", "obligations", "crypto", "bitcoin", "placement",
+        "actions", "ETF", "obligations", "crypto", "bitcoin", "placement",
         "investissement", "versement épargne", "savings", "saving", "investment",
         "stocks", "shares", "index fund", "crypto", "pension contribution", "isa",
         "put aside", "transfer to savings",
@@ -396,7 +396,7 @@ LEXICON: dict[str, list[str]] = {
     "famille_education.scolarite": [
         "scolarité", "frais de scolarité", "inscription école", "rentrée scolaire",
         "école privée", "collège", "lycée", "université", "fac", "internat",
-        "voyage scolaire", "sortie scolaire", "assurance scolaire", "school fees",
+        "voyage scolaire", "sortie scolaire", "school fees",
         "tuition", "tuition fees", "enrolment", "term fees", "school trip", "uni fees",
     ],
     "famille_education.fournitures": [
@@ -431,15 +431,15 @@ LEXICON: dict[str, list[str]] = {
         "swimming lessons", "music lessons", "birthday party", "play centre",
     ],
     "famille_education.pension_alimentaire": [
-        "pension alimentaire", "contribution éducation", "versement pension",
+        "contribution éducation", "versement pension",
         "aide aux parents", "aide à mon fils", "aide à ma fille", "child support",
-        "child maintenance", "maintenance payment", "alimony", "family support payment",
+        "alimony", "family support payment",
     ],
     "famille_education.enfant": [
         "dépense enfant", "achat pour les enfants", "argent de poche",
         "couches", "lingettes bébé", "biberon", "puériculture",
         "matériel bébé", "poussette", "siège auto bébé", "lit bébé",
-        "chaise haute", "jouet", "jouets", "peluche", "doudou",
+        "chaise haute", "jouet", "doudou",
         "trousse de l'école", "affaires du petit",
     ],
     "voyage.transport_longue_distance": [
@@ -483,7 +483,7 @@ LEXICON: dict[str, list[str]] = {
         "casino night", "poker night",
     ],
     "divers.don": [
-        "don", "dons", "donation", "don association", "don mensuel", "cotisation association",
+        "don", "dons", "donation", "don association", "don mensuel",
         "collecte", "cagnotte", "soutien", "mécénat", "offrande", "charité",
         "charity", "charity donation", "monthly donation", "fundraiser", "sponsorship",
         "giving", "tithe", "crowdfunding",
@@ -557,7 +557,7 @@ LEXICON: dict[str, list[str]] = {
     "salaire.prime": [
         "prime", "bonus", "prime annuelle", "prime de fin d'année", "13ème mois",
         "intéressement", "participation", "prime exceptionnelle", "prime de vacances",
-        "commission vente", "pourboire", "pourboires", "bonus payment", "annual bonus",
+        "commission vente", "pourboires", "bonus payment", "annual bonus",
         "commission", "tips", "overtime pay", "performance bonus",
     ],
     "salaire.freelance": [
@@ -578,7 +578,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "aide_allocation.chomage": [
         "chômage", "allocation chômage", "indemnités chômage", "ARE", "France Travail",
-        "Pôle emploi", "unemployment benefit", "jobseeker's allowance", "universal credit",
+        "Pôle emploi", "unemployment benefit", "jobseeker's allowance",
         "dole",
     ],
     "aide_allocation.aide_logement": [
@@ -592,7 +592,7 @@ LEXICON: dict[str, list[str]] = {
     "transfert.virement_recu": [
         "virement reçu", "virement", "transfert reçu", "argent reçu", "versement reçu",
         "reçu de la banque", "transfert entre comptes", "transfer received",
-        "money received", "incoming transfer", "bank transfer in", "deposit",
+        "money received", "incoming transfer", "bank transfer in",
     ],
     "transfert.remboursement_sante": [
         "remboursement santé", "remboursement mutuelle", "remboursement sécu",
@@ -621,7 +621,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "exceptionnel.interets": [
         "intérêts", "intérêts livret", "intérêts épargne", "dividendes", "coupons",
-        "plus-value", "cashback", "rendement", "interest", "savings interest",
+        "plus-value", "rendement", "interest", "savings interest",
         "dividends", "capital gain", "cashback received", "yield",
     ],
     "exceptionnel.loyer_percu": [
