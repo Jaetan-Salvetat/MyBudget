@@ -90,10 +90,18 @@ def _write_jsonl(path, rows):
 
 
 def test_training_rows_merges_receipts_when_present(tmp_path):
-    _write_jsonl(tmp_path / "train.jsonl", [{"text": "netflix"}])
-    assert training_rows(tmp_path) == [{"text": "netflix"}]
-    _write_jsonl(tmp_path / "receipts_train.jsonl", [{"text": "yaourt nat"}])
-    assert training_rows(tmp_path) == [{"text": "netflix"}, {"text": "yaourt nat"}]
+    netflix = {"text": "netflix", "category_label": 3}
+    yaourt = {"text": "yaourt nat", "category_label": 0}
+    _write_jsonl(tmp_path / "train.jsonl", [netflix])
+    assert training_rows(tmp_path) == [netflix]
+    _write_jsonl(tmp_path / "receipts_train.jsonl", [yaourt])
+    assert training_rows(tmp_path) == [netflix, yaourt]
+
+
+def test_training_rows_drop_a_text_the_two_corpora_label_differently(tmp_path):
+    _write_jsonl(tmp_path / "train.jsonl", [{"text": "creme", "category_label": 3}])
+    _write_jsonl(tmp_path / "receipts_train.jsonl", [{"text": "creme", "category_label": 0}])
+    assert training_rows(tmp_path) == []
 
 
 def test_cap_per_class_bounds_every_class():
@@ -134,3 +142,15 @@ def test_drop_contradictions_keeps_a_label_repeated_under_one_class():
     lines = [("a", "baguette", "alimentation.boulangerie"),
              ("b", "baguette", "alimentation.boulangerie")]
     assert drop_contradictions(lines) == lines
+
+
+def test_held_out_texts_cover_the_hard_receipt_corpus():
+    import json
+
+    from corpus.receipts.build import held_out_texts
+    from paths import EVAL_DATA_DIR
+    from serving.normalize import normalize_receipt_line
+
+    cases = json.loads((EVAL_DATA_DIR / "hard_receipts.json").read_text(encoding="utf-8"))["cases"]
+    held = held_out_texts()
+    assert all(normalize_receipt_line(case["name"]) in held for case in cases)

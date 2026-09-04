@@ -27,6 +27,7 @@ COVERAGE_LEVELS = (0.5, 0.7, 0.8, 0.9)
 MIN_CLASS_SIZE = 30
 WEAKEST_CLASSES = 12
 TOP_CONFUSIONS = 15
+DEFAULT_SOURCE = "entites"
 
 # Supermarché / épicerie / marché et restaurant / fast-food / café / bar sont
 # des conventions d'enseigne, pas des faits : les confondre isole ce que des
@@ -75,6 +76,19 @@ def predict(model, tokenizer, texts: list[str]) -> tuple[list[int], list[float]]
     return indices, confidences
 
 
+def report_by_source(rows: list[dict], predicted: list[int], expected: list[int]) -> None:
+    by_source: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+    for row, p, e in zip(rows, predicted, expected):
+        source = row.get("source", DEFAULT_SOURCE)
+        by_source[source][1] += 1
+        by_source[source][0] += p == e
+    if len(by_source) < 2:
+        return
+    print("\nPar source")
+    for source, (ok, total) in sorted(by_source.items()):
+        print(f"  {source:16s} {ok / total:5.1%}  ({ok}/{total})")
+
+
 def main() -> None:
     rows = read_rows()
     model = BudgetClassifier.from_pretrained(str(MODEL_DIR)).eval()
@@ -90,6 +104,7 @@ def main() -> None:
     print(f"Entités jamais vues : {len(rows)}")
     print(f"  Catégorie stricte : {strict}/{len(rows)} = {strict / len(rows):.1%}")
     print(f"  À la famille près : {same_family / len(rows):.1%}")
+    report_by_source(rows, predicted, expected)
 
     order = sorted(range(len(rows)), key=lambda i: -confidences[i])
     print("\nPar niveau de confiance")

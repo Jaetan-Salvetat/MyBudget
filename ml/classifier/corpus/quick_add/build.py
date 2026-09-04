@@ -16,6 +16,8 @@ from collections import defaultdict
 from pathlib import Path
 
 from corpus.quick_add.examples import EXAMPLES
+from corpus.quick_add.utterances import SOURCE as UTTERANCE_SOURCE
+from corpus.quick_add.utterances import utterance_entities
 from corpus.quick_add.verbs import VERB_PHRASES, VERB_SOURCE
 from knowledge.build import SOURCE_PRIORITY
 from knowledge.entities import TIER_HEAD, Entity, normalize, read_entities
@@ -25,8 +27,12 @@ from serving.normalize import normalize_query
 from taxonomy import ACTIVE_LABELS, LABELS, NUM_EXPENSE, RECURRING, type_of
 
 SEED = 42
+UTTERANCE_SPLIT_SEED = 43
 EVAL_ENTITY_RATIO = 0.08
-CLASS_SAMPLE_CAP = 9000
+UTTERANCE_EVAL_CAP = 120
+ENTITY_ROW_SOURCE = "entites"
+UTTERANCE_ROW_SOURCE = "formulations"
+CLASS_SAMPLE_CAP = 7000
 CLASS_SAMPLE_FLOOR = 1200
 CURATED_SOURCE = "curated"
 AMOUNT_RATIO = 0.15
@@ -183,6 +189,9 @@ TAIL_RATIO = 0.45
 GEOGRAPHIC_SOURCES = frozenset({"nsi", "wikidata"})
 FOREIGN_MARKET_BUDGET = 1
 VERB_FORMS_BUDGET = 8
+UTTERANCE_FORMS_BUDGET = 4
+UTTERANCE_SUFFIX_RATIO = 0.5
+UTTERANCE_TAIL_RATIO = 0.2
 
 
 def _forms_budget(entity: Entity) -> int:
@@ -191,6 +200,8 @@ def _forms_budget(entity: Entity) -> int:
         return 13
     if entity.source == VERB_SOURCE:
         return VERB_FORMS_BUDGET
+    if entity.source == UTTERANCE_SOURCE:
+        return UTTERANCE_FORMS_BUDGET
     if entity.source in GEOGRAPHIC_SOURCES and entity.tier != TIER_HEAD:
         return FOREIGN_MARKET_BUDGET
     if priority >= 4:
@@ -219,6 +230,17 @@ def _decorate_clause(text: str, rng: random.Random) -> tuple[str, bool]:
     if rng.random() < 0.45:
         out = f"{out} {rng.choice(FR_SUFFIXES)}"
     if rng.random() < TAIL_RATIO:
+        out = f"{out} {rng.choice(FRENCH_TAILS)}"
+    if rng.random() < AMOUNT_RATIO:
+        out = f"{out} {rng.choice(AMOUNTS)}"
+    return out, False
+
+
+def _decorate_utterance(text: str, rng: random.Random) -> tuple[str, bool]:
+    out = text
+    if rng.random() < UTTERANCE_SUFFIX_RATIO:
+        out = f"{out} {rng.choice(FR_SUFFIXES)}"
+    if rng.random() < UTTERANCE_TAIL_RATIO:
         out = f"{out} {rng.choice(FRENCH_TAILS)}"
     if rng.random() < AMOUNT_RATIO:
         out = f"{out} {rng.choice(AMOUNTS)}"
@@ -290,6 +312,8 @@ def _surface_forms(
         base = rng.choice(surfaces)
         if entity.source == VERB_SOURCE:
             text, marked = _decorate_clause(base, rng)
+        elif entity.source == UTTERANCE_SOURCE:
+            text, marked = _decorate_utterance(base, rng)
         else:
             text, marked = _decorate(base, is_income, rng)
         push(text, RECURRING if marked else entity.recurrence)
@@ -361,7 +385,12 @@ def _split_entities(
 
 
 def _samples_for_class(
-    slug: str, slug_entities: list[Entity], rng: random.Random, cap: int, floor: int
+    slug: str,
+    slug_entities: list[Entity],
+    rng: random.Random,
+    cap: int,
+    floor: int,
+    source: str = ENTITY_ROW_SOURCE,
 ) -> list[dict]:
     index = LABELS.index(slug)
     type_label = type_of(slug)
@@ -382,6 +411,7 @@ def _samples_for_class(
                     "type_label": type_label,
                     "category_label": index,
                     "recurrence_label": recurrence,
+                    "source": source,
                 }
             )
 
@@ -419,6 +449,21 @@ def generate(seed: int = SEED) -> tuple[list[dict], list[dict]]:
     evaluation: list[dict] = []
     for slug, group in eval_groups.items():
         evaluation.extend(_samples_for_class(slug, group, rng, 400, 0))
+
+    utterance_rng = random.Random(UTTERANCE_SPLIT_SEED)
+    utterance_train, utterance_held = _split_entities(utterance_entities(), utterance_rng)
+    for slug, group in _group(utterance_train).items():
+        train.extend(
+            _samples_for_class(
+                slug, group, utterance_rng, CLASS_SAMPLE_CAP, 0, UTTERANCE_ROW_SOURCE
+            )
+        )
+    for slug, group in _group(utterance_held).items():
+        evaluation.extend(
+            _samples_for_class(
+                slug, group, utterance_rng, UTTERANCE_EVAL_CAP, 0, UTTERANCE_ROW_SOURCE
+            )
+        )
 
     rng.shuffle(train)
     rng.shuffle(evaluation)
