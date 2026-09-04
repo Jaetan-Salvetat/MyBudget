@@ -29,30 +29,37 @@ from knowledge.sources.services import SERVICES
 RECURRING_MARK = "~"
 ALIAS_SEPARATOR = "|"
 
-
-def owners(table: dict[str, list], text_of) -> dict[str, set[str]]:
-    claimed: dict[str, set[str]] = collections.defaultdict(set)
-    for slug, rows in table.items():
-        for row in rows:
-            claimed[normalize(text_of(row))].add(slug)
-    return claimed
-
-
-def shared(table: dict[str, list], text_of=lambda row: row) -> dict[str, set[str]]:
-    return {text: slugs for text, slugs in owners(table, text_of).items() if len(slugs) > 1}
+TABLES = {
+    "examples": (EXAMPLES, lambda row: row[0]),
+    "verbes": (VERB_PHRASES, lambda row: row),
+    "lexique": (LEXICON, lambda row: row),
+    "marques": (SERVICES, lambda row: row.lstrip(RECURRING_MARK).split(ALIAS_SEPARATOR)[0]),
+}
 
 
-def test_no_example_is_claimed_by_two_classes():
-    assert shared(EXAMPLES, lambda row: row[0]) == {}
+def shared(tables: dict) -> dict[str, list[str]]:
+    """Les textes que deux classes revendiquent, et où ils sont écrits."""
+    slugs: dict[str, set[str]] = collections.defaultdict(set)
+    sites: dict[str, set[str]] = collections.defaultdict(set)
+    for source, (table, text_of) in tables.items():
+        for slug, rows in table.items():
+            for row in rows:
+                text = normalize(text_of(row))
+                slugs[text].add(slug)
+                sites[text].add(f"{source}:{slug}")
+    return {text: sorted(sites[text]) for text, owners in slugs.items() if len(owners) > 1}
 
 
-def test_no_verb_phrase_is_claimed_by_two_classes():
-    assert shared(VERB_PHRASES) == {}
+def test_no_text_is_claimed_by_two_classes_within_a_source():
+    for name, table in TABLES.items():
+        assert shared({name: table}) == {}, name
 
 
-def test_no_common_noun_is_claimed_by_two_classes():
-    assert shared(LEXICON) == {}
+def test_no_text_is_claimed_by_two_classes_across_sources():
+    """`SOURCE_PRIORITY` tranche en silence : les marques battent le lexique.
 
-
-def test_no_brand_is_claimed_by_two_classes():
-    assert shared(SERVICES, lambda row: row.lstrip(RECURRING_MARK).split(ALIAS_SEPARATOR)[0]) == {}
+    « cashback » vivait dans `exceptionnel.interets` côté marques et dans
+    `exceptionnel.autre_revenu` côté lexique. Rien n'échouait, et la classe
+    neuve perdait son mot au profit de l'ancienne sans qu'aucun compteur bouge.
+    """
+    assert shared(TABLES) == {}

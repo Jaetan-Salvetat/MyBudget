@@ -128,7 +128,7 @@ SERVICES: dict[str, list[str]] = {
     ],
     "numerique.stockage_cloud": [
         "Dropbox", "Google One", "Google Drive", "iCloud|iCloud+|iCloud Plus", "OneDrive",
-        "Mega", "pCloud", "Box", "Backblaze", "Sync.com", "kDrive", "Proton Drive",
+        "Mega", "pCloud", "Box.com", "Backblaze", "Sync.com", "kDrive", "Proton Drive",
         "Tresorit", "Nextcloud", "Amazon Photos", "Koofr", "stockage cloud", "cloud storage",
     ],
     "numerique.telecom": [
@@ -187,10 +187,10 @@ SERVICES: dict[str, list[str]] = {
         "student loan",
     ],
     "finance.impots_taxes": [
-        "impots.gouv|impots.gouv.fr", "DGFiP", "Trésor Public", "taxe foncière",
+        "impots.gouv|impots.gouv.fr", "DGFiP", "taxe foncière",
         "taxe d'habitation", "prélèvement à la source", "impôt sur le revenu", "TVA",
         "cotisation foncière", "redevance télé", "HMRC", "IRS", "income tax",
-        "self assessment", "property tax", "sales tax", "national insurance",
+        "self assessment", "property tax", "sales tax", 
     ],
     "finance.amende": [
         "ANTAI", "amendes.gouv|amendes.gouv.fr", "PV stationnement", "contravention",
@@ -199,8 +199,8 @@ SERVICES: dict[str, list[str]] = {
     ],
     "logement.assurance_habitation": [
         "AXA", "MAIF", "MACIF", "MAAF", "Matmut", "Groupama", "Allianz", "GMF", "Generali",
-        "Swiss Life", "Aviva", "MMA", "Pacifica", "Luko", "Lemonade", "Lovys", "Leocare",
-        "Direct Assurance", "L'olivier", "Admiral", "Direct Line", "Homeserve",
+        "Aviva", "MMA", "Pacifica", "Luko", "Lemonade", "Lovys", "Leocare",
+        "L'olivier", "Admiral", "Direct Line", "Homeserve",
         "assurance habitation", "assurance logement", "multirisque habitation",
         "home insurance", "contents insurance", "renters insurance", "assurance appartement",
     ],
@@ -389,12 +389,12 @@ SERVICES: dict[str, list[str]] = {
         "Médecins du Monde", "Greenpeace", "Amnesty International", "Téléthon",
         "Fondation Abbé Pierre", "Institut Pasteur", "GoFundMe", "Tipeee", "Patreon",
         "Ko-fi", "Wikipédia don", "Oxfam", "Cancer Research UK", "British Red Cross",
-        "don mensuel", "donation", "charity donation", "parrainage",
+        "don mensuel", "donation", "charity donation", 
     ],
     "divers.animaux": [
         "Purina", "Royal Canin", "Whiskas", "Felix", "Pedigree", "Ultima", "Sheba",
         "Hill's", "Virbac", "Zooplus", "Wanimo", "Maxi Zoo", "Jardiland", "Truffaut",
-        "Animalis", "Bitiba", "Petco", "PetSmart", "Pets at Home", "assurance animaux",
+        "Animalis", "Bitiba", "Petco", "PetSmart", "Pets at Home", 
         "toilettage chien", "pension pour chat", "pet insurance", "vet bill",
     ],
     "divers.services": [
@@ -468,7 +468,7 @@ SERVICES: dict[str, list[str]] = {
         "Nectar points", "gains de jeu", "lot gagné", "prime référendum salarié",
     ],
     "divers.cadeau_offert": [
-        "Interflora", "Bergamotte", "Aquarelle", "Wonderbox", "Smartbox", "Vente-privée cadeau",
+        "Interflora", "Bergamotte", "Aquarelle fleurs", "Wonderbox", "Smartbox", "Vente-privée cadeau",
         "carte cadeau", "chèque cadeau", "bon cadeau", "gift card", "birthday present",
         "cadeau de Noël", "cadeau anniversaire", "wedding gift",
     ],
@@ -494,11 +494,11 @@ SERVICES: dict[str, list[str]] = {
         "medical reimbursement",
     ],
     "transfert.remboursement_impots": [
-        "remboursement impôts", "trop-perçu impôts", "crédit d'impôt", "restitution DGFiP",
+        "remboursement impôts", "trop-perçu impôts", "crédit d'impôt", "restitution d'impôt",
         "tax refund", "tax rebate", "HMRC refund",
     ],
     "transfert.remboursement_ami": [
-        "remboursement Lydia", "remboursement PayPal", "Tricount", "Splitwise",
+        "remboursement Lydia", "Tricount", "Splitwise",
         "remboursement pote", "remboursement resto", "money back from friend",
         "paid me back", "split bill refund",
     ],
@@ -509,7 +509,7 @@ SERVICES: dict[str, list[str]] = {
     ],
     "exceptionnel.interets": [
         "intérêts Livret A", "intérêts épargne", "dividendes", "coupons obligations",
-        "plus-value", "cashback", "staking rewards", "savings interest", "dividend payment",
+        "plus-value", "staking rewards", "savings interest", "dividend payment",
         "interest payment",
     ],
     "exceptionnel.loyer_percu": [
