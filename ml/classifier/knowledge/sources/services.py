@@ -40,10 +40,11 @@ RECURRING_SLUGS: frozenset[str] = frozenset(
         "logement.charges",
         "logement.energie",
         "logement.eau",
-        "finance.assurance_habitation",
-        "finance.assurance_auto",
-        "finance.assurance_sante",
+        "logement.assurance_habitation",
+        "transport.assurance_auto",
+        "sante_beaute.mutuelle",
         "finance.credit_pret",
+        "finance.charges_pro",
     }
 )
 
@@ -85,11 +86,15 @@ SERVICES: dict[str, list[str]] = {
         "~licence club", "~cotisation club", "Decathlon|Décathlon|Décat|Decat|Decath",
         "Intersport", "Go Sport", "Foot Locker",
     ],
-    "loisirs.cinema_sortie": [
+    "loisirs.sorties": [
         "UGC", "Pathé|Pathé Gaumont", "CGR", "Kinepolis", "Mégarama", "MK2",
         "Cineworld", "Odeon", "Vue Cinemas", "AMC", "Regal", "Ticketmaster", "Fnac Spectacles",
         "France Billet", "Dice", "Eventbrite", "Shotgun", "Billetreduc", "See Tickets",
         "Disneyland Paris", "Parc Astérix", "Puy du Fou", "Futuroscope", "Walibi", "Nigloland",
+        "GetYourGuide", "Viator", "Tiqets", "Musement", "Klook", "Tripadvisor",
+        "Louvre", "Château de Versailles", "Tour Eiffel", "Legoland", "Universal Studios",
+        "Alton Towers", "Thorpe Park", "entrée musée", "visite guidée", "excursion",
+        "museum ticket", "guided tour", "attraction ticket",
     ],
     "numerique.logiciel_service": [
         "Google", "Microsoft", "Adobe|Adobe Creative Cloud", "Photoshop", "Lightroom", "Microsoft 365|Office 365|Office",
@@ -192,27 +197,27 @@ SERVICES: dict[str, list[str]] = {
         "amende SNCF", "amende RATP", "radar", "forfait post-stationnement", "FPS",
         "DVLA fine", "parking fine", "speeding ticket", "penalty charge notice", "late fee",
     ],
-    "finance.assurance_habitation": [
+    "logement.assurance_habitation": [
         "AXA", "MAIF", "MACIF", "MAAF", "Matmut", "Groupama", "Allianz", "GMF", "Generali",
         "Swiss Life", "Aviva", "MMA", "Pacifica", "Luko", "Lemonade", "Lovys", "Leocare",
         "Direct Assurance", "L'olivier", "Admiral", "Direct Line", "Hiscox", "Homeserve",
         "assurance habitation", "assurance logement", "multirisque habitation",
         "home insurance", "contents insurance", "renters insurance", "assurance appartement",
     ],
-    "finance.assurance_auto": [
+    "transport.assurance_auto": [
         "assurance auto", "assurance voiture", "assurance véhicule", "assurance moto",
         "assurance scooter", "carte verte", "AXA auto", "MAIF auto", "MACIF auto",
         "Matmut auto", "Groupama auto", "Allianz auto", "GMF auto", "Direct Assurance auto",
         "L'olivier auto", "car insurance", "motor insurance", "vehicle insurance",
         "assurance tous risques", "assurance au tiers",
     ],
-    "finance.assurance_sante": [
+    "sante_beaute.mutuelle": [
         "Harmonie Mutuelle", "MGEN", "Malakoff Humanis", "Alan", "April", "Mutuelle Générale",
         "Apivia", "Aésio", "Mercer", "Henner", "Cegema", "Swiss Life santé", "AXA santé",
         "MAIF santé", "mutuelle", "complémentaire santé", "cotisation mutuelle",
         "health insurance", "dental insurance", "Bupa", "Vitality", "Aetna", "Cigna",
     ],
-    "transport.essence": [
+    "transport.carburant": [
         "Total|TotalEnergies", "Total Access", "Shell", "BP", "Esso", "Esso Express",
         "Avia", "Texaco", "Gulf", "Q8", "Agip", "Intermarché station", "Leclerc station",
         "Carrefour station", "Ionity", "Tesla Supercharger", "Allego", "Fastned",
@@ -261,7 +266,7 @@ SERVICES: dict[str, list[str]] = {
         "TheFork", "OpenTable", "Michelin", "titre restaurant", "carte resto",
         "restaurant ticket", "meal voucher",
     ],
-    "alimentation.supermarche": [
+    "alimentation.courses": [
         "E.Leclerc|Leclerc|Centre E.Leclerc|Leclerc Drive|Hyper Leclerc",
         "Carrefour|Carrouf|Carrefour Hyper|Hyper Carrefour",
         "Monoprix", "Franprix", "Amazon Fresh", "Ocado", "Ocado Retail", "La Ruche qui dit Oui", "HelloFresh",
@@ -288,7 +293,7 @@ SERVICES: dict[str, list[str]] = {
         "Cash Converters", "Back Market vente", "Recommerce", "Vide dressing",
         "Etsy vente", "Marketplace", "vente en ligne",
     ],
-    "sante_beaute.medecin": [
+    "sante_beaute.soins_medicaux": [
         "Doctolib", "Maiia", "Qare", "Livi", "Zocdoc", "Babylon", "KRY", "Medadom",
         "consultation en ligne", "téléconsultation", "cabinet médical", "GP appointment",
         "private consultation",
@@ -301,10 +306,29 @@ SERVICES: dict[str, list[str]] = {
         "Calmosine", "Humex", "Actifed", "Rhinadvil", "Fervex",
     ],
     "sante_beaute.esthetique": [
-        "Nocibé", "Marionnaud", "Yves Rocher", "Kiko", "Rituals", "Lush", "The Body Shop",
+        "Nail bar", "institut de beauté", "manucure", "épilation", "soin visage", "massage",
+        "spa", "beauty salon", "nail salon", "waxing", "Body Minute", "Yves Rocher institut",
+        "Esthetic Center", "Guinot institut", "Wecasa beauté", "Treatwell", "Planity",
+    ],
+    "sante_beaute.cosmetiques": [
+        "Nocibé", "Marionnaud", "Yves Rocher", "Kiko|Kiko Milano", "Rituals", "Lush", "The Body Shop",
         "Glossier", "Typology", "Aime", "Sephora", "Douglas", "Beauty Success", "Feelunique",
-        "Look Fantastic", "Nail bar", "institut de beauté", "manucure", "épilation",
-        "soin visage", "massage", "spa", "beauty salon", "nail salon", "waxing",
+        "Look Fantastic", "L'Occitane", "Nuxe", "Caudalie", "La Roche-Posay", "Vichy", "Bioderma",
+        "Avène", "Clarins", "Lancôme", "Dior parfum", "Chanel parfum", "Guerlain", "Maybelline",
+        "L'Oréal Paris", "NYX", "MAC Cosmetics|MAC", "Benefit", "Fenty Beauty", "Charlotte Tilbury",
+        "Adopt|Adopt parfums", "Parfumerie", "Nocibé.fr", "Sephora.fr", "Beauté Privée",
+    ],
+    "sante_beaute.optique": [
+        "Krys", "Alain Afflelou|Afflelou", "Optical Center", "Générale d'Optique", "Optic 2000",
+        "Atol", "Grand Optical", "Lunettes pour tous", "Jimmy Fairly", "Le Petit Lunetier",
+        "Lissac", "Vision Plus", "Ecouter Voir", "Specsavers", "Vision Express", "Boots Opticians",
+        "Warby Parker", "Lentilles Moins Chères", "Vision Direct", "Sensee", "Ophtalmic",
+        "lentilles de contact", "lunettes de vue", "verres progressifs", "monture",
+    ],
+    "sante_beaute.dentaire": [
+        "Dentego", "Dentexia", "Dentalign", "Dr Smile|DrSmile", "Invisalign", "Alignerz",
+        "Bupa Dental", "MyDentist", "cabinet dentaire", "orthodontiste", "détartrage",
+        "couronne dentaire", "implant dentaire", "appareil dentaire", "dentiste",
     ],
     "famille_education.formation": [
         "Udemy", "Coursera", "OpenClassrooms", "edX", "Skillshare", "MasterClass",
@@ -339,7 +363,7 @@ SERVICES: dict[str, list[str]] = {
         "National Express", "Megabus", "Corsair", "French Bee", "Volotea", "billet d'avion",
         "billet de train", "flight ticket", "train ticket",
     ],
-    "voyage.hebergement": [
+    "voyage.sejour": [
         "Booking.com|Booking", "Airbnb", "Hotels.com", "Expedia", "Trivago", "Vrbo",
         "Abritel", "Hostelworld", "Accor", "Ibis", "Novotel", "Mercure", "Sofitel",
         "Pullman", "Marriott", "Hilton", "Best Western", "Premier Inn", "Travelodge",
@@ -352,13 +376,7 @@ SERVICES: dict[str, list[str]] = {
         "Ucar", "Getaround", "Turo", "Roadstr", "location voiture", "location utilitaire",
         "car hire", "van rental", "rental car",
     ],
-    "voyage.activite_visite": [
-        "GetYourGuide", "Viator", "Tiqets", "Musement", "Klook", "Tripadvisor",
-        "Louvre", "Château de Versailles", "Tour Eiffel", "Legoland", "Universal Studios",
-        "Alton Towers", "Thorpe Park", "entrée musée", "visite guidée", "excursion",
-        "museum ticket", "guided tour", "attraction ticket",
-    ],
-    "divers.tabac_jeux": [
+    "divers.tabac_paris": [
         "FDJ|Française des Jeux", "Loto", "EuroMillions", "Amigo", "Keno", "Parions Sport",
         "PMU", "ZEturf", "Betclic", "Winamax", "Unibet", "Bwin", "Bet365", "Ladbrokes",
         "William Hill", "Paddy Power", "Coral", "Zebet", "Vape shop", "e-liquide",
@@ -379,9 +397,75 @@ SERVICES: dict[str, list[str]] = {
         "Animalis", "Bitiba", "Petco", "PetSmart", "Pets at Home", "assurance animaux",
         "toilettage chien", "pension pour chat", "pet insurance", "vet bill",
     ],
-    "divers.autre": [
+    "divers.services": [
         "La Poste|Colissimo|Chronopost", "Mondial Relay", "Relais Colis", "UPS", "DHL",
-        "FedEx", "Point Relais",
+        "FedEx", "Point Relais", "5àsec|5 à sec", "Sequoia Pressing", "Mister Minit",
+        "Photomaton", "Cordonnerie", "Pressing", "Laverie", "Wash'n Dry", "Speed Queen laverie",
+        "Timpson", "Johnsons Cleaners", "Post Office", "Royal Mail", "Evri", "DPD", "Yodel",
+    ],
+    "divers.autre": [
+        "Pompes funèbres", "PFG", "Roc Eclerc", "frais de notaire hors logement",
+    ],
+    "logement.services": [
+        "~O2 Care Services|O2", "~Shiva", "~Wecasa ménage", "Yoojo", "~Helpling", "~Batmaid",
+        "~Domicile Clean", "~Axeo Services", "~Centre Services", "~Maison et Services",
+        "~Viasanté", "~Chaudière contrat entretien", "Proxiserve", "~Savelys", "~Cham",
+        "~Verisure", "~Securitas Home", "~Homiris", "~Nexecur", "Serrurier", "Ramoneur",
+        "Dératisation", "Rentokil", "femme de ménage", "aide ménagère", "jardinier", "Molly Maid",
+        "Fantastic Services", "TaskRabbit", "Handy", "Lulu dans ma rue",
+    ],
+    "logement.demenagement": [
+        "Demeco", "Les Gentlemen du Déménagement", "Hiflow", "Lugg", "AnyVan", "Demenager Facile",
+        "Movinga", "Nextories", "Homebox", "Shurgard", "Annexx", "Une Pièce en Plus", "Costockage",
+        "Locabox", "Big Yellow", "Safestore", "frais d'agence", "honoraires de notaire",
+        "dépôt de garantie", "état des lieux", "location camion déménagement", "garde-meubles",
+    ],
+    "transport.achat_vehicule": [
+        "Aramisauto", "Autohero", "Spoticar", "La Centrale", "AutoScout24", "Autosphere",
+        "Carvana", "Cazoo", "Cinch", "Tesla achat", "Renault concession", "Peugeot concession",
+        "Citroën concession", "Dacia concession", "Toyota concession", "Cowboy", "VanMoof",
+        "Moustache Bikes", "Angell", "Xiaomi trottinette", "Ninebot", "Decathlon vélo électrique",
+        "achat voiture", "achat moto", "achat scooter", "vélo électrique", "trottinette électrique",
+        "apport voiture", "reprise véhicule",
+    ],
+    "loisirs.loisirs_creatifs": [
+        "Rougier & Plé|Rougier et Plé", "Cultura loisirs créatifs", "Zôdio", "Mondial Tissus",
+        "Toto Tissus", "Bergère de France", "Phildar", "Le Géant des Beaux-Arts", "Boesner",
+        "Créa", "Pébéo", "Hobbycraft", "The Works", "Jackson's Art", "Cass Art", "Michaels",
+        "Joann", "Etsy fournitures créatives", "Creavea", "Perles & Co", "Rascol", "Tissus.net",
+        "Wool and the Gang", "Faber-Castell", "Winsor & Newton", "Copic", "Posca",
+    ],
+    "finance.charges_pro": [
+        "~URSSAF", "~Urssaf auto-entrepreneur", "~CFE", "~Indy", "~Shine", "~Qonto", "~Pennylane",
+        "~Freebe", "~Abby", "~Tiime", "Legalstart", "Legalplace", "Captain Contrat",
+        "expert-comptable", "cabinet comptable", "~WeWork", "~Wojo", "~Regus", "~Spaces",
+        "~Morning coworking", "~Hiscox", "~RC pro", "~Alan pro", "~Swile employeur",
+        "cotisations sociales", "SIE impôt société", "TVA à payer", "frais professionnels",
+        "~Companies House", "HMRC self assessment", "~Xero", "~FreeAgent",
+    ],
+    "aide_allocation.aide_sociale": [
+        "RSA", "prime d'activité", "AAH", "ASS", "APA", "PCH", "CCAS", "MDPH", "pension d'invalidité",
+        "allocation adulte handicapé", "revenu de solidarité active", "aide sociale départementale",
+        "Universal Credit", "PIP", "Disability Living Allowance", "Jobseeker's Allowance",
+        "aide exceptionnelle CAF", "chèque énergie", "aide alimentaire", "secours du CCAS",
+    ],
+    "transfert.remboursement_achat": [
+        "remboursement Amazon", "remboursement Zalando", "remboursement SNCF", "remboursement Vinted",
+        "remboursement Fnac", "remboursement Cdiscount", "remboursement Booking", "remboursement Airbnb",
+        "remboursement Ryanair", "remboursement easyJet", "remboursement Uber", "remboursement Deliveroo",
+        "avoir", "retour colis remboursé", "commande annulée", "geste commercial", "trop-perçu marchand",
+        "PayPal remboursement", "Klarna remboursement", "Alma remboursement",
+    ],
+    "transfert.pension_alimentaire": [
+        "pension alimentaire reçue", "ARIPA", "CAF pension alimentaire", "contribution à l'entretien reçue",
+        "pension de l'ex", "pension du père", "pension de la mère", "child maintenance received",
+        "CMS payment",
+    ],
+    "exceptionnel.autre_revenu": [
+        "iGraal", "Poulpeo", "Widilo", "Joko", "eBuyClub", "Lydia parrainage", "prime de parrainage",
+        "prime de bienvenue Boursorama", "prime Fortuneo", "cashback carte", "gain FDJ", "gain Loto",
+        "gain paris sportifs", "Betclic gains", "Winamax retrait", "Quidco", "TopCashback",
+        "Nectar points", "gains de jeu", "lot gagné", "prime référendum salarié",
     ],
     "divers.cadeau_offert": [
         "Interflora", "Bergamotte", "Aquarelle", "Wonderbox", "Smartbox", "Vente-privée cadeau",

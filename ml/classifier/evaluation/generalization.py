@@ -33,9 +33,6 @@ DEFAULT_SOURCE = "entites"
 # des conventions d'enseigne, pas des faits : les confondre isole ce que des
 # données supplémentaires peuvent encore corriger.
 FAMILIES = {
-    "alimentation.supermarche": "alimentation.courses",
-    "alimentation.epicerie": "alimentation.courses",
-    "alimentation.marche": "alimentation.courses",
     "restauration.restaurant": "restauration.sortie",
     "restauration.fast_food": "restauration.sortie",
     "restauration.cafe": "restauration.sortie",

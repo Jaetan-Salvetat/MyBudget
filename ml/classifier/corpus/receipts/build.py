@@ -83,15 +83,16 @@ PRODUCT_SOURCES = (
 )
 
 SHOP_FAMILIES = frozenset({
-    "alimentation.supermarche", "alimentation.epicerie", "alimentation.boulangerie", "alimentation.marche",
+    "alimentation.courses", "alimentation.pain_patisserie",
     "restauration.restaurant", "restauration.fast_food", "restauration.cafe", "restauration.bar",
-    "transport.essence", "transport.parking", "transport.peage", "transport.entretien_vehicule",
-    "logement.travaux", "sante_beaute.pharmacie", "sante_beaute.coiffeur", "sante_beaute.esthetique",
-    "loisirs.cinema_sortie", "loisirs.sport", "loisirs.livre_presse", "loisirs.jeux_video",
-    "shopping.vetements", "shopping.electronique", "shopping.mobilier_deco",
-    "famille_education.fournitures", "famille_education.activites_enfants",
-    "voyage.hebergement", "voyage.activite_visite", "divers.cadeau_offert", "divers.animaux",
-    "divers.tabac_jeux",
+    "transport.carburant", "transport.parking", "transport.peage", "transport.entretien_vehicule",
+    "transport.achat_vehicule", "logement.bricolage_jardin", "sante_beaute.pharmacie",
+    "sante_beaute.optique", "sante_beaute.cosmetiques", "sante_beaute.coiffeur",
+    "sante_beaute.esthetique", "loisirs.sorties", "loisirs.sport", "loisirs.livre_presse",
+    "loisirs.jeux_video", "loisirs.loisirs_creatifs", "shopping.vetements", "shopping.electronique",
+    "shopping.mobilier_deco", "famille_education.fournitures", "famille_education.activites_enfants",
+    "famille_education.enfant", "voyage.sejour", "divers.cadeau_offert", "divers.animaux",
+    "divers.tabac_paris", "divers.services",
 })
 STORE_SOURCES = frozenset({"nsi", "services", "lexicon"})
 

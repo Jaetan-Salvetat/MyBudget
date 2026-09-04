@@ -29,12 +29,12 @@ CLASS_TO_SLUG: dict[str, str] = {
     "Q11371": "numerique.telecom",
     "Q1326624": "logement.energie",
     "Q22687": "finance.frais_bancaires",
-    "Q2143354": "finance.assurance_habitation",
+    "Q2143354": "logement.assurance_habitation",
     "Q46970": "voyage.transport_longue_distance",
     "Q249556": "voyage.transport_longue_distance",
     "Q10438042": "transport.transport_commun",
     "Q19862852": "famille_education.formation",
-    "Q664702": "divers.tabac_jeux",
+    "Q664702": "divers.tabac_paris",
 }
 
 QUERY = """

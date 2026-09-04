@@ -26,11 +26,11 @@ def prediction(slug: str) -> dict:
 
 def test_a_class_is_scored_on_its_own_cases():
     """La colonne famille absout une erreur voisine, la colonne stricte non."""
-    cases = [case("alimentation.supermarche")] * 4
-    predictions = [prediction("alimentation.supermarche")] * 3 + [
-        prediction("alimentation.epicerie")
+    cases = [case("restauration.restaurant")] * 4
+    predictions = [prediction("restauration.restaurant")] * 3 + [
+        prediction("restauration.fast_food")
     ]
-    assert score_by_class(cases, predictions)["alimentation.supermarche"] == {
+    assert score_by_class(cases, predictions)["restauration.restaurant"] == {
         "n": 4,
         "strict": 0.75,
         "family": 1.0,
@@ -41,10 +41,10 @@ def test_a_class_is_scored_on_its_own_cases():
 
 
 def test_a_class_is_not_scored_on_another_class_cases():
-    cases = [case("alimentation.supermarche"), case("logement.loyer")]
+    cases = [case("alimentation.courses"), case("logement.loyer")]
     predictions = [prediction("logement.loyer"), prediction("logement.loyer")]
     scored = score_by_class(cases, predictions)
-    assert scored["alimentation.supermarche"]["strict"] == 0.0
+    assert scored["alimentation.courses"]["strict"] == 0.0
     assert scored["logement.loyer"]["strict"] == 1.0
 
 
@@ -71,9 +71,9 @@ def test_the_worst_class_comes_first():
 
 
 def test_classes_tied_on_the_score_are_ordered_by_name():
-    scored = {"divers.don": {"strict": 0.4}, "alimentation.marche": {"strict": 0.4}}
+    scored = {"divers.don": {"strict": 0.4}, "alimentation.courses": {"strict": 0.4}}
     assert [slug for slug, _ in classes_below_target(scored)] == [
-        "alimentation.marche",
+        "alimentation.courses",
         "divers.don",
     ]
 

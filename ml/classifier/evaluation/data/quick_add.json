@@ -493,7 +493,7 @@
     {
       "input": "dentiste 60",
       "type": "expense",
-      "category": "sante_beaute.soins_medicaux",
+      "category": "sante_beaute.dentaire",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -528,7 +528,7 @@
     {
       "input": "Sephora 55",
       "type": "expense",
-      "category": "sante_beaute.esthetique",
+      "category": "sante_beaute.cosmetiques",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -1011,7 +1011,7 @@
     {
       "input": "pressing chemise",
       "type": "expense",
-      "category": "divers.autre",
+      "category": "divers.services",
       "recurrence": "ponctuel",
       "level": "hard"
     },

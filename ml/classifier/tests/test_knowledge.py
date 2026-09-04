@@ -88,15 +88,15 @@ def test_surfaces_drop_duplicate_forms():
 
 def test_merge_keeps_the_most_reliable_source():
     low = Entity(name="Picard", slug="divers.autre", source="openfoodfacts")
-    high = Entity(name="picard", slug="alimentation.supermarche", source="services")
+    high = Entity(name="picard", slug="alimentation.courses", source="services")
     merged, conflicts = merge([low, high])
     assert len(merged) == 1
-    assert merged[0].slug == "alimentation.supermarche"
+    assert merged[0].slug == "alimentation.courses"
     assert sum(conflicts.values()) == 1
 
 
 def test_merge_enforces_overrides_against_any_source():
-    wrong = Entity(name="Orange", slug="alimentation.epicerie", source="services")
+    wrong = Entity(name="Orange", slug="alimentation.courses", source="services")
     right = Entity(name="Orange", slug="numerique.telecom", source="nsi")
     merged, _ = merge([wrong, right])
     assert [entity.slug for entity in merged] == ["numerique.telecom"]
@@ -133,25 +133,25 @@ def test_an_alias_never_steals_the_name_of_another_entity():
 def test_an_alias_claimed_by_two_classes_goes_to_the_most_reliable():
     station = Entity(
         name="Station Service E.Leclerc",
-        slug="transport.essence",
+        slug="transport.carburant",
         source="nsi",
         aliases=["leclerc"],
     )
     market = Entity(
         name="E.Leclerc Drive",
-        slug="alimentation.supermarche",
+        slug="alimentation.courses",
         source="services",
         aliases=["leclerc"],
     )
     merged, _ = merge([station, market])
     owners = {entity.slug for entity in merged if "leclerc" in entity.aliases}
-    assert owners == {"alimentation.supermarche"}
+    assert owners == {"alimentation.courses"}
 
 
 def test_an_ambiguous_alias_is_given_to_nobody():
     """Deux sources de même rang qui se disputent un alias : on ne tranche pas."""
     first = Entity(name="Bistrot A", slug="restauration.bar", source="nsi", aliases=["chez leo"])
-    second = Entity(name="Cave B", slug="alimentation.epicerie", source="nsi", aliases=["chez leo"])
+    second = Entity(name="Cave B", slug="alimentation.courses", source="nsi", aliases=["chez leo"])
     merged, _ = merge([first, second])
     assert all("chez leo" not in entity.aliases for entity in merged)
 
@@ -165,13 +165,13 @@ def test_merge_unions_aliases_of_the_same_entity():
 
 
 def test_merge_promotes_the_best_tier():
-    tail = Entity(name="Aldi", slug="alimentation.supermarche", source="nsi", tier=TIER_KNOWN)
-    head = Entity(name="aldi", slug="alimentation.supermarche", source="nsi", tier=TIER_HEAD)
+    tail = Entity(name="Aldi", slug="alimentation.courses", source="nsi", tier=TIER_KNOWN)
+    head = Entity(name="aldi", slug="alimentation.courses", source="nsi", tier=TIER_HEAD)
     merged, _ = merge([tail, head])
     assert merged[0].tier == TIER_HEAD
 
 
-def _fake_entities(count: int, slug: str = "alimentation.supermarche") -> list[Entity]:
+def _fake_entities(count: int, slug: str = "alimentation.courses") -> list[Entity]:
     return [
         Entity(name=f"Enseigne {index}", slug=slug, source="services", tier=TIER_HEAD)
         for index in range(count)
@@ -194,7 +194,7 @@ def test_split_keeps_at_least_one_entity_for_training():
 
 def test_class_budget_never_exceeds_the_cap():
     rows = _samples_for_class(
-        "alimentation.supermarche",
+        "alimentation.courses",
         _fake_entities(4000),
         random.Random(2),
         CLASS_SAMPLE_CAP,
@@ -229,14 +229,14 @@ def test_samples_carry_the_labels_of_their_class():
 
 
 def test_surface_forms_start_with_the_bare_name():
-    entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
+    entity = Entity(name="Carrefour", slug="alimentation.courses", source="services")
     forms = _surface_forms(entity, 6, random.Random(4))
     assert forms[0] == ("carrefour", ONE_TIME)
     assert len(forms) == len({normalize(text) for text, _ in forms})
 
 
 def test_surface_forms_are_written_in_the_form_the_app_sends():
-    entity = Entity(name="Père & Fils", slug="alimentation.supermarche", source="services")
+    entity = Entity(name="Père & Fils", slug="alimentation.courses", source="services")
     forms = _surface_forms(entity, 20, random.Random(4))
     assert forms[0] == ("pere & fils", ONE_TIME)
     for text, _ in forms:
@@ -272,14 +272,14 @@ ENGLISH_PHRASING = (
 
 
 def test_the_generated_phrasing_carries_no_english():
-    entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
+    entity = Entity(name="Carrefour", slug="alimentation.courses", source="services")
     for text, _ in _surface_forms(entity, 400, random.Random(7)):
         lowered = text.lower()
         assert not any(marker in lowered for marker in ENGLISH_PHRASING), text
 
 
 def test_french_phrasing_offers_enough_variety_to_fill_a_budget():
-    entity = Entity(name="Carrefour", slug="alimentation.supermarche", source="services")
+    entity = Entity(name="Carrefour", slug="alimentation.courses", source="services")
     forms = _surface_forms(entity, 60, random.Random(8))
     assert len(forms) == 60
     assert len({text for text, _ in forms}) == 60

@@ -170,10 +170,10 @@ def align_verdicts(payload, size: int) -> list[str]:
     return answers
 
 
-def existing(slug: str) -> list[Candidate]:
+def existing(slug: str, directory: Path = UTTERANCES_DIR) -> list[Candidate]:
     return [
         Candidate(utterance.text, utterance.recurrence)
-        for utterance in read_utterances()
+        for utterance in read_utterances(directory)
         if utterance.slug == slug
     ]
 
@@ -218,6 +218,22 @@ def prune_shared(directory: Path = UTTERANCES_DIR) -> list[str]:
     return sorted(shared)
 
 
+def verdicts_by_slug(
+    pooled: list[tuple[str, Candidate]], model: str, rng: random.Random
+) -> dict[str, tuple[list[Candidate], list[str]]]:
+    rng.shuffle(pooled)
+    texts = [candidate.text for _, candidate in pooled]
+    width = VERIFICATION_BATCH * 4
+    chunks = [texts[i : i + width] for i in range(0, len(texts), width)]
+    with ThreadPoolExecutor(PARALLELISM) as pool:
+        verdicts = [v for chunk in pool.map(lambda c: verify(c, model), chunks) for v in chunk]
+    by_slug: dict[str, tuple[list[Candidate], list[str]]] = defaultdict(lambda: ([], []))
+    for (slug, candidate), verdict in zip(pooled, verdicts):
+        by_slug[slug][0].append(candidate)
+        by_slug[slug][1].append(verdict)
+    return by_slug
+
+
 def run_group(slugs: list[str], count: int, model: str) -> None:
     rng = random.Random(SHUFFLE_SEED)
     measured = measured_inputs()
@@ -225,18 +241,8 @@ def run_group(slugs: list[str], count: int, model: str) -> None:
         generated = dict(
             zip(slugs, pool.map(lambda slug: generate(slug, count, model, rng), slugs))
         )
-    pooled: list[tuple[str, Candidate]] = [
-        (slug, candidate) for slug, candidates in generated.items() for candidate in candidates
-    ]
-    rng.shuffle(pooled)
-    texts = [candidate.text for _, candidate in pooled]
-    chunks = [texts[i : i + VERIFICATION_BATCH * 4] for i in range(0, len(texts), VERIFICATION_BATCH * 4)]
-    with ThreadPoolExecutor(PARALLELISM) as pool:
-        verdicts = [v for chunk in pool.map(lambda c: verify(c, model), chunks) for v in chunk]
-    by_slug: dict[str, tuple[list[Candidate], list[str]]] = defaultdict(lambda: ([], []))
-    for (slug, candidate), verdict in zip(pooled, verdicts):
-        by_slug[slug][0].append(candidate)
-        by_slug[slug][1].append(verdict)
+    pooled = [(slug, candidate) for slug, candidates in generated.items() for candidate in candidates]
+    by_slug = verdicts_by_slug(pooled, model, rng)
     for slug in slugs:
         candidates, slug_verdicts = by_slug[slug]
         kept = accept(slug, candidates, slug_verdicts, measured)
@@ -245,9 +251,28 @@ def run_group(slugs: list[str], count: int, model: str) -> None:
         print(f"{slug:45s} générées {len(candidates):4d}  retenues {len(kept):4d}  total {len(merged):4d}")
 
 
+def reverify_group(slugs: list[str], model: str, directory: Path = UTTERANCES_DIR) -> None:
+    rng = random.Random(SHUFFLE_SEED)
+    measured = measured_inputs()
+    pooled = [(slug, candidate) for slug in slugs for candidate in existing(slug, directory)]
+    by_slug = verdicts_by_slug(pooled, model, rng)
+    for slug in slugs:
+        candidates, slug_verdicts = by_slug[slug]
+        kept = accept(slug, candidates, slug_verdicts, measured)
+        write(slug, kept, directory)
+        print(f"{slug:45s} relues {len(candidates):4d}  gardées {len(kept):4d}")
+
+
 def run(slugs: list[str], count: int, model: str) -> None:
     for start in range(0, len(slugs), GROUP_SIZE):
         run_group(slugs[start : start + GROUP_SIZE], count, model)
+    shared = prune_shared()
+    print(f"retirées car partagées entre classes : {len(shared)}")
+
+
+def reverify(slugs: list[str], model: str) -> None:
+    for start in range(0, len(slugs), GROUP_SIZE):
+        reverify_group(slugs[start : start + GROUP_SIZE], model)
     shared = prune_shared()
     print(f"retirées car partagées entre classes : {len(shared)}")
 
@@ -258,10 +283,14 @@ def main() -> None:
     parser.add_argument("--count", type=int, default=GENERATION_BATCH * 2)
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--missing", action="store_true")
+    parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
     slugs = list(args.slugs)
+    covered = {utterance.slug for utterance in read_utterances()}
+    if args.verify:
+        reverify(slugs or sorted(covered), args.model)
+        return
     if args.missing:
-        covered = {utterance.slug for utterance in read_utterances()}
         slugs += [slug for slug in ACTIVE_LABELS if slug not in covered]
     run(slugs, args.count, args.model)
 

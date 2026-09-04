@@ -694,8 +694,9 @@ Insérer une classe au milieu décale toutes les suivantes.
 
 Checklist :
 
-1. éditer `assets/categories.json`, bumper `version` ;
-2. `dart run tool/generate_taxonomy_labels.dart` ;
+1. éditer `assets/categories.json`, bumper `version`, garder l'ancien slug en
+   `deprecated` + `alias_of` pour les transactions stockées ;
+2. `dart run tool/generate_taxonomy_labels.dart` (slugs actifs seulement) ;
 3. ajuster `CategoryTaxonomyService.expectedVersion` ;
 4. couvrir la nouvelle classe dans `knowledge/sources/lexicon.py` — le test
    `test_every_active_slug_has_hand_written_vocabulary` échoue sinon ;
@@ -703,8 +704,18 @@ Checklist :
    échoue sinon ;
 6. relancer la chaîne complète, puis republier.
 
-Une classe dépréciée (`deprecated` + `alias_of`) garde son index et sa sortie
-dans le modèle : `taxonomy.canonical()` redirige, aucune entité ne la vise.
+Une classe dépréciée (`deprecated` + `alias_of`) n'a plus de sortie dans le
+modèle depuis la taxonomie v2 : `LABELS` ne porte que les slugs actifs, côté
+Python comme côté Dart, et `taxonomy.canonical()` redirige les anciennes
+sources vers leur remplaçant. Les corpus LLM se relisent contre le guide à jour
+avec `corpus.llm.utterances --verify` et `corpus.llm.lines --verify` : une
+formulation que le relecteur ne range plus dans sa classe en sort.
+
+**Une classe = une nature de dépense, jamais un lieu, un contexte ni une
+personne** (taxonomie v2, 2026-09-04). « tomates » vaut courses au marché comme
+au supermarché, « crème hydratante » vaut cosmétiques en pharmacie comme chez
+Sephora, « licence de judo » vaut sport pour un enfant comme pour un adulte.
+`CLASS_GUIDE` (`corpus/conventions.py`) porte les conventions de frontière.
 
 ## 7. Ajouter de la connaissance
 

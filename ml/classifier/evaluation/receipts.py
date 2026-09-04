@@ -40,9 +40,7 @@ MAX_LENGTH = 64
 CONFIDENT = 0.9
 
 FAMILIES = {
-    "alimentation.supermarche": "alimentation",
-    "alimentation.epicerie": "alimentation",
-    "alimentation.marche": "alimentation",
+    "alimentation.courses": "alimentation",
     "restauration.restaurant": "restauration",
     "restauration.fast_food": "restauration",
     "restauration.cafe": "restauration",

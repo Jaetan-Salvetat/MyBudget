@@ -75,7 +75,7 @@ def test_acceptance_corpora_carry_no_english_phrasing(path: Path):
 def test_families_only_group_slugs_of_the_taxonomy():
     for slug in FAMILIES:
         assert slug in LABELS, slug
-    assert family("transport.essence") == "transport.essence"
+    assert family("transport.carburant") == "transport.carburant"
 
 
 def test_every_case_carries_exactly_what_the_evaluation_reads():

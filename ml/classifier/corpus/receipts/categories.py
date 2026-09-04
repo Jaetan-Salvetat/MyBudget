@@ -5,10 +5,11 @@ noms de produits moissonnés, et les libellés de caisse d'Open Prices que leur
 code-barres relie aux mêmes catégories. Deux copies finiraient par diverger, et
 un même produit porterait deux classes selon la porte par laquelle il entre.
 
-La taxonomie est une taxonomie de marchands : la classe d'un produit est celle
-du commerce où on l'achète normalement. Le pain va chez le boulanger, les
-boissons à l'épicerie, l'alimentation animale à l'animalerie, la cosmétique et
-la parapharmacie à leur rayon ; tout le reste est du supermarché.
+La classe d'un produit est sa nature, jamais le commerce où on l'achète : le
+pain et les pâtisseries sont pain_patisserie, l'alimentation animale est
+animaux, le maquillage et le parfum sont cosmetiques, le médicament est
+pharmacie, le lait infantile est enfant, les lunettes et lentilles sont optique ;
+tout le reste de l'alimentaire et de l'hygiène courante est courses.
 
 `knowledge/sources/openfoodfacts.py` moissonne la même taxonomie pour le corpus
 quick-add et lit ici la même règle. Deux règles feraient dire au modèle que
@@ -24,21 +25,23 @@ le plus mince, et la seule chose qui change d'une base à l'autre est la table
 de correspondance — jamais la règle.
 """
 
-SUPERMARCHE = "alimentation.supermarche"
+SUPERMARCHE = "alimentation.courses"
 ANIMAUX = "divers.animaux"
-ESTHETIQUE = "sante_beaute.esthetique"
+COSMETIQUES = "sante_beaute.cosmetiques"
 PHARMACIE = "sante_beaute.pharmacie"
+OPTIQUE = "sante_beaute.optique"
+ENFANT = "famille_education.enfant"
 
 PET_TAGS = ("en:pet-food", "en:cat-food", "en:dog-food", "en:pet-", "fr:aliments-pour-animaux")
 COSMETIC_TAGS = ("en:makeup", "en:make-up", "en:perfumes", "en:fragrances", "en:nail-polish",
                  "en:nail-makeup", "en:lip-cosmetics", "en:lipsticks", "en:mascaras", "en:eyeshadow",
                  "en:foundations", "en:eau-de-toilette", "en:eau-de-parfum", "en:colognes")
-PHARMA_TAGS = ("en:medicines", "en:dietary-supplements", "en:food-supplements", "en:baby-milks",
-               "en:infant-formulas", "en:first-aid")
+PHARMA_TAGS = ("en:medicines", "en:dietary-supplements", "en:food-supplements", "en:first-aid")
+INFANT_TAGS = ("en:baby-milks", "en:infant-formulas", "en:baby-foods")
 SKIP_TAGS = ("en:non-food-products", "en:open-beauty-facts", "en:open-products-facts")
 
-BOULANGERIE = "alimentation.boulangerie"
-EPICERIE = "alimentation.epicerie"
+BOULANGERIE = "alimentation.pain_patisserie"
+EPICERIE = "alimentation.courses"
 
 BAKERY_WORDS = frozenset({"bread", "breads", "loaf", "loaves", "bun", "buns", "pastry",
                           "pastries", "cake", "cakes", "cookie", "cookies", "muffin", "muffins",
@@ -74,6 +77,8 @@ def food_slug(tags: list[str]) -> str | None:
     for tag in tags:
         if tag.startswith(PET_TAGS):
             return ANIMAUX
+        if tag.startswith(INFANT_TAGS):
+            return ENFANT
         if tag.startswith(SKIP_TAGS):
             return None
     return food_family(_words_of(tags[-1])) if tags else SUPERMARCHE
@@ -83,9 +88,11 @@ def beauty_slug(tags: list[str]) -> str:
     """La classe d'un produit d'hygiène-beauté : cosmétique, parapharmacie, ou rayon."""
     for tag in tags:
         if tag.startswith(COSMETIC_TAGS):
-            return ESTHETIQUE
+            return COSMETIQUES
         if tag.startswith(PHARMA_TAGS):
             return PHARMACIE
+        if tag.startswith(INFANT_TAGS):
+            return ENFANT
     return SUPERMARCHE
 
 
@@ -175,7 +182,7 @@ PRODUCT_TAGS: dict[str, tuple[str, ...]] = {
         "fr:jeu-de-societe",
     ),
     # tabac & jeux
-    "divers.tabac_jeux": (
+    "divers.tabac_paris": (
         "en:tobacco-products", "en:tobacco", "en:tobacco-and-substitutes",
         "en:tobacco-and-smoking-products-and-substitutes", "en:cigarettes", "en:cigarillos",
         "en:cigarettes-or-cigars", "en:lighters-matches", "en:matches", "fr:tabac",
@@ -202,15 +209,18 @@ PRODUCT_TAGS: dict[str, tuple[str, ...]] = {
         "en:medicine", "en:medicine-drugs", "en:medicaments", "en:medical-tape-bandages",
         "en:paracetamol", "en:first-aid", "en:dietary-supplements", "en:vitamins",
         "en:vitamins-supplements", "en:fitness-nutrition", "en:feminine-sanitary-supplies",
-        "en:sanitary-napkins", "en:menstrual-protections", "en:tampons", "en:vision-care",
-        "en:eyewear-accessories", "en:eyewear-lens-cleaning-solutions",
+        "en:sanitary-napkins", "en:menstrual-protections", "en:tampons",
         "fr:complement-alimentaire", "fr:pansements", "fr:pansements-pour-ampoules",
         "fr:sparadrap", "fr:sparadrap-microporeux", "fr:masques-chirurgicaux",
         "fr:produits-menstruels", "fr:produits-menstruels-reutilisables",
         "fr:produits-menstruels-pour-flux-abondants",
         "fr:produits-menstruels-pour-flux-moderes", "fr:culottes-de-regles",
         "fr:protege-lingerie", "fr:tampons-hygieniques-avec-applicateur",
-        "fr:tampons-hygieniques-sans-applicateur", "fr:lingettes-optiques",
+        "fr:tampons-hygieniques-sans-applicateur",
+    ),
+    OPTIQUE: (
+        "en:vision-care", "en:eyewear-accessories", "en:eyewear-lens-cleaning-solutions",
+        "en:eyeglasses", "en:sunglasses", "en:contact-lenses", "fr:lingettes-optiques",
         "fr:lingettes-pour-lunettes",
     ),
     # vêtements & accessoires
@@ -238,7 +248,7 @@ PRODUCT_TAGS: dict[str, tuple[str, ...]] = {
         "fr:furniture", "fr:maison",
     ),
     # bricolage & travaux
-    "logement.travaux": (
+    "logement.bricolage_jardin": (
         "en:tools", "en:tool-accessories", "en:hardware", "en:hardware-fasteners",
         "en:wrenches", "en:plumbing", "en:plumbing-fixture-hardware-parts", "en:shower-parts",
         "en:ballcocks-flappers", "en:toilet-bidet-accessories", "en:building-materials",

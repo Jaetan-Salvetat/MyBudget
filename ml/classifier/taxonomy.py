@@ -1,7 +1,7 @@
 """Chargement de la taxonomie, source de vérité des classes du modèle.
 
-L'ordre des slugs est le contrat avec l'ONNX : il doit correspondre à
-QuickAddLabels.categories côté app.
+L'ordre des slugs actifs est le contrat avec l'ONNX : il doit correspondre à
+QuickAddLabels.categories côté app, qui ne porte pas les slugs dépréciés.
 """
 
 import json
@@ -19,13 +19,18 @@ RECURRING = 1
 
 
 def load_labels() -> tuple[list[str], int]:
-    """Retourne les slugs ordonnés et le nombre de classes de dépense."""
+    """Retourne les slugs actifs ordonnés et le nombre de classes de dépense.
+
+    Un slug déprécié n'a plus de sortie dans le modèle : il ne vit que comme
+    alias, résolu par `canonical()`."""
     taxonomy = json.loads(TAXONOMY_PATH.read_text(encoding="utf-8"))
     labels: list[str] = []
     num_expense = 0
     for section in (EXPENSE_SECTION, INCOME_SECTION):
         for group, body in taxonomy[section].items():
-            for subcategory in body["subcategories"]:
+            for subcategory, meta in body["subcategories"].items():
+                if meta.get("deprecated"):
+                    continue
                 labels.append(f"{group}.{subcategory}")
         if section == EXPENSE_SECTION:
             num_expense = len(labels)
@@ -47,7 +52,7 @@ def load_deprecated() -> dict[str, str]:
 LABELS, NUM_EXPENSE = load_labels()
 NUM_INCOME = len(LABELS) - NUM_EXPENSE
 DEPRECATED = load_deprecated()
-ACTIVE_LABELS = [slug for slug in LABELS if slug not in DEPRECATED]
+ACTIVE_LABELS = LABELS
 LABEL_INDEX = {slug: index for index, slug in enumerate(LABELS)}
 
 
