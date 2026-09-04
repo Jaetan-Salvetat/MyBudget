@@ -1,12 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/constants/cloud_engine_availability.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
-import 'package:mybudget/ui/settings/screens/api_key_screen.dart';
+import 'package:mybudget/ui/settings/screens/gemini_cloud_screen.dart';
+import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 
 class QuickAddEngineScreen extends ConsumerWidget {
   const QuickAddEngineScreen({super.key});
@@ -15,8 +17,6 @@ class QuickAddEngineScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final QuickAddEngineMode mode = ref.watch(quickAddEngineModeProvider);
     final bool hasKey = ref.watch(hasStoredApiKeyProvider).value ?? false;
-    final bool isDegraded = ref.watch(quickAddDegradationProvider);
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return FrostedScaffold(
       appBar: FrostedTopBar(
@@ -43,39 +43,27 @@ class QuickAddEngineScreen extends ConsumerWidget {
                   groupValue: mode,
                   onChanged: (_) => _select(ref, QuickAddEngineMode.onDevice),
                 ),
+                trailing: FrostedChip.readOnly(label: recommendedEngineLabel),
                 onTap: () => _select(ref, QuickAddEngineMode.onDevice),
               ),
               FrostedListTile(
                 title: 'Clé API personnelle',
-                subtitle:
-                    'Vous fournissez la clé d\'un service externe. '
-                    'Votre saisie lui est envoyée.',
+                subtitle: isCloudQuickAddEngineAvailable
+                    ? 'Vous fournissez la clé d\'un service externe. '
+                          'Votre saisie lui est envoyée.'
+                    : cloudQuickAddEngineUnavailableNotice,
                 leading: FrostedRadio<QuickAddEngineMode>(
                   value: QuickAddEngineMode.apiKey,
                   groupValue: mode,
-                  onChanged: (_) => _selectApiKey(context, ref, hasKey),
+                  onChanged: isCloudQuickAddEngineAvailable
+                      ? (_) => _selectApiKey(context, ref, hasKey)
+                      : null,
                 ),
-                onTap: () => _selectApiKey(context, ref, hasKey),
+                onTap: isCloudQuickAddEngineAvailable
+                    ? () => _selectApiKey(context, ref, hasKey)
+                    : null,
               ),
             ],
-          ),
-          if (isDegraded && mode == QuickAddEngineMode.apiKey) ...[
-            const SizedBox(height: FrostedSpacing.sp4),
-            _Note(
-              icon: Symbols.warning_rounded,
-              color: colors.tertiary,
-              text:
-                  'L\'analyse est repassée sur l\'appareil : le service '
-                  'externe n\'a pas répondu. Elle reprendra dès qu\'un appel '
-                  'aboutira.',
-            ),
-          ],
-          const SizedBox(height: FrostedSpacing.sp4),
-          _Note(
-            icon: Symbols.info_rounded,
-            color: colors.onSurfaceVariant,
-            text:
-                'Le modèle embarqué reste utilisé en secours dans tous les cas.',
           ),
         ],
       ),
@@ -92,47 +80,21 @@ class QuickAddEngineScreen extends ConsumerWidget {
     WidgetRef ref,
     bool hasKey,
   ) async {
-    if (hasKey) {
-      await _select(ref, QuickAddEngineMode.apiKey);
+    if (!hasKey) {
+      await _openKeyScreen(context);
       return;
     }
-    await _openKeyScreen(context);
+
+    final AiProvider provider = ref.read(selectedAiProviderProvider);
+    if (!await AiCloudConsentDialog.show(context, provider)) return;
+
+    await _select(ref, QuickAddEngineMode.apiKey);
   }
 
   Future<void> _openKeyScreen(BuildContext context) {
-    return Navigator.push<bool>(
+    return Navigator.push<void>(
       context,
-      MaterialPageRoute(builder: (_) => const ApiKeyScreen()),
-    );
-  }
-}
-
-class _Note extends StatelessWidget {
-  const _Note({required this.icon, required this.color, required this.text});
-
-  final IconData icon;
-  final Color color;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: FrostedSpacing.sp3),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: color),
-            ),
-          ),
-        ],
-      ),
+      MaterialPageRoute(builder: (_) => const GeminiCloudScreen()),
     );
   }
 }

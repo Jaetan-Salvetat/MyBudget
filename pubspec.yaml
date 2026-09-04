@@ -55,6 +55,7 @@ dependencies:
   riverpod_annotation: ^4.0.6
   home_widget: ^0.9.3
   image_picker: ^1.2.3
+  http: ^1.6.0
   openai_dart: ^8.0.0
   material_symbols_icons: ^4.2960.0
   flutter_onnxruntime: ^1.8.3

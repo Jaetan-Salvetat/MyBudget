@@ -2,12 +2,33 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
 const int _retryLongSide = 2400;
+const int _uploadLongSide = 1600;
+const int _uploadQuality = 85;
 const int _unsharpRadius = 2;
 const double _unsharpAmount = 1.5;
 const int _jpegQuality = 90;
 
 Future<Uint8List> enhanceReceiptForRetry(Uint8List bytes) {
   return compute(_enhance, bytes);
+}
+
+Future<Uint8List> prepareReceiptForUpload(Uint8List bytes) {
+  return compute(_prepareForUpload, bytes);
+}
+
+Uint8List _prepareForUpload(Uint8List bytes) {
+  var image = _decode(bytes);
+  final longSide = image.width > image.height ? image.width : image.height;
+  if (longSide > _uploadLongSide) {
+    final scale = _uploadLongSide / longSide;
+    image = img.copyResize(
+      image,
+      width: (image.width * scale).round(),
+      height: (image.height * scale).round(),
+      interpolation: img.Interpolation.cubic,
+    );
+  }
+  return Uint8List.fromList(img.encodeJpg(image, quality: _uploadQuality));
 }
 
 Uint8List _enhance(Uint8List bytes) {

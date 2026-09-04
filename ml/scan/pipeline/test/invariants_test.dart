@@ -356,13 +356,31 @@ void main() {
       expect(constraints(lines).forcedIgnore, isEmpty);
     });
 
-    test('tax lexicon line is forced ignore even without a partner', () {
+    test('tax lexicon line without partner is left to the tagger', () {
       final lines = priced([
         [('BURGER', 0), ('8,95', 38)],
         [('TAX', 0), ('0,74', 38)],
         [('TOTAL', 0), ('9,69', 38)],
       ]);
-      expect(constraints(lines).forcedIgnore, {1});
+      expect(constraints(lines).forcedIgnore, isEmpty);
+    });
+
+    test('rate headed item line is left to the tagger', () {
+      final lines = priced([
+        [('5.5%', 0), ('510G', 5), ('MAYO', 10), ('1', 24), ('x', 26), ('2.75', 30), ('2.75', 38)],
+        [('5.5%', 0), ('250G', 5), ('BEURRE', 10), ('1', 24), ('x', 26), ('2.19', 30), ('2.19', 38)],
+        [('Total', 0), ('a', 6), ('payer', 8), ('4.94', 38)],
+      ]);
+      expect(constraints(lines).forcedIgnore, isEmpty);
+    });
+
+    test('ttc word inside an item line is left to the tagger', () {
+      final lines = priced([
+        [('RIZ', 0), ('LONG', 4), ('1KG', 9), ('TTC', 13), ('0.97', 30), ('TUA', 35), ('2', 38)],
+        [('CREME', 0), ('1.55', 30), ('2', 38)],
+        [('2.52', 38)],
+      ]);
+      expect(constraints(lines).forcedIgnore, isEmpty);
     });
 
     test('tax inclusive total line stays a reference', () {

@@ -49,7 +49,7 @@ final class LocalReceiptScannerProvider
 }
 
 String _$localReceiptScannerHash() =>
-    r'6f850866bb4ef295d6e97c6aee66ea841baaba24';
+    r'a6fc58ad8a890a40d5aa30461e061ed0715fda4a';
 
 @ProviderFor(receiptScanComposer)
 final receiptScanComposerProvider = ReceiptScanComposerProvider._();
@@ -138,7 +138,90 @@ final class NanoReceiptReaderProvider
   }
 }
 
-String _$nanoReceiptReaderHash() => r'd26a8240c5ed6725485bf69a1a94a8a6f613ff1d';
+String _$nanoReceiptReaderHash() => r'd81fd5567b34fcb2bf1829e7d75c69e92ba83a5c';
+
+@ProviderFor(cloudScanSelected)
+final cloudScanSelectedProvider = CloudScanSelectedProvider._();
+
+final class CloudScanSelectedProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  CloudScanSelectedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cloudScanSelectedProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cloudScanSelectedHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return cloudScanSelected(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$cloudScanSelectedHash() => r'f6df0de2cc35a7d8cdad289942effa09d00def06';
+
+@ProviderFor(cloudReceiptReader)
+final cloudReceiptReaderProvider = CloudReceiptReaderProvider._();
+
+final class CloudReceiptReaderProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CloudReceiptReader?>,
+          CloudReceiptReader?,
+          FutureOr<CloudReceiptReader?>
+        >
+    with
+        $FutureModifier<CloudReceiptReader?>,
+        $FutureProvider<CloudReceiptReader?> {
+  CloudReceiptReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cloudReceiptReaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cloudReceiptReaderHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<CloudReceiptReader?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CloudReceiptReader?> create(Ref ref) {
+    return cloudReceiptReader(ref);
+  }
+}
+
+String _$cloudReceiptReaderHash() =>
+    r'c3f1b1a9d533424f8f2ebae707bb5af8299722f8';
 
 @ProviderFor(ScanTrace)
 final scanTraceProvider = ScanTraceProvider._();
@@ -192,6 +275,58 @@ abstract class _$ScanTrace extends $Notifier<List<ReadTrace>> {
   }
 }
 
+@ProviderFor(ScanProgress)
+final scanProgressProvider = ScanProgressProvider._();
+
+final class ScanProgressProvider
+    extends $NotifierProvider<ScanProgress, ScanReadProgress> {
+  ScanProgressProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'scanProgressProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$scanProgressHash();
+
+  @$internal
+  @override
+  ScanProgress create() => ScanProgress();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScanReadProgress value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ScanReadProgress>(value),
+    );
+  }
+}
+
+String _$scanProgressHash() => r'573156719e5ff633fa64539c47a2891229a15c8c';
+
+abstract class _$ScanProgress extends $Notifier<ScanReadProgress> {
+  ScanReadProgress build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<ScanReadProgress, ScanReadProgress>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ScanReadProgress, ScanReadProgress>,
+              ScanReadProgress,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(ScanNotifier)
 final scanProvider = ScanNotifierProvider._();
 
@@ -227,7 +362,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'097a627594391b8e27462efeb3005240624f145f';
+String _$scanNotifierHash() => r'f871515c83fd74f1972922982d6a7fefdf9aace6';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {

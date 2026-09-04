@@ -40,9 +40,7 @@ Future<void> _pickAndScan(BuildContext context, ImageSource source) async {
   final XFile? picked = await ImagePicker().pickImage(source: source);
   if (picked == null) return;
 
-  final imageBytes = await picked.readAsBytes();
-
   await navigator.push(
-    MaterialPageRoute(builder: (_) => ScanScreen(imageBytes: imageBytes)),
+    MaterialPageRoute(builder: (_) => ScanScreen(image: picked.readAsBytes())),
   );
 }

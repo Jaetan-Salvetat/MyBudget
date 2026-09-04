@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,21 @@ import 'package:mybudget/core/models/api_key_check.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_verifier.dart';
 import 'package:openai_dart/openai_dart.dart';
+
+class _HangingChatClient implements AiChatClient {
+  bool closed = false;
+
+  @override
+  Future<String> complete({
+    required String prompt,
+    required String schemaName,
+    required Map<String, dynamic> schema,
+    AiImageAttachment? image,
+  }) => Completer<String>().future;
+
+  @override
+  void close() => closed = true;
+}
 
 class _StubChatClient implements AiChatClient {
   _StubChatClient({this.error});
@@ -37,6 +53,7 @@ class _StubChatClient implements AiChatClient {
 
 void main() {
   const validKey = 'AIzaSyA01234567890123456789012345678901';
+  const authKey = 'AQ.Ab8RN6JzQv0000000000000000000000000000000000';
 
   late _StubChatClient client;
   late ApiKeyVerifier verifier;
@@ -75,15 +92,17 @@ void main() {
       expect(await verify('  $validKey \n'), isA<ApiKeyAccepted>());
     });
 
-    test('refuses a malformed key without calling the service', () async {
-      final check = await verify('nope');
+    test('refuses an empty key without calling the service', () async {
+      final check = await verify('   \n ');
 
       expect(check, isA<ApiKeyDenied>());
-      expect(
-        (check as ApiKeyDenied).reason,
-        ApiKeyDenialReason.invalidFormat,
-      );
+      expect((check as ApiKeyDenied).reason, ApiKeyDenialReason.emptyKey);
       expect(client.calls, 0);
+    });
+
+    test('lets the service judge a key whose shape we do not know', () async {
+      expect(await verify(authKey), isA<ApiKeyAccepted>());
+      expect(client.calls, 1);
     });
 
     test('names the vendor when the key comes from another service', () async {
@@ -94,6 +113,29 @@ void main() {
       expect(denied.reason, ApiKeyDenialReason.foreignProvider);
       expect(denied.message, contains('Anthropic'));
       expect(client.calls, 0);
+    });
+  });
+
+  group('ApiKeyVerifier abandon', () {
+    test('un service qui ne repond pas finit par etre abandonne', () async {
+      final hanging = _HangingChatClient();
+      final patient = ApiKeyVerifier(
+        clientFactory: (_, _, _) => hanging,
+        timeout: const Duration(milliseconds: 50),
+      );
+
+      final check = await patient.verify(
+        provider: AiProvider.gemini,
+        model: AiModel.fallback,
+        rawKey: validKey,
+      );
+
+      expect((check as ApiKeyDenied).reason, ApiKeyDenialReason.timeout);
+      expect(hanging.closed, isTrue);
+    });
+
+    test('laisse au service le temps d\'un demarrage a froid', () {
+      expect(ApiKeyVerifier.coldStartTimeout, const Duration(minutes: 2));
     });
   });
 

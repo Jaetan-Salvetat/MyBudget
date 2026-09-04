@@ -611,23 +611,24 @@ coupé) sont ce que le modèle doit comprendre seul.
 | Mesure | Où | Cible |
 |---|---|---|
 | mémorisation | `world.py` | ≥ 95 % |
-| **entités jamais vues, catégorie stricte** | `generalization.py` | **> 75,9 %**, la valeur de `run_v3` |
+| **entités jamais vues, catégorie stricte** | `generalization.py` | **> 77,8 %**, la valeur de `run_v6` |
 | justesse sur les 50 % plus confiants | `generalization.py` | ≥ 93 % |
 | niveau `app` | `quick_add.py` | ≥ 95 % |
 | type (dépense/revenu) | `world.py` | 100 % |
-| ECE | `world.py` | ≤ 5 % |
+| ECE | `world.py` | ≤ 5 % — 1,4 % avec `run_v6` |
 | une faute de frappe | `robustness.py` | chute < 10 points sous le propre |
 | casse et accents | `robustness.py` | égal au propre, à 1 point près |
-| **toute classe, quick-add** | `hard.py` | **> 95 %** — la cible produit, 12/81 aujourd'hui |
-| **direction de la transaction, axe `revenu`** | `hard.py` | **100 %** — 85,0 % aujourd'hui |
-| **cas durs quick-add, ensemble** | `hard.py` | **> 81,1 %**, la valeur de `run_v3` |
-| **cas durs scan, ensemble** | `hard.py` | **> 73,6 %** |
+| **toute classe, quick-add** | `hard.py` | **> 95 %** — la cible produit, 53/81 avec `run_v6` |
+| **direction de la transaction, axe `revenu`** | `hard.py` | **100 %** — 95,0 % avec `run_v6`, 100 % avec `run_v5` |
+| **cas durs quick-add, ensemble** | `hard.py` | **> 95,9 %**, la valeur de `run_v6` |
+| **cas durs scan, ensemble** | `hard.py` | **> 86,2 %**, la valeur de `run_v6` |
 | classes en sortie du modèle et de l'ONNX | `test_model_contract.py` | égal à la taxonomie, sans exception |
-| phrase libre | `hard.py` | > 72,0 % |
-| énumération | `hard.py` | > 71,4 % |
-| restauration de ticket | `hard.py` | > 60,0 % |
-| **cas durs, une faute de frappe** | `hard.py` | **> 69,8 %** |
-| argot, une faute de frappe | `hard.py` | > 61,8 % |
+| phrase libre | `hard.py` | > 94,4 % |
+| énumération | `hard.py` | 100 % |
+| restauration de ticket | `hard.py` | > 90,0 % |
+| **cas durs, une faute de frappe** | `hard.py` | **> 90,0 %** |
+| **lot neuf écrit à l'aveugle** | `hard.py` | **> 97,5 %**, la valeur de `run_v6` — 99,0 % avec `run_v5` |
+| argot, une faute de frappe | `hard.py` | > 81,8 % |
 
 La première ligne prime sur toutes les autres : un ensemble à 88 % qui laisse
 `aide_allocation.bourse` à 40 % n'est pas un modèle à 88 % pour l'utilisateur
@@ -1006,7 +1007,138 @@ deux corpus est le premier correctif à tenter.**
 - **Calibration par température** sur un jeu tenu à part, pour que le seuil de
   confiance de l'app veuille dire quelque chose.
 
-## 10. Journal
+## 10. Apprendre l'intention : formulations et lignes générées, vérifiées à l'aveugle (2026-09-03)
+
+Le §4 nommait le trou : les axes qui s'effondrent sont ceux **sans entité**.
+« on a mangé sur le pouce », « courses de la semaine », « kebab frites
+boisson » ne contiennent aucun nom que la moisson connaisse, et 144 clauses
+verbales ne suffisent pas à apprendre 81 intentions. Le lexique ne peut pas
+non plus être écrit à la main en volume sans recopier, consciemment ou non, le
+corpus dur.
+
+`corpus/llm/` fabrique ce corpus par un LLM, sous deux contraintes qui en font
+une source et non un oracle :
+
+- **génération** (`utterances.py`, `lines.py`) — pour chaque classe, le prompt
+  porte le guide de la classe (`corpus/conventions.py`) **et ceux de ses
+  voisines de famille**, plus les treize formes du corpus dur (télégraphique,
+  relevé bancaire, phrase parlée, énumération, argot, référence produit,
+  commerce local inventé…) sans qu'aucune puisse dominer. Jamais de montant :
+  le pipeline de saisie le retire avant le modèle ;
+- **vérification à l'aveugle** — chaque candidat, mélangé à ceux de toutes les
+  autres classes, est reclassé par un second appel qui ne voit que le
+  catalogue complet des 81 guides et peut répondre « ambigu ». Seul l'accord
+  entre la classe visée et la classe relue entre au corpus. C'est le même
+  filtre que le checksum du tagger de rôles : le LLM propose, une lecture
+  indépendante tranche. Sur les premières classes, 10 à 15 % des candidats
+  tombent ici — et `transfert.virement_recu`, par construction « ce qui n'est
+  ni salaire ni remboursement », en perd la moitié.
+
+Trois filtres mécaniques suivent : rien qui existe, une fois normalisé, dans
+un corpus d'évaluation (`hard`, `world`, `quick_add`, `fresh`, T1-test) ; rien
+en double dans une classe ; **rien qui appartienne à deux classes**
+(`prune_shared`) — « pension », « aquarium », « musée », « boulanger » sont
+sortis d'eux-mêmes, et c'était juste. Les tests de `tests/test_utterances.py`
+et `tests/test_receipt_lines.py` tiennent ces invariants à chaque `pytest`.
+
+Le côté ticket demande une règle de plus : sans consigne, Gemini colle
+« TABLE », « SERVICE », « SALLE » à la fin d'un plat pour lever l'ambiguïté,
+ce qu'aucune caisse n'imprime. Le prompt l'interdit ; c'est l'article seul qui
+doit dire sa catégorie.
+
+```bash
+OPENROUTER_API_KEY=… uv run python -m corpus.llm.utterances <slug>… --count 240
+OPENROUTER_API_KEY=… uv run python -m corpus.llm.lines <slug>… --count 150
+```
+
+`google/gemini-3.8-flash` par défaut ; la clé n'est jamais écrite sur le
+disque. Une formulation devient une entité de source `formulations`, au budget
+de 4 formes (nom nu, repère de temps, queue, montant), coupée par entité
+comme les autres : 8 % des formulations vont à `eval.jsonl`, et
+`generalization.py` les rapporte **par source**. Une ligne de ticket produit
+quatre variantes par `receipt_line`.
+
+Deux garde-fous d'entraînement s'ajoutent, tous deux génériques :
+
+- `training/contradictions.py` — un texte que `train.jsonl` et
+  `receipts_train.jsonl` classent différemment sort des deux (§9 le nommait
+  premier correctif) : 108 textes croisés et 99 internes au quick-add au
+  départ (« crème », « couches », « bonus », « cash ») ;
+- `training/hierarchy.py` et `training/consistency.py` — une perte de famille
+  (log-somme-exp des logits de la famille, entropie croisée sur 13 familles)
+  et une perte de cohérence (KL entre la sortie sur texte bruité et la sortie
+  sur texte propre, sans gradient sur l'ancre). Poids 1,0 chacune,
+  surchargeables par `CLASSIFIER_FAMILY_WEIGHT` et
+  `CLASSIFIER_CONSISTENCY_WEIGHT`. `hard.py` affiche désormais `group`
+  (famille = préfixe du slug) et `hierarchical` (argmax dans la meilleure
+  famille) à côté de `strict`.
+
+L'entraînement est reprenable : `CLASSIFIER_SAVE_STEPS=1500` fait évaluer et
+sauvegarder tous les 1 500 pas, `CLASSIFIER_RESUME=1` repart du dernier
+checkpoint de `CLASSIFIER_OUTPUT`. Un run de 16 000 pas sur batterie ne se
+rejoue pas depuis zéro.
+
+### Ce que les deux runs ont rendu
+
+Mêmes corpus d'évaluation, mêmes 827 cas durs, même lot neuf de 486 cas écrit
+à l'aveugle avant tout ce chantier :
+
+| | `run_v3` | `run_v4`, 2 epochs | `run_v5`, 3 epochs | **`run_v6`, 5 epochs (livré)** |
+|---|---|---|---|---|
+| formulations par classe | 0 | 120 à 160 | ~300 | ~300 |
+| cas durs quick-add, strict | 81,1 % | 94,3 % | 95,4 % | **95,9 %** |
+| — famille-préfixe | 86,0 % | 96,4 % | 96,9 % | **97,1 %** |
+| **lot neuf, strict** | 82,9 % | 95,9 % | **99,0 %** | 97,5 % |
+| — famille-préfixe | 88,1 % | 96,9 % | **99,6 %** | 98,6 % |
+| `phrase_libre` | 72,0 % | 91,6 % | **95,3 %** | 94,4 % |
+| `sans_entite` | 77,3 % | 94,9 % | **97,2 %** | 96,8 % |
+| `enumeration` | 71,4 % | 95,2 % | **100 %** | **100 %** |
+| `revenu`, direction | 85,0 % | 95,0 % | **100 %** | 95,0 % |
+| une faute de frappe | 69,8 % | 85,9 % | 88,9 % | **90,0 %** |
+| classes ≥ 95 % | 12 / 81 | 49 / 81 | **55 / 81** | 53 / 81 |
+| scan dur, strict | 73,6 % | 79,2 % | 81,8 % | **86,2 %** |
+| — `restauration` | 60,0 % | 80,0 % | **90,0 %** | **90,0 %** |
+| — `abrege` | 73,3 % | 73,3 % | 70,0 % | **80,0 %** |
+| entités jamais vues (source `entites`) | 75,9 % | 73,9 % | 77,1 % | **77,8 %** |
+| `world` mémorisation | 95 % | 95 % | 96 % | **98 %** |
+| ECE | 2,8 % | 2,0 % | 3,0 % | **1,4 %** |
+
+`run_v5` et `run_v6` sont le même corpus à deux durées d'entraînement, et
+ils se départagent sur sept cas du lot neuf contre sept du scan dur : c'est du
+bruit sur le quick-add. Ce qui n'est pas du bruit, c'est la calibration
+(ECE 1,4 %, 90 % des prédictions les plus confiantes justes à 91,5 %), les
+fautes de frappe et le scan — et `run_v6` est livré pour ces trois lignes.
+`output/best_v5_intent` garde l'autre, à un `mv` près.
+
+Le gain est là où le corpus a été ajouté et nulle part ailleurs : les axes sans
+entité gagnent 20 à 30 points, `marque_nue` et `homographe` n'ont pas bougé.
+Le doublement des formulations entre v4 et v5 vaut encore 3 points sur le lot
+neuf et 4 sur `phrase_libre` — la courbe n'est pas plate.
+
+**Ce qui reste, et ce que ça vaut.** Sur les 38 échecs de `run_v5` côté
+quick-add, une bonne moitié tient à une **frontière de convention** que le
+corpus dur tranche d'une façon et le monde d'une autre : Picard épicerie ou
+supermarché, Decathlon sport ou vêtements, un casque audio musique ou
+électronique, « chaussures taille 42 » vêtements ou enfant, « ma sœur m'a viré
+sa part » remboursement d'ami ou virement reçu. Ce ne sont pas des trous du
+modèle, ce sont des paires de classes que la taxonomie ne sépare pas par le
+libellé, et le score `group` à 96,9 % le dit : à la famille près, la
+convention n'existe plus. L'autre moitié est du vrai reste — « Flunch » à 14 %
+de confiance, « un PV », « la caisse a versé les prestations du mois ».
+
+**La faute de frappe reste le premier poste.** −6,5 points sur l'ensemble, mais
+−20 sur `argot` et −25 sur `chiffre` : « macdo », « SP98 », « forfait 100 Go »
+n'ont pas la matière pour survivre à une lettre qui ripe. La perte de cohérence
+a rendu 19 points depuis `run_v3`, pas la totalité.
+
+**Côté scan, l'axe `abrege` n'a pas bougé** (73 % → 70 %) : `*160G BLC PLT
+4TR.F`, `SLA LIT FRTS RGES 4X100G` sont des libellés de supermarché tronqués
+par la caisse, et le corpus généré n'en écrit pas — le prompt demande des
+lignes plausibles, la troncature réelle vient d'Open Prices et elle y est
+minoritaire. C'est là que la prochaine ligne de ticket doit être cherchée, pas
+dans une classe de plus.
+
+## 11. Journal
 
 | Version | Données | `world` | `quick_add` |
 |---|---|---|---|
@@ -1020,6 +1152,9 @@ deux corpus est le premier correctif à tenter.**
 
 | 80 classes, quatre bases produit (2026-08-29, `output/four_bases`) | + Open Products Facts et Open Pet Food Facts, Open Beauty Facts déplafonné : 55 774 lignes, 86 095 libellés sans ambiguïté ; 0 contradiction, 0 fuite | **95 %** — ECE 4,8 %, entités jamais vues 75,8 % ; **sous la cible de mémorisation** | catégorie 100 % (`app`), hard 88 % |
 | **82 classes, alignement rétabli (2026-09-01, `output/run_v3`, epoch 3)** | deux classes ajoutées à la taxonomie le 31 août sans rien reconstruire : poids, ONNX et corpus décalés de deux crans. Connaissance et deux corpus refaits sur 82 classes ; 154 962 + 50 000 exemples | **95 %** — ECE 2,8 %, entités jamais vues **75,9 %** | corpus dur porté à 827 cas : **81,1 %**, dont **12 classes sur 81 au-dessus de 95 %** |
+| **82 classes, intention apprise (2026-09-03, `output/run_v4`, 2 epochs)** | + formulations par classe (120 à 160 écrites à la main, 14 classes et 39 classes de lignes de ticket générées puis vérifiées à l'aveugle, §10), loss de famille et de cohérence, contradictions inter-corpus retirées ; 187 478 + 72 007 exemples | **95 %** — ECE 2,0 %, entités jamais vues 73,9 %, formulations tenues à part 90,3 % | cas durs **94,3 %** (famille-préfixe 96,4 %), lot neuf à l'aveugle **95,9 %**, une faute 85,9 %, scan dur 79,2 %, **49 classes sur 81 au-dessus de 95 %** |
+| **82 classes, corpus d'intention élargi (2026-09-03, `output/run_v5`, 3 epochs, livré dans `output/best`)** | formulations portées à ~300 par classe (24 984, dont 8 105 écrites à la main) et lignes de ticket à 10 137 sur 39 classes, toutes générées puis vérifiées à l'aveugle ; 242 552 + 79 779 exemples | **96 %** — ECE 3,0 %, entités jamais vues **77,1 %**, formulations tenues à part 94,3 % | cas durs **95,4 %** (famille-préfixe 96,9 %), lot neuf à l'aveugle **99,0 %** (famille 99,6 %), une faute 88,9 %, scan dur **81,8 %**, **55 classes sur 81 au-dessus de 95 %**, `app` 100 % |
+| **82 classes, 5 epochs (2026-09-04, `output/run_v6`, livré dans `output/best`)** | même corpus que `run_v5`, 5 epochs au lieu de 3 ; meilleur checkpoint au dernier pas | **98 %** — ECE **1,4 %**, entités jamais vues **77,8 %**, 90 % les plus confiants à 91,5 % | cas durs **95,9 %** (famille-préfixe 97,1 %), lot neuf 97,5 % (famille 98,6 %), une faute **90,0 %**, scan dur **86,2 %** (abrégé 80 %), 53 classes sur 81 au-dessus de 95 % |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.

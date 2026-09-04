@@ -21,6 +21,8 @@ enum FrostedIconButtonSize {
 }
 
 class FrostedIconButton extends StatelessWidget {
+  static const double inset = FrostedSpacing.sp1;
+
   const FrostedIconButton._({
     super.key,
     required this.icon,
@@ -134,9 +136,7 @@ class FrostedIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final FrostedMotion motion = context.frostedTokens.motion.snappy;
-    final IconData glyph = _isOn && selectedIcon != null
-        ? selectedIcon!
-        : icon;
+    final IconData glyph = _isOn && selectedIcon != null ? selectedIcon! : icon;
 
     final Widget surface = InteractiveSurface(
       onTap: onPressed,
@@ -169,7 +169,7 @@ class FrostedIconButton extends StatelessWidget {
     );
 
     Widget result = Padding(
-      padding: const EdgeInsets.all(FrostedSpacing.sp1),
+      padding: const EdgeInsets.all(inset),
       child: surface,
     );
 

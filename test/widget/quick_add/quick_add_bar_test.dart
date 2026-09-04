@@ -127,8 +127,10 @@ void main() {
           categoryOverrideRepositoryProvider.overrideWithValue(overrides),
           quickAddClassifierProvider.overrideWith((ref) => classifier),
           categoryDisplayResolverProvider.overrideWith(
-            (ref) async =>
-                CategoryDisplayResolver(taxonomy: taxonomy, overrides: const {}),
+            (ref) async => CategoryDisplayResolver(
+              taxonomy: taxonomy,
+              overrides: const {},
+            ),
           ),
         ],
         child: MaterialApp(
@@ -260,6 +262,34 @@ void main() {
 
     return button.decoration! as BoxDecoration;
   }
+
+  Rect roundButtonSkinRect(WidgetTester tester, IconData icon) =>
+      tester.getRect(
+        find
+            .ancestor(
+              of: find.byIcon(icon),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+
+  testWidgets('le scan, le champ et les bords partagent la meme gouttiere', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    final bar = tester.getRect(find.byType(QuickAddBar));
+    final scan = roundButtonSkinRect(tester, Symbols.photo_camera_rounded);
+    final field = tester.getRect(find.byType(FrostedTextField));
+
+    expect(scan.left, moreOrLessEquals(bar.left, epsilon: 0.5));
+    expect(field.right, moreOrLessEquals(bar.right, epsilon: 0.5));
+    expect(
+      field.left - scan.right,
+      moreOrLessEquals(QuickAddBar.gutter, epsilon: 0.5),
+    );
+  });
 
   testWidgets('l\'envoi vit dans le champ, pas a cote', (tester) async {
     await pumpBar(tester);

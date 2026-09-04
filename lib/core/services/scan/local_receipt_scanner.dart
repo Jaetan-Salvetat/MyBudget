@@ -16,6 +16,7 @@ class LocalReceiptScanner {
   final ReceiptImageEnhancer _enhance;
 
   final Gazetteer? _gazetteer;
+  final StoreClassifier? _classifier;
 
   const LocalReceiptScanner({
     required this._recognizer,
@@ -23,12 +24,14 @@ class LocalReceiptScanner {
     required this._link,
     required this._span,
     this._gazetteer,
+    this._classifier,
     this._enhance = enhanceReceiptForRetry,
   });
 
   Future<LocalReceiptScan> scan(
     Uint8List imageBytes, {
     NanoReceiptReader? nano,
+    ReceiptReadListener? onPart,
   }) async {
     final watch = Stopwatch()..start();
     var mark = 0;
@@ -46,7 +49,7 @@ class LocalReceiptScanner {
     if (nano != null) {
       await warmingUp;
       step('préchauffage Gemini Nano');
-      final read = await nano.read(pass1);
+      final read = await nano.read(imageBytes, pass1, onPart: onPart);
       step('lecture Gemini Nano (${read?.items.length ?? 0} articles)');
       if (read != null) return read;
     }
@@ -68,7 +71,12 @@ class LocalReceiptScanner {
 
     return LocalReceiptScan.fromOutcome(
       outcome,
-      store: storeOf(lines, roles, gazetteer: _gazetteer),
+      store: storeOf(
+        lines,
+        roles,
+        gazetteer: _gazetteer,
+        classifier: _classifier,
+      ),
       date: dateOf(lines, roles),
       items: relabel(outcome.items, lines, offsets, spans),
     );

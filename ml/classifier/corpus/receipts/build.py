@@ -26,7 +26,12 @@ from pathlib import Path
 import duckdb
 
 from corpus.receipts import openprices
-from corpus.receipts.categories import beauty_slug, food_slug, petfood_slug, products_slug
+from corpus.receipts.categories import (
+    beauty_slug,
+    food_slug,
+    petfood_slug,
+    products_slug,
+)
 from corpus.receipts.labels import EXCLUDED_STORES
 from corpus.receipts.lexicon import (
     CITIES,
@@ -34,6 +39,7 @@ from corpus.receipts.lexicon import (
     RECEIPT_LEXICON,
     STORE_ABBREVIATIONS,
 )
+from corpus.receipts.lines import generated_lines
 from corpus.receipts.style import receipt_line, strip_accents
 from corpus.receipts.truth import item_label
 from knowledge.entities import is_latin, read_entities
@@ -41,6 +47,7 @@ from paths import (
     CACHE_DIR,
     DATASET_DIR,
     ENTITIES_PATH,
+    EVAL_DATA_DIR,
     OPEN_PRICES_PATH,
     SCAN_GOLDEN_DIR,
 )
@@ -49,6 +56,7 @@ from serving.normalize import normalize_receipt_line
 from taxonomy import EXPENSE_TYPE, LABEL_INDEX, ONE_TIME
 
 GOLDEN_DIR = SCAN_GOLDEN_DIR
+HARD_RECEIPTS_PATH = EVAL_DATA_DIR / "hard_receipts.json"
 SEED = 42
 EVAL_RATIO = 0.05
 
@@ -170,6 +178,8 @@ def held_out_texts() -> set[str]:
         receipt = json.loads(path.read_text(encoding="utf-8"))["receipt"]
         for item in receipt["items"]:
             out.add(normalize_receipt_line(item["name"]))
+    hard = json.loads(HARD_RECEIPTS_PATH.read_text(encoding="utf-8"))["cases"]
+    out.update(normalize_receipt_line(case["name"]) for case in hard)
     return out
 
 
@@ -250,6 +260,7 @@ def generate(seed: int = SEED) -> tuple[list[dict], list[dict]]:
         cap_per_class(real, OPEN_PRICES_CLASS_CAP, rng, key=lambda line: line[2])
         + product_lines(rng)
         + lexicon_lines(rng)
+        + generated_lines(rng)
         + store_lines(rng)
     )
     # La retenue s'applique aussi au golden : un article de T1-train peut porter

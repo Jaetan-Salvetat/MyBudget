@@ -40,12 +40,16 @@ from evaluation.robustness import phonetic_vowels, qwerty_key, triple_letter
 from paths import DATASET_DIR, EVAL_DATA_DIR, MODEL_DIR
 from serving.normalize import normalize_query, normalize_receipt_line
 from taxonomy import ACTIVE_LABELS, LABELS, canonical, type_of
+from training.hierarchy import decode_within_family, family_of, membership
 from training.train import MAX_LENGTH, BudgetClassifier
 
 QUICK_ADD_PATH = EVAL_DATA_DIR / "hard_quick_add.json"
+FRESH_PATH = EVAL_DATA_DIR / "fresh_quick_add.json"
 RECEIPTS_PATH = EVAL_DATA_DIR / "hard_receipts.json"
+FAMILY_MEMBERSHIP = membership()
 BATCH_SIZE = 64
 TYPO_SEED = 11
+COLUMN_WIDTH = 14
 
 TYPE_LABELS = ["expense", "income"]
 RECURRENCE_LABELS = ["ponctuel", "fixe"]
@@ -86,12 +90,13 @@ def predict(model, tokenizer, texts: list[str]) -> list[dict]:
                 input_ids=encoded["input_ids"], attention_mask=encoded["attention_mask"]
             )
         categories = output.category_logits.argmax(dim=-1).tolist()
+        within = decode_within_family(output.category_logits, FAMILY_MEMBERSHIP).tolist()
         confidences = torch.softmax(output.category_logits, dim=-1).max(dim=-1).values.tolist()
         types = output.type_logits.argmax(dim=-1).tolist()
         recurrences = output.recurrence_logits.argmax(dim=-1).tolist()
         results += [
-            {"category": c, "confidence": p, "type": t, "recurrence": r}
-            for c, p, t, r in zip(categories, confidences, types, recurrences)
+            {"category": c, "hierarchical": h, "confidence": p, "type": t, "recurrence": r}
+            for c, h, p, t, r in zip(categories, within, confidences, types, recurrences)
         ]
     return results
 
@@ -100,25 +105,29 @@ def score(rows: list[tuple[dict, dict]]) -> dict:
     """Un axe : justesse stricte, à la famille près, et sur les trois têtes."""
     strict = sum(LABELS[p["category"]] == c["category"] for c, p in rows)
     loose = sum(family(LABELS[p["category"]]) == family(c["category"]) for c, p in rows)
+    group = sum(family_of(LABELS[p["category"]]) == family_of(c["category"]) for c, p in rows)
+    within = sum(LABELS[p["hierarchical"]] == c["category"] for c, p in rows)
     return {
         "n": len(rows),
         "strict": strict / len(rows),
         "family": loose / len(rows),
+        "group": group / len(rows),
+        "hierarchical": within / len(rows),
         "confidence": sum(p["confidence"] for _, p in rows) / len(rows),
     }
 
 
 def report(title: str, scored: dict[str, dict], columns: tuple[str, ...]) -> None:
     print(f"\n{'=' * 74}\n  {title}")
-    header = "".join(f"{name:>12}" for name in columns)
+    header = "".join(f"{name:>{COLUMN_WIDTH}}" for name in columns)
     print(f"  {'axe':<20}{'n':>5}{header}")
     for axis, values in scored.items():
-        cells = "".join(f"{values[name]:>11.1%}" for name in columns)
+        cells = "".join(f"{values[name]:>{COLUMN_WIDTH - 1}.1%}" for name in columns)
         print(f"  {axis:<20}{values['n']:>5}{cells}")
 
 
-def measure_quick_add(model, tokenizer) -> None:
-    cases = load(QUICK_ADD_PATH)
+def measure_quick_add(model, tokenizer, path=QUICK_ADD_PATH, title="ce qu'un utilisateur tape") -> None:
+    cases = load(path)
     predictions = predict(model, tokenizer, [normalize_query(c["input"]) for c in cases])
 
     by_axis: dict[str, list] = defaultdict(list)
@@ -146,9 +155,9 @@ def measure_quick_add(model, tokenizer) -> None:
         / len(cases),
     }
     report(
-        "QUICK-ADD — ce qu'un utilisateur tape",
+        f"QUICK-ADD — {title}",
         scored,
-        ("strict", "family", "type", "recurrence", "confidence"),
+        ("strict", "family", "group", "hierarchical", "type", "recurrence", "confidence"),
     )
     report_by_section(cases, predictions)
     report_by_class(cases, predictions)
@@ -281,7 +290,7 @@ def measure_receipts(model, tokenizer) -> None:
     report(
         "SCAN — libellés de caisse, article seul",
         scored,
-        ("strict", "family", "confidence"),
+        ("strict", "family", "group", "hierarchical", "confidence"),
     )
 
     failures = [
@@ -300,6 +309,8 @@ def main() -> None:
     model.eval()
 
     measure_quick_add(model, tokenizer)
+    if FRESH_PATH.exists():
+        measure_quick_add(model, tokenizer, FRESH_PATH, "lot neuf, écrit à l'aveugle")
     measure_typed_input(model, tokenizer)
     measure_receipts(model, tokenizer)
 

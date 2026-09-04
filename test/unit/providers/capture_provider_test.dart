@@ -248,7 +248,13 @@ void main() {
     test('reads the past backwards, newest slice first', () async {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day, 10, 0);
-      final earlier = DateTime(now.year, now.month, 1, 9, 0);
+      final earlier = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        9,
+        0,
+      ).subtract(const Duration(days: 1));
 
       when(() => expenses.getActive()).thenReturn([
         expenseOf(id: 1, name: 'Loyer', amount: 800, startDate: earlier),
@@ -307,7 +313,7 @@ void main() {
 
     test('a monthly expense lands in every month since its first', () async {
       final now = DateTime.now();
-      final twoMonthsAgo = DateTime(now.year, now.month - 2, 3, 9, 0);
+      final twoMonthsAgo = DateTime(now.year, now.month - 2, 1, 9, 0);
 
       when(() => expenses.getActive()).thenReturn([
         expenseOf(
@@ -334,7 +340,7 @@ void main() {
 
     test('a yearly expense comes back a year on, same month', () async {
       final now = DateTime.now();
-      final lastYear = DateTime(now.year - 1, now.month, 12, 9, 0);
+      final lastYear = DateTime(now.year - 1, now.month, 1, 9, 0);
 
       when(() => expenses.getActive()).thenReturn([
         expenseOf(
@@ -436,8 +442,8 @@ void main() {
 
     test('the replacement rule reads next to the one it closed', () async {
       final now = DateTime.now();
-      final start = DateTime(now.year, now.month - 2, 3, 9, 0);
-      final closedOn = DateTime(now.year, now.month - 1, 3);
+      final start = DateTime(now.year, now.month - 2, 1, 9, 0);
+      final closedOn = DateTime(now.year, now.month - 1, 1);
 
       when(() => expenses.getClosed()).thenReturn([
         expenseOf(
@@ -454,7 +460,7 @@ void main() {
           id: 2,
           name: 'Loyer',
           amount: 850,
-          startDate: DateTime(now.year, now.month, 3, 9, 0),
+          startDate: DateTime(now.year, now.month, 1, 9, 0),
           frequency: 'Mensuel',
         ),
       ]);

@@ -15,3 +15,7 @@ final class QuickAddNoAmountException extends QuickAddException {
 final class QuickAddClassificationException extends QuickAddException {
   const QuickAddClassificationException({required super.message});
 }
+
+final class QuickAddEngineUnavailableException extends QuickAddException {
+  const QuickAddEngineUnavailableException({required super.message});
+}

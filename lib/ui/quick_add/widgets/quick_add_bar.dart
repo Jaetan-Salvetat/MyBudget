@@ -20,11 +20,15 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
+const double _kScanGap = QuickAddBar.gutter - FrostedIconButton.inset * 2;
+
 final double _kFieldOffset =
-    FrostedIconButtonSize.medium.box + FrostedSpacing.sp1 * 2;
+    FrostedIconButtonSize.medium.box + QuickAddBar.gutter;
 
 class QuickAddBar extends ConsumerStatefulWidget {
   static const String staticHint = 'courses carrefour 42';
+
+  static const double gutter = FrostedSpacing.sp4;
 
   final bool focused;
   final ValueChanged<bool> onFocusChanged;
@@ -90,15 +94,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
   void _cancel() {
     _controller.clear();
     ref.read(quickAddProvider.notifier).reset();
-  }
-
-  void _onDegradationChanged(bool? previous, bool degraded) {
-    if (!degraded || previous == true || !mounted) return;
-
-    FrostedSnackbar.show(
-      context,
-      message: 'L\'ajout rapide est repassé sur l\'appareil.',
-    );
   }
 
   void _onChanged(String value) {
@@ -176,7 +171,6 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
     ref.listen(quickAddFocusRequestProvider, (_, _) {
       _focusNode.requestFocus();
     });
-    ref.listen(quickAddDegradationProvider, _onDegradationChanged);
     ref.listen(quickAddProvider, _onDraftChanged);
 
     final draft = ref.watch(quickAddProvider);
@@ -194,18 +188,22 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
           child: draft.isEmpty
               ? const SizedBox(width: double.infinity)
               : const Padding(
-                  padding: EdgeInsets.only(bottom: FrostedSpacing.sp3),
+                  padding: EdgeInsets.only(bottom: FrostedSpacing.sp2),
                   child: QuickAddPreview(),
                 ),
         ),
         Row(
           children: [
-            FrostedIconButton.tonal(
-              icon: Symbols.photo_camera_rounded,
-              shape: FrostedShape.pill,
-              tooltip: 'Photographier le ticket',
-              onPressed: _scan,
+            Transform.translate(
+              offset: const Offset(-FrostedIconButton.inset, 0),
+              child: FrostedIconButton.tonal(
+                icon: Symbols.photo_camera_rounded,
+                shape: FrostedShape.pill,
+                tooltip: 'Photographier le ticket',
+                onPressed: _scan,
+              ),
             ),
+            const SizedBox(width: _kScanGap),
             Expanded(child: _field(draft)),
           ],
         ),
@@ -217,7 +215,7 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
               ? Padding(
                   padding: EdgeInsets.only(
                     left: _kFieldOffset,
-                    top: FrostedSpacing.sp1,
+                    top: FrostedSpacing.sp2,
                   ),
                   child: QuickAddAccountLine(onNoAccount: widget.onNoAccount),
                 )
@@ -264,10 +262,8 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
     return ValueListenableBuilder<String>(
       valueListenable: hint,
-      builder: (context, typed, _) => _fieldWithHint(
-        draft,
-        typed.isEmpty ? QuickAddBar.staticHint : typed,
-      ),
+      builder: (context, typed, _) =>
+          _fieldWithHint(draft, typed.isEmpty ? QuickAddBar.staticHint : typed),
     );
   }
 

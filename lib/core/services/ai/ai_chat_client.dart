@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:http/http.dart' as http;
 import 'package:openai_dart/openai_dart.dart';
 
 import 'package:mybudget/core/enums/ai_model.dart';
@@ -35,10 +36,20 @@ final class OpenAiCompatibleChatClient implements AiChatClient {
     required AiProvider provider,
     required AiModel model,
     required String apiKey,
+    http.Client? httpClient,
   }) : _model = model.id,
-       _client = OpenAIClient.withApiKey(apiKey, baseUrl: provider.baseUrl);
+       _client = OpenAIClient(
+         config: OpenAIConfig(
+           authProvider: ApiKeyProvider(apiKey),
+           baseUrl: provider.baseUrl,
+           retryPolicy: _noRetry,
+         ),
+         httpClient: httpClient,
+       );
 
   static const double _temperature = 0.1;
+
+  static const RetryPolicy _noRetry = RetryPolicy(maxRetries: 0);
 
   final String _model;
   final OpenAIClient _client;

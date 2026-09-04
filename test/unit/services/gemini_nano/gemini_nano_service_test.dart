@@ -111,9 +111,39 @@ void main() {
       expect(calls.single.arguments, {
         GeminiNanoService.promptArgument: 'resto',
         GeminiNanoService.schemaArgument: 'quick_add',
+        GeminiNanoService.schemaInPromptArgument: false,
+        GeminiNanoService.thinkingArgument: false,
         GeminiNanoService.channelArgument: channel.id,
         GeminiNanoService.preferenceArgument: preference.id,
       });
+    });
+
+    test('ne transporte photo, chaleur et graine que si on les demande',
+        () async {
+      answer((_) async => '{}');
+
+      await service.generate(
+        prompt: 'ticket',
+        schema: 'receiptStore',
+        channel: channel,
+        preference: preference,
+        image: Uint8List.fromList([1, 2, 3]),
+        temperature: 0.2,
+        seed: 42,
+        schemaInPrompt: true,
+        thinking: true,
+      );
+
+      final arguments = calls.single.arguments as Map<Object?, Object?>;
+      expect(arguments[GeminiNanoService.imageArgument], [1, 2, 3]);
+      expect(arguments[GeminiNanoService.temperatureArgument], 0.2);
+      expect(arguments[GeminiNanoService.seedArgument], 42);
+      expect(arguments[GeminiNanoService.schemaInPromptArgument], isTrue);
+      expect(arguments[GeminiNanoService.thinkingArgument], isTrue);
+      expect(
+        arguments.containsKey(GeminiNanoService.candidatesArgument),
+        isFalse,
+      );
     });
 
     test('traduit le code d\'erreur natif en panne typée', () async {

@@ -222,59 +222,6 @@ abstract class _$SelectedAiModelNotifier extends $Notifier<AiModel> {
   }
 }
 
-@ProviderFor(AiCloudConsentNotifier)
-final aiCloudConsentProvider = AiCloudConsentNotifierProvider._();
-
-final class AiCloudConsentNotifierProvider
-    extends $NotifierProvider<AiCloudConsentNotifier, bool> {
-  AiCloudConsentNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'aiCloudConsentProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$aiCloudConsentNotifierHash();
-
-  @$internal
-  @override
-  AiCloudConsentNotifier create() => AiCloudConsentNotifier();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$aiCloudConsentNotifierHash() =>
-    r'759582579dba269cc6b0ee64075b7d6639d3f7d7';
-
-abstract class _$AiCloudConsentNotifier extends $Notifier<bool> {
-  bool build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<bool, bool>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
 @ProviderFor(hasStoredApiKey)
 final hasStoredApiKeyProvider = HasStoredApiKeyProvider._();
 
@@ -348,57 +295,4 @@ final class QuickAddUsesRemoteProvider
 }
 
 String _$quickAddUsesRemoteHash() =>
-    r'bfd386d9c34851a3785caf377a19e143af04607e';
-
-@ProviderFor(QuickAddDegradationNotifier)
-final quickAddDegradationProvider = QuickAddDegradationNotifierProvider._();
-
-final class QuickAddDegradationNotifierProvider
-    extends $NotifierProvider<QuickAddDegradationNotifier, bool> {
-  QuickAddDegradationNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'quickAddDegradationProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$quickAddDegradationNotifierHash();
-
-  @$internal
-  @override
-  QuickAddDegradationNotifier create() => QuickAddDegradationNotifier();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$quickAddDegradationNotifierHash() =>
-    r'3dafc99d4f2c62e85748c0429e9dd388d241aef8';
-
-abstract class _$QuickAddDegradationNotifier extends $Notifier<bool> {
-  bool build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<bool, bool>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
+    r'c8253f478134f8b54c256a7e6b8d7a6b1fb6ea3c';

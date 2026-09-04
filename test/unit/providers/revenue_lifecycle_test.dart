@@ -22,6 +22,7 @@ void main() {
 
   late MockRevenueRepository repo;
   late RevenueModel? closed;
+  late RevenueModel? opened;
   late List<int> deleted;
 
   final today = dayOnly(DateTime.now());
@@ -47,6 +48,7 @@ void main() {
     events = MockTransactionEventRepository();
     repo = MockRevenueRepository();
     closed = null;
+    opened = null;
     deleted = [];
 
     when(() => repo.getActive()).thenReturn([]);
@@ -59,7 +61,10 @@ void main() {
       deleted.add(invocation.positionalArguments.first as int);
       return true;
     });
-    when(() => repo.add(any())).thenReturn(8);
+    when(() => repo.add(any())).thenAnswer((invocation) {
+      opened = invocation.positionalArguments.first as RevenueModel;
+      return 8;
+    });
     when(() => repo.getChain(any())).thenReturn([]);
   });
 
@@ -162,7 +167,7 @@ void main() {
   });
 
   group('editing a rule that has already run', () {
-    test('closes the old row on the day of the edit', () async {
+    test('closes the old row the eve of the one taking over', () async {
       final revenue = subscription(
         startDate: DateTime(today.year, today.month - 2, 1),
       );
@@ -170,7 +175,10 @@ void main() {
 
       await notifier.updateRevenue(revenue.copyWith(amount: 35));
 
-      expect(dayOnly(closed!.endDate!), today);
+      expect(
+        dayOnly(closed!.endDate!),
+        dayOnly(opened!.startDate).subtract(const Duration(days: 1)),
+      );
       expect(deleted, isEmpty);
     });
   });
@@ -274,7 +282,10 @@ void main() {
         await notifier.updateRevenue(revenue.copyWith(name: 'Chomage Pro'));
 
         verify(() => repo.add(any())).called(1);
-        expect(dayOnly(closed!.endDate!), today);
+        expect(
+          dayOnly(closed!.endDate!),
+          dayOnly(opened!.startDate).subtract(const Duration(days: 1)),
+        );
       },
     );
 

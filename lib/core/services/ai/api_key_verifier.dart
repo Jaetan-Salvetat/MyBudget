@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
@@ -6,9 +8,12 @@ import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 
 class ApiKeyVerifier {
-  const ApiKeyVerifier({required this._clientFactory});
+  const ApiKeyVerifier({
+    required this._clientFactory,
+    this.timeout = coldStartTimeout,
+  });
 
-  static const Duration timeout = Duration(seconds: 10);
+  static const Duration coldStartTimeout = Duration(minutes: 2);
 
   static const String _probePrompt =
       'Réponds { "ok": true } sans rien ajouter.';
@@ -22,6 +27,7 @@ class ApiKeyVerifier {
   };
 
   final AiChatClientFactory _clientFactory;
+  final Duration timeout;
 
   Future<ApiKeyCheck> verify({
     required AiProvider provider,
@@ -29,6 +35,7 @@ class ApiKeyVerifier {
     required String rawKey,
   }) async {
     final key = ApiKeyService.sanitize(rawKey);
+    if (key.isEmpty) return _deny(ApiKeyDenialReason.emptyKey, provider);
 
     final foreignVendor = AiProvider.foreignVendorOf(key);
     if (foreignVendor != null) {
@@ -37,10 +44,6 @@ class ApiKeyVerifier {
         provider,
         foreignVendor: foreignVendor,
       );
-    }
-
-    if (!provider.matchesKeyFormat(key)) {
-      return _deny(ApiKeyDenialReason.invalidFormat, provider);
     }
 
     final client = _clientFactory(provider, model, key);
@@ -53,7 +56,11 @@ class ApiKeyVerifier {
           )
           .timeout(timeout);
       return const ApiKeyAccepted();
-    } catch (error) {
+    } catch (error, stackTrace) {
+      debugPrint(
+        'Verification de la cle ${provider.id} impossible : '
+        '$error\n$stackTrace',
+      );
       final failure = AiRequestFailure.from(error);
       if (failure == AiRequestFailure.quotaExceeded) {
         return const ApiKeyAccepted(quotaExhausted: true);

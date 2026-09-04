@@ -15,7 +15,13 @@ def case(slug: str) -> dict:
 
 
 def prediction(slug: str) -> dict:
-    return {"category": LABEL_INDEX[slug], "confidence": 1.0, "type": 0, "recurrence": 0}
+    return {
+        "category": LABEL_INDEX[slug],
+        "hierarchical": LABEL_INDEX[slug],
+        "confidence": 1.0,
+        "type": 0,
+        "recurrence": 0,
+    }
 
 
 def test_a_class_is_scored_on_its_own_cases():
@@ -28,6 +34,8 @@ def test_a_class_is_scored_on_its_own_cases():
         "n": 4,
         "strict": 0.75,
         "family": 1.0,
+        "group": 1.0,
+        "hierarchical": 0.75,
         "confidence": 1.0,
     }
 

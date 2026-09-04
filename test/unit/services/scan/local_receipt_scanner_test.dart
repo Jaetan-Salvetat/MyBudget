@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/constants/receipt_schema.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
@@ -35,9 +36,9 @@ class _ScriptedRecognizer implements ReceiptLineRecognizer {
 }
 
 class _StubNanoService extends GeminiNanoService {
-  _StubNanoService({this.answer, this.failure});
+  _StubNanoService({this.sections, this.failure});
 
-  final String? answer;
+  final Map<String, String>? sections;
   final GeminiNanoFailure? failure;
 
   int calls = 0;
@@ -55,17 +56,27 @@ class _StubNanoService extends GeminiNanoService {
     required String schema,
     required GeminiNanoChannel channel,
     required GeminiNanoPreference preference,
+    Uint8List? image,
+    double? temperature,
+    int? seed,
+    bool schemaInPrompt = false,
+    bool thinking = false,
+    int? candidates,
   }) async {
     calls++;
     steps.add('generate');
     if (failure != null) throw GeminiNanoException(failure!);
-    return answer!;
+    return sections![schema]!;
   }
 }
 
-const String _nanoReceipt =
-    '{"store":"MONOPRIX","date":"2026-08-02","total":5.0,'
-    '"items":[{"name":"CAFE","amount":5.0,"discount":0.0}]}';
+final Map<String, String> _nanoSections = {
+  ReceiptSchema.storeName: '{"store":"MONOPRIX"}',
+  ReceiptSchema.dateName: '{"date":"2026-08-02"}',
+  ReceiptSchema.totalName: '{"total":5.0}',
+  ReceiptSchema.itemsName:
+      '{"total":5.0,"items":[{"name":"CAFE","amount":5.0,"discount":0.0}]}',
+};
 
 final Uint8List _photo = Uint8List.fromList([1, 2, 3]);
 final Uint8List _enhanced = Uint8List.fromList([4, 5, 6]);
@@ -127,7 +138,8 @@ void main() {
         );
     link = LabelLinkModel(
       LineClassifier.fromJson(
-        jsonDecode(await File(linkAsset).readAsString()) as Map<String, dynamic>,
+        jsonDecode(await File(linkAsset).readAsString())
+            as Map<String, dynamic>,
       ),
     );
 
@@ -144,7 +156,8 @@ void main() {
         );
     span = LabelSpanModel(
       LineClassifier.fromJson(
-        jsonDecode(await File(spanAsset).readAsString()) as Map<String, dynamic>,
+        jsonDecode(await File(spanAsset).readAsString())
+            as Map<String, dynamic>,
       ),
     );
   });
@@ -152,12 +165,14 @@ void main() {
   LocalReceiptScanner scannerOf(
     _ScriptedRecognizer recognizer, {
     ReceiptImageEnhancer enhance = _fakeEnhance,
+    StoreClassifier? classifier,
   }) {
     return LocalReceiptScanner(
       recognizer: recognizer,
       tagger: tagger,
       link: link,
       span: span,
+      classifier: classifier,
       enhance: enhance,
     );
   }
@@ -176,23 +191,23 @@ void main() {
       expect(recognizer.received, [_photo]);
     });
 
-    test('une somme non prouvée relance une passe sur l\'image prétraitée',
-        () async {
-      final recognizer = _ScriptedRecognizer([
-        receiptLinesOf(_brokenReceipt),
-        receiptLinesOf(_verifiedReceipt),
-      ]);
+    test(
+      'une somme non prouvée relance une passe sur l\'image prétraitée',
+      () async {
+        final recognizer = _ScriptedRecognizer([
+          receiptLinesOf(_brokenReceipt),
+          receiptLinesOf(_verifiedReceipt),
+        ]);
 
-      final scan = await scannerOf(recognizer).scan(_photo);
+        final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.verified, isTrue);
-      expect(recognizer.received, [_photo, _enhanced]);
-    });
+        expect(scan.verified, isTrue);
+        expect(recognizer.received, [_photo, _enhanced]);
+      },
+    );
 
     test('une 2e passe impossible garde la lecture de la première', () async {
-      final recognizer = _ScriptedRecognizer([
-        receiptLinesOf(_brokenReceipt),
-      ]);
+      final recognizer = _ScriptedRecognizer([receiptLinesOf(_brokenReceipt)]);
 
       final scan = await scannerOf(
         recognizer,
@@ -203,75 +218,107 @@ void main() {
       expect([for (final item in scan.items) item.amount], [2.0]);
     });
 
-    test('la 2e passe porte l\'enseigne et la date quand elle a servi',
-        () async {
-      final recognizer = _ScriptedRecognizer([
-        receiptLinesOf([
-          [('PAIN', 0), ('2,00', 20)],
-          [('TOTAL', 0), ('5,00', 20)],
-        ]),
-        receiptLinesOf([
-          [('CARREFOUR', 0)],
-          [('01/08/2026', 0)],
-          [('PAIN', 0), ('2,00', 20)],
-          [('LAIT', 0), ('3,00', 20)],
-          [('TOTAL', 0), ('5,00', 20)],
-        ]),
-      ]);
+    test(
+      'la 2e passe porte l\'enseigne et la date quand elle a servi',
+      () async {
+        final recognizer = _ScriptedRecognizer([
+          receiptLinesOf([
+            [('PAIN', 0), ('2,00', 20)],
+            [('TOTAL', 0), ('5,00', 20)],
+          ]),
+          receiptLinesOf([
+            [('CARREFOUR', 0)],
+            [('01/08/2026', 0)],
+            [('PAIN', 0), ('2,00', 20)],
+            [('LAIT', 0), ('3,00', 20)],
+            [('TOTAL', 0), ('5,00', 20)],
+          ]),
+        ]);
 
-      final scan = await scannerOf(recognizer).scan(_photo);
+        final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(scan.date, '2026-08-01');
-      expect(scan.store, 'CARREFOUR');
-    });
+        expect(scan.date, '2026-08-01');
+        expect(scan.store, 'CARREFOUR');
+      },
+    );
 
-    test('un article dont le prix échappe à la regex stricte remonte', () async {
-      final recognizer = _ScriptedRecognizer([
-        receiptLinesOf([
-          [('CARREFOUR', 0)],
-          [('CARRE', 0), ('FOURRE', 6), ('2.15Eur', 20)],
-          [('LAIT', 0), ('3,00', 20)],
-          [('TOTAL', 0), ('5,15', 20)],
-        ]),
-      ]);
+    test(
+      "le classifieur du ticket nomme l'enseigne avant la ligne désignée",
+      () async {
+        final recognizer = _ScriptedRecognizer([
+          receiptLinesOf([
+            [('CARREFOUR', 0)],
+            [('PAIN', 0), ('2,00', 20)],
+            [('LAIT', 0), ('3,00', 20)],
+            [('TOTAL', 0), ('5,00', 20)],
+          ]),
+        ]);
+        final classifier = StoreClassifier(
+          classes: [storeClassifierOther, 'Auchan'],
+          intercepts: [0.0, 1.0],
+          weights: [{}, {}],
+        );
 
-      final scan = await scannerOf(recognizer).scan(_photo);
+        final scan = await scannerOf(
+          recognizer,
+          classifier: classifier,
+        ).scan(_photo);
 
-      expect(scan.verified, isTrue);
-      expect([for (final item in scan.items) item.amount], [2.15, 3.0]);
-    });
+        expect(scan.store, 'Auchan');
+      },
+    );
 
-    test('Gemini Nano prend la main sur le décodeur local quand il lit',
-        () async {
-      final service = _StubNanoService(answer: _nanoReceipt);
-      final recognizer = _ScriptedRecognizer(
-        [receiptLinesOf(_verifiedReceipt)],
-        onRecognize: () => service.steps.add('ocr'),
-      );
+    test(
+      'un article dont le prix échappe à la regex stricte remonte',
+      () async {
+        final recognizer = _ScriptedRecognizer([
+          receiptLinesOf([
+            [('CARREFOUR', 0)],
+            [('CARRE', 0), ('FOURRE', 6), ('2.15Eur', 20)],
+            [('LAIT', 0), ('3,00', 20)],
+            [('TOTAL', 0), ('5,15', 20)],
+          ]),
+        ]);
 
-      final scan = await scannerOf(recognizer).scan(
-        _photo,
-        nano: NanoReceiptReader(service: service),
-      );
+        final scan = await scannerOf(recognizer).scan(_photo);
 
-      expect(service.steps, ['warmUp', 'ocr', 'generate']);
-      expect(scan.store, 'MONOPRIX');
-      expect(scan.date, '2026-08-02');
-      expect([for (final item in scan.items) item.name], ['CAFE']);
-    });
+        expect(scan.verified, isTrue);
+        expect([for (final item in scan.items) item.amount], [2.15, 3.0]);
+      },
+    );
+
+    test(
+      'Gemini Nano prend la main sur le décodeur local quand il lit',
+      () async {
+        final service = _StubNanoService(sections: _nanoSections);
+        final recognizer = _ScriptedRecognizer([
+          receiptLinesOf(_verifiedReceipt),
+        ], onRecognize: () => service.steps.add('ocr'));
+
+        final scan = await scannerOf(
+          recognizer,
+        ).scan(_photo, nano: NanoReceiptReader(service: service));
+
+        expect(service.steps.take(3), ['warmUp', 'ocr', 'generate']);
+        expect(scan.store, 'MONOPRIX');
+        expect(scan.date, '2026-08-02');
+        expect([for (final item in scan.items) item.name], ['CAFE']);
+      },
+    );
 
     test('un échec de Gemini Nano rend la main au décodeur local', () async {
-      final service = _StubNanoService(failure: GeminiNanoFailure.quotaExceeded);
+      final service = _StubNanoService(
+        failure: GeminiNanoFailure.quotaExceeded,
+      );
       final recognizer = _ScriptedRecognizer([
         receiptLinesOf(_verifiedReceipt),
       ]);
 
-      final scan = await scannerOf(recognizer).scan(
-        _photo,
-        nano: NanoReceiptReader(service: service),
-      );
+      final scan = await scannerOf(
+        recognizer,
+      ).scan(_photo, nano: NanoReceiptReader(service: service));
 
-      expect(service.calls, 1);
+      expect(service.calls, greaterThan(0));
       expect(scan.verified, isTrue);
       expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
     });
@@ -283,6 +330,33 @@ void main() {
         () => scannerOf(recognizer).scan(_photo),
         throwsA(isA<ScanUnreadableException>()),
       );
+    });
+
+    test('sans Gemini Nano, le décodeur local lit le ticket', () async {
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      final scan = await scannerOf(recognizer).scan(_photo);
+
+      expect(scan.verified, isTrue);
+      expect(recognizer.received, [_photo]);
+    });
+
+    test('un échec de Gemini Nano rend la main au décodeur local', () async {
+      final service = _StubNanoService(
+        failure: GeminiNanoFailure.quotaExceeded,
+      );
+      final recognizer = _ScriptedRecognizer([
+        receiptLinesOf(_verifiedReceipt),
+      ]);
+
+      final scan = await scannerOf(
+        recognizer,
+      ).scan(_photo, nano: NanoReceiptReader(service: service));
+
+      expect(scan.verified, isTrue);
+      expect([for (final item in scan.items) item.amount], [2.0, 3.0]);
     });
 
     test('du texte sans aucun article est signalé à part', () async {

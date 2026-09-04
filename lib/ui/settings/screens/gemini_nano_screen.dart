@@ -7,6 +7,7 @@ import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/ui/settings/widgets/settings_note.dart';
 
 const int _bytesPerMegabyte = 1024 * 1024;
 
@@ -49,7 +50,7 @@ class GeminiNanoScreen extends ConsumerWidget {
           const SizedBox(height: FrostedSpacing.sp5),
           switch (status) {
             AsyncData(:final value) => _Status(status: value),
-            AsyncError() => const _Note(
+            AsyncError() => const SettingsNote(
               icon: Symbols.error_rounded,
               text: 'Impossible de lire l\'état de Gemini Nano.',
             ),
@@ -86,7 +87,7 @@ class _Status extends ConsumerWidget {
             'téléchargement est géré par le système et se fait une seule fois.',
         label: 'Télécharger le modèle complet',
       ),
-      GeminiNanoStatus.unavailable => const _Note(
+      GeminiNanoStatus.unavailable => const SettingsNote(
         icon: Symbols.block_rounded,
         text:
             'Cet appareil ne propose pas Gemini Nano. Il faut un téléphone '
@@ -127,13 +128,13 @@ class _Ready extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: FrostedSpacing.sp5),
-        const _Note(
+        const SettingsNote(
           icon: Symbols.check_circle_rounded,
           text: 'Le modèle est installé et prêt.',
         ),
         if (name != null) ...[
           const SizedBox(height: FrostedSpacing.sp3),
-          _Note(icon: Symbols.memory_rounded, text: 'Modèle : $name'),
+          SettingsNote(icon: Symbols.memory_rounded, text: 'Modèle : $name'),
         ],
       ],
     );
@@ -151,7 +152,7 @@ class _Action extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Note(icon: Symbols.download_rounded, text: note),
+        SettingsNote(icon: Symbols.download_rounded, text: note),
         const SizedBox(height: FrostedSpacing.sp5),
         FrostedButton.filled(
           label: label,
@@ -174,7 +175,7 @@ class _Download extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Note(icon: Symbols.error_rounded, text: failure.message),
+          SettingsNote(icon: Symbols.error_rounded, text: failure.message),
           if (!failure.isPermanent) ...[
             const SizedBox(height: FrostedSpacing.sp5),
             FrostedButton.outlined(
@@ -189,7 +190,7 @@ class _Download extends ConsumerWidget {
     }
 
     if (step is GeminiNanoDownloadCompleted) {
-      return const _Note(
+      return const SettingsNote(
         icon: Symbols.check_circle_rounded,
         text: 'Le modèle est installé et prêt.',
       );
@@ -229,32 +230,4 @@ class _Download extends ConsumerWidget {
 
   static String _megabytes(int bytes) =>
       '${(bytes / _bytesPerMegabyte).round()} Mo';
-}
-
-class _Note extends StatelessWidget {
-  const _Note({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: colors.onSurfaceVariant),
-        const SizedBox(width: FrostedSpacing.sp3),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

@@ -54,6 +54,10 @@ class TestLaxReading:
     def test_a_line_without_any_amount_offers_nothing(self):
         assert amounts("MERCI DE VOTRE VISITE", lax=True) == []
 
+    def test_a_percentage_is_never_an_amount(self):
+        assert amounts("(Remise de -14.29%)", lax=True) == []
+        assert amounts("Remise -15.65% 2.10", lax=True) == [2.10]
+
     def test_the_same_amount_read_twice_is_one_candidate(self):
         assert amounts("PAIN 1.20Eur 1.20Eur", lax=True) == [1.20]
 

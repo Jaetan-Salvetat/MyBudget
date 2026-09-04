@@ -19,20 +19,28 @@ data class ReceiptItemOutput(
     val discount: Double,
 )
 
-@Generable("Les informations lues sur un ticket de caisse")
-data class ReceiptOutput(
+@Generable("L'enseigne lue sur un ticket de caisse")
+data class ReceiptStoreOutput(
     @Guide(
         description =
             "L'enseigne imprimée en tête du ticket, chaîne vide si elle " +
                 "n'y figure pas",
     )
     val store: String,
+)
+
+@Generable("La date lue sur un ticket de caisse")
+data class ReceiptDateOutput(
     @Guide(
         description =
-            "La date d'achat au format AAAA-MM-JJ, chaîne vide si elle n'y " +
+            "La date d'achat, YYYY-MM-DD format, chaîne vide si elle n'y " +
                 "figure pas",
     )
     val date: String,
+)
+
+@Generable("Les articles et le total lus sur un ticket de caisse")
+data class ReceiptItemsOutput(
     @Guide(
         description = "Le total payé, 0 s'il n'est pas imprimé",
         minimum = 0.0,
@@ -43,4 +51,13 @@ data class ReceiptOutput(
         maxItems = 80,
     )
     val items: List<ReceiptItemOutput>,
+)
+
+@Generable("Le total payé sur un ticket de caisse")
+data class ReceiptTotalOutput(
+    @Guide(
+        description = "Le total payé imprimé en bas du ticket, 0 s'il n'y figure pas",
+        minimum = 0.0,
+    )
+    val total: Double,
 )

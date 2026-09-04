@@ -51,6 +51,12 @@ ROLE_TO_CLASS = {
 # le fourre-tout que `structure_roles` ignore déjà.
 UNREAD_ROLES = (TAX, CHANGE, SUMMARY, HEADER, FOOTER, NOISE)
 
+# Les rôles qui portent un montant : ceux que le décodeur sait combiner, et
+# les seuls où la lecture du prix s'élargit.
+AMOUNT_BEARING_ROLES = frozenset(
+    (ROLE_ITEM, ROLE_DISCOUNT, ROLE_SUBTOTAL, ROLE_TOTAL, ROLE_PAYMENT)
+)
+
 # L'ordre est le contrat : le modèle rend un indice, cette liste le nomme.
 # `pipeline/lib/src/role_tagger.dart` porte la même, et la vérifie au
 # chargement.

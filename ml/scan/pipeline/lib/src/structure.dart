@@ -17,6 +17,32 @@ final RegExp _phonePattern = RegExp(r'(?<!\d)0\d([.\-])\d{2}(?:\1\d{2}){3}(?!\d)
 final RegExp _datePattern = RegExp(
   r'(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2}(?![\d./-]))',
 );
+final RegExp _boundedDatePattern = RegExp(
+  r'(?<![\d/.\-])(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?![\d/.\-])',
+);
+final RegExp _spacedDatePattern = RegExp(
+  r'(?<![\d/.\-])(\d{1,2}) (\d{1,2}) (\d{4})(?![\d/.\-])',
+);
+final RegExp _damagedLiteralDatePattern = RegExp(
+  r'(?<![A-Z\d])(\d{1,2})(?:ER)? ?([A-Z]{5,9}) ?(\d{4}|\d{2})(?![\d/.\-])',
+  caseSensitive: false,
+);
+const List<String> _fullMonthNames = [
+  'JANVIER',
+  'FEVRIER',
+  'MARS',
+  'AVRIL',
+  'MAI',
+  'JUIN',
+  'JUILLET',
+  'AOUT',
+  'SEPTEMBRE',
+  'OCTOBRE',
+  'NOVEMBRE',
+  'DECEMBRE',
+];
+const int _damagedMonthMinLength = 5;
+const int _damagedMonthLongLength = 7;
 
 const List<String> _monthNames = [
   'JANV|JAN',
@@ -373,7 +399,7 @@ PricedWord? rightmostPrice(PhysicalLine line) {
   return null;
 }
 
-final RegExp laxPricePattern = RegExp(r'(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,])');
+final RegExp laxPricePattern = RegExp(r'(?<![\d.,])(-?\d{1,4}[.,]\d{2})(?![\d.,%])');
 
 List<PricedWord> priceCandidates(PhysicalLine line, {required bool lax}) {
   final strict = rightmostPrice(line);
@@ -810,9 +836,9 @@ String? _monthNumber(String name) {
   return null;
 }
 
-String? _numericDate(String compact) {
-  final digitsOnly = compact.replaceAll('o', '0').replaceAll('O', '0');
-  for (final match in _datePattern.allMatches(digitsOnly)) {
+String? _numericDate(String text, [RegExp? pattern]) {
+  final digitsOnly = text.replaceAll('o', '0').replaceAll('O', '0');
+  for (final match in (pattern ?? _datePattern).allMatches(digitsOnly)) {
     final day = match.group(1)!;
     final month = match.group(2)!;
     if (_isCalendarDay(day, month)) {
@@ -837,12 +863,50 @@ String? _literalDate(String compact) {
   return null;
 }
 
+String? _damagedMonthNumber(String word) {
+  final upper = word.toUpperCase();
+  if (upper.length < _damagedMonthMinLength) return null;
+  final tolerance = upper.length >= _damagedMonthLongLength ? 2 : 1;
+  final close = <int>[
+    for (var index = 0; index < _fullMonthNames.length; index++)
+      if (levenshtein(upper, _fullMonthNames[index]) <= tolerance) index + 1,
+  ];
+  if (close.length != 1) return null;
+  return close.single.toString().padLeft(2, '0');
+}
+
+String? _damagedLiteralDate(String text) {
+  final unaccented = foldAccents(text);
+  for (final match in _damagedLiteralDatePattern.allMatches(unaccented)) {
+    final day = match.group(1)!;
+    final month = _damagedMonthNumber(match.group(2)!);
+    if (month != null && _isCalendarDay(day, month)) {
+      final paddedDay = int.parse(day).toString().padLeft(2, '0');
+      return '${_yearOf(match.group(3)!)}-$month-$paddedDay';
+    }
+  }
+  return null;
+}
+
+String? _dateIn(String text) {
+  final spaced = text
+      .replaceAll(_whitespacePattern, ' ')
+      .replaceAll(_phonePattern, ' ')
+      .trim();
+  final compact = text
+      .replaceAll(_whitespacePattern, '')
+      .replaceAll(_phonePattern, ' ');
+  return _numericDate(spaced, _boundedDatePattern) ??
+      _literalDate(spaced) ??
+      _damagedLiteralDate(spaced) ??
+      _numericDate(spaced, _spacedDatePattern) ??
+      _numericDate(compact) ??
+      _literalDate(compact);
+}
+
 String? findDate(List<PhysicalLine> lines) {
   for (final line in lines) {
-    final compact = line.text
-        .replaceAll(_whitespacePattern, '')
-        .replaceAll(_phonePattern, ' ');
-    final found = _numericDate(compact) ?? _literalDate(compact);
+    final found = _dateIn(line.text);
     if (found != null) return found;
   }
   return null;

@@ -105,10 +105,15 @@ class _ManualDock extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: FrostedSpacing.sp2),
-        FrostedIconButton.tonal(
-          icon: Symbols.photo_camera_rounded,
-          onPressed: () => showReceiptScanSourceSheet(context),
+        const SizedBox(
+          width: CaptureDock.padding - FrostedIconButton.inset * 2,
+        ),
+        Transform.translate(
+          offset: const Offset(FrostedIconButton.inset, 0),
+          child: FrostedIconButton.tonal(
+            icon: Symbols.photo_camera_rounded,
+            onPressed: () => showReceiptScanSourceSheet(context),
+          ),
         ),
       ],
     );

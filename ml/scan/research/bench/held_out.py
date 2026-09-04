@@ -86,6 +86,11 @@ def run(corpus: str, limit: int | None) -> list[dict]:
                 "verified": True,
                 "wrong": exactness.wrong,
                 "silent": exactness.silent,
+                "items": len(truth["items"]),
+                "exact_labels": exactness.exact_labels,
+                "tolerated_labels": exactness.tolerated_labels,
+                "labels_all_exact": exactness.labels_all_exact,
+                "store_judged": exactness.store_judged,
             }
         )
     return scored
@@ -109,9 +114,28 @@ def report(scored: list[dict]) -> None:
     print("\n  où part le reste (sur les vérifiés) :")
     for poste, count in postes.most_common():
         print(f"    {poste:<18}{count:>4} ({count / max(len(verified), 1):.0%})")
+    unjudged = sum(1 for row in verified if not row["store_judged"])
+    print(f"    (enseigne non jugée, vérité vide : {unjudged})")
     print(
         f"\n  erreurs silencieuses : {len(silent)} "
         f"({len(silent) / max(len(verified), 1):.1%} des vérifiés)"
+    )
+    _report_labels(verified)
+
+
+def _report_labels(verified: list[dict]) -> None:
+    """Ce que BERT reçoit : la métrique produit tolère un dégât OCR ou un mot
+    rogné, la catégorisation non."""
+    items = sum(row["items"] for row in verified)
+    strict = sum(row["exact_labels"] for row in verified)
+    tolerated = sum(row["tolerated_labels"] for row in verified)
+    all_exact = sum(1 for row in verified if row["labels_all_exact"])
+    print("\n  libellés (sur les vérifiés) :")
+    print(f"    exacts             {strict:>5}/{items} ({strict / max(items, 1):.1%})")
+    print(f"    tolérés            {tolerated:>5} (OCR abîmé ou mot rogné)")
+    print(
+        f"    tickets 100 % exacts {all_exact:>4}/{len(verified)} "
+        f"({all_exact / max(len(verified), 1):.1%})"
     )
 
 

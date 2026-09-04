@@ -3,9 +3,9 @@ enum AiProvider {
     id: 'gemini',
     label: 'Google Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    keyPattern: r'^AIza[0-9A-Za-z_-]{35}$',
-    keyFormatHint: 'Une clé Google AI commence par AIza et fait 39 caractères.',
-    keyPlaceholder: 'AIza…',
+    keyFormatHint:
+        'Collez la clé telle que Google AI Studio l\'affiche, en entier.',
+    keyPlaceholder: 'AQ.… ou AIza…',
     consoleLabel: 'Google AI Studio',
     consoleUrl: 'https://aistudio.google.com/apikey',
   );
@@ -14,7 +14,6 @@ enum AiProvider {
     required this.id,
     required this.label,
     required this.baseUrl,
-    required this.keyPattern,
     required this.keyFormatHint,
     required this.keyPlaceholder,
     required this.consoleLabel,
@@ -24,7 +23,6 @@ enum AiProvider {
   final String id;
   final String label;
   final String baseUrl;
-  final String keyPattern;
   final String keyFormatHint;
   final String keyPlaceholder;
   final String consoleLabel;
@@ -41,8 +39,6 @@ enum AiProvider {
   };
 
   static const AiProvider fallback = gemini;
-
-  bool matchesKeyFormat(String key) => RegExp(keyPattern).hasMatch(key);
 
   static AiProvider fromId(String? id) {
     for (final provider in values) {

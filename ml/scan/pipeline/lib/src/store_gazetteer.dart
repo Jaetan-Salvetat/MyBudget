@@ -4,6 +4,7 @@ import 'structure.dart' show foldAccents, levenshtein;
 
 const int minContainedLength = 5;
 
+
 const int fuzzyCharsPerEdit = 6;
 const int fuzzyMaxEdits = 3;
 

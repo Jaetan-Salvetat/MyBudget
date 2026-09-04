@@ -1,6 +1,7 @@
 import 'package:app_updater/app_updater.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/core/providers/retry_policy.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
@@ -30,7 +31,6 @@ import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/ai/quick_add_engine_health.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
@@ -61,14 +61,14 @@ Future<ObjectBoxService> objectBoxService(Ref ref) async {
   return service;
 }
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: failFast)
 Future<CategoryTaxonomyService> categoryTaxonomy(Ref ref) async {
   final taxonomy = CategoryTaxonomyService();
   await taxonomy.load();
   return taxonomy;
 }
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: true, retry: failFast)
 Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
   final service = QuickAddClassifierService(
     tokenizer: QuickAddTokenizer(),
@@ -99,9 +99,6 @@ ApiKeyVerifier apiKeyVerifier(Ref ref) {
     ),
   );
 }
-
-@Riverpod(keepAlive: true)
-QuickAddEngineHealth quickAddEngineHealth(Ref ref) => QuickAddEngineHealth();
 
 @Riverpod(keepAlive: true)
 GeminiNanoService geminiNanoService(Ref ref) => const GeminiNanoService();

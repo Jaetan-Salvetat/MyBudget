@@ -14,6 +14,18 @@ enum AiRequestFailure {
   malformedResponse,
   unknown;
 
+  String get label => switch (this) {
+    invalidKey => 'Clé API refusée par le service',
+    permissionDenied => 'Accès refusé par le service',
+    modelNotFound => 'Modèle introuvable chez le service',
+    quotaExceeded => 'Quota de la clé API épuisé',
+    serviceUnavailable => 'Service momentanément indisponible',
+    timeout => 'Le service n\'a pas répondu à temps',
+    offline => 'Pas de connexion réseau',
+    malformedResponse => 'Réponse illisible du service',
+    unknown => 'Échec de la requête au service',
+  };
+
   bool get revokesKey =>
       this == invalidKey || this == permissionDenied || this == modelNotFound;
 

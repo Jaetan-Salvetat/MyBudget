@@ -3,28 +3,30 @@ import os
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import torch
-import torch.nn as nn
 from datasets import Dataset
 from sklearn.metrics import accuracy_score, f1_score
+from torch import nn
 from transformers import (
     AutoTokenizer,
     ModernBertConfig,
     ModernBertModel,
     PreTrainedModel,
     Trainer,
+    TrainerCallback,
     TrainingArguments,
 )
-from transformers import TrainerCallback
 from transformers.trainer_pt_utils import LengthGroupedSampler
 from transformers.utils import ModelOutput
 
 from paths import DATASET_DIR, OUTPUT_DIR
 from serving.contract import assert_category_head, assert_taxonomy_stamp
 from taxonomy import LABELS
+from training.consistency import CONSISTENCY_WEIGHT, consistency_loss
+from training.contradictions import drop_contradictory_texts
 from training.corruption import corrupt
+from training.hierarchy import FAMILY_LOSS_WEIGHT, family_loss, membership
 
 # Le backbone se surcharge par l'environnement, comme `CLASSIFIER_OUTPUT` : un
 # banc entre deux tailles doit se lancer sans toucher au fichier, sinon les deux
@@ -46,7 +48,12 @@ ACCUMULATION_STEPS = int(os.environ.get("CLASSIFIER_ACCUMULATION", "1"))
 # qui permet de mesurer un backbone plus large sans changer la recette.
 GRADIENT_CHECKPOINTING = os.environ.get("CLASSIFIER_CHECKPOINTING") == "1"
 MPS_CACHE_EVERY = int(os.environ.get("CLASSIFIER_MPS_CACHE_EVERY", "0"))
-NUM_EPOCHS = 5
+NUM_EPOCHS = int(os.environ.get("CLASSIFIER_EPOCHS", "5"))
+TRAINING_SUBSET = int(os.environ.get("CLASSIFIER_SUBSET", "0"))
+SAVE_STEPS = int(os.environ.get("CLASSIFIER_SAVE_STEPS", "0"))
+RESUME = os.environ.get("CLASSIFIER_RESUME") == "1"
+FAMILY_WEIGHT = float(os.environ.get("CLASSIFIER_FAMILY_WEIGHT", FAMILY_LOSS_WEIGHT))
+CONSISTENCY = float(os.environ.get("CLASSIFIER_CONSISTENCY_WEIGHT", CONSISTENCY_WEIGHT))
 LEARNING_RATE = 5e-5
 
 CORRUPTION_SEED = 1312
@@ -60,7 +67,7 @@ NUM_RECURRENCES = 2
 class MultiHeadOutput(ModelOutput):
     """Output of the multi-head budget classifier."""
 
-    loss: Optional[torch.FloatTensor] = None
+    loss: torch.FloatTensor | None = None
     type_logits: torch.FloatTensor = None
     category_logits: torch.FloatTensor = None
     recurrence_logits: torch.FloatTensor = None
@@ -76,12 +83,14 @@ class BudgetClassifierConfig(ModernBertConfig):
         num_types: int = NUM_TYPES,
         num_categories: int = NUM_CATEGORIES,
         num_recurrences: int = NUM_RECURRENCES,
+        family_loss_weight: float = FAMILY_LOSS_WEIGHT,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.num_types = num_types
         self.num_categories = num_categories
         self.num_recurrences = num_recurrences
+        self.family_loss_weight = family_loss_weight
 
 
 class ClassificationHead(nn.Module):
@@ -128,15 +137,16 @@ class BudgetClassifier(PreTrainedModel):
         self.type_head = ClassificationHead(h, config.num_types)
         self.category_head = ClassificationHead(h, config.num_categories)
         self.recurrence_head = ClassificationHead(h, config.num_recurrences)
+        self.register_buffer("family_membership", membership(), persistent=False)
         self.post_init()
 
     def forward(
         self,
-        input_ids: Optional[torch.LongTensor] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        type_labels: Optional[torch.LongTensor] = None,
-        category_labels: Optional[torch.LongTensor] = None,
-        recurrence_labels: Optional[torch.LongTensor] = None,
+        input_ids: torch.LongTensor | None = None,
+        attention_mask: torch.FloatTensor | None = None,
+        type_labels: torch.LongTensor | None = None,
+        category_labels: torch.LongTensor | None = None,
+        recurrence_labels: torch.LongTensor | None = None,
     ) -> MultiHeadOutput:
         outputs = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
         pooled = mean_pool(outputs.last_hidden_state, attention_mask)
@@ -152,6 +162,8 @@ class BudgetClassifier(PreTrainedModel):
                 ce(type_logits, type_labels)
                 + ce(category_logits, category_labels)
                 + ce(recurrence_logits, recurrence_labels)
+                + self.config.family_loss_weight
+                * family_loss(category_logits, category_labels, self.family_membership)
             )
 
         return MultiHeadOutput(
@@ -206,6 +218,19 @@ class MultiHeadTrainer(Trainer):
         finally:
             self.data_collator = collator
 
+    @staticmethod
+    def clean_anchor(model, inputs: dict) -> MultiHeadOutput:
+        was_training = model.training
+        model.eval()
+        try:
+            with torch.no_grad():
+                return model(
+                    input_ids=inputs["clean_input_ids"],
+                    attention_mask=inputs["clean_attention_mask"],
+                )
+        finally:
+            model.train(was_training)
+
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(
             input_ids=inputs["input_ids"],
@@ -214,7 +239,13 @@ class MultiHeadTrainer(Trainer):
             category_labels=inputs.get("category_labels"),
             recurrence_labels=inputs.get("recurrence_labels"),
         )
-        return (outputs.loss, outputs) if return_outputs else outputs.loss
+        loss = outputs.loss
+        if CONSISTENCY and "corrupted" in inputs:
+            anchor = self.clean_anchor(model, inputs)
+            loss = loss + CONSISTENCY * consistency_loss(
+                outputs.category_logits[inputs["corrupted"]], anchor.category_logits
+            )
+        return (loss, outputs) if return_outputs else loss
 
     def prediction_step(self, model, inputs, prediction_loss_only, ignore_keys=None):
         inputs = self._prepare_inputs(inputs)
@@ -275,7 +306,9 @@ def training_rows(dataset_dir: Path) -> list[dict]:
     receipts = dataset_dir / "receipts_train.jsonl"
     if receipts.exists():
         rows.extend(read_jsonl(receipts))
-    return rows
+    consistent = drop_contradictory_texts(rows)
+    print(f"Contradictions retirées entre corpus : {len(rows) - len(consistent)} lignes")
+    return consistent
 
 
 def measure(examples: dict, tokenizer: AutoTokenizer) -> dict:
@@ -308,22 +341,31 @@ class MultiLabelDataCollator:
     def without_noise(self) -> "MultiLabelDataCollator":
         return MultiLabelDataCollator(self.tokenizer, None)
 
-    def __call__(self, features: list[dict]) -> dict:
-        texts = [feature["text"] for feature in features]
-        if self.noise is not None:
-            texts = [corrupt(text, self.noise) for text in texts]
-
-        encoded = self.tokenizer(
+    def encode(self, texts: list[str]) -> dict:
+        return self.tokenizer(
             texts,
             truncation=True,
             max_length=MAX_LENGTH,
             padding=True,
             return_tensors="pt",
         )
-        batch: dict = {
-            "input_ids": encoded["input_ids"],
-            "attention_mask": encoded["attention_mask"],
-        }
+
+    def __call__(self, features: list[dict]) -> dict:
+        texts = [feature["text"] for feature in features]
+        batch: dict = {}
+        if self.noise is not None:
+            noisy = [corrupt(text, self.noise) for text in texts]
+            corrupted = [after != before for after, before in zip(noisy, texts)]
+            if any(corrupted):
+                clean = self.encode([text for text, hit in zip(texts, corrupted) if hit])
+                batch["clean_input_ids"] = clean["input_ids"]
+                batch["clean_attention_mask"] = clean["attention_mask"]
+                batch["corrupted"] = torch.tensor(corrupted)
+            texts = noisy
+
+        encoded = self.encode(texts)
+        batch["input_ids"] = encoded["input_ids"]
+        batch["attention_mask"] = encoded["attention_mask"]
         for key in ("type_labels", "category_labels", "recurrence_labels"):
             batch[key] = torch.tensor([feature[key] for feature in features], dtype=torch.long)
         return batch
@@ -337,11 +379,14 @@ def main() -> None:
         num_types=NUM_TYPES,
         num_categories=NUM_CATEGORIES,
         num_recurrences=NUM_RECURRENCES,
+        family_loss_weight=FAMILY_WEIGHT,
     )
     model = BudgetClassifier(config)
     model.backbone = ModernBertModel.from_pretrained(MODEL_NAME)
 
     train_dataset = Dataset.from_list(training_rows(DATASET_DIR))
+    if TRAINING_SUBSET:
+        train_dataset = train_dataset.shuffle(seed=42).select(range(TRAINING_SUBSET))
     eval_dataset = load_dataset_from_jsonl(DATASET_DIR / "eval.jsonl")
 
     train_dataset = train_dataset.map(lambda ex: measure(ex, tokenizer), batched=True)
@@ -362,8 +407,10 @@ def main() -> None:
         gradient_checkpointing=GRADIENT_CHECKPOINTING,
         per_device_eval_batch_size=BATCH_SIZE * 2,
         remove_unused_columns=False,
-        eval_strategy="epoch",
-        save_strategy="epoch",
+        eval_strategy="steps" if SAVE_STEPS else "epoch",
+        save_strategy="steps" if SAVE_STEPS else "epoch",
+        save_steps=SAVE_STEPS or 500,
+        eval_steps=SAVE_STEPS or 500,
         # Sans limite, chaque epoch laisse 1.6 Go de reprise sur le disque.
         # Seul le meilleur checkpoint sert, il est copie dans output/best.
         save_total_limit=1,
@@ -388,7 +435,7 @@ def main() -> None:
         callbacks=[MpsCacheCleaner(MPS_CACHE_EVERY)] if MPS_CACHE_EVERY else None,
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=RESUME)
     trainer.save_model(str(OUTPUT_DIR / "best"))
     tokenizer.save_pretrained(str(OUTPUT_DIR / "best"))
 

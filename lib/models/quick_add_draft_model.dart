@@ -1,8 +1,10 @@
+import 'package:mybudget/core/constants/category_confidence.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 
 class QuickAddDraft {
-  static const double categoryConfidenceThreshold = 0.6;
+  static const double categoryConfidenceThreshold =
+      kCategoryConfidenceThreshold;
 
   static const String uncategorizedSlug = 'divers.autre';
 

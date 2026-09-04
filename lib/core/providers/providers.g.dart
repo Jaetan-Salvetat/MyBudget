@@ -65,7 +65,7 @@ final class CategoryTaxonomyProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: failFast,
         name: r'categoryTaxonomyProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -87,7 +87,7 @@ final class CategoryTaxonomyProvider
   }
 }
 
-String _$categoryTaxonomyHash() => r'e51bd73a55feed4804c327a578c57c120b15b9c5';
+String _$categoryTaxonomyHash() => r'00f210f3f62b4879c7b9d830817982dbdf99a079';
 
 @ProviderFor(quickAddClassifier)
 final quickAddClassifierProvider = QuickAddClassifierProvider._();
@@ -106,7 +106,7 @@ final class QuickAddClassifierProvider
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: failFast,
         name: r'quickAddClassifierProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -129,7 +129,7 @@ final class QuickAddClassifierProvider
 }
 
 String _$quickAddClassifierHash() =>
-    r'2236a78741d07fe4d5913ef9c856ad7e53a522a0';
+    r'a99512fbd0f13741d051bdea15e264eec87e96ad';
 
 @ProviderFor(legacyBackupUpgrader)
 final legacyBackupUpgraderProvider = LegacyBackupUpgraderProvider._();
@@ -260,54 +260,6 @@ final class ApiKeyVerifierProvider
 }
 
 String _$apiKeyVerifierHash() => r'7c6d16941eaa49ed2bc82385fe7e51959b005bd7';
-
-@ProviderFor(quickAddEngineHealth)
-final quickAddEngineHealthProvider = QuickAddEngineHealthProvider._();
-
-final class QuickAddEngineHealthProvider
-    extends
-        $FunctionalProvider<
-          QuickAddEngineHealth,
-          QuickAddEngineHealth,
-          QuickAddEngineHealth
-        >
-    with $Provider<QuickAddEngineHealth> {
-  QuickAddEngineHealthProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'quickAddEngineHealthProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$quickAddEngineHealthHash();
-
-  @$internal
-  @override
-  $ProviderElement<QuickAddEngineHealth> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  QuickAddEngineHealth create(Ref ref) {
-    return quickAddEngineHealth(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(QuickAddEngineHealth value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<QuickAddEngineHealth>(value),
-    );
-  }
-}
-
-String _$quickAddEngineHealthHash() =>
-    r'bb601c3615d72ae1d982e9996ff99a42ba12fc1f';
 
 @ProviderFor(geminiNanoService)
 final geminiNanoServiceProvider = GeminiNanoServiceProvider._();

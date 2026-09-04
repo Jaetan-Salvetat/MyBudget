@@ -167,3 +167,70 @@ def test_mois_accentue() -> None:
 )
 def test_jour_ou_mois_sur_un_chiffre(text: str, expected: str) -> None:
     assert _find_date([line(text)]) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("17:25:01 7/02/2025", "2025-02-07"),
+        ("19:07:33 1/08/2024", "2024-08-01"),
+        ("13:29:21 1/11/2025", "2025-11-01"),
+    ],
+)
+def test_l_heure_qui_precede_la_date_ne_prete_pas_ses_chiffres(
+    text: str, expected: str
+) -> None:
+    """Compacter « 17:25:01 7/02/2025 » colle les secondes au jour et fait
+    lire 17/02 : les frontières de mots sont une information, pas du bruit."""
+    assert _find_date([line(text)]) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("17/09/24 - 12:47 940 94 2308", "2024-09-17"),
+        ("06/07/24 - 11:23 980 98 5835", "2024-07-06"),
+        ("10/01/26 - 17:30 930 93 3596", "2026-01-10"),
+    ],
+)
+def test_l_annee_courte_suivie_d_un_tiret_reste_une_annee(
+    text: str, expected: str
+) -> None:
+    assert _find_date([line(text)]) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("3883 408264/07/12/02 17.01.25 11:03:20", "2025-01-17"),
+        ("0888 236051/02/18/01 17.01.25 19:03:32", "2025-01-17"),
+        ("3979 645298/04/23/01 12.03.26 12:31:39", "2026-03-12"),
+        ("2690 527695/02/28/02 14.01.25 17:35:41", "2025-01-14"),
+    ],
+)
+def test_un_code_de_caisse_a_barres_obliques_n_est_pas_une_date(
+    text: str, expected: str
+) -> None:
+    """« 408264/07/12/02 » contient « 07/12/02 », date valide du calendrier
+    mais fragment d'un code : une date ne touche ni un chiffre ni un autre
+    séparateur."""
+    assert _find_date([line(text)]) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Le 23 jurilet 2025 à 21:52:52", "2025-07-23"),
+        ("Caisse 011-0102 02 jufllet 2020 09:32", "2020-07-02"),
+    ],
+)
+def test_un_mois_abime_par_l_ocr_reste_lisible(text: str, expected: str) -> None:
+    assert _find_date([line(text)]) == expected
+
+
+def test_une_date_espacee_avec_annee_pleine() -> None:
+    assert _find_date([line("samedi 31 5 2025 16:20")]) == "2025-05-31"
+
+
+def test_des_chiffres_espaces_sans_annee_pleine_ne_font_pas_une_date() -> None:
+    assert _find_date([line("940 94 2308 12 47")]) is None

@@ -26,8 +26,6 @@ class PreferencesService {
   static const String keyGeminiNanoScan = 'geminiNanoScan';
   static const String keyAiProvider = 'aiProvider';
   static const String keyAiModel = 'aiModel';
-  static const String keyAiCloudConsent = 'aiCloudConsent';
-  static const String keyAiFailureTimestamps = 'aiFailureTimestamps';
 
   static const String keyQuickAddAccountId = 'quickAddAccountId';
 
@@ -152,26 +150,6 @@ class PreferencesService {
 
   static Future<void> setAiModel(AiModel model) async {
     await _prefs.setString(keyAiModel, model.id);
-  }
-
-  static bool hasAcceptedAiCloudConsent() {
-    return _prefs.getBool(keyAiCloudConsent) ?? false;
-  }
-
-  static Future<void> setAiCloudConsent(bool accepted) async {
-    await _prefs.setBool(keyAiCloudConsent, accepted);
-  }
-
-  static List<int> getAiFailureTimestamps() {
-    final stored = _prefs.getStringList(keyAiFailureTimestamps) ?? const [];
-    return stored.map(int.tryParse).nonNulls.toList();
-  }
-
-  static Future<void> setAiFailureTimestamps(List<int> timestamps) async {
-    await _prefs.setStringList(
-      keyAiFailureTimestamps,
-      timestamps.map((timestamp) => timestamp.toString()).toList(),
-    );
   }
 
   static int? getQuickAddAccountId() {

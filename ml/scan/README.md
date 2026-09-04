@@ -1584,6 +1584,238 @@ remise à l'article précédent, et le libellé de repli quand `label_link` et
 `label_span` ne rendent rien.
 
 
+## Les invariants bloquaient le tagger, et l'enseigne se cachait en pied de ticket (2026-09-02)
+
+Point de départ, held-out `open_prices` (592 photos, vérité annotée) : 85,8 %
+de tickets vérifiés, 64,7 % parfaits, 84 tickets à l'écran de confirmation.
+
+### Les 84 non-vérifiés n'étaient ni l'OCR ni le tagger
+
+| mesure sur les 84 | |
+|---|---|
+| montants tous présents dans le texte OCR | 84/84 |
+| tagger avec le bon nombre d'articles | 72/84 |
+| échouent encore avec des rôles **oracle** (la vérité annotée) | 80/84 |
+
+Sur les 80 : **64 sont des articles exclus par `_tax_rows`** — l'invariant
+« un taux de TVA plus deux montants, ou un mot TVA/TTC, c'est une ligne de
+taxe ». C'est le format Carrefour City/Market : `5.5% 510G MAYO NAT BOC 1 x
+2.75 2.75`. Le tagger disait `item`, l'invariant le contredisait, et le
+décodeur n'avait plus de solution. Le reste : remise en pourcentage lue comme
+un montant (4), regex de prix (8), décodeur seul (3), aucun montant lu (1).
+
+| | vérifiés | parfaits | silencieux | FindIt prouvés | FindIt faux |
+|---|---|---|---|---|---|
+| avant | 508 (85,8 %) | 383 (64,7 %) | 19 | 864/899 | 2 |
+| sans `_tax_rows` | **567 (95,8 %)** | **441 (74,5 %)** | 19 | 865/899 | 2 |
+| sans aucun `forced_ignore` | 572 (96,6 %) | 446 (75,3 %) | 19 | 867/899 | **5** |
+
+Seul `_tax_rows` est retiré. La leçon est celle de [la métrique de
+rôles](#le-classifieur-ne-pouvait-pas-rattraper-ça) prise à l'envers : un
+invariant qui *ferme* l'espace de recherche contredit le classifieur ; ceux qui
+*ajoutent* des références (HT + taxe, espèces − rendu, rayons) ne suppriment
+rien et restent. Les autres `forced_ignore` (récapitulatif de remises, résumés)
+sont gardés : les retirer achète 5 tickets et 3 faux auto-validés.
+
+### Un pourcentage n'est pas un montant
+
+`(Remise de -14.29%)` : la lecture lâche proposait `-14.29` au décodeur. La
+regex exclut désormais un `%` collé — la définition d'un prix, pas une règle
+d'enseigne. +3 vérifiés.
+
+### La date : les frontières de mots étaient une information
+
+Sur 31 dates fausses, 28 avaient la bonne ligne désignée par le tagger.
+`_find_date` compactait les espaces avant de chercher, pour recoller « 202 6 » ;
+ce faisant il fabriquait des dates : `17:25:01 7/02/2025` devenait
+`…017/02/2025` et se lisait 17/02 ; `408264/07/12/02 17.01.25` offrait le code
+`07/12/02`, valide au calendrier. La lecture se fait d'abord sur le texte aux
+mots séparés, avec une date qui ne touche ni chiffre ni séparateur, puis en
+repli sur le texte compacté. S'ajoutent un mois abîmé par l'OCR (`jufllet`,
+`jurilet` : distance d'édition sur les noms complets) et la date espacée à
+année pleine (`samedi 31 5 2025`).
+
+| dates justes, held-out (500) | ligne vérité seule | flow |
+|---|---|---|
+| avant | 461 | 471 |
+| après | 484 | **492** |
+
+Les 8 restantes : 3 illisibles, 2 vérités fausses (`24/08/25` annoté
+2024-08-25), 2 lignes fusionnées par le clustering, 1 espace dans la date.
+
+### L'enseigne : le répertoire ne choisit plus, il normalise
+
+Les 44 enseignes fausses, vues une à une : dix-sept fois le tagger ne
+désigne rien et le nom n'est que dans `www.auchan.fr`, `l'application
+CARREFOUR`, `AUCHAN MAUREPAS` en pied. Douze sont de l'OCR abîmé ou une
+raison sociale (`SODICA`, `HONODIS`, `CRF CITY`). Dix ont une vérité
+**vide** : l'annotateur n'a pas su, et lire « E.Leclerc » sur un ticket au
+format Leclerc y comptait faux.
+
+Trois mécanismes ont été essayés et mesurés, puis **écartés sur décision
+produit** : le répertoire ne doit pas choisir la ligne, c'est au modèle de le
+faire.
+
+| held-out, tickets parfaits | enseigne fausse | |
+|---|---|---|
+| nom reconnu dans l'en-tête, puis ligne désignée (état du 27/08) | 465 | 44 |
+| + nom cherché sur tout le ticket hors articles quand le tagger ne désigne rien | 475 | 25 |
+| + indices appris (mot ou bigramme ≥ 5 tickets, 90 % précision, 20 % couverture) | 480 | — |
+| **retenu : ligne désignée par le tagger, normalisée par le répertoire** | **458** | **44** |
+
+Les indices ont été jugés en validation croisée par pli sur l'entraînement,
+noms reconstruits hors pli : ils ne décident que sur 7 tickets sur 1 690 et
+n'en rendent aucun juste. Leurs trois seuils ne tenaient qu'à l'œil posé sur
+le held-out. Retirés, avec le banc qui les jugeait.
+
+La recherche du nom sur tout le ticket gagnait 10 tickets, et la
+reconnaissance dans l'en-tête (27/08) autant ; toutes deux font choisir la
+ligne par un lexique plutôt que par le modèle. Le répertoire est ramené à sa
+seule fonction légitime : **rendre sous sa graphie connue le texte de la ligne
+que le tagger a désignée** (`E.Leclerc L` → `E.Leclerc`), et rien quand il ne
+désigne rien. Le coût est de 17 tickets parfaits sur 592 ; la voie pour les
+reprendre est le tagger — plus de tickets annotés où l'enseigne n'est qu'un
+domaine ou un pied de ticket — pas une règle.
+
+Corrigé au passage : le répertoire s'apprenait aussi sur la tranche
+d'évaluation d'`open_prices` (`is_held_out`), 315 → 282 noms, −1 ticket :
+la fuite ne pesait rien. Et une vérité vide ne juge plus l'enseigne
+(`store_judged`, 51 tickets rapportés à part).
+
+### Ce que BERT reçoit : la métrique stricte du libellé
+
+La métrique produit tolère un dégât OCR (`120GENU` vaut `120GENV`) et un mot
+rogné ; la catégorisation ne reçoit pas le nom que le modèle a appris. Le
+bench rapporte désormais, sans changer le verdict :
+
+| held-out, sur les vérifiés | |
+|---|---|
+| libellés exacts | 3 335 / 3 511 (95,0 %) |
+| tolérés (OCR abîmé ou mot rogné) | 57 |
+| tickets aux libellés 100 % exacts | 477 / 570 (83,7 %) |
+
+### Bilan du jour
+
+| held-out `open_prices` (592) | 2026-08-28 | après-midi |
+|---|---|---|
+| vérifiés | 508 (85,8 %) | **570 (96,3 %)** |
+| tickets parfaits | 383 (64,7 %) | **458 (77,4 %)** |
+| erreurs silencieuses | 19 | 19 |
+| FindIt somme prouvée / faux auto-validés | 864 / 2 | 867 / 2 |
+| parité Dart (flow 699 tickets, répertoire 14 600 lignes) | 0 | 0 |
+
+Ce qui reste à ce point : libellé large 46, enseigne 44, libellé 19, total
+10, date 10, montant 7. L'enseigne est redevenue le premier poste, et c'est
+la question posée au modèle qui est en cause — voir la section suivante. Et la réserve de toujours : ce held-out juge des lignes Apple
+Vision ; l'app lit ML Kit, et rien ne mesure l'app sur ces 592 photos.
+
+
+### L'enseigne, posée au ticket entier (2026-09-02, soir)
+
+Le répertoire ramené à la normalisation, l'enseigne redevenait le premier
+poste (44). La question posée au tagger — *quelle ligne* — n'a pas de réponse
+sur les tickets où le nom n'est qu'un domaine web ou un pied de ticket. La
+question *quel ticket* en a une : `reference/store_classifier.py`, régression
+logistique multinomiale sur les mots et bigrammes hachés de toutes les lignes
+(65 536 seaux, CRC32 comme les trigrammes du tagger), classes = enseignes vues
+sur ≥ 5 tickets d'entraînement, plus « autre » apprise comme les autres. Quand
+le modèle dit « autre », la ligne désignée par le tagger parle, normalisée par
+le répertoire. Aucun seuil de confiance.
+
+Les trois constantes (support 5, C = 10, 3 000 poids gardés par classe) viennent
+d'une validation croisée par ticket sur l'entraînement seul
+(`line_classifier/train_store.py`) : élaguer à 3 000 coûte 3 tickets sur
+2 165, à 1 000 douze, à 300 trente-quatre. Le held-out n'a servi qu'à
+constater.
+
+| held-out, 540 tickets à enseigne connue | justes |
+|---|---|
+| ligne désignée seule (normalisée) | 493 |
+| **ticket puis ligne** | **519** (le classifieur parle sur 465) |
+
+| held-out, 592 tickets | parfaits | enseigne fausse |
+|---|---|---|
+| ligne désignée + répertoire | 458 (77,4 %) | 44 |
+| **classifieur du ticket, puis ligne** | **481 (81,2 %)** | 18 |
+
+Miroir Dart `pipeline/lib/src/store_classifier.dart`, parité 592/592 tickets.
+Nouvel asset `store_classifier_%s.json` (2,5 Mo, poids arrondis à quatre
+décimales) déclaré dans `tool/models/registry.env` et chargé par l'app quand
+il est présent — **à publier** pour que l'app en bénéficie.
+
+### Large ou rogné : BERT a tranché
+
+La question laissée ouverte le 27/08 — la métrique refuse un mot de trop et
+tolère un mot de moins, le produit voudrait l'inverse — se mesure : passer au
+classifieur de catégories le libellé rendu et le libellé vrai, et compter les
+catégories qui changent.
+
+| paires du held-out | catégorie changée (famille) |
+|---|---|
+| libellé **large** (calibre, code en plus) | 7 / 84 (8 %) |
+| libellé **rogné** (un mot de moins) | 2 / 53 (4 %) |
+
+L'hypothèse produit était fausse sur ce corpus : le bruit autour du nom
+dérange BERT deux fois plus que le rognage. La métrique reste telle qu'elle
+est, et le modèle de span ne sera pas repondéré vers l'inclusion.
+
+### L'étiqueteur de séquence au niveau du ticket : mesuré, égal
+
+La dernière famille non essayée sur le découpage (27/08) : un étiqueteur de
+séquence pré-entraîné, mais sur le **ticket entier** au lieu de la ligne, pour
+qu'il voie la mise en page que l'enseigne répète. Sonde en Python seul :
+`jhu-clsp/mmBERT-small` (l'encodeur que l'app embarque déjà pour l'ajout
+rapide), tête de classification par mot « dans le libellé / hors », lignes
+séparées par un jeton, mots des lignes sans libellé ignorés dans la perte,
+décodage `best_span` identique au GBDT pour que les chiffres se comparent.
+1 678 tickets d'entraînement, 590 du held-out, 3 709 lignes jugées.
+
+| intervalles exacts, held-out (3 709 lignes) | |
+|---|---|
+| GBDT par mot (livré) | **3 550 (95,7 %)** |
+| mmBERT-small, ticket entier, époque 1 | 3 394 (91,5 %) |
+| époque 2 | 3 534 (95,3 %) |
+| époque 3 | 3 534 (95,3 %) |
+| époque 4 | **3 549 (95,7 %)** |
+| époque 5 | 3 517 (94,8 %) |
+
+Une première série à deux époques donnait 3 507 puis 3 547 ; conclure là
+aurait été une mesure tronquée, la courbe montait encore. Relancée à cinq
+époques avec évaluation après chacune : le modèle rejoint le GBDT à l'époque 4
+(−1 ligne) et redescend à la cinquième, la perte d'entraînement continuant de
+baisser (0,087 → 0,021) — le surapprentissage classique de 10 400 lignes pour
+140 M de paramètres. Au mieux égal, jamais au-dessus.
+
+Le contexte du ticket entier n'apporte donc rien que la ligne et ses features
+tabulaires n'aient déjà. Rien à porter : le plafond du découpage n'est pas un
+plafond de modèle mais de vérité et de métrique (voir « Huit leviers »,
+27/08). Sept heures de MPS au total, en tranches de cinq minutes avec point de
+reprise : les processus de plus de dix minutes sont tués dans cet
+environnement, et deux tranches lancées en parallèle se partagent le GPU sans
+qu'aucune n'aboutisse.
+
+### Bilan (2026-09-02, soir)
+
+| held-out `open_prices` (592) | 2026-08-28 | 2026-09-02 |
+|---|---|---|
+| vérifiés | 508 (85,8 %) | **570 (96,3 %)** |
+| tickets parfaits | 383 (64,7 %) | **481 (81,2 %)** |
+| erreurs silencieuses | 19 | 19 |
+
+Reste : libellé large 46, libellé 19, enseigne 18, total 10, date 10, montant 7.
+
+### À faire avant toute suite : mesurer l'app réelle
+
+Tout ce qui précède est mesuré sur des lignes **Apple Vision** (OCR du Mac,
+`bench/held_out.py`). L'app lit **ML Kit** sur Android. Le harnais Flutter qui
+produisait les dumps device (`data/results/device_*`) a été supprimé lors de la
+réorganisation de `ml/`, et rien ne sait le régénérer. Préalable, pas
+raffinement : réoutiller un harnais qui prend les 592 images du held-out
+`open_prices`, les passe dans ML Kit sur un appareil (Pixel 8 Pro) et écrit
+les dumps au format de `bench/local.py`, puis rejouer `held_out` dessus. Tant
+que ce chiffre n'existe pas, un gain mesuré ici est un gain « Apple Vision ».
+
+
 ## Contenu
 
 ```

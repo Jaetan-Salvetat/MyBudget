@@ -281,7 +281,7 @@ void main() {
     tester,
   ) async {
     final now = DateTime.now();
-    final twoMonthsAgo = DateTime(now.year, now.month - 2, 3, 9, 0);
+    final twoMonthsAgo = DateTime(now.year, now.month - 2, 1, 9, 0);
 
     when(() => expenses.getActive()).thenReturn([
       expenseOf(
@@ -303,7 +303,7 @@ void main() {
     tester,
   ) async {
     final now = DateTime.now();
-    final lastYear = DateTime(now.year - 1, now.month, 12, 9, 0);
+    final lastYear = DateTime(now.year - 1, now.month, 1, 9, 0);
 
     when(() => expenses.getActive()).thenReturn([
       expenseOf(
