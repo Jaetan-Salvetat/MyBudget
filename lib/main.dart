@@ -6,7 +6,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/core/constants/feature_flags.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/models/feature_flag.dart';
+import 'package:mybudget/core/providers/feature_flags_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -27,6 +30,9 @@ void main() {
       };
 
       await PreferencesService.init();
+      await PreferencesService.purgeUnknownFlagChoices(
+        featureFlags.map((FeatureFlag flag) => flag.id).toSet(),
+      );
       await ApiKeyService().migrateLegacyGeminiKey();
       await initializeDateFormatting('fr_FR', null);
 
@@ -38,6 +44,9 @@ void main() {
           overrides: [
             buildFlavorProvider.overrideWithValue(flavor),
             appVersionProvider.overrideWithValue(packageInfo.version),
+            appBuildNumberProvider.overrideWithValue(
+              packageInfo.buildNumber,
+            ),
             if (flavor.supportsInAppUpdate)
               appUpdaterProvider.overrideWithValue(await _initUpdater(flavor)),
           ],
@@ -153,6 +162,7 @@ class _AppContentState extends ConsumerState<_AppContent> {
   void initState() {
     super.initState();
     _lifecycleListener = AppLifecycleListener(onResume: _refreshDatedState);
+    _refreshBlocklist();
   }
 
   @override
@@ -161,7 +171,14 @@ class _AppContentState extends ConsumerState<_AppContent> {
     super.dispose();
   }
 
-  void _refreshDatedState() => ref.invalidate(loanProvider);
+  void _refreshDatedState() {
+    ref.invalidate(loanProvider);
+    _refreshBlocklist();
+  }
+
+  void _refreshBlocklist() {
+    unawaited(ref.read(flagBlocklistProvider.notifier).refresh());
+  }
 
   @override
   Widget build(BuildContext context) {

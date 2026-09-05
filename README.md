@@ -129,3 +129,12 @@ de recherche. Rien de tout ça n'est nécessaire pour construire l'app — seule
 ```
 
 Détail dans [`ml/README.md`](ml/README.md).
+
+### Fonctionnalités sous drapeau
+
+Les nouveautés en cours de mise au point s'activent depuis *Réglages → Aide & Support →
+Labo*, et peuvent être coupées à distance sur un parc déjà installé — une version publiée
+ne se rétracte pas. Le registre embarqué décide des défauts, le serveur ne connaît que les
+blocages, et un blocage l'emporte toujours sur le choix de l'utilisateur.
+
+Détail dans [`FEATURE_FLAGS.md`](FEATURE_FLAGS.md).

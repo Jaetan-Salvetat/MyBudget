@@ -47,7 +47,17 @@ final appUpdaterProvider = Provider<AppUpdater>(
 final buildFlavorProvider = Provider<BuildFlavor>((ref) => BuildFlavor.current);
 
 final appVersionProvider = Provider<String>(
-  (ref) => throw UnimplementedError('App version must be overridden at startup'),
+  (ref) =>
+      throw UnimplementedError('App version must be overridden at startup'),
+);
+
+final appBuildNumberProvider = Provider<String>(
+  (ref) =>
+      throw UnimplementedError('Build number must be overridden at startup'),
+);
+
+final appBuildCodeProvider = Provider<int?>(
+  (ref) => int.tryParse(ref.watch(appBuildNumberProvider)),
 );
 
 @Riverpod(keepAlive: true)
