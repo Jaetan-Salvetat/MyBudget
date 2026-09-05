@@ -1,15 +1,16 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class OnboardingSlide extends StatelessWidget {
   final String title;
   final String body;
-  final Widget illustration;
+  final Widget scene;
 
   const OnboardingSlide({
     required this.title,
     required this.body,
-    required this.illustration,
+    required this.scene,
     super.key,
   });
 
@@ -21,30 +22,37 @@ class OnboardingSlide extends StatelessWidget {
       children: [
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-            child: Center(child: illustration),
+            padding: const EdgeInsets.fromLTRB(
+              FrostedSpacing.sp5,
+              FrostedSpacing.sp4,
+              FrostedSpacing.sp5,
+              0,
+            ),
+            child: Center(child: scene),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(28, 0, 28, 16),
+          padding: const EdgeInsets.fromLTRB(
+            FrostedSpacing.sp5,
+            0,
+            FrostedSpacing.sp5,
+            FrostedSpacing.sp3,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: AppTextStyles.displaySerifItalic(
-                  fontSize: 36,
-                  height: 40 / 36,
+                  fontSize: 34,
+                  height: 38 / 34,
                   color: scheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: FrostedSpacing.sp3),
               Text(
                 body,
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 22 / 16,
-                  fontWeight: FontWeight.w400,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
               ),

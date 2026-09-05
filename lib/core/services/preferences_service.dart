@@ -13,7 +13,6 @@ class PreferencesService {
 
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
   static const String keyLegacyCategoryMigrationDone =
       'legacyCategoryMigrationDone';
   static const String keyLegacyLoanDefaultsMigrationDone =
@@ -86,14 +85,6 @@ class PreferencesService {
 
   static Future<void> setSkipAuth(bool skip) async {
     await _prefs.setBool(keySkipAuth, skip);
-  }
-
-  static bool hasSeenUpdateOnboarding() {
-    return _prefs.getBool(keyHasSeenUpdateOnboarding) ?? false;
-  }
-
-  static Future<void> setHasSeenUpdateOnboarding() async {
-    await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
   }
 
   static bool isLegacyCategoryMigrationDone() {

@@ -11,6 +11,10 @@ class SplashScreen extends ConsumerStatefulWidget {
 
   const SplashScreen({super.key});
 
+  static Widget destination() => PreferencesService.isFirstLaunch()
+      ? const OnboardingPage()
+      : const HomeScreen();
+
   @override
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
@@ -59,22 +63,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     if (!mounted) return;
 
-    final isFirstLaunch = PreferencesService.isFirstLaunch();
-    final hasSeenUpdateOnboarding =
-        PreferencesService.hasSeenUpdateOnboarding();
-
-    final Widget destination;
-    if (isFirstLaunch) {
-      destination = const OnboardingPage();
-    } else if (!hasSeenUpdateOnboarding) {
-      destination = const OnboardingPage();
-    } else {
-      destination = const HomeScreen();
-    }
-
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, _, _) => destination,
+        pageBuilder: (_, _, _) => SplashScreen.destination(),
         transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
         },

@@ -34,9 +34,9 @@ class QuickAddDraftLine extends StatelessWidget {
 
   final bool isStale;
 
-  final VoidCallback onPickCategory;
-  final VoidCallback onPickDate;
-  final VoidCallback onPickFrequency;
+  final VoidCallback? onPickCategory;
+  final VoidCallback? onPickDate;
+  final VoidCallback? onPickFrequency;
 
   const QuickAddDraftLine({
     required this.amount,
@@ -173,7 +173,7 @@ class _CategoryPill extends StatelessWidget {
 
   final QuickAddCategoryPreview? category;
   final bool isStale;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _CategoryPill({
     required this.category,
@@ -297,8 +297,8 @@ class _MetaLine extends StatelessWidget {
   final String? dateLabel;
   final String? recurrenceLabel;
   final bool isStale;
-  final VoidCallback onPickDate;
-  final VoidCallback onPickFrequency;
+  final VoidCallback? onPickDate;
+  final VoidCallback? onPickFrequency;
 
   const _MetaLine({
     required this.dateLabel,
