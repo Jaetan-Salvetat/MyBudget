@@ -1,12 +1,13 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
-import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
+import 'package:mybudget/ui/stats/models/category_trend.dart';
 
 class CategoryBreakdownSection extends StatelessWidget {
-  final List<CategoryExpenseSummary> categories;
+  final List<CategoryTrend> categories;
   final int maxVisible;
   final ValueChanged<String>? onCategoryTap;
 
@@ -23,12 +24,12 @@ class CategoryBreakdownSection extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionHeader(title: 'Répartition des dépenses'),
+          const SectionHeader(title: 'Répartition'),
           SolidCard(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             child: Center(
               child: Text(
-                'Aucune dépense ce mois-ci',
+                'Aucune dépense sur la période',
                 style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -44,10 +45,7 @@ class CategoryBreakdownSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader(
-          title: 'Répartition des dépenses',
-          trailing: 'Tap pour filtrer',
-        ),
+        const SectionHeader(title: 'Répartition', trailing: 'tap pour filtrer'),
         SolidCard(
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -71,107 +69,100 @@ class CategoryBreakdownSection extends StatelessWidget {
 }
 
 class _StackedBar extends StatelessWidget {
-  final List<CategoryExpenseSummary> categories;
+  static const double barHeight = 10;
+  static const double segmentGap = 2;
+
+  final List<CategoryTrend> categories;
 
   const _StackedBar({required this.categories});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final segments = categories.where((c) => c.percentage > 0).toList();
+    final segments = categories.where((c) => c.share > 0).toList();
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(9999),
-      child: SizedBox(
-        height: 10,
-        child: Row(
-          children: [
-            for (var i = 0; i < segments.length; i++)
-              Expanded(
-                flex: (segments[i].percentage * 10000).round().clamp(
-                  1,
-                  1000000,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: segments[i].color,
-                    border: i < segments.length - 1
-                        ? Border(
-                            right: BorderSide(
-                              color: scheme.surfaceContainerLow,
-                              width: 1,
-                            ),
-                          )
-                        : null,
-                  ),
+    return SizedBox(
+      height: barHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var index = 0; index < segments.length; index++) ...[
+            if (index > 0) const SizedBox(width: segmentGap),
+            Expanded(
+              flex: (segments[index].share * 10000).round().clamp(1, 1000000),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: segments[index].color,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 }
 
 class _CategoryRow extends StatelessWidget {
-  final CategoryExpenseSummary category;
+  final CategoryTrend category;
   final VoidCallback? onTap;
 
   const _CategoryRow({required this.category, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final pct = (category.percentage * 100).round();
-    final amount = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    ).format(category.amount);
+    final finance = context.financeColors;
+    final rising = category.delta >= 0;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 2),
         child: Row(
           children: [
             Container(
-              width: 8,
-              height: 8,
+              width: 7,
+              height: 7,
               decoration: BoxDecoration(
                 color: category.color,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 10),
-            Icon(category.icon, size: 16, color: category.color, fill: 1),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
-                category.categoryName,
+                category.label,
                 style: const TextStyle(
-                  fontSize: 14,
-                  height: 20 / 14,
+                  fontSize: 13,
+                  height: 18 / 13,
                   fontWeight: FontWeight.w500,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 8),
             Text(
-              '$pct%',
-              style: AppTextStyles.eyebrowMono(
-                color: scheme.onSurfaceVariant,
-              ).copyWith(fontSize: 12, height: 16 / 12, letterSpacing: 0),
+              '${rising ? '↑' : '↓'} ${(category.share * 100).round()}%',
+              textAlign: TextAlign.right,
+              style: AppTextStyles.mono(
+                fontSize: 10,
+                lineHeight: 14,
+                color: rising ? finance.expense : finance.income,
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             SizedBox(
-              width: 78,
+              width: 66,
               child: Text(
-                amount,
+                _money(category.amount),
                 textAlign: TextAlign.right,
-                style: AppTextStyles.amount(fontSize: 14),
+                style: AppTextStyles.mono(
+                  fontSize: 12,
+                  lineHeight: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -179,4 +170,10 @@ class _CategoryRow extends StatelessWidget {
       ),
     );
   }
+
+  String _money(double amount) => NumberFormat.currency(
+    locale: 'fr_FR',
+    symbol: '€',
+    decimalDigits: 0,
+  ).format(amount);
 }

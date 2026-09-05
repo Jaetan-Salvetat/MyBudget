@@ -28,6 +28,7 @@ class ExpenseModel implements FilterableTransaction {
   late DateTime startDate;
 
   @Property()
+  @override
   DateTime? endDate;
 
   int? parentId;

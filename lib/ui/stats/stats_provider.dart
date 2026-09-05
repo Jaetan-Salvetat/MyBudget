@@ -1,279 +1,165 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/ui/accounts/account_queries.dart';
-import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
-import 'package:mybudget/ui/stats/models/loan_progress_summary.dart';
-import 'package:mybudget/ui/stats/models/upcoming_movement.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/loans/loan_queries.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/entities/monthly_flow.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/services/stats_calculator.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/stats/models/category_trend.dart';
+import 'package:mybudget/ui/stats/models/stats_range.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'stats_provider.g.dart';
 
 class StatsState {
-  final double netCashFlow;
-  final double savingsRate;
-  final double totalLoanAmount;
-  final double monthlyExpenses;
-  final double monthlyRevenues;
-  final double totalMonthlyLoanPayments;
+  static const int minimumTrackedMonths = 3;
+
+  final StatsRange range;
+  final List<MonthlyFlow> flows;
+  final double totalIncomes;
   final double totalExpenses;
+  final double previousIncomes;
+  final double previousExpenses;
   final double recurringExpenses;
-  final double oneTimeExpenses;
-  final double recurringRevenues;
-  final double oneTimeRevenues;
-  final List<CategoryExpenseSummary> categorySummaries;
-  final List<UpcomingMovement> upcomingMovements;
-  final LoanProgressSummary loanProgress;
+  final double previousRecurringExpenses;
+  final List<CategoryTrend> categories;
+  final int trackedMonths;
 
   const StatsState({
-    required this.netCashFlow,
-    required this.savingsRate,
-    required this.totalLoanAmount,
-    required this.monthlyExpenses,
-    required this.monthlyRevenues,
-    required this.totalMonthlyLoanPayments,
+    required this.range,
+    required this.flows,
+    required this.totalIncomes,
     required this.totalExpenses,
+    required this.previousIncomes,
+    required this.previousExpenses,
     required this.recurringExpenses,
-    required this.oneTimeExpenses,
-    required this.recurringRevenues,
-    required this.oneTimeRevenues,
-    required this.categorySummaries,
-    required this.upcomingMovements,
-    required this.loanProgress,
+    required this.previousRecurringExpenses,
+    required this.categories,
+    required this.trackedMonths,
   });
+
+  double get averageNet => (totalIncomes - totalExpenses) / range.months;
+
+  double get previousAverageNet =>
+      (previousIncomes - previousExpenses) / range.months;
+
+  double get netDelta => averageNet - previousAverageNet;
+
+  double get variableExpenses => totalExpenses - recurringExpenses;
+
+  double get recurringShare =>
+      totalExpenses <= 0 ? 0 : recurringExpenses / totalExpenses;
+
+  double get previousRecurringShare =>
+      previousExpenses <= 0 ? 0 : previousRecurringExpenses / previousExpenses;
+
+  double get recurringShareDelta => recurringShare - previousRecurringShare;
+
+  bool get hasHistory => trackedMonths >= minimumTrackedMonths;
+
+  bool get hasComparison => previousExpenses > 0 || previousIncomes > 0;
+
+  int get monthsUntilHistory => minimumTrackedMonths - trackedMonths;
+
+  List<CategoryTrend> get movers {
+    final moved = categories.where((trend) => trend.delta.abs() >= 1).toList();
+    moved.sort((a, b) => b.delta.abs().compareTo(a.delta.abs()));
+    return moved;
+  }
+}
+
+@Riverpod(keepAlive: true)
+class StatsRangeNotifier extends _$StatsRangeNotifier {
+  @override
+  StatsRange build() => StatsRange.sixMonths;
+
+  void select(StatsRange range) => state = range;
 }
 
 @Riverpod(keepAlive: true)
 class StatsNotifier extends _$StatsNotifier {
   @override
   StatsState build() {
-    final monthlyExpenses = ref.watch(monthlyExpensesProvider);
-    final totalMonthlyLoanPayments = ref.watch(
-      totalMonthlyLoanPaymentsProvider,
-    );
-    final totalExpenses = monthlyExpenses + totalMonthlyLoanPayments;
-    final selectedMonth = ref.watch(selectedMonthProvider);
-
-    final expenses = ref.watch(monthExpensesProvider);
-    final revenues = ref.watch(monthRevenuesProvider);
+    final range = ref.watch(statsRangeProvider);
     final resolver = ref.watch(categoryDisplayResolverProvider).value;
-    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
 
-    final beneficiaryById = {for (final b in beneficiaries) b.id: b};
-
-    final flows = _computeFlows(expenses, revenues);
-
-    final summaries = _buildCategorySummaries(
-      ref.watch(expensesByGroupProvider),
-      totalExpenses,
-      resolver,
-    );
-
-    final upcoming = _buildUpcomingMovements(
-      expenses: expenses,
-      revenues: revenues,
-      selectedMonth: selectedMonth,
+    final calculator = StatsCalculator(
+      expenses: ref.watch(expenseHistoryProvider),
+      revenues: ref.watch(revenueHistoryProvider),
+      loans: ref.watch(loanProvider).value ?? const [],
       resolver: resolver,
-      beneficiaryById: beneficiaryById,
     );
 
-    final activeLoans = ref.watch(activeLoansProvider);
-    final loanProgress = LoanProgressSummary(
-      totalBorrowed: activeLoans.fold(0.0, (s, l) => s + l.amount),
-      totalRepaid: activeLoans.fold(
-        0.0,
-        (s, l) => s + (l.amount - l.remainingCapital),
-      ),
-      totalRemaining: ref.watch(totalRemainingLoanAmountProvider),
-      monthlyPayments: totalMonthlyLoanPayments,
-      activeCount: activeLoans.length,
-      progressPercent: ref.watch(overallLoanProgressPercentageProvider),
-      loans: [
-        for (final loan in activeLoans)
-          LoanProgressEntry(
-            id: loan.id,
-            name: loan.name,
-            remainingCapital: loan.remainingCapital,
-            monthlyPayment: loan.currentMonthlyPayment,
-            remainingMonths: loan.remainingMonths,
-          ),
-      ],
+    final now = DateTime.now();
+    final anchor = DateTime(now.year, now.month);
+    final months = StatsCalculator.monthsEndingAt(anchor, range.months);
+    final earlier = StatsCalculator.monthsEndingAt(
+      DateTime(anchor.year, anchor.month - range.months),
+      range.months,
     );
+
+    final flows = calculator.flowsOver(months);
+    final previousFlows = calculator.flowsOver(earlier);
+
+    final totals = calculator.expensesByGroupOver(months);
+    final previousTotals = calculator.expensesByGroupOver(earlier);
+    final totalExpenses = flows.fold(0.0, (sum, flow) => sum + flow.expenses);
 
     return StatsState(
-      netCashFlow: ref.watch(netCashFlowProvider),
-      savingsRate: ref.watch(savingsRateProvider),
-      totalLoanAmount: ref.watch(totalRemainingLoanAmountProvider),
-      monthlyExpenses: monthlyExpenses,
-      monthlyRevenues: ref.watch(monthlyRevenuesProvider),
-      totalMonthlyLoanPayments: totalMonthlyLoanPayments,
+      range: range,
+      flows: flows,
+      totalIncomes: flows.fold(0.0, (sum, flow) => sum + flow.incomes),
       totalExpenses: totalExpenses,
-      recurringExpenses: flows.recurringExpenses,
-      oneTimeExpenses: flows.oneTimeExpenses,
-      recurringRevenues: flows.recurringRevenues,
-      oneTimeRevenues: flows.oneTimeRevenues,
-      categorySummaries: summaries,
-      upcomingMovements: upcoming,
-      loanProgress: loanProgress,
+      previousIncomes: previousFlows.fold(
+        0.0,
+        (sum, flow) => sum + flow.incomes,
+      ),
+      previousExpenses: previousFlows.fold(
+        0.0,
+        (sum, flow) => sum + flow.expenses,
+      ),
+      recurringExpenses: calculator.recurringExpensesOver(months),
+      previousRecurringExpenses: calculator.recurringExpensesOver(earlier),
+      categories: _buildTrends(totals, previousTotals, totalExpenses, resolver),
+      trackedMonths: _trackedMonths(calculator.earliestMonth(), anchor),
     );
   }
 
-  _MonthlyFlows _computeFlows(
-    List<ExpenseModel> expenses,
-    List<RevenueModel> revenues,
-  ) {
-    double recurringExp = 0;
-    double oneTimeExp = 0;
-    for (final expense in expenses) {
-      if (expense.frequencyEnum == Frequency.oneTime) {
-        oneTimeExp += expense.amount;
-      } else {
-        recurringExp += expense.amount;
-      }
-    }
-
-    double recurringRev = 0;
-    double oneTimeRev = 0;
-    for (final revenue in revenues) {
-      if (revenue.frequencyEnum == Frequency.oneTime) {
-        oneTimeRev += revenue.amount;
-      } else {
-        recurringRev += revenue.amount;
-      }
-    }
-
-    return _MonthlyFlows(
-      recurringExpenses: recurringExp,
-      oneTimeExpenses: oneTimeExp,
-      recurringRevenues: recurringRev,
-      oneTimeRevenues: oneTimeRev,
-    );
-  }
-
-  List<CategoryExpenseSummary> _buildCategorySummaries(
-    Map<String, double> totalsByGroup,
+  List<CategoryTrend> _buildTrends(
+    Map<String, double> totals,
+    Map<String, double> previousTotals,
     double totalExpenses,
     CategoryDisplayResolver? resolver,
   ) {
     if (totalExpenses <= 0 || resolver == null) return const [];
 
-    final summaries = <CategoryExpenseSummary>[];
-    totalsByGroup.forEach((groupKey, amount) {
+    final trends = <CategoryTrend>[];
+    totals.forEach((groupKey, amount) {
       final group =
           resolver.resolveGroup(groupKey) ??
           resolver.uncategorized(TransactionType.expense);
-      summaries.add(
-        CategoryExpenseSummary(
-          categoryName: group.label,
-          amount: amount,
-          percentage: amount / totalExpenses,
-          color: Color(group.color),
-          icon: CategoryDefaults.resolveIcon(group.icon),
+      trends.add(
+        CategoryTrend(
           groupKey: groupKey,
+          label: group.label,
+          color: Color(group.color),
+          amount: amount,
+          previousAmount: previousTotals[groupKey] ?? 0,
+          share: amount / totalExpenses,
         ),
       );
     });
-    summaries.sort((a, b) => b.amount.compareTo(a.amount));
-    return summaries;
+    trends.sort((a, b) => b.amount.compareTo(a.amount));
+    return trends;
   }
 
-  List<UpcomingMovement> _buildUpcomingMovements({
-    required List<ExpenseModel> expenses,
-    required List<RevenueModel> revenues,
-    required DateTime selectedMonth,
-    required CategoryDisplayResolver? resolver,
-    required Map<int, Beneficiary> beneficiaryById,
-  }) {
-    final now = DateTime.now();
-    final viewingCurrentMonth =
-        now.year == selectedMonth.year && now.month == selectedMonth.month;
-    final todayDay = viewingCurrentMonth ? now.day : 0;
-
-    final movements = <UpcomingMovement>[];
-
-    for (final expense in expenses) {
-      final day = _movementDay(
-        expense.frequencyEnum,
-        expense.startDate,
-        expense.endDate,
-      );
-      if (day == null || day <= todayDay) continue;
-      final slug = expense.categorySlug;
-      final category = slug == null ? null : resolver?.resolve(slug);
-      movements.add(
-        UpcomingMovement(
-          id: 'e${expense.id}',
-          name: expense.name,
-          amount: expense.amount,
-          date: DateTime(selectedMonth.year, selectedMonth.month, day),
-          direction: MovementDirection.outgoing,
-          icon: category == null
-              ? Symbols.category_rounded
-              : CategoryDefaults.resolveIcon(category.icon),
-          color: category != null ? Color(category.color) : Colors.grey,
-          payee: _beneficiaryName(beneficiaryById, expense.beneficiaryId),
-        ),
-      );
-    }
-
-    for (final revenue in revenues) {
-      final day = _movementDay(
-        revenue.frequencyEnum,
-        revenue.startDate,
-        revenue.endDate,
-      );
-      if (day == null || day <= todayDay) continue;
-      movements.add(
-        UpcomingMovement(
-          id: 'r${revenue.id}',
-          name: revenue.name,
-          amount: revenue.amount,
-          date: DateTime(selectedMonth.year, selectedMonth.month, day),
-          direction: MovementDirection.incoming,
-          icon: Symbols.savings_rounded,
-          color: Colors.green,
-          payee: _beneficiaryName(beneficiaryById, revenue.beneficiaryId),
-        ),
-      );
-    }
-
-    movements.sort((a, b) => a.date.compareTo(b.date));
-    return movements;
+  int _trackedMonths(DateTime? earliest, DateTime anchor) {
+    if (earliest == null) return 0;
+    if (earliest.isAfter(anchor)) return 0;
+    return (anchor.year - earliest.year) * 12 +
+        (anchor.month - earliest.month) +
+        1;
   }
-
-  int? _movementDay(Frequency frequency, DateTime startDate, DateTime? endDate) {
-    if (endDate != null || frequency == Frequency.oneTime) return null;
-    return startDate.day;
-  }
-
-  String? _beneficiaryName(Map<int, Beneficiary> map, int? id) {
-    if (id == null) return null;
-    return map[id]?.name;
-  }
-}
-
-class _MonthlyFlows {
-  final double recurringExpenses;
-  final double oneTimeExpenses;
-  final double recurringRevenues;
-  final double oneTimeRevenues;
-
-  const _MonthlyFlows({
-    required this.recurringExpenses,
-    required this.oneTimeExpenses,
-    required this.recurringRevenues,
-    required this.oneTimeRevenues,
-  });
 }

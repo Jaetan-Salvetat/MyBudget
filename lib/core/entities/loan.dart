@@ -56,6 +56,8 @@ class Loan {
 
   double get remainingCapital => schedule.remainingCapitalAt(asOf);
 
+  double paymentsInMonth(DateTime month) => schedule.paymentsInMonth(month);
+
   int get remainingMonths => schedule.remainingInstallmentsAt(asOf);
 
   int get paidMonths => schedule.settledAt(asOf).length;

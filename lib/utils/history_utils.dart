@@ -1,3 +1,4 @@
+import 'package:mybudget/core/entities/filterable_transaction.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
@@ -32,6 +33,25 @@ bool occursInMonth(
   final landing = dayInMonthOf(startDate, frequency, month);
   if (landing.isBefore(dayOnly(startDate))) return false;
   return endDate == null || !landing.isAfter(dayOnly(endDate));
+}
+
+bool occursIn(FilterableTransaction transaction, DateTime month) =>
+    occursInMonth(
+      transaction.startDate,
+      transaction.endDate,
+      transaction.frequencyEnum,
+      month,
+    );
+
+double totalInMonth(
+  Iterable<FilterableTransaction> transactions,
+  DateTime month,
+) {
+  double total = 0;
+  for (final transaction in transactions) {
+    if (occursIn(transaction, month)) total += transaction.amount;
+  }
+  return total;
 }
 
 DateTime dayInMonthOf(

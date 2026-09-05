@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/ui/stats/models/category_expense_summary.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/ui/stats/models/category_trend.dart';
 import 'package:mybudget/ui/stats/widgets/category_breakdown_section.dart';
 
 void main() {
@@ -13,68 +13,133 @@ void main() {
 
   Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
 
-  testWidgets('renders empty state when no categories', (tester) async {
+  CategoryTrend trend({
+    required String label,
+    required double amount,
+    required double share,
+    double previousAmount = 0,
+    String? groupKey,
+  }) => CategoryTrend(
+    groupKey: groupKey ?? label.toLowerCase(),
+    label: label,
+    color: Colors.blue,
+    amount: amount,
+    previousAmount: previousAmount,
+    share: share,
+  );
+
+  testWidgets('renders an empty state without categories', (tester) async {
     await tester.pumpWidget(
       host(const CategoryBreakdownSection(categories: [])),
     );
-    expect(find.text('Aucune dépense ce mois-ci'), findsOneWidget);
+
+    expect(find.text('Aucune dépense sur la période'), findsOneWidget);
   });
 
-  testWidgets('renders top categories with name and percent', (tester) async {
-    final categories = [
-      CategoryExpenseSummary(
-        categoryName: 'Logement',
-        amount: 720,
-        percentage: 0.5,
-        color: Colors.blue,
-        icon: Icons.home,
-        groupKey: 'restauration',
-      ),
-      CategoryExpenseSummary(
-        categoryName: 'Alimentation',
-        amount: 280,
-        percentage: 0.2,
-        color: Colors.orange,
-        icon: Icons.restaurant,
-        groupKey: 'restauration',
-      ),
-    ];
-
+  testWidgets('marks a falling category with a down arrow', (tester) async {
     await tester.pumpWidget(
-      host(CategoryBreakdownSection(categories: categories)),
+      host(
+        CategoryBreakdownSection(
+          categories: [
+            trend(
+              label: 'Shopping',
+              amount: 200,
+              share: 1,
+              previousAmount: 400,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('↓ 100%'), findsOneWidget);
+  });
+
+  testWidgets('renders each category with its share and amount', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        CategoryBreakdownSection(
+          categories: [
+            trend(label: 'Logement', amount: 720, share: 0.5),
+            trend(label: 'Transport', amount: 360, share: 0.25),
+          ],
+        ),
+      ),
     );
 
     expect(find.text('Logement'), findsOneWidget);
-    expect(find.text('Alimentation'), findsOneWidget);
-    expect(find.text('50%'), findsOneWidget);
-    expect(find.text('20%'), findsOneWidget);
+    expect(find.text('↑ 50%'), findsOneWidget);
+    expect(find.text('Transport'), findsOneWidget);
+    expect(find.text('↑ 25%'), findsOneWidget);
   });
 
-  testWidgets('invokes onCategoryTap with the group key', (tester) async {
-    String? tappedId;
-    final categories = [
-      CategoryExpenseSummary(
-        categoryName: 'Logement',
-        amount: 720,
-        percentage: 0.5,
-        color: Colors.blue,
-        icon: Icons.home,
-        groupKey: 'restauration',
+  testWidgets('paints one stacked segment per category', (tester) async {
+    await tester.pumpWidget(
+      host(
+        CategoryBreakdownSection(
+          categories: [
+            trend(label: 'Logement', amount: 720, share: 0.6),
+            trend(label: 'Transport', amount: 480, share: 0.4),
+          ],
+        ),
       ),
-    ];
+    );
+
+    final segments = find.byWidgetPredicate(
+      (widget) =>
+          widget is DecoratedBox &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).borderRadius ==
+              BorderRadius.circular(2),
+    );
+
+    expect(segments, findsNWidgets(2));
+    final first = tester.getSize(segments.first);
+    final second = tester.getSize(segments.at(1));
+    expect(first.height, greaterThan(0));
+    expect(first.width, greaterThan(second.width));
+  });
+
+  testWidgets('caps the list at maxVisible', (tester) async {
+    await tester.pumpWidget(
+      host(
+        CategoryBreakdownSection(
+          maxVisible: 1,
+          categories: [
+            trend(label: 'Logement', amount: 720, share: 0.5),
+            trend(label: 'Transport', amount: 360, share: 0.25),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('Logement'), findsOneWidget);
+    expect(find.text('Transport'), findsNothing);
+  });
+
+  testWidgets('reports the tapped group', (tester) async {
+    String? tapped;
 
     await tester.pumpWidget(
       host(
         CategoryBreakdownSection(
-          categories: categories,
-          onCategoryTap: (id) => tappedId = id,
+          categories: [
+            trend(
+              label: 'Logement',
+              amount: 720,
+              share: 1,
+              groupKey: 'logement',
+            ),
+          ],
+          onCategoryTap: (groupKey) => tapped = groupKey,
         ),
       ),
     );
 
     await tester.tap(find.text('Logement'));
-    await tester.pump();
 
-    expect(tappedId, 'restauration');
+    expect(tapped, 'logement');
   });
 }

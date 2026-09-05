@@ -19,6 +19,8 @@ class _Transaction implements FilterableTransaction {
   final Frequency frequencyEnum;
   @override
   final DateTime startDate;
+  @override
+  DateTime? get endDate => null;
 
   _Transaction({
     this.name = 'Loyer',
@@ -90,10 +92,7 @@ void main() {
       const filter = TransactionFilterData(accountIds: [2]);
 
       expect(matches(filter), isFalse);
-      expect(
-        matches(filter, transaction: _Transaction(accountId: 2)),
-        isTrue,
-      );
+      expect(matches(filter, transaction: _Transaction(accountId: 2)), isTrue);
     });
 
     test('filters on the beneficiary', () {
@@ -127,10 +126,7 @@ void main() {
       );
 
       expect(matches(filter), isTrue);
-      expect(
-        matches(filter, transaction: _Transaction(accountId: 9)),
-        isFalse,
-      );
+      expect(matches(filter, transaction: _Transaction(accountId: 9)), isFalse);
     });
   });
 

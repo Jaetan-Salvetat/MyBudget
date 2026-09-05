@@ -1,19 +1,18 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
+import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/providers/transaction_filter_provider.dart';
-import 'package:mybudget/ui/common/widgets/month_selector.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
-import 'package:mybudget/ui/loans/loan_queries.dart';
-import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/settings/settings_screen.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 import 'package:mybudget/ui/stats/widgets/category_breakdown_section.dart';
-import 'package:mybudget/ui/stats/widgets/hero_balance_card.dart';
-import 'package:mybudget/ui/stats/widgets/loan_progress_section.dart';
-import 'package:mybudget/ui/stats/widgets/stats_greeting.dart';
-import 'package:mybudget/ui/stats/widgets/upcoming_movements_section.dart';
+import 'package:mybudget/ui/stats/widgets/category_movers_section.dart';
+import 'package:mybudget/ui/stats/widgets/fixed_share_section.dart';
+import 'package:mybudget/ui/stats/widgets/monthly_flow_section.dart';
+import 'package:mybudget/ui/stats/widgets/stats_header.dart';
 
 class StatsScreen extends ConsumerWidget {
   final bool isNested;
@@ -24,12 +23,7 @@ class StatsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final content = _Content(
       onCategoryTap: (groupKey) => _openCategoryExpenses(ref, groupKey),
-      onLoansTap: () => _openLoans(ref),
-      onLoanTap: (loanId) => _openLoanDetails(context, ref, loanId),
-      onSettingsTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SettingsScreen()),
-      ),
+      onMonthTap: (month) => _openMonth(ref, month),
     );
 
     if (isNested) return content;
@@ -43,41 +37,19 @@ class StatsScreen extends ConsumerWidget {
         .openTransactions(TransactionsTab.expenses);
   }
 
-  void _openLoans(WidgetRef ref) {
+  void _openMonth(WidgetRef ref, DateTime month) {
+    ref.read(selectedMonthProvider.notifier).setMonth(month);
     ref
         .read(homeNavigationProvider.notifier)
-        .openTransactions(TransactionsTab.loans);
-  }
-
-  void _openLoanDetails(BuildContext context, WidgetRef ref, int loanId) {
-    final loan = ref
-        .read(activeLoansProvider)
-        .where((candidate) => candidate.id == loanId)
-        .firstOrNull;
-    if (loan == null) {
-      _openLoans(ref);
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => LoanDetailsScreen(loan: loan)),
-    );
+        .openTransactions(TransactionsTab.expenses);
   }
 }
 
 class _Content extends ConsumerWidget {
   final ValueChanged<String> onCategoryTap;
-  final VoidCallback onLoansTap;
-  final ValueChanged<int> onLoanTap;
-  final VoidCallback onSettingsTap;
+  final ValueChanged<DateTime> onMonthTap;
 
-  const _Content({
-    required this.onCategoryTap,
-    required this.onLoansTap,
-    required this.onLoanTap,
-    required this.onSettingsTap,
-  });
+  const _Content({required this.onCategoryTap, required this.onMonthTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,24 +68,61 @@ class _Content extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            StatsGreeting(onSettingsTap: onSettingsTap),
-            const MonthSelector(),
-            HeroBalanceCard(
-              balance: state.netCashFlow,
-              totalIncomes: state.monthlyRevenues,
-              totalExpenses: state.totalExpenses,
+            const StatsHeader(),
+            MonthlyFlowSection(
+              flows: state.flows,
+              averageNet: state.averageNet,
+              netDelta: state.netDelta,
+              hasComparison: state.hasComparison,
+              onMonthTap: onMonthTap,
             ),
-            CategoryBreakdownSection(
-              categories: state.categorySummaries,
+            if (!state.hasHistory)
+              _YoungBudgetNotice(monthsToGo: state.monthsUntilHistory),
+            FixedShareSection(
+              share: state.recurringShare,
+              shareDelta: state.recurringShareDelta,
+              recurringExpenses: state.recurringExpenses,
+              variableExpenses: state.variableExpenses,
+              hasComparison: state.hasComparison,
+            ),
+            CategoryMoversSection(
+              movers: state.movers,
+              comparedMonths: state.range.months,
               onCategoryTap: onCategoryTap,
             ),
-            UpcomingMovementsSection(movements: state.upcomingMovements),
-            LoanProgressSection(
-              summary: state.loanProgress,
-              onSummaryTap: onLoansTap,
-              onLoanTap: onLoanTap,
+            CategoryBreakdownSection(
+              categories: state.categories,
+              onCategoryTap: onCategoryTap,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _YoungBudgetNotice extends StatelessWidget {
+  final int monthsToGo;
+
+  const _YoungBudgetNotice({required this.monthsToGo});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: SolidCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Text(
+          monthsToGo > 1
+              ? 'Encore $monthsToGo mois de suivi avant que les comparaisons soient parlantes.'
+              : 'Encore un mois de suivi avant que les comparaisons soient parlantes.',
+          style: AppTextStyles.mono(
+            fontSize: 10.5,
+            lineHeight: 15,
+            color: scheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
