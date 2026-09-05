@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -29,21 +30,17 @@ void main() {
       await ApiKeyService().migrateLegacyGeminiKey();
       await initializeDateFormatting('fr_FR', null);
 
+      final flavor = BuildFlavor.current;
       final packageInfo = await PackageInfo.fromPlatform();
-      final isBeta = packageInfo.packageName.endsWith('.beta');
-
-      final appUpdater = await AppUpdater.initialize(
-        UpdateConfig(
-          githubOwner: 'Jaetan-Salvetat',
-          githubRepo: 'MyBudget',
-          channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
-          versionComparator: _isNewerVersion,
-        ),
-      );
 
       runApp(
         ProviderScope(
-          overrides: [appUpdaterProvider.overrideWithValue(appUpdater)],
+          overrides: [
+            buildFlavorProvider.overrideWithValue(flavor),
+            appVersionProvider.overrideWithValue(packageInfo.version),
+            if (flavor.supportsInAppUpdate)
+              appUpdaterProvider.overrideWithValue(await _initUpdater(flavor)),
+          ],
           child: const MyApp(),
         ),
       );
@@ -51,6 +48,19 @@ void main() {
     (error, stack) {
       debugPrint('Uncaught error: $error\n$stack');
     },
+  );
+}
+
+Future<AppUpdater> _initUpdater(BuildFlavor flavor) {
+  return AppUpdater.initialize(
+    UpdateConfig(
+      githubOwner: 'Jaetan-Salvetat',
+      githubRepo: 'MyBudget',
+      channel: flavor == BuildFlavor.beta
+          ? UpdateChannel.beta
+          : UpdateChannel.stable,
+      versionComparator: _isNewerVersion,
+    ),
   );
 }
 

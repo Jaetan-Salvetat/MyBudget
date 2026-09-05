@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
@@ -32,10 +34,14 @@ void main() {
     WidgetTester tester,
     Widget section, {
     UpdateState? update,
+    String version = '1.2.3',
+    BuildFlavor flavor = BuildFlavor.prod,
   }) {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
+          buildFlavorProvider.overrideWithValue(flavor),
+          appVersionProvider.overrideWithValue(version),
           if (update != null)
             updateProvider.overrideWith(() => _StubUpdateNotifier(update)),
         ],
@@ -122,7 +128,7 @@ void main() {
       await pump(
         tester,
         const AboutSection(),
-        update: const UpdateState(currentVersion: '1.2.3'),
+        update: const UpdateState(),
       );
 
       expect(find.text('1.2.3'), findsOneWidget);
@@ -136,7 +142,6 @@ void main() {
         tester,
         const AboutSection(),
         update: UpdateState(
-          currentVersion: '1.2.3',
           availableUpdate: ReleaseInfo(
             version: '2.0.0',
             tagName: 'v2.0.0',
@@ -150,6 +155,19 @@ void main() {
       );
 
       expect(find.byType(FrostedBadgeView), findsOneWidget);
+    });
+
+    testWidgets('the store build shows the version without leading anywhere', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, const AboutSection(), flavor: BuildFlavor.store);
+
+      final FrostedListTile tile = sectionOf(tester).tiles.single;
+
+      expect(tile.subtitle, '1.2.3');
+      expect(tile.onTap, isNull);
+      expect(tile.trailing, isNull);
+      expect(find.byType(FrostedBadgeView), findsNothing);
     });
   });
 }

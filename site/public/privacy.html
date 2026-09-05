@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Politique de confidentialité — MyBudget</title>
+<meta name="description" content="Politique de confidentialité de l'application MyBudget : aucune donnée collectée, tout reste sur l'appareil.">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f6f4;
+    --surface: #ffffff;
+    --ink: #17181c;
+    --ink-soft: #5c6069;
+    --line: #e3e3df;
+    --accent: #2f6f5e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101114;
+      --surface: #17181c;
+      --ink: #ecedf0;
+      --ink-soft: #9ca0a9;
+      --line: #26282e;
+      --accent: #7fc9b3;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.25rem 5rem;
+  }
+  header { margin-bottom: 2.5rem; }
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+  }
+  .updated { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    margin: 2rem 0 3rem;
+  }
+  .summary p { margin: 0; }
+  h2 {
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    margin: 2.75rem 0 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  p, li { color: var(--ink); }
+  ul { padding-left: 1.15rem; }
+  li { margin-bottom: 0.4rem; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); }
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Politique de confidentialité</h1>
+    <p class="updated">Application MyBudget pour Android — dernière mise à jour le 5 septembre 2026</p>
+  </header>
+
+  <div class="summary">
+    <p><strong>En résumé :</strong> MyBudget fonctionne sans compte et sans serveur. Vos données financières, vos photos de tickets et vos réglages restent sur votre téléphone. L'éditeur n'y a jamais accès, et rien n'est transmis à des tiers.</p>
+  </div>
+
+  <h2>1. Éditeur</h2>
+  <p>MyBudget est édité par Jaetan Salvetat, personne physique. Contact : <a href="mailto:mybudget@jaetan.dev">mybudget@jaetan.dev</a>.</p>
+
+  <h2>2. Données manipulées par l'application</h2>
+  <p>Toutes les données ci-dessous sont stockées dans l'espace privé de l'application sur votre appareil, inaccessible aux autres applications :</p>
+  <ul>
+    <li><strong>Données financières</strong> : comptes, transactions, catégories, emprunts et échéances, dans une base de données locale.</li>
+    <li><strong>Photos de tickets</strong> : les tickets que vous scannez sont enregistrés dans le dossier privé de l'application et supprimés avec la transaction associée.</li>
+    <li><strong>Préférences</strong> : thème, options d'affichage, avancement de la présentation initiale.</li>
+  </ul>
+  <p>L'application ne demande ni ne crée aucune donnée d'identité : pas de compte, pas d'adresse e-mail, pas de numéro de téléphone, pas d'identifiant publicitaire.</p>
+
+  <h2>3. Appareil photo</h2>
+  <p>La permission caméra n'est demandée qu'au moment où vous scannez un ticket, et uniquement pour cet usage. L'image est analysée sur l'appareil : la reconnaissance de texte est effectuée par ML Kit en local, puis interprétée par un modèle embarqué dans l'application. Ni l'image ni le texte du ticket ne quittent le téléphone.</p>
+
+  <h2>4. Saisie en langage naturel</h2>
+  <p>Le texte que vous écrivez pour créer une transaction est interprété par un modèle embarqué dans l'application, ou par Gemini Nano lorsque votre appareil le propose — Gemini Nano s'exécute localement, via le service système Android AICore. Dans la version distribuée sur Google Play, aucun moteur d'analyse distant n'est disponible : votre saisie ne quitte pas l'appareil.</p>
+
+  <h2>5. Connexions réseau</h2>
+  <p>L'application n'a pas de serveur et n'envoie aucune donnée d'usage. La seule requête sortante est le téléchargement des polices de caractères depuis Google Fonts (<code>fonts.gstatic.com</code>) : comme pour toute requête web, Google en reçoit l'adresse IP. Aucune télémétrie, aucun traceur, aucune publicité, aucun outil de mesure d'audience ne sont intégrés.</p>
+
+  <h2>6. Partage avec des tiers</h2>
+  <p>Aucun. Vos données ne sont ni vendues, ni louées, ni transmises à qui que ce soit.</p>
+
+  <h2>7. Export, importation et sauvegarde système</h2>
+  <p>L'application peut produire, à votre demande, un fichier de sauvegarde de vos données que vous enregistrez ou partagez où vous le souhaitez. Une fois ce fichier sorti de l'application, sa protection ne dépend plus d'elle. Par ailleurs, Android peut inclure les données de l'application dans la sauvegarde automatique du système, chiffrée et rattachée à votre compte Google ; ce comportement se désactive dans les réglages Android de votre appareil.</p>
+
+  <h2>8. Conservation et suppression</h2>
+  <p>Les données sont conservées tant que l'application est installée. Vous pouvez tout effacer à tout moment depuis <em>Paramètres → Données → Supprimer toutes mes données</em>, ou en désinstallant l'application.</p>
+
+  <h2>9. Vos droits</h2>
+  <p>Aucune donnée n'étant transmise ni traitée par l'éditeur, il n'existe aucun traitement distant auprès duquel exercer un droit d'accès, de rectification ou d'effacement : vous détenez et contrôlez directement vos données, via l'export et la suppression décrits ci-dessus. Pour toute question relative à cette politique, écrivez à <a href="mailto:mybudget@jaetan.dev">mybudget@jaetan.dev</a>.</p>
+
+  <h2>10. Enfants</h2>
+  <p>MyBudget ne s'adresse pas aux enfants de moins de 13 ans et ne collecte aucune donnée les concernant.</p>
+
+  <h2>11. Modifications</h2>
+  <p>Cette politique peut évoluer avec l'application. La date indiquée en haut de page fait foi, et tout changement substantiel sera signalé dans les notes de version.</p>
+
+  <footer>MyBudget — <a href="mailto:mybudget@jaetan.dev">mybudget@jaetan.dev</a></footer>
+</main>
+</body>
+</html>
