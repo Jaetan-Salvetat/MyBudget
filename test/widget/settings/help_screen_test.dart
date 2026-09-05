@@ -1,6 +1,9 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/settings/help_content.dart';
 import 'package:mybudget/ui/settings/models/help_topic.dart';
@@ -12,9 +15,15 @@ import 'package:mybudget/ui/settings/screens/theme_screen.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
 void main() {
-  Future<void> pump(WidgetTester tester) {
+  Future<void> pump(
+    WidgetTester tester, {
+    BuildFlavor flavor = BuildFlavor.prod,
+  }) {
     return tester.pumpWidget(
-      MaterialApp(theme: AppTheme.dark(), home: const HelpScreen()),
+      ProviderScope(
+        overrides: [buildFlavorProvider.overrideWithValue(flavor)],
+        child: MaterialApp(theme: AppTheme.dark(), home: const HelpScreen()),
+      ),
     );
   }
 
@@ -68,6 +77,28 @@ void main() {
       expect(
         find.widgetWithText(FrostedButton, acting.action!.label),
         findsOneWidget,
+      );
+    });
+
+    testWidgets('le store retire les actions vers un écran qu\'il masque', (
+      WidgetTester tester,
+    ) async {
+      final HelpTopic acting = helpChapters
+          .expand((HelpChapter chapter) => chapter.topics)
+          .firstWhere(
+            (HelpTopic topic) =>
+                topic.action?.destination == HelpDestination.quickAddEngine,
+          );
+
+      await pump(tester, flavor: BuildFlavor.store);
+      await tester.scrollUntilVisible(find.text(acting.title), 200);
+      await tester.tap(find.text(acting.title));
+      await tester.pumpAndSettle();
+
+      expect(find.text(acting.paragraphs.first), findsOneWidget);
+      expect(
+        find.widgetWithText(FrostedButton, acting.action!.label),
+        findsNothing,
       );
     });
 

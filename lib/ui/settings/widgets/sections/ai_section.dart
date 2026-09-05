@@ -24,6 +24,9 @@ class AiSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool naturalInputEnabled = ref.watch(quickAddEnabledProvider);
+    final bool exposesEngine = ref
+        .watch(buildFlavorProvider)
+        .exposesQuickAddEngineSettings;
     final QuickAddEngineMode engine = ref.watch(quickAddEngineModeProvider);
     final bool usesCloud = engine == QuickAddEngineMode.apiKey;
     final GeminiNanoStatus? nano = ref.watch(geminiNanoStatusProvider).value;
@@ -44,14 +47,15 @@ class AiSection extends ConsumerWidget {
           ),
           onTap: () => setEnabled(!naturalInputEnabled),
         ),
-        FrostedListTile(
-          title: 'Moteur d\'analyse',
-          subtitle: engine.label,
-          leading: const FrostedListAvatar(icon: Symbols.tune_rounded),
-          trailing: const Icon(Symbols.chevron_right_rounded),
-          onTap: () => _open(context, const QuickAddEngineScreen()),
-        ),
-        if (usesCloud && isCloudQuickAddEngineAvailable)
+        if (exposesEngine)
+          FrostedListTile(
+            title: 'Moteur d\'analyse',
+            subtitle: engine.label,
+            leading: const FrostedListAvatar(icon: Symbols.tune_rounded),
+            trailing: const Icon(Symbols.chevron_right_rounded),
+            onTap: () => _open(context, const QuickAddEngineScreen()),
+          ),
+        if (exposesEngine && usesCloud && isCloudQuickAddEngineAvailable)
           FrostedListTile(
             title: GeminiCloudScreen.title,
             subtitle: _cloudSubtitle(ref),
@@ -59,7 +63,7 @@ class AiSection extends ConsumerWidget {
             trailing: const Icon(Symbols.chevron_right_rounded),
             onTap: () => _open(context, const GeminiCloudScreen()),
           ),
-        if (!usesCloud && nano != null && nano.isSelectable)
+        if (exposesEngine && !usesCloud && nano != null && nano.isSelectable)
           FrostedListTile(
             title: 'Gemini Nano',
             subtitle: _nanoSubtitle(ref, nano),

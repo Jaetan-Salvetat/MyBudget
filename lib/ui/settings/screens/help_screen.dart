@@ -1,6 +1,9 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/settings/help_content.dart';
 import 'package:mybudget/ui/settings/models/help_topic.dart';
 import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
@@ -24,14 +27,14 @@ Widget helpDestinationScreen(HelpDestination destination) {
   }
 }
 
-class HelpScreen extends StatefulWidget {
+class HelpScreen extends ConsumerStatefulWidget {
   const HelpScreen({super.key});
 
   @override
-  State<HelpScreen> createState() => _HelpScreenState();
+  ConsumerState<HelpScreen> createState() => _HelpScreenState();
 }
 
-class _HelpScreenState extends State<HelpScreen> {
+class _HelpScreenState extends ConsumerState<HelpScreen> {
   String? _openTitle;
 
   void _toggle(HelpTopic topic, bool expanded) {
@@ -47,6 +50,8 @@ class _HelpScreenState extends State<HelpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final BuildFlavor flavor = ref.watch(buildFlavorProvider);
+
     return FrostedScaffold(
       appBar: FrostedTopBar(
         title: 'Aide',
@@ -63,6 +68,7 @@ class _HelpScreenState extends State<HelpScreen> {
         itemCount: helpChapters.length,
         itemBuilder: (_, int index) => _Chapter(
           chapter: helpChapters[index],
+          flavor: flavor,
           openTitle: _openTitle,
           onToggle: _toggle,
           onAction: _open,
@@ -77,16 +83,24 @@ class _Chapter extends StatelessWidget {
   static const double _gap = FrostedSpacing.sp05;
 
   final HelpChapter chapter;
+  final BuildFlavor flavor;
   final String? openTitle;
   final void Function(HelpTopic topic, bool expanded) onToggle;
   final ValueChanged<HelpDestination> onAction;
 
   const _Chapter({
     required this.chapter,
+    required this.flavor,
     required this.openTitle,
     required this.onToggle,
     required this.onAction,
   });
+
+  HelpAction? _actionFor(HelpTopic topic) {
+    final HelpAction? action = topic.action;
+    if (action == null || !action.destination.isAvailableIn(flavor)) return null;
+    return action;
+  }
 
   FrostedTilePosition _positionFor(int index) {
     final bool isFirst = index == 0;
@@ -118,6 +132,7 @@ class _Chapter extends StatelessWidget {
           if (i > 0) const SizedBox(height: _gap),
           _TopicTile(
             topic: chapter.topics[i],
+            action: _actionFor(chapter.topics[i]),
             position: _positionFor(i),
             expanded: chapter.topics[i].title == openTitle,
             onToggle: onToggle,
@@ -131,6 +146,7 @@ class _Chapter extends StatelessWidget {
 
 class _TopicTile extends StatelessWidget {
   final HelpTopic topic;
+  final HelpAction? action;
   final FrostedTilePosition position;
   final bool expanded;
   final void Function(HelpTopic topic, bool expanded) onToggle;
@@ -138,6 +154,7 @@ class _TopicTile extends StatelessWidget {
 
   const _TopicTile({
     required this.topic,
+    required this.action,
     required this.position,
     required this.expanded,
     required this.onToggle,
@@ -147,7 +164,7 @@ class _TopicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
-    final HelpAction? action = topic.action;
+    final HelpAction? action = this.action;
 
     return FrostedExpansionTile(
       title: topic.title,

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
@@ -41,11 +42,13 @@ void main() {
   Future<void> pumpSection(
     WidgetTester tester, {
     GeminiNanoStatus nano = GeminiNanoStatus.unavailable,
+    BuildFlavor flavor = BuildFlavor.prod,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           geminiNanoServiceProvider.overrideWithValue(_StubNanoService(nano)),
+          buildFlavorProvider.overrideWithValue(flavor),
         ],
         child: MaterialApp(
           theme: FrostedTheme.light(seedColor: const Color(0xFF2A55D3)),
@@ -186,6 +189,43 @@ void main() {
       await pumpSection(tester, nano: GeminiNanoStatus.available);
 
       expect(find.text('Installé, pas encore utilisé'), findsOneWidget);
+    });
+
+    testWidgets('drops the engine entry from the store build', (
+      tester,
+    ) async {
+      await pumpSection(tester, flavor: BuildFlavor.store);
+
+      expect(find.text('Moteur d\'analyse'), findsNothing);
+    });
+
+    testWidgets('hides Gemini from the store build even when installed', (
+      tester,
+    ) async {
+      await PreferencesService.setGeminiNanoScanEnabled(true);
+
+      await pumpSection(
+        tester,
+        nano: GeminiNanoStatus.available,
+        flavor: BuildFlavor.store,
+      );
+
+      expect(find.text('Gemini Nano'), findsNothing);
+      expect(find.text('Gemini cloud'), findsNothing);
+    });
+
+    testWidgets('keeps the natural input switch in the store build', (
+      tester,
+    ) async {
+      await pumpSection(tester, flavor: BuildFlavor.store);
+
+      final FrostedListTile tile = tester
+          .widget<FrostedListSection>(find.byType(FrostedListSection))
+          .tiles
+          .single;
+
+      expect(tile.title, AiSection.naturalInputTitle);
+      expect(tile.trailing, isA<FrostedSwitch>());
     });
 
     testWidgets('says Gemini Nano reads receipts once turned on', (

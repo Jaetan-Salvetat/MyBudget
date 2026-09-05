@@ -78,6 +78,10 @@ android {
             applicationIdSuffix = ".beta"
             resValue("string", "app_name", "MyBudget Beta")
         }
+        create("store") {
+            dimension = "env"
+            resValue("string", "app_name", "MyBudget")
+        }
     }
 
     buildTypes {

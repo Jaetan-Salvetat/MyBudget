@@ -1,11 +1,20 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
 
 enum HelpDestination {
   categories,
   beneficiaries,
   quickAddEngine,
   theme,
-  update,
+  update;
+
+  bool isAvailableIn(BuildFlavor flavor) => switch (this) {
+    HelpDestination.categories ||
+    HelpDestination.beneficiaries ||
+    HelpDestination.theme => true,
+    HelpDestination.quickAddEngine => flavor.exposesQuickAddEngineSettings,
+    HelpDestination.update => flavor.supportsInAppUpdate,
+  };
 }
 
 class HelpAction {

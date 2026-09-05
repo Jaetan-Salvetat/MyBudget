@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/update_screen.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -15,6 +16,8 @@ class DebugSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool updatable = ref.watch(buildFlavorProvider).supportsInAppUpdate;
+
     return FrostedListSection(
       label: 'Debug',
       tiles: [
@@ -25,7 +28,7 @@ class DebugSection extends ConsumerWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => _restartOnboarding(context),
         ),
-        if (kDebugMode)
+        if (kDebugMode && updatable)
           FrostedListTile(
             title: 'Tester la page Update',
             subtitle: 'Simule une mise à jour disponible',

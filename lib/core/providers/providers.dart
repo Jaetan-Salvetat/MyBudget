@@ -27,6 +27,7 @@ import 'package:mybudget/core/services/objectbox_service.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/ai/api_key_verifier.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
@@ -41,6 +42,12 @@ part 'providers.g.dart';
 
 final appUpdaterProvider = Provider<AppUpdater>(
   (ref) => throw UnimplementedError('AppUpdater must be overridden at startup'),
+);
+
+final buildFlavorProvider = Provider<BuildFlavor>((ref) => BuildFlavor.current);
+
+final appVersionProvider = Provider<String>(
+  (ref) => throw UnimplementedError('App version must be overridden at startup'),
 );
 
 @Riverpod(keepAlive: true)
