@@ -2,8 +2,43 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 
 class DateSelector {
+  static const String locale = 'fr_FR';
+
+  static const String fullDatePattern = 'd MMMM yyyy';
+  static const String monthDayPattern = 'd MMMM';
+
+  static Future<DateTime?> showFor({
+    required BuildContext context,
+    required Frequency frequency,
+    required DateTime initialDate,
+  }) {
+    return switch (frequency) {
+      Frequency.oneTime => showFullDatePicker(
+        context: context,
+        initialDate: initialDate,
+      ),
+      Frequency.monthly => showDayPicker(
+        context: context,
+        initialDate: initialDate,
+      ),
+      Frequency.annual => showMonthDayPicker(
+        context: context,
+        initialDate: initialDate,
+      ),
+    };
+  }
+
+  static String labelFor(Frequency frequency, DateTime date) {
+    return switch (frequency) {
+      Frequency.oneTime => DateFormat(fullDatePattern, locale).format(date),
+      Frequency.monthly => 'Le ${date.day} du mois',
+      Frequency.annual => DateFormat(monthDayPattern, locale).format(date),
+    };
+  }
+
   static Future<DateTime?> showFullDatePicker({
     required BuildContext context,
     required DateTime initialDate,

@@ -194,6 +194,27 @@ void main() {
     expect(find.textContaining('ponctuel'), findsNothing);
   });
 
+  testWidgets('la date suit le rythme, comme dans le formulaire', (
+    tester,
+  ) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'mc do 12');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('ponctuel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Frequency.monthly.label));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('le 20 du mois'), findsOneWidget);
+
+    await tester.tap(find.textContaining('le 20 du mois'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choisir le jour du mois'), findsOneWidget);
+  });
+
   testWidgets('keeps the scan under the thumb at all times', (tester) async {
     await pumpBar(tester, focused: false);
     await tester.pumpAndSettle();
