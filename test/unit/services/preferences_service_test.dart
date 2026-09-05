@@ -41,15 +41,6 @@ void main() {
       },
     );
 
-    test(
-      'hasSeenUpdateOnboarding is false by default and true after set',
-      () async {
-        expect(PreferencesService.hasSeenUpdateOnboarding(), isFalse);
-        await PreferencesService.setHasSeenUpdateOnboarding();
-        expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
-      },
-    );
-
     test('getAiModel returns the fallback model by default', () {
       expect(PreferencesService.getAiModel(), AiModel.fallback);
     });

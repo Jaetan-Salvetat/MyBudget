@@ -8,7 +8,7 @@ import 'frosted_field_surface.dart';
 class FrostedAutocomplete extends StatefulWidget {
   const FrostedAutocomplete({
     required this.options,
-    required this.onSelected,
+    this.onSelected,
     this.controller,
     this.label,
     this.hintText,
@@ -23,7 +23,7 @@ class FrostedAutocomplete extends StatefulWidget {
   });
 
   final List<String> options;
-  final ValueChanged<String> onSelected;
+  final ValueChanged<String>? onSelected;
   final TextEditingController? controller;
   final String? label;
   final String? hintText;
@@ -105,7 +105,7 @@ class _FrostedAutocompleteState extends State<FrostedAutocomplete> {
       text: value,
       selection: TextSelection.collapsed(offset: value.length),
     );
-    widget.onSelected(value);
+    widget.onSelected?.call(value);
     _menu.close();
     _focusNode.unfocus();
   }

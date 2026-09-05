@@ -2,75 +2,104 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
-import 'package:mybudget/ui/onboarding/widgets/onboarding_lock_illustration.dart';
-import 'package:mybudget/ui/onboarding/widgets/onboarding_pile_illustration.dart';
-import 'package:mybudget/ui/onboarding/widgets/onboarding_reste_illustration.dart';
+import 'package:mybudget/ui/onboarding/widgets/account_setup_slide.dart';
 import 'package:mybudget/ui/onboarding/widgets/onboarding_slide.dart';
+import 'package:mybudget/ui/onboarding/widgets/quick_add_demo.dart';
+import 'package:mybudget/ui/onboarding/widgets/receipt_demo.dart';
+import 'package:mybudget/ui/onboarding/widgets/recurrence_demo.dart';
 
-class OnboardingPage extends StatelessWidget {
-  final int initialPage;
+class OnboardingPage extends ConsumerStatefulWidget {
+  static const int slideCount = 4;
+  static const int accountSlide = slideCount - 1;
 
-  const OnboardingPage({super.key, this.initialPage = 0});
+  static const String defaultAccountName = 'Compte courant';
 
-  @override
-  Widget build(BuildContext context) {
-    return _OnboardingContent(initialPage: initialPage);
-  }
-}
+  static const Duration pageTransition = Duration(milliseconds: 320);
 
-class _OnboardingContent extends ConsumerStatefulWidget {
-  final int initialPage;
-
-  const _OnboardingContent({required this.initialPage});
+  const OnboardingPage({super.key});
 
   @override
-  ConsumerState<_OnboardingContent> createState() => _OnboardingContentState();
+  ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
-  late final PageController _pageController;
-  static const int _slideCount = 3;
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
+  final PageController _pageController = PageController();
+  final TextEditingController _nameController = TextEditingController(
+    text: OnboardingPage.defaultAccountName,
+  );
+  final TextEditingController _bankController = TextEditingController();
+  final FocusNode _bankFocusNode = FocusNode();
+
+  bool _finishing = false;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.initialPage);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(onboardingProvider.notifier).onPageChanged(widget.initialPage);
-    });
+    _nameController.addListener(_onAccountChanged);
+    _bankController.addListener(_onAccountChanged);
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_onAccountChanged);
+    _bankController.removeListener(_onAccountChanged);
     _pageController.dispose();
+    _nameController.dispose();
+    _bankController.dispose();
+    _bankFocusNode.dispose();
     super.dispose();
   }
 
-  void _nextPage() {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
+  void _onAccountChanged() => setState(() {});
+
+  void _goToPage(int page) {
+    _pageController.animateToPage(
+      page,
+      duration: OnboardingPage.pageTransition,
       curve: Curves.easeInOut,
     );
   }
 
-  Future<void> _finishOnboarding() async {
-    await ref.read(onboardingProvider.notifier).completeOnboarding();
-    await PreferencesService.setHasSeenUpdateOnboarding();
+  Future<void> _finish() async {
+    if (_finishing) return;
 
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+    setState(() => _finishing = true);
+    try {
+      await ref
+          .read(onboardingProvider.notifier)
+          .complete(
+            accountName: _nameController.text.trim(),
+            bank: _bankController.text.trim(),
+          );
+    } catch (error) {
+      if (mounted) {
+        setState(() => _finishing = false);
+        FrostedSnackbar.show(
+          context,
+          message: 'Impossible de créer le compte : $error',
+        );
+      }
+      return;
     }
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
+
+  bool get _canFinish =>
+      !_finishing &&
+      _nameController.text.trim().isNotEmpty &&
+      _bankController.text.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
     final currentPage = ref.watch(onboardingProvider);
-    final isLast = currentPage == _slideCount - 1;
+    final isAccountSlide = currentPage == OnboardingPage.accountSlide;
 
     return FrostedScaffold(
       body: SafeArea(
@@ -79,16 +108,18 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
             SizedBox(
               height: 48,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (!isLast)
-                      FrostedButton.text(
-                        label: 'Passer',
-                        onPressed: _finishOnboarding,
-                      ),
-                  ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp3,
+                ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: isAccountSlide
+                      ? null
+                      : FrostedButton.text(
+                          label: 'Passer',
+                          onPressed: () =>
+                              _goToPage(OnboardingPage.accountSlide),
+                        ),
                 ),
               ),
             ),
@@ -98,40 +129,61 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
                 onPageChanged: ref
                     .read(onboardingProvider.notifier)
                     .onPageChanged,
-                children: const [
+                children: [
                   OnboardingSlide(
-                    title: 'Ton argent, sans le flou.',
+                    title: 'Dis-le comme\nça te vient.',
                     body:
-                        'Calcule ton Reste à Vivre instantanément. Un seul chiffre qui dit tout.',
-                    illustration: OnboardingResteIllustration(),
+                        'Une phrase, et c\'est rangé : le montant, la '
+                        'catégorie et la date sont lus au fil de la frappe. '
+                        'Rien n\'est enregistré tant que tu n\'envoies pas.',
+                    scene: QuickAddDemo(isActive: currentPage == 0),
                   ),
                   OnboardingSlide(
-                    title: "L'essentiel, c'est tout.",
+                    title: 'Ce qui revient,\nrevient tout seul.',
                     body:
-                        'Loyer, crédits, abonnements, courses : tout au même endroit, jamais plus.',
-                    illustration: OnboardingPileIllustration(),
+                        'Loyer, abonnements, assurances : dis-le une fois '
+                        'avec « tous les mois » et l\'app le reporte sur '
+                        'chaque mois. Tu ne le ressaisis jamais.',
+                    scene: RecurrenceDemoView(isActive: currentPage == 1),
                   ),
                   OnboardingSlide(
-                    title: 'Jardin secret.',
+                    title: 'Ou photographie\nle ticket.',
                     body:
-                        '100 % local sur ton téléphone. Aucune connexion bancaire. Zéro pub.',
-                    illustration: OnboardingLockIllustration(),
+                        'L\'enseigne, la date, le total et chaque article '
+                        'sont lus ligne par ligne, puis catégorisés. Tu '
+                        'corriges ce qu\'il faut, et tu valides.',
+                    scene: ReceiptDemoView(isActive: currentPage == 2),
+                  ),
+                  AccountSetupSlide(
+                    nameController: _nameController,
+                    bankController: _bankController,
+                    bankFocusNode: _bankFocusNode,
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
+              padding: const EdgeInsets.fromLTRB(
+                FrostedSpacing.sp5,
+                FrostedSpacing.sp1,
+                FrostedSpacing.sp5,
+                FrostedSpacing.sp5,
+              ),
               child: Row(
                 children: [
-                  _PagerDots(currentIndex: currentPage, count: _slideCount),
+                  FrostedPageIndicator(
+                    count: OnboardingPage.slideCount,
+                    currentIndex: currentPage,
+                  ),
                   const Spacer(),
                   FrostedButton.filled(
-                    label: isLast ? 'Commencer' : 'Suivant',
-                    icon: isLast
+                    label: isAccountSlide ? 'Commencer' : 'Suivant',
+                    icon: isAccountSlide
                         ? Symbols.check_rounded
                         : Symbols.arrow_forward_rounded,
-                    onPressed: isLast ? _finishOnboarding : _nextPage,
+                    onPressed: isAccountSlide
+                        ? (_canFinish ? _finish : null)
+                        : () => _goToPage(currentPage + 1),
                   ),
                 ],
               ),
@@ -139,37 +191,6 @@ class _OnboardingContentState extends ConsumerState<_OnboardingContent> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _PagerDots extends StatelessWidget {
-  final int currentIndex;
-  final int count;
-
-  const _PagerDots({required this.currentIndex, required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(count, (i) {
-        final isActive = i == currentIndex;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          margin: EdgeInsets.only(right: i < count - 1 ? 6 : 0),
-          height: 6,
-          width: isActive ? 22 : 6,
-          decoration: BoxDecoration(
-            color: isActive
-                ? scheme.primary
-                : scheme.onSurface.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(9999),
-          ),
-        );
-      }),
     );
   }
 }

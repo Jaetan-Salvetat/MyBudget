@@ -13,6 +13,11 @@ class CaptureAnchor extends StatelessWidget {
   static const double centsFontSize = 30;
   static const double _centsOpacity = 0.62;
 
+  static const String idleFigure = '—';
+  static const String idleInvite =
+      'Dis ton salaire pour voir ce qu\'il te reste.';
+  static const double _idleOpacity = 0.28;
+
   final double remaining;
   final double monthlyRevenues;
   final VoidCallback onTap;
@@ -50,21 +55,45 @@ class CaptureAnchor extends StatelessWidget {
                 children: [
                   const Eyebrow('Reste ce mois'),
                   const SizedBox(height: FrostedSpacing.sp2),
-                  AnimatedAmount(
-                    amount: remaining,
-                    builder: (context, value) => _Figure(amount: value),
-                  ),
-                  const SizedBox(height: FrostedSpacing.sp2),
-                  Text(
-                    _subtitle(),
-                    style: AppTextStyles.mono(
-                      fontSize: 10.5,
-                      lineHeight: 14,
-                      color: theme.colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.7,
+                  if (_isIdle) ...[
+                    Text(
+                      idleFigure,
+                      style: AppTextStyles.displaySerifItalic(
+                        fontSize: integerFontSize,
+                        height: 1,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: _idleOpacity,
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: FrostedSpacing.sp2),
+                    Text(
+                      idleInvite,
+                      style: AppTextStyles.mono(
+                        fontSize: 10.5,
+                        lineHeight: 14,
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    AnimatedAmount(
+                      amount: remaining,
+                      builder: (context, value) => _Figure(amount: value),
+                    ),
+                    const SizedBox(height: FrostedSpacing.sp2),
+                    Text(
+                      _subtitle(),
+                      style: AppTextStyles.mono(
+                        fontSize: 10.5,
+                        lineHeight: 14,
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -77,6 +106,8 @@ class CaptureAnchor extends StatelessWidget {
       ),
     );
   }
+
+  bool get _isIdle => monthlyRevenues == 0 && remaining == 0;
 
   String _subtitle() {
     final now = DateTime.now();

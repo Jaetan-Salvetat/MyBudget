@@ -14,7 +14,7 @@ class HelpAndSupportSection extends StatelessWidget {
       tiles: [
         FrostedListTile(
           title: 'Guide d\'utilisation',
-          subtitle: 'Consultez l\'aide et les explications',
+          subtitle: 'Comment marche chaque écran',
           leading: const FrostedListAvatar(icon: Symbols.help_rounded),
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => Navigator.push(
