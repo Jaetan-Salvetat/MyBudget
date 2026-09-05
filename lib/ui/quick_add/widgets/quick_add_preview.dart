@@ -4,7 +4,6 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -13,6 +12,7 @@ import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
+import 'package:mybudget/ui/quick_add/widgets/quick_add_frequency_menu.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class QuickAddPreview extends ConsumerWidget {
@@ -32,13 +32,12 @@ class QuickAddPreview extends ConsumerWidget {
           amount: draft.amount,
           isIncome: draft.type == TransactionType.income,
           category: _category(context, ref, draft),
-          recurrenceLabel: draft.frequency == Frequency.oneTime
-              ? null
-              : draft.frequency.label,
+          recurrenceLabel: draft.frequency.label,
           dateLabel: _dateLabel(draft.date),
           isStale: draft.isStale,
           onPickCategory: () => _pickCategory(context, ref, draft),
           onPickDate: () => _pickDate(context, ref, draft),
+          onPickFrequency: () => _pickFrequency(context, ref, draft),
         ),
         if (error != null)
           Padding(
@@ -71,6 +70,18 @@ class QuickAddPreview extends ConsumerWidget {
     );
     if (picked == null) return;
     ref.read(quickAddProvider.notifier).selectDate(picked);
+  }
+
+  void _pickFrequency(
+    BuildContext context,
+    WidgetRef ref,
+    QuickAddDraft draft,
+  ) {
+    QuickAddFrequencyMenu.show(
+      context: context,
+      current: draft.frequency,
+      onSelect: ref.read(quickAddProvider.notifier).selectFrequency,
+    );
   }
 
   QuickAddCategoryPreview? _category(

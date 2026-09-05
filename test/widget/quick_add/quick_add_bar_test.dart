@@ -177,6 +177,23 @@ void main() {
     expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
   });
 
+  testWidgets('le rythme lu se corrige sans quitter la saisie', (tester) async {
+    await pumpBar(tester);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'mc do 12');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('ponctuel'), findsOneWidget);
+
+    await tester.tap(find.textContaining('ponctuel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Frequency.monthly.label));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('mensuel'), findsOneWidget);
+    expect(find.textContaining('ponctuel'), findsNothing);
+  });
+
   testWidgets('keeps the scan under the thumb at all times', (tester) async {
     await pumpBar(tester, focused: false);
     await tester.pumpAndSettle();
