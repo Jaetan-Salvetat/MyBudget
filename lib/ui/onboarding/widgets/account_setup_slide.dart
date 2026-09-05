@@ -63,7 +63,7 @@ class AccountSetupSlide extends StatelessWidget {
           options: BanksList.frenchBanks,
           controller: bankController,
           focusNode: bankFocusNode,
-          label: 'Banque — facultatif',
+          label: 'Nom de la banque',
           hintText: 'Ex: Crédit Agricole',
           leadingIcon: Symbols.account_balance_rounded,
         ),

@@ -18,7 +18,6 @@ import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 import 'package:mybudget/ui/onboarding/widgets/account_setup_slide.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -149,7 +148,7 @@ void main() {
     expect(find.widgetWithText(FrostedButton, 'Commencer'), findsOneWidget);
   });
 
-  testWidgets('le compte est prérempli et « Commencer » exige un nom', (
+  testWidgets('le nom est prérempli, la banque reste à saisir', (
     tester,
   ) async {
     await pumpOnboarding(tester);
@@ -158,6 +157,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(OnboardingPage.defaultAccountName), findsOneWidget);
+    expect(primaryButton(tester, 'Commencer').onPressed, isNull);
+
+    await tester.enterText(find.byType(FrostedAutocomplete), 'Boursorama');
+    await tester.pumpAndSettle();
+
     expect(primaryButton(tester, 'Commencer').onPressed, isNotNull);
 
     await tester.enterText(find.byType(FrostedTextField).first, '  ');
@@ -174,6 +178,9 @@ void main() {
     await pumpOnboarding(tester);
 
     await tester.tap(find.widgetWithText(FrostedButton, 'Passer'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(FrostedAutocomplete), 'Boursorama');
     await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(FrostedButton, 'Commencer'));

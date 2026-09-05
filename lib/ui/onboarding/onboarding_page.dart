@@ -37,12 +37,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(_onNameChanged);
+    _nameController.addListener(_onAccountChanged);
+    _bankController.addListener(_onAccountChanged);
   }
 
   @override
   void dispose() {
-    _nameController.removeListener(_onNameChanged);
+    _nameController.removeListener(_onAccountChanged);
+    _bankController.removeListener(_onAccountChanged);
     _pageController.dispose();
     _nameController.dispose();
     _bankController.dispose();
@@ -50,7 +52,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
-  void _onNameChanged() => setState(() {});
+  void _onAccountChanged() => setState(() {});
 
   void _goToPage(int page) {
     _pageController.animateToPage(
@@ -90,7 +92,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   bool get _canFinish =>
-      !_finishing && _nameController.text.trim().isNotEmpty;
+      !_finishing &&
+      _nameController.text.trim().isNotEmpty &&
+      _bankController.text.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +107,20 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           children: [
             SizedBox(
               height: 48,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: isAccountSlide
-                    ? null
-                    : FrostedButton.text(
-                        label: 'Passer',
-                        onPressed: () =>
-                            _goToPage(OnboardingPage.accountSlide),
-                      ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FrostedSpacing.sp3,
+                ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: isAccountSlide
+                      ? null
+                      : FrostedButton.text(
+                          label: 'Passer',
+                          onPressed: () =>
+                              _goToPage(OnboardingPage.accountSlide),
+                        ),
+                ),
               ),
             ),
             Expanded(

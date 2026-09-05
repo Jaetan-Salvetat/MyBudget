@@ -13,7 +13,6 @@ import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockCategoryOverrideRepository extends Mock

@@ -8,7 +8,6 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
 import 'package:mybudget/ui/onboarding/widgets/quick_add_demo.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
