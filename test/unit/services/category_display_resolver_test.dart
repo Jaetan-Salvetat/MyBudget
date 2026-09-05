@@ -81,9 +81,8 @@ void main() {
     test('lists the children of a group', () {
       expect(resolver.childrenOf('voyage').map((child) => child.label), [
         'Avion & train',
-        'Hébergement',
+        'Hôtel & séjour',
         'Location de véhicule',
-        'Activités & visites',
       ]);
     });
 

@@ -16,11 +16,11 @@ void main() {
 
   group('categories shipped by default up to v0.7.5', () {
     const expected = {
-      'Alimentation': 'alimentation.supermarche',
+      'Alimentation': 'alimentation.courses',
       'Logement': 'logement.loyer',
-      'Transport': 'transport.essence',
-      'Loisirs': 'loisirs.cinema_sortie',
-      'Santé': 'sante_beaute.medecin',
+      'Transport': 'transport.carburant',
+      'Loisirs': 'loisirs.sorties',
+      'Santé': 'sante_beaute.soins_medicaux',
       'Shopping': 'shopping.vetements',
       'Divers': 'divers.autre',
     };
@@ -40,13 +40,13 @@ void main() {
   group('custom categories', () {
     test('matches a leaf label exactly', () {
       expect(mapper.expenseSlugFor('Animaux'), 'divers.animaux');
-      expect(mapper.expenseSlugFor('Essence'), 'transport.essence');
+      expect(mapper.expenseSlugFor('Essence'), 'transport.carburant');
     });
 
     test('ignores case, accents and surrounding spaces', () {
       expect(mapper.expenseSlugFor('  PHARMACIE '), 'sante_beaute.pharmacie');
       expect(mapper.expenseSlugFor('peage'), 'transport.peage');
-      expect(mapper.expenseSlugFor('alimentation'), 'alimentation.supermarche');
+      expect(mapper.expenseSlugFor('alimentation'), 'alimentation.courses');
     });
 
     test('falls back when the label belongs to an income group', () {

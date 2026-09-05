@@ -5,35 +5,35 @@
    "input": "carfour",
    "clean": "carrefour",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "carrfour",
    "clean": "carrefour",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "carrefour marekt",
    "clean": "carrefour market",
    "type": "expense",
-   "category": "alimentation.epicerie",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "intermarcher",
    "clean": "intermarche",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "leclrec",
    "clean": "leclerc",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
@@ -89,21 +89,21 @@
    "input": "leroy merln",
    "clean": "leroy merlin",
    "type": "expense",
-   "category": "logement.travaux",
+   "category": "logement.bricolage_jardin",
    "axis": "frappe"
   },
   {
    "input": "boulengerie",
    "clean": "boulangerie",
    "type": "expense",
-   "category": "alimentation.boulangerie",
+   "category": "alimentation.pain_patisserie",
    "axis": "frappe"
   },
   {
    "input": "boulangerei",
    "clean": "boulangerie",
    "type": "expense",
-   "category": "alimentation.boulangerie",
+   "category": "alimentation.pain_patisserie",
    "axis": "frappe"
   },
   {
@@ -138,21 +138,21 @@
    "input": "essance",
    "clean": "essence",
    "type": "expense",
-   "category": "transport.essence",
+   "category": "transport.carburant",
    "axis": "frappe"
   },
   {
    "input": "assurence habitation",
    "clean": "assurance habitation",
    "type": "expense",
-   "category": "finance.assurance_habitation",
+   "category": "logement.assurance_habitation",
    "axis": "frappe"
   },
   {
    "input": "mutuele",
    "clean": "mutuelle",
    "type": "expense",
-   "category": "finance.assurance_sante",
+   "category": "sante_beaute.mutuelle",
    "axis": "frappe"
   },
   {
@@ -201,35 +201,35 @@
    "input": "monopris",
    "clean": "monoprix",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "franprx",
    "clean": "franprix",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "lidle",
    "clean": "lidl",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "auchen",
    "clean": "auchan",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
    "input": "piscard",
    "clean": "picard",
    "type": "expense",
-   "category": "alimentation.epicerie",
+   "category": "alimentation.courses",
    "axis": "frappe"
   },
   {
@@ -285,7 +285,7 @@
    "input": "bulangerie",
    "clean": "boulangerie",
    "type": "expense",
-   "category": "alimentation.boulangerie",
+   "category": "alimentation.pain_patisserie",
    "axis": "phonetique"
   },
   {
@@ -306,7 +306,7 @@
    "input": "essense",
    "clean": "essence",
    "type": "expense",
-   "category": "transport.essence",
+   "category": "transport.carburant",
    "axis": "phonetique"
   },
   {
@@ -369,7 +369,7 @@
    "input": "carrefourcity",
    "clean": "carrefour city",
    "type": "expense",
-   "category": "alimentation.epicerie",
+   "category": "alimentation.courses",
    "axis": "agglutination"
   },
   {
@@ -390,7 +390,7 @@
    "input": "leroymerlin",
    "clean": "leroy merlin",
    "type": "expense",
-   "category": "logement.travaux",
+   "category": "logement.bricolage_jardin",
    "axis": "agglutination"
   },
   {
@@ -404,7 +404,7 @@
    "input": "grandfrais",
    "clean": "grand frais",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "agglutination"
   },
   {
@@ -432,7 +432,7 @@
    "input": "CARREFOUR",
    "clean": "carrefour",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "casse"
   },
   {
@@ -460,21 +460,21 @@
    "input": "carre four",
    "clean": "carrefour",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "coupure"
   },
   {
    "input": "boulan gerie",
    "clean": "boulangerie",
    "type": "expense",
-   "category": "alimentation.boulangerie",
+   "category": "alimentation.pain_patisserie",
    "axis": "coupure"
   },
   {
    "input": "super marche",
    "clean": "supermarche",
    "type": "expense",
-   "category": "alimentation.supermarche",
+   "category": "alimentation.courses",
    "axis": "coupure"
   }
  ]

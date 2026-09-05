@@ -24,24 +24,26 @@ traiteur → épicerie ; jardinerie, plantes → travaux ; fleurs → cadeau ;
 jouets → activités enfants ; bazar, vaisselle, linge → mobilier/déco.
 """
 
-SUPERMARCHE = "alimentation.supermarche"
-EPICERIE = "alimentation.epicerie"
-MARCHE = "alimentation.marche"
-BOULANGERIE = "alimentation.boulangerie"
+SUPERMARCHE = "alimentation.courses"
+EPICERIE = "alimentation.courses"
+MARCHE = "alimentation.courses"
+BOULANGERIE = "alimentation.pain_patisserie"
 RESTAURANT = "restauration.restaurant"
 FAST_FOOD = "restauration.fast_food"
 CAFE = "restauration.cafe"
 BAR = "restauration.bar"
-ESSENCE = "transport.essence"
+ESSENCE = "transport.carburant"
 TRANSPORT_COMMUN = "transport.transport_commun"
 PARKING = "transport.parking"
 PEAGE = "transport.peage"
 ENTRETIEN_VEHICULE = "transport.entretien_vehicule"
-TRAVAUX = "logement.travaux"
+TRAVAUX = "logement.bricolage_jardin"
 PHARMACIE = "sante_beaute.pharmacie"
 COIFFEUR = "sante_beaute.coiffeur"
 ESTHETIQUE = "sante_beaute.esthetique"
-CINEMA = "loisirs.cinema_sortie"
+COSMETIQUES = "sante_beaute.cosmetiques"
+SERVICES = "divers.services"
+CINEMA = "loisirs.sorties"
 SPORT = "loisirs.sport"
 LIVRE_PRESSE = "loisirs.livre_presse"
 MUSIQUE = "loisirs.musique"
@@ -52,7 +54,7 @@ FRAIS_BANCAIRES = "finance.frais_bancaires"
 FOURNITURES = "famille_education.fournitures"
 ACTIVITES_ENFANTS = "famille_education.activites_enfants"
 TRANSPORT_LONGUE_DISTANCE = "voyage.transport_longue_distance"
-ACTIVITE_VISITE = "voyage.activite_visite"
+ACTIVITE_VISITE = "loisirs.sorties"
 CADEAU = "divers.cadeau_offert"
 ANIMAUX = "divers.animaux"
 AUTRE = "divers.autre"
@@ -247,11 +249,11 @@ STORE_LABELS: dict[str, str] = {
     "Phie LAFAYETTE CROIX MORIN": PHARMACIE,
     "parapharmacie E.Leclerc": PHARMACIE,
     "PARASHOP": PHARMACIE,
-    "Centre de Beauté Yves Rocher": ESTHETIQUE,
-    "Marionnaud": ESTHETIQUE,
-    "SEPHORA CHAMPS ELYSEES": ESTHETIQUE,
-    "SEPHORA LA ROCHELLE TEMPLE": ESTHETIQUE,
-    "SAGA COSMETICS": ESTHETIQUE,
+    "Centre de Beauté Yves Rocher": COSMETIQUES,
+    "Marionnaud": COSMETIQUES,
+    "SEPHORA CHAMPS ELYSEES": COSMETIQUES,
+    "SEPHORA LA ROCHELLE TEMPLE": COSMETIQUES,
+    "SAGA COSMETICS": COSMETIQUES,
     "FRANCK PROVOST": COIFFEUR,
     "Primark France SAS": VETEMENTS,
     "CAMAIEU": VETEMENTS,
@@ -322,7 +324,7 @@ STORE_LABELS: dict[str, str] = {
     "SPL LE VOYAGE A NANTES": ACTIVITE_VISITE,
     "GAUMONT NANTES": CINEMA,
     "ESPACE CULTUREL ST JEAN D'ANGELY": CINEMA,
-    "LA POSTE": AUTRE,
+    "LA POSTE": SERVICES,
     "CHANGE NANTES DECRE": FRAIS_BANCAIRES,
 }
 
@@ -427,8 +429,8 @@ ITEM_OVERRIDES: dict[str, str] = {
     "SERUM PHYSIOLOGIQ.": PHARMACIE,
     "SERUM PHYSIOLOGIQU": PHARMACIE,
     "SERUM PHYS 30 UNIDOSES": PHARMACIE,
-    "RAL COLOR&SHOCK 30": ESTHETIQUE,
-    "Cosmétiques caisses 0386622 NOSIZE Vert": ESTHETIQUE,
+    "RAL COLOR&SHOCK 30": COSMETIQUES,
+    "Cosmétiques caisses 0386622 NOSIZE Vert": COSMETIQUES,
     "NEZ DE ROBINET FILET": TRAVAUX,
     "POT STD CLASSICA 15,5X13,5CM": TRAVAUX,
     "POT STD CLASSICA 18X15,5CM": TRAVAUX,
@@ -447,7 +449,7 @@ ITEM_OVERRIDES: dict[str, str] = {
     "!2516612 toblerone 100g chocolat au lait": SUPERMARCHE,
     "1 PAIN AU CHOCOLAT": BOULANGERIE,
     "Carte BOULANGER Cadeau Anniversaire": CADEAU,
-    "1 Carnet(s) timbres verts": AUTRE,
+    "1 Carnet(s) timbres verts": SERVICES,
     "Baskets/Bottes 0402169 40 Bleu": VETEMENTS,
     "GANTS TRAVAUX T7": TRAVAUX,
     "SUPER GLUE 3": TRAVAUX,

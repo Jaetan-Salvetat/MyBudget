@@ -3,35 +3,35 @@
     {
       "input": "courses Carrefour 85",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "Lidl 42 euros",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "marché du dimanche 30",
       "type": "expense",
-      "category": "alimentation.marche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "baguette 1,20",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "croissants ce matin 4.50",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -80,7 +80,7 @@
     {
       "input": "essence 70",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -143,14 +143,14 @@
     {
       "input": "assurance habitation 35",
       "type": "expense",
-      "category": "finance.assurance_habitation",
+      "category": "logement.assurance_habitation",
       "recurrence": "fixe",
       "level": "app"
     },
     {
       "input": "médecin 25",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -164,7 +164,7 @@
     {
       "input": "mutuelle 45",
       "type": "expense",
-      "category": "finance.assurance_sante",
+      "category": "sante_beaute.mutuelle",
       "recurrence": "fixe",
       "level": "app"
     },
@@ -178,7 +178,7 @@
     {
       "input": "cinéma 12",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -283,14 +283,14 @@
     {
       "input": "clopes 12",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "plombier 150",
       "type": "expense",
-      "category": "logement.travaux",
+      "category": "logement.bricolage_jardin",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -388,7 +388,7 @@
     {
       "input": "Supermarkt 60",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -409,7 +409,7 @@
     {
       "input": "supermercado 45",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -444,7 +444,7 @@
     {
       "input": "fait les courses 120 euros",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -479,21 +479,21 @@
     {
       "input": "courses",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "concert 45",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "level": "app"
     },
     {
       "input": "dentiste 60",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.dentaire",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -528,7 +528,7 @@
     {
       "input": "Sephora 55",
       "type": "expense",
-      "category": "sante_beaute.esthetique",
+      "category": "sante_beaute.cosmetiques",
       "recurrence": "ponctuel",
       "level": "app"
     },
@@ -556,7 +556,7 @@
     {
       "input": "carrefour",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "easy"
     },
@@ -598,7 +598,7 @@
     {
       "input": "boulangerie",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "level": "easy"
     },
@@ -619,7 +619,7 @@
     {
       "input": "médecin",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "level": "easy"
     },
@@ -640,14 +640,14 @@
     {
       "input": "essence",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "level": "easy"
     },
     {
       "input": "mutuelle",
       "type": "expense",
-      "category": "finance.assurance_sante",
+      "category": "sante_beaute.mutuelle",
       "recurrence": "fixe",
       "level": "easy"
     },
@@ -661,7 +661,7 @@
     {
       "input": "assurance",
       "type": "expense",
-      "category": "finance.assurance_habitation",
+      "category": "logement.assurance_habitation",
       "recurrence": "fixe",
       "level": "easy"
     },
@@ -703,7 +703,7 @@
     {
       "input": "cigarettes",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "level": "easy"
     },
@@ -724,7 +724,7 @@
     {
       "input": "courses leclerc",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "medium"
     },
@@ -773,7 +773,7 @@
     {
       "input": "plein d'essence",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "level": "medium"
     },
@@ -864,7 +864,7 @@
     {
       "input": "escape game",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "level": "medium"
     },
@@ -899,14 +899,14 @@
     {
       "input": "Aldi Süd",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "hard"
     },
     {
       "input": "Rewe Markt",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "hard"
     },
@@ -927,14 +927,14 @@
     {
       "input": "e-liquide",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "level": "hard"
     },
     {
       "input": "clopes buraliste",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "level": "hard"
     },
@@ -969,21 +969,21 @@
     {
       "input": "Zahnarzt",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "level": "hard"
     },
     {
       "input": "supermercado compras",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "hard"
     },
     {
       "input": "Lebensmittel",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "hard"
     },
@@ -997,7 +997,7 @@
     {
       "input": "ravitaillement semaine",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "level": "hard"
     },
@@ -1011,7 +1011,7 @@
     {
       "input": "pressing chemise",
       "type": "expense",
-      "category": "divers.autre",
+      "category": "divers.services",
       "recurrence": "ponctuel",
       "level": "hard"
     },

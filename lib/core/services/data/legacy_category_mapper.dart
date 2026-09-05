@@ -6,11 +6,11 @@ class LegacyCategoryMapper {
   static const String fallback = 'divers.autre';
 
   static const Map<String, String> _defaultCategorySlugs = {
-    'alimentation': 'alimentation.supermarche',
+    'alimentation': 'alimentation.courses',
     'logement': 'logement.loyer',
-    'transport': 'transport.essence',
-    'loisirs': 'loisirs.cinema_sortie',
-    'sante': 'sante_beaute.medecin',
+    'transport': 'transport.carburant',
+    'loisirs': 'loisirs.sorties',
+    'sante': 'sante_beaute.soins_medicaux',
     'shopping': 'shopping.vetements',
     'divers': fallback,
   };
@@ -25,8 +25,11 @@ class LegacyCategoryMapper {
 
     if (slug == null) return fallback;
 
-    final group = _taxonomy.groupOfSlug(slug);
-    return group?.type == TransactionType.expense ? slug : fallback;
+    final node = _taxonomy.resolve(slug);
+    if (node == null || node.group.type != TransactionType.expense) {
+      return fallback;
+    }
+    return node.slug;
   }
 
   String? _leafLabelled(String normalizedLabel) {

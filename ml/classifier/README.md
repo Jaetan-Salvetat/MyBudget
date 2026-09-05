@@ -128,6 +128,10 @@ fiable : `SOURCE_PRIORITY` dans `knowledge/build.py` fixe l'ordre
   arbitrage « McDonald's » — alias de « McDonald's PlayPlace » — sortait du
   corpus étiqueté *activités enfants* **et** *fast-food*, et le modèle
   apprenait une contradiction ;
+- une paire dont les deux membres sont **voisins dans la taxonomie**
+  (`finance.charges_pro < finance.impots_taxes`) n'est pas un conflit normal :
+  c'est du vocabulaire resté dans l'ancienne classe après un découpage, et le
+  merge le tranche en silence. Voir §6 ;
 - `Moins fournies` — une classe sous 10 entités sera portée par l'amplification
   du générateur, pas par de la vraie connaissance. C'est le premier endroit où
   ajouter du vocabulaire.
@@ -694,17 +698,75 @@ Insérer une classe au milieu décale toutes les suivantes.
 
 Checklist :
 
-1. éditer `assets/categories.json`, bumper `version` ;
-2. `dart run tool/generate_taxonomy_labels.dart` ;
+1. éditer `assets/categories.json`, bumper `version`, garder l'ancien slug en
+   `deprecated` + `alias_of` pour les transactions stockées ;
+2. `dart run tool/generate_taxonomy_labels.dart` (slugs actifs seulement) ;
 3. ajuster `CategoryTaxonomyService.expectedVersion` ;
 4. couvrir la nouvelle classe dans `knowledge/sources/lexicon.py` — le test
    `test_every_active_slug_has_hand_written_vocabulary` échoue sinon ;
 5. ajouter des cas dans `evaluation/data/world.json` — `test_world_corpus_covers_every_active_class`
    échoue sinon ;
-6. relancer la chaîne complète, puis republier.
+6. **retirer le vocabulaire de la nouvelle classe de son ancienne classe** —
+   `tests/test_source_agreement.py` échoue sinon, voir ci-dessous ;
+7. relancer la chaîne complète, puis republier.
 
-Une classe dépréciée (`deprecated` + `alias_of`) garde son index et sa sortie
-dans le modèle : `taxonomy.canonical()` redirige, aucune entité ne la vise.
+### Une classe neuve hérite des mots que l'ancienne garde
+
+C'est l'étape 6, et elle a coûté trois classes sur `run_v7`. Découper
+`aide_allocation.aide_sociale` hors des allocations familiales, ou
+`finance.charges_pro` hors des impôts, se fait en écrivant le vocabulaire de la
+classe neuve. Rien n'oblige à le retirer de l'ancienne, et rien ne le signalait :
+« RSA » vivait dans les deux, « URSSAF » aussi, « vélo » dans sport et dans
+achat de véhicule.
+
+Le corpus ne s'en plaint pas, il se dégrade de deux façons selon la porte
+d'entrée du mot :
+
+| Porte | Ce qui arrive | Effet |
+|---|---|---|
+| `knowledge.build` (lexique, marques, NSI) | le merge arbitre en silence par priorité de source, à égalité au hasard | le mot part **dans l'ancienne classe** : `urssaf` et `cfe` étaient étiquetés impôts, `cashback` intérêts |
+| `_curated_entities()` (`corpus/quick_add/examples.py`) | ne passe pas par le merge, les deux étiquettes atteignent `train.jsonl` | `drop_contradictory_texts` retire le texte : la **forme nue** disparaît, celle qu'on tape le plus |
+
+Mesuré sur le corpus de `run_v7` : 172 textes à deux classes, 364 lignes
+retirées sur 257 400 — 0,1 %, un volume négligeable qui cache la vraie casse.
+Ce qui reste enseigne les deux classes à la fois :
+
+| Mot | Bonne classe | Ancienne classe |
+|---|---|---|
+| `rsa` | 112 lignes | 27 |
+| `aah` | 86 | 32 |
+| `urssaf` | 136 | 17 |
+| `cashback` | 169 | 61 |
+
+Un cinquième à un quart des lignes portant le mot tirent vers l'ancienne classe,
+et la forme nue n'est nulle part. Les trois classes les plus basses de
+`evaluation/hard.py` sur `run_v7` sont exactement celles-là :
+`aide_allocation.aide_sociale` 81,8 %, `transfert.pension_alimentaire` 81,8 %,
+`loisirs.sport` 60,0 % (« vélo »).
+
+**Le garde-fou est une vérification de forme, comme pour l'ordre des classes :**
+`tests/test_source_agreement.py` refuse qu'un même texte soit revendiqué par
+deux classes dans les quatre sources écrites à la main — exemples, verbes,
+lexique, marques. Il ne remplace pas l'arbitrage entre sources moissonnées, qui
+reste légitime (une station-service vend aussi de l'épicerie) ; il ne porte que
+sur ce qu'on écrit soi-même, où deux classes pour un mot est toujours un oubli.
+Première exécution : 63 entrées à retirer.
+
+Le corpus ticket n'a pas ce défaut — `drop_contradictions` compare tous les
+libellés avant d'écrire, et `receipts_train.jsonl` sortait à 0 contradiction.
+
+Une classe dépréciée (`deprecated` + `alias_of`) n'a plus de sortie dans le
+modèle depuis la taxonomie v2 : `LABELS` ne porte que les slugs actifs, côté
+Python comme côté Dart, et `taxonomy.canonical()` redirige les anciennes
+sources vers leur remplaçant. Les corpus LLM se relisent contre le guide à jour
+avec `corpus.llm.utterances --verify` et `corpus.llm.lines --verify` : une
+formulation que le relecteur ne range plus dans sa classe en sort.
+
+**Une classe = une nature de dépense, jamais un lieu, un contexte ni une
+personne** (taxonomie v2, 2026-09-04). « tomates » vaut courses au marché comme
+au supermarché, « crème hydratante » vaut cosmétiques en pharmacie comme chez
+Sephora, « licence de judo » vaut sport pour un enfant comme pour un adulte.
+`CLASS_GUIDE` (`corpus/conventions.py`) porte les conventions de frontière.
 
 ## 7. Ajouter de la connaissance
 
@@ -1155,9 +1217,26 @@ dans une classe de plus.
 | **82 classes, intention apprise (2026-09-03, `output/run_v4`, 2 epochs)** | + formulations par classe (120 à 160 écrites à la main, 14 classes et 39 classes de lignes de ticket générées puis vérifiées à l'aveugle, §10), loss de famille et de cohérence, contradictions inter-corpus retirées ; 187 478 + 72 007 exemples | **95 %** — ECE 2,0 %, entités jamais vues 73,9 %, formulations tenues à part 90,3 % | cas durs **94,3 %** (famille-préfixe 96,4 %), lot neuf à l'aveugle **95,9 %**, une faute 85,9 %, scan dur 79,2 %, **49 classes sur 81 au-dessus de 95 %** |
 | **82 classes, corpus d'intention élargi (2026-09-03, `output/run_v5`, 3 epochs, livré dans `output/best`)** | formulations portées à ~300 par classe (24 984, dont 8 105 écrites à la main) et lignes de ticket à 10 137 sur 39 classes, toutes générées puis vérifiées à l'aveugle ; 242 552 + 79 779 exemples | **96 %** — ECE 3,0 %, entités jamais vues **77,1 %**, formulations tenues à part 94,3 % | cas durs **95,4 %** (famille-préfixe 96,9 %), lot neuf à l'aveugle **99,0 %** (famille 99,6 %), une faute 88,9 %, scan dur **81,8 %**, **55 classes sur 81 au-dessus de 95 %**, `app` 100 % |
 | **82 classes, 5 epochs (2026-09-04, `output/run_v6`, livré dans `output/best`)** | même corpus que `run_v5`, 5 epochs au lieu de 3 ; meilleur checkpoint au dernier pas | **98 %** — ECE **1,4 %**, entités jamais vues **77,8 %**, 90 % les plus confiants à 91,5 % | cas durs **95,9 %** (famille-préfixe 97,1 %), lot neuf 97,5 % (famille 98,6 %), une faute **90,0 %**, scan dur **86,2 %** (abrégé 80 %), 53 classes sur 81 au-dessus de 95 % |
+| **91 classes, taxonomie v2 (2026-09-04, `output/run_v7`, 5 epochs, non livré)** | taxonomie refaite en natures de dépense : 9 classes nettes de plus, quatre fusions ; connaissance, formulations et lignes régénérées puis **toutes** relues à l'aveugle contre le nouveau guide ; 257 400 + 75 011 exemples | **94 %** — ECE 3,7 %, entités jamais vues **79,0 %**, généralisation stricte 85,9 % | cas durs **94,9 %** sur 1 018 cas (corpus élargi de 23 %), scan dur **87,0 %**, **59 classes sur 91 au-dessus de 95 %**, ONNX `world` 96 % / `app` 98 %, accord int8 98,9 % |
+| **91 classes, sources désambiguïsées (2026-09-05, `output/run_v8`, 5 epochs, non livré)** | corpus de `run_v7` moins les 99 textes qu'une deuxième classe revendiquait, dans les quatre sources écrites à la main et **entre** elles (§6) : 41 textes contradictoires contre 172, 84 lignes perdues contre 364 | **98 %** — ECE **1,4 %**, entités jamais vues **80,9 %**, généralisation stricte **87,0 %** | cas durs **95,5 %**, lot neuf 96,9 %, une faute 89,7 %, scan dur 85,9 %, **62 classes sur 91 au-dessus de 95 %**, ONNX `world` 98 % / `app` 99 %, accord int8 **99,2 %** |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.
+
+`run_v7` n'était pas livrable : les trois classes les plus basses du rapport par
+classe tenaient au vocabulaire resté dans l'ancienne classe après le découpage
+(§6). `run_v8` mesure ce que corriger cela rend — `aide_allocation.aide_sociale`
+et `finance.charges_pro` quittent la liste des classes sous la cible, la
+calibration revient à 1,4 % et les entités jamais vues gagnent 1,9 point.
+
+Ce qui reste sous la cible ne vient plus de contradictions mais de **frontières
+de direction** : `famille_education.pension_alimentaire` contre
+`transfert.pension_alimentaire` (« pension alimentaire » sans direction tombe
+toujours du côté entrée), `divers.don` contre `exceptionnel.don_recu`,
+`transfert.remboursement_ami` contre `virement_recu`. Et de l'axe de la
+personne : `loisirs.sport` à 60 % parce que « licence de foot du petit » et
+« club de judo » partaient encore en activités enfants — neuf entrées de
+vocabulaire d'enfant-sportif retirées depuis, non mesurées.
 
 Ce que l'itération 1 a montré :
 

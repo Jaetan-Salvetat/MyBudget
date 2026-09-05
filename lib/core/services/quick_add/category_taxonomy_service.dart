@@ -47,7 +47,7 @@ class TaxonomyNode {
 
 class CategoryTaxonomyService {
   static const String assetPath = 'assets/categories.json';
-  static const int expectedVersion = 1;
+  static const int expectedVersion = 2;
   static const String slugSeparator = '.';
 
   static const String _versionKey = 'version';

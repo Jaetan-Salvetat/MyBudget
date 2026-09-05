@@ -48,7 +48,7 @@ def assert_taxonomy_stamp(corpus_path: Path) -> None:
 
     `category_label` est un entier. Une classe insérée décale tout ce qui la
     suit, et le fichier reste lisible, valide, et faux : `receipts_train.jsonl`
-    enseignait `voyage.activite_visite` là où il voulait dire `divers.animaux`.
+    enseignait `loisirs.sorties` là où il voulait dire `divers.animaux`.
     """
     path = stamp_path(corpus_path)
     if not path.exists():

@@ -146,12 +146,9 @@ def prune_shared(directory: Path = LINES_DIR) -> list[str]:
     return sorted(shared)
 
 
-def run_group(slugs: list[str], count: int, model: str) -> None:
-    rng = random.Random(SHUFFLE_SEED)
-    measured = measured_lines()
-    with ThreadPoolExecutor(PARALLELISM) as pool:
-        generated = dict(zip(slugs, pool.map(lambda slug: generate(slug, count, model), slugs)))
-    pooled = [(slug, line) for slug, lines in generated.items() for line in lines]
+def verdicts_by_slug(
+    pooled: list[tuple[str, str]], model: str, rng: random.Random
+) -> dict[str, tuple[list[str], list[str]]]:
     rng.shuffle(pooled)
     texts = [line for _, line in pooled]
     width = VERIFICATION_BATCH * 4
@@ -162,6 +159,16 @@ def run_group(slugs: list[str], count: int, model: str) -> None:
     for (slug, line), verdict in zip(pooled, verdicts):
         by_slug[slug][0].append(line)
         by_slug[slug][1].append(verdict)
+    return by_slug
+
+
+def run_group(slugs: list[str], count: int, model: str) -> None:
+    rng = random.Random(SHUFFLE_SEED)
+    measured = measured_lines()
+    with ThreadPoolExecutor(PARALLELISM) as pool:
+        generated = dict(zip(slugs, pool.map(lambda slug: generate(slug, count, model), slugs)))
+    pooled = [(slug, line) for slug, lines in generated.items() for line in lines]
+    by_slug = verdicts_by_slug(pooled, model, rng)
     current = read_lines()
     for slug in slugs:
         lines, slug_verdicts = by_slug[slug]
@@ -171,6 +178,19 @@ def run_group(slugs: list[str], count: int, model: str) -> None:
         print(f"{slug:45s} générées {len(lines):4d}  retenues {len(kept):4d}  total {len(merged):4d}")
 
 
+def reverify_group(slugs: list[str], model: str, directory: Path = LINES_DIR) -> None:
+    rng = random.Random(SHUFFLE_SEED)
+    measured = measured_lines()
+    current = read_lines(directory)
+    pooled = [(slug, line) for slug in slugs for line in current.get(slug, [])]
+    by_slug = verdicts_by_slug(pooled, model, rng)
+    for slug in slugs:
+        lines, slug_verdicts = by_slug[slug]
+        kept = accept(slug, lines, slug_verdicts, measured)
+        write(slug, kept, directory)
+        print(f"{slug:45s} relues {len(lines):4d}  gardées {len(kept):4d}")
+
+
 def run(slugs: list[str], count: int, model: str) -> None:
     for start in range(0, len(slugs), GROUP_SIZE):
         run_group(slugs[start : start + GROUP_SIZE], count, model)
@@ -178,12 +198,23 @@ def run(slugs: list[str], count: int, model: str) -> None:
     print(f"retirées car partagées entre classes : {len(shared)}")
 
 
+def reverify(slugs: list[str], model: str) -> None:
+    for start in range(0, len(slugs), GROUP_SIZE):
+        reverify_group(slugs[start : start + GROUP_SIZE], model)
+    shared = prune_shared()
+    print(f"retirées car partagées entre classes : {len(shared)}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("slugs", nargs="+")
+    parser.add_argument("slugs", nargs="*")
     parser.add_argument("--count", type=int, default=GENERATION_BATCH * 2)
     parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
+    if args.verify:
+        reverify(args.slugs or sorted(read_lines()), args.model)
+        return
     run(args.slugs, args.count, args.model)
 
 

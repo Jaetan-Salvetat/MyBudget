@@ -4,84 +4,84 @@
     {
       "input": "Grand Frais",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "courses Intermarché 62",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "Grand Frais légumes",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "Naturalia",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "Nicolas caviste",
       "type": "expense",
-      "category": "alimentation.epicerie",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "boucherie du coin 18",
       "type": "expense",
-      "category": "alimentation.epicerie",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "local_business"
     },
     {
       "input": "fromagerie Lemoine",
       "type": "expense",
-      "category": "alimentation.epicerie",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "local_business"
     },
     {
       "input": "marché de Wazemmes",
       "type": "expense",
-      "category": "alimentation.marche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "local_business"
     },
     {
       "input": "panier AMAP",
       "type": "expense",
-      "category": "alimentation.marche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "boulangerie Ange",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "Marie Blachère",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "deux baguettes",
       "type": "expense",
-      "category": "alimentation.boulangerie",
+      "category": "alimentation.pain_patisserie",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -172,21 +172,21 @@
     {
       "input": "Total Access plein",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "plein de gasoil 78",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "recharge Ionity",
       "type": "expense",
-      "category": "transport.essence",
+      "category": "transport.carburant",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
@@ -284,7 +284,7 @@
     {
       "input": "caution appartement",
       "type": "expense",
-      "category": "logement.loyer",
+      "category": "logement.demenagement",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -319,49 +319,49 @@
     {
       "input": "Leroy Merlin peinture",
       "type": "expense",
-      "category": "logement.travaux",
+      "category": "logement.bricolage_jardin",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "plombier dépannage 120",
       "type": "expense",
-      "category": "logement.travaux",
+      "category": "logement.bricolage_jardin",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "Plomberie Renard",
       "type": "expense",
-      "category": "logement.travaux",
+      "category": "logement.bricolage_jardin",
       "recurrence": "ponctuel",
       "axis": "local_business"
     },
     {
       "input": "Doctolib consultation",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "axis": "service_online"
     },
     {
       "input": "rendez-vous dermato",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "séance kiné",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.soins_medicaux",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "Cabinet dentaire Morel",
       "type": "expense",
-      "category": "sante_beaute.medecin",
+      "category": "sante_beaute.dentaire",
       "recurrence": "ponctuel",
       "axis": "local_business"
     },
@@ -382,7 +382,7 @@
     {
       "input": "Alain Afflelou lunettes",
       "type": "expense",
-      "category": "sante_beaute.pharmacie",
+      "category": "sante_beaute.optique",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
@@ -403,7 +403,7 @@
     {
       "input": "Nocibé parfum",
       "type": "expense",
-      "category": "sante_beaute.esthetique",
+      "category": "sante_beaute.cosmetiques",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
@@ -417,21 +417,21 @@
     {
       "input": "place de ciné",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "Pathé Wepler",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "escape game entre potes",
       "type": "expense",
-      "category": "loisirs.cinema_sortie",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -683,7 +683,7 @@
     {
       "input": "URSSAF trimestre",
       "type": "expense",
-      "category": "finance.impots_taxes",
+      "category": "finance.charges_pro",
       "recurrence": "fixe",
       "axis": "service_online"
     },
@@ -704,28 +704,28 @@
     {
       "input": "assurance habitation MAIF",
       "type": "expense",
-      "category": "finance.assurance_habitation",
+      "category": "logement.assurance_habitation",
       "recurrence": "fixe",
       "axis": "service_online"
     },
     {
       "input": "assurance auto Matmut",
       "type": "expense",
-      "category": "finance.assurance_auto",
+      "category": "transport.assurance_auto",
       "recurrence": "fixe",
       "axis": "service_online"
     },
     {
       "input": "mutuelle 45",
       "type": "expense",
-      "category": "finance.assurance_sante",
+      "category": "sante_beaute.mutuelle",
       "recurrence": "fixe",
       "axis": "common_noun"
     },
     {
       "input": "Alan santé",
       "type": "expense",
-      "category": "finance.assurance_sante",
+      "category": "sante_beaute.mutuelle",
       "recurrence": "fixe",
       "axis": "service_online"
     },
@@ -809,7 +809,7 @@
     {
       "input": "cours de danse de Léa",
       "type": "expense",
-      "category": "famille_education.activites_enfants",
+      "category": "loisirs.sport",
       "recurrence": "fixe",
       "axis": "common_noun"
     },
@@ -851,21 +851,21 @@
     {
       "input": "Airbnb week-end",
       "type": "expense",
-      "category": "voyage.hebergement",
+      "category": "voyage.sejour",
       "recurrence": "ponctuel",
       "axis": "service_online"
     },
     {
       "input": "Ibis Budget",
       "type": "expense",
-      "category": "voyage.hebergement",
+      "category": "voyage.sejour",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "camping 3 nuits",
       "type": "expense",
-      "category": "voyage.hebergement",
+      "category": "voyage.sejour",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -879,21 +879,21 @@
     {
       "input": "entrée du Louvre",
       "type": "expense",
-      "category": "voyage.activite_visite",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
     {
       "input": "GetYourGuide excursion",
       "type": "expense",
-      "category": "voyage.activite_visite",
+      "category": "loisirs.sorties",
       "recurrence": "ponctuel",
       "axis": "service_online"
     },
     {
       "input": "forfait ski",
       "type": "expense",
-      "category": "voyage.activite_visite",
+      "category": "loisirs.sport",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -928,21 +928,21 @@
     {
       "input": "clopes 12",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "e-liquide vape",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "Betclic pari",
       "type": "expense",
-      "category": "divers.tabac_jeux",
+      "category": "divers.tabac_paris",
       "recurrence": "ponctuel",
       "axis": "service_online"
     },
@@ -963,14 +963,14 @@
     {
       "input": "pressing 3 chemises",
       "type": "expense",
-      "category": "divers.autre",
+      "category": "divers.services",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
     {
       "input": "timbres La Poste",
       "type": "expense",
-      "category": "divers.autre",
+      "category": "divers.services",
       "recurrence": "ponctuel",
       "axis": "common_noun"
     },
@@ -1138,21 +1138,21 @@
     {
       "input": "Nutella",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "product"
     },
     {
       "input": "pack de Coca",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "product"
     },
     {
       "input": "capsules Nespresso",
       "type": "expense",
-      "category": "alimentation.supermarche",
+      "category": "alimentation.courses",
       "recurrence": "ponctuel",
       "axis": "product"
     },
@@ -1180,7 +1180,7 @@
     {
       "input": "King Jouet",
       "type": "expense",
-      "category": "famille_education.enfant",
+      "category": "famille_education.activites_enfants",
       "recurrence": "ponctuel",
       "axis": "brand_physical"
     },
@@ -1190,6 +1190,244 @@
       "category": "famille_education.enfant",
       "recurrence": "ponctuel",
       "axis": "product"
+    },
+    {
+      "input": "Dentego",
+      "type": "expense",
+      "category": "sante_beaute.dentaire",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "détartrage",
+      "type": "expense",
+      "category": "sante_beaute.dentaire",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Krys",
+      "type": "expense",
+      "category": "sante_beaute.optique",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "lentilles de contact",
+      "type": "expense",
+      "category": "sante_beaute.optique",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Sephora",
+      "type": "expense",
+      "category": "sante_beaute.cosmetiques",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "crème hydratante",
+      "type": "expense",
+      "category": "sante_beaute.cosmetiques",
+      "recurrence": "ponctuel",
+      "axis": "product"
+    },
+    {
+      "input": "O2 Care Services",
+      "type": "expense",
+      "category": "logement.services",
+      "recurrence": "fixe",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "femme de ménage",
+      "type": "expense",
+      "category": "logement.services",
+      "recurrence": "fixe",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Verisure",
+      "type": "expense",
+      "category": "logement.services",
+      "recurrence": "fixe",
+      "axis": "service_online"
+    },
+    {
+      "input": "Demeco",
+      "type": "expense",
+      "category": "logement.demenagement",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "frais d'agence",
+      "type": "expense",
+      "category": "logement.demenagement",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Homebox",
+      "type": "expense",
+      "category": "logement.demenagement",
+      "recurrence": "fixe",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "Aramisauto",
+      "type": "expense",
+      "category": "transport.achat_vehicule",
+      "recurrence": "ponctuel",
+      "axis": "service_online"
+    },
+    {
+      "input": "vélo électrique",
+      "type": "expense",
+      "category": "transport.achat_vehicule",
+      "recurrence": "ponctuel",
+      "axis": "product"
+    },
+    {
+      "input": "achat voiture",
+      "type": "expense",
+      "category": "transport.achat_vehicule",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Rougier & Plé",
+      "type": "expense",
+      "category": "loisirs.loisirs_creatifs",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "laine",
+      "type": "expense",
+      "category": "loisirs.loisirs_creatifs",
+      "recurrence": "ponctuel",
+      "axis": "product"
+    },
+    {
+      "input": "Mercerie Martin",
+      "type": "expense",
+      "category": "loisirs.loisirs_creatifs",
+      "recurrence": "ponctuel",
+      "axis": "local_business"
+    },
+    {
+      "input": "URSSAF",
+      "type": "expense",
+      "category": "finance.charges_pro",
+      "recurrence": "fixe",
+      "axis": "service_online"
+    },
+    {
+      "input": "expert-comptable",
+      "type": "expense",
+      "category": "finance.charges_pro",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "WeWork",
+      "type": "expense",
+      "category": "finance.charges_pro",
+      "recurrence": "fixe",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "5àsec",
+      "type": "expense",
+      "category": "divers.services",
+      "recurrence": "ponctuel",
+      "axis": "brand_physical"
+    },
+    {
+      "input": "cordonnier",
+      "type": "expense",
+      "category": "divers.services",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "Cordonnerie de la Gare",
+      "type": "expense",
+      "category": "divers.services",
+      "recurrence": "ponctuel",
+      "axis": "local_business"
+    },
+    {
+      "input": "RSA",
+      "type": "income",
+      "category": "aide_allocation.aide_sociale",
+      "recurrence": "fixe",
+      "axis": "common_noun"
+    },
+    {
+      "input": "prime d'activité",
+      "type": "income",
+      "category": "aide_allocation.aide_sociale",
+      "recurrence": "fixe",
+      "axis": "common_noun"
+    },
+    {
+      "input": "remboursement Amazon",
+      "type": "income",
+      "category": "transfert.remboursement_achat",
+      "recurrence": "ponctuel",
+      "axis": "service_online"
+    },
+    {
+      "input": "avoir",
+      "type": "income",
+      "category": "transfert.remboursement_achat",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "pension alimentaire reçue",
+      "type": "income",
+      "category": "transfert.pension_alimentaire",
+      "recurrence": "fixe",
+      "axis": "common_noun"
+    },
+    {
+      "input": "ARIPA",
+      "type": "income",
+      "category": "transfert.pension_alimentaire",
+      "recurrence": "fixe",
+      "axis": "service_online"
+    },
+    {
+      "input": "iGraal",
+      "type": "income",
+      "category": "exceptionnel.autre_revenu",
+      "recurrence": "ponctuel",
+      "axis": "service_online"
+    },
+    {
+      "input": "cashback",
+      "type": "income",
+      "category": "exceptionnel.autre_revenu",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "pourboire",
+      "type": "expense",
+      "category": "divers.autre",
+      "recurrence": "ponctuel",
+      "axis": "common_noun"
+    },
+    {
+      "input": "cotisation association",
+      "type": "expense",
+      "category": "divers.autre",
+      "recurrence": "fixe",
+      "axis": "common_noun"
     }
   ]
 }

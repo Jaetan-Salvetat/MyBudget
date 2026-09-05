@@ -89,7 +89,7 @@ def iter_entities(refresh: bool = False) -> Iterator[Entity]:
             continue
         yield Entity(
             name=name,
-            slug="alimentation.supermarche",
+            slug="alimentation.courses",
             source=SOURCE,
             tier=TIER_KNOWN,
             recurrence=ONE_TIME,

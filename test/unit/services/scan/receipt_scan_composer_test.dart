@@ -58,27 +58,27 @@ void main() {
   group('ReceiptScanComposer', () {
     test('chaque article porte la catégorie de son propre libellé', () async {
       final result = await composerOf({
-        'pain': (slug: 'alimentation.boulangerie', confidence: 0.9),
+        'pain': (slug: 'alimentation.pain_patisserie', confidence: 0.9),
         'croquettes chien': (slug: 'divers.animaux', confidence: 0.95),
       }).compose(
         scanOf(items: const [('PAIN', 2.0, 0.0), ('CROQUETTES CHIEN', 9.0, 0.0)]),
       );
 
-      expect(result.items[0].categorySlug, 'alimentation.boulangerie');
+      expect(result.items[0].categorySlug, 'alimentation.pain_patisserie');
       expect(result.items[1].categorySlug, 'divers.animaux');
       expect(result.items.first.categoryName, isNotEmpty);
     });
 
     test('l\'enseigne ne teinte pas la catégorie des articles', () async {
       final classifier = _ScriptedLineClassifier({
-        'pain': (slug: 'alimentation.boulangerie', confidence: 0.9),
+        'pain': (slug: 'alimentation.pain_patisserie', confidence: 0.9),
       });
       final result = await ReceiptScanComposer(
         categorizer: ReceiptCategorizer(classifier),
         resolver: resolver,
       ).compose(scanOf(store: 'CARREFOUR'));
 
-      expect(result.items.single.categorySlug, 'alimentation.boulangerie');
+      expect(result.items.single.categorySlug, 'alimentation.pain_patisserie');
       expect(classifier.seen, ['pain']);
     });
 
@@ -131,7 +131,7 @@ void main() {
 
     test('la confiance du classifieur arrive jusqu\'à l\'écran', () async {
       final result = await composerOf({
-        'pain': (slug: 'alimentation.boulangerie', confidence: 0.31),
+        'pain': (slug: 'alimentation.pain_patisserie', confidence: 0.31),
       }).compose(scanOf());
 
       expect(result.items.single.categoryConfidence, 0.31);

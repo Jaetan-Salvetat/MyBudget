@@ -108,29 +108,29 @@ void main() {
   testWidgets('returns the leaf slug picked under a group', (tester) async {
     final result = await openPicker(tester);
 
-    expect(find.text('Supermarché'), findsNothing);
+    expect(find.text('Courses'), findsNothing);
 
     await tester.tap(find.text('Alimentation'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Supermarché'));
+    await tester.tap(find.text('Courses'));
     await tester.pumpAndSettle();
 
-    expect(result(), 'alimentation.supermarche');
+    expect(result(), 'alimentation.courses');
   });
 
   testWidgets('search flattens the tree to matching leaves', (tester) async {
     final result = await openPicker(tester);
 
-    await tester.enterText(find.byType(TextField), 'boulang');
+    await tester.enterText(find.byType(TextField), 'patiss');
     await tester.pumpAndSettle();
 
     expect(find.text('Alimentation'), findsOneWidget);
-    expect(find.text('Boulangerie'), findsOneWidget);
+    expect(find.text('Pain & pâtisserie'), findsOneWidget);
 
-    await tester.tap(find.text('Boulangerie'));
+    await tester.tap(find.text('Pain & pâtisserie'));
     await tester.pumpAndSettle();
 
-    expect(result(), 'alimentation.boulangerie');
+    expect(result(), 'alimentation.pain_patisserie');
   });
 
   testWidgets('opens the group of the current selection', (tester) async {

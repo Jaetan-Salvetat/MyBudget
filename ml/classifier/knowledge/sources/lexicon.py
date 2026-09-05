@@ -14,20 +14,16 @@ from taxonomy import ONE_TIME, RECURRING
 SOURCE = "lexicon"
 
 LEXICON: dict[str, list[str]] = {
-    "alimentation.supermarche": [
+    "alimentation.courses": [
         "courses", "les courses", "courses de la semaine", "provisions", "ravitaillement",
         "caddie", "chariot", "supermarché", "hypermarché", "drive", "click and collect",
         "courses en ligne", "grosses courses", "petites courses", "groceries", "grocery run",
         "grocery shopping", "food shop", "weekly shop", "supermarket", "grocery store",
         "big shop", "food shopping", "grocery delivery", "pantry restock",
-    ],
-    "alimentation.marche": [
         "marché", "marché du dimanche", "marché couvert", "marché bio", "primeur",
         "étal du marché", "producteur local", "AMAP", "panier de légumes", "panier bio",
         "vente à la ferme", "cueillette", "farmers market", "market stall", "veg box",
         "farm shop", "local produce", "greengrocer stall",
-    ],
-    "alimentation.epicerie": [
         "épicerie", "épicerie fine", "épicerie de quartier", "supérette", "boucherie",
         "charcuterie", "poissonnerie", "fromagerie", "cave à vin", "caviste", "traiteur",
         "primeurs", "magasin bio", "vrac", "torréfacteur", "chocolaterie", "confiserie",
@@ -35,7 +31,7 @@ LEXICON: dict[str, list[str]] = {
         "cheesemonger", "off licence", "deli", "delicatessen", "wine shop", "health food shop",
         "bulk store", "grocer",
     ],
-    "alimentation.boulangerie": [
+    "alimentation.pain_patisserie": [
         "boulangerie", "baguette", "baguettes", "deux baguettes", "pain", "pain complet",
         "pain de mie", "viennoiseries", "croissants",
         "pain au chocolat", "chocolatine", "brioche", "pâtisserie", "gâteau", "tarte",
@@ -48,7 +44,7 @@ LEXICON: dict[str, list[str]] = {
         "restaurant", "resto", "restau", "dîner au restaurant", "déjeuner", "repas",
         "brasserie", "bistrot", "auberge", "table d'hôtes", "menu du midi", "formule midi",
         "addition", "note du resto", "resto avec les collègues", "resto en amoureux",
-        "sushi", "pizzeria", "italien", "chinois", "japonais", "indien", "thaï", "grec",
+        "sushi", "pizzeria", "italien", "chinois", "japonais", "indien", "thaï", 
         "libanais", "coréen", "burger resto", "steakhouse", "crêperie", "brunch",
         "dinner out", "eating out", "meal out", "lunch out", "restaurant bill", "the bill",
         "dinner with friends", "sunday roast", "tasting menu", "takeout meal",
@@ -80,7 +76,7 @@ LEXICON: dict[str, list[str]] = {
         "food delivery", "delivery order", "takeaway delivered", "meal delivery",
         "delivery fee", "ordered in",
     ],
-    "transport.essence": [
+    "transport.carburant": [
         "essence", "carburant", "gasoil", "gazole", "diesel", "SP95", "SP98", "E85",
         "plein", "plein d'essence", "faire le plein", "station-service", "station essence",
         "pompe", "recharge électrique", "borne de recharge", "charge voiture", "GPL",
@@ -91,7 +87,7 @@ LEXICON: dict[str, list[str]] = {
         "métro", "bus", "tram", "tramway", "RER", "ticket de métro", "ticket de bus",
         "carnet de tickets", "abonnement transport", "pass mensuel", "carte de transport",
         "trajet bus", "navette", "trottinette en libre-service", "vélo en libre-service",
-        "vélo partagé", "underground", "tube", "subway", "bus fare", "train fare",
+        "vélo partagé", "underground", "tube", "bus fare", "train fare",
         "travelcard", "oyster top up", "monthly pass", "transit pass", "commute",
         "e-scooter ride", "bike share",
     ],
@@ -99,7 +95,7 @@ LEXICON: dict[str, list[str]] = {
         "taxi", "VTC", "course taxi", "course VTC", "chauffeur", "voiture avec chauffeur",
         "taxi de nuit", "taxi aéroport", "cab", "ride", "rideshare", "airport taxi",
         "uber ride", "bolt ride", "airport transfer", "trajet en VTC", "retour en taxi",
-        "minicab", "car service",
+        "minicab",
     ],
     "transport.parking": [
         "parking", "stationnement", "horodateur", "place de parking", "parking souterrain",
@@ -120,9 +116,9 @@ LEXICON: dict[str, list[str]] = {
     ],
     "logement.loyer": [
         "loyer", "loyer du mois", "loyer appartement", "loyer studio", "quittance",
-        "caution", "dépôt de garantie", "frais d'agence", "colocation", "part de loyer",
-        "caution appartement", "caution logement", "rent", "monthly rent", "rent payment",
-        "deposit", "letting fee", "room rent",
+        "caution", "colocation", "part de loyer",
+        "caution logement", "rent", "monthly rent", "rent payment",
+        "letting fee", "room rent",
         "flatshare rent",
     ],
     "logement.charges": [
@@ -140,31 +136,66 @@ LEXICON: dict[str, list[str]] = {
         "eau", "facture d'eau", "consommation d'eau", "assainissement", "abonnement eau",
         "water", "water bill", "water rates", "sewerage",
     ],
-    "logement.travaux": [
+    "logement.bricolage_jardin": [
         "travaux", "bricolage", "peinture", "plomberie", "électricité travaux", "carrelage",
         "parquet", "isolation", "rénovation", "outillage", "quincaillerie", "visserie",
-        "perceuse", "ciment", "placo", "menuiserie", "serrurier", "dépannage plombier",
+        "perceuse", "ciment", "placo", "menuiserie", "dépannage plombier",
         "artisan", "devis travaux", "jardinage", "terreau", "plantes", "tondeuse",
-        "DIY", "home improvement", "renovation", "paint", "plumbing", "plumber",
-        "electrician", "handyman", "hardware", "tools", "drill", "tiling", "flooring",
-        "gardening", "garden centre",
+        "jardinerie", "pépinière", "plantes vertes", "graines", "engrais", "arrosage",
+        "pot de fleurs", "fleurs pour le jardin", "sapin de Noël", "barbecue", "abri de jardin",
+        "salon de jardin", "taille-haie", "DIY", "home improvement", "renovation", "paint",
+        "plumbing", "plumber", "electrician", "handyman", "hardware", "tools", "drill",
+        "tiling", "flooring", "gardening", "garden centre", "plants", "seeds", "compost",
     ],
-    "sante_beaute.medecin": [
-        "médecin", "docteur", "consultation", "généraliste", "spécialiste", "dentiste",
+    "logement.services": [
+        "femme de ménage", "ménage", "aide ménagère", "heures de ménage", "repassage",
+        "jardinier", "entretien de la chaudière", "contrat chaudière", "ramonage", "serrurier",
+        "ouverture de porte", "alarme", "télésurveillance", "dératisation", "désinsectisation",
+        "nettoyage des vitres", "homme à tout faire", "conciergerie", "tonte de pelouse",
+        "taille de haie", "aide à domicile", "auxiliaire de vie", "cleaner", "cleaning lady",
+        "housekeeper", "gardener", "boiler service", "chimney sweep", "locksmith",
+        "home alarm", "pest control", "window cleaner", "handyman visit",
+    ],
+    "logement.demenagement": [
+        "déménagement", "déménageurs", "camion de déménagement", "cartons", "garde-meuble",
+        "box de stockage", "self-stockage", "frais d'agence", "honoraires d'agence",
+        "frais de notaire", "dépôt de garantie", "caution du logement", "état des lieux",
+        "frais de dossier", "emménagement", "monte-meuble", "moving", "removals", "movers",
+        "moving van", "storage unit", "self storage", "agency fees", "deposit on the flat",
+        "notary fees", "conveyancing",
+    ],
+    "sante_beaute.soins_medicaux": [
+        "médecin", "docteur", "consultation", "généraliste", "spécialiste",
         "ophtalmo", "dermato", "gynéco", "cardiologue", "kiné", "kinésithérapeute",
         "ostéopathe", "psychologue", "psychiatre", "analyses", "laboratoire", "radio",
-        "IRM", "scanner", "vaccin", "urgences", "infirmier", "prise de sang", "orthodontiste",
-        "doctor", "GP", "appointment", "dentist", "optician appointment", "physio",
+        "IRM", "scanner", "vaccin", "urgences", "infirmier", "prise de sang", "sage-femme",
+        "podologue", "orthophoniste", "clinique", "hospitalisation", "téléconsultation",
+        "audioprothèse", "doctor", "GP", "appointment", "physio",
         "physiotherapy", "osteopath", "therapist", "therapy session", "blood test",
-        "x-ray", "scan", "consultant", "clinic", "check-up", "vaccination",
+        "x-ray", "scan", "consultant", "clinic", "check-up", "vaccination", "hospital",
+    ],
+    "sante_beaute.dentaire": [
+        "dentiste", "chirurgien-dentiste", "orthodontiste", "orthodontie", "détartrage",
+        "carie", "plombage", "couronne", "implant dentaire", "appareil dentaire", "bagues",
+        "gouttière", "dévitalisation", "extraction", "dent de sagesse", "blanchiment",
+        "prothèse dentaire", "soins dentaires", "radio panoramique", "dentist", "dental",
+        "dental check-up", "hygienist", "filling", "crown", "braces", "root canal",
+        "tooth extraction", "teeth whitening", "orthodontist",
+    ],
+    "sante_beaute.optique": [
+        "opticien", "optique", "lunettes", "lunettes de vue", "paire de lunettes", "monture",
+        "verres", "verres progressifs", "verres correcteurs", "lentilles", "lentilles de contact",
+        "solution pour lentilles", "étui à lunettes", "examen de vue", "optician", "glasses",
+        "spectacles", "eyeglasses", "frames", "lenses", "contact lenses", "eye test",
+        "varifocals", "prescription glasses",
     ],
     "sante_beaute.pharmacie": [
         "pharmacie", "médicaments", "ordonnance", "paracétamol", "ibuprofène", "antibiotiques",
         "sirop", "pansements", "compléments alimentaires", "vitamines", "probiotiques",
-        "crème pharmacie", "test antigénique", "masques", "lentilles", "lunettes",
-        "opticien", "audioprothèse", "matériel médical", "pharmacy", "chemist",
+        "test antigénique", "masques", "matériel médical", "thermomètre", "tensiomètre",
+        "homéopathie", "collyre", "pastilles pour la gorge", "pharmacy", "chemist",
         "medicine", "meds", "prescription", "painkillers", "plasters", "supplements",
-        "vitamins", "contact lenses", "glasses", "eye test", "first aid",
+        "vitamins", "first aid", "cough syrup", "antibiotics",
     ],
     "sante_beaute.coiffeur": [
         "coiffeur", "coupe de cheveux", "coupe", "brushing", "couleur", "coloration",
@@ -173,21 +204,35 @@ LEXICON: dict[str, list[str]] = {
         "hair salon", "blow dry", "hair colour", "highlights", "beard trim",
     ],
     "sante_beaute.esthetique": [
-        "esthéticienne", "institut", "soin visage", "épilation", "cire", "manucure",
-        "pédicure", "vernis", "faux ongles", "massage", "spa", "hammam", "sauna",
-        "maquillage", "parfum", "crème visage", "soin corps", "cosmétiques", "beauté",
-        "UV", "bronzage", "microblading", "cils", "extensions de cils", "tatouage",
-        "beauty", "beautician", "facial", "waxing", "manicure", "pedicure", "nails",
-        "massage session", "spa day", "make up", "perfume", "skincare", "cosmetics",
-        "lashes", "tanning", "tattoo",
+        "esthéticienne", "institut", "institut de beauté", "soin du visage", "épilation", "cire",
+        "manucure", "pédicure", "pose de vernis", "faux ongles", "onglerie", "massage", "spa",
+        "hammam", "sauna", "UV", "bronzage", "microblading", "extensions de cils", "tatouage",
+        "gommage corps", "soin esthétique", "beautician", "facial", "waxing", "manicure",
+        "pedicure", "nail salon", "massage session", "spa day", "lashes", "tanning", "tattoo",
+        "beauty treatment",
     ],
-    "loisirs.cinema_sortie": [
+    "sante_beaute.cosmetiques": [
+        "maquillage", "parfum", "eau de toilette", "eau de parfum", "crème visage",
+        "crème hydratante", "crème de jour", "sérum", "soin du corps", "lait corps",
+        "cosmétiques", "produits de beauté", "parfumerie", "rouge à lèvres", "mascara",
+        "fond de teint", "vernis à ongles", "démaquillant", "crème solaire", "huile de beauté",
+        "coffret beauté", "palette", "anti-rides", "contour des yeux", "gommage visage",
+        "make up", "makeup", "perfume", "fragrance", "skincare", "cosmetics", "moisturiser",
+        "lipstick", "foundation", "beauty products", "sunscreen", "serum", "nail polish",
+    ],
+    "loisirs.sorties": [
         "cinéma", "ciné", "place de cinéma", "séance", "film", "théâtre", "spectacle",
         "concert", "festival", "musée", "expo", "exposition", "opéra", "comédie musicale",
         "parc d'attractions", "bowling", "escape game", "laser game", "karaoké",
         "billet spectacle", "sortie", "cinema", "movie", "movie ticket", "film night",
         "theatre", "show", "gig", "concert ticket", "festival ticket", "exhibition",
-        "bowling", "escape room", "night out", "comedy show",
+        "bowling", "escape room", "comedy show",
+        "visite", "entrée musée", "billet monument", "visite guidée", "excursion",
+        "activité vacances", "parc national", 
+        "location ski", "randonnée guidée", "attraction", "guided tour", "day trip",
+        "excursion", "museum entry", "attraction ticket", "ski pass", "lift pass",
+        "forfait remontées", "entrée musée", "entrée château", "billet musée",
+        "boat trip", "sightseeing",
     ],
     "loisirs.jeux_video": [
         "jeu vidéo", "jeux vidéo", "jeu", "console", "manette", "carte cadeau jeu",
@@ -198,10 +243,10 @@ LEXICON: dict[str, list[str]] = {
     "loisirs.sport": [
         "sport", "salle de sport", "abonnement salle", "musculation", "fitness", "yoga",
         "pilates", "natation", "piscine", "escalade", "tennis", "padel", "foot", "football",
-        "basket", "running", "course à pied", "vélo", "licence sportive", "cotisation club",
+        "basket", "running", "course à pied", "licence sportive", "cotisation club",
         "équipement sport", "chaussures de running", "raquette", "cours collectif",
         "coach sportif", "gym", "gym membership", "workout", "swimming", "swim session",
-        "climbing", "tennis court", "pitch hire", "sports gear", "trainers", "running shoes",
+        "climbing", "tennis court", "pitch hire", "sports gear", "running shoes",
         "personal trainer", "club fees",
     ],
     "loisirs.livre_presse": [
@@ -235,7 +280,7 @@ LEXICON: dict[str, list[str]] = {
         "AI assistant", "AI credits", "API credits", "image generation", "LLM subscription",
     ],
     "numerique.hebergement_domaine": [
-        "hébergement", "hébergement web", "serveur", "VPS", "nom de domaine", "domaine",
+        "hébergement web", "serveur", "VPS", "nom de domaine", "domaine",
         "renouvellement domaine", "certificat SSL", "hébergeur", "cloud serveur",
         "hosting", "web hosting", "server", "domain", "domain name", "domain renewal",
         "ssl certificate", "cloud server", "dedicated server",
@@ -278,10 +323,10 @@ LEXICON: dict[str, list[str]] = {
         "meuble", "meubles", "canapé", "fauteuil", "table", "chaise", "lit", "matelas",
         "armoire", "étagère", "bureau meuble", "commode", "tapis", "rideaux", "coussin",
         "lampe", "luminaire", "miroir", "cadre photo", "déco", "décoration", "vaisselle",
-        "assiettes", "verres", "casseroles", "linge de maison", "draps", "serviettes",
+        "assiettes", "casseroles", "linge de maison", "draps", "serviettes",
         "plantes déco", "bougie", "furniture", "sofa", "armchair", "table", "chair",
         "bed", "mattress", "wardrobe", "shelf", "desk", "rug", "curtains", "cushion",
-        "lamp", "mirror", "picture frame", "home decor", "crockery", "plates", "glasses",
+        "lamp", "mirror", "picture frame", "home decor", "crockery", "plates",
         "pans", "bedding", "towels", "candle",
     ],
     "finance.retrait_dab": [
@@ -292,15 +337,15 @@ LEXICON: dict[str, list[str]] = {
     "finance.frais_bancaires": [
         "frais bancaires", "frais de tenue de compte", "cotisation carte bancaire",
         "agios", "commission d'intervention", "frais de découvert", "frais virement",
-        "frais à l'étranger", "frais de change", "commission", "bank fees", "account fee",
+        "frais à l'étranger", "frais de change", "bank fees", "account fee",
         "card fee", "overdraft fee", "transaction fee", "foreign exchange fee",
         "transfer fee", "monthly banking fee",
     ],
     "finance.impots_taxes": [
         "impôts", "impôt", "taxe", "taxes", "taxe foncière", "taxe d'habitation",
-        "impôt sur le revenu", "prélèvement à la source", "TVA", "cotisations sociales",
-        "URSSAF", "redevance", "acompte impôt", "tiers provisionnel", "tax", "taxes",
-        "income tax", "council tax", "property tax", "vat", "national insurance",
+        "impôt sur le revenu", "prélèvement à la source", "TVA",
+        "redevance", "acompte impôt", "tiers provisionnel", "tax", "taxes",
+        "income tax", "property tax", "vat",
         "self assessment", "tax payment", "tax bill",
     ],
     "finance.amende": [
@@ -308,19 +353,19 @@ LEXICON: dict[str, list[str]] = {
         "amende SNCF", "amende métro", "majoration amende", "fine", "parking fine",
         "speeding fine", "penalty", "penalty charge", "late payment fee", "ticket fine",
     ],
-    "finance.assurance_habitation": [
+    "logement.assurance_habitation": [
         "assurance habitation", "assurance logement", "assurance appartement",
         "assurance maison", "multirisque habitation", "MRH", "assurance locataire",
         "home insurance", "contents insurance", "buildings insurance", "renters insurance",
         "flat insurance",
     ],
-    "finance.assurance_auto": [
+    "transport.assurance_auto": [
         "assurance auto", "assurance voiture", "assurance véhicule", "assurance moto",
         "assurance scooter", "prime d'assurance auto", "cotisation assurance auto",
         "car insurance", "motor insurance", "van insurance", "bike insurance",
         "vehicle cover", "third party insurance",
     ],
-    "finance.assurance_sante": [
+    "sante_beaute.mutuelle": [
         "mutuelle", "complémentaire santé", "assurance santé", "cotisation mutuelle",
         "assurance dentaire", "prévoyance", "health insurance", "medical insurance",
         "dental cover", "private health cover", "health plan",
@@ -336,7 +381,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "finance.epargne_investissement": [
         "épargne", "virement épargne", "livret", "livret A", "PEL", "PEA", "assurance vie",
-        "bourse", "actions", "ETF", "obligations", "crypto", "bitcoin", "placement",
+        "actions", "ETF", "obligations", "crypto", "bitcoin", "placement",
         "investissement", "versement épargne", "savings", "saving", "investment",
         "stocks", "shares", "index fund", "crypto", "pension contribution", "isa",
         "put aside", "transfer to savings",
@@ -349,9 +394,9 @@ LEXICON: dict[str, list[str]] = {
         "instalment", "buy now pay later", "repayment",
     ],
     "famille_education.scolarite": [
-        "scolarité", "frais de scolarité", "inscription école", "rentrée scolaire",
+        "scolarité", "frais de scolarité", "inscription école", 
         "école privée", "collège", "lycée", "université", "fac", "internat",
-        "voyage scolaire", "sortie scolaire", "assurance scolaire", "school fees",
+        "voyage scolaire", "sortie scolaire", "school fees",
         "tuition", "tuition fees", "enrolment", "term fees", "school trip", "uni fees",
     ],
     "famille_education.fournitures": [
@@ -380,21 +425,21 @@ LEXICON: dict[str, list[str]] = {
     ],
     "famille_education.activites_enfants": [
         "activités enfants", "jouets", "jeux enfants", "peluche", "poupée", "lego",
-        "activité extrascolaire", "cours de danse", "cours de judo", "école de musique",
+        "activité extrascolaire", "école de musique",
         "poterie enfant", "anniversaire enfant", "parc de jeux", "trampoline park",
         "kids activities", "toys", "toy", "soft toy", "kids club", "dance class",
         "swimming lessons", "music lessons", "birthday party", "play centre",
     ],
     "famille_education.pension_alimentaire": [
-        "pension alimentaire", "contribution éducation", "versement pension",
+        "contribution éducation", "versement pension",
         "aide aux parents", "aide à mon fils", "aide à ma fille", "child support",
-        "child maintenance", "maintenance payment", "alimony", "family support payment",
+        "alimony", "family support payment",
     ],
     "famille_education.enfant": [
         "dépense enfant", "achat pour les enfants", "argent de poche",
         "couches", "lingettes bébé", "biberon", "puériculture",
         "matériel bébé", "poussette", "siège auto bébé", "lit bébé",
-        "chaise haute", "jouet", "jouets", "peluche", "doudou",
+        "chaise haute", "jouet", "doudou",
         "trousse de l'école", "affaires du petit",
     ],
     "voyage.transport_longue_distance": [
@@ -404,7 +449,7 @@ LEXICON: dict[str, list[str]] = {
         "flight", "plane ticket", "train ticket", "coach ticket", "ferry ticket",
         "return ticket", "one way", "checked bag", "seat selection", "rail fare",
     ],
-    "voyage.hebergement": [
+    "voyage.sejour": [
         "hôtel", "nuit d'hôtel", "auberge de jeunesse", "airbnb", "gîte", "chambre d'hôtes",
         "camping", "emplacement camping", "location vacances", "résidence de vacances",
         "réservation hôtel", "hotel", "hotel night", "hostel", "guest house", "bnb",
@@ -415,14 +460,6 @@ LEXICON: dict[str, list[str]] = {
         "location camion", "location scooter", "location vélo", "caution location voiture",
         "car hire", "car rental", "van hire", "rental car", "scooter hire", "bike hire",
     ],
-    "voyage.activite_visite": [
-        "visite", "entrée musée", "billet monument", "visite guidée", "excursion",
-        "activité vacances", "parc national", "croisière", "plongée", "ski", "forfait ski",
-        "location ski", "randonnée guidée", "attraction", "guided tour", "day trip",
-        "excursion", "museum entry", "attraction ticket", "ski pass", "lift pass",
-        "forfait ski", "forfait remontées", "entrée musée", "entrée château", "billet musée",
-        "boat trip", "sightseeing",
-    ],
     "divers.cadeau_offert": [
         "cadeau", "cadeaux", "cadeau anniversaire", "cadeau de Noël", "cadeau mariage",
         "cadeau naissance", "carte cadeau", "chèque cadeau", "fleurs offertes",
@@ -432,32 +469,84 @@ LEXICON: dict[str, list[str]] = {
     "divers.animaux": [
         "vétérinaire", "véto", "croquettes", "nourriture chien", "nourriture chat",
         "litière", "toilettage", "animalerie", "vaccin animal", "vermifuge", "anti-puces",
-        "laisse", "collier chien", "jouet chat", "aquarium", "cage", "foin", "pension animalière",
+        "laisse", "collier chien", "jouet chat", "cage", "foin", "pension animalière",
         "vet", "vet bill", "pet food", "dog food", "cat food", "cat litter", "grooming",
         "pet shop", "flea treatment", "pet insurance", "kennels", "cattery", "dog walker",
     ],
-    "divers.tabac_jeux": [
+    "divers.tabac_paris": [
         "tabac", "clopes", "cigarettes", "paquet de clopes", "cartouche", "briquet",
         "e-cigarette", "vapoteuse", "e-liquide", "puff", "cigare", "chicha",
         "loto", "grattage", "jeu à gratter", "pari sportif", "paris sportifs", "PMU",
-        "casino", "poker", "mise", "bureau de tabac", "buraliste", "tobacco",
+        "poker", "mise", "bureau de tabac", "buraliste", "tobacco",
         "cigarettes", "pack of cigarettes", "vape", "vape juice", "lighter",
         "lottery", "lottery ticket", "scratch card", "bet", "sports bet", "betting",
         "casino night", "poker night",
     ],
     "divers.don": [
-        "don", "dons", "donation", "don association", "don mensuel", "cotisation association",
+        "don", "dons", "donation", "don association", "don mensuel",
         "collecte", "cagnotte", "soutien", "mécénat", "offrande", "charité",
         "charity", "charity donation", "monthly donation", "fundraiser", "sponsorship",
         "giving", "tithe", "crowdfunding",
     ],
+    "divers.services": [
+        "pressing", "nettoyage à sec", "laverie", "blanchisserie", "cordonnier", "cordonnerie",
+        "ressemelage", "retouches", "retoucherie", "double de clé", "clé minute", "photocopies",
+        "impression", "photo d'identité", "timbres", "carnet de timbres", "colis", "envoi",
+        "affranchissement", "lettre recommandée", "poste", "point relais", "dry cleaning",
+        "laundrette", "launderette", "shoe repair", "alterations", "key cutting", "stamps",
+        "parcel", "postage", "passport photo", "printing",
+    ],
     "divers.autre": [
-        "divers", "autre", "dépense diverse", "imprévu", "frais divers", "pressing",
-        "laverie", "cordonnier", "photocopies", "timbres", "colis", "envoi", "poste",
-        "déménagement", "garde-meuble", "serrurier urgence", "photographe", "notaire",
-        "avocat", "clé", "miscellaneous", "other", "dry cleaning", "laundrette",
-        "shoe repair", "photocopies", "stamps", "parcel", "postage", "moving",
-        "storage unit", "locksmith", "photographer", "solicitor", "notary",
+        "divers", "autre", "dépense diverse", "imprévu", "frais divers", "photographe",
+        "avocat", "huissier", "pompes funèbres", "obsèques", "cotisation association",
+        "adhésion", "pourboire", "consigne", "miscellaneous", "other", "photographer",
+        "solicitor", "lawyer", "funeral", "membership fee", "tip",
+    ],
+    "transport.achat_vehicule": [
+        "achat voiture", "voiture neuve", "voiture d'occasion", "achat moto", "scooter",
+        "vélo", "vélo électrique", "VAE", "trottinette électrique", "concessionnaire",
+        "concession", "apport pour la voiture", "acompte véhicule", "reprise", "camping-car",
+        "utilitaire", "voiture sans permis", "car purchase", "new car", "used car", "motorbike",
+        "e-bike", "bicycle", "electric scooter", "dealership", "deposit on the car",
+    ],
+    "loisirs.loisirs_creatifs": [
+        "loisirs créatifs", "mercerie", "tissu", "tissu au mètre", "laine", "pelote", "tricot",
+        "crochet", "couture", "machine à coudre", "fil", "broderie", "peinture acrylique",
+        "toile", "pinceaux", "aquarelle", "crayons de couleur artiste", "dessin",
+        "scrapbooking", "perles", "pâte polymère", "poterie", "argile", "papier créatif",
+        "kit créatif", "beaux-arts", "arts and crafts", "craft supplies", "yarn", "knitting",
+        "sewing", "fabric", "embroidery", "watercolour", "canvas", "paintbrushes", "pottery",
+    ],
+    "finance.charges_pro": [
+        "URSSAF", "cotisations sociales", "cotisations URSSAF", "CFE", "comptable",
+        "expert-comptable", "coworking", "bureau partagé", "RC pro", "assurance pro",
+        "frais professionnels", "TVA à payer", "impôt sur les sociétés", "Kbis",
+        "création d'entreprise", "frais de greffe", "logiciel de facturation", "compte pro",
+        "matériel pro", "self-employed tax", "national insurance", "accountant", "bookkeeper",
+        "coworking desk", "business insurance", "VAT bill", "corporation tax",
+    ],
+    "aide_allocation.aide_sociale": [
+        "RSA", "prime d'activité", "AAH", "allocation adulte handicapé", "ASS", "APA", "PCH",
+        "pension d'invalidité", "aide sociale", "aide du CCAS", "secours", "minimum social",
+        "chèque énergie", "aide exceptionnelle", "aide du département", "aide alimentaire",
+        "universal credit", "disability benefit", "income support", "hardship payment",
+    ],
+    "transfert.remboursement_achat": [
+        "remboursement commande", "remboursement achat", "retour remboursé", "avoir",
+        "commande annulée", "geste commercial", "remboursement billet", "remboursement du marchand",
+        "article défectueux remboursé", "remboursement PayPal", "refund", "order refund",
+        "return refunded", "store credit", "cancelled order refund", "chargeback",
+    ],
+    "transfert.pension_alimentaire": [
+        "pension alimentaire reçue", "pension alimentaire", "pension des enfants", "pension de l'ex",
+        "contribution à l'entretien reçue", "ARIPA", "child maintenance", "child support received",
+        "alimony received", "maintenance payment",
+    ],
+    "exceptionnel.autre_revenu": [
+        "cashback", "prime de parrainage", "prime de bienvenue", "gain", "gains",
+        "gain au loto", "gain de jeu", "lot gagné", "revenu divers", "autre revenu",
+        "rentrée d'argent", "argent gagné", "bonus bancaire", "récompense", "cashback reward",
+        "referral bonus", "welcome bonus", "prize money", "lottery win", "other income",
     ],
     "salaire.salaire_net": [
         "salaire", "paye", "paie", "salaire net", "salaire du mois", "virement salaire",
@@ -468,7 +557,7 @@ LEXICON: dict[str, list[str]] = {
     "salaire.prime": [
         "prime", "bonus", "prime annuelle", "prime de fin d'année", "13ème mois",
         "intéressement", "participation", "prime exceptionnelle", "prime de vacances",
-        "commission vente", "pourboire", "pourboires", "bonus payment", "annual bonus",
+        "commission vente", "pourboires", "bonus payment", "annual bonus",
         "commission", "tips", "overtime pay", "performance bonus",
     ],
     "salaire.freelance": [
@@ -489,7 +578,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "aide_allocation.chomage": [
         "chômage", "allocation chômage", "indemnités chômage", "ARE", "France Travail",
-        "Pôle emploi", "unemployment benefit", "jobseeker's allowance", "universal credit",
+        "Pôle emploi", "unemployment benefit", "jobseeker's allowance",
         "dole",
     ],
     "aide_allocation.aide_logement": [
@@ -503,7 +592,7 @@ LEXICON: dict[str, list[str]] = {
     "transfert.virement_recu": [
         "virement reçu", "virement", "transfert reçu", "argent reçu", "versement reçu",
         "reçu de la banque", "transfert entre comptes", "transfer received",
-        "money received", "incoming transfer", "bank transfer in", "deposit",
+        "money received", "incoming transfer", "bank transfer in",
     ],
     "transfert.remboursement_sante": [
         "remboursement santé", "remboursement mutuelle", "remboursement sécu",
@@ -532,7 +621,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "exceptionnel.interets": [
         "intérêts", "intérêts livret", "intérêts épargne", "dividendes", "coupons",
-        "plus-value", "cashback", "rendement", "interest", "savings interest",
+        "plus-value", "rendement", "interest", "savings interest",
         "dividends", "capital gain", "cashback received", "yield",
     ],
     "exceptionnel.loyer_percu": [

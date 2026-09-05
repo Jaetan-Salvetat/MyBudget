@@ -68,7 +68,7 @@ void main() {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 0,
-          category: 'alimentation.supermarche',
+          category: 'alimentation.courses',
           recurrenceIndex: 0,
         ),
       );
@@ -77,14 +77,14 @@ void main() {
 
       expect(result.amount, isNull);
       expect(result.name, 'Courses carrefour');
-      expect(result.categorySlug, 'alimentation.supermarche');
+      expect(result.categorySlug, 'alimentation.courses');
     });
 
     test('sends the raw text to the model when there is no amount', () async {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 0,
-          category: 'alimentation.supermarche',
+          category: 'alimentation.courses',
           recurrenceIndex: 0,
         ),
       );
@@ -98,7 +98,7 @@ void main() {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 0,
-          category: 'alimentation.supermarche',
+          category: 'alimentation.courses',
           recurrenceIndex: 0,
         ),
       );
@@ -197,7 +197,7 @@ void main() {
       when(() => runner.run(any())).thenAnswer(
         (_) async => outputFor(
           typeIndex: 0,
-          category: 'transport.essence',
+          category: 'transport.carburant',
           recurrenceIndex: 0,
         ),
       );
@@ -214,7 +214,7 @@ void main() {
     when(() => runner.run(any())).thenAnswer(
       (_) async => outputFor(
         typeIndex: 0,
-        category: 'alimentation.supermarche',
+        category: 'alimentation.courses',
         recurrenceIndex: 0,
         classCount: QuickAddLabels.categories.length - 1,
       ),

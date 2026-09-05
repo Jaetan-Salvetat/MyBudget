@@ -65,16 +65,16 @@ def test_overrides_and_exclusions_do_not_overlap():
 
 
 def test_item_label_applies_exclusion_then_override_then_the_real_labels():
-    labels = {"carotte": "alimentation.supermarche"}
+    labels = {"carotte": "alimentation.courses"}
     assert item_label("LITIERE SILICE POUR CHAT U 5L", labels) == "divers.animaux"
-    assert item_label("CAROTTE", labels) == "alimentation.supermarche"
+    assert item_label("CAROTTE", labels) == "alimentation.courses"
     assert item_label("ADMISSION", labels) is None
 
 
 def test_item_label_never_reads_the_store():
     """Le même libellé garde sa classe quel que soit le ticket où il est lu."""
-    labels = {"pain": "alimentation.boulangerie"}
-    assert item_label("PAIN", labels) == "alimentation.boulangerie"
+    labels = {"pain": "alimentation.pain_patisserie"}
+    assert item_label("PAIN", labels) == "alimentation.pain_patisserie"
     assert item_label("PAIN", {}) is None
 
 
@@ -118,10 +118,10 @@ def test_cap_per_class_bounds_every_class():
 def test_cap_per_class_reads_the_class_where_it_is_told_to():
     from corpus.receipts.build import cap_per_class
 
-    lines = [(str(i), "x", "alimentation.supermarche") for i in range(50)]
+    lines = [(str(i), "x", "alimentation.courses") for i in range(50)]
     lines += [("k", "y", "divers.animaux")]
     capped = cap_per_class(lines, 10, random.Random(0), key=lambda line: line[2])
-    assert sum(1 for line in capped if line[2] == "alimentation.supermarche") == 10
+    assert sum(1 for line in capped if line[2] == "alimentation.courses") == 10
     assert sum(1 for line in capped if line[2] == "divers.animaux") == 1
 
 
@@ -130,17 +130,17 @@ def test_drop_contradictions_removes_a_label_two_sources_disagree_on():
 
     lines = [
         ("lexique", "shampooing", "transport.entretien_vehicule"),
-        ("3760", "shampooing", "alimentation.supermarche"),
-        ("3761", "yaourt nature", "alimentation.supermarche"),
+        ("3760", "shampooing", "alimentation.courses"),
+        ("3761", "yaourt nature", "alimentation.courses"),
     ]
-    assert drop_contradictions(lines) == [("3761", "yaourt nature", "alimentation.supermarche")]
+    assert drop_contradictions(lines) == [("3761", "yaourt nature", "alimentation.courses")]
 
 
 def test_drop_contradictions_keeps_a_label_repeated_under_one_class():
     from corpus.receipts.build import drop_contradictions
 
-    lines = [("a", "baguette", "alimentation.boulangerie"),
-             ("b", "baguette", "alimentation.boulangerie")]
+    lines = [("a", "baguette", "alimentation.pain_patisserie"),
+             ("b", "baguette", "alimentation.pain_patisserie")]
     assert drop_contradictions(lines) == lines
 
 

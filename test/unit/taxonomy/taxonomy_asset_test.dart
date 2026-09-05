@@ -148,13 +148,19 @@ void main() {
       }
     });
 
-    test('model labels match every taxonomy slug in order', () {
+    test('model labels match every live taxonomy slug in order', () {
       expect(
         QuickAddLabels.categories,
-        subcategories().map((entry) => entry.key).toList(),
-        reason:
-            'La tête ONNX est exportée sur tous les slugs, dépréciés compris',
+        orderedSlugs().toList(),
+        reason: 'La tête ONNX ne couvre que les slugs actifs',
       );
+    });
+
+    test('model labels leave every deprecated slug out', () {
+      for (final entry in subcategories()) {
+        if (entry.value['deprecated'] != true) continue;
+        expect(QuickAddLabels.categories, isNot(contains(entry.key)));
+      }
     });
 
     test('a deprecated label still lands on a live category', () async {

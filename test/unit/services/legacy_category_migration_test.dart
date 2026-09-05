@@ -74,8 +74,8 @@ void main() {
     final saved = verify(() => expenses.update(captureAny())).captured
         .cast<ExpenseModel>();
     expect(saved.map((e) => e.categorySlug), [
-      'alimentation.supermarche',
-      'transport.essence',
+      'alimentation.courses',
+      'transport.carburant',
     ]);
   });
 
