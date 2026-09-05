@@ -4,9 +4,9 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/capture/capture_provider.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
+import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
@@ -31,7 +31,6 @@ class CaptureDock extends ConsumerStatefulWidget {
 
 class _CaptureDockState extends ConsumerState<CaptureDock> {
   final QuickAddHintTyper _hint = QuickAddHintTyper();
-  bool _hintStarted = false;
   bool _focused = false;
 
   @override
@@ -41,29 +40,25 @@ class _CaptureDockState extends ConsumerState<CaptureDock> {
   }
 
   void _onFocusChanged(bool focused) {
-    if (focused) _hint.stop();
     if (focused == _focused) return;
     setState(() => _focused = focused);
   }
 
-  void _syncHint(bool dayIsEmpty) {
-    if (!dayIsEmpty) {
-      _hint.stop();
-      return;
-    }
-    if (_hintStarted) return;
-
-    _hintStarted = true;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _hint.freeze();
-    } else {
+  void _syncHint({required bool idle}) {
+    if (idle && !MediaQuery.disableAnimationsOf(context)) {
       _hint.start();
+    } else {
+      _hint.pause();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    _syncHint(ref.watch(todayJournalProvider).isEmpty);
+    final quickAddEnabled = ref.watch(quickAddEnabledProvider);
+    final fieldIsEmpty = ref.watch(
+      quickAddProvider.select((draft) => draft.isEmpty),
+    );
+    _syncHint(idle: quickAddEnabled && fieldIsEmpty && !_focused);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -75,7 +70,7 @@ class _CaptureDockState extends ConsumerState<CaptureDock> {
         elevation: CaptureDock.elevation,
         borderRadius: BorderRadius.circular(CaptureDock.radius),
         padding: const EdgeInsets.all(CaptureDock.padding),
-        child: ref.watch(quickAddEnabledProvider)
+        child: quickAddEnabled
             ? QuickAddBar(
                 focused: _focused,
                 hint: _hint,
