@@ -3,12 +3,15 @@ name: Publish to Play Store
 on:
   push:
     branches:
-      - beta
+      - main
   workflow_dispatch:
 
 concurrency:
   group: store-release
   cancel-in-progress: false
+
+env:
+  PACKAGE_NAME: fr.jaetan.mybudget
 
 jobs:
   publish_closed_testing:
@@ -62,14 +65,23 @@ jobs:
       - name: Fetch models
         run: ./tool/models/fetch.sh
 
+      - name: Compute version
+        id: version
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: dart run tool/release/next_store_version.dart >> "$GITHUB_OUTPUT"
+
       - name: Build appbundle
-        run: flutter build appbundle --flavor store --release --no-tree-shake-icons
+        run: |
+          flutter build appbundle --flavor store --release --no-tree-shake-icons \
+            --build-name=${{ steps.version.outputs.name }} \
+            --build-number=${{ steps.version.outputs.code }}
 
       - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: fr.jaetan.mybudget
+          packageName: ${{ env.PACKAGE_NAME }}
           releaseFiles: build/app/outputs/bundle/storeRelease/app-store-release.aab
           track: alpha
           status: completed

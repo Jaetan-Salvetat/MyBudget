@@ -80,6 +80,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.8
   objectbox_generator: ^5.3.2
   riverpod_lint: ^3.1.8
+  googleapis_auth: ^2.3.3
 
 flutter_launcher_icons:
   android: true
