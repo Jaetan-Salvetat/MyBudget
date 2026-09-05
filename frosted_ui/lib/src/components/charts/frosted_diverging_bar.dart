@@ -32,7 +32,9 @@ class FrostedDivergingBar extends StatelessWidget {
         height: thickness,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(radius),
+          borderRadius: trailing
+              ? BorderRadius.horizontal(right: Radius.circular(radius))
+              : BorderRadius.horizontal(left: Radius.circular(radius)),
         ),
       ),
     );

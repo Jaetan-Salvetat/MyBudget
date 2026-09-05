@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
@@ -57,12 +58,9 @@ void main() {
   testWidgets('paints both split segments', (tester) async {
     await tester.pumpWidget(section());
 
-    final segments = find.byWidgetPredicate(
-      (widget) =>
-          widget is DecoratedBox &&
-          widget.decoration is BoxDecoration &&
-          (widget.decoration as BoxDecoration).borderRadius ==
-              BorderRadius.circular(3),
+    final segments = find.descendant(
+      of: find.byType(FrostedStackedBar),
+      matching: find.byType(DecoratedBox),
     );
 
     expect(segments, findsNWidgets(2));

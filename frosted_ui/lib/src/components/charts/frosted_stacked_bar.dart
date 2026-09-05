@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_chart_tokens.dart';
@@ -50,6 +52,9 @@ class FrostedStackedBar extends StatelessWidget {
     );
   }
 
+  double _radiusFor(double width) =>
+      math.min(radius, math.min(width, thickness) / 2);
+
   Widget _bars(StackedBarFractions fractions, double maxWidth) {
     final double free = maxWidth - gap * (fractions.length - 1);
 
@@ -57,12 +62,18 @@ class FrostedStackedBar extends StatelessWidget {
       children: <Widget>[
         for (int index = 0; index < fractions.length; index++) ...<Widget>[
           if (index > 0) SizedBox(width: gap),
-          Container(
-            width: free * fractions[index].fraction,
-            decoration: BoxDecoration(
-              color: fractions[index].color,
-              borderRadius: BorderRadius.circular(radius),
-            ),
+          Builder(
+            builder: (BuildContext context) {
+              final double width = free * fractions[index].fraction;
+
+              return Container(
+                width: width,
+                decoration: BoxDecoration(
+                  color: fractions[index].color,
+                  borderRadius: BorderRadius.circular(_radiusFor(width)),
+                ),
+              );
+            },
           ),
         ],
       ],

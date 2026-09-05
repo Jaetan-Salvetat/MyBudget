@@ -46,7 +46,6 @@ class DayGauge extends StatelessWidget {
       segments: segments,
       thickness: thickness,
       gap: gap,
-      radius: thickness,
       animated: true,
     );
   }

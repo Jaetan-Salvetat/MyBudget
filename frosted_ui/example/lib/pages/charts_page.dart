@@ -160,14 +160,16 @@ class _StackedBarDemoState extends State<_StackedBarDemo> {
         const _Caption('Breakdown'),
         FrostedStackedBar(segments: _segments(cs)),
         const SizedBox(height: FrostedSpacing.sp4),
-        const _Caption('Two shares, thickness 9, radius 3'),
+        const _Caption('Breakdown · radius 2'),
+        FrostedStackedBar(segments: _segments(cs), radius: 2),
+        const SizedBox(height: FrostedSpacing.sp4),
+        const _Caption('Two shares, thickness 9'),
         FrostedStackedBar(
           segments: <FrostedBarSegment>[
             FrostedBarSegment(value: 62, color: cs.primary),
             FrostedBarSegment(value: 38, color: cs.primaryContainer),
           ],
           thickness: 9,
-          radius: 3,
         ),
         const SizedBox(height: FrostedSpacing.sp4),
         const _Caption('Animated · thickness 4, gap 3'),
@@ -175,7 +177,6 @@ class _StackedBarDemoState extends State<_StackedBarDemo> {
           segments: _segments(cs),
           thickness: 4,
           gap: 3,
-          radius: 4,
           animated: true,
         ),
         const SizedBox(height: FrostedSpacing.sp4),
@@ -203,7 +204,7 @@ class _DivergingBarDemo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const _Caption('Signed deltas around a shared axis'),
+        const _Caption('Signed deltas'),
         for (final double delta in _deltas)
           Padding(
             padding: const EdgeInsets.only(bottom: FrostedSpacing.sp1),

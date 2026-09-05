@@ -8,7 +8,6 @@ import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class FixedShareSection extends StatelessWidget {
   static const double barThickness = 9;
-  static const double barRadius = 3;
 
   final double share;
   final double shareDelta;
@@ -70,7 +69,6 @@ class FixedShareSection extends StatelessWidget {
               FrostedStackedBar(
                 segments: _segments(finance.expense, finance.expenseSoft),
                 thickness: barThickness,
-                radius: barRadius,
               ),
               const SizedBox(height: 8),
               Row(

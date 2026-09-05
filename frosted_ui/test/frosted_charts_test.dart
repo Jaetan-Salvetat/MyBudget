@@ -20,6 +20,16 @@ Finder _paintedBoxes() => find.descendant(
   matching: find.byType(ColoredBox),
 );
 
+List<BorderRadius> _radiiOf(WidgetTester tester, Finder owner) => tester
+    .widgetList<Container>(
+      find.descendant(of: owner, matching: find.byType(Container)),
+    )
+    .map((Container container) => container.decoration)
+    .whereType<BoxDecoration>()
+    .map((BoxDecoration decoration) => decoration.borderRadius)
+    .whereType<BorderRadius>()
+    .toList();
+
 List<double> _fractions(StackedBarFractions bars) => <double>[
   for (int i = 0; i < bars.length; i++) bars[i].fraction,
 ];
@@ -124,6 +134,28 @@ void main() {
         sizes.map((Size size) => size.height),
         everyElement(FrostedChartTokens.barThickness),
       );
+    });
+
+    testWidgets('rounds a segment no further than it can carry', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedStackedBar(
+            segments: <FrostedBarSegment>[
+              FrostedBarSegment(value: 1, color: _red),
+              FrostedBarSegment(value: 99, color: _blue),
+            ],
+            gap: 2,
+          ),
+          width: 100,
+        ),
+      );
+
+      expect(_radiiOf(tester, find.byType(FrostedStackedBar)), <BorderRadius>[
+        BorderRadius.circular(0.49),
+        BorderRadius.circular(FrostedChartTokens.barThickness / 2),
+      ]);
     });
 
     testWidgets('keeps its thickness when there is nothing to show', (
@@ -328,6 +360,43 @@ void main() {
       expect(
         tester.getBottomRight(find.byType(FractionallySizedBox)).dx,
         closeTo(axis, 1),
+      );
+    });
+  });
+
+  group('FrostedDivergingBar shape', () {
+    testWidgets('rounds the far end and squares the one on the axis', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const Column(
+            children: <Widget>[
+              FrostedDivergingBar(
+                factor: 0.5,
+                side: FrostedDivergingSide.trailing,
+                color: _red,
+              ),
+              FrostedDivergingBar(
+                factor: 0.5,
+                side: FrostedDivergingSide.leading,
+                color: _blue,
+              ),
+            ],
+          ),
+          width: 100,
+        ),
+      );
+
+      const Radius full = Radius.circular(FrostedRadius.full);
+
+      expect(
+        _radiiOf(tester, find.byType(FrostedDivergingBar).first),
+        <BorderRadius>[const BorderRadius.horizontal(right: full)],
+      );
+      expect(
+        _radiiOf(tester, find.byType(FrostedDivergingBar).last),
+        <BorderRadius>[const BorderRadius.horizontal(left: full)],
       );
     });
   });

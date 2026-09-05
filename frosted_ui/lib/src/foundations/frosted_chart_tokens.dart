@@ -1,9 +1,11 @@
+import 'frosted_radius.dart';
+
 class FrostedChartTokens {
   const FrostedChartTokens._();
 
   static const double barThickness = 10;
   static const double barGap = 2;
-  static const double barRadius = 2;
+  static const double barRadius = FrostedRadius.full;
 
   static const double dotSize = 7;
   static const double dotGap = 8;
