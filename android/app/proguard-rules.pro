@@ -18,3 +18,7 @@
 -keep class fr.jaetan.mybudget.nano.** { *; }
 -keep class com.google.mlkit.genai.** { *; }
 -dontwarn com.google.mlkit.genai.**
+
+-keep class * implements com.google.firebase.components.ComponentRegistrar {
+    <init>();
+}

@@ -689,6 +689,82 @@ void main() {
     });
   });
 
+  group('QuickAddNotifier.selectFrequency', () {
+    test('records the recurrence the user picked', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('netflix 15,99');
+      await pumpAnalysis();
+      expect(container.read(quickAddProvider).frequency, Frequency.oneTime);
+
+      notifier.selectFrequency(Frequency.monthly);
+
+      expect(container.read(quickAddProvider).frequency, Frequency.monthly);
+    });
+
+    test('a hand-picked recurrence survives the next reading', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('netflix 15,99');
+      await pumpAnalysis();
+
+      notifier.selectFrequency(Frequency.annual);
+      notifier.onInputChanged('netflix 15,99 famille');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).frequency, Frequency.annual);
+    });
+
+    test('a hand-picked recurrence is dropped with the draft', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('netflix 15,99');
+      await pumpAnalysis();
+      notifier.selectFrequency(Frequency.monthly);
+
+      await notifier.submit(3);
+      notifier.onInputChanged('resto 25');
+      await pumpAnalysis();
+
+      expect(container.read(quickAddProvider).isFrequencyPinned, isFalse);
+    });
+
+    test('the recurrence reaches the recorded expense', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('netflix 15,99');
+      await pumpAnalysis();
+      notifier.selectFrequency(Frequency.monthly);
+
+      await notifier.submit(3);
+
+      final expense =
+          verify(() => expenseRepository.add(captureAny())).captured.single
+              as ExpenseModel;
+      expect(expense.frequency, Frequency.monthly.label);
+    });
+
+    test('a pick is ignored while the reading is stale', () async {
+      final container = makeContainer();
+      final notifier = container.read(quickAddProvider.notifier);
+      notifier.onInputChanged('netflix 15,99');
+
+      notifier.selectFrequency(Frequency.monthly);
+
+      expect(container.read(quickAddProvider).frequency, Frequency.oneTime);
+    });
+
+    test('an empty draft has no recurrence to pick', () {
+      final container = makeContainer();
+
+      container
+          .read(quickAddProvider.notifier)
+          .selectFrequency(Frequency.monthly);
+
+      expect(container.read(quickAddProvider), QuickAddDraft.empty);
+    });
+  });
+
   group('QuickAddNotifier.undo', () {
     test('removes the expense that was just created', () async {
       final container = makeContainer();

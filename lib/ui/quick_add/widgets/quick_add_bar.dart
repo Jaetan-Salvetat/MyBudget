@@ -9,6 +9,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_focus_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
@@ -26,8 +27,6 @@ final double _kFieldOffset =
     FrostedIconButtonSize.medium.box + QuickAddBar.gutter;
 
 class QuickAddBar extends ConsumerStatefulWidget {
-  static const String staticHint = 'courses carrefour 42';
-
   static const double gutter = FrostedSpacing.sp4;
 
   final bool focused;
@@ -258,12 +257,13 @@ class QuickAddBarState extends ConsumerState<QuickAddBar>
 
   Widget _field(QuickAddDraft draft) {
     final hint = widget.hint;
-    if (hint == null) return _fieldWithHint(draft, QuickAddBar.staticHint);
+    if (hint == null) {
+      return _fieldWithHint(draft, QuickAddHintTyper.resting);
+    }
 
     return ValueListenableBuilder<String>(
       valueListenable: hint,
-      builder: (context, typed, _) =>
-          _fieldWithHint(draft, typed.isEmpty ? QuickAddBar.staticHint : typed),
+      builder: (context, typed, _) => _fieldWithHint(draft, typed),
     );
   }
 

@@ -24,6 +24,7 @@ class QuickAddDraft {
   final List<String> categorySuggestions;
   final TransactionType type;
   final Frequency frequency;
+  final bool isFrequencyPinned;
   final String? analysisError;
 
   final String memoryKey;
@@ -40,6 +41,7 @@ class QuickAddDraft {
     this.categorySuggestions = const [],
     this.type = TransactionType.expense,
     this.frequency = Frequency.oneTime,
+    this.isFrequencyPinned = false,
     this.analysisError,
     this.memoryKey = '',
   });
@@ -63,6 +65,8 @@ class QuickAddDraft {
     TransactionType? type,
     DateTime? date,
     bool? isDatePinned,
+    Frequency? frequency,
+    bool? isFrequencyPinned,
   }) {
     return QuickAddDraft(
       input: input,
@@ -75,7 +79,8 @@ class QuickAddDraft {
       categoryConfidence: categoryConfidence ?? this.categoryConfidence,
       categorySuggestions: categorySuggestions,
       type: type ?? this.type,
-      frequency: frequency,
+      frequency: frequency ?? this.frequency,
+      isFrequencyPinned: isFrequencyPinned ?? this.isFrequencyPinned,
       analysisError: analysisError,
       memoryKey: memoryKey,
     );

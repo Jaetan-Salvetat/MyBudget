@@ -36,6 +36,7 @@ class QuickAddDraftLine extends StatelessWidget {
 
   final VoidCallback onPickCategory;
   final VoidCallback onPickDate;
+  final VoidCallback onPickFrequency;
 
   const QuickAddDraftLine({
     required this.amount,
@@ -46,6 +47,7 @@ class QuickAddDraftLine extends StatelessWidget {
     required this.isStale,
     required this.onPickCategory,
     required this.onPickDate,
+    required this.onPickFrequency,
     super.key,
   });
 
@@ -84,6 +86,7 @@ class QuickAddDraftLine extends StatelessWidget {
               recurrenceLabel: recurrenceLabel,
               isStale: isStale,
               onPickDate: onPickDate,
+              onPickFrequency: onPickFrequency,
             ),
           ),
       ],
@@ -295,12 +298,14 @@ class _MetaLine extends StatelessWidget {
   final String? recurrenceLabel;
   final bool isStale;
   final VoidCallback onPickDate;
+  final VoidCallback onPickFrequency;
 
   const _MetaLine({
     required this.dateLabel,
     required this.recurrenceLabel,
     required this.isStale,
     required this.onPickDate,
+    required this.onPickFrequency,
   });
 
   @override
@@ -328,7 +333,16 @@ class _MetaLine extends StatelessWidget {
         if (recurrenceLabel != null)
           QuickAddStale(
             stale: isStale,
-            child: Text(recurrenceLabel!.toLowerCase(), style: style),
+            child: InkWell(
+              onTap: onPickFrequency,
+              borderRadius: BorderRadius.circular(FrostedRadius.sm),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: FrostedSpacing.sp1,
+                ),
+                child: Text(recurrenceLabel!.toLowerCase(), style: style),
+              ),
+            ),
           ),
       ],
     );

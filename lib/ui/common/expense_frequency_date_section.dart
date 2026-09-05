@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
@@ -94,36 +93,18 @@ class _ExpenseFrequencyDateSectionState
     );
   }
 
-  String _formatDate(DateTime date) {
-    if (widget.frequency == Frequency.monthly.label) {
-      return 'Le ${date.day} du mois';
-    } else if (widget.frequency == Frequency.oneTime.label) {
-      return DateFormat('d MMMM yyyy', 'fr_FR').format(date);
-    } else {
-      return DateFormat('d MMMM', 'fr_FR').format(date);
-    }
-  }
+  Frequency get _frequency => Frequency.fromString(widget.frequency);
+
+  String _formatDate(DateTime date) => DateSelector.labelFor(_frequency, date);
 
   Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked;
-    if (widget.frequency == Frequency.monthly.label) {
-      picked = await DateSelector.showDayPicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    } else if (widget.frequency == Frequency.oneTime.label) {
-      picked = await DateSelector.showFullDatePicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    } else {
-      picked = await DateSelector.showMonthDayPicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    }
-    if (picked != null) {
-      widget.onChanged(widget.frequency, picked);
-    }
+    final picked = await DateSelector.showFor(
+      context: context,
+      frequency: _frequency,
+      initialDate: widget.date,
+    );
+    if (picked == null) return;
+
+    widget.onChanged(widget.frequency, picked);
   }
 }

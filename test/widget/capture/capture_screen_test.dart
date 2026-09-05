@@ -22,6 +22,7 @@ import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
 import 'package:mybudget/ui/capture/widgets/capture_dock.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
@@ -253,5 +254,34 @@ void main() {
 
     expect(find.byType(SettingsScreen), findsOneWidget);
     expect(container.read(homeNavigationProvider).tab, HomeTab.capture);
+  });
+
+  Finder quickAddField() => find.descendant(
+    of: find.byType(QuickAddBar),
+    matching: find.byType(FrostedTextField),
+  );
+
+  String hintOf(WidgetTester tester) =>
+      tester.widget<FrostedTextField>(quickAddField()).hintText!;
+
+  testWidgets('le placeholder se pose sur le champ actif puis repart', (
+    tester,
+  ) async {
+    await pumpCapture(tester);
+    await tester.pump(QuickAddHintTyper.keyStroke * 4);
+    expect(hintOf(tester), isNot(QuickAddHintTyper.resting));
+
+    await tester.tap(quickAddField());
+    await tester.pump();
+    expect(hintOf(tester), QuickAddHintTyper.resting);
+
+    await tester.pump(const Duration(seconds: 2));
+    expect(hintOf(tester), QuickAddHintTyper.resting);
+
+    FocusManager.instance.primaryFocus!.unfocus();
+    await tester.pump();
+    await tester.pump(QuickAddHintTyper.keyStroke * 2);
+
+    expect(hintOf(tester), isNot(QuickAddHintTyper.resting));
   });
 }

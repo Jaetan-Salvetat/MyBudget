@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -56,6 +57,12 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   void selectDate(DateTime date) {
     if (state.isEmpty) return;
     state = state.copyWith(date: date, isDatePinned: true);
+  }
+
+  void selectFrequency(Frequency frequency) {
+    if (state.isEmpty || state.isStale) return;
+
+    state = state.copyWith(frequency: frequency, isFrequencyPinned: true);
   }
 
   void selectCategory(String slug) {
@@ -183,6 +190,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
       categorySuggestions: previous.categorySuggestions,
       type: previous.type,
       frequency: previous.frequency,
+      isFrequencyPinned: previous.isFrequencyPinned,
       memoryKey: previous.memoryKey,
     );
   }
@@ -229,7 +237,10 @@ class QuickAddNotifier extends _$QuickAddNotifier {
           : 1.0,
       categorySuggestions: classification.categorySuggestions,
       type: classification.type,
-      frequency: classification.frequency,
+      frequency: previous.isFrequencyPinned
+          ? previous.frequency
+          : classification.frequency,
+      isFrequencyPinned: previous.isFrequencyPinned,
       memoryKey: classification.cleanedText,
     );
   }

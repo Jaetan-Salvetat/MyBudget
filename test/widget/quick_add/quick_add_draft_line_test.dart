@@ -21,6 +21,7 @@ void main() {
     bool isStale = false,
     VoidCallback? onPickCategory,
     VoidCallback? onPickDate,
+    VoidCallback? onPickFrequency,
   }) {
     return tester.pumpWidget(
       MaterialApp(
@@ -35,6 +36,7 @@ void main() {
             isStale: isStale,
             onPickCategory: onPickCategory ?? () {},
             onPickDate: onPickDate ?? () {},
+            onPickFrequency: onPickFrequency ?? () {},
           ),
         ),
       ),
@@ -222,6 +224,41 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
 
     expect(picked, 1);
+  });
+
+  testWidgets('tapping the recurrence asks for another rhythm', (tester) async {
+    var picked = 0;
+    await pumpLine(
+      tester,
+      amount: 13.99,
+      category: category,
+      recurrenceLabel: 'Ponctuel',
+      onPickFrequency: () => picked++,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('ponctuel'));
+    await tester.pumpAndSettle();
+
+    expect(picked, 1);
+  });
+
+  testWidgets('a stale recurrence cannot be corrected', (tester) async {
+    var picked = 0;
+    await pumpLine(
+      tester,
+      amount: 13.99,
+      category: category,
+      recurrenceLabel: 'Ponctuel',
+      isStale: true,
+      onPickFrequency: () => picked++,
+    );
+    await tester.pump(const Duration(milliseconds: 600));
+
+    await tester.tap(find.textContaining('ponctuel'), warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(picked, 0);
   });
 
   testWidgets('shows the recurrence only when there is one', (tester) async {
