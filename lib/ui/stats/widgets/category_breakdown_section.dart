@@ -1,3 +1,4 @@
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -51,7 +52,15 @@ class CategoryBreakdownSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _StackedBar(categories: categories),
+              FrostedStackedBar(
+                segments: [
+                  for (final category in categories)
+                    FrostedBarSegment(
+                      value: category.share,
+                      color: category.color,
+                    ),
+                ],
+              ),
               const SizedBox(height: 14),
               for (final category in visible)
                 _CategoryRow(
@@ -64,41 +73,6 @@ class CategoryBreakdownSection extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _StackedBar extends StatelessWidget {
-  static const double barHeight = 10;
-  static const double segmentGap = 2;
-
-  final List<CategoryTrend> categories;
-
-  const _StackedBar({required this.categories});
-
-  @override
-  Widget build(BuildContext context) {
-    final segments = categories.where((c) => c.share > 0).toList();
-
-    return SizedBox(
-      height: barHeight,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var index = 0; index < segments.length; index++) ...[
-            if (index > 0) const SizedBox(width: segmentGap),
-            Expanded(
-              flex: (segments[index].share * 10000).round().clamp(1, 1000000),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: segments[index].color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -121,14 +95,7 @@ class _CategoryRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 2),
         child: Row(
           children: [
-            Container(
-              width: 7,
-              height: 7,
-              decoration: BoxDecoration(
-                color: category.color,
-                shape: BoxShape.circle,
-              ),
-            ),
+            FrostedChartDot(color: category.color),
             const SizedBox(width: 8),
             Expanded(
               child: Text(

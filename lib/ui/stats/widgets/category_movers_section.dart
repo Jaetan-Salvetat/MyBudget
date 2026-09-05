@@ -1,3 +1,4 @@
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -97,14 +98,7 @@ class _MoverRow extends StatelessWidget {
               width: nameWidth,
               child: Row(
                 children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: trend.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+                  FrostedChartDot(color: trend.color),
                   const SizedBox(width: 7),
                   Expanded(
                     child: Text(
@@ -123,9 +117,11 @@ class _MoverRow extends StatelessWidget {
             ),
             const SizedBox(width: 9),
             Expanded(
-              child: _DivergingBar(
+              child: FrostedDivergingBar(
                 factor: widest <= 0 ? 0 : trend.delta.abs() / widest,
-                rising: rising,
+                side: rising
+                    ? FrostedDivergingSide.trailing
+                    : FrostedDivergingSide.leading,
                 color: color,
                 axisColor: scheme.outlineVariant,
               ),
@@ -154,54 +150,5 @@ class _MoverRow extends StatelessWidget {
     final formatter = NumberFormat.decimalPattern('fr_FR')
       ..maximumFractionDigits = 0;
     return '${delta >= 0 ? '+' : '−'}${formatter.format(delta.abs())} €';
-  }
-}
-
-class _DivergingBar extends StatelessWidget {
-  static const double barHeight = 10;
-
-  final double factor;
-  final bool rising;
-  final Color color;
-  final Color axisColor;
-
-  const _DivergingBar({
-    required this.factor,
-    required this.rising,
-    required this.color,
-    required this.axisColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bar = FractionallySizedBox(
-      widthFactor: factor.clamp(0.0, 1.0),
-      child: Container(
-        height: barHeight,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-
-    return SizedBox(
-      height: barHeight + 6,
-      child: Row(
-        children: [
-          Expanded(
-            child: rising
-                ? const SizedBox.shrink()
-                : Align(alignment: Alignment.centerRight, child: bar),
-          ),
-          Container(width: 1, color: axisColor),
-          Expanded(
-            child: rising
-                ? Align(alignment: Alignment.centerLeft, child: bar)
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
   }
 }

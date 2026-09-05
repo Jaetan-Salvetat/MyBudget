@@ -1,3 +1,4 @@
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/monthly_flow.dart';
@@ -8,9 +9,6 @@ import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class MonthlyFlowSection extends StatelessWidget {
-  static const double chartHeight = 128;
-  static const double minimumColumnFactor = 0.02;
-
   final List<MonthlyFlow> flows;
   final double averageNet;
   final double netDelta;
@@ -171,127 +169,33 @@ class _Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scale = _scale();
-
-    return Column(
-      children: [
-        SizedBox(
-          height: MonthlyFlowSection.chartHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final flow in flows)
-                Expanded(
-                  child: _Column(
-                    flow: flow,
-                    scale: scale,
-                    onTap: () => onMonthTap(flow.month),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 7),
-        Row(
-          children: [
-            for (var index = 0; index < flows.length; index++)
-              Expanded(
-                child: Text(
-                  _tick(index),
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.mono(
-                    fontSize: 8.5,
-                    lineHeight: 12,
-                    letterSpacingEm: 0.04,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  double _scale() {
-    double scale = 0;
-    for (final flow in flows) {
-      scale = [
-        scale,
-        flow.incomes,
-        flow.expenses,
-      ].reduce((a, b) => a > b ? a : b);
-    }
-    return scale;
-  }
-
-  String _tick(int index) {
-    final everyOther = (flows.length - 1 - index).isEven;
-    if (flows.length > 6 && !everyOther) return '';
-    final label = DateFormat('MMM', 'fr_FR').format(flows[index].month);
-    return label.replaceAll('.', '').toUpperCase();
-  }
-}
-
-class _Column extends StatelessWidget {
-  final MonthlyFlow flow;
-  final double scale;
-  final VoidCallback onTap;
-
-  const _Column({required this.flow, required this.scale, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
     final finance = context.financeColors;
-    final peak = flow.incomes > flow.expenses ? flow.incomes : flow.expenses;
-    final factor = scale <= 0 ? 0.0 : peak / scale;
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: FractionallySizedBox(
-            heightFactor: factor.clamp(
-              MonthlyFlowSection.minimumColumnFactor,
-              1.0,
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(4),
-                bottom: Radius.circular(2),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ColoredBox(color: finance.incomeSoft),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: FractionallySizedBox(
-                      widthFactor: 1,
-                      heightFactor: peak <= 0 ? 0.0 : flow.expenses / peak,
-                      child: ColoredBox(color: finance.expense),
-                    ),
-                  ),
-                  if (peak > 0)
-                    Align(
-                      alignment: Alignment(0, 1 - 2 * (flow.incomes / peak)),
-                      child: SizedBox(
-                        height: 2,
-                        width: double.infinity,
-                        child: ColoredBox(color: finance.income),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+    return FrostedColumnChart(
+      columns: [
+        for (final flow in flows)
+          FrostedColumnData(
+            value: flow.incomes > flow.expenses ? flow.incomes : flow.expenses,
+            fill: flow.expenses,
+            label: _label(flow.month),
           ),
-        ),
+      ],
+      trackColor: finance.incomeSoft,
+      fillColor: finance.expense,
+      labelStyle: AppTextStyles.mono(
+        fontSize: 8.5,
+        lineHeight: 12,
+        letterSpacingEm: 0.04,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
+      onColumnTap: (index) => onMonthTap(flows[index].month),
     );
   }
+
+  String _label(DateTime month) => DateFormat(
+    'MMM',
+    'fr_FR',
+  ).format(month).replaceAll('.', '').toUpperCase();
 }
 
 class _Legend extends StatelessWidget {
@@ -302,63 +206,25 @@ class _Legend extends StatelessWidget {
     final finance = context.financeColors;
     final scheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.only(top: 11),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: scheme.outlineVariant, width: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          _LegendKey(color: finance.income, label: 'entré'),
-          const SizedBox(width: 14),
-          _LegendKey(color: finance.expense, label: 'sorti'),
-          const Spacer(),
-          Text(
-            'tap → le mois',
-            style: AppTextStyles.mono(
-              fontSize: 9.5,
-              lineHeight: 12,
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LegendKey extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _LegendKey({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-        const SizedBox(width: 5),
-        Text(
-          label,
-          style: AppTextStyles.mono(
-            fontSize: 9.5,
-            lineHeight: 12,
-            letterSpacingEm: 0.04,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
+    return FrostedChartLegend(
+      entries: [
+        FrostedLegendEntry(color: finance.income, label: 'entré'),
+        FrostedLegendEntry(color: finance.expense, label: 'sorti'),
       ],
+      labelStyle: AppTextStyles.mono(
+        fontSize: 9.5,
+        lineHeight: 12,
+        letterSpacingEm: 0.04,
+        color: scheme.onSurfaceVariant,
+      ),
+      trailing: Text(
+        'tap → le mois',
+        style: AppTextStyles.mono(
+          fontSize: 9.5,
+          lineHeight: 12,
+          color: scheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 }

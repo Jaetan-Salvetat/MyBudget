@@ -23,8 +23,6 @@ class OverlaysPage extends StatelessWidget {
         Section(title: 'Snackbar', child: _SnackbarDemo()),
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Tooltip', child: _TooltipDemo()),
-        SizedBox(height: FrostedSpacing.sp6),
-        Section(title: 'Progress', child: _ProgressDemo()),
       ],
     );
   }
@@ -147,30 +145,6 @@ class _TooltipDemo extends StatelessWidget {
             icon: Icons.add,
             onPressed: () {},
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ProgressDemo extends StatelessWidget {
-  const _ProgressDemo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const FrostedLinearProgress(value: 0.6),
-        const SizedBox(height: FrostedSpacing.sp3),
-        const FrostedLinearProgress(),
-        const SizedBox(height: FrostedSpacing.sp4),
-        Row(
-          children: const <Widget>[
-            FrostedCircularProgress(value: 0.7),
-            SizedBox(width: FrostedSpacing.sp4),
-            FrostedCircularProgress(),
-          ],
         ),
       ],
     );

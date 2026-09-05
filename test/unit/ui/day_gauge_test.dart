@@ -45,11 +45,15 @@ void main() {
 
   const double gaugeWidth = 400;
 
-  List<GaugeSegment> segmentsOf(List<double> weights) => [
-    for (final weight in weights) GaugeSegment(color: fallback, weight: weight),
+  List<FrostedBarSegment> segmentsOf(List<double> weights) => [
+    for (final weight in weights)
+      FrostedBarSegment(color: fallback, value: weight),
   ];
 
-  Future<void> pumpGauge(WidgetTester tester, List<GaugeSegment> segments) {
+  Future<void> pumpGauge(
+    WidgetTester tester,
+    List<FrostedBarSegment> segments,
+  ) {
     return tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.light(seedColor: fallback),
@@ -66,11 +70,11 @@ void main() {
   double drawnWidth(WidgetTester tester) {
     final bars = find.descendant(
       of: find.byType(DayGauge),
-      matching: find.byType(DecoratedBox),
+      matching: find.byType(Container),
     );
 
     return tester
-        .widgetList<DecoratedBox>(bars)
+        .widgetList<Container>(bars)
         .indexed
         .fold(0.0, (sum, bar) => sum + tester.getSize(bars.at(bar.$1)).width);
   }
@@ -107,7 +111,7 @@ void main() {
   });
 
   test('one segment per category, heaviest first', () {
-    final segments = GaugeSegment.forDay(
+    final segments = DayGauge.segmentsForDay(
       [
         entryOf(id: 1, amount: 4, categorySlug: 'alimentation.supermarche'),
         entryOf(id: 2, amount: 68, categorySlug: 'transport.essence'),
@@ -118,12 +122,12 @@ void main() {
     );
 
     expect(segments.length, 2);
-    expect(segments.first.weight, 68);
-    expect(segments.last.weight, 46);
+    expect(segments.first.value, 68);
+    expect(segments.last.value, 46);
   });
 
   test('leaves revenues out : the gauge reads what the day cost', () {
-    final segments = GaugeSegment.forDay(
+    final segments = DayGauge.segmentsForDay(
       [
         entryOf(id: 1, amount: 42, categorySlug: 'alimentation.supermarche'),
         entryOf(
@@ -137,11 +141,11 @@ void main() {
       fallback,
     );
 
-    expect(segments.single.weight, 42);
+    expect(segments.single.value, 42);
   });
 
   test('an uncategorised line still weighs on the day', () {
-    final segments = GaugeSegment.forDay(
+    final segments = DayGauge.segmentsForDay(
       [entryOf(id: 1, amount: 12)],
       resolver,
       fallback,
@@ -151,7 +155,7 @@ void main() {
   });
 
   test('never draws more segments than it can show', () {
-    final segments = GaugeSegment.forDay(
+    final segments = DayGauge.segmentsForDay(
       [
         entryOf(id: 1, amount: 10, categorySlug: 'alimentation.supermarche'),
         entryOf(id: 2, amount: 20, categorySlug: 'transport.essence'),

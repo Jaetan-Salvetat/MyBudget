@@ -1,3 +1,4 @@
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -6,6 +7,9 @@ import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class FixedShareSection extends StatelessWidget {
+  static const double barThickness = 9;
+  static const double barRadius = 3;
+
   final double share;
   final double shareDelta;
   final double recurringExpenses;
@@ -63,11 +67,10 @@ class FixedShareSection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 15),
-              _SplitBar(
-                recurring: recurringExpenses,
-                variable: variableExpenses,
-                recurringColor: finance.expense,
-                variableColor: finance.expenseSoft,
+              FrostedStackedBar(
+                segments: _segments(finance.expense, finance.expenseSoft),
+                thickness: barThickness,
+                radius: barRadius,
               ),
               const SizedBox(height: 8),
               Row(
@@ -100,6 +103,17 @@ class FixedShareSection extends StatelessWidget {
     );
   }
 
+  List<FrostedBarSegment> _segments(Color recurring, Color variable) {
+    if (recurringExpenses + variableExpenses <= 0) {
+      return [FrostedBarSegment(value: 1, color: variable)];
+    }
+
+    return [
+      FrostedBarSegment(value: recurringExpenses, color: recurring),
+      FrostedBarSegment(value: variableExpenses, color: variable),
+    ];
+  }
+
   String _deltaLabel() {
     final points = (shareDelta * 100).round();
     if (points == 0) return 'stable';
@@ -111,62 +125,4 @@ class FixedShareSection extends StatelessWidget {
     symbol: '€',
     decimalDigits: 0,
   ).format(amount);
-}
-
-class _SplitBar extends StatelessWidget {
-  static const double barHeight = 9;
-
-  final double recurring;
-  final double variable;
-  final Color recurringColor;
-  final Color variableColor;
-
-  const _SplitBar({
-    required this.recurring,
-    required this.variable,
-    required this.recurringColor,
-    required this.variableColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final total = recurring + variable;
-    if (total <= 0) {
-      return Container(
-        height: barHeight,
-        decoration: BoxDecoration(
-          color: variableColor,
-          borderRadius: BorderRadius.circular(3),
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: barHeight,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: (recurring * 1000).round().clamp(0, 1000000),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: recurringColor,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-          const SizedBox(width: 2),
-          Expanded(
-            flex: (variable * 1000).round().clamp(0, 1000000),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: variableColor,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -1,6 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../foundations/frosted_type_scale.dart';
+import '../../foundations/frosted_slider_tokens.dart';
+import '_slider_theme.dart';
+import 'frosted_centered_slider_track_shape.dart';
+
+enum FrostedSliderTrack { standard, centered }
 
 class FrostedSlider extends StatelessWidget {
   const FrostedSlider({
@@ -10,6 +14,7 @@ class FrostedSlider extends StatelessWidget {
     this.max = 1,
     this.divisions,
     this.label,
+    this.track = FrostedSliderTrack.standard,
     super.key,
   });
 
@@ -19,31 +24,24 @@ class FrostedSlider extends StatelessWidget {
   final double max;
   final int? divisions;
   final String? label;
-
-  static const double _trackHeight = 4;
-  static const double _knobRadius = 6;
+  final FrostedSliderTrack track;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
 
     return SliderTheme(
-      data: SliderThemeData(
-        trackHeight: _trackHeight,
-        activeTrackColor: cs.primary,
-        inactiveTrackColor: cs.surfaceContainerHighest,
-        thumbColor: cs.primary,
-        overlayColor: cs.primary.withValues(alpha: 0.12),
-        valueIndicatorColor: cs.inverseSurface,
-        valueIndicatorTextStyle: FrostedTypeScale.labelMedium.copyWith(
-          color: cs.onInverseSurface,
+      data: frostedSliderTheme(cs).copyWith(
+        thumbShape: const HandleThumbShape(),
+        trackShape: switch (track) {
+          FrostedSliderTrack.standard => const GappedSliderTrackShape(),
+          FrostedSliderTrack.centered =>
+            const FrostedCenteredSliderTrackShape(),
+        },
+        tickMarkShape: const RoundSliderTickMarkShape(
+          tickMarkRadius: FrostedSliderTokens.tickSize / 2,
         ),
-        trackShape: const RoundedRectSliderTrackShape(),
-        thumbShape: const RoundSliderThumbShape(
-          enabledThumbRadius: _knobRadius,
-        ),
-        overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-        showValueIndicator: ShowValueIndicator.onlyForDiscrete,
+        valueIndicatorShape: const RoundedRectSliderValueIndicatorShape(),
       ),
       child: Slider(
         value: value.clamp(min, max),
