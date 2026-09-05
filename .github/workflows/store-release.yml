@@ -1,0 +1,75 @@
+name: Publish to Play Store
+
+on:
+  push:
+    branches:
+      - beta
+  workflow_dispatch:
+
+concurrency:
+  group: store-release
+  cancel-in-progress: false
+
+jobs:
+  publish_closed_testing:
+    name: Publish to closed testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.1'
+          cache: true
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Setup key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
+      - name: Decode Keystore
+        run: |
+          mkdir -p android/app/keystore
+          echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > android/app/keystore/mybudget_key.jks
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Cache models
+        uses: actions/cache@v4
+        with:
+          path: assets/models
+          key: models-${{ hashFiles('tool/models/lock.env') }}
+
+      - name: Fetch models
+        run: ./tool/models/fetch.sh
+
+      - name: Build appbundle
+        run: flutter build appbundle --flavor store --release --no-tree-shake-icons
+
+      - name: Upload to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: fr.jaetan.mybudget
+          releaseFiles: build/app/outputs/bundle/storeRelease/app-store-release.aab
+          track: alpha
+          status: completed
