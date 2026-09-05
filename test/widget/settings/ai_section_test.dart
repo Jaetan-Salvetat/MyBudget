@@ -199,9 +199,8 @@ void main() {
       expect(find.text('Moteur d\'analyse'), findsNothing);
     });
 
-    testWidgets('hides Gemini from the store build even when installed', (
-      tester,
-    ) async {
+    testWidgets('keeps Gemini Nano in the store build on a device that '
+        'offers it', (tester) async {
       await PreferencesService.setGeminiNanoScanEnabled(true);
 
       await pumpSection(
@@ -210,8 +209,16 @@ void main() {
         flavor: BuildFlavor.store,
       );
 
-      expect(find.text('Gemini Nano'), findsNothing);
+      expect(find.text('Gemini Nano'), findsOneWidget);
+      expect(find.text('Moteur d\'analyse'), findsNothing);
       expect(find.text('Gemini cloud'), findsNothing);
+    });
+
+    testWidgets('hides Gemini Nano from the store build on a device that '
+        'does not offer it', (tester) async {
+      await pumpSection(tester, flavor: BuildFlavor.store);
+
+      expect(find.text('Gemini Nano'), findsNothing);
     });
 
     testWidgets('keeps the natural input switch in the store build', (

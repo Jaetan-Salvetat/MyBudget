@@ -63,7 +63,7 @@ class AiSection extends ConsumerWidget {
             trailing: const Icon(Symbols.chevron_right_rounded),
             onTap: () => _open(context, const GeminiCloudScreen()),
           ),
-        if (exposesEngine && !usesCloud && nano != null && nano.isSelectable)
+        if (!usesCloud && nano != null && nano.isSelectable)
           FrostedListTile(
             title: 'Gemini Nano',
             subtitle: _nanoSubtitle(ref, nano),
