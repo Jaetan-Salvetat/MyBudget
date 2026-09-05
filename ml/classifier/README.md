@@ -1218,14 +1218,25 @@ dans une classe de plus.
 | **82 classes, corpus d'intention élargi (2026-09-03, `output/run_v5`, 3 epochs, livré dans `output/best`)** | formulations portées à ~300 par classe (24 984, dont 8 105 écrites à la main) et lignes de ticket à 10 137 sur 39 classes, toutes générées puis vérifiées à l'aveugle ; 242 552 + 79 779 exemples | **96 %** — ECE 3,0 %, entités jamais vues **77,1 %**, formulations tenues à part 94,3 % | cas durs **95,4 %** (famille-préfixe 96,9 %), lot neuf à l'aveugle **99,0 %** (famille 99,6 %), une faute 88,9 %, scan dur **81,8 %**, **55 classes sur 81 au-dessus de 95 %**, `app` 100 % |
 | **82 classes, 5 epochs (2026-09-04, `output/run_v6`, livré dans `output/best`)** | même corpus que `run_v5`, 5 epochs au lieu de 3 ; meilleur checkpoint au dernier pas | **98 %** — ECE **1,4 %**, entités jamais vues **77,8 %**, 90 % les plus confiants à 91,5 % | cas durs **95,9 %** (famille-préfixe 97,1 %), lot neuf 97,5 % (famille 98,6 %), une faute **90,0 %**, scan dur **86,2 %** (abrégé 80 %), 53 classes sur 81 au-dessus de 95 % |
 | **91 classes, taxonomie v2 (2026-09-04, `output/run_v7`, 5 epochs, non livré)** | taxonomie refaite en natures de dépense : 9 classes nettes de plus, quatre fusions ; connaissance, formulations et lignes régénérées puis **toutes** relues à l'aveugle contre le nouveau guide ; 257 400 + 75 011 exemples | **94 %** — ECE 3,7 %, entités jamais vues **79,0 %**, généralisation stricte 85,9 % | cas durs **94,9 %** sur 1 018 cas (corpus élargi de 23 %), scan dur **87,0 %**, **59 classes sur 91 au-dessus de 95 %**, ONNX `world` 96 % / `app` 98 %, accord int8 98,9 % |
+| **91 classes, sources désambiguïsées (2026-09-05, `output/run_v8`, 5 epochs, non livré)** | corpus de `run_v7` moins les 99 textes qu'une deuxième classe revendiquait, dans les quatre sources écrites à la main et **entre** elles (§6) : 41 textes contradictoires contre 172, 84 lignes perdues contre 364 | **98 %** — ECE **1,4 %**, entités jamais vues **80,9 %**, généralisation stricte **87,0 %** | cas durs **95,5 %**, lot neuf 96,9 %, une faute 89,7 %, scan dur 85,9 %, **62 classes sur 91 au-dessus de 95 %**, ONNX `world` 98 % / `app` 99 %, accord int8 **99,2 %** |
 
 Export int8 vérifié : mêmes scores que les poids PyTorch, 447 décisions
 identiques sur 451.
 
-`run_v7` n'est pas livrable en l'état : les trois classes les plus basses du
-rapport par classe tiennent au vocabulaire resté dans l'ancienne classe après le
-découpage (§6), corrigé depuis mais après l'entraînement. Ses chiffres sont donc
-un plancher, pas un plafond.
+`run_v7` n'était pas livrable : les trois classes les plus basses du rapport par
+classe tenaient au vocabulaire resté dans l'ancienne classe après le découpage
+(§6). `run_v8` mesure ce que corriger cela rend — `aide_allocation.aide_sociale`
+et `finance.charges_pro` quittent la liste des classes sous la cible, la
+calibration revient à 1,4 % et les entités jamais vues gagnent 1,9 point.
+
+Ce qui reste sous la cible ne vient plus de contradictions mais de **frontières
+de direction** : `famille_education.pension_alimentaire` contre
+`transfert.pension_alimentaire` (« pension alimentaire » sans direction tombe
+toujours du côté entrée), `divers.don` contre `exceptionnel.don_recu`,
+`transfert.remboursement_ami` contre `virement_recu`. Et de l'axe de la
+personne : `loisirs.sport` à 60 % parce que « licence de foot du petit » et
+« club de judo » partaient encore en activités enfants — neuf entrées de
+vocabulaire d'enfant-sportif retirées depuis, non mesurées.
 
 Ce que l'itération 1 a montré :
 

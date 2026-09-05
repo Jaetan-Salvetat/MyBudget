@@ -425,7 +425,7 @@ LEXICON: dict[str, list[str]] = {
     ],
     "famille_education.activites_enfants": [
         "activités enfants", "jouets", "jeux enfants", "peluche", "poupée", "lego",
-        "activité extrascolaire", "cours de danse", "cours de judo", "école de musique",
+        "activité extrascolaire", "école de musique",
         "poterie enfant", "anniversaire enfant", "parc de jeux", "trampoline park",
         "kids activities", "toys", "toy", "soft toy", "kids club", "dance class",
         "swimming lessons", "music lessons", "birthday party", "play centre",
