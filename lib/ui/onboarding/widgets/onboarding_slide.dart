@@ -1,18 +1,17 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class OnboardingSlide extends StatelessWidget {
-  final String title;
-  final String body;
-  final Widget scene;
-
   const OnboardingSlide({
     required this.title,
     required this.body,
     required this.scene,
     super.key,
   });
+  final String title;
+  final String body;
+  final Widget scene;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +51,9 @@ class OnboardingSlide extends StatelessWidget {
               const SizedBox(height: FrostedSpacing.sp3),
               Text(
                 body,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ],
           ),

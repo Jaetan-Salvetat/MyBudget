@@ -1,16 +1,26 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/provider/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
-import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
 class JournalLine extends StatelessWidget {
+  const JournalLine({
+    required this.entry,
+    required this.category,
+    required this.keepsTheHour,
+    required this.isFresh,
+    this.onUndo,
+    this.onTap,
+    super.key,
+  });
   static const double radius = 18;
 
   static const double _railInset = 6;
@@ -24,16 +34,6 @@ class JournalLine extends StatelessWidget {
 
   final VoidCallback? onUndo;
   final VoidCallback? onTap;
-
-  const JournalLine({
-    required this.entry,
-    required this.category,
-    required this.keepsTheHour,
-    required this.isFresh,
-    this.onUndo,
-    this.onTap,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,25 +138,21 @@ class JournalLine extends StatelessWidget {
   }
 
   String? _when() {
-    if (!keepsTheHour) return DateFormat('EEE d', 'fr_FR').format(entry.at);
-    return entry.hasTime ? DateFormat.Hm('fr_FR').format(entry.at) : null;
+    if (!keepsTheHour) return DateFormatter.weekdayDay.format(entry.at);
+    return entry.hasTime ? DateFormatter.time.format(entry.at) : null;
   }
 
   String _amountLabel() {
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(entry.amount);
+    final formatted = MoneyFormatter.format(entry.amount);
     return entry.isIncome ? '+ $formatted' : '− $formatted';
   }
 }
 
 class _UndoRail extends StatelessWidget {
+  const _UndoRail({required this.color});
   static const double width = 2;
 
   final Color color;
-
-  const _UndoRail({required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -179,9 +175,8 @@ class _UndoRail extends StatelessWidget {
 }
 
 class _UndoLink extends StatelessWidget {
-  final VoidCallback onTap;
-
   const _UndoLink({required this.onTap});
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

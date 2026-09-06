@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_commit_bar.dart';
 
 import '../../helpers/scan_review_factory.dart';
@@ -44,11 +44,7 @@ void main() {
     tester,
   ) async {
     var focused = 0;
-    await pumpBar(
-      tester,
-      pendingCount: 2,
-      onFocusPending: () => focused++,
-    );
+    await pumpBar(tester, pendingCount: 2, onFocusPending: () => focused++);
 
     await tester.tap(find.text(ScanCommitBar.pendingLabelOf(2)));
     await tester.pump();

@@ -42,7 +42,10 @@ void main() {
     });
 
     test('reste sous le plafond impose par Play', () {
-      expect(const StoreVersion(2100, 0, 0).code, lessThanOrEqualTo(maxVersionCode));
+      expect(
+        const StoreVersion(2100, 0, 0).code,
+        lessThanOrEqualTo(maxVersionCode),
+      );
     });
   });
 
@@ -134,11 +137,8 @@ void main() {
 
     test('refuse une majeure au dela du plafond Play', () {
       expect(
-        () => nextStoreVersion(
-          major: 2101,
-          minor: 0,
-          highestPublishedCode: null,
-        ),
+        () =>
+            nextStoreVersion(major: 2101, minor: 0, highestPublishedCode: null),
         throwsA(isA<StoreVersionException>()),
       );
     });

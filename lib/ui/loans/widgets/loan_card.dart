@@ -1,31 +1,24 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/entities/loan.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/loan.dart';
 
 class LoanCard extends StatelessWidget {
-  final Loan loan;
-  final String accountName;
-  final VoidCallback onTap;
-
   const LoanCard({
     required this.loan,
     required this.accountName,
     required this.onTap,
     super.key,
   });
+  final Loan loan;
+  final String accountName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final compactFormatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
 
     final progress = loan.progressPercentage.clamp(0.0, 1.0);
     final progressPct = (progress * 100).round();
@@ -88,7 +81,7 @@ class LoanCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      formatter.format(loan.currentMonthlyPayment),
+                      MoneyFormatter.format(loan.currentMonthlyPayment),
                       style: TextStyle(
                         fontSize: 16,
                         height: 20 / 16,
@@ -139,7 +132,7 @@ class LoanCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    '${compactFormatter.format(loan.remainingCapital)} restants',
+                    '${MoneyFormatter.formatRounded(loan.remainingCapital)} restants',
                     style: TextStyle(
                       fontSize: 12,
                       height: 16 / 12,

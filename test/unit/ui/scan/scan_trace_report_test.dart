@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/ui/scan/screens/scan_trace_report.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
@@ -46,7 +46,7 @@ void main() {
   test('une somme prouvée annonce sa référence', () async {
     final report = await reportOf('5,00');
     expect(report, contains('somme prouvée'));
-    expect(report, contains('référence 5.00'));
+    expect(report, contains('référence ${MoneyFormatter.formatPlain(5)}'));
   });
 
   test('une somme non prouvée le dit sans inventer d\'hypothèse', () async {
@@ -64,8 +64,8 @@ void main() {
 
   test('une ligne chiffrée porte ses candidats et son étiquette', () async {
     final report = await reportOf('5,00');
-    expect(report, contains('candidats 2.00'));
-    expect(report, contains('décodé article 2.00'));
+    expect(report, contains('candidats ${MoneyFormatter.formatPlain(2)}'));
+    expect(report, contains('décodé article ${MoneyFormatter.formatPlain(2)}'));
     expect(report, contains('décodé total'));
   });
 
@@ -109,18 +109,22 @@ void main() {
     });
 
     test('un mot porte sa boîte, de quoi rejouer le regroupement', () async {
-      final reads = (await wordsOf('5,00'))['reads'] as List;
-      final words = ((reads.first as Map)['words'] as List).cast<Map>();
+      final reads = (await wordsOf('5,00'))['reads'] as List<Object?>;
+      final words =
+          ((reads.first as Map<String, Object?>)['words'] as List<Object?>)
+              .cast<Map<String, Object?>>();
       expect(words.first['text'], 'PAIN');
-      expect((words.first['box'] as List), hasLength(4));
+      expect(words.first['box'] as List<Object?>, hasLength(4));
       expect(words.first['confidence'], isNotNull);
     });
 
     test(
       'tous les mots du ticket sont là, pas seulement les chiffrés',
       () async {
-        final reads = (await wordsOf('5,00'))['reads'] as List;
-        final words = ((reads.first as Map)['words'] as List).cast<Map>();
+        final reads = (await wordsOf('5,00'))['reads'] as List<Object?>;
+        final words =
+            ((reads.first as Map<String, Object?>)['words'] as List<Object?>)
+                .cast<Map<String, Object?>>();
         expect(
           [for (final word in words) word['text']],
           ['PAIN', '2,00', 'LAIT', '3,00', 'TOTAL', '5,00'],

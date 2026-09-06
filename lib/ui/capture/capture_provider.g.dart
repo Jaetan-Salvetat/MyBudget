@@ -96,7 +96,7 @@ final class JournalBucketsProvider
   }
 }
 
-String _$journalBucketsHash() => r'e3bb61e56ee7a848a5db48c98e07557a1c50d0b5';
+String _$journalBucketsHash() => r'6e0508f30bb03b672aee7f19e7ccfd56fb006c77';
 
 @ProviderFor(todayJournal)
 final todayJournalProvider = TodayJournalProvider._();

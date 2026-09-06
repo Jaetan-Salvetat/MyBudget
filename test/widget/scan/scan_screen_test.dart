@@ -7,13 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:mybudget/ui/scan/widgets/scan_commit_bar.dart';
@@ -41,7 +41,7 @@ class _StubAccounts extends AccountNotifier {
   final List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 }
 
 late CategoryTaxonomyService taxonomy;
@@ -85,7 +85,10 @@ void main() {
     await pumpScreen(tester, const AsyncLoading());
 
     expect(find.byType(ScanReadingThread), findsOneWidget);
-    expect(find.text(ScanReceiptHeader.readingLabel.toUpperCase()), findsOneWidget);
+    expect(
+      find.text(ScanReceiptHeader.readingLabel.toUpperCase()),
+      findsOneWidget,
+    );
     expect(find.byType(ScanItemList), findsNothing);
     expect(find.byType(ScanCommitBar), findsNothing);
 
@@ -105,7 +108,9 @@ void main() {
           ],
         ),
       ),
-      accounts: [AccountModel.create(name: 'Compte courant', bank: 'B')..id = 1],
+      accounts: [
+        AccountModel.create(name: 'Compte courant', bank: 'B')..id = 1,
+      ],
     );
     await tester.pump(const Duration(seconds: 2));
 

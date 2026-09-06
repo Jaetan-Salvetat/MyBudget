@@ -1,12 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SearchInput extends StatelessWidget {
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-  final String hintText;
-  final bool autofocus;
-
   const SearchInput({
     required this.controller,
     required this.onChanged,
@@ -14,6 +9,10 @@ class SearchInput extends StatelessWidget {
     this.autofocus = false,
     super.key,
   });
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final String hintText;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {

@@ -1,18 +1,19 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/ui/capture/quick_add_provider.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class CaptureDock extends ConsumerStatefulWidget {
+  const CaptureDock({super.key});
   static const double clearance = FrostedSpacing.sp3;
 
   static const double padding = FrostedSpacing.sp4;
@@ -22,8 +23,6 @@ class CaptureDock extends ConsumerStatefulWidget {
   static const FrostedGlassLevel level = FrostedGlassLevel.thick;
 
   static const FrostedGlassElevation elevation = FrostedGlassElevation.resting;
-
-  const CaptureDock({super.key});
 
   @override
   ConsumerState<CaptureDock> createState() => _CaptureDockState();
@@ -96,7 +95,7 @@ class _ManualDock extends ConsumerWidget {
             icon: Symbols.add_rounded,
             onPressed: () => ExpenseFormScreen.push(
               context: context,
-              accounts: ref.read(accountProvider).value ?? const [],
+              accounts: ref.read(accountProvider),
             ),
           ),
         ),

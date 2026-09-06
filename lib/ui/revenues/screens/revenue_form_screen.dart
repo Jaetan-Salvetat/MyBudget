@@ -1,32 +1,34 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/enums/effective_month.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/ui/category_picker/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/category_field.dart';
-import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class RevenueFormScreen extends ConsumerStatefulWidget {
-  final List<AccountModel> accounts;
-  final RevenueModel? revenue;
-  final List<RevenueModel> closedRevenues;
-
   const RevenueFormScreen({
     required this.accounts,
     this.revenue,
     this.closedRevenues = const [],
     super.key,
   });
+  final List<AccountModel> accounts;
+  final RevenueModel? revenue;
+  final List<RevenueModel> closedRevenues;
 
   static Future<RevenueModel?> push({
     required BuildContext context,
@@ -36,7 +38,7 @@ class RevenueFormScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<RevenueModel>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<RevenueModel>(
         builder: (_) => RevenueFormScreen(
           accounts: accounts,
           revenue: revenue,
@@ -53,8 +55,8 @@ class RevenueFormScreen extends ConsumerStatefulWidget {
 class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  DateTime _selectedDate = DateTime.now();
-  late String _selectedFrequency;
+  late DateTime _selectedDate;
+  late Frequency _selectedFrequency;
   int? _selectedAccountId;
   String? _selectedCategorySlug;
   String? _categoryError;
@@ -77,8 +79,8 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
       text: widget.revenue?.amount.toString() ?? '',
     );
 
-    _selectedDate = widget.revenue?.startDate ?? DateTime.now();
-    _selectedFrequency = widget.revenue?.frequency ?? Frequency.monthly.label;
+    _selectedDate = widget.revenue?.startDate ?? _now;
+    _selectedFrequency = widget.revenue?.frequencyEnum ?? Frequency.monthly;
     _selectedCategorySlug = widget.revenue?.categorySlug;
     _selectedAccountId =
         widget.revenue?.accountId ??
@@ -88,13 +90,15 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
     _resetEffectiveMonth();
   }
 
-  Frequency get _frequency => Frequency.fromString(_selectedFrequency);
+  DateTime get _now => ref.read(clockProvider)();
+
+  Frequency get _frequency => _selectedFrequency;
 
   void _resetEffectiveMonth() {
     _effectiveMonth = defaultEffectiveMonth(
       frequency: _frequency,
       anchor: _selectedDate,
-      asOf: DateTime.now(),
+      asOf: _now,
     );
   }
 
@@ -163,7 +167,15 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         const SizedBox(height: 12),
         const FormFieldLabel('Catégorie'),
         const SizedBox(height: 8),
-        CategoryField(slug: _selectedCategorySlug, onTap: _pickCategory),
+        CategoryField(
+          category: _selectedCategorySlug == null
+              ? null
+              : ref
+                    .watch(categoryDisplayResolverProvider)
+                    .value
+                    ?.resolve(_selectedCategorySlug!),
+          onTap: _pickCategory,
+        ),
         FormFieldError(_categoryError),
         const SizedBox(height: 16),
         const FormFieldLabel('Compte associé'),
@@ -197,6 +209,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         if (!_isEditing && offersEffectiveMonthChoice(_frequency)) ...[
           const SizedBox(height: 16),
           EffectiveMonthField(
+            now: _now,
             value: _effectiveMonth,
             frequency: _frequency,
             anchor: _selectedDate,
@@ -207,6 +220,9 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         ],
         const SizedBox(height: 24),
         BeneficiarySelector(
+          beneficiaries: ref.watch(beneficiaryProvider).value ?? const [],
+          onCreate: (name) =>
+              ref.read(beneficiaryProvider.notifier).createBeneficiary(name),
           initialBeneficiaryId: widget.revenue?.beneficiaryId,
           onChanged: (id) => setState(() {
             _selectedBeneficiaryId = id;
@@ -252,23 +268,18 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
     setState(() {
       _nameController.text = closed.name;
       _amountController.text = closed.amount.toString();
-      _selectedFrequency = closed.frequency;
+      _selectedFrequency = closed.frequencyEnum;
       _selectedAccountId = closed.accountId;
       _selectedCategorySlug = closed.categorySlug;
       _selectedBeneficiaryId = closed.beneficiaryId;
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
-      _selectedDate = DateTime.now();
+      _selectedDate = _now;
       _resetEffectiveMonth();
     });
   }
 
   void _showClosedRevenuePicker() {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
     showFrostedDialog<void>(
       context: context,
       builder: (_) => FrostedDialog(
@@ -283,7 +294,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
               final revenue = widget.closedRevenues[index];
               return FrostedListTile(
                 title: revenue.name,
-                subtitle: formatter.format(revenue.amount),
+                subtitle: MoneyFormatter.format(revenue.amount),
                 trailing: const Icon(Symbols.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(context);
@@ -306,7 +317,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   DateTime _createStartDate() => startDateFor(
     frequency: _frequency,
     anchor: _selectedDate,
-    asOf: DateTime.now(),
+    asOf: _now,
     scope: _effectiveMonth,
   );
 

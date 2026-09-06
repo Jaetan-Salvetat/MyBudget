@@ -1,12 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 class DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData? icon;
-  final Color? valueColor;
-  final bool showDivider;
-
   const DetailRow({
     required this.label,
     required this.value,
@@ -15,6 +9,11 @@ class DetailRow extends StatelessWidget {
     this.showDivider = true,
     super.key,
   });
+  final String label;
+  final String value;
+  final IconData? icon;
+  final Color? valueColor;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {

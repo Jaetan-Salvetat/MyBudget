@@ -1,11 +1,13 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/data/import_entity_report.dart';
-import 'package:mybudget/core/services/data/import_report.dart';
-import 'package:mybudget/utils/app_utils.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/data/service/data/import_entity_report.dart';
+import 'package:mybudget/data/service/data/import_report.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';
+import 'package:mybudget/ui/splash/app_restart.dart';
 
 class DataManagementDialogs {
   static void showImportConfirmationDialog(
@@ -13,26 +15,28 @@ class DataManagementDialogs {
     WidgetRef ref,
     String jsonContent,
   ) {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Importer des données',
-        body: const Text(
-          'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: 'Importer des données',
+          body: const Text(
+            'Voulez-vous importer ces données ? Cette action remplacera toutes vos données actuelles.',
+          ),
+          actions: [
+            FrostedButton.tonal(
+              label: 'Annuler',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FrostedButton.filled(
+              label: 'Importer',
+              onPressed: () {
+                Navigator.of(context).pop();
+                showImportProgressDialog(context, ref, jsonContent);
+              },
+            ),
+          ],
         ),
-        actions: [
-          FrostedButton.tonal(
-            label: 'Annuler',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FrostedButton.filled(
-            label: 'Importer',
-            onPressed: () {
-              Navigator.of(context).pop();
-              showImportProgressDialog(context, ref, jsonContent);
-            },
-          ),
-        ],
       ),
     );
   }
@@ -42,32 +46,34 @@ class DataManagementDialogs {
     WidgetRef ref,
     String jsonContent,
   ) async {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Importation en cours',
-        body: Consumer(
-          builder: (context, watchRef, child) {
-            final state = watchRef.watch(dataProvider);
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Veuillez ne pas quitter l\'application pendant l\'importation.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                FrostedLinearProgress(value: state.importProgress),
-                const SizedBox(height: 10),
-                Text(
-                  state.importStatus,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            );
-          },
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: 'Importation en cours',
+          body: Consumer(
+            builder: (context, watchRef, child) {
+              final state = watchRef.watch(dataProvider);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Veuillez ne pas quitter l\'application pendant l\'importation.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  FrostedLinearProgress(value: state.importProgress),
+                  const SizedBox(height: 10),
+                  Text(
+                    state.importStatus,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -81,17 +87,19 @@ class DataManagementDialogs {
     if (context.mounted) {
       final dataState = ref.read(dataProvider);
       if (dataState.error.isNotEmpty) {
-        showFrostedDialog<void>(
-          context: context,
-          builder: (_) => FrostedDialog(
-            title: 'Erreur d\'importation',
-            body: Text(dataState.error),
-            actions: [
-              FrostedButton.tonal(
-                label: 'Fermer',
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+        unawaited(
+          showFrostedDialog<void>(
+            context: context,
+            builder: (_) => FrostedDialog(
+              title: 'Erreur d\'importation',
+              body: Text(dataState.error),
+              actions: [
+                FrostedButton.tonal(
+                  label: 'Fermer',
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
           ),
         );
       } else if (dataState.importReport != null) {
@@ -112,50 +120,52 @@ class DataManagementDialogs {
     BuildContext context,
     ImportReport report,
   ) {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Rapport d\'importation',
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...report.all.map((entity) => _ImportReportRow(entity: entity)),
-            if (report.hasWarnings) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(
-                    Symbols.warning_amber_rounded,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Certains éléments ont été ignorés ou ont échoué.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: 'Rapport d\'importation',
+          body: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...report.all.map((entity) => _ImportReportRow(entity: entity)),
+              if (report.hasWarnings) ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(
+                      Symbols.warning_amber_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Certains éléments ont été ignorés ou ont échoué.',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ],
+              const SizedBox(height: 12),
+              Text(
+                'L\'application va redémarrer pour prendre en compte les changements.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
-            const SizedBox(height: 12),
-            Text(
-              'L\'application va redémarrer pour prendre en compte les changements.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+          ),
+          actions: [
+            FrostedButton.filled(
+              label: 'Redémarrer',
+              onPressed: () => AppRestart.restartApp(context),
             ),
           ],
         ),
-        actions: [
-          FrostedButton.filled(
-            label: 'Redémarrer',
-            onPressed: () => AppUtils.restartApp(context),
-          ),
-        ],
       ),
     );
   }
@@ -164,26 +174,28 @@ class DataManagementDialogs {
     BuildContext context,
     WidgetRef ref,
   ) async {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Supprimer toutes les données',
-        body: const Text(
-          'Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.',
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: 'Supprimer toutes les données',
+          body: const Text(
+            'Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.',
+          ),
+          actions: [
+            FrostedButton.tonal(
+              label: 'Annuler',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FrostedButton.filled(
+              label: 'Supprimer',
+              onPressed: () {
+                Navigator.of(context).pop();
+                showDeleteProgressDialog(context, ref);
+              },
+            ),
+          ],
         ),
-        actions: [
-          FrostedButton.tonal(
-            label: 'Annuler',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FrostedButton.filled(
-            label: 'Supprimer',
-            onPressed: () {
-              Navigator.of(context).pop();
-              showDeleteProgressDialog(context, ref);
-            },
-          ),
-        ],
       ),
     );
   }
@@ -192,20 +204,22 @@ class DataManagementDialogs {
     BuildContext context,
     WidgetRef ref,
   ) async {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: 'Suppression en cours',
-        body: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Veuillez patienter pendant la suppression des données...',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            FrostedCircularProgress(),
-          ],
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: 'Suppression en cours',
+          body: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Veuillez patienter pendant la suppression des données...',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              FrostedCircularProgress(),
+            ],
+          ),
         ),
       ),
     );
@@ -219,17 +233,19 @@ class DataManagementDialogs {
     if (context.mounted) {
       final error = ref.read(dataProvider).error;
       if (error.isNotEmpty) {
-        showFrostedDialog<void>(
-          context: context,
-          builder: (_) => FrostedDialog(
-            title: 'Erreur de suppression',
-            body: Text(error),
-            actions: [
-              FrostedButton.tonal(
-                label: 'Fermer',
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+        unawaited(
+          showFrostedDialog<void>(
+            context: context,
+            builder: (_) => FrostedDialog(
+              title: 'Erreur de suppression',
+              body: Text(error),
+              actions: [
+                FrostedButton.tonal(
+                  label: 'Fermer',
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
           ),
         );
       } else {
@@ -249,26 +265,28 @@ class DataManagementDialogs {
     required String title,
     required String message,
   }) {
-    showFrostedDialog<void>(
-      context: context,
-      builder: (_) => FrostedDialog(
-        title: title,
-        body: Text(message),
-        actions: [
-          FrostedButton.filled(
-            label: 'Redémarrer',
-            onPressed: () => AppUtils.restartApp(context),
-          ),
-        ],
+    unawaited(
+      showFrostedDialog<void>(
+        context: context,
+        builder: (_) => FrostedDialog(
+          title: title,
+          body: Text(message),
+          actions: [
+            FrostedButton.filled(
+              label: 'Redémarrer',
+              onPressed: () => AppRestart.restartApp(context),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _ImportReportRow extends StatelessWidget {
-  final ImportEntityReport entity;
-
   const _ImportReportRow({required this.entity});
+
+  final ImportEntityReport entity;
 
   @override
   Widget build(BuildContext context) {

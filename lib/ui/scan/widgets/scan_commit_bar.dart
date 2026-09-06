@@ -1,28 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/data/model/account_model.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 
 class ScanCommitBar extends StatelessWidget {
-  static const String noAccountLabel = 'Créez un compte pour enregistrer';
-
-  static String pendingLabelOf(int count) =>
-      count > 1 ? 'Ranger $count articles' : 'Ranger 1 article';
-
-  static String commitLabelOf(double total) =>
-      'Enregistrer ${scanCurrency.format(total)}';
-
-  final int pendingCount;
-  final double total;
-  final List<AccountModel> accounts;
-  final int? selectedAccountId;
-  final ValueChanged<int> onSelectAccount;
-  final VoidCallback onFocusPending;
-  final VoidCallback onCommit;
-
   const ScanCommitBar({
     required this.pendingCount,
     required this.total,
@@ -33,6 +17,21 @@ class ScanCommitBar extends StatelessWidget {
     required this.onCommit,
     super.key,
   });
+  static const String noAccountLabel = 'Créez un compte pour enregistrer';
+
+  static String pendingLabelOf(int count) =>
+      count > 1 ? 'Ranger $count articles' : 'Ranger 1 article';
+
+  static String commitLabelOf(double total) =>
+      'Enregistrer ${MoneyFormatter.format(total)}';
+
+  final int pendingCount;
+  final double total;
+  final List<AccountModel> accounts;
+  final int? selectedAccountId;
+  final ValueChanged<int> onSelectAccount;
+  final VoidCallback onFocusPending;
+  final VoidCallback onCommit;
 
   AccountModel? get _selected {
     if (accounts.isEmpty) return null;
@@ -132,10 +131,9 @@ class ScanCommitBar extends StatelessWidget {
 }
 
 class _AccountLine extends StatelessWidget {
+  const _AccountLine({required this.label, required this.onTap});
   final String label;
   final VoidCallback onTap;
-
-  const _AccountLine({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

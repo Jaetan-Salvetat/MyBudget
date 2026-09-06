@@ -1,24 +1,22 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class RevenuesSummaryCard extends StatelessWidget {
-  final double monthlyRevenues;
-  final int transactionCount;
-
   const RevenuesSummaryCard({
     required this.monthlyRevenues,
     required this.transactionCount,
     super.key,
   });
+  final double monthlyRevenues;
+  final int transactionCount;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -53,7 +51,7 @@ class RevenuesSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              '+ ${formatter.format(monthlyRevenues)}',
+              '+ ${MoneyFormatter.format(monthlyRevenues)}',
               style: TextStyle(
                 fontSize: 32,
                 height: 36 / 32,

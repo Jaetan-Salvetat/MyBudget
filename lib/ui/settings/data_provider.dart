@@ -1,25 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/data/data_export_service.dart';
-import 'package:mybudget/core/services/data/data_import_service.dart';
-import 'package:mybudget/core/services/data/import_report.dart';
-import 'package:mybudget/core/services/data/import_validation_result.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/data/data_export_service.dart';
+import 'package:mybudget/data/service/data/data_import_service.dart';
+import 'package:mybudget/data/service/data/import_report.dart';
+import 'package:mybudget/data/service/data/import_validation_result.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'data_provider.g.dart';
 
 class DataState {
-  final bool isExporting;
-  final bool isImporting;
-  final bool isDeleting;
-  final String error;
-  final double importProgress;
-  final String importStatus;
-  final ImportReport? importReport;
-
   const DataState({
     this.isExporting = false,
     this.isImporting = false,
@@ -29,6 +21,13 @@ class DataState {
     this.importStatus = '',
     this.importReport,
   });
+  final bool isExporting;
+  final bool isImporting;
+  final bool isDeleting;
+  final String error;
+  final double importProgress;
+  final String importStatus;
+  final ImportReport? importReport;
 
   DataState copyWith({
     bool? isExporting,
@@ -68,6 +67,8 @@ class DataNotifier extends _$DataNotifier {
       loanEventRepo: ref.read(loanEventRepositoryProvider),
       loanService: ref.read(loanServiceProvider),
       transferRepo: ref.read(transferRepositoryProvider),
+      eraser: ref.read(userDataEraserProvider),
+      clock: ref.read(clockProvider),
     );
   }
 
@@ -82,6 +83,7 @@ class DataNotifier extends _$DataNotifier {
       loanRepo: ref.read(loanRepositoryProvider),
       loanEventRepo: ref.read(loanEventRepositoryProvider),
       transferRepo: ref.read(transferRepositoryProvider),
+      clock: ref.read(clockProvider),
     );
   }
 
@@ -168,16 +170,9 @@ class DataNotifier extends _$DataNotifier {
     try {
       state = state.copyWith(isDeleting: true, error: '');
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<void>.delayed(ref.read(dataWipeFeedbackDelayProvider));
 
-      ref.read(beneficiaryRepositoryProvider).deleteAll();
-      ref.read(accountRepositoryProvider).deleteAll();
-      ref.read(expenseRepositoryProvider).deleteAll();
-      ref.read(revenueRepositoryProvider).deleteAll();
-      ref.read(loanRepositoryProvider).deleteAll();
-      ref.read(transferRepositoryProvider).deleteAll();
-      ref.read(categoryOverrideRepositoryProvider).deleteAll();
-      ref.read(categoryMemoryRepositoryProvider).deleteAll();
+      ref.read(userDataEraserProvider).eraseAll();
 
       await PreferencesService.clearAll();
     } catch (e) {

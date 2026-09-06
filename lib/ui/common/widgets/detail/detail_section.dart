@@ -1,18 +1,17 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class DetailSection extends StatelessWidget {
-  final String title;
-  final Widget child;
-  final EdgeInsets padding;
-
   const DetailSection({
     required this.title,
     required this.child,
     this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
     super.key,
   });
+  final String title;
+  final Widget child;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {

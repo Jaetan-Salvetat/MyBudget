@@ -5,18 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/revenues_provider.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
 import 'package:mybudget/ui/stats/stats_screen.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -80,7 +81,7 @@ void main() {
     amount: amount,
     accountId: 1,
     startDate: startDate,
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
     categorySlug: categorySlug,
   );
 

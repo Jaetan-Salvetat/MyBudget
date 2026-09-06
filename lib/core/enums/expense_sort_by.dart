@@ -1,4 +1,4 @@
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 
 enum ExpenseSortBy {
   dateDesc,

@@ -1,13 +1,27 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 
 class ScanItemList extends StatelessWidget {
+  const ScanItemList({
+    required this.result,
+    required this.resolve,
+    required this.reveal,
+    this.highlightedIndex,
+    required this.onFocusPending,
+    required this.onPickCategory,
+    required this.onNameChanged,
+    required this.onAmountChanged,
+    required this.onRemove,
+    required this.trailing,
+    this.controller,
+    super.key,
+  });
   static const String allConfirmedLabel = 'tous confirmés';
   static const String swipeHint =
       'Glisser une ligne vers la gauche pour la retirer';
@@ -38,21 +52,6 @@ class ScanItemList extends StatelessWidget {
   final void Function(int index) onRemove;
   final Widget trailing;
 
-  const ScanItemList({
-    required this.result,
-    required this.resolve,
-    required this.reveal,
-    this.highlightedIndex,
-    required this.onFocusPending,
-    required this.onPickCategory,
-    required this.onNameChanged,
-    required this.onAmountChanged,
-    required this.onRemove,
-    required this.trailing,
-    this.controller,
-    super.key,
-  });
-
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -69,30 +68,30 @@ class ScanItemList extends StatelessWidget {
         ),
         SliverFixedExtentList(
           itemExtent: ScanItemRow.extent,
-          delegate: SliverChildBuilderDelegate(childCount: result.items.length, (
-            context,
-            index,
-          ) {
-            final item = result.items[index];
-            return _CascadeIn(
-              reveal: reveal,
-              index: index,
-              child: Dismissible(
-                key: ValueKey('${item.name}-$index'),
-                direction: DismissDirection.endToStart,
-                background: const _RemoveBackground(),
-                onDismissed: (_) => onRemove(index),
-                child: ScanItemRow(
-                  item: item,
-                  category: resolve(item.categorySlug),
-                  highlighted: index == highlightedIndex,
-                  onPickCategory: () => onPickCategory(index),
-                  onNameChanged: (name) => onNameChanged(index, name),
-                  onAmountChanged: (amount) => onAmountChanged(index, amount),
+          delegate: SliverChildBuilderDelegate(
+            childCount: result.items.length,
+            (context, index) {
+              final item = result.items[index];
+              return _CascadeIn(
+                reveal: reveal,
+                index: index,
+                child: Dismissible(
+                  key: ValueKey('${item.name}-$index'),
+                  direction: DismissDirection.endToStart,
+                  background: const _RemoveBackground(),
+                  onDismissed: (_) => onRemove(index),
+                  child: ScanItemRow(
+                    item: item,
+                    category: resolve(item.categorySlug),
+                    highlighted: index == highlightedIndex,
+                    onPickCategory: () => onPickCategory(index),
+                    onNameChanged: (name) => onNameChanged(index, name),
+                    onAmountChanged: (amount) => onAmountChanged(index, amount),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ),
         SliverToBoxAdapter(
           child: _ListPhase(
@@ -126,15 +125,14 @@ class ScanItemList extends StatelessWidget {
 }
 
 class _CascadeIn extends StatelessWidget {
-  final Animation<double> reveal;
-  final int index;
-  final Widget child;
-
   const _CascadeIn({
     required this.reveal,
     required this.index,
     required this.child,
   });
+  final Animation<double> reveal;
+  final int index;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +157,9 @@ class _CascadeIn extends StatelessWidget {
 }
 
 class _ListPhase extends StatelessWidget {
+  const _ListPhase({required this.reveal, required this.child});
   final Animation<double> reveal;
   final Widget child;
-
-  const _ListPhase({required this.reveal, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -178,17 +175,16 @@ class _ListPhase extends StatelessWidget {
 }
 
 class _HeaderDelegate extends SliverPersistentHeaderDelegate {
-  final int pending;
-  final int count;
-  final Animation<double> reveal;
-  final VoidCallback onFocusPending;
-
   const _HeaderDelegate({
     required this.pending,
     required this.count,
     required this.reveal,
     required this.onFocusPending,
   });
+  final int pending;
+  final int count;
+  final Animation<double> reveal;
+  final VoidCallback onFocusPending;
 
   @override
   double get minExtent => ScanItemList.headerHeight;
@@ -197,7 +193,11 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => ScanItemList.headerHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     final theme = Theme.of(context);
 
     return _ListPhase(

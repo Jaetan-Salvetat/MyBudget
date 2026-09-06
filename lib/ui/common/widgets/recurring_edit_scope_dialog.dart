@@ -1,11 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/entities/filterable_transaction.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/contracts/filterable_transaction.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/services/transaction_change_service.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/core/rules/transaction_change_rules.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class RecurringEditScopeDialog {
   const RecurringEditScopeDialog._();
@@ -20,11 +20,12 @@ class RecurringEditScopeDialog {
     required BuildContext context,
     required FilterableTransaction before,
     required FilterableTransaction after,
+    required DateTime now,
     required Future<void> Function(EffectiveMonth? effectiveMonth) onConfirmed,
   }) async {
     if (!_needsChoice(before, after)) return onConfirmed(null);
 
-    final scope = await _ask(context, after);
+    final scope = await _ask(context, after, now);
     if (scope == null) return;
 
     return onConfirmed(scope);
@@ -36,17 +37,18 @@ class RecurringEditScopeDialog {
   ) {
     return before.frequencyEnum != Frequency.oneTime &&
         offersEffectiveMonthChoice(after.frequencyEnum) &&
-        TransactionChangeService.changesTerms(before, after);
+        TransactionChangeRules.changesTerms(before, after);
   }
 
   static Future<EffectiveMonth?> _ask(
     BuildContext context,
     FilterableTransaction after,
+    DateTime now,
   ) {
     var scope = defaultEffectiveMonth(
       frequency: after.frequencyEnum,
       anchor: after.startDate,
-      asOf: DateTime.now(),
+      asOf: now,
     );
 
     return showFrostedDialog<EffectiveMonth>(
@@ -58,6 +60,7 @@ class RecurringEditScopeDialog {
             value: scope,
             frequency: after.frequencyEnum,
             anchor: after.startDate,
+            now: now,
             label: _switchLabel,
             dueLabel: _dueLabel,
             onChanged: (value) => setState(() => scope = value),

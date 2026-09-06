@@ -1,31 +1,22 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/enums/frequency.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class CompactExpenseRow extends StatelessWidget {
-  final ExpenseModel expense;
-  final CategoryDisplay? category;
-  final Beneficiary? beneficiary;
-  final bool showDivider;
-
-  final bool isCurrentMonth;
-  final bool showDate;
-  final VoidCallback onOpen;
-  final VoidCallback onEdit;
-  final ValueChanged<RecurringDeletion> onDelete;
-
   const CompactExpenseRow({
     required this.expense,
     required this.isCurrentMonth,
+    required this.now,
     required this.onOpen,
     required this.onEdit,
     required this.onDelete,
@@ -35,11 +26,21 @@ class CompactExpenseRow extends StatelessWidget {
     this.showDate = false,
     super.key,
   });
+  final ExpenseModel expense;
+  final CategoryDisplay? category;
+  final BeneficiaryModel? beneficiary;
+  final bool showDivider;
+
+  final bool isCurrentMonth;
+  final DateTime now;
+  final bool showDate;
+  final VoidCallback onOpen;
+  final VoidCallback onEdit;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final categoryColor = category != null
         ? Color(category!.color)
         : scheme.primary;
@@ -107,7 +108,7 @@ class CompactExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '− ${formatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
+              '− ${MoneyFormatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
               style: TextStyle(
                 fontSize: 15,
                 height: 20 / 15,
@@ -138,14 +139,9 @@ class CompactExpenseRow extends StatelessWidget {
   String _dateLabel() {
     return switch (expense.frequencyEnum) {
       Frequency.monthly => 'Le ${expense.startDate.day}',
-      Frequency.annual => DateFormat(
-        "'Le' d MMMM",
-        'fr_FR',
-      ).format(expense.startDate),
-      Frequency.oneTime => DateFormat(
-        'd MMMM',
-        'fr_FR',
-      ).format(expense.startDate),
+      Frequency.annual =>
+        'Le ${DateFormatter.dayMonth.format(expense.startDate)}',
+      Frequency.oneTime => DateFormatter.dayMonth.format(expense.startDate),
     };
   }
 
@@ -155,14 +151,15 @@ class CompactExpenseRow extends StatelessWidget {
     expense.startDate,
     expense.endDate,
     expense.frequencyEnum,
-    DateTime.now(),
+    now,
   );
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(
       context: context,
       initialScope: _initialDeletionScope,
-      deleteConfirmationMessage: 'Voulez-vous vraiment supprimer cette dépense ?',
+      deleteConfirmationMessage:
+          'Voulez-vous vraiment supprimer cette dépense ?',
       onEdit: onEdit,
       onDelete: onDelete,
     );

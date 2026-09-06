@@ -1,14 +1,22 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class CaptureAnchor extends StatelessWidget {
+  const CaptureAnchor({
+    required this.remaining,
+    required this.monthlyRevenues,
+    required this.onTap,
+    required this.onSettings,
+    required this.now,
+    super.key,
+  });
   static const double integerFontSize = 52;
   static const double centsFontSize = 30;
   static const double _centsOpacity = 0.62;
@@ -23,13 +31,7 @@ class CaptureAnchor extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onSettings;
 
-  const CaptureAnchor({
-    required this.remaining,
-    required this.monthlyRevenues,
-    required this.onTap,
-    required this.onSettings,
-    super.key,
-  });
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +112,8 @@ class CaptureAnchor extends StatelessWidget {
   bool get _isIdle => monthlyRevenues == 0 && remaining == 0;
 
   String _subtitle() {
-    final now = DateTime.now();
     final daysLeft = DateTime(now.year, now.month + 1, 0).day - now.day + 1;
-    final revenues = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(monthlyRevenues);
+    final revenues = MoneyFormatter.format(monthlyRevenues);
     final days = daysLeft > 1 ? '$daysLeft jours' : '$daysLeft jour';
 
     return 'sur $revenues de revenus · $days';
@@ -123,19 +121,15 @@ class CaptureAnchor extends StatelessWidget {
 }
 
 class _Figure extends StatelessWidget {
-  final double amount;
-
   const _Figure({required this.amount});
+  final double amount;
 
   @override
   Widget build(BuildContext context) {
     final color = amount < 0
         ? context.financeColors.expense
         : Theme.of(context).colorScheme.onSurface;
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount);
+    final formatted = MoneyFormatter.format(amount);
     final split = formatted.indexOf(',');
     final units = split == -1 ? formatted : formatted.substring(0, split);
     final cents = split == -1 ? '' : formatted.substring(split);

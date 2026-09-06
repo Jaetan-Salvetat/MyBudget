@@ -1,156 +1,21 @@
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/ai_chat_client.dart';
-import 'package:mybudget/core/services/scan/cloud_receipt_reader.dart';
-import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
-import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
-import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
-import 'package:mybudget/core/services/scan/label_link_asset.dart';
-import 'package:mybudget/core/services/scan/label_span_asset.dart';
-import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
-import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
-import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
-import 'package:mybudget/core/services/scan/role_tagger_asset.dart';
-import 'package:mybudget/core/services/scan/store_classifier_asset.dart';
-import 'package:mybudget/core/services/scan/store_gazetteer_asset.dart';
-import 'package:mybudget/core/services/receipt_storage_service.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/models/scan_read_progress_model.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/scan_read_progress_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/receipt_reader_provider.dart';
+import 'package:mybudget/data/service/receipt_storage_service.dart';
+import 'package:mybudget/data/service/scan/local_receipt_scan.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scan_provider.g.dart';
-
-@Riverpod(keepAlive: true)
-Future<LocalReceiptScanner> localReceiptScanner(Ref ref) async {
-  final tagger = RoleTagger(
-    LineClassifier.fromJson(
-      jsonDecode(
-            await rootBundle.loadString(await roleTaggerAssetFromManifest()),
-          )
-          as Map<String, dynamic>,
-    ),
-  );
-  final link = LabelLinkModel(
-    LineClassifier.fromJson(
-      jsonDecode(
-            await rootBundle.loadString(await labelLinkAssetFromManifest()),
-          )
-          as Map<String, dynamic>,
-    ),
-  );
-  final span = LabelSpanModel(
-    LineClassifier.fromJson(
-      jsonDecode(
-            await rootBundle.loadString(await labelSpanAssetFromManifest()),
-          )
-          as Map<String, dynamic>,
-    ),
-  );
-  Gazetteer? gazetteer;
-  try {
-    gazetteer = Gazetteer(
-      (jsonDecode(
-                await rootBundle.loadString(
-                  await storeGazetteerAssetFromManifest(),
-                ),
-              )
-              as Map<String, dynamic>)
-          .map((key, value) => MapEntry(key, value as String)),
-    );
-  } on StateError catch (error) {
-    debugPrint('[scan] répertoire d\'enseignes absent : $error');
-  }
-  StoreClassifier? classifier;
-  try {
-    classifier = StoreClassifier.fromJson(
-      jsonDecode(
-            await rootBundle.loadString(
-              await storeClassifierAssetFromManifest(),
-            ),
-          )
-          as Map<String, dynamic>,
-    );
-  } on StateError catch (error) {
-    debugPrint("[scan] classifieur d'enseigne absent : $error");
-  }
-  final recognizer = MlKitReceiptLineRecognizer();
-  ref.onDispose(recognizer.close);
-  return LocalReceiptScanner(
-    recognizer: recognizer,
-    tagger: tagger,
-    link: link,
-    span: span,
-    gazetteer: gazetteer,
-    classifier: classifier,
-  );
-}
-
-@Riverpod(keepAlive: true)
-Future<ReceiptScanComposer> receiptScanComposer(Ref ref) async {
-  final quickAdd = await ref.watch(quickAddClassifierProvider.future);
-  return ReceiptScanComposer(
-    categorizer: ReceiptCategorizer(QuickAddReceiptLineClassifier(quickAdd)),
-    resolver: await ref.watch(categoryDisplayResolverProvider.future),
-  );
-}
-
-@Riverpod(keepAlive: true)
-NanoReceiptReader? nanoReceiptReader(Ref ref) {
-  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.onDevice) {
-    return null;
-  }
-  if (!ref.watch(geminiNanoScanProvider)) return null;
-  if (ref.watch(geminiNanoStatusProvider).value?.isReady != true) return null;
-
-  return NanoReceiptReader(service: ref.watch(geminiNanoServiceProvider));
-}
-
-@Riverpod(keepAlive: true)
-bool cloudScanSelected(Ref ref) {
-  if (ref.watch(quickAddEngineModeProvider) != QuickAddEngineMode.apiKey) {
-    return false;
-  }
-  return ref.watch(hasStoredApiKeyProvider).value ?? false;
-}
-
-@Riverpod(keepAlive: true)
-Future<CloudReceiptReader?> cloudReceiptReader(Ref ref) async {
-  if (!ref.watch(cloudScanSelectedProvider)) return null;
-
-  final provider = ref.watch(selectedAiProviderProvider);
-  final String? apiKey;
-  try {
-    apiKey = await ref.watch(apiKeyServiceProvider).read(provider);
-  } catch (error, stackTrace) {
-    debugPrint('[scan] lecture de la clé API impossible : $error\n$stackTrace');
-    return null;
-  }
-  if (apiKey == null) return null;
-
-  final client = OpenAiCompatibleChatClient(
-    provider: provider,
-    model: ref.watch(selectedAiModelProvider),
-    apiKey: apiKey,
-  );
-  ref.onDispose(client.close);
-
-  return CloudReceiptReader(client: client);
-}
 
 @Riverpod(keepAlive: true)
 class ScanTrace extends _$ScanTrace {
@@ -179,7 +44,8 @@ class ScanProgress extends _$ScanProgress {
 
 @riverpod
 class ScanNotifier extends _$ScanNotifier {
-  final ReceiptStorageService _storageService = ReceiptStorageService();
+  ReceiptStorageService get _storageService =>
+      ReceiptStorageService(ref.read(clockProvider));
 
   @override
   AsyncValue<ReceiptScanResultModel?> build() {
@@ -312,7 +178,7 @@ class ScanNotifier extends _$ScanNotifier {
     for (final group in result.groupedByCategory) {
       final name = storeName != null
           ? '$storeName — ${group.label}'
-          : 'Ticket du ${scanDate.format(date)} — ${group.label}';
+          : 'Ticket du ${DateFormatter.longDate.format(date)} — ${group.label}';
 
       created.add(
         await expenseNotifier.addExpense(
@@ -321,7 +187,7 @@ class ScanNotifier extends _$ScanNotifier {
             amount: group.total,
             categorySlug: group.slug,
             startDate: date,
-            frequency: Frequency.oneTime.label,
+            frequency: Frequency.oneTime,
             accountId: accountId,
             receiptPath: receiptPath,
           ),

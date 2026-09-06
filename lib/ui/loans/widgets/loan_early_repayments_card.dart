@@ -1,29 +1,27 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/entities/loan.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/loan_event_types.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/loan_event_model.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/loan_event_model.dart';
 
 class LoanEarlyRepaymentsCard extends StatelessWidget {
-  final Loan loan;
-  final List<LoanEventModel> events;
-  final void Function(LoanEventModel) onDelete;
-
   const LoanEarlyRepaymentsCard({
     required this.loan,
     required this.events,
     required this.onDelete,
     super.key,
   });
+  final Loan loan;
+  final List<LoanEventModel> events;
+  final void Function(LoanEventModel) onDelete;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final currency = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final dateFormat = DateFormat('dd/MM/yyyy');
     final sorted = [...events]..sort((a, b) => a.date.compareTo(b.date));
 
     return Column(
@@ -46,14 +44,8 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
           child: Column(
             children: [
               for (var index = 0; index < sorted.length; index++)
-                _buildEventRow(
-                  context,
-                  sorted[index],
-                  currency,
-                  dateFormat,
-                  showDivider: true,
-                ),
-              _buildSavingsRow(context, currency),
+                _buildEventRow(context, sorted[index], showDivider: true),
+              _buildSavingsRow(context),
             ],
           ),
         ),
@@ -63,9 +55,7 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
 
   Widget _buildEventRow(
     BuildContext context,
-    LoanEventModel event,
-    NumberFormat currency,
-    DateFormat dateFormat, {
+    LoanEventModel event, {
     required bool showDivider,
   }) {
     final scheme = Theme.of(context).colorScheme;
@@ -102,7 +92,7 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  _subtitleOf(event, dateFormat),
+                  _subtitleOf(event),
                   style: TextStyle(
                     fontSize: 12,
                     color: scheme.onSurfaceVariant,
@@ -116,7 +106,7 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
           const SizedBox(width: 12),
           if (!isTotal)
             Text(
-              currency.format(event.amount),
+              MoneyFormatter.format(event.amount),
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -133,13 +123,13 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
     );
   }
 
-  String _subtitleOf(LoanEventModel event, DateFormat dateFormat) {
-    final date = dateFormat.format(event.date);
+  String _subtitleOf(LoanEventModel event) {
+    final date = DateFormatter.numericDate.format(event.date);
     if (event.type == LoanEventType.earlyRepaymentTotal) return date;
     return '$date · ${event.reamortizationMode.label}';
   }
 
-  Widget _buildSavingsRow(BuildContext context, NumberFormat currency) {
+  Widget _buildSavingsRow(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
     return Padding(
@@ -154,7 +144,7 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            '${currency.format(loan.costSaved)} · ${loan.monthsSaved} mois',
+            '${MoneyFormatter.format(loan.costSaved)} · ${loan.monthsSaved} mois',
             textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 14,

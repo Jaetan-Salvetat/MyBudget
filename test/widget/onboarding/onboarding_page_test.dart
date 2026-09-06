@@ -1,21 +1,21 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/repository/transfer_repository.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 import 'package:mybudget/ui/onboarding/widgets/account_setup_slide.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -112,9 +112,7 @@ void main() {
   }
 
   FrostedButton primaryButton(WidgetTester tester, String label) =>
-      tester.widget<FrostedButton>(
-        find.widgetWithText(FrostedButton, label),
-      );
+      tester.widget<FrostedButton>(find.widgetWithText(FrostedButton, label));
 
   testWidgets('ouvre sur la démonstration de saisie', (tester) async {
     await pumpOnboarding(tester);
@@ -148,9 +146,7 @@ void main() {
     expect(find.widgetWithText(FrostedButton, 'Commencer'), findsOneWidget);
   });
 
-  testWidgets('le nom est prérempli, la banque reste à saisir', (
-    tester,
-  ) async {
+  testWidgets('le nom est prérempli, la banque reste à saisir', (tester) async {
     await pumpOnboarding(tester);
 
     await tester.tap(find.widgetWithText(FrostedButton, 'Passer'));
@@ -188,7 +184,10 @@ void main() {
     await tester.pump();
 
     expect(find.byType(OnboardingPage), findsOneWidget);
-    expect(find.textContaining('Impossible de créer le compte'), findsOneWidget);
+    expect(
+      find.textContaining('Impossible de créer le compte'),
+      findsOneWidget,
+    );
     expect(PreferencesService.isFirstLaunch(), isTrue);
 
     await tester.pumpAndSettle(const Duration(seconds: 5));

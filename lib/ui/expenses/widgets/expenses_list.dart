@@ -1,45 +1,47 @@
 import 'dart:math';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/providers/expenses_view_provider.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/core/providers/transaction_filter_provider.dart';
-import 'package:mybudget/core/services/transaction_filter_service.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/data/service/transaction_filter_service.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
-import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
+import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_group_header.dart';
 import 'package:mybudget/ui/expenses/widgets/expense_sort_menu.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_quick_filters.dart';
 import 'package:mybudget/ui/expenses/widgets/expenses_summary_card.dart';
 import 'package:mybudget/ui/expenses/widgets/recurring_summary_card.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/core/enums/effective_month.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
+import 'package:mybudget/ui/shared/expenses_view_provider.dart';
+import 'package:mybudget/ui/shared/selected_month_provider.dart';
+import 'package:mybudget/ui/shared/transaction_filter_provider.dart';
+import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
 
 class ExpensesList extends ConsumerStatefulWidget {
   const ExpensesList({super.key});
@@ -100,7 +102,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     TransactionFilterData filter,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     return ActiveFilterPillsBuilder.build(
       filter: filter,
@@ -126,7 +128,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
           data: (expensesRaw) {
             final selectedMonth = ref.watch(selectedMonthProvider);
             final groupBy = ref.watch(expensesGroupByProvider);
-            final accounts = ref.watch(accountProvider).value ?? [];
+            final accounts = ref.watch(accountProvider);
             final resolver = ref.watch(categoryDisplayResolverProvider).value;
             final categories =
                 resolver?.groupsOfType(TransactionType.expense) ?? const [];
@@ -176,7 +178,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
               beneficiaries,
             );
 
-            final today = DateTime.now();
+            final today = ref.read(clockProvider)();
             final isViewingCurrentMonth = _isViewingCurrentMonth;
 
             final isEmpty = filteredExpenses.isEmpty && filter.isEmpty;
@@ -328,7 +330,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   Widget _buildRecurringRows(
     List<ExpenseModel> rows,
     CategoryDisplayResolver? resolver,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     return Column(
       children: [
@@ -344,7 +346,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   }
 
   bool get _isViewingCurrentMonth {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     final selectedMonth = ref.watch(selectedMonthProvider);
     return now.year == selectedMonth.year && now.month == selectedMonth.month;
   }
@@ -352,7 +354,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   Widget _buildRow(
     ExpenseModel expense,
     CategoryDisplayResolver? resolver,
-    List<Beneficiary> beneficiaries, {
+    List<BeneficiaryModel> beneficiaries, {
     required bool showDivider,
     bool showDate = false,
   }) {
@@ -365,6 +367,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     return CompactExpenseRow(
       expense: expense,
       isCurrentMonth: _isViewingCurrentMonth,
+      now: ref.read(clockProvider)(),
       category: category,
       beneficiary: beneficiary,
       showDivider: showDivider,
@@ -386,7 +389,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       icon: Symbols.receipt_long_rounded,
       buttonText: 'Ajouter une dépense',
       onPressed: () {
-        final accounts = ref.read(accountProvider).value ?? [];
+        final accounts = ref.read(accountProvider);
         if (accounts.isEmpty) {
           _showNoAccountDialog(context, 'une dépense');
           return;
@@ -452,7 +455,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
     BuildContext context,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     TransactionFilterBottomSheet.show(
       context: context,
@@ -489,7 +492,7 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
   Future<void> _openEditScreen(ExpenseModel expense) async {
     final updatedExpense = await ExpenseFormScreen.push(
       context: context,
-      accounts: ref.read(accountProvider).value ?? [],
+      accounts: ref.read(accountProvider),
       expense: expense,
     );
     if (updatedExpense == null || !mounted) return;
@@ -498,10 +501,9 @@ class _ExpensesListState extends ConsumerState<ExpensesList> {
       context: context,
       before: expense,
       after: updatedExpense,
-      onConfirmed: (effectiveMonth) => _saveExpense(
-        updatedExpense,
-        effectiveMonth: effectiveMonth,
-      ),
+      now: ref.read(clockProvider)(),
+      onConfirmed: (effectiveMonth) =>
+          _saveExpense(updatedExpense, effectiveMonth: effectiveMonth),
     );
   }
 

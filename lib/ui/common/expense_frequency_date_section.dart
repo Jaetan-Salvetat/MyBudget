@@ -1,20 +1,19 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class ExpenseFrequencyDateSection extends StatefulWidget {
-  final String frequency;
-  final DateTime date;
-  final Function(String, DateTime) onChanged;
-
   const ExpenseFrequencyDateSection({
     required this.frequency,
     required this.date,
     required this.onChanged,
     super.key,
   });
+  final Frequency frequency;
+  final DateTime date;
+  final void Function(Frequency, DateTime) onChanged;
 
   @override
   State<ExpenseFrequencyDateSection> createState() =>
@@ -38,7 +37,7 @@ class _ExpenseFrequencyDateSectionState
         const SizedBox(height: 12),
         Row(
           children: Frequency.values.map((freq) {
-            final isSelected = widget.frequency == freq.label;
+            final isSelected = widget.frequency == freq;
             return Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: FrostedChip.filter(
@@ -46,7 +45,7 @@ class _ExpenseFrequencyDateSectionState
                 selected: isSelected,
                 onSelected: (_) {
                   if (!isSelected) {
-                    widget.onChanged(freq.label, widget.date);
+                    widget.onChanged(freq, widget.date);
                   }
                 },
               ),
@@ -93,14 +92,13 @@ class _ExpenseFrequencyDateSectionState
     );
   }
 
-  Frequency get _frequency => Frequency.fromString(widget.frequency);
-
-  String _formatDate(DateTime date) => DateSelector.labelFor(_frequency, date);
+  String _formatDate(DateTime date) =>
+      DateSelector.labelFor(widget.frequency, date);
 
   Future<void> _selectDate(BuildContext context) async {
     final picked = await DateSelector.showFor(
       context: context,
-      frequency: _frequency,
+      frequency: widget.frequency,
       initialDate: widget.date,
     );
     if (picked == null) return;

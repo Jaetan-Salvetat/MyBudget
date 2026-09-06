@@ -1,20 +1,15 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class AccountCard extends StatelessWidget {
-  final AccountModel account;
-  final double monthlyIncomes;
-  final double monthlyCharges;
-  final VoidCallback onTap;
-
   const AccountCard({
     super.key,
     required this.account,
@@ -22,6 +17,10 @@ class AccountCard extends StatelessWidget {
     required this.monthlyCharges,
     required this.onTap,
   });
+  final AccountModel account;
+  final double monthlyIncomes;
+  final double monthlyCharges;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +29,6 @@ class AccountCard extends StatelessWidget {
     final balance = monthlyIncomes - monthlyCharges;
     final isPositive = balance >= 0;
     final balanceColor = isPositive ? finance.income : finance.expense;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
-    final compactFormatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -122,7 +111,7 @@ class AccountCard extends StatelessWidget {
                     children: [
                       const Expanded(child: Eyebrow('Solde du mois')),
                       Text(
-                        '${isPositive ? '+' : '−'} ${formatter.format(balance.abs())}',
+                        '${isPositive ? '+' : '−'} ${MoneyFormatter.format(balance.abs())}',
                         style: GoogleFonts.inter(
                           fontSize: 24,
                           height: 28 / 24,
@@ -152,7 +141,9 @@ class AccountCard extends StatelessWidget {
                           Expanded(
                             child: _StatItem(
                               label: 'Entrées',
-                              value: compactFormatter.format(monthlyIncomes),
+                              value: MoneyFormatter.formatRounded(
+                                monthlyIncomes,
+                              ),
                               color: finance.income,
                             ),
                           ),
@@ -163,7 +154,9 @@ class AccountCard extends StatelessWidget {
                           Expanded(
                             child: _StatItem(
                               label: 'Charges',
-                              value: compactFormatter.format(monthlyCharges),
+                              value: MoneyFormatter.formatRounded(
+                                monthlyCharges,
+                              ),
                               color: finance.expense,
                             ),
                           ),
@@ -182,15 +175,14 @@ class AccountCard extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
   const _StatItem({
     required this.label,
     required this.value,
     required this.color,
   });
+  final String label;
+  final String value;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {

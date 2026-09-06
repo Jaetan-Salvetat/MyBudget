@@ -1,9 +1,9 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
-import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 
 const String testVersion = '1.4.0';

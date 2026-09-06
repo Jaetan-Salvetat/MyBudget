@@ -1,24 +1,25 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/entities/transaction_rule_version.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
-import 'package:mybudget/core/services/transaction_timeline_service.dart';
-import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/theme/finance_colors.dart';
+import 'package:mybudget/core/values/transaction_rule_version.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/transaction_rule_summary_service.dart';
+import 'package:mybudget/data/service/transaction_timeline_service.dart';
 import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
 import 'package:mybudget/ui/transaction_details/transaction_event_presenter.dart';
 import 'package:mybudget/ui/transaction_details/widgets/missing_transaction_view.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_details_view.dart';
@@ -29,14 +30,13 @@ const String _unknownAccount = 'Compte inconnu';
 const String _deleteMessage = 'Voulez-vous vraiment supprimer cette dépense ?';
 
 class ExpenseDetailsScreen extends ConsumerStatefulWidget {
-  final int expenseId;
-  final bool isCurrentMonth;
-
   const ExpenseDetailsScreen({
     required this.expenseId,
     required this.isCurrentMonth,
     super.key,
   });
+  final int expenseId;
+  final bool isCurrentMonth;
 
   static Future<void> push({
     required BuildContext context,
@@ -78,7 +78,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       );
     }
 
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
     final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
     final resolver = ref.watch(categoryDisplayResolverProvider).value;
 
@@ -96,10 +96,10 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       resolver: resolver,
       accounts: accounts,
       beneficiaries: beneficiaries,
-      formatter: _formatter,
     );
 
     return TransactionDetailsView(
+      now: ref.read(clockProvider)(),
       screenTitle: _screenTitle,
       name: expense.name,
       category: category,
@@ -111,7 +111,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       endDate: expense.endDate,
       summary: TransactionRuleSummaryService.summarize(
         versions,
-        asOf: DateTime.now(),
+        asOf: ref.read(clockProvider)(),
       ),
       timeline: TransactionTimelineService.build(
         versions: versions,
@@ -119,7 +119,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
           for (final event in ref.watch(expenseEventsProvider(rootId)))
             presenter.describe(event),
         ],
-        formatAmount: _formatter.format,
+        formatAmount: MoneyFormatter.format,
       ),
       isIncome: false,
       fallbackIcon: Symbols.receipt_long_rounded,
@@ -132,15 +132,10 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
     );
   }
 
-  static final NumberFormat _formatter = NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-  );
-
   List<TransactionRuleVersion> _versionsOf(
     List<ExpenseModel> chain,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     return [
       for (final entry in chain)
@@ -151,7 +146,10 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
           endDate: entry.endDate,
           frequency: entry.frequencyEnum,
           accountLabel:
-              accounts.where((a) => a.id == entry.accountId).firstOrNull?.name ??
+              accounts
+                  .where((a) => a.id == entry.accountId)
+                  .firstOrNull
+                  ?.name ??
               _unknownAccount,
           beneficiaryLabel: _beneficiaryOf(
             entry.beneficiaryId,
@@ -161,7 +159,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
     ];
   }
 
-  Beneficiary? _beneficiaryOf(int? id, List<Beneficiary> beneficiaries) {
+  BeneficiaryModel? _beneficiaryOf(int? id, List<BeneficiaryModel> beneficiaries) {
     if (id == null) return null;
     return beneficiaries.where((b) => b.id == id).firstOrNull;
   }
@@ -187,7 +185,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
   Future<void> _openEditScreen(ExpenseModel expense) async {
     final updated = await ExpenseFormScreen.push(
       context: context,
-      accounts: ref.read(accountProvider).value ?? [],
+      accounts: ref.read(accountProvider),
       expense: expense,
     );
     if (updated == null || !mounted) return;
@@ -196,11 +194,9 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       context: context,
       before: expense,
       after: updated,
-      onConfirmed: (effectiveMonth) => _saveExpense(
-        expense,
-        updated,
-        effectiveMonth: effectiveMonth,
-      ),
+      now: ref.read(clockProvider)(),
+      onConfirmed: (effectiveMonth) =>
+          _saveExpense(expense, updated, effectiveMonth: effectiveMonth),
     );
   }
 

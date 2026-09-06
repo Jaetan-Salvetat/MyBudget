@@ -1,20 +1,16 @@
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/monthly_flow.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/locales.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/monthly_flow.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class MonthlyFlowSection extends StatelessWidget {
-  final List<MonthlyFlow> flows;
-  final double averageNet;
-  final double netDelta;
-  final bool hasComparison;
-  final ValueChanged<DateTime> onMonthTap;
-
   const MonthlyFlowSection({
     super.key,
     required this.flows,
@@ -23,6 +19,11 @@ class MonthlyFlowSection extends StatelessWidget {
     required this.hasComparison,
     required this.onMonthTap,
   });
+  final List<MonthlyFlow> flows;
+  final double averageNet;
+  final double netDelta;
+  final bool hasComparison;
+  final ValueChanged<DateTime> onMonthTap;
 
   @override
   Widget build(BuildContext context) {
@@ -53,22 +54,21 @@ class MonthlyFlowSection extends StatelessWidget {
 
   String _windowLabel() {
     if (flows.isEmpty) return '';
-    final start = DateFormat('MMM', 'fr_FR').format(flows.first.month);
-    final end = DateFormat('MMM yyyy', 'fr_FR').format(flows.last.month);
+    final start = DateFormatter.shortMonth.format(flows.first.month);
+    final end = DateFormatter.shortMonthYear.format(flows.last.month);
     return '$start — $end';
   }
 }
 
 class _Headline extends StatelessWidget {
-  final double averageNet;
-  final double netDelta;
-  final bool hasComparison;
-
   const _Headline({
     required this.averageNet,
     required this.netDelta,
     required this.hasComparison,
   });
+  final double averageNet;
+  final double netDelta;
+  final bool hasComparison;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class _Headline extends StatelessWidget {
                     children: [
                       TextSpan(text: _rounded(value)),
                       TextSpan(
-                        text: ' €/mois',
+                        text: ' ${FinancialLocale.currencySymbol}/mois',
                         style: AppTextStyles.displaySerifItalic(
                           fontSize: 19,
                           color: color.withValues(alpha: 0.66),
@@ -123,25 +123,19 @@ class _Headline extends StatelessWidget {
   }
 
   String _rounded(double value) {
-    final formatter = NumberFormat.decimalPattern('fr_FR')
-      ..maximumFractionDigits = 0;
-    final sign = value < 0 ? '−' : '+';
-    return '$sign${formatter.format(value.abs())}';
+    return '${MoneyFormatter.signOf(value)}'
+        '${MoneyFormatter.formatPlainRounded(value.abs())}';
   }
 }
 
 class _DeltaPill extends StatelessWidget {
-  final double delta;
-
   const _DeltaPill({required this.delta});
+  final double delta;
 
   @override
   Widget build(BuildContext context) {
     final finance = context.financeColors;
     final improving = delta >= 0;
-    final formatter = NumberFormat.decimalPattern('fr_FR')
-      ..maximumFractionDigits = 0;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
@@ -149,7 +143,8 @@ class _DeltaPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(9),
       ),
       child: Text(
-        '${improving ? '+' : '−'}${formatter.format(delta.abs())} € /mois',
+        '${MoneyFormatter.signOf(delta)}'
+        '${MoneyFormatter.formatRounded(delta.abs())} /mois',
         style: AppTextStyles.mono(
           fontSize: 10.5,
           lineHeight: 14,
@@ -162,10 +157,9 @@ class _DeltaPill extends StatelessWidget {
 }
 
 class _Chart extends StatelessWidget {
+  const _Chart({required this.flows, required this.onMonthTap});
   final List<MonthlyFlow> flows;
   final ValueChanged<DateTime> onMonthTap;
-
-  const _Chart({required this.flows, required this.onMonthTap});
 
   @override
   Widget build(BuildContext context) {
@@ -194,10 +188,8 @@ class _Chart extends StatelessWidget {
     );
   }
 
-  String _label(DateTime month) => DateFormat(
-    'MMM',
-    'fr_FR',
-  ).format(month).replaceAll('.', '').toUpperCase();
+  String _label(DateTime month) =>
+      DateFormatter.shortMonth.format(month).replaceAll('.', '').toUpperCase();
 }
 
 class _Legend extends StatelessWidget {

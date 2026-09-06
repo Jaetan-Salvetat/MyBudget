@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
-import 'package:mybudget/core/services/revenue_grouping_service.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/service/revenue_grouping_service.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 
 void main() {
@@ -15,7 +16,7 @@ void main() {
     amount: amount,
     startDate: DateTime(2026, 8, 5),
     accountId: 1,
-    frequency: Frequency.monthly.label,
+    frequency: Frequency.monthly,
   );
 
   Future<void> pump(WidgetTester tester, RevenueGroup group) {
@@ -44,7 +45,10 @@ void main() {
     );
 
     expect(find.text('ALEX'), findsOneWidget);
-    expect(find.textContaining('63 %'), findsOneWidget);
+    expect(
+      find.textContaining(PercentFormatter.formatWhole(63)),
+      findsOneWidget,
+    );
     expect(find.textContaining('2'), findsWidgets);
   });
 

@@ -1,18 +1,16 @@
 import 'package:flutter/foundation.dart';
-
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ScanPhotoViewer extends StatelessWidget {
+  const ScanPhotoViewer({required this.imageBytes, super.key});
   static const String title = 'Photo du ticket';
 
   static const double minScale = 1;
   static const double maxScale = 6;
 
   final Uint8List imageBytes;
-
-  const ScanPhotoViewer({required this.imageBytes, super.key});
 
   static Future<void> show(BuildContext context, Uint8List imageBytes) {
     return Navigator.of(context).push(

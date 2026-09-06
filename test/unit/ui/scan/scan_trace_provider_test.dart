@@ -5,13 +5,14 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 import '../../../helpers/receipt_line_factory.dart';
 
-RoleInference tagger(List<String> roles) => (lines) => [
-  for (final (index, _) in lines.indexed)
-    [
-      for (final name in roleNames)
-        name == (index < roles.length ? roles[index] : 'noise') ? 1.0 : 0.0,
-    ],
-];
+RoleInference tagger(List<String> roles) =>
+    (lines) => [
+      for (final (index, _) in lines.indexed)
+        [
+          for (final name in roleNames)
+            name == (index < roles.length ? roles[index] : 'noise') ? 1.0 : 0.0,
+        ],
+    ];
 
 Future<List<ReadTrace>> someTrace() async {
   final outcome = await decideLocal(

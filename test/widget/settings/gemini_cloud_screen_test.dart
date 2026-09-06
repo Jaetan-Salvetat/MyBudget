@@ -1,18 +1,18 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/ai_chat_client.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
-import 'package:mybudget/core/services/ai/api_key_verifier.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/ai/ai_chat_client.dart';
+import 'package:mybudget/data/service/ai/api_key_service.dart';
+import 'package:mybudget/data/service/ai/api_key_verifier.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/gemini_cloud_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -204,9 +204,7 @@ void main() {
       tester,
     ) async {
       await ApiKeyService().save(AiProvider.gemini, validKey);
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
 
       await pumpScreen(tester);
       await tester.tap(find.text('Supprimer la clé'));

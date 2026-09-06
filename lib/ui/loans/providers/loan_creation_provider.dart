@@ -1,12 +1,13 @@
-import 'package:mybudget/core/entities/loan_installment.dart';
-import 'package:mybudget/core/entities/loan_schedule.dart';
-import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
-import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
-import 'package:mybudget/core/services/loan_schedule_service.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/values/loan_installment.dart';
+import 'package:mybudget/core/values/loan_schedule.dart';
+import 'package:mybudget/core/values/loan_terms.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/annual_percentage_rate_service.dart';
+import 'package:mybudget/data/service/early_repayment_indemnity_service.dart';
+import 'package:mybudget/data/service/loan_schedule_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'loan_creation_provider.g.dart';
@@ -14,6 +15,29 @@ part 'loan_creation_provider.g.dart';
 enum DurationUnit { years, months }
 
 class LoanCreationState {
+  LoanCreationState({
+    this.currentStep = 0,
+    this.name = '',
+    this.lenderName = '',
+    this.amount = 0.0,
+    this.selectedAccountId = -1,
+    required this.startDate,
+    this.dayOfMonth = 1,
+    this.durationValue = 0,
+    this.durationUnit = DurationUnit.years,
+    this.interestRate = 0.0,
+    this.repaymentType = LoanRepaymentType.amortizable,
+    this.deferredMonths = 0,
+    this.hasDeferredPeriod = false,
+    this.deferralType = LoanDeferralType.partial,
+    this.fees = 0.0,
+    this.purpose = LoanPurpose.other,
+    this.hasIndemnityClause = true,
+    this.insuranceType = LoanInsuranceType.none,
+    this.insuranceValue = 0.0,
+    this.insuranceCalcMode = InsuranceCalculationMode.initialCapital,
+    this.immediateFirstPayment = false,
+  });
   final int currentStep;
   final String name;
   final String lenderName;
@@ -41,30 +65,6 @@ class LoanCreationState {
   );
   static const AnnualPercentageRateService _rateService =
       AnnualPercentageRateService();
-
-  LoanCreationState({
-    this.currentStep = 0,
-    this.name = '',
-    this.lenderName = '',
-    this.amount = 0.0,
-    this.selectedAccountId = -1,
-    required this.startDate,
-    this.dayOfMonth = 1,
-    this.durationValue = 0,
-    this.durationUnit = DurationUnit.years,
-    this.interestRate = 0.0,
-    this.repaymentType = LoanRepaymentType.amortizable,
-    this.deferredMonths = 0,
-    this.hasDeferredPeriod = false,
-    this.deferralType = LoanDeferralType.partial,
-    this.fees = 0.0,
-    this.purpose = LoanPurpose.other,
-    this.hasIndemnityClause = true,
-    this.insuranceType = LoanInsuranceType.none,
-    this.insuranceValue = 0.0,
-    this.insuranceCalcMode = InsuranceCalculationMode.initialCapital,
-    this.immediateFirstPayment = false,
-  });
 
   LoanCreationState copyWith({
     int? currentStep,
@@ -206,7 +206,7 @@ class LoanCreationState {
 class LoanCreationNotifier extends _$LoanCreationNotifier {
   @override
   LoanCreationState build() {
-    return LoanCreationState(startDate: DateTime.now());
+    return LoanCreationState(startDate: ref.watch(clockProvider)());
   }
 
   void nextStep() {
@@ -253,9 +253,8 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
     );
   }
 
-  void toggleIndemnityClause() => state = state.copyWith(
-    hasIndemnityClause: !state.hasIndemnityClause,
-  );
+  void toggleIndemnityClause() =>
+      state = state.copyWith(hasIndemnityClause: !state.hasIndemnityClause);
 
   void setFees(String value) {
     final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;

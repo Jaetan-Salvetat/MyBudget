@@ -1,16 +1,16 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/core/entities/loan.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_card.dart';
-import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
 import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 
 class LoansList extends ConsumerWidget {
@@ -25,7 +25,7 @@ class LoansList extends ConsumerWidget {
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (loans) {
             final loanNotifier = ref.read(loanProvider.notifier);
-            final accounts = ref.watch(accountProvider).value ?? [];
+            final accounts = ref.watch(accountProvider);
 
             final activeLoans = loanNotifier.getActiveLoans();
             final completedLoans = loanNotifier.getCompletedLoans();
@@ -153,7 +153,7 @@ class LoansList extends ConsumerWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
+          MaterialPageRoute<void>(
             builder: (context) => LoanDetailsScreen(loan: loan),
           ),
         );
@@ -168,7 +168,7 @@ class LoansList extends ConsumerWidget {
       icon: Symbols.payments_rounded,
       buttonText: 'Ajouter un emprunt',
       onPressed: () {
-        final accounts = ref.read(accountProvider).value ?? [];
+        final accounts = ref.read(accountProvider);
         if (accounts.isEmpty) {
           _showNoAccountDialog(context, 'un emprunt');
           return;

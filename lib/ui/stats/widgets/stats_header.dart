@@ -6,9 +6,8 @@ import 'package:mybudget/ui/stats/models/stats_range.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 
 class StatsHeader extends ConsumerWidget {
-  static const double segmentWidth = 88;
-
   const StatsHeader({super.key});
+  static const double segmentWidth = 88;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,18 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class AccountBalanceBreakdown extends StatelessWidget {
-  final double totalRevenues;
-  final double totalExpenses;
-  final double totalLoanPayments;
-  final double totalTransfers;
-  final double balance;
-
   const AccountBalanceBreakdown({
     super.key,
     required this.totalRevenues,
@@ -21,16 +15,16 @@ class AccountBalanceBreakdown extends StatelessWidget {
     required this.totalTransfers,
     required this.balance,
   });
+  final double totalRevenues;
+  final double totalExpenses;
+  final double totalLoanPayments;
+  final double totalTransfers;
+  final double balance;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
 
     String formatSigned(double value, {required bool forceSign}) {
       final sign = value < 0
@@ -38,7 +32,7 @@ class AccountBalanceBreakdown extends StatelessWidget {
           : forceSign
           ? '+ '
           : '';
-      return '$sign${formatter.format(value.abs())}';
+      return '$sign${MoneyFormatter.format(value.abs())}';
     }
 
     final isPositive = balance >= 0;
@@ -55,19 +49,19 @@ class AccountBalanceBreakdown extends StatelessWidget {
               _DecompRow(
                 icon: Symbols.arrow_downward_rounded,
                 label: 'Revenus',
-                value: '+ ${formatter.format(totalRevenues)}',
+                value: '+ ${MoneyFormatter.format(totalRevenues)}',
                 valueColor: finance.income,
               ),
               _DecompRow(
                 icon: Symbols.arrow_upward_rounded,
                 label: 'Dépenses',
-                value: '− ${formatter.format(totalExpenses)}',
+                value: '− ${MoneyFormatter.format(totalExpenses)}',
                 valueColor: finance.expense,
               ),
               _DecompRow(
                 icon: Symbols.account_balance_rounded,
                 label: 'Mensualités',
-                value: '− ${formatter.format(totalLoanPayments)}',
+                value: '− ${MoneyFormatter.format(totalLoanPayments)}',
                 valueColor: finance.expense,
               ),
               _DecompRow(
@@ -99,7 +93,7 @@ class AccountBalanceBreakdown extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${isPositive ? '+' : '−'}${formatter.format(balance.abs())}',
+                      '${isPositive ? '+' : '−'}${MoneyFormatter.format(balance.abs())}',
                       style: AppTextStyles.amount(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -118,17 +112,16 @@ class AccountBalanceBreakdown extends StatelessWidget {
 }
 
 class _DecompRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color valueColor;
-
   const _DecompRow({
     required this.icon,
     required this.label,
     required this.value,
     required this.valueColor,
   });
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color valueColor;
 
   @override
   Widget build(BuildContext context) {

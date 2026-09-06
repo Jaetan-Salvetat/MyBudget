@@ -1,19 +1,18 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 const Duration _expandDuration = Duration(milliseconds: 220);
 
 class ExpandableGroup extends StatefulWidget {
-  final Widget header;
-  final List<Widget> children;
-  final bool expanded;
-
   const ExpandableGroup({
     required this.header,
     required this.children,
     required this.expanded,
     super.key,
   });
+  final Widget header;
+  final List<Widget> children;
+  final bool expanded;
 
   @override
   State<ExpandableGroup> createState() => _ExpandableGroupState();
@@ -89,9 +88,8 @@ class _ExpandableGroupState extends State<ExpandableGroup>
 }
 
 class ExpandChevron extends StatelessWidget {
-  final bool expanded;
-
   const ExpandChevron({required this.expanded, super.key});
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {

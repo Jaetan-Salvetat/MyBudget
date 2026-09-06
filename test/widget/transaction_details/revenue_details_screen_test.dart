@@ -1,25 +1,26 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/beneficiary_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/repository/transaction_event_repository.dart';
+import 'package:mybudget/data/repository/transfer_repository.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -69,9 +70,7 @@ void main() {
     when(
       () => events.getForRoot(any(), TransactionType.expense),
     ).thenReturn([]);
-    when(
-      () => events.getForRoot(any(), TransactionType.income),
-    ).thenReturn([]);
+    when(() => events.getForRoot(any(), TransactionType.income)).thenReturn([]);
     accountRepository = MockAccountRepository();
     expenseRepository = MockExpenseRepository();
     revenueRepository = MockRevenueRepository();
@@ -105,7 +104,7 @@ void main() {
       categorySlug: 'salaire.salaire_net',
       startDate: monthsAgo(2, 1),
       accountId: 1,
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       endDate: endDate,
     );
     revenue.id = 1;
@@ -137,7 +136,9 @@ void main() {
             categoryOverrideRepository,
           ),
           transactionEventRepositoryProvider.overrideWithValue(events),
-          beneficiaryRepositoryProvider.overrideWithValue(beneficiaryRepository),
+          beneficiaryRepositoryProvider.overrideWithValue(
+            beneficiaryRepository,
+          ),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],
         child: MaterialApp(

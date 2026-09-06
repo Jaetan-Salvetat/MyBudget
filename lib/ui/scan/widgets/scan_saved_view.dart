@@ -1,13 +1,21 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
 
 class ScanSavedView extends StatefulWidget {
+  const ScanSavedView({
+    required this.result,
+    required this.resolve,
+    required this.onDone,
+    required this.onDiscard,
+    super.key,
+  });
   static const String doneLabel = 'Terminé';
   static const String discardLabel = 'Annuler';
 
@@ -22,14 +30,6 @@ class ScanSavedView extends StatefulWidget {
   final CategoryDisplay? Function(String? slug) resolve;
   final VoidCallback onDone;
   final VoidCallback onDiscard;
-
-  const ScanSavedView({
-    required this.result,
-    required this.resolve,
-    required this.onDone,
-    required this.onDiscard,
-    super.key,
-  });
 
   @override
   State<ScanSavedView> createState() => _ScanSavedViewState();
@@ -62,7 +62,7 @@ class _ScanSavedViewState extends State<ScanSavedView>
     final theme = Theme.of(context);
     final groups = widget.result.groupedByCategory;
     final store = widget.result.storeName;
-    final date = scanDate.format(widget.result.date);
+    final date = DateFormatter.longDate.format(widget.result.date);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp6),
@@ -76,7 +76,7 @@ class _ScanSavedViewState extends State<ScanSavedView>
             animation: _stepAt(1),
             child: Center(
               child: Text(
-                scanCurrency.format(widget.result.itemsTotal),
+                MoneyFormatter.format(widget.result.itemsTotal),
                 style: AppTextStyles.displaySerifItalic(
                   fontSize: 40,
                   color: theme.colorScheme.onSurface,
@@ -143,9 +143,8 @@ class _ScanSavedViewState extends State<ScanSavedView>
 }
 
 class _Mark extends StatelessWidget {
-  final Animation<double> controller;
-
   const _Mark({required this.controller});
+  final Animation<double> controller;
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +173,9 @@ class _Mark extends StatelessWidget {
 }
 
 class _Rise extends StatelessWidget {
+  const _Rise({required this.animation, required this.child});
   final Animation<double> animation;
   final Widget child;
-
-  const _Rise({required this.animation, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -195,10 +193,9 @@ class _Rise extends StatelessWidget {
 }
 
 class _GroupLine extends StatelessWidget {
+  const _GroupLine({required this.group, required this.category});
   final ScannedExpenseGroup group;
   final CategoryDisplay? category;
-
-  const _GroupLine({required this.group, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +227,7 @@ class _GroupLine extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            scanCurrency.format(group.total),
+            MoneyFormatter.format(group.total),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),

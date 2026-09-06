@@ -17,7 +17,6 @@ jobs:
       matrix:
         package:
           - { name: mybudget, dir: '.', tool: flutter, scope: 'lib test tool' }
-          - { name: app_updater, dir: app_updater, tool: flutter, scope: 'lib test' }
           - { name: frosted_ui, dir: frosted_ui, tool: flutter, scope: 'lib test' }
           - { name: frosted_ui_example, dir: frosted_ui/example, tool: flutter, scope: 'lib test' }
           - { name: price_parser, dir: ml/price_parser, tool: dart, scope: 'lib test' }

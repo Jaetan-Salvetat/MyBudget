@@ -2,10 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_breakpoints.dart';
 import 'frosted_nav_item.dart';
+import 'frosted_nav_pill.dart';
 import 'frosted_navigation_rail.dart';
 import 'frosted_scaffold.dart';
 import 'frosted_sidebar.dart';
-import 'frosted_nav_pill.dart';
 
 class FrostedAdaptiveNavigation extends StatelessWidget {
   const FrostedAdaptiveNavigation({

@@ -42,7 +42,7 @@ final class LoanCreationNotifierProvider
 }
 
 String _$loanCreationNotifierHash() =>
-    r'6c7bb2a15ff1b3ab710ed6f3a6905feb9fb0c9a2';
+    r'cb0d2fde3eab47148ff77288d17bf2c6aecf93b7';
 
 abstract class _$LoanCreationNotifier extends $Notifier<LoanCreationState> {
   LoanCreationState build();

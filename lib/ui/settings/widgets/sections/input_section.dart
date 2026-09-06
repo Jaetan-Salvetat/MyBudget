@@ -1,7 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
 import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 
@@ -20,7 +19,7 @@ class InputSection extends StatelessWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const CategoriesScreen()),
+            MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
           ),
         ),
         FrostedListTile(
@@ -30,7 +29,9 @@ class InputSection extends StatelessWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const BeneficiariesScreen()),
+            MaterialPageRoute<void>(
+              builder: (_) => const BeneficiariesScreen(),
+            ),
           ),
         ),
       ],

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
 
 import '../../helpers/scan_review_factory.dart';

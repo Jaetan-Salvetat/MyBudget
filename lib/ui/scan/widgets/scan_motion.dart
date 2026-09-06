@@ -12,10 +12,9 @@ class ScanMotion {
 }
 
 class ScanSettle extends StatelessWidget {
+  const ScanSettle({required this.visible, required this.child, super.key});
   final bool visible;
   final Widget child;
-
-  const ScanSettle({required this.visible, required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +33,8 @@ class ScanSettle extends StatelessWidget {
 }
 
 class ScanSwap extends StatelessWidget {
-  final Widget child;
-
   const ScanSwap({required this.child, super.key});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

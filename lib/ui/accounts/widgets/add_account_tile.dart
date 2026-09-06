@@ -1,10 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AddAccountTile extends StatelessWidget {
-  final VoidCallback onTap;
-
   const AddAccountTile({super.key, required this.onTap});
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -79,12 +78,6 @@ class AddAccountTile extends StatelessWidget {
 }
 
 class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double radius;
-  final double strokeWidth;
-  final double dashLength;
-  final double gapLength;
-
   _DashedBorderPainter({
     required this.color,
     required this.radius,
@@ -92,6 +85,11 @@ class _DashedBorderPainter extends CustomPainter {
     required this.dashLength,
     required this.gapLength,
   });
+  final Color color;
+  final double radius;
+  final double strokeWidth;
+  final double dashLength;
+  final double gapLength;
 
   @override
   void paint(Canvas canvas, Size size) {

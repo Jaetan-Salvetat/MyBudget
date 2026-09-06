@@ -1,16 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
-import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/settings/help_content.dart';
 import 'package:mybudget/ui/settings/models/help_topic.dart';
 import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
 import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 import 'package:mybudget/ui/settings/screens/theme_screen.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
 Widget helpDestinationScreen(HelpDestination destination) {
   switch (destination) {
@@ -22,8 +21,6 @@ Widget helpDestinationScreen(HelpDestination destination) {
       return const QuickAddEngineScreen();
     case HelpDestination.theme:
       return const ThemeScreen();
-    case HelpDestination.update:
-      return const UpdateScreen();
   }
 }
 
@@ -44,7 +41,9 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
   void _open(HelpDestination destination) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => helpDestinationScreen(destination)),
+      MaterialPageRoute<void>(
+        builder: (_) => helpDestinationScreen(destination),
+      ),
     );
   }
 
@@ -80,6 +79,13 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
 }
 
 class _Chapter extends StatelessWidget {
+  const _Chapter({
+    required this.chapter,
+    required this.flavor,
+    required this.openTitle,
+    required this.onToggle,
+    required this.onAction,
+  });
   static const double _gap = FrostedSpacing.sp05;
 
   final HelpChapter chapter;
@@ -88,17 +94,11 @@ class _Chapter extends StatelessWidget {
   final void Function(HelpTopic topic, bool expanded) onToggle;
   final ValueChanged<HelpDestination> onAction;
 
-  const _Chapter({
-    required this.chapter,
-    required this.flavor,
-    required this.openTitle,
-    required this.onToggle,
-    required this.onAction,
-  });
-
   HelpAction? _actionFor(HelpTopic topic) {
     final HelpAction? action = topic.action;
-    if (action == null || !action.destination.isAvailableIn(flavor)) return null;
+    if (action == null || !action.destination.isAvailableIn(flavor)) {
+      return null;
+    }
     return action;
   }
 
@@ -145,13 +145,6 @@ class _Chapter extends StatelessWidget {
 }
 
 class _TopicTile extends StatelessWidget {
-  final HelpTopic topic;
-  final HelpAction? action;
-  final FrostedTilePosition position;
-  final bool expanded;
-  final void Function(HelpTopic topic, bool expanded) onToggle;
-  final ValueChanged<HelpDestination> onAction;
-
   const _TopicTile({
     required this.topic,
     required this.action,
@@ -160,6 +153,12 @@ class _TopicTile extends StatelessWidget {
     required this.onToggle,
     required this.onAction,
   });
+  final HelpTopic topic;
+  final HelpAction? action;
+  final FrostedTilePosition position;
+  final bool expanded;
+  final void Function(HelpTopic topic, bool expanded) onToggle;
+  final ValueChanged<HelpDestination> onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +175,8 @@ class _TopicTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final (int index, String paragraph) in topic.paragraphs.indexed) ...[
+          for (final (int index, String paragraph)
+              in topic.paragraphs.indexed) ...[
             if (index > 0) const SizedBox(height: FrostedSpacing.sp3),
             Text(
               paragraph,

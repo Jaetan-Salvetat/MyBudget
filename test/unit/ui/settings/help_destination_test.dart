@@ -10,16 +10,18 @@ void main() {
       }
     });
 
-    test('le store ferme le moteur d\'analyse et la mise à jour', () {
+    test('le store ferme le moteur d\'analyse', () {
       expect(
         HelpDestination.quickAddEngine.isAvailableIn(BuildFlavor.store),
         isFalse,
       );
-      expect(HelpDestination.update.isAvailableIn(BuildFlavor.store), isFalse);
     });
 
     test('le store garde les destinations sans rapport', () {
-      expect(HelpDestination.categories.isAvailableIn(BuildFlavor.store), isTrue);
+      expect(
+        HelpDestination.categories.isAvailableIn(BuildFlavor.store),
+        isTrue,
+      );
       expect(
         HelpDestination.beneficiaries.isAvailableIn(BuildFlavor.store),
         isTrue,

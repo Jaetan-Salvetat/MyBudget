@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 
 class _SeededScan extends ScanNotifier {
@@ -28,11 +28,14 @@ ScannedItemModel itemOf({
   );
 }
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   late ProviderContainer container;
 
   ReceiptScanResultModel seedOf(List<ScannedItemModel> items) {
     return ReceiptScanResultModel(
+      date: _fixedNow,
       storeName: 'Carrefour',
       printedTotal: 10.0,
       items: items,

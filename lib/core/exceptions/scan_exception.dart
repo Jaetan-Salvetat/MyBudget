@@ -1,9 +1,8 @@
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 
 sealed class ScanException implements Exception {
-  final String message;
-
   const ScanException({required this.message});
+  final String message;
 }
 
 final class ScanUnreadableException extends ScanException {

@@ -14,17 +14,17 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'models/account_model.dart';
-import 'models/beneficiary_model.dart';
-import 'models/category_memory_model.dart';
-import 'models/category_override_model.dart';
-import 'models/expense_model.dart';
-import 'models/legacy_category_model.dart';
-import 'models/loan_event_model.dart';
-import 'models/loan_model.dart';
-import 'models/revenue_model.dart';
-import 'models/transaction_event_model.dart';
-import 'models/transfer_model.dart';
+import 'data/model/account_model.dart';
+import 'data/model/beneficiary_model.dart';
+import 'data/model/category_memory_model.dart';
+import 'data/model/category_override_model.dart';
+import 'data/model/expense_model.dart';
+import 'data/model/legacy_category_model.dart';
+import 'data/model/loan_event_model.dart';
+import 'data/model/loan_model.dart';
+import 'data/model/revenue_model.dart';
+import 'data/model/transaction_event_model.dart';
+import 'data/model/transfer_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 

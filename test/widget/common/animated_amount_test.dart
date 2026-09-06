@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 
 void main() {
@@ -22,16 +22,12 @@ void main() {
     expect(find.text('120.00'), findsOneWidget);
   });
 
-  testWidgets('counts towards a new amount instead of jumping', (
-    tester,
-  ) async {
+  testWidgets('counts towards a new amount instead of jumping', (tester) async {
     await pumpAmount(tester, 100);
     await pumpAmount(tester, 200);
 
     await tester.pump(AnimatedAmount.duration * 0.5);
-    final text = tester
-        .widget<Text>(find.byType(Text))
-        .data!;
+    final text = tester.widget<Text>(find.byType(Text)).data!;
     final displayed = double.parse(text);
     expect(displayed, greaterThan(100));
     expect(displayed, lessThan(200));

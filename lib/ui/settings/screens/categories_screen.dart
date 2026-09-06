@@ -1,14 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/category_override_model.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/category_override_model.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
 import 'package:mybudget/ui/common/widgets/category_tile.dart';
 import 'package:mybudget/ui/common/widgets/expandable_group.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/settings/screens/category_form_screen.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
@@ -201,14 +202,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 }
 
 class _GroupSection extends StatelessWidget {
-  final CategoryDisplay group;
-  final List<CategoryDisplay> children;
-  final Map<String, CategoryOverrideModel> overrides;
-  final bool expanded;
-  final bool collapsible;
-  final VoidCallback onToggle;
-  final ValueChanged<CategoryDisplay> onEdit;
-
   const _GroupSection({
     required this.group,
     required this.children,
@@ -218,6 +211,13 @@ class _GroupSection extends StatelessWidget {
     required this.onToggle,
     required this.onEdit,
   });
+  final CategoryDisplay group;
+  final List<CategoryDisplay> children;
+  final Map<String, CategoryOverrideModel> overrides;
+  final bool expanded;
+  final bool collapsible;
+  final VoidCallback onToggle;
+  final ValueChanged<CategoryDisplay> onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -249,17 +249,16 @@ class _GroupSection extends StatelessWidget {
 }
 
 class _Trailing extends StatelessWidget {
-  final bool customised;
-  final bool showChevron;
-  final bool expanded;
-  final VoidCallback onEdit;
-
   const _Trailing({
     required this.customised,
     required this.onEdit,
     this.showChevron = false,
     this.expanded = false,
   });
+  final bool customised;
+  final bool showChevron;
+  final bool expanded;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {

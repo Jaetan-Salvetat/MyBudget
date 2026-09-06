@@ -1,10 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/models/category_override_model.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/data/model/category_override_model.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/capture/widgets/day_gauge.dart';
 

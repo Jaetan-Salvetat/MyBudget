@@ -1,14 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 
 class RecurringSummaryCard extends StatelessWidget {
-  final int count;
-  final double total;
-  final bool expanded;
-  final VoidCallback onToggle;
-  final Widget? expandedContent;
-
   const RecurringSummaryCard({
     required this.count,
     required this.total,
@@ -17,6 +11,11 @@ class RecurringSummaryCard extends StatelessWidget {
     this.expandedContent,
     super.key,
   });
+  final int count;
+  final double total;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final Widget? expandedContent;
 
   static const Duration _duration = Duration(milliseconds: 250);
   static const Curve _curve = Curves.easeInOutCubic;
@@ -24,11 +23,6 @@ class RecurringSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -91,7 +85,7 @@ class RecurringSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      formatter.format(total),
+                      MoneyFormatter.formatRounded(total),
                       style: TextStyle(
                         fontSize: 14,
                         height: 18 / 14,

@@ -1,11 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
 import 'package:mybudget/ui/onboarding/widgets/quick_add_demo.dart';
 
@@ -41,9 +41,7 @@ void main() {
           theme: AppTheme.light(),
           home: const MediaQuery(
             data: MediaQueryData(disableAnimations: true),
-            child: Scaffold(
-              body: Center(child: QuickAddDemo(isActive: true)),
-            ),
+            child: Scaffold(body: Center(child: QuickAddDemo(isActive: true))),
           ),
         ),
       ),
@@ -72,9 +70,6 @@ void main() {
     final phrase = OnboardingDemo.phrases.first;
 
     expect(find.textContaining('42'), findsWidgets);
-    expect(
-      find.text(phrase.frequency.label.toLowerCase()),
-      findsOneWidget,
-    );
+    expect(find.text(phrase.frequency.label.toLowerCase()), findsOneWidget);
   });
 }

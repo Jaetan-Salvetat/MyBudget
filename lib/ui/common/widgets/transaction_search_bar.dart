@@ -1,16 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 
 class TransactionSearchBar extends StatelessWidget {
-  final TextEditingController controller;
-  final int activeFiltersCount;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onOpenFilters;
-  final String hintText;
-  final Color? badgeColor;
-
   const TransactionSearchBar({
     required this.controller,
     required this.activeFiltersCount,
@@ -20,6 +13,12 @@ class TransactionSearchBar extends StatelessWidget {
     this.badgeColor,
     super.key,
   });
+  final TextEditingController controller;
+  final int activeFiltersCount;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onOpenFilters;
+  final String hintText;
+  final Color? badgeColor;
 
   @override
   Widget build(BuildContext context) {

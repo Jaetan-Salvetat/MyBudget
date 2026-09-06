@@ -1,13 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpenseDayHeader extends StatelessWidget {
-  final DateTime date;
-  final int count;
-  final double total;
-  final bool isToday;
-
   const ExpenseDayHeader({
     required this.date,
     required this.count,
@@ -15,11 +11,15 @@ class ExpenseDayHeader extends StatelessWidget {
     required this.isToday,
     super.key,
   });
+  final DateTime date;
+  final int count;
+  final double total;
+  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final dayLabel = DateFormat('EEE d MMM', 'fr_FR').format(date);
+    final dayLabel = DateFormatter.weekdayDayMonth.format(date);
     final formattedLabel = _capitalize(dayLabel).toUpperCase();
     return _GroupHeader(
       title: isToday ? "$formattedLabel · AUJOURD'HUI" : formattedLabel,
@@ -36,12 +36,6 @@ class ExpenseDayHeader extends StatelessWidget {
 }
 
 class ExpenseWeekHeader extends StatelessWidget {
-  final int weekNumber;
-  final DateTime weekStart;
-  final DateTime weekEnd;
-  final int count;
-  final double total;
-
   const ExpenseWeekHeader({
     required this.weekNumber,
     required this.weekStart,
@@ -50,12 +44,17 @@ class ExpenseWeekHeader extends StatelessWidget {
     required this.total,
     super.key,
   });
+  final int weekNumber;
+  final DateTime weekStart;
+  final DateTime weekEnd;
+  final int count;
+  final double total;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final startLabel = DateFormat('d', 'fr_FR').format(weekStart);
-    final endLabel = DateFormat('d MMM', 'fr_FR').format(weekEnd);
+    final startLabel = DateFormatter.dayNumber.format(weekStart);
+    final endLabel = DateFormatter.shortDayMonth.format(weekEnd);
     final label = 'SEM. $weekNumber · $startLabel – $endLabel'.toUpperCase();
     return _GroupHeader(
       title: label,
@@ -67,26 +66,20 @@ class ExpenseWeekHeader extends StatelessWidget {
 }
 
 class _GroupHeader extends StatelessWidget {
-  final String title;
-  final double total;
-  final int count;
-  final Color color;
-
   const _GroupHeader({
     required this.title,
     required this.total,
     required this.count,
     required this.color,
   });
+  final String title;
+  final double total;
+  final int count;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 6, left: 2, right: 2),
       child: Row(
@@ -107,7 +100,7 @@ class _GroupHeader extends StatelessWidget {
             ),
           ),
           Text(
-            '${formatter.format(total)} · $count',
+            '${MoneyFormatter.formatRounded(total)} · $count',
             style: AppTextStyles.mono(
               fontSize: 11,
               color: scheme.onSurfaceVariant,

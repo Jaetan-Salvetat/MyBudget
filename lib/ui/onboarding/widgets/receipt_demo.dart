@@ -1,18 +1,19 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ReceiptDemoView extends ConsumerStatefulWidget {
+  const ReceiptDemoView({required this.isActive, super.key});
   static const Duration lineRead = Duration(milliseconds: 420);
 
   final bool isActive;
-
-  const ReceiptDemoView({required this.isActive, super.key});
 
   @override
   ConsumerState<ReceiptDemoView> createState() => _ReceiptDemoViewState();
@@ -56,8 +57,7 @@ class _ReceiptDemoViewState extends ConsumerState<ReceiptDemoView>
     _controller.forward(from: 0);
   }
 
-  int get _readingIndex =>
-      (_controller.value * _demo.lines.length).floor();
+  int get _readingIndex => (_controller.value * _demo.lines.length).floor();
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _ReceiptDemoViewState extends ConsumerState<ReceiptDemoView>
             ),
             const SizedBox(height: FrostedSpacing.sp1),
             Text(
-              DateFormat('dd/MM/yyyy', 'fr_FR').format(DateTime.now()),
+              DateFormatter.numericDate.format(ref.read(clockProvider)()),
               textAlign: TextAlign.center,
               style: AppTextStyles.mono(
                 fontSize: 10,
@@ -124,14 +124,6 @@ class _ReceiptDemoViewState extends ConsumerState<ReceiptDemoView>
 }
 
 class _ReceiptLine extends StatelessWidget {
-  static const double _pipSize = 7;
-
-  final ReceiptDemoLine line;
-  final CategoryDisplay? display;
-  final bool isReading;
-  final bool isRead;
-  final double highlightAlpha;
-
   const _ReceiptLine({
     required this.line,
     required this.display,
@@ -139,6 +131,13 @@ class _ReceiptLine extends StatelessWidget {
     required this.isRead,
     required this.highlightAlpha,
   });
+  static const double _pipSize = 7;
+
+  final ReceiptDemoLine line;
+  final CategoryDisplay? display;
+  final bool isReading;
+  final bool isRead;
+  final double highlightAlpha;
 
   @override
   Widget build(BuildContext context) {
@@ -175,22 +174,16 @@ class _ReceiptLine extends StatelessWidget {
           ),
           const SizedBox(width: FrostedSpacing.sp2),
           Expanded(child: Text(line.label, style: style)),
-          Text(_amount(line.amount), style: style),
+          Text(MoneyFormatter.formatPlain(line.amount), style: style),
         ],
       ),
     );
   }
-
-  String _amount(double value) => NumberFormat.decimalPatternDigits(
-    locale: 'fr_FR',
-    decimalDigits: 2,
-  ).format(value);
 }
 
 class _TotalLine extends StatelessWidget {
-  final double total;
-
   const _TotalLine({required this.total});
+  final double total;
 
   @override
   Widget build(BuildContext context) {
@@ -204,10 +197,7 @@ class _TotalLine extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: Text('TOTAL', style: style)),
-        Text(
-          NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(total),
-          style: style,
-        ),
+        Text(MoneyFormatter.format(total), style: style),
       ],
     );
   }

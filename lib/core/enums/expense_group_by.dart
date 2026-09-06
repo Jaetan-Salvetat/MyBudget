@@ -1,5 +1,5 @@
-import 'package:intl/intl.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 
 enum ExpenseGroupBy {
   day,
@@ -19,26 +19,24 @@ enum ExpenseGroupBy {
 }
 
 class ExpenseDayGroup {
+  const ExpenseDayGroup({required this.date, required this.items});
   final DateTime date;
   final List<ExpenseModel> items;
-
-  const ExpenseDayGroup({required this.date, required this.items});
 
   double get total => items.fold(0, (s, e) => s + e.amount);
 }
 
 class ExpenseWeekGroup {
-  final int weekNumber;
-  final DateTime weekStart;
-  final DateTime weekEnd;
-  final List<ExpenseModel> items;
-
   const ExpenseWeekGroup({
     required this.weekNumber,
     required this.weekStart,
     required this.weekEnd,
     required this.items,
   });
+  final int weekNumber;
+  final DateTime weekStart;
+  final DateTime weekEnd;
+  final List<ExpenseModel> items;
 
   double get total => items.fold(0, (s, e) => s + e.amount);
 }
@@ -156,7 +154,7 @@ class ExpenseGroupingService {
 
 extension DateLabelExtension on DateTime {
   String get dayHeaderLabel {
-    final formatter = DateFormat("EEE d MMM", 'fr_FR');
+    final formatter = DateFormatter.weekdayDayMonth;
     final formatted = formatter.format(this);
     return formatted.replaceAll('.', '.').toUpperCase();
   }

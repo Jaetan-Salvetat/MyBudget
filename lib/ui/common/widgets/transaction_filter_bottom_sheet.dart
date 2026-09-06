@@ -1,22 +1,15 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/services/amount_slider_scale.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
+import 'package:mybudget/ui/shared/amount_slider_scale.dart';
 
 class TransactionFilterBottomSheet extends StatefulWidget {
-  final TransactionFilterData initialFilterData;
-  final List<CategoryDisplay> categories;
-  final List<AccountModel> accounts;
-  final List<Beneficiary> beneficiaries;
-  final double highestAmount;
-  final int Function(TransactionFilterData filter) resultCount;
-  final void Function(TransactionFilterData filter) onApply;
-
   const TransactionFilterBottomSheet({
     required this.initialFilterData,
     required this.categories,
@@ -27,6 +20,13 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required this.onApply,
     super.key,
   });
+  final TransactionFilterData initialFilterData;
+  final List<CategoryDisplay> categories;
+  final List<AccountModel> accounts;
+  final List<BeneficiaryModel> beneficiaries;
+  final double highestAmount;
+  final int Function(TransactionFilterData filter) resultCount;
+  final void Function(TransactionFilterData filter) onApply;
 
   static void show({
     required BuildContext context,
@@ -34,7 +34,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required TransactionFilterData initialFilterData,
     required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
-    required List<Beneficiary> beneficiaries,
+    required List<BeneficiaryModel> beneficiaries,
     required double highestAmount,
     required int Function(TransactionFilterData filter) resultCount,
     required void Function(TransactionFilterData filter) onApply,
@@ -198,7 +198,8 @@ class _TransactionFilterBottomSheetState
           _GroupLabel(
             text: 'Montant',
             hint:
-                '${_amountRange.start.round()} € – ${_amountRange.end.round()} €',
+                '${MoneyFormatter.formatPlainRounded(_amountRange.start)} – '
+                '${MoneyFormatter.formatRounded(_amountRange.end)}',
           ),
           const SizedBox(height: 4),
           FrostedRangeSlider(
@@ -213,8 +214,10 @@ class _TransactionFilterBottomSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _AmountBound(label: '0 €'),
-              _AmountBound(label: '${_amountScale.ceiling.round()} €'),
+              _AmountBound(label: MoneyFormatter.formatRounded(0)),
+              _AmountBound(
+                label: MoneyFormatter.formatRounded(_amountScale.ceiling),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -298,9 +301,8 @@ class _TransactionFilterBottomSheetState
 }
 
 class _AmountBound extends StatelessWidget {
-  final String label;
-
   const _AmountBound({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -319,10 +321,9 @@ class _AmountBound extends StatelessWidget {
 }
 
 class _GroupLabel extends StatelessWidget {
+  const _GroupLabel({required this.text, this.hint});
   final String text;
   final String? hint;
-
-  const _GroupLabel({required this.text, this.hint});
 
   @override
   Widget build(BuildContext context) {
@@ -359,12 +360,6 @@ class _GroupLabel extends StatelessWidget {
 }
 
 class _Chip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final IconData? icon;
-  final Color? color;
-  final VoidCallback onTap;
-
   const _Chip({
     required this.label,
     required this.selected,
@@ -372,6 +367,11 @@ class _Chip extends StatelessWidget {
     this.icon,
     this.color,
   });
+  final String label;
+  final bool selected;
+  final IconData? icon;
+  final Color? color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

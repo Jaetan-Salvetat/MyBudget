@@ -1,14 +1,8 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 class EmptyState extends StatelessWidget {
-  final String message;
-  final String? subMessage;
-  final IconData icon;
-  final String buttonText;
-  final VoidCallback onPressed;
-
   const EmptyState({
     super.key,
     required this.message,
@@ -17,6 +11,11 @@ class EmptyState extends StatelessWidget {
     required this.buttonText,
     required this.onPressed,
   });
+  final String message;
+  final String? subMessage;
+  final IconData icon;
+  final String buttonText;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {

@@ -1,19 +1,19 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 
 class ScanOutputSummary extends StatelessWidget {
-  final ReceiptScanResultModel result;
-  final CategoryDisplay? Function(String? slug) resolve;
-
   const ScanOutputSummary({
     required this.result,
     required this.resolve,
     super.key,
   });
+  final ReceiptScanResultModel result;
+  final CategoryDisplay? Function(String? slug) resolve;
 
   static String titleOf(int count) {
     if (count == 0) return 'Aucune dépense à créer';
@@ -46,7 +46,7 @@ class ScanOutputSummary extends StatelessWidget {
             const SizedBox(height: FrostedSpacing.sp2),
             Text(
               'Nommées « ${result.storeName} — catégorie », '
-              'datées du ${scanDate.format(result.date)}, '
+              'datées du ${DateFormatter.longDate.format(result.date)}, '
               'photo conservée.',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -60,10 +60,9 @@ class ScanOutputSummary extends StatelessWidget {
 }
 
 class _GroupLine extends StatelessWidget {
+  const _GroupLine({required this.group, required this.category});
   final ScannedExpenseGroup group;
   final CategoryDisplay? category;
-
-  const _GroupLine({required this.group, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +107,7 @@ class _GroupLine extends StatelessWidget {
           ),
           const SizedBox(width: FrostedSpacing.sp2),
           Text(
-            scanCurrency.format(group.total),
+            MoneyFormatter.format(group.total),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
               fontFeatures: const [FontFeature.tabularFigures()],

@@ -1,18 +1,18 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
-import 'package:mybudget/core/models/gemini_nano_download.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/data/model/gemini_nano_download.dart';
+import 'package:mybudget/data/provider/gemini_nano_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/ai/gemini_nano_service.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/gemini_nano_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,14 +57,15 @@ void main() {
 
   Future<void> pumpScreen(WidgetTester tester, GeminiNanoStatus status) async {
     service = _StubService(status, steps);
-    final scope = ProviderScope(
-      overrides: [geminiNanoServiceProvider.overrideWithValue(service)],
-      child: MaterialApp(
-        theme: FrostedTheme.light(seedColor: const Color(0xFF2A55D3)),
-        home: const GeminiNanoScreen(),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [geminiNanoServiceProvider.overrideWithValue(service)],
+        child: MaterialApp(
+          theme: FrostedTheme.light(seedColor: const Color(0xFF2A55D3)),
+          home: const GeminiNanoScreen(),
+        ),
       ),
     );
-    await tester.pumpWidget(scope);
     await tester.pumpAndSettle();
     container = ProviderScope.containerOf(
       tester.element(find.byType(GeminiNanoScreen)),
@@ -80,15 +81,18 @@ void main() {
   tearDown(() => steps.close());
 
   group('GeminiNanoScreen', () {
-    testWidgets('un modèle absent se propose au téléchargement', (tester) async {
+    testWidgets('un modèle absent se propose au téléchargement', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.downloadable);
 
       expect(find.text('Télécharger le modèle complet'), findsOneWidget);
       expect(find.text(GeminiNanoScreen.scanTitle), findsNothing);
     });
 
-    testWidgets('le téléchargement demande bien le modèle complet',
-        (tester) async {
+    testWidgets('le téléchargement demande bien le modèle complet', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.downloadable);
 
       await tester.tap(find.text('Télécharger le modèle complet'));
@@ -114,8 +118,9 @@ void main() {
       expect(find.textContaining('50 %'), findsOneWidget);
     });
 
-    testWidgets('un téléchargement terminé active la lecture des tickets',
-        (tester) async {
+    testWidgets('un téléchargement terminé active la lecture des tickets', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.downloadable);
 
       await tester.tap(find.text('Télécharger le modèle complet'));
@@ -137,29 +142,32 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text(GeminiNanoFailure.quotaExceeded.message), findsOneWidget);
+      expect(
+        find.text(GeminiNanoFailure.quotaExceeded.message),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Réessayer'));
       await tester.pump();
 
       expect(service.downloads, 2);
     });
 
-    testWidgets('un échec définitif ne propose pas de réessayer',
-        (tester) async {
+    testWidgets('un échec définitif ne propose pas de réessayer', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.downloadable);
 
       await tester.tap(find.text('Télécharger le modèle complet'));
       await tester.pump();
-      steps.add(
-        const GeminiNanoDownloadFailed(GeminiNanoFailure.unavailable),
-      );
+      steps.add(const GeminiNanoDownloadFailed(GeminiNanoFailure.unavailable));
       await tester.pump();
 
       expect(find.text('Réessayer'), findsNothing);
     });
 
-    testWidgets('un modèle prêt offre le switch de lecture des tickets',
-        (tester) async {
+    testWidgets('un modèle prêt offre le switch de lecture des tickets', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.available);
 
       expect(find.text(GeminiNanoScreen.scanTitle), findsOneWidget);
@@ -175,8 +183,9 @@ void main() {
       expect(PreferencesService.isGeminiNanoScanEnabled(), isTrue);
     });
 
-    testWidgets('un appareil incompatible le dit sans rien proposer',
-        (tester) async {
+    testWidgets('un appareil incompatible le dit sans rien proposer', (
+      tester,
+    ) async {
       await pumpScreen(tester, GeminiNanoStatus.unavailable);
 
       expect(find.textContaining('ne propose pas Gemini Nano'), findsOneWidget);

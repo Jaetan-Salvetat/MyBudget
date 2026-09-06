@@ -1,19 +1,18 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:url_launcher/url_launcher.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/models/api_key_check.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/data/model/api_key_check.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/quick_add_engine_provider.dart';
+import 'package:mybudget/data/provider/receipt_reader_provider.dart';
 import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 import 'package:mybudget/ui/settings/widgets/settings_note.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GeminiCloudScreen extends ConsumerStatefulWidget {
   const GeminiCloudScreen({super.key});
@@ -281,10 +280,7 @@ class _KeyForm extends StatelessWidget {
         ),
         if (noticeMessage != null) ...[
           const SizedBox(height: FrostedSpacing.sp3),
-          SettingsNote(
-            icon: Symbols.info_rounded,
-            text: noticeMessage!,
-          ),
+          SettingsNote(icon: Symbols.info_rounded, text: noticeMessage!),
         ],
         const SizedBox(height: FrostedSpacing.sp5),
         FrostedButton.filled(

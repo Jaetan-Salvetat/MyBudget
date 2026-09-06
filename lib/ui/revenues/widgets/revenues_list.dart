@@ -1,43 +1,45 @@
 import 'dart:math';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/providers/revenues_view_provider.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/core/providers/transaction_filter_provider.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/services/revenue_grouping_service.dart';
-import 'package:mybudget/core/services/transaction_filter_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
-import 'package:mybudget/core/enums/effective_month.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/revenues_provider.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
+import 'package:mybudget/data/service/revenue_grouping_service.dart';
+import 'package:mybudget/data/service/transaction_filter_service.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills_builder.dart';
+import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_search_bar.dart';
-import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
-import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
+import 'package:mybudget/ui/revenues/widgets/compact_revenue_row.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_quick_filters.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_summary_card.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/ui/shared/revenue_queries.dart';
+import 'package:mybudget/ui/shared/revenues_view_provider.dart';
+import 'package:mybudget/ui/shared/selected_month_provider.dart';
+import 'package:mybudget/ui/shared/transaction_filter_provider.dart';
+import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
 
 class RevenuesList extends ConsumerStatefulWidget {
   const RevenuesList({super.key});
@@ -93,7 +95,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     TransactionFilterData filter,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     return ActiveFilterPillsBuilder.build(
       filter: filter,
@@ -118,7 +120,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (revenues) {
             final axis = ref.watch(revenuesGroupByProvider);
-            final accounts = ref.watch(accountProvider).value ?? [];
+            final accounts = ref.watch(accountProvider);
             final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
             final resolver = ref.watch(categoryDisplayResolverProvider).value;
             final categories =
@@ -223,7 +225,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   Widget _buildGroup(
     List<RevenueModel> rows,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
     CategoryDisplayResolver? resolver,
   ) {
     return FrostedCard(
@@ -244,7 +246,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   }
 
   bool get _isViewingCurrentMonth {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     final selectedMonth = ref.watch(selectedMonthProvider);
     return now.year == selectedMonth.year && now.month == selectedMonth.month;
   }
@@ -252,7 +254,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
   Widget _buildRow(
     RevenueModel revenue,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
     CategoryDisplayResolver? resolver, {
     required bool showDivider,
   }) {
@@ -270,6 +272,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     return CompactRevenueRow(
       revenue: revenue,
       isCurrentMonth: _isViewingCurrentMonth,
+      now: ref.read(clockProvider)(),
       accountName: account.name,
       beneficiary: beneficiary,
       category: category,
@@ -300,7 +303,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
           _filterNotifier.clearAll();
           return;
         }
-        final accounts = ref.read(accountProvider).value ?? [];
+        final accounts = ref.read(accountProvider);
         if (accounts.isEmpty) {
           _showNoAccountDialog(context, 'un revenu');
           return;
@@ -351,7 +354,7 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
     BuildContext context,
     List<CategoryDisplay> categories,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     TransactionFilterBottomSheet.show(
       context: context,
@@ -400,10 +403,9 @@ class _RevenuesListState extends ConsumerState<RevenuesList> {
       context: context,
       before: revenue,
       after: updatedRevenue,
-      onConfirmed: (effectiveMonth) => _saveRevenue(
-        updatedRevenue,
-        effectiveMonth: effectiveMonth,
-      ),
+      now: ref.read(clockProvider)(),
+      onConfirmed: (effectiveMonth) =>
+          _saveRevenue(updatedRevenue, effectiveMonth: effectiveMonth),
     );
   }
 

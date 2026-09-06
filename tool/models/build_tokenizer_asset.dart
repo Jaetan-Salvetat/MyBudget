@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:mybudget/core/services/quick_add/quick_add_tokenizer_format.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_tokenizer_format.dart';
 
 /// Convertit le `tokenizer.json` HuggingFace en asset binaire embarque.
 ///
@@ -25,10 +25,9 @@ Future<void> main(List<String> args) async {
     return;
   }
 
-  final Map<String, dynamic> tokenizer = json.decode(
-    await source.readAsString(),
-  );
-  final Map<String, dynamic> model = tokenizer['model'];
+  final tokenizer =
+      json.decode(await source.readAsString()) as Map<String, dynamic>;
+  final model = tokenizer['model'] as Map<String, dynamic>;
 
   final vocab = (model['vocab'] as Map<String, dynamic>).map(
     (token, id) => MapEntry(token, id as int),

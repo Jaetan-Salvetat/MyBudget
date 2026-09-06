@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';

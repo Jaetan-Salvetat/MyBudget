@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/ui/accounts/widgets/account_list.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
@@ -48,7 +48,7 @@ class AccountsScreen extends StatelessWidget {
                       icon: Symbols.settings_rounded,
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        MaterialPageRoute<void>(
                           builder: (_) => const SettingsScreen(),
                         ),
                       ),

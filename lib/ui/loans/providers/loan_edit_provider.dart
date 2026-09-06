@@ -1,17 +1,44 @@
-import 'package:mybudget/core/entities/loan.dart';
-import 'package:mybudget/core/entities/loan_schedule.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
-import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
-import 'package:mybudget/core/services/loan_schedule_service.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/core/values/loan_schedule.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/annual_percentage_rate_service.dart';
+import 'package:mybudget/data/service/early_repayment_indemnity_service.dart';
+import 'package:mybudget/data/service/loan_schedule_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'loan_edit_provider.g.dart';
 
 class LoanEditState {
+  LoanEditState({
+    required this.initialLoan,
+    required this.initialModel,
+    required this.name,
+    required this.lenderName,
+    required this.selectedAccountId,
+    required this.dayOfMonth,
+    required this.insuranceType,
+    required this.insuranceValue,
+    required this.insuranceCalcMode,
+  });
+
+  factory LoanEditState.from({required Loan loan, required LoanModel model}) {
+    return LoanEditState(
+      initialLoan: loan,
+      initialModel: model,
+      name: loan.name,
+      lenderName: loan.lenderName,
+      selectedAccountId: loan.accountId,
+      dayOfMonth: loan.dayOfMonth,
+      insuranceType: loan.insuranceType,
+      insuranceValue: loan.insuranceValue,
+      insuranceCalcMode: loan.insuranceCalculationMode,
+    );
+  }
   final Loan initialLoan;
+  final LoanModel initialModel;
   final String name;
   final String lenderName;
   final int selectedAccountId;
@@ -26,30 +53,6 @@ class LoanEditState {
   static const AnnualPercentageRateService _rateService =
       AnnualPercentageRateService();
 
-  LoanEditState({
-    required this.initialLoan,
-    required this.name,
-    required this.lenderName,
-    required this.selectedAccountId,
-    required this.dayOfMonth,
-    required this.insuranceType,
-    required this.insuranceValue,
-    required this.insuranceCalcMode,
-  });
-
-  factory LoanEditState.fromLoan(Loan loan) {
-    return LoanEditState(
-      initialLoan: loan,
-      name: loan.name,
-      lenderName: loan.lenderName,
-      selectedAccountId: loan.accountId,
-      dayOfMonth: loan.dayOfMonth,
-      insuranceType: loan.insuranceType,
-      insuranceValue: loan.insuranceValue,
-      insuranceCalcMode: loan.insuranceCalculationMode,
-    );
-  }
-
   LoanEditState copyWith({
     String? name,
     String? lenderName,
@@ -61,6 +64,7 @@ class LoanEditState {
   }) {
     return LoanEditState(
       initialLoan: initialLoan,
+      initialModel: initialModel,
       name: name ?? this.name,
       lenderName: lenderName ?? this.lenderName,
       selectedAccountId: selectedAccountId ?? this.selectedAccountId,
@@ -94,7 +98,7 @@ class LoanEditState {
     originDate: signatureDate,
   );
 
-  LoanModel get editedModel => initialLoan.model.copyWith(
+  LoanModel get editedModel => initialModel.copyWith(
     name: name.trim(),
     lenderName: lenderName.trim(),
     accountId: selectedAccountId,
@@ -119,16 +123,14 @@ class LoanEditState {
 }
 
 @Riverpod(keepAlive: false)
-Loan loanToEdit(Ref ref) => throw UnimplementedError(
-  'loanToEditProvider must be overridden via ProviderScope',
-);
-
-@Riverpod(keepAlive: false, dependencies: [loanToEdit])
 class LoanEditNotifier extends _$LoanEditNotifier {
   @override
-  LoanEditState build() {
-    final loan = ref.watch(loanToEditProvider);
-    return LoanEditState.fromLoan(loan);
+  LoanEditState build(Loan loan) {
+    final model = ref.watch(loanRepositoryProvider).get(loan.id);
+    if (model == null) {
+      throw StateError('Prêt ${loan.id} introuvable au dépôt');
+    }
+    return LoanEditState.from(loan: loan, model: model);
   }
 
   void setName(String value) => state = state.copyWith(name: value);

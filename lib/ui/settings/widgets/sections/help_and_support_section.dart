@@ -1,7 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/settings/screens/help_screen.dart';
 import 'package:mybudget/ui/settings/screens/labs_screen.dart';
 
@@ -23,7 +22,7 @@ class HelpAndSupportSection extends StatelessWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const HelpScreen()),
+            MaterialPageRoute<void>(builder: (_) => const HelpScreen()),
           ),
         ),
         FrostedListTile(
@@ -33,7 +32,7 @@ class HelpAndSupportSection extends StatelessWidget {
           trailing: const Icon(Symbols.chevron_right_rounded),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const LabsScreen()),
+            MaterialPageRoute<void>(builder: (_) => const LabsScreen()),
           ),
         ),
       ],

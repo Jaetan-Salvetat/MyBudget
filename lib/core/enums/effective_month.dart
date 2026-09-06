@@ -1,5 +1,1 @@
-enum EffectiveMonth {
-  thisMonth,
-
-  nextMonth,
-}
+enum EffectiveMonth { thisMonth, nextMonth }

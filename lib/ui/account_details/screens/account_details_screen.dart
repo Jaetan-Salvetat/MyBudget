@@ -1,28 +1,28 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/entities/transfer.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/revenues_provider.dart';
+import 'package:mybudget/data/provider/transfers_provider.dart';
 import 'package:mybudget/ui/account_details/widgets/account_balance_breakdown.dart';
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/transfers/transfers_provider.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
+import 'package:mybudget/ui/shared/revenue_queries.dart';
 import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
 
 class AccountDetailsScreen extends ConsumerStatefulWidget {
-  final AccountModel account;
-
   const AccountDetailsScreen({required this.account, super.key});
+  final AccountModel account;
 
   @override
   ConsumerState<AccountDetailsScreen> createState() =>
@@ -61,7 +61,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       account.id,
     );
     final transfers = transferNotifier.getActiveTransfersForAccount(account.id);
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
 
     final balance =
         totalRevenues - totalExpenses - totalLoanPayments + totalTransfers;
@@ -138,7 +138,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     if (updatedAccount == null) return;
 
     try {
-      await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+      ref.read(accountProvider.notifier).updateAccount(updatedAccount);
       if (mounted) setState(() => account = updatedAccount);
     } catch (e) {
       if (context.mounted) {
@@ -151,10 +151,11 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   }
 
   void _showAddTransferBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     TransferBottomSheet.show(
       context: context,
       accounts: accounts,
+      now: ref.read(clockProvider)(),
       closedTransfers: ref.read(transferProvider.notifier).getClosedTransfers(),
       onSubmit: (transfer) async {
         try {
@@ -172,12 +173,13 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     );
   }
 
-  void _showEditTransferBottomSheet(BuildContext context, Transfer transfer) {
-    final accounts = ref.read(accountProvider).value ?? [];
+  void _showEditTransferBottomSheet(BuildContext context, TransferModel transfer) {
+    final accounts = ref.read(accountProvider);
     TransferBottomSheet.show(
       context: context,
       accounts: accounts,
-      transfer: transfer.model,
+      now: ref.read(clockProvider)(),
+      transfer: transfer,
       onSubmit: (updatedTransfer) async {
         try {
           await ref
@@ -196,7 +198,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     );
   }
 
-  Future<void> _deleteTransfer(Transfer transfer) async {
+  Future<void> _deleteTransfer(TransferModel transfer) async {
     try {
       await ref.read(transferProvider.notifier).deleteTransfer(transfer.id);
     } catch (e) {
@@ -287,9 +289,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
             destructive: true,
             onPressed: () async {
               try {
-                await ref
-                    .read(accountProvider.notifier)
-                    .deleteAccount(account.id);
+                ref.read(accountProvider.notifier).deleteAccount(account.id);
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -312,12 +312,6 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 }
 
 class _TransfersSection extends StatelessWidget {
-  final List<Transfer> transfers;
-  final int currentAccountId;
-  final List<AccountModel> accounts;
-  final ValueChanged<Transfer> onEditTransfer;
-  final ValueChanged<Transfer> onDeleteTransfer;
-
   const _TransfersSection({
     required this.transfers,
     required this.currentAccountId,
@@ -325,8 +319,13 @@ class _TransfersSection extends StatelessWidget {
     required this.onEditTransfer,
     required this.onDeleteTransfer,
   });
+  final List<TransferModel> transfers;
+  final int currentAccountId;
+  final List<AccountModel> accounts;
+  final ValueChanged<TransferModel> onEditTransfer;
+  final ValueChanged<TransferModel> onDeleteTransfer;
 
-  String _otherName(Transfer transfer) {
+  String _otherName(TransferModel transfer) {
     final otherId = transfer.isOutgoingFrom(currentAccountId)
         ? transfer.toAccountId
         : transfer.fromAccountId;

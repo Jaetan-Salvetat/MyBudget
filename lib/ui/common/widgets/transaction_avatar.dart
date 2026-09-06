@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 
 const double _slotSize = 36;
 const double _avatarSize = 32;
@@ -12,16 +12,15 @@ const double _badgeFontSize = 10;
 const EdgeInsets _badgePadding = EdgeInsets.symmetric(horizontal: 4);
 
 class TransactionAvatar extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final Beneficiary? beneficiary;
-
   const TransactionAvatar({
     required this.color,
     required this.icon,
     this.beneficiary,
     super.key,
   });
+  final Color color;
+  final IconData icon;
+  final BeneficiaryModel? beneficiary;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,10 @@ class TransactionAvatar extends StatelessWidget {
           Container(
             width: _avatarSize,
             height: _avatarSize,
-            decoration: BoxDecoration(color: color, borderRadius: _avatarRadius),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: _avatarRadius,
+            ),
             alignment: Alignment.center,
             child: Icon(icon, color: Colors.white, size: _iconSize),
           ),
@@ -51,9 +53,8 @@ class TransactionAvatar extends StatelessWidget {
 }
 
 class _BeneficiaryBadge extends StatelessWidget {
-  final Beneficiary beneficiary;
-
   const _BeneficiaryBadge({required this.beneficiary});
+  final BeneficiaryModel beneficiary;
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +65,7 @@ class _BeneficiaryBadge extends StatelessWidget {
       padding: _badgePadding,
       decoration: BoxDecoration(
         color: hasOwnColor ? Color(beneficiary.color) : scheme.primary,
-        borderRadius: const BorderRadius.all(
-          Radius.circular(_badgeHeight / 2),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(_badgeHeight / 2)),
         border: Border.all(color: scheme.surface, width: _badgeBorderWidth),
       ),
       alignment: Alignment.center,

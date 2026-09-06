@@ -41,7 +41,7 @@ final class DataNotifierProvider
   }
 }
 
-String _$dataNotifierHash() => r'1d46f5671a14e6aeea9107356e9e1b872bac461e';
+String _$dataNotifierHash() => r'90699c24163346bfcb63ab90b580038d2ee917c9';
 
 abstract class _$DataNotifier extends $Notifier<DataState> {
   DataState build();

@@ -1,15 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpensesSummaryCard extends StatelessWidget {
-  final double total;
-  final int filteredCount;
-  final int totalCount;
-  final List<double> weeklyTotals;
-
   const ExpensesSummaryCard({
     required this.total,
     required this.filteredCount,
@@ -17,6 +12,10 @@ class ExpensesSummaryCard extends StatelessWidget {
     required this.weeklyTotals,
     super.key,
   });
+  final double total;
+  final int filteredCount;
+  final int totalCount;
+  final List<double> weeklyTotals;
 
   bool get _isFiltered => filteredCount != totalCount;
 
@@ -24,7 +23,6 @@ class ExpensesSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -61,7 +59,7 @@ class ExpensesSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              formatter.format(total),
+              MoneyFormatter.format(total),
               style: TextStyle(
                 fontSize: 32,
                 height: 36 / 32,
@@ -81,10 +79,9 @@ class ExpensesSummaryCard extends StatelessWidget {
 }
 
 class _WeeklyBars extends StatelessWidget {
+  const _WeeklyBars({required this.buckets, required this.color});
   final List<double> buckets;
   final Color color;
-
-  const _WeeklyBars({required this.buckets, required this.color});
 
   @override
   Widget build(BuildContext context) {

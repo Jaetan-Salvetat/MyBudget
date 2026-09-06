@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 class QuickAddHintTyper extends ChangeNotifier
     implements ValueListenable<String> {
+  QuickAddHintTyper({List<String>? phrases})
+    : phrases = phrases ?? (catalog.toList()..shuffle());
   static const List<String> catalog = [
     'courses carrefour 42',
     '20 balles à ma sœur',
@@ -36,9 +38,6 @@ class QuickAddHintTyper extends ChangeNotifier
   bool _deleting = false;
   bool _running = false;
   Timer? _next;
-
-  QuickAddHintTyper({List<String>? phrases})
-    : phrases = phrases ?? (catalog.toList()..shuffle());
 
   @override
   String get value => _value;

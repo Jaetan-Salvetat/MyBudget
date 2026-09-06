@@ -1,15 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanSummaryCard extends StatelessWidget {
-  final double totalDebt;
-  final double monthlyPayment;
-  final double progress;
-  final int activeLoanCount;
-  final double remainingCost;
-
   const LoanSummaryCard({
     required this.totalDebt,
     required this.monthlyPayment,
@@ -18,16 +13,15 @@ class LoanSummaryCard extends StatelessWidget {
     required this.remainingCost,
     super.key,
   });
+  final double totalDebt;
+  final double monthlyPayment;
+  final double progress;
+  final int activeLoanCount;
+  final double remainingCost;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final compactFormatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
     final progressPct = (progress * 100).clamp(0, 100).round();
 
     return Padding(
@@ -52,7 +46,7 @@ class LoanSummaryCard extends StatelessWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  formatter.format(monthlyPayment),
+                  MoneyFormatter.format(monthlyPayment),
                   style: TextStyle(
                     fontSize: 32,
                     height: 36 / 32,
@@ -87,7 +81,7 @@ class LoanSummaryCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '$progressPct%',
+                  PercentFormatter.formatWhole(progressPct),
                   style: TextStyle(
                     fontSize: 14,
                     height: 18 / 14,
@@ -118,13 +112,13 @@ class LoanSummaryCard extends StatelessWidget {
                   Expanded(
                     child: _Stat(
                       label: 'Capital restant',
-                      value: compactFormatter.format(totalDebt),
+                      value: MoneyFormatter.formatRounded(totalDebt),
                     ),
                   ),
                   Expanded(
                     child: _Stat(
                       label: 'Coût restant',
-                      value: compactFormatter.format(remainingCost),
+                      value: MoneyFormatter.formatRounded(remainingCost),
                       hint: 'Intérêts + assurance',
                     ),
                   ),
@@ -139,11 +133,10 @@ class LoanSummaryCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, this.hint});
   final String label;
   final String value;
   final String? hint;
-
-  const _Stat({required this.label, required this.value, this.hint});
 
   @override
   Widget build(BuildContext context) {

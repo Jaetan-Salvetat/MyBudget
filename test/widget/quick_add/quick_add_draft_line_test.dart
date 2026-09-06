@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_draft_line.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_shimmer.dart';
 
 void main() {
   setUpAll(() async {
@@ -60,7 +61,10 @@ void main() {
     await pumpLine(tester, amount: 12);
     await tester.pumpAndSettle();
 
-    expect(find.text('12,00 €', findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('an income reads with its plus sign', (tester) async {
@@ -76,7 +80,10 @@ void main() {
     await pumpLine(tester, amount: 12, isStale: true);
     await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.text('12,00 €', findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text('Fast-food'), findsNothing);
   });
 
@@ -95,7 +102,10 @@ void main() {
     await pumpLine(tester, category: category);
     await tester.pumpAndSettle();
 
-    expect(find.text('0,00 €', findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(0), findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the zero placeholder never reads as an income', (tester) async {
@@ -114,8 +124,14 @@ void main() {
     await pumpLine(tester, amount: 12, category: category);
     await tester.pumpAndSettle();
 
-    expect(find.text('12,00 €', findRichText: true), findsOneWidget);
-    expect(find.text('0,00 €', findRichText: true), findsNothing);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
+    expect(
+      find.text(MoneyFormatter.format(0), findRichText: true),
+      findsNothing,
+    );
   });
 
   testWidgets('shows the category once it lands', (tester) async {

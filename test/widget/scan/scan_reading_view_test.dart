@@ -1,13 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/models/scan_read_progress_model.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/data/model/scan_read_progress_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reading_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
 
 import '../../helpers/scan_review_factory.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 Future<void> pumpReading(
   WidgetTester tester,
@@ -18,6 +20,7 @@ Future<void> pumpReading(
     scanHarness(
       ScanReadingView(
         reveal: const AlwaysStoppedAnimation<double>(0),
+        now: _fixedNow,
         progress: progress,
       ),
     ),
@@ -122,7 +125,7 @@ void main() {
     await pumpReading(tester, const ScanReadProgress(printedTotal: 51.64));
 
     expect(
-      opacityOf(tester, find.text(scanDate.format(DateTime.now()))),
+      opacityOf(tester, find.text(DateFormatter.longDate.format(_fixedNow))),
       0,
     );
   });

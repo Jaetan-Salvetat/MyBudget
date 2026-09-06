@@ -1,17 +1,17 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
-import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/gemini_nano_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/receipt_reader_provider.dart';
+import 'package:mybudget/data/service/ai/api_key_service.dart';
+import 'package:mybudget/data/service/ai/gemini_nano_service.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _StubKeyService implements ApiKeyService {

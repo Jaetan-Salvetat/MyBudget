@@ -1,32 +1,35 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transfer_model.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 
 class TransferBottomSheet extends StatefulWidget {
-  final List<AccountModel> accounts;
-  final TransferModel? transfer;
-  final List<TransferModel> closedTransfers;
-  final Function(TransferModel) onSubmit;
-  final VoidCallback onCancel;
-
   const TransferBottomSheet({
     required this.accounts,
     required this.onSubmit,
     required this.onCancel,
+    required this.now,
     this.transfer,
     this.closedTransfers = const [],
     super.key,
   });
+  final List<AccountModel> accounts;
+  final TransferModel? transfer;
+  final List<TransferModel> closedTransfers;
+  final DateTime now;
+  final void Function(TransferModel) onSubmit;
+  final VoidCallback onCancel;
 
   static void show({
     required BuildContext context,
     required List<AccountModel> accounts,
-    required Function(TransferModel) onSubmit,
+    required void Function(TransferModel) onSubmit,
     required VoidCallback onCancel,
+    required DateTime now,
     TransferModel? transfer,
     List<TransferModel> closedTransfers = const [],
   }) {
@@ -40,6 +43,7 @@ class TransferBottomSheet extends StatefulWidget {
           accounts: accounts,
           onSubmit: onSubmit,
           onCancel: onCancel,
+          now: now,
           transfer: transfer,
           closedTransfers: closedTransfers,
         ),
@@ -56,8 +60,8 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   late TextEditingController _amountController;
   int? _selectedFromAccountId;
   int? _selectedToAccountId;
-  DateTime _selectedDate = DateTime.now();
-  String _selectedFrequency = 'Mensuel';
+  late DateTime _selectedDate;
+  Frequency _selectedFrequency = Frequency.monthly;
   String? _nameError;
   String? _fromAccountError;
   String? _toAccountError;
@@ -76,8 +80,8 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
         widget.transfer?.fromAccountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
     _selectedToAccountId = widget.transfer?.toAccountId;
-    _selectedDate = widget.transfer?.startDate ?? DateTime.now();
-    _selectedFrequency = widget.transfer?.frequency ?? 'Mensuel';
+    _selectedDate = widget.transfer?.startDate ?? widget.now;
+    _selectedFrequency = widget.transfer?.frequencyEnum ?? Frequency.monthly;
   }
 
   @override
@@ -139,18 +143,13 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
       _amountController.text = closed.amount.toString();
       _selectedFromAccountId = closed.fromAccountId;
       _selectedToAccountId = closed.toAccountId;
-      _selectedFrequency = closed.frequency;
+      _selectedFrequency = closed.frequencyEnum;
       _parentId = closed.parentId ?? closed.id;
-      _selectedDate = DateTime.now();
+      _selectedDate = widget.now;
     });
   }
 
   void _showClosedTransferPicker(BuildContext context) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
     showFrostedDialog<void>(
       context: context,
       builder: (_) => FrostedDialog(
@@ -165,7 +164,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               final transfer = widget.closedTransfers[index];
               return FrostedListTile(
                 title: transfer.name,
-                subtitle: formatter.format(transfer.amount),
+                subtitle: MoneyFormatter.format(transfer.amount),
                 trailing: const Icon(Symbols.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(context);

@@ -1,27 +1,26 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/services/data/import_validation_result.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
+import 'package:mybudget/data/service/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
 
 class ImportPreviewScreen extends ConsumerWidget {
-  final ImportValidationResult validationResult;
-  final String jsonContent;
-
   const ImportPreviewScreen({
     super.key,
     required this.validationResult,
     required this.jsonContent,
   });
+  final ImportValidationResult validationResult;
+  final String jsonContent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final analysis = _ImportAnalysis(validationResult);
 
     return FrostedScaffold(
@@ -122,7 +121,7 @@ class ImportPreviewScreen extends ConsumerWidget {
                   subtitle: e.model.frequency,
                   warning: warning,
                   trailing: Text(
-                    formatter.format(e.model.amount),
+                    MoneyFormatter.format(e.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: warning != null
                           ? theme.colorScheme.error
@@ -145,7 +144,7 @@ class ImportPreviewScreen extends ConsumerWidget {
                   title: r.model.name,
                   warning: warning,
                   trailing: Text(
-                    formatter.format(r.model.amount),
+                    MoneyFormatter.format(r.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -165,10 +164,11 @@ class ImportPreviewScreen extends ConsumerWidget {
                 return _ItemTile(
                   title: l.model.name,
                   subtitle:
-                      '${l.model.duration} mois · ${l.model.interestRate}%',
+                      '${l.model.duration} mois · '
+                      '${PercentFormatter.formatRate(l.model.interestRate)}',
                   warning: warning,
                   trailing: Text(
-                    formatter.format(l.model.amount),
+                    MoneyFormatter.format(l.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -183,13 +183,12 @@ class ImportPreviewScreen extends ConsumerWidget {
 }
 
 class _ImportAnalysis {
-  final Set<int> _accountIds;
-  final Set<int> _beneficiaryIds;
-  final ImportValidationResult _result;
-
   _ImportAnalysis(this._result)
     : _accountIds = _result.accounts.map((a) => a.oldId).toSet(),
       _beneficiaryIds = _result.beneficiaries.map((b) => b.oldId).toSet();
+  final Set<int> _accountIds;
+  final Set<int> _beneficiaryIds;
+  final ImportValidationResult _result;
 
   bool _isMissingAccount(int? oldAccountId) =>
       oldAccountId != null && !_accountIds.contains(oldAccountId);
@@ -232,10 +231,9 @@ class _ImportAnalysis {
 }
 
 class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({required this.totalItems, required this.hasErrors});
   final int totalItems;
   final bool hasErrors;
-
-  const _SummaryCard({required this.totalItems, required this.hasErrors});
 
   @override
   Widget build(BuildContext context) {
@@ -269,17 +267,16 @@ class _SummaryCard extends StatelessWidget {
 }
 
 class _ErrorBanner extends StatelessWidget {
-  final int parsingErrors;
-  final int orphanedExpenses;
-  final int orphanedRevenues;
-  final int orphanedLoans;
-
   const _ErrorBanner({
     required this.parsingErrors,
     required this.orphanedExpenses,
     required this.orphanedRevenues,
     required this.orphanedLoans,
   });
+  final int parsingErrors;
+  final int orphanedExpenses;
+  final int orphanedRevenues;
+  final int orphanedLoans;
 
   @override
   Widget build(BuildContext context) {
@@ -368,12 +365,6 @@ class _ErrorBanner extends StatelessWidget {
 }
 
 class _EntitySection extends StatefulWidget {
-  final String title;
-  final IconData icon;
-  final int count;
-  final int warningCount;
-  final List<Widget> children;
-
   const _EntitySection({
     required this.title,
     required this.icon,
@@ -381,6 +372,11 @@ class _EntitySection extends StatefulWidget {
     required this.children,
     this.warningCount = 0,
   });
+  final String title;
+  final IconData icon;
+  final int count;
+  final int warningCount;
+  final List<Widget> children;
 
   @override
   State<_EntitySection> createState() => _EntitySectionState();
@@ -479,12 +475,6 @@ class _EntitySectionState extends State<_EntitySection> {
 }
 
 class _ItemTile extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final String? warning;
-  final Widget? leading;
-  final Widget? trailing;
-
   const _ItemTile({
     required this.title,
     this.subtitle,
@@ -492,6 +482,11 @@ class _ItemTile extends StatelessWidget {
     this.leading,
     this.trailing,
   });
+  final String title;
+  final String? subtitle;
+  final String? warning;
+  final Widget? leading;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {

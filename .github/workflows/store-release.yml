@@ -17,6 +17,8 @@ jobs:
   publish_closed_testing:
     name: Publish to closed testing
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,8 +82,15 @@ jobs:
       - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: ${{ env.PACKAGE_NAME }}
           releaseFiles: build/app/outputs/bundle/storeRelease/app-store-release.aab
           track: alpha
           status: completed
+
+      - name: Tag published version
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a v${{ steps.version.outputs.name }} -m "Store release v${{ steps.version.outputs.name }}"
+          git push origin v${{ steps.version.outputs.name }}

@@ -1,23 +1,23 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
-import 'package:mybudget/core/providers/expenses_view_provider.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
+import 'package:mybudget/data/provider/revenues_provider.dart';
 import 'package:mybudget/ui/common/widgets/month_selector.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_screen.dart';
-import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/loans_screen.dart';
 import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
+import 'package:mybudget/ui/shared/expenses_view_provider.dart';
+import 'package:mybudget/ui/shared/home_navigation_provider.dart';
 
 const double _kGroupBySegmentWidth = 70;
 
@@ -66,7 +66,9 @@ class TransactionsScreen extends ConsumerWidget {
                     icon: Symbols.settings_rounded,
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SettingsScreen(),
+                      ),
                     ),
                   ),
                 ],
@@ -148,7 +150,7 @@ class TransactionsScreen extends ConsumerWidget {
   }
 
   Future<void> _openExpenseForm(BuildContext context, WidgetRef ref) async {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'une dépense');
       return;
@@ -168,7 +170,7 @@ class TransactionsScreen extends ConsumerWidget {
   }
 
   Future<void> _openRevenueForm(BuildContext context, WidgetRef ref) async {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un revenu');
       return;
@@ -188,7 +190,7 @@ class TransactionsScreen extends ConsumerWidget {
   }
 
   Future<void> _openLoanForm(BuildContext context, WidgetRef ref) async {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     if (accounts.isEmpty) {
       _showNoAccountDialog(context, 'un emprunt');
       return;

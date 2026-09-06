@@ -1,26 +1,16 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
 const String _closedLabel = 'Terminé';
 
 class TransactionDetailHero extends StatelessWidget {
-  final String name;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final Beneficiary? beneficiary;
-  final double amount;
-  final Frequency frequency;
-  final bool isIncome;
-  final bool isClosed;
-
   const TransactionDetailHero({
     required this.name,
     required this.subtitle,
@@ -33,12 +23,20 @@ class TransactionDetailHero extends StatelessWidget {
     this.beneficiary,
     super.key,
   });
+  final String name;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final BeneficiaryModel? beneficiary;
+  final double amount;
+  final Frequency frequency;
+  final bool isIncome;
+  final bool isClosed;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final amountColor = isClosed
         ? scheme.onSurfaceVariant
         : (isIncome ? finance.income : finance.expense);
@@ -96,7 +94,7 @@ class TransactionDetailHero extends StatelessWidget {
           Eyebrow(_amountLabel),
           const SizedBox(height: 4),
           Text(
-            '${isIncome ? '+' : '−'}${formatter.format(amount)}',
+            '${isIncome ? '+' : '−'}${MoneyFormatter.format(amount)}',
             style: AppTextStyles.displaySerifItalic(
               fontSize: 40,
               height: 44 / 40,
@@ -118,10 +116,9 @@ class TransactionDetailHero extends StatelessWidget {
 }
 
 class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.label, required this.color});
   final String label;
   final Color color;
-
-  const _StatusPill({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

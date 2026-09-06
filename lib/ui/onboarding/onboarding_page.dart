@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
 import 'package:mybudget/ui/onboarding/widgets/account_setup_slide.dart';
@@ -11,14 +11,13 @@ import 'package:mybudget/ui/onboarding/widgets/receipt_demo.dart';
 import 'package:mybudget/ui/onboarding/widgets/recurrence_demo.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
+  const OnboardingPage({super.key});
   static const int slideCount = 4;
   static const int accountSlide = slideCount - 1;
 
   static const String defaultAccountName = 'Compte courant';
 
   static const Duration pageTransition = Duration(milliseconds: 320);
-
-  const OnboardingPage({super.key});
 
   @override
   ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
@@ -87,7 +86,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     if (!mounted) return;
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute<void>(builder: (context) => const HomeScreen()),
     );
   }
 

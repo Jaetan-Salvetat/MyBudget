@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/ui/stats/widgets/effort_rate_section.dart';
 
 void main() {
@@ -30,7 +31,7 @@ void main() {
   testWidgets('states the rate and both amounts', (tester) async {
     await tester.pumpWidget(section());
 
-    expect(find.text('31 %'), findsOneWidget);
+    expect(find.text(PercentFormatter.formatWhole(31)), findsOneWidget);
     expect(find.textContaining('Fixe'), findsOneWidget);
     expect(find.textContaining('Reste à vivre'), findsOneWidget);
   });
@@ -38,7 +39,10 @@ void main() {
   testWidgets('recalls the twelve month rate', (tester) async {
     await tester.pumpWidget(section());
 
-    expect(find.textContaining('42 % sur 12 mois'), findsOneWidget);
+    expect(
+      find.textContaining('${PercentFormatter.formatWhole(42)} sur 12 mois'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('drops the twelve month rate when it reads the same', (
@@ -81,7 +85,7 @@ void main() {
       matching: find.byType(DecoratedBox),
     );
 
-    expect(find.text('110 %'), findsOneWidget);
+    expect(find.text(PercentFormatter.formatWhole(110)), findsOneWidget);
     expect(segments, findsOneWidget);
     expect(find.textContaining('-200'), findsOneWidget);
   });

@@ -1,21 +1,18 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/values/category_display.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
-class CategoryField extends ConsumerWidget {
-  final String? slug;
+class CategoryField extends StatelessWidget {
+  const CategoryField({required this.category, required this.onTap, super.key});
+  final CategoryDisplay? category;
   final VoidCallback onTap;
 
-  const CategoryField({required this.slug, required this.onTap, super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final resolver = ref.watch(categoryDisplayResolverProvider).value;
-    final category = slug == null ? null : resolver?.resolve(slug!);
+    final CategoryDisplay? category = this.category;
 
     return InkWell(
       onTap: onTap,

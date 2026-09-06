@@ -1,31 +1,32 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
 import 'package:mybudget/ui/capture/widgets/capture_dock.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
-import 'package:mybudget/ui/home/home_navigation_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
+import 'package:mybudget/ui/shared/home_navigation_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -47,7 +48,7 @@ class FakeAccountNotifier extends AccountNotifier {
   final List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 }
 
 void main() {
@@ -83,7 +84,7 @@ void main() {
       name: 'Salaire',
       amount: 2480,
       startDate: DateTime(DateTime.now().year, DateTime.now().month, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     );
     salary.id = 1;

@@ -1,22 +1,22 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
-import 'package:mybudget/core/providers/expenses_view_provider.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/beneficiary_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/repository/transfer_repository.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/ui/shared/expenses_view_provider.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,16 +56,16 @@ void main() {
     final transfers = MockTransferRepository();
     final beneficiaries = MockBeneficiaryRepository();
 
-    when(() => accounts.getAll()).thenReturn([]);
-    when(() => expenses.getActive()).thenReturn([]);
-    when(() => expenses.getClosed()).thenReturn([]);
-    when(() => loans.getAll()).thenReturn([]);
-    when(() => loanEvents.getAll()).thenReturn([]);
-    when(() => overrides.getAll()).thenReturn({});
-    when(() => revenues.getActive()).thenReturn([]);
-    when(() => revenues.getClosed()).thenReturn([]);
-    when(() => transfers.getAll()).thenReturn([]);
-    when(() => beneficiaries.getAll()).thenReturn([]);
+    when(accounts.getAll).thenReturn([]);
+    when(expenses.getActive).thenReturn([]);
+    when(expenses.getClosed).thenReturn([]);
+    when(loans.getAll).thenReturn([]);
+    when(loanEvents.getAll).thenReturn([]);
+    when(overrides.getAll).thenReturn({});
+    when(revenues.getActive).thenReturn([]);
+    when(revenues.getClosed).thenReturn([]);
+    when(transfers.getAll).thenReturn([]);
+    when(beneficiaries.getAll).thenReturn([]);
 
     container = ProviderContainer(
       overrides: [

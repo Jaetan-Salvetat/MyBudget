@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_thinking_border.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_thinking_border.dart';
 
 void main() {
   Future<void> pumpBorder(

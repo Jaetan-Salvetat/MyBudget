@@ -22,12 +22,8 @@ enum GeminiNanoFailure {
     message: 'Gemini Nano n\'est pas disponible sur cet appareil.',
     isPermanent: true,
   ),
-  notInstalled(
-    message: 'Le modèle Gemini Nano n\'est pas encore installé.',
-  ),
-  outOfSpace(
-    message: 'Pas assez d\'espace libre pour installer Gemini Nano.',
-  ),
+  notInstalled(message: 'Le modèle Gemini Nano n\'est pas encore installé.'),
+  outOfSpace(message: 'Pas assez d\'espace libre pour installer Gemini Nano.'),
   quotaExceeded(
     message: 'Gemini Nano a atteint son quota. Réessaie dans un moment.',
   ),

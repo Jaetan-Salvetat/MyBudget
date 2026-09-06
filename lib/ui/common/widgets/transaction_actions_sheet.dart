@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 
 class TransactionActionsSheet {
@@ -105,10 +105,9 @@ class TransactionActionsSheet {
 }
 
 class _ScopeToggle extends StatelessWidget {
+  const _ScopeToggle({required this.scope, required this.onChanged});
   final RecurringDeletion scope;
   final ValueChanged<RecurringDeletion> onChanged;
-
-  const _ScopeToggle({required this.scope, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {

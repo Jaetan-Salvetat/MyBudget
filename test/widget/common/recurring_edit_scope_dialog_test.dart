@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 
@@ -19,7 +20,7 @@ void main() {
 
   ExpenseModel subscription({
     double amount = 20,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
     DateTime? startDate,
   }) {
     return ExpenseModel.create(
@@ -47,6 +48,7 @@ void main() {
               context: context,
               before: before,
               after: after,
+              now: DateTime.now(),
               onConfirmed: (scope) async => confirmed.add(scope),
             ),
             child: const Text('Modifier'),
@@ -76,7 +78,7 @@ void main() {
   });
 
   testWidgets('saves straight away on a one-off', (tester) async {
-    final expense = subscription(frequency: 'Ponctuel');
+    final expense = subscription(frequency: Frequency.oneTime);
     final confirmed = await submitEdit(
       tester,
       before: expense,

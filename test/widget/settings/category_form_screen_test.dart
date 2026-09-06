@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:mybudget/core/values/category_display.dart';
 import 'package:mybudget/ui/settings/screens/category_form_screen.dart';
 
 const CategoryDisplay _defaults = CategoryDisplay(

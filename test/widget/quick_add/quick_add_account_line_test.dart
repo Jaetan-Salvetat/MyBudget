@@ -1,14 +1,14 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_account_line.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/ui/capture/quick_add_account_provider.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_account_line.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 AccountModel accountOf(int id, String name) {
@@ -23,7 +23,7 @@ class FakeAccountNotifier extends AccountNotifier {
   final List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 }
 
 void main() {

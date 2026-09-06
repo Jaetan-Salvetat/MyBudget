@@ -1,12 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 class CategoryTrend {
-  final String groupKey;
-  final String label;
-  final Color color;
-  final double amount;
-  final double previousAmount;
-
   const CategoryTrend({
     required this.groupKey,
     required this.label,
@@ -14,6 +8,11 @@ class CategoryTrend {
     required this.amount,
     required this.previousAmount,
   });
+  final String groupKey;
+  final String label;
+  final Color color;
+  final double amount;
+  final double previousAmount;
 
   double get delta => amount - previousAmount;
 

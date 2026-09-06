@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/entities/transaction_change_entry.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/transaction_change_entry.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_section.dart';
 
 const String _title = 'Historique';
@@ -11,13 +11,12 @@ const double _railWidth = 18;
 const double _dotSize = 7;
 
 class TransactionTimelineCard extends StatelessWidget {
-  final List<TransactionChangeEntry> entries;
-
   const TransactionTimelineCard({required this.entries, super.key});
+  final List<TransactionChangeEntry> entries;
 
   @override
   Widget build(BuildContext context) {
-    final dateFormatter = DateFormat('d MMM yyyy', 'fr_FR');
+    final dateFormatter = DateFormatter.mediumDate;
 
     return DetailSection(
       title: _title,
@@ -37,15 +36,14 @@ class TransactionTimelineCard extends StatelessWidget {
 }
 
 class _TimelineRow extends StatelessWidget {
-  final TransactionChangeEntry entry;
-  final String date;
-  final bool isLast;
-
   const _TimelineRow({
     required this.entry,
     required this.date,
     required this.isLast,
   });
+  final TransactionChangeEntry entry;
+  final String date;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +63,10 @@ class _TimelineRow extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 5),
                   width: _dotSize,
                   height: _dotSize,
-                  decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: tone,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 if (!isLast)
                   Expanded(

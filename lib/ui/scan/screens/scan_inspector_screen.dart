@@ -1,15 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:receipt_pipeline/receipt_pipeline.dart';
-
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_trace_report.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 class ScanInspectorScreen extends ConsumerWidget {
   const ScanInspectorScreen({super.key});
@@ -57,7 +56,9 @@ class ScanInspectorScreen extends ConsumerWidget {
     }
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(path == null ? 'Rapport copié' : 'Rapport → $path')),
+      SnackBar(
+        content: Text(path == null ? 'Rapport copié' : 'Rapport → $path'),
+      ),
     );
   }
 }
@@ -108,7 +109,9 @@ String _roleSummary(ReadTrace read) {
   }
   final ordered = counts.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
-  return [for (final entry in ordered) '${entry.key} ${entry.value}'].join(' · ');
+  return [
+    for (final entry in ordered) '${entry.key} ${entry.value}',
+  ].join(' · ');
 }
 
 String _decodingSummary(ReadTrace read) {
@@ -250,7 +253,9 @@ class _DecodingTable extends StatelessWidget {
     int rank,
     PricedLine priced,
   ) {
-    final candidates = [for (final c in priced.candidates) _amount(c)].join(', ');
+    final candidates = [
+      for (final c in priced.candidates) _amount(c),
+    ].join(', ');
     final lax = decoding.laxRanks.contains(priced.index)
         ? ' · lecture lâche autorisée'
         : '';
@@ -346,4 +351,4 @@ class _Scrollable extends StatelessWidget {
 }
 
 String _amount(double? value) =>
-    value == null ? '—' : '${value.toStringAsFixed(2)} €';
+    value == null ? '—' : MoneyFormatter.format(value);

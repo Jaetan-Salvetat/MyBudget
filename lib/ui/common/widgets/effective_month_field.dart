@@ -1,27 +1,28 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/utils/history_utils.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
 
 class EffectiveMonthField extends StatelessWidget {
-  final EffectiveMonth value;
-  final Frequency frequency;
-  final DateTime anchor;
-  final String label;
-  final String dueLabel;
-  final ValueChanged<EffectiveMonth> onChanged;
-
   const EffectiveMonthField({
     required this.value,
     required this.frequency,
     required this.anchor,
+    required this.now,
     required this.label,
     required this.dueLabel,
     required this.onChanged,
     super.key,
   });
+  final EffectiveMonth value;
+  final Frequency frequency;
+  final DateTime anchor;
+  final DateTime now;
+  final String label;
+  final String dueLabel;
+  final ValueChanged<EffectiveMonth> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +62,9 @@ class EffectiveMonthField extends StatelessWidget {
     final due = startDateFor(
       frequency: frequency,
       anchor: anchor,
-      asOf: DateTime.now(),
+      asOf: now,
       scope: value,
     );
-    return '$dueLabel le ${DateFormat('d MMMM', 'fr_FR').format(due)}.';
+    return '$dueLabel le ${DateFormatter.dayMonth.format(due)}.';
   }
 }

@@ -3,6 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/ui/stats/models/category_slice.dart';
 import 'package:mybudget/ui/stats/widgets/category_breakdown_section.dart';
 
@@ -28,9 +29,7 @@ void main() {
   );
 
   testWidgets('renders an empty state without categories', (tester) async {
-    await tester.pumpWidget(
-      host(const CategoryBreakdownSection(slices: [])),
-    );
+    await tester.pumpWidget(host(const CategoryBreakdownSection(slices: [])));
 
     expect(find.text('Aucune dépense ce mois-ci'), findsOneWidget);
   });
@@ -62,9 +61,9 @@ void main() {
     );
 
     expect(find.text('Logement'), findsOneWidget);
-    expect(find.text('50%'), findsOneWidget);
+    expect(find.text(PercentFormatter.formatWhole(50)), findsOneWidget);
     expect(find.text('Transport'), findsOneWidget);
-    expect(find.text('25%'), findsOneWidget);
+    expect(find.text(PercentFormatter.formatWhole(25)), findsOneWidget);
   });
 
   testWidgets('leaves the trend arrows to the movers section', (tester) async {

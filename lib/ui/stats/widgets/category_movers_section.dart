@@ -1,6 +1,6 @@
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
@@ -8,13 +8,6 @@ import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/stats/models/category_trend.dart';
 
 class CategoryMoversSection extends StatelessWidget {
-  static const int maxVisible = 5;
-
-  final List<CategoryTrend> movers;
-  final int comparedMonths;
-  final bool hasComparison;
-  final ValueChanged<String> onCategoryTap;
-
   const CategoryMoversSection({
     super.key,
     required this.movers,
@@ -22,6 +15,12 @@ class CategoryMoversSection extends StatelessWidget {
     required this.hasComparison,
     required this.onCategoryTap,
   });
+  static const int maxVisible = 5;
+
+  final List<CategoryTrend> movers;
+  final int comparedMonths;
+  final bool hasComparison;
+  final ValueChanged<String> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +47,9 @@ class CategoryMoversSection extends StatelessWidget {
 }
 
 class _MoversCard extends StatelessWidget {
+  const _MoversCard({required this.movers, required this.onCategoryTap});
   final List<CategoryTrend> movers;
   final ValueChanged<String> onCategoryTap;
-
-  const _MoversCard({required this.movers, required this.onCategoryTap});
 
   @override
   Widget build(BuildContext context) {
@@ -78,9 +76,8 @@ class _MoversCard extends StatelessWidget {
 }
 
 class _EmptyCard extends StatelessWidget {
-  final String message;
-
   const _EmptyCard({required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +98,12 @@ class _EmptyCard extends StatelessWidget {
 }
 
 class _MoverRow extends StatelessWidget {
+  const _MoverRow({
+    required this.trend,
+    required this.widest,
+    required this.isFirst,
+    required this.onTap,
+  });
   static const double nameWidth = 92;
   static const double amountWidth = 64;
 
@@ -108,13 +111,6 @@ class _MoverRow extends StatelessWidget {
   final double widest;
   final bool isFirst;
   final VoidCallback onTap;
-
-  const _MoverRow({
-    required this.trend,
-    required this.widest,
-    required this.isFirst,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -190,8 +186,7 @@ class _MoverRow extends StatelessWidget {
   }
 
   String _signed(double delta) {
-    final formatter = NumberFormat.decimalPattern('fr_FR')
-      ..maximumFractionDigits = 0;
-    return '${delta >= 0 ? '+' : '−'}${formatter.format(delta.abs())} €';
+    return '${MoneyFormatter.signOf(delta)}'
+        '${MoneyFormatter.formatRounded(delta.abs())}';
   }
 }

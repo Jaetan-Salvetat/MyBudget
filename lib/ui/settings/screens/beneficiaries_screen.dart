@@ -1,11 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
 class BeneficiariesScreen extends ConsumerStatefulWidget {
   const BeneficiariesScreen({super.key});
@@ -62,7 +62,7 @@ class _BeneficiariesScreenState extends ConsumerState<BeneficiariesScreen> {
     );
   }
 
-  Widget _content(List<Beneficiary> beneficiaries) {
+  Widget _content(List<BeneficiaryModel> beneficiaries) {
     if (beneficiaries.isEmpty) return const _EmptyState();
 
     final usages = ref.read(beneficiaryProvider.notifier).usageCounts();
@@ -101,7 +101,7 @@ class _BeneficiariesScreenState extends ConsumerState<BeneficiariesScreen> {
     );
   }
 
-  List<Beneficiary> _matching(List<Beneficiary> beneficiaries) {
+  List<BeneficiaryModel> _matching(List<BeneficiaryModel> beneficiaries) {
     final query = _query.trim().toLowerCase();
     if (query.isEmpty) return beneficiaries;
     return beneficiaries
@@ -117,7 +117,7 @@ class _BeneficiariesScreenState extends ConsumerState<BeneficiariesScreen> {
         ref.read(beneficiaryProvider.notifier).addBeneficiary(name),
   );
 
-  void _showRenameDialog(Beneficiary beneficiary) => _showNameDialog(
+  void _showRenameDialog(BeneficiaryModel beneficiary) => _showNameDialog(
     title: 'Modifier le bénéficiaire',
     confirmLabel: 'Renommer',
     initialName: beneficiary.name,
@@ -170,7 +170,7 @@ class _BeneficiariesScreenState extends ConsumerState<BeneficiariesScreen> {
     Navigator.pop(context);
   }
 
-  void _confirmDelete(Beneficiary beneficiary) {
+  void _confirmDelete(BeneficiaryModel beneficiary) {
     final usageCount = ref
         .read(beneficiaryProvider.notifier)
         .countUsages(beneficiary.id);
@@ -228,17 +228,16 @@ String _transactionCount(int count) =>
     '$count transaction${count > 1 ? 's' : ''}';
 
 class _BeneficiaryTile extends StatelessWidget {
-  final Beneficiary beneficiary;
-  final int usageCount;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
   const _BeneficiaryTile({
     required this.beneficiary,
     required this.usageCount,
     required this.onEdit,
     required this.onDelete,
   });
+  final BeneficiaryModel beneficiary;
+  final int usageCount;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -276,9 +275,7 @@ class _EmptyState extends StatelessWidget {
       child: Text(
         'Aucun bénéficiaire',
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }

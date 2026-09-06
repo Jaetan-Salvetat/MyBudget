@@ -1,7 +1,9 @@
-import 'package:material_ui/material_ui.dart';
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
@@ -74,10 +76,12 @@ void main() {
   group('DateSelector.showFor', () {
     Future<void> openFor(WidgetTester tester, Frequency frequency) async {
       await pumpHost(tester);
-      DateSelector.showFor(
-        context: hostContext,
-        frequency: frequency,
-        initialDate: DateTime(2026, 5, 12),
+      unawaited(
+        DateSelector.showFor(
+          context: hostContext,
+          frequency: frequency,
+          initialDate: DateTime(2026, 5, 12),
+        ),
       );
       await tester.pumpAndSettle();
     }

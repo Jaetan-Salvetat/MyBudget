@@ -1,32 +1,34 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/quick_add_submission_model.dart';
+import 'package:mybudget/data/model/quick_add_submission_model.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/loan_queries.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/quick_add_recent_submissions_provider.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
 import 'package:mybudget/ui/capture/models/day_moment.dart';
 import 'package:mybudget/ui/capture/models/journal_bucket.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
+import 'package:mybudget/ui/capture/quick_add_provider.dart';
 import 'package:mybudget/ui/capture/widgets/day_gauge.dart';
 import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 import 'package:mybudget/ui/capture/widgets/journal_line.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
-import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
 import 'package:mybudget/ui/transaction_details/screens/revenue_details_screen.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class JournalView extends ConsumerStatefulWidget {
+  const JournalView({required this.bottomInset, super.key});
   static const double edgeFade = 40;
 
   static const String emptyMessage =
@@ -35,8 +37,6 @@ class JournalView extends ConsumerStatefulWidget {
   static const int staggeredLines = 8;
 
   final double bottomInset;
-
-  const JournalView({required this.bottomInset, super.key});
 
   static LinearGradient edgeGradient({
     required double scrolled,
@@ -129,7 +129,11 @@ class _JournalViewState extends ConsumerState<JournalView> {
       );
       if (folded) continue;
 
-      final segments = DayGauge.segmentsForDay(bucket.entries, resolver, fallback);
+      final segments = DayGauge.segmentsForDay(
+        bucket.entries,
+        resolver,
+        fallback,
+      );
       if (segments.isNotEmpty) rows.add(_GaugeRow(segments));
       if (bucket.entries.isEmpty) rows.add(const _EmptyRow());
 
@@ -163,7 +167,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
     List<QuickAddSubmission> submissions,
   ) {
     switch (row) {
-      case _HeaderRow row:
+      case final _HeaderRow row:
         return _BucketHeader(
           label: row.bucket.label,
           total: row.bucket.entries.isEmpty ? null : row.bucket.spent,
@@ -172,7 +176,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
           onTap: row.onToggle,
         );
 
-      case _GaugeRow row:
+      case final _GaugeRow row:
         return Padding(
           padding: const EdgeInsets.fromLTRB(
             FrostedSpacing.sp2,
@@ -203,10 +207,10 @@ class _JournalViewState extends ConsumerState<JournalView> {
           ),
         );
 
-      case _MomentRow row:
+      case final _MomentRow row:
         return _MomentLabel(moment: row.moment);
 
-      case _LineRow row:
+      case final _LineRow row:
         return _line(row, resolver, submissions);
     }
   }
@@ -231,7 +235,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
   }
 
   bool _landsThisMonth(JournalEntry entry) {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     return entry.at.year == now.year && entry.at.month == now.month;
   }
 
@@ -298,7 +302,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
     return [
       JournalBucket(
         kind: JournalBucketKind.today,
-        anchor: dayOnly(DateTime.now()),
+        anchor: dayOnly(ref.read(clockProvider)()),
         entries: const [],
       ),
       ...buckets,
@@ -322,23 +326,21 @@ sealed class _Row {
 }
 
 class _HeaderRow extends _Row {
-  final JournalBucket bucket;
-  final bool isFirst;
-  final bool expanded;
-  final VoidCallback? onToggle;
-
   const _HeaderRow({
     required this.bucket,
     required this.isFirst,
     required this.expanded,
     required this.onToggle,
   });
+  final JournalBucket bucket;
+  final bool isFirst;
+  final bool expanded;
+  final VoidCallback? onToggle;
 }
 
 class _GaugeRow extends _Row {
-  final List<FrostedBarSegment> segments;
-
   const _GaugeRow(this.segments);
+  final List<FrostedBarSegment> segments;
 }
 
 class _EmptyRow extends _Row {
@@ -346,30 +348,22 @@ class _EmptyRow extends _Row {
 }
 
 class _MomentRow extends _Row {
-  final DayMoment moment;
-
   const _MomentRow(this.moment);
+  final DayMoment moment;
 }
 
 class _LineRow extends _Row {
-  final JournalEntry entry;
-  final bool keepsTheHour;
-  final int index;
-
   const _LineRow({
     required this.entry,
     required this.keepsTheHour,
     required this.index,
   });
+  final JournalEntry entry;
+  final bool keepsTheHour;
+  final int index;
 }
 
 class _BucketHeader extends StatelessWidget {
-  final String label;
-  final double? total;
-  final double topPadding;
-  final bool expanded;
-  final VoidCallback? onTap;
-
   const _BucketHeader({
     required this.label,
     required this.topPadding,
@@ -377,6 +371,11 @@ class _BucketHeader extends StatelessWidget {
     required this.onTap,
     this.total,
   });
+  final String label;
+  final double? total;
+  final double topPadding;
+  final bool expanded;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -438,18 +437,14 @@ class _BucketHeader extends StatelessWidget {
   }
 
   String _amountLabel(double amount) {
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount.abs());
+    final formatted = MoneyFormatter.format(amount.abs());
     return amount < 0 ? '+ $formatted' : '− $formatted';
   }
 }
 
 class _MomentLabel extends StatelessWidget {
-  final DayMoment moment;
-
   const _MomentLabel({required this.moment});
+  final DayMoment moment;
 
   static const double _opacity = 0.42;
 
@@ -486,14 +481,13 @@ class _MomentLabel extends StatelessWidget {
 }
 
 class _Rise extends StatefulWidget {
+  const _Rise({required this.index, required this.child});
   static const Duration duration = Duration(milliseconds: 460);
   static const Duration step = Duration(milliseconds: 45);
   static const double travel = 10;
 
   final int index;
   final Widget child;
-
-  const _Rise({required this.index, required this.child});
 
   @override
   State<_Rise> createState() => _RiseState();

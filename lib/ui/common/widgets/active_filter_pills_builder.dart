@@ -1,7 +1,8 @@
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 
 class ActiveFilterPillsBuilder {
@@ -13,7 +14,7 @@ class ActiveFilterPillsBuilder {
     required TransactionFilterData filter,
     required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
-    required List<Beneficiary> beneficiaries,
+    required List<BeneficiaryModel> beneficiaries,
     required void Function(TransactionFilterData filter) onChanged,
   }) {
     final pills = <ActiveFilterPill>[];
@@ -33,9 +34,7 @@ class ActiveFilterPillsBuilder {
     }
 
     for (final groupKey in filter.groupKeys) {
-      final category = categories
-          .where((c) => c.slug == groupKey)
-          .firstOrNull;
+      final category = categories.where((c) => c.slug == groupKey).firstOrNull;
       pills.add(
         ActiveFilterPill(
           id: 'cat-$groupKey',
@@ -95,10 +94,13 @@ class ActiveFilterPillsBuilder {
   }
 
   static String _amountLabel(TransactionFilterData filter) {
-    final min = filter.minAmount?.round();
-    final max = filter.maxAmount?.round();
-    if (min != null && max != null) return '$min – $max €';
-    if (min != null) return '≥ $min €';
-    return '≤ $max €';
+    final min = filter.minAmount;
+    final max = filter.maxAmount;
+    if (min != null && max != null) {
+      return '${MoneyFormatter.formatPlainRounded(min)} – '
+          '${MoneyFormatter.formatRounded(max)}';
+    }
+    if (min != null) return '≥ ${MoneyFormatter.formatRounded(min)}';
+    return '≤ ${MoneyFormatter.formatRounded(max!)}';
   }
 }

@@ -3,10 +3,10 @@ enum LoanRepaymentType {
 
   inFine('In Fine', 'Capital remboursé en une fois à la fin');
 
+  const LoanRepaymentType(this.label, this.description);
+
   final String label;
   final String description;
-
-  const LoanRepaymentType(this.label, this.description);
 }
 
 enum InsuranceCalculationMode {
@@ -20,10 +20,10 @@ enum InsuranceCalculationMode {
     'Mensualité d\'assurance qui diminue chaque année',
   );
 
+  const InsuranceCalculationMode(this.label, this.description);
+
   final String label;
   final String description;
-
-  const InsuranceCalculationMode(this.label, this.description);
 }
 
 enum LoanDeferralType {
@@ -34,29 +34,23 @@ enum LoanDeferralType {
     'Intérêts et assurance payés, le capital n\'est pas amorti',
   ),
 
-  total(
-    'Total',
-    'Seule l\'assurance est payée, les intérêts sont capitalisés',
-  );
+  total('Total', 'Seule l\'assurance est payée, les intérêts sont capitalisés');
+
+  const LoanDeferralType(this.label, this.description);
 
   final String label;
   final String description;
-
-  const LoanDeferralType(this.label, this.description);
 }
 
 enum CreditRegime {
-  consumer(
-    'Consommation',
-    'Auto, travaux, trésorerie, paiement fractionné',
-  ),
+  consumer('Consommation', 'Auto, travaux, trésorerie, paiement fractionné'),
 
   mortgage('Immobilier', 'Acquisition ou construction d\'un bien');
 
+  const CreditRegime(this.label, this.description);
+
   final String label;
   final String description;
-
-  const CreditRegime(this.label, this.description);
 }
 
 enum LoanPurpose {
@@ -78,10 +72,10 @@ enum LoanPurpose {
 
   other('Autre', null);
 
+  const LoanPurpose(this.label, this.fixedRegime);
+
   final String label;
   final CreditRegime? fixedRegime;
-
-  const LoanPurpose(this.label, this.fixedRegime);
 
   bool get waivesIndemnityByDefault =>
       this == LoanPurpose.family || this == LoanPurpose.bridge;

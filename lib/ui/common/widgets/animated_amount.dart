@@ -3,17 +3,16 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 class AnimatedAmount extends StatefulWidget {
-  static const Duration duration = Duration(milliseconds: 650);
-  static const double pulseScale = 1.045;
-
-  final double amount;
-  final Widget Function(BuildContext context, double value) builder;
-
   const AnimatedAmount({
     required this.amount,
     required this.builder,
     super.key,
   });
+  static const Duration duration = Duration(milliseconds: 650);
+  static const double pulseScale = 1.045;
+
+  final double amount;
+  final Widget Function(BuildContext context, double value) builder;
 
   @override
   State<AnimatedAmount> createState() => _AnimatedAmountState();
@@ -51,8 +50,7 @@ class _AnimatedAmountState extends State<AnimatedAmount>
     super.dispose();
   }
 
-  double get _displayedValue =>
-      _from + (_to - _from) * _curve.value;
+  double get _displayedValue => _from + (_to - _from) * _curve.value;
 
   double get _pulse =>
       1 +

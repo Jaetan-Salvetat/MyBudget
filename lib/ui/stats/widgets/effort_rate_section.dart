@@ -1,19 +1,13 @@
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class EffortRateSection extends StatelessWidget {
-  static const double barThickness = 9;
-
-  final double? rate;
-  final double? annualRate;
-  final double recurringExpenses;
-  final double leftover;
-
   const EffortRateSection({
     super.key,
     required this.rate,
@@ -21,6 +15,12 @@ class EffortRateSection extends StatelessWidget {
     required this.recurringExpenses,
     required this.leftover,
   });
+  static const double barThickness = 9;
+
+  final double? rate;
+  final double? annualRate;
+  final double recurringExpenses;
+  final double leftover;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class EffortRateSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              _percent(rate),
+              PercentFormatter.formatShare(rate),
               style: AppTextStyles.displaySerifItalic(
                 fontSize: 38,
                 height: 1,
@@ -80,11 +80,11 @@ class EffortRateSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Fixe ${_money(recurringExpenses)}',
+              'Fixe ${MoneyFormatter.formatRounded(recurringExpenses)}',
               style: _footnote(scheme.onSurfaceVariant),
             ),
             Text(
-              'Reste à vivre ${_money(leftover)}',
+              'Reste à vivre ${MoneyFormatter.formatRounded(leftover)}',
               style: _footnote(scheme.onSurfaceVariant),
             ),
           ],
@@ -100,8 +100,11 @@ class EffortRateSection extends StatelessWidget {
   String? _referenceLabel(double rate) {
     final annualRate = this.annualRate;
     if (annualRate == null) return null;
-    if (_percent(annualRate) == _percent(rate)) return null;
-    return '${_percent(annualRate)} sur 12 mois, charges annuelles comprises';
+    if (PercentFormatter.formatShare(annualRate) ==
+        PercentFormatter.formatShare(rate)) {
+      return null;
+    }
+    return '${PercentFormatter.formatShare(annualRate)} sur 12 mois, charges annuelles comprises';
   }
 
   List<FrostedBarSegment> _segments(Color charges, Color rest) {
@@ -121,14 +124,6 @@ class EffortRateSection extends StatelessWidget {
     letterSpacingEm: 0.03,
     color: color,
   );
-
-  String _percent(double rate) => '${(rate * 100).round()} %';
-
-  String _money(double amount) => NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-    decimalDigits: 0,
-  ).format(amount);
 }
 
 class _MissingIncome extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_section.dart';
 
 const String _title = 'Justificatif';
@@ -9,9 +9,8 @@ const double _maxHeight = 320;
 const double _radius = 12;
 
 class ReceiptCard extends StatelessWidget {
-  final String path;
-
   const ReceiptCard({required this.path, super.key});
+  final String path;
 
   @override
   Widget build(BuildContext context) {

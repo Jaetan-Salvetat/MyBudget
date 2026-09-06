@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 class JournalLanding extends StatefulWidget {
+  const JournalLanding({required this.child, super.key});
   static const Duration duration = Duration(milliseconds: 340);
 
   static const double travel = 24;
@@ -12,8 +13,6 @@ class JournalLanding extends StatefulWidget {
   static const double fadeSpan = 0.6;
 
   final Widget child;
-
-  const JournalLanding({required this.child, super.key});
 
   @override
   State<JournalLanding> createState() => _JournalLandingState();

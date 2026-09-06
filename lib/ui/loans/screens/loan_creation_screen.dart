@@ -1,21 +1,24 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/locales.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
+import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 
 const double _durationUnitToggleHeight = 50;
 
 class LoanCreationScreen extends ConsumerStatefulWidget {
-  final List<AccountModel> accounts;
-
   const LoanCreationScreen({required this.accounts, super.key});
+  final List<AccountModel> accounts;
 
   static Future<LoanModel?> push({
     required BuildContext context,
@@ -23,11 +26,8 @@ class LoanCreationScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<LoanModel>(
       context,
-      MaterialPageRoute(
-        builder: (_) => ProviderScope(
-          overrides: [loanCreationProvider],
-          child: LoanCreationScreen(accounts: accounts),
-        ),
+      MaterialPageRoute<LoanModel>(
+        builder: (_) => LoanCreationScreen(accounts: accounts),
       ),
     );
   }
@@ -88,7 +88,8 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
           .setInsuranceValue(_insuranceValueController.text),
     );
     _feesController.addListener(
-      () => ref.read(loanCreationProvider.notifier).setFees(_feesController.text),
+      () =>
+          ref.read(loanCreationProvider.notifier).setFees(_feesController.text),
     );
     _deferredMonthsController.addListener(
       () => ref
@@ -108,6 +109,11 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
     _deferredMonthsController.dispose();
     _feesController.dispose();
     super.dispose();
+  }
+
+  DateTime _dayOfMonthAnchor(int dayOfMonth) {
+    final DateTime now = ref.read(clockProvider)();
+    return DateTime(now.year, now.month, dayOfMonth);
   }
 
   @override
@@ -318,7 +324,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                   if (date != null) notifier.setStartDate(date);
                 },
                 label: 'Date de signature',
-                text: DateFormat('dd/MM/yyyy').format(state.startDate),
+                text: DateFormatter.numericDate.format(state.startDate),
               ),
             ),
             const SizedBox(width: 12),
@@ -328,11 +334,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                 onTap: () async {
                   final selectedDate = await DateSelector.showDayPicker(
                     context: context,
-                    initialDate: DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      state.dayOfMonth,
-                    ),
+                    initialDate: _dayOfMonthAnchor(state.dayOfMonth),
                   );
                   if (selectedDate != null) {
                     notifier.setDayOfMonth(selectedDate.day);
@@ -777,7 +779,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                 height: 40,
               ),
               children: const [
-                Text('Fixe (€)'),
+                Text('Fixe (${FinancialLocale.currencySymbol})'),
                 Text('Taux (%)'),
                 Text('Aucune'),
               ],
@@ -828,7 +830,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 4),
               child: Text(
-                'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
+                'Soit ${MoneyFormatter.format(state.monthlyInsurancePayment)} / mois',
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.secondary,
@@ -888,10 +890,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               _buildSummaryRow(
                 context,
                 'Capital',
-                NumberFormat.currency(
-                  symbol: '€',
-                  locale: 'fr_FR',
-                ).format(state.amount),
+                MoneyFormatter.format(state.amount),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -917,7 +916,11 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                 ),
                 child: FrostedDivider(),
               ),
-              _buildSummaryRow(context, 'Taux', '${state.interestRate} %'),
+              _buildSummaryRow(
+                context,
+                'Taux',
+                PercentFormatter.formatRate(state.interestRate),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: FrostedSpacing.sp3,
@@ -929,7 +932,9 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                 'Assurance',
                 state.insuranceType == LoanInsuranceType.none
                     ? 'Aucune'
-                    : '${state.insuranceValue} ${state.insuranceType == LoanInsuranceType.fixed ? "€" : "%"}',
+                    : state.insuranceType == LoanInsuranceType.fixed
+                    ? MoneyFormatter.format(state.insuranceValue)
+                    : PercentFormatter.formatRate(state.insuranceValue),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -940,10 +945,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               _buildSummaryRow(
                 context,
                 'Mensualité',
-                NumberFormat.currency(
-                  symbol: '€',
-                  locale: 'fr_FR',
-                ).format(state.totalMonthlyPayment),
+                MoneyFormatter.format(state.totalMonthlyPayment),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -954,10 +956,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               _buildSummaryRow(
                 context,
                 'Coût total du crédit',
-                NumberFormat.currency(
-                  symbol: '€',
-                  locale: 'fr_FR',
-                ).format(state.totalCost),
+                MoneyFormatter.format(state.totalCost),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -968,7 +967,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               _buildSummaryRow(
                 context,
                 'TAEG',
-                '${state.annualPercentageRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+                PercentFormatter.formatRate(state.annualPercentageRate),
               ),
             ],
           ),
@@ -1066,8 +1065,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               FrostedButton.filled(
                 label: 'Terminer',
                 onPressed: state.isValid
-                    ? () =>
-                          Navigator.pop(context, notifier.createLoanModel())
+                    ? () => Navigator.pop(context, notifier.createLoanModel())
                     : null,
               ),
           ],
@@ -1089,10 +1087,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            NumberFormat.currency(
-              symbol: '€',
-              locale: 'fr_FR',
-            ).format(state.totalMonthlyPayment),
+            MoneyFormatter.format(state.totalMonthlyPayment),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
@@ -1100,7 +1095,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
           ),
           if (state.insuranceType != LoanInsuranceType.none)
             Text(
-              'dont assurance: ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)}',
+              'dont assurance: ${MoneyFormatter.format(state.monthlyInsurancePayment)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

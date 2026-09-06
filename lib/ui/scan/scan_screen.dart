@@ -1,14 +1,15 @@
 import 'package:flutter/foundation.dart';
-
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/ui/category_picker/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
@@ -17,19 +18,17 @@ import 'package:mybudget/ui/scan/widgets/scan_item_list.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
 import 'package:mybudget/ui/scan/widgets/scan_photo_viewer.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reading_view.dart';
-import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
+import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_saved_view.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
+  const ScanScreen({required this.image, super.key});
   static const String missingLineName = 'Ligne manquante';
   static const String removedMessage = 'Article retiré';
   static const String undoLabel = 'Annuler';
 
   final Future<Uint8List> image;
-
-  const ScanScreen({required this.image, super.key});
 
   @override
   ConsumerState<ScanScreen> createState() => _ScanScreenState();
@@ -97,7 +96,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
   void _initSelectedAccount() {
     if (_selectedAccountId != null) return;
-    final accounts = ref.read(accountProvider).value ?? const [];
+    final accounts = ref.read(accountProvider);
     if (accounts.isEmpty) return;
     setState(() => _selectedAccountId = accounts.first.id);
   }
@@ -142,6 +141,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     if (failure != null) return _ErrorView(error: failure, onRetry: _retry);
     if (result == null) {
       return ScanReadingView(
+        now: ref.read(clockProvider)(),
         reveal: _reveal,
         progress: ref.watch(scanProgressProvider),
       );
@@ -151,6 +151,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     final resolver = ref.watch(categoryDisplayResolverProvider).value;
 
     return ScanReviewView(
+      now: ref.read(clockProvider)(),
       result: result,
       resolve: (slug) => slug == null ? null : resolver?.resolve(slug),
       reveal: _reveal,
@@ -182,7 +183,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     return ScanCommitBar(
       pendingCount: result.pendingCount,
       total: result.itemsTotal,
-      accounts: ref.watch(accountProvider).value ?? const [],
+      accounts: ref.watch(accountProvider),
       selectedAccountId: _selectedAccountId,
       onSelectAccount: (id) => setState(() => _selectedAccountId = id),
       onFocusPending: () => _focusPending(result),
@@ -326,17 +327,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 }
 
 class _TopRow extends StatelessWidget {
-  static const String photoLabel = 'Photo';
-
-  final bool loading;
-  final bool hideActions;
-  final VoidCallback? onShowPhoto;
-
   const _TopRow({
     required this.loading,
     this.hideActions = false,
     this.onShowPhoto,
   });
+  static const String photoLabel = 'Photo';
+
+  final bool loading;
+  final bool hideActions;
+  final VoidCallback? onShowPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -369,10 +369,9 @@ class _TopRow extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.error, required this.onRetry});
   final Object error;
   final VoidCallback onRetry;
-
-  const _ErrorView({required this.error, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -427,11 +426,10 @@ class _ErrorView extends StatelessWidget {
 }
 
 class _EmptyView extends StatelessWidget {
+  const _EmptyView({required this.onRetry});
   static const String message = 'Aucun article lu sur ce ticket';
 
   final VoidCallback onRetry;
-
-  const _EmptyView({required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

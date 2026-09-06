@@ -1,14 +1,16 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/entities/transaction_change_entry.dart';
-import 'package:mybudget/core/entities/transaction_rule_summary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/core/values/transaction_change_entry.dart';
+import 'package:mybudget/core/values/transaction_rule_summary.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_info_card.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_kpi_card.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_row.dart';
@@ -16,7 +18,6 @@ import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 import 'package:mybudget/ui/transaction_details/widgets/receipt_card.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_detail_hero.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_timeline_card.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 const String _uncategorizedLabel = 'Non catégorisé';
 const String _detailsTitle = 'Détails';
@@ -25,32 +26,13 @@ const String _endedLabel = 'Terminé';
 typedef _Entry = ({String label, String value, IconData? icon});
 
 class TransactionDetailsView extends StatelessWidget {
-  final String screenTitle;
-  final String name;
-  final CategoryDisplay? category;
-  final Beneficiary? beneficiary;
-  final String accountLabel;
-  final double amount;
-  final Frequency frequency;
-  final DateTime startDate;
-  final DateTime? endDate;
-  final TransactionRuleSummary summary;
-  final List<TransactionChangeEntry> timeline;
-  final bool isIncome;
-  final IconData fallbackIcon;
-  final Color fallbackColor;
-  final bool isEditable;
-  final String? receiptPath;
-  final String deleteConfirmationMessage;
-  final VoidCallback onEdit;
-  final ValueChanged<RecurringDeletion> onDelete;
-
   const TransactionDetailsView({
     required this.screenTitle,
     required this.name,
     required this.accountLabel,
     required this.amount,
     required this.frequency,
+    required this.now,
     required this.startDate,
     required this.summary,
     required this.timeline,
@@ -67,6 +49,26 @@ class TransactionDetailsView extends StatelessWidget {
     this.receiptPath,
     super.key,
   });
+  final String screenTitle;
+  final String name;
+  final CategoryDisplay? category;
+  final BeneficiaryModel? beneficiary;
+  final String accountLabel;
+  final double amount;
+  final Frequency frequency;
+  final DateTime now;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final TransactionRuleSummary summary;
+  final List<TransactionChangeEntry> timeline;
+  final bool isIncome;
+  final IconData fallbackIcon;
+  final Color fallbackColor;
+  final bool isEditable;
+  final String? receiptPath;
+  final String deleteConfirmationMessage;
+  final VoidCallback onEdit;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -118,36 +120,34 @@ class TransactionDetailsView extends StatelessWidget {
   }
 
   Widget _buildKpiCard() {
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final nextDueDate = summary.nextDueDate;
     final plural = summary.occurrences > 1 ? 's' : '';
 
     return DetailKpiCard(
       leftLabel: 'Cumul à ce jour',
-      leftValue: formatter.format(summary.totalToDate),
-      leftHint: 'depuis ${DateFormat('MMMM yyyy', 'fr_FR').format(summary.since)}',
+      leftValue: MoneyFormatter.format(summary.totalToDate),
+      leftHint: 'depuis ${DateFormatter.monthYear.format(summary.since)}',
       rightLabel: 'Prochaine échéance',
       rightValue: nextDueDate == null
           ? _endedLabel
-          : DateFormat('d MMM yyyy', 'fr_FR').format(nextDueDate),
+          : DateFormatter.mediumDate.format(nextDueDate),
       rightHint: '${summary.occurrences} échéance$plural passée$plural',
     );
   }
 
   List<DetailRow> _buildDetailRows() {
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final dateFormatter = DateFormat('dd/MM/yyyy');
+    final dateFormatter = DateFormatter.numericDate;
     final annualImpact = summary.annualImpact;
     final closing = endDate;
 
     final entries = <_Entry>[
-      (label: 'Montant', value: formatter.format(amount), icon: null),
+      (label: 'Montant', value: MoneyFormatter.format(amount), icon: null),
       (label: 'Fréquence', value: frequency.label, icon: null),
       (label: 'Échéance', value: _scheduleLabel(), icon: null),
       if (annualImpact != null)
         (
           label: 'Impact annuel',
-          value: formatter.format(annualImpact),
+          value: MoneyFormatter.format(annualImpact),
           icon: Symbols.calendar_month_rounded,
         ),
       (label: 'Catégorie', value: _categoryLabel(), icon: null),
@@ -174,8 +174,8 @@ class TransactionDetailsView extends StatelessWidget {
     return switch (frequency) {
       Frequency.monthly => 'Le ${startDate.day} de chaque mois',
       Frequency.annual =>
-        'Le ${DateFormat('d MMMM', 'fr_FR').format(startDate)} de chaque année',
-      Frequency.oneTime => DateFormat('d MMMM yyyy', 'fr_FR').format(startDate),
+        'Le ${DateFormatter.dayMonth.format(startDate)} de chaque année',
+      Frequency.oneTime => DateFormatter.longDate.format(startDate),
     };
   }
 
@@ -210,7 +210,7 @@ class TransactionDetailsView extends StatelessWidget {
                 startDate,
                 endDate,
                 frequency,
-                DateTime.now(),
+                now,
               ),
               onDelete: onDelete,
             ),

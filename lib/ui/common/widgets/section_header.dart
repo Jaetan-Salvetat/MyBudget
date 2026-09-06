@@ -2,10 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class SectionHeader extends StatelessWidget {
+  const SectionHeader({super.key, required this.title, this.trailing});
   final String title;
   final String? trailing;
-
-  const SectionHeader({super.key, required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {

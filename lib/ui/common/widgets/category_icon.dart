@@ -3,16 +3,15 @@ import 'package:material_ui/material_ui.dart';
 enum CategoryIconSize { xs, sm, md }
 
 class CategoryIcon extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final CategoryIconSize size;
-
   const CategoryIcon({
     super.key,
     required this.icon,
     required this.color,
     this.size = CategoryIconSize.md,
   });
+  final IconData icon;
+  final Color color;
+  final CategoryIconSize size;
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +41,12 @@ class CategoryIcon extends StatelessWidget {
 }
 
 class _IconDimensions {
-  final double box;
-  final double radius;
-  final double icon;
-
   const _IconDimensions({
     required this.box,
     required this.radius,
     required this.icon,
   });
+  final double box;
+  final double radius;
+  final double icon;
 }
