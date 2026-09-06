@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/1117.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CAFE DE RENNES",
+  "date": "2017-04-23",
+  "total": 51.7,
+  "items": [
+   {
+    "name": "V.BORDEAUX",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "1/2 MURPHY STOUT",
+    "amount": 4.5,
+    "discount": 0
+   },
+   {
+    "name": "ESCARGOTS 12",
+    "amount": 11.9,
+    "discount": 0
+   },
+   {
+    "name": "2 PAVE DE SAUMON",
+    "amount": 30.0,
+    "discount": 0
+   },
+   {
+    "name": "CAFE ALLONGE",
+    "amount": 1.5,
+    "discount": 0
+   }
+  ]
+ }
+}

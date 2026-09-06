@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/510.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-10-31",
+  "total": 4.0,
+  "items": [
+   {
+    "name": "*1/2 POIS CHICHES",
+    "amount": 0.56,
+    "discount": 0.0
+   },
+   {
+    "name": "1L H.TOURNESOL CRF",
+    "amount": 1.85,
+    "discount": 0.0
+   },
+   {
+    "name": "*550G MAXI SSA JAC",
+    "amount": 1.59,
+    "discount": 0.0
+   }
+  ]
+ }
+}

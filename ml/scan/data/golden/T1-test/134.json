@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/134.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-02-03",
+  "total": 17.58,
+  "items": [
+   {
+    "name": "250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0
+   },
+   {
+    "name": "2X100G STEACK SOJA",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "DENTIFRI.VADEMECUM",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "HARICO.VER.BONDUEL",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "PIST.LAVE VITR.CRF",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "PIZZA JBN FROMAGE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "POIRE COMICE",
+    "amount": 2.19,
+    "discount": 0
+   }
+  ]
+ }
+}

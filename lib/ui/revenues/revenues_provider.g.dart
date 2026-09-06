@@ -33,13 +33,13 @@ final class RevenueNotifierProvider
   RevenueNotifier create() => RevenueNotifier();
 }
 
-String _$revenueNotifierHash() => r'59c4fdf1c2674321f9df0f38ff91eadc411557f5';
+String _$revenueNotifierHash() => r'a8e4cddb747a802656b35e7f143890e503da568a';
 
 abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
   FutureOr<List<RevenueModel>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<List<RevenueModel>>, List<RevenueModel>>;
     final element =
@@ -50,6 +50,6 @@ abstract class _$RevenueNotifier extends $AsyncNotifier<List<RevenueModel>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

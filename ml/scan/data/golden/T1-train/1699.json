@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1699.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CAMAIEU",
+  "date": "2016-06-11",
+  "total": 57.46,
+  "items": [
+   {
+    "name": "2120017218446 SAVE COLOR.SH 42",
+    "amount": 17.99,
+    "discount": 0
+   },
+   {
+    "name": "2120017210877 SAO PAULO DENIM BER 42",
+    "amount": 19.99,
+    "discount": 0
+   },
+   {
+    "name": "a 2360017508691 TEETULLE M",
+    "amount": 12.99,
+    "discount": 0
+   },
+   {
+    "name": "a)2360017508578 TEETULLE M",
+    "amount": 12.99,
+    "discount": 6.5
+   }
+  ]
+ }
+}

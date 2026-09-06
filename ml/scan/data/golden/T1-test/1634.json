@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1634.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "L'EPI DE BLE",
+  "date": "2017-04-12",
+  "total": 36.4,
+  "items": [
+   {
+    "name": "CIDRE PICHET BRT 50CL",
+    "amount": 7.5,
+    "discount": 0.0
+   },
+   {
+    "name": "RACLETTE",
+    "amount": 9.9,
+    "discount": 0.0
+   },
+   {
+    "name": "G.FERMIERE",
+    "amount": 8.8,
+    "discount": 0.0
+   },
+   {
+    "name": "C.CHOCOLAT",
+    "amount": 4.8,
+    "discount": 0.0
+   },
+   {
+    "name": "C.POIRE,CHOC",
+    "amount": 5.4,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/9.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-05-23",
+  "total": 5.04,
+  "items": [
+   {
+    "name": "320G SLD.MANHATTAN",
+    "amount": 4.14,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME GOLDEN GROSSE",
+    "amount": 0.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

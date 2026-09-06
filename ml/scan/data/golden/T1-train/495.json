@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/495.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-14",
+  "total": 10.0,
+  "items": [
+   {
+    "name": "PINEAU THIBAULT BL",
+    "amount": 10.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

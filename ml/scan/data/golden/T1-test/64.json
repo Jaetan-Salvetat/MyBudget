@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-test/img/64.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-09",
+  "total": 18.63,
+  "items": [
+   {
+    "name": "*210G CORNI.CROQ VT",
+    "amount": 1.96,
+    "discount": 0
+   },
+   {
+    "name": "*225G CRISPROLL.S/S",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "*6 OEUF GROS EXTRA",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "*750G POUDRE DOYPAC",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "*750ML PAIC CIT VRT",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "*BV SEL FIN IODE",
+    "amount": 0.61,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*EVIAN NEW 1.5L",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "*LAIT CANDIA",
+    "amount": 2.82,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE",
+    "amount": 2.13,
+    "discount": 0
+   },
+   {
+    "name": "*SAC POIGN",
+    "amount": 0.15,
+    "discount": 0
+   }
+  ]
+ }
+}

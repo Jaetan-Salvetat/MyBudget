@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/320.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-21",
+  "total": 6.93,
+  "items": [
+   {
+    "name": "*COUSCOUS CRF 440G",
+    "amount": 3.26,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FRTS POM/PEC/",
+    "amount": 1.68,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

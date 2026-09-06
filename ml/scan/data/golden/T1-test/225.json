@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/225.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-03",
+  "total": 8.32,
+  "items": [
+   {
+    "name": "*1L LAIT UHT 1/2ECR",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "*CR.DESSER.CAFE CRF",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "*CREM.DESSER.PISTAC",
+    "amount": 0.89,
+    "discount": 0.45
+   },
+   {
+    "name": "*CREM.DESSER.PISTAC",
+    "amount": 0.89,
+    "discount": 0.44
+   },
+   {
+    "name": "*OPERA 6/8 PARTS",
+    "amount": 5.5,
+    "discount": 0
+   },
+   {
+    "name": "SAC POIGN",
+    "amount": 0.15,
+    "discount": 0
+   }
+  ]
+ }
+}

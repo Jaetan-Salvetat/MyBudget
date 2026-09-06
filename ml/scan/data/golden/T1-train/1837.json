@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/1837.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA TAVERNE DE TASDON",
+  "date": "2017-01-16",
+  "total": 114.0,
+  "items": [
+   {
+    "name": "VERRE DE VIN BAR",
+    "amount": 7.0,
+    "discount": 0.0
+   },
+   {
+    "name": "ENTRECOTE",
+    "amount": 72.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CAFE",
+    "amount": 9.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CAVE SALLE",
+    "amount": 26.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

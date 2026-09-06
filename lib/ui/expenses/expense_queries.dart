@@ -1,8 +1,11 @@
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/stats_calculator.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -10,47 +13,50 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'expense_queries.g.dart';
 
 @Riverpod(keepAlive: true)
+List<ExpenseModel> expenseHistory(Ref ref) {
+  final open = ref.watch(expenseProvider).value ?? const <ExpenseModel>[];
+  final closed = ref.watch(expenseRepositoryProvider).getClosed();
+  return [...open, ...closed];
+}
+
+@Riverpod(keepAlive: true)
+List<ExpenseModel> monthExpenses(Ref ref) {
+  final expenses = ref.watch(expenseHistoryProvider);
+  final month = ref.watch(selectedMonthProvider);
+
+  return [
+    for (final expense in expenses)
+      if (occursIn(expense, month)) _datedOn(expense, month),
+  ];
+}
+
+ExpenseModel _datedOn(ExpenseModel expense, DateTime month) {
+  final landing = dayInMonthOf(expense.startDate, expense.frequencyEnum, month);
+  if (landing == expense.startDate) return expense;
+  return expense.copyWith(startDate: landing);
+}
+
+@Riverpod(keepAlive: true)
 List<ExpenseModel> activeExpenses(Ref ref) {
   final expenses = ref.watch(expenseProvider).value ?? [];
   return expenses.where((e) => e.endDate == null).toList();
 }
 
-double _expenseAmountForMonth(ExpenseModel expense, DateTime month) {
-  if (!isActiveForMonth(expense.startDate, expense.endDate, month)) return 0.0;
-  switch (expense.frequencyEnum) {
-    case Frequency.monthly:
-      return expense.amount;
-    case Frequency.annual:
-      return expense.startDate.month == month.month ? expense.amount : 0.0;
-    case Frequency.oneTime:
-      return expense.startDate.year == month.year &&
-              expense.startDate.month == month.month
-          ? expense.amount
-          : 0.0;
-  }
-}
-
 @Riverpod(keepAlive: true)
 double monthlyExpenses(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
-  final selectedMonth = ref.watch(selectedMonthProvider);
-  double total = 0.0;
-  for (final expense in expenses) {
-    total += _expenseAmountForMonth(expense, selectedMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(expenseHistoryProvider),
+    ref.watch(selectedMonthProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
 double currentMonthExpenses(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
   final now = DateTime.now();
-  final currentMonth = DateTime(now.year, now.month);
-  double total = 0.0;
-  for (final expense in expenses) {
-    total += _expenseAmountForMonth(expense, currentMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(expenseHistoryProvider),
+    DateTime(now.year, now.month),
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -82,7 +88,8 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
       case Frequency.monthly:
         return expense.startDate.day >= now.day;
       case Frequency.annual:
-        return expense.startDate.month == now.month && expense.startDate.day >= now.day;
+        return expense.startDate.month == now.month &&
+            expense.startDate.day >= now.day;
       case Frequency.oneTime:
         final expenseDate = DateTime(
           expense.startDate.year,
@@ -98,29 +105,19 @@ List<ExpenseModel> upcomingExpenses(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Map<CategoryModel, double> expensesByCategory(Ref ref) {
-  final expenses = ref.watch(expenseProvider).value ?? [];
+Map<String, double> expensesByGroup(Ref ref) {
+  final expenses = ref.watch(expenseHistoryProvider);
   final selectedMonth = ref.watch(selectedMonthProvider);
-  final categoryRepo = ref.read(categoryRepositoryProvider);
+  final resolver = ref.watch(categoryDisplayResolverProvider).value;
+  if (resolver == null) return const {};
 
-  final Map<int, double> categoryTotals = {};
-  for (final expense in expenses) {
-    final amount = _expenseAmountForMonth(expense, selectedMonth);
-    if (amount > 0) {
-      categoryTotals.update(
-        expense.categoryId,
-        (value) => value + amount,
-        ifAbsent: () => amount,
-      );
-    }
-  }
+  return groupTotalsIn(expenses, selectedMonth, resolver);
+}
 
-  final Map<CategoryModel, double> result = {};
-  for (final entry in categoryTotals.entries) {
-    final category = categoryRepo.get(entry.key);
-    if (category != null) {
-      result[category] = entry.value;
-    }
-  }
-  return result;
+@Riverpod(keepAlive: true)
+List<TransactionEventModel> expenseEvents(Ref ref, int rootId) {
+  ref.watch(expenseProvider);
+  return ref
+      .watch(transactionEventRepositoryProvider)
+      .getForRoot(rootId, TransactionType.expense);
 }

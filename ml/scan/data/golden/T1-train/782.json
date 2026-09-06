@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/782.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2016-12-24",
+  "total": 49.66,
+  "items": [
+   {
+    "name": "GENTLEMAN JACK 40D,70CL",
+    "amount": 24.5,
+    "discount": 0.0
+   },
+   {
+    "name": "CPE-ONGLES PM/CHAINE",
+    "amount": 2.26,
+    "discount": 0.0
+   },
+   {
+    "name": "FLEURS COUPEES",
+    "amount": 22.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "source": "dataset_findit/T1-train/img/591.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market",
+  "date": "2017-06-23",
+  "total": 90.94,
+  "items": [
+   {
+    "name": "2X336G X48DOS N6",
+    "amount": 20.0,
+    "discount": 8.0
+   },
+   {
+    "name": "1L VINAIG.ALC.CRIS",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "2KG STERILISE FRIS",
+    "amount": 3.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*2X YRT BREBIS NAT.",
+    "amount": 1.25,
+    "discount": 0.0
+   },
+   {
+    "name": "300G NX CAJOU GRIL",
+    "amount": 3.77,
+    "discount": 0.0
+   },
+   {
+    "name": "360G CONF.FRAISE",
+    "amount": 1.94,
+    "discount": 0.0
+   },
+   {
+    "name": "360G CONF.ORANGE",
+    "amount": 2.04,
+    "discount": 0.0
+   },
+   {
+    "name": "4 COUPEL.POMME BIO",
+    "amount": 1.49,
+    "discount": 0.0
+   },
+   {
+    "name": "*600G HARICOT VRT",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*6X1.5L EAU SOURCE",
+    "amount": 4.86,
+    "discount": 0.0
+   },
+   {
+    "name": "75 BDX RGE B.LESML",
+    "amount": 4.09,
+    "discount": 0.0
+   },
+   {
+    "name": "75 GRAVES RG CH.DE",
+    "amount": 4.95,
+    "discount": 0.0
+   },
+   {
+    "name": "75COST NIME RG ML",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "80G CHOC NOIR 80%",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*Buche de chPvre",
+    "amount": 3.73,
+    "discount": 0.0
+   },
+   {
+    "name": "*COMTE EXT.V.RESERV",
+    "amount": 4.41,
+    "discount": 0.0
+   },
+   {
+    "name": "*DANETTE NOIR EXTRA",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMMENTAL RAPE 100G",
+    "amount": 0.91,
+    "discount": 0.0
+   },
+   {
+    "name": "EXC.NOIR 85% LINDT",
+    "amount": 1.58,
+    "discount": 0.0
+   },
+   {
+    "name": "*GAZPACHO ORIGINAL",
+    "amount": 3.82,
+    "discount": 0.0
+   },
+   {
+    "name": "*GIR.LIME 500G IMP",
+    "amount": 2.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*GOUDA JEUNE",
+    "amount": 1.68,
+    "discount": 0.0
+   },
+   {
+    "name": "*LARDONS NATURE BIO",
+    "amount": 4.48,
+    "discount": 0.0
+   },
+   {
+    "name": "MIEL POITOU CHAREN",
+    "amount": 7.89,
+    "discount": 0.0
+   },
+   {
+    "name": "*POEL.CHAMPETR.600G",
+    "amount": 2.4,
+    "discount": 0.0
+   },
+   {
+    "name": "*ST NECTAIRE LAITIE",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*TROPICANA PREM OR.",
+    "amount": 7.38,
+    "discount": 2.46
+   },
+   {
+    "name": "*YRT NATURE BIO",
+    "amount": 1.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

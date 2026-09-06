@@ -41,13 +41,13 @@ final class ThemeNotifierProvider
   }
 }
 
-String _$themeNotifierHash() => r'1695d1f79aa06e32a7d2631ecd058fd60246a119';
+String _$themeNotifierHash() => r'93d8b13a366c2298c49864d4221bdc4f5058314d';
 
 abstract class _$ThemeNotifier extends $Notifier<ThemeState> {
   ThemeState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ThemeState, ThemeState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$ThemeNotifier extends $Notifier<ThemeState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

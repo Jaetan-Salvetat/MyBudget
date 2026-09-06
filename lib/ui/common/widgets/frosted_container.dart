@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FrostedContainer extends StatelessWidget {
   final Widget child;
@@ -28,17 +28,13 @@ class FrostedContainer extends StatelessWidget {
       child: ClipRRect(
         borderRadius: radius,
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: blurStrength,
-            sigmaY: blurStrength,
-          ),
+          filter: ImageFilter.blur(sigmaX: blurStrength, sigmaY: blurStrength),
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surface
-                  .withValues(alpha: opacity),
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: opacity),
               borderRadius: radius,
             ),
             child: child,

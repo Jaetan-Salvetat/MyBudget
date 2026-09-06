@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/79.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-12",
+  "total": 7.4,
+  "items": [
+   {
+    "name": "*1KG RIZ BASMATI",
+    "amount": 1.87,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAROTTE",
+    "amount": 0.54,
+    "discount": 0.0
+   },
+   {
+    "name": "*ORANGE",
+    "amount": 2.13,
+    "discount": 0.0
+   },
+   {
+    "name": "*POMME ROYAL GALA",
+    "amount": 0.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAUCISSES VOLAILLE",
+    "amount": 1.32,
+    "discount": 0.0
+   }
+  ]
+ }
+}

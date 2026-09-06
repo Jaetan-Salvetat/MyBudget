@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/1810.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 10.31,
+  "items": [
+   {
+    "name": "BROCOLIS",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "PATATE DOUCE",
+    "amount": 3.29,
+    "discount": 0
+   },
+   {
+    "name": "ENDIVES",
+    "amount": 1.42,
+    "discount": 0
+   },
+   {
+    "name": "AIL",
+    "amount": 0.74,
+    "discount": 0
+   },
+   {
+    "name": "POMME",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENVILLA",
+    "amount": 0.71,
+    "discount": 0
+   },
+   {
+    "name": "POMELOS",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

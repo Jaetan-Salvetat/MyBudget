@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanCard extends StatelessWidget {
   final Loan loan;
@@ -17,141 +19,150 @@ class LoanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final theme = Theme.of(context);
+    final compactFormatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      symbol: '€',
+      decimalDigits: 0,
+    );
 
-    final progress = loan.progressPercentage;
-    final remainingCapital = loan.remainingCapital;
-    final remainingMonths = loan.remainingMonths;
+    final progress = loan.progressPercentage.clamp(0.0, 1.0);
+    final progressPct = (progress * 100).round();
 
-    return FrostedCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      borderRadius: 12,
-      padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
-      onClick: onTap,
-      child: IntrinsicHeight(
-        child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: FrostedCard(
+        padding: const EdgeInsets.all(16),
+        onTap: onTap,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 3,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(1.5),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.real_estate_agent_rounded,
-              color: theme.colorScheme.primary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          Expanded(
-            child: Column(
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  loan.name,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Symbols.account_balance_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 14,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        accountName,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loan.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 22 / 16,
+                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      Text(
+                        '${loan.lenderName} · Le ${loan.dayOfMonth} du mois',
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 16 / 12,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      formatter.format(loan.currentMonthlyPayment),
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 20 / 16,
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    Text(
+                      '/ mois',
+                      style: AppTextStyles.mono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: FrostedLinearProgressIndicator(
-                    value: progress,
-                    minHeight: 4,
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
               ],
             ),
-          ),
-          const SizedBox(width: 12),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${formatter.format(loan.currentMonthlyPayment)}/mois',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Capital : ${formatter.format(remainingCapital)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.outline,
-                ),
-              ),
-              const SizedBox(height: 6),
-              if (!loan.isCompleted)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(9999),
+              child: FrostedLinearProgress(value: progress),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  '$progressPct% remboursé',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 16 / 12,
+                    fontWeight: FontWeight.w500,
+                    color: scheme.primary,
                   ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '·',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: scheme.onSurfaceVariant,
                   ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
                   child: Text(
-                    '$remainingMonths mois restants',
+                    '${compactFormatter.format(loan.remainingCapital)} restants',
                     style: TextStyle(
-                      fontSize: 10,
-                      color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                      height: 16 / 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Spacer(),
+                if (!loan.isCompleted)
+                  Text(
+                    '${loan.remainingMonths} mois',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 16 / 12,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ],
-),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

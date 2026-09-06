@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/393.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-11",
+  "total": 13.88,
+  "items": [
+   {
+    "name": "*FLUTES FEUIL.TOMAT",
+    "amount": 3.04,
+    "discount": 0
+   },
+   {
+    "name": "*GRESSINS SESAME HO",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "*GUACAMOLE 175G",
+    "amount": 4.0,
+    "discount": 0
+   },
+   {
+    "name": "*TARTINABLE AU THON",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "*TEPENADE VERTE",
+    "amount": 2.13,
+    "discount": 0
+   }
+  ]
+ }
+}

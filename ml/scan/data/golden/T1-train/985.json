@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/985.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "MR BRICOLAGE SAINTES",
+  "date": "2015-10-10",
+  "total": 15.4,
+  "items": [
+   {
+    "name": "BROS PLAT.GLYCER.20",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "P.MS BLEU CA7 SATOL5",
+    "amount": 12.9,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/28.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-16",
+  "total": 9.71,
+  "items": [
+   {
+    "name": "*BLANC SOIF D'EVASION",
+    "amount": 5.35,
+    "discount": 0
+   },
+   {
+    "name": "*BRK SQR 1L PJ POMM",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "*BRK SQR PJ MULT 1L",
+    "amount": 2.77,
+    "discount": 0
+   }
+  ]
+ }
+}

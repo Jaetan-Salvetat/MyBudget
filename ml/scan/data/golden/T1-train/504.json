@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/504.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-09-24",
+  "total": 8.37,
+  "items": [
+   {
+    "name": "30ST THE VERT MENT",
+    "amount": 2.19,
+    "discount": 0.0
+   },
+   {
+    "name": "*6X1.5L EAU SOURCE",
+    "amount": 1.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*RAISIN NOIR",
+    "amount": 1.73,
+    "discount": 0.0
+   },
+   {
+    "name": "MUG 30CL SEARCH BR",
+    "amount": 2.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

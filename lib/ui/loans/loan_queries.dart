@@ -23,22 +23,3 @@ double totalRemainingLoanAmount(Ref ref) {
       .watch(activeLoansProvider)
       .fold(0.0, (sum, loan) => sum + loan.remainingCapital);
 }
-
-@Riverpod(keepAlive: true)
-double totalRemainingLoanCost(Ref ref) {
-  return ref
-      .watch(activeLoansProvider)
-      .fold(0.0, (sum, loan) => sum + loan.remainingCost);
-}
-
-@Riverpod(keepAlive: true)
-double overallLoanProgressPercentage(Ref ref) {
-  final active = ref.watch(activeLoansProvider);
-  if (active.isEmpty) return 0.0;
-
-  final totalInitial = active.fold(0.0, (sum, loan) => sum + loan.amount);
-  if (totalInitial == 0) return 0.0;
-
-  final totalRemaining = ref.watch(totalRemainingLoanAmountProvider);
-  return ((totalInitial - totalRemaining) / totalInitial).clamp(0.0, 1.0);
-}

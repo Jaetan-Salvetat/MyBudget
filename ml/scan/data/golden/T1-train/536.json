@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/536.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-04-25",
+  "total": 5.73,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*F POMME ROUGE",
+    "amount": 0.48,
+    "discount": 0.0
+   },
+   {
+    "name": "*POULET CHAMP NOIR",
+    "amount": 3.65,
+    "discount": 0.0
+   }
+  ]
+ }
+}

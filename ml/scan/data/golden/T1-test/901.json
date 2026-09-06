@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/901.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-15",
+  "total": 5.71,
+  "items": [
+   {
+    "name": "SERUM PHYS 30 UNIDOSES",
+    "amount": 4.82,
+    "discount": 0
+   },
+   {
+    "name": "BANANE CAVENDISH",
+    "amount": 0.89,
+    "discount": 0
+   }
+  ]
+ }
+}

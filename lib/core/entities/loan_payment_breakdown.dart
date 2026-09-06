@@ -12,10 +12,10 @@ class LoanPaymentBreakdown {
   });
 
   const LoanPaymentBreakdown.zero()
-      : capitalPayment = 0.0,
-        interestPayment = 0.0,
-        insurancePayment = 0.0,
-        totalPayment = 0.0;
+    : capitalPayment = 0.0,
+      interestPayment = 0.0,
+      insurancePayment = 0.0,
+      totalPayment = 0.0;
 
   @override
   bool operator ==(Object other) =>

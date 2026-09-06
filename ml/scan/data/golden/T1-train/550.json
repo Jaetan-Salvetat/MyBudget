@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/550.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-03-09",
+  "total": 9.67,
+  "items": [
+   {
+    "name": "*250G ABRICOT MOELLEU",
+    "amount": 3.91,
+    "discount": 0.0
+   },
+   {
+    "name": "*300G CHILI CON CARNE",
+    "amount": 3.37,
+    "discount": 0.0
+   },
+   {
+    "name": "*300G SAL.CONCOMBRE F",
+    "amount": 2.39,
+    "discount": 0.0
+   }
+  ]
+ }
+}

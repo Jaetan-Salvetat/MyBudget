@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/973.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "espace culturel E.Leclerc",
+  "date": "2016-02-20",
+  "total": 9.92,
+  "items": [
+   {
+    "name": "VIE DE MERDE LE MARIAGE",
+    "amount": 9.92,
+    "discount": 0.0
+   }
+  ]
+ }
+}

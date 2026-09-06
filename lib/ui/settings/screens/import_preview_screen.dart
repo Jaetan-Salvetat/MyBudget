@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:mybudget/core/services/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
@@ -23,16 +25,15 @@ class ImportPreviewScreen extends ConsumerWidget {
     final analysis = _ImportAnalysis(validationResult);
 
     return FrostedScaffold(
-      appBar: FrostedAppBar(
-        title: 'Aperçu de l\'import',
-      ),
+      appBar: FrostedTopBar(title: 'Aperçu de l\'import'),
       bottomNavigationBar: FrostedContainer(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: SafeArea(
           top: false,
           child: SizedBox(
             width: double.infinity,
-            child: FrostedFilledButton(
+            child: FrostedButton.filled(
+              label: 'Importer ${validationResult.totalItems} éléments',
               onPressed: () {
                 DataManagementDialogs.showImportConfirmationDialog(
                   context,
@@ -40,15 +41,17 @@ class ImportPreviewScreen extends ConsumerWidget {
                   jsonContent,
                 );
               },
-              child: Text(
-                'Importer ${validationResult.totalItems} éléments',
-              ),
             ),
           ),
         ),
       ),
-      child: ListView(
-        padding: const EdgeInsets.only(top: 120, left: 16, right: 16, bottom: 145),
+      body: ListView(
+        padding: const EdgeInsets.only(
+          top: 120,
+          left: 16,
+          right: 16,
+          bottom: 145,
+        ),
         children: [
           if (validationResult.errors.isNotEmpty)
             _ErrorBanner(
@@ -59,119 +62,119 @@ class ImportPreviewScreen extends ConsumerWidget {
             ),
           _SummaryCard(
             totalItems: validationResult.totalItems,
-            hasErrors: validationResult.errors.isNotEmpty ||
-                analysis.hasOrphanedItems,
+            hasErrors:
+                validationResult.errors.isNotEmpty || analysis.hasOrphanedItems,
           ),
           const SizedBox(height: 16),
           if (validationResult.accounts.isNotEmpty)
             _EntitySection(
               title: 'Comptes',
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Symbols.account_balance_wallet_rounded,
               count: validationResult.accounts.length,
               children: validationResult.accounts
-                  .map((a) => _ItemTile(
-                        title: a.model.name,
-                        subtitle: a.model.bank,
-                      ))
+                  .map(
+                    (a) =>
+                        _ItemTile(title: a.model.name, subtitle: a.model.bank),
+                  )
                   .toList(),
             ),
           if (validationResult.beneficiaries.isNotEmpty)
             _EntitySection(
               title: 'Bénéficiaires',
-              icon: Icons.people_outline,
+              icon: Symbols.people_rounded,
               count: validationResult.beneficiaries.length,
               children: validationResult.beneficiaries
                   .map((b) => _ItemTile(title: b.model.name))
                   .toList(),
             ),
-          if (validationResult.categories.isNotEmpty)
+          if (validationResult.categoryOverrides.isNotEmpty)
             _EntitySection(
               title: 'Catégories',
-              icon: Icons.category_outlined,
-              count: validationResult.categories.length,
-              children: validationResult.categories
-                  .map((c) => _ItemTile(
-                        title: c.model.name,
-                        leading: Icon(
-                          c.model.getIconData(),
-                          size: 18,
-                          color: Color(c.model.color),
+              icon: Symbols.category_rounded,
+              count: validationResult.categoryOverrides.length,
+              children: validationResult.categoryOverrides
+                  .map(
+                    (c) => _ItemTile(
+                      title: c.model.name ?? c.model.slug,
+                      leading: Icon(
+                        CategoryDefaults.resolveIcon(
+                          c.model.icon ?? CategoryDefaults.defaultIcon,
                         ),
-                      ))
+                        size: 18,
+                        color: Color(
+                          c.model.color ?? CategoryDefaults.defaultColor,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           if (validationResult.expenses.isNotEmpty)
             _EntitySection(
               title: 'Dépenses',
-              icon: Icons.arrow_downward,
+              icon: Symbols.arrow_downward_rounded,
               count: validationResult.expenses.length,
               warningCount: analysis.orphanedExpenses,
-              children: validationResult.expenses
-                  .map((e) {
-                    final warning = analysis.getExpenseWarning(e);
-                    return _ItemTile(
-                      title: e.model.name,
-                      subtitle: e.model.frequency,
-                      warning: warning,
-                      trailing: Text(
-                        formatter.format(e.model.amount),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: warning != null
-                              ? theme.colorScheme.error
-                              : theme.colorScheme.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  })
-                  .toList(),
+              children: validationResult.expenses.map((e) {
+                final warning = analysis.getExpenseWarning(e);
+                return _ItemTile(
+                  title: e.model.name,
+                  subtitle: e.model.frequency,
+                  warning: warning,
+                  trailing: Text(
+                    formatter.format(e.model.amount),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: warning != null
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           if (validationResult.revenues.isNotEmpty)
             _EntitySection(
               title: 'Revenus',
-              icon: Icons.arrow_upward,
+              icon: Symbols.arrow_upward_rounded,
               count: validationResult.revenues.length,
               warningCount: analysis.orphanedRevenues,
-              children: validationResult.revenues
-                  .map((r) {
-                    final warning = analysis.getRevenueWarning(r);
-                    return _ItemTile(
-                      title: r.model.name,
-                      warning: warning,
-                      trailing: Text(
-                        formatter.format(r.model.amount),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  })
-                  .toList(),
+              children: validationResult.revenues.map((r) {
+                final warning = analysis.getRevenueWarning(r);
+                return _ItemTile(
+                  title: r.model.name,
+                  warning: warning,
+                  trailing: Text(
+                    formatter.format(r.model.amount),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           if (validationResult.loans.isNotEmpty)
             _EntitySection(
               title: 'Emprunts',
-              icon: Icons.account_balance,
+              icon: Symbols.account_balance_rounded,
               count: validationResult.loans.length,
               warningCount: analysis.orphanedLoans,
-              children: validationResult.loans
-                  .map((l) {
-                    final warning = analysis.getLoanWarning(l);
-                    return _ItemTile(
-                      title: l.model.name,
-                      subtitle:
-                          '${l.model.duration} mois · ${l.model.interestRate}%',
-                      warning: warning,
-                      trailing: Text(
-                        formatter.format(l.model.amount),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  })
-                  .toList(),
+              children: validationResult.loans.map((l) {
+                final warning = analysis.getLoanWarning(l);
+                return _ItemTile(
+                  title: l.model.name,
+                  subtitle:
+                      '${l.model.duration} mois · ${l.model.interestRate}%',
+                  warning: warning,
+                  trailing: Text(
+                    formatter.format(l.model.amount),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
         ],
       ),
@@ -181,20 +184,15 @@ class ImportPreviewScreen extends ConsumerWidget {
 
 class _ImportAnalysis {
   final Set<int> _accountIds;
-  final Set<int> _categoryIds;
   final Set<int> _beneficiaryIds;
   final ImportValidationResult _result;
 
   _ImportAnalysis(this._result)
-      : _accountIds = _result.accounts.map((a) => a.oldId).toSet(),
-        _categoryIds = _result.categories.map((c) => c.oldId).toSet(),
-        _beneficiaryIds = _result.beneficiaries.map((b) => b.oldId).toSet();
+    : _accountIds = _result.accounts.map((a) => a.oldId).toSet(),
+      _beneficiaryIds = _result.beneficiaries.map((b) => b.oldId).toSet();
 
   bool _isMissingAccount(int? oldAccountId) =>
       oldAccountId != null && !_accountIds.contains(oldAccountId);
-
-  bool _isMissingCategory(int? oldCategoryId) =>
-      oldCategoryId != null && !_categoryIds.contains(oldCategoryId);
 
   bool _isMissingBeneficiary(int? oldBeneficiaryId) =>
       oldBeneficiaryId != null && !_beneficiaryIds.contains(oldBeneficiaryId);
@@ -202,7 +200,6 @@ class _ImportAnalysis {
   String? getExpenseWarning(ParsedExpense e) {
     final issues = <String>[];
     if (_isMissingAccount(e.oldAccountId)) issues.add('compte');
-    if (_isMissingCategory(e.oldCategoryId)) issues.add('catégorie');
     if (_isMissingBeneficiary(e.oldBeneficiaryId)) issues.add('bénéficiaire');
     if (issues.isEmpty) return null;
     return 'Sera ignorée : ${issues.join(', ')} introuvable';
@@ -221,17 +218,14 @@ class _ImportAnalysis {
     return 'Sera ignoré : compte introuvable';
   }
 
-  int get orphanedExpenses => _result.expenses
-      .where((e) => getExpenseWarning(e) != null)
-      .length;
+  int get orphanedExpenses =>
+      _result.expenses.where((e) => getExpenseWarning(e) != null).length;
 
-  int get orphanedRevenues => _result.revenues
-      .where((r) => getRevenueWarning(r) != null)
-      .length;
+  int get orphanedRevenues =>
+      _result.revenues.where((r) => getRevenueWarning(r) != null).length;
 
-  int get orphanedLoans => _result.loans
-      .where((l) => getLoanWarning(l) != null)
-      .length;
+  int get orphanedLoans =>
+      _result.loans.where((l) => getLoanWarning(l) != null).length;
 
   bool get hasOrphanedItems =>
       orphanedExpenses > 0 || orphanedRevenues > 0 || orphanedLoans > 0;
@@ -251,7 +245,9 @@ class _SummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            hasErrors ? Icons.warning_amber_rounded : Icons.inventory_2_outlined,
+            hasErrors
+                ? Symbols.warning_amber_rounded
+                : Symbols.inventory_2_rounded,
             color: hasErrors
                 ? theme.colorScheme.error
                 : theme.colorScheme.primary,
@@ -291,20 +287,28 @@ class _ErrorBanner extends StatelessWidget {
     final messages = <String>[];
 
     if (parsingErrors > 0) {
-      messages.add('$parsingErrors élément${parsingErrors > 1 ? 's' : ''} '
-          'n\'${parsingErrors > 1 ? 'ont' : 'a'} pas pu être lu${parsingErrors > 1 ? 's' : ''}');
+      messages.add(
+        '$parsingErrors élément${parsingErrors > 1 ? 's' : ''} '
+        'n\'${parsingErrors > 1 ? 'ont' : 'a'} pas pu être lu${parsingErrors > 1 ? 's' : ''}',
+      );
     }
     if (orphanedExpenses > 0) {
-      messages.add('$orphanedExpenses dépense${orphanedExpenses > 1 ? 's' : ''} '
-          'sans compte ou catégorie valide');
+      messages.add(
+        '$orphanedExpenses dépense${orphanedExpenses > 1 ? 's' : ''} '
+        'sans compte ou catégorie valide',
+      );
     }
     if (orphanedRevenues > 0) {
-      messages.add('$orphanedRevenues revenu${orphanedRevenues > 1 ? 's' : ''} '
-          'sans compte valide');
+      messages.add(
+        '$orphanedRevenues revenu${orphanedRevenues > 1 ? 's' : ''} '
+        'sans compte valide',
+      );
     }
     if (orphanedLoans > 0) {
-      messages.add('$orphanedLoans emprunt${orphanedLoans > 1 ? 's' : ''} '
-          'sans compte valide');
+      messages.add(
+        '$orphanedLoans emprunt${orphanedLoans > 1 ? 's' : ''} '
+        'sans compte valide',
+      );
     }
 
     if (messages.isEmpty) return const SizedBox.shrink();
@@ -319,7 +323,7 @@ class _ErrorBanner extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  Icons.warning_amber_rounded,
+                  Symbols.warning_amber_rounded,
                   color: theme.colorScheme.error,
                   size: 20,
                 ),
@@ -334,23 +338,28 @@ class _ErrorBanner extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            ...messages.map((m) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('• ', style: TextStyle(color: theme.colorScheme.error)),
-                      Expanded(
-                        child: Text(
-                          m,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.error,
-                          ),
+            ...messages.map(
+              (m) => Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '• ',
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                    Expanded(
+                      child: Text(
+                        m,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -387,7 +396,7 @@ class _EntitySectionState extends State<_EntitySection> {
       padding: const EdgeInsets.only(bottom: 12),
       child: FrostedCard(
         padding: const EdgeInsets.all(12),
-        onClick: () => setState(() => _expanded = !_expanded),
+        onTap: () => setState(() => _expanded = !_expanded),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -444,7 +453,7 @@ class _EntitySectionState extends State<_EntitySection> {
                   turns: _expanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
-                    Icons.expand_more,
+                    Symbols.expand_more_rounded,
                     size: 20,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -495,7 +504,7 @@ class _ItemTile extends StatelessWidget {
         children: [
           if (hasWarning) ...[
             Icon(
-              Icons.warning_amber_rounded,
+              Symbols.warning_amber_rounded,
               size: 16,
               color: theme.colorScheme.error,
             ),
@@ -534,7 +543,7 @@ class _ItemTile extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

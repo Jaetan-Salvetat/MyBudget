@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/532.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-05-11",
+  "total": 16.47,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 3.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*280G AIGUILLET POULE",
+    "amount": 4.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*GOUPILLON BTL LFAN",
+    "amount": 5.04,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAUMON OSEILLE/RIZ",
+    "amount": 4.18,
+    "discount": 0.0
+   }
+  ]
+ }
+}

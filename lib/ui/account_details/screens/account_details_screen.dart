@@ -1,22 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/utils/history_utils.dart';
 import 'package:mybudget/core/entities/transfer.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/transfers/transfers_provider.dart';
-import 'package:mybudget/ui/accounts/widgets/account_bottom_sheet.dart';
-import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
-import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
 import 'package:mybudget/ui/account_details/widgets/account_balance_breakdown.dart';
-import 'package:mybudget/ui/common/widgets/transfer_card.dart';
+import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
+import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
+import 'package:mybudget/ui/common/widgets/section_header.dart';
+import 'package:mybudget/ui/common/widgets/solid_card.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/revenues/revenue_queries.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
+import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
 
 class AccountDetailsScreen extends ConsumerStatefulWidget {
   final AccountModel account;
@@ -31,12 +32,6 @@ class AccountDetailsScreen extends ConsumerStatefulWidget {
 class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   late AccountModel account;
 
-  final formatter = NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-    decimalDigits: 2,
-  );
-
   @override
   void initState() {
     super.initState();
@@ -45,195 +40,114 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final balance =
-        ref.watch(accountProvider.notifier).getAccountBalance(account.id);
-
-    final selectedMonth = ref.watch(selectedMonthProvider);
-    final expenses = ref.watch(expenseProvider).value ?? [];
-    final revenues = ref.watch(revenueProvider).value ?? [];
+    final expenses = ref.watch(monthExpensesProvider);
+    final revenues = ref.watch(monthRevenuesProvider);
     final loans = ref.watch(loanProvider).value ?? [];
 
-    double totalRevenues = 0.0;
-    for (final revenue in revenues.where((r) => r.accountId == account.id)) {
-      if (!isActiveForMonth(revenue.startDate, revenue.endDate, selectedMonth)) continue;
-      switch (revenue.frequencyEnum) {
-        case Frequency.monthly:
-          totalRevenues += revenue.amount;
-        case Frequency.annual:
-          if (revenue.startDate.month == selectedMonth.month) {
-            totalRevenues += revenue.amount;
-          }
-        case Frequency.oneTime:
-          if (revenue.startDate.year == selectedMonth.year &&
-              revenue.startDate.month == selectedMonth.month) {
-            totalRevenues += revenue.amount;
-          }
-      }
-    }
+    final totalRevenues = revenues
+        .where((revenue) => revenue.accountId == account.id)
+        .fold(0.0, (sum, revenue) => sum + revenue.amount);
 
-    double totalExpenses = 0.0;
-    for (final expense in expenses.where((e) => e.accountId == account.id)) {
-      if (!isActiveForMonth(expense.startDate, expense.endDate, selectedMonth)) continue;
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          totalExpenses += expense.amount;
-        case Frequency.annual:
-          if (expense.startDate.month == selectedMonth.month) {
-            totalExpenses += expense.amount;
-          }
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year &&
-              expense.startDate.month == selectedMonth.month) {
-            totalExpenses += expense.amount;
-          }
-      }
-    }
+    final totalExpenses = expenses
+        .where((expense) => expense.accountId == account.id)
+        .fold(0.0, (sum, expense) => sum + expense.amount);
 
     final totalLoanPayments = loans
         .where((l) => l.accountId == account.id && !l.isCompleted)
         .fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
 
     final transferNotifier = ref.watch(transferProvider.notifier);
-    final totalTransfers = transferNotifier.getMonthlyTransferBalance(account.id);
+    final totalTransfers = transferNotifier.getMonthlyTransferBalance(
+      account.id,
+    );
     final transfers = transferNotifier.getActiveTransfersForAccount(account.id);
     final accounts = ref.watch(accountProvider).value ?? [];
 
+    final balance =
+        totalRevenues - totalExpenses - totalLoanPayments + totalTransfers;
+
+    final topInset = MediaQuery.of(context).padding.top;
+
     return FrostedScaffold(
-      appBar: FrostedAppBar(
-        title: 'Détails du compte',
-        actions: [
-          FrostedIconButton(
-            icon: Icons.edit,
-            onPressed: () => _showEditAccountBottomSheet(context),
-          ),
-          FrostedIconButton(
-            icon: Icons.delete,
-            onPressed: () => _showDeleteConfirmation(context),
-          ),
-        ],
-      ),
-      floatingActionButton: FrostedFloatingActionButton(
-        onPressed: () => _showAddTransferBottomSheet(context),
-        child: const Icon(Icons.swap_horiz),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      child: SingleChildScrollView(
+      appBar: FrostedTopBar(title: account.name),
+      body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          topInset + kToolbarHeight + 12,
+          16,
+          32,
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 100),
-            AccountHeroCard(
-              account: account,
-              balance: balance,
-              totalRevenues: totalRevenues,
-              totalExpenses: totalExpenses + totalLoanPayments,
-              totalTransfers: totalTransfers,
-              formatter: formatter,
-            ),
-            const SizedBox(height: 24),
+            AccountHeroCard(account: account, balance: balance),
+            const SizedBox(height: 14),
             AccountBalanceBreakdown(
               totalRevenues: totalRevenues,
               totalExpenses: totalExpenses,
               totalLoanPayments: totalLoanPayments,
               totalTransfers: totalTransfers,
               balance: balance,
-              formatter: formatter,
             ),
-            const SizedBox(height: 24),
-            _buildTransferSection(context, transfers, accounts),
-            const SizedBox(height: 32),
+            _TransfersSection(
+              transfers: transfers,
+              currentAccountId: account.id,
+              accounts: accounts,
+              onEditTransfer: (t) => _showEditTransferBottomSheet(context, t),
+              onDeleteTransfer: _deleteTransfer,
+            ),
+            const SizedBox(height: 16),
+            FrostedButton.filled(
+              label: 'Ajouter un virement',
+              icon: Symbols.add_rounded,
+              onPressed: () => _showAddTransferBottomSheet(context),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: FrostedButton.tonal(
+                    label: 'Modifier',
+                    icon: Symbols.edit_rounded,
+                    onPressed: () => _openAccountForm(context),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FrostedButton.outlined(
+                    label: 'Supprimer',
+                    icon: Symbols.delete_rounded,
+                    destructive: true,
+                    onPressed: () => _showDeleteConfirmation(context),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTransferSection(
-    BuildContext context,
-    List<Transfer> transfers,
-    List<AccountModel> accounts,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Virements',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (transfers.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.swap_horiz,
-                    size: 48,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aucun virement',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          ...transfers.map(
-            (transfer) => TransferCard(
-              transfer: transfer,
-              currentAccountId: account.id,
-              otherAccountName: _getOtherAccountName(transfer, accounts),
-              onEdit: () => _showEditTransferBottomSheet(context, transfer),
-              onDelete: () => _deleteTransfer(transfer.id),
-            ),
-          ),
-      ],
-    );
-  }
-
-  String _getOtherAccountName(Transfer transfer, List<AccountModel> accounts) {
-    final otherAccountId = transfer.isOutgoingFrom(account.id)
-        ? transfer.toAccountId
-        : transfer.fromAccountId;
-    final otherAccount = accounts.where((a) => a.id == otherAccountId).firstOrNull;
-    return otherAccount?.name ?? 'Compte inconnu';
-  }
-
-  void _showEditAccountBottomSheet(BuildContext context) {
-    AccountBottomSheet.show(
+  Future<void> _openAccountForm(BuildContext context) async {
+    final updatedAccount = await AccountFormScreen.push(
       context: context,
       account: account,
-      onSubmit: (name, bank) async {
-        try {
-          final updatedAccount = account.copyWith(name: name, bank: bank);
-          await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
-          setState(() {
-            account = updatedAccount;
-          });
-        } catch (e) {
-          if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de la modification: \$e');
-          }
-        }
-      },
-      onCancel: () {},
     );
+    if (updatedAccount == null) return;
+
+    try {
+      await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+      if (mounted) setState(() => account = updatedAccount);
+    } catch (e) {
+      if (context.mounted) {
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la modification: $e',
+        );
+      }
+    }
   }
 
   void _showAddTransferBottomSheet(BuildContext context) {
@@ -247,7 +161,10 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
           await ref.read(transferProvider.notifier).addTransfer(transfer);
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout du virement: $e');
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de l\'ajout du virement: $e',
+            );
           }
         }
       },
@@ -263,10 +180,15 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       transfer: transfer.model,
       onSubmit: (updatedTransfer) async {
         try {
-          await ref.read(transferProvider.notifier).updateTransfer(updatedTransfer);
+          await ref
+              .read(transferProvider.notifier)
+              .updateTransfer(updatedTransfer);
         } catch (e) {
           if (context.mounted) {
-            FrostedSnackbar.show(context, message: 'Erreur lors de la modification du virement: $e');
+            FrostedSnackbar.show(
+              context,
+              message: 'Erreur lors de la modification du virement: $e',
+            );
           }
         }
       },
@@ -274,84 +196,188 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     );
   }
 
-  Future<void> _deleteTransfer(int id) async {
+  Future<void> _deleteTransfer(Transfer transfer) async {
     try {
-      await ref.read(transferProvider.notifier).deleteTransfer(id);
+      await ref.read(transferProvider.notifier).deleteTransfer(transfer.id);
     } catch (e) {
       if (mounted) {
-        FrostedSnackbar.show(context, message: 'Erreur lors de la suppression du virement: $e');
+        FrostedSnackbar.show(
+          context,
+          message: 'Erreur lors de la suppression du virement: $e',
+        );
       }
     }
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final linkedExpenses = ref.read(expenseProvider.notifier).getExpensesForAccount(account.id);
-    final linkedRevenues = ref.read(revenueProvider.notifier).getRevenuesForAccount(account.id);
-    final linkedLoans = ref.read(loanProvider.notifier).getActiveLoansForAccount(account.id);
-    final linkedTransfers = ref.read(transferProvider.notifier).getTransfersForAccount(account.id);
+    final linkedExpenses = ref
+        .read(expenseProvider.notifier)
+        .getExpensesForAccount(account.id);
+    final linkedRevenues = ref
+        .read(revenueProvider.notifier)
+        .getRevenuesForAccount(account.id);
+    final linkedLoans = ref
+        .read(loanProvider.notifier)
+        .getActiveLoansForAccount(account.id);
+    final linkedTransfers = ref
+        .read(transferProvider.notifier)
+        .getTransfersForAccount(account.id);
 
-    final totalLinked = linkedExpenses.length + linkedRevenues.length + linkedLoans.length + linkedTransfers.length;
+    final totalLinked =
+        linkedExpenses.length +
+        linkedRevenues.length +
+        linkedLoans.length +
+        linkedTransfers.length;
 
     if (totalLinked > 0) {
       final parts = <String>[];
       if (linkedExpenses.isNotEmpty) {
-        parts.add('${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's' : ''}');
+        parts.add(
+          '${linkedExpenses.length} dépense${linkedExpenses.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedRevenues.isNotEmpty) {
-        parts.add('${linkedRevenues.length} revenu${linkedRevenues.length > 1 ? 's' : ''}');
+        parts.add(
+          '${linkedRevenues.length} revenu${linkedRevenues.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedLoans.isNotEmpty) {
-        parts.add('${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}');
+        parts.add(
+          '${linkedLoans.length} emprunt${linkedLoans.length > 1 ? 's' : ''}',
+        );
       }
       if (linkedTransfers.isNotEmpty) {
-        parts.add('${linkedTransfers.length} virement${linkedTransfers.length > 1 ? 's' : ''}');
+        parts.add(
+          '${linkedTransfers.length} virement${linkedTransfers.length > 1 ? 's' : ''}',
+        );
       }
 
-      FrostedDialog.show(
+      showFrostedDialog<void>(
         context: context,
-        title: const Text('Suppression impossible'),
-        content: Text(
-          '${parts.join(', ')} ${totalLinked > 1 ? 'sont associés' : 'est associé(e)'} à "${account.name}". Réassignez-les avant de supprimer ce compte.',
-        ),
-        actions: [
-          FrostedFilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Compris'),
+        builder: (_) => FrostedDialog(
+          title: 'Suppression impossible',
+          body: Text(
+            '${parts.join(', ')} ${totalLinked > 1 ? 'sont associés' : 'est associé(e)'} à "${account.name}". Réassignez-les avant de supprimer ce compte.',
           ),
-        ],
+          actions: [
+            FrostedButton.filled(
+              label: 'Compris',
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       );
       return;
     }
 
-    FrostedDialog.show(
+    showFrostedDialog<void>(
       context: context,
-      title: const Text('Confirmer la suppression'),
-      content: Text(
-        'Voulez-vous vraiment supprimer le compte ${account.name} ?',
-      ),
-      actions: [
-        FrostedTextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+      builder: (_) => FrostedDialog(
+        title: 'Confirmer la suppression',
+        body: Text(
+          'Voulez-vous vraiment supprimer le compte ${account.name} ?',
         ),
-        FrostedTextButton(
-          onPressed: () async {
-            try {
-              await ref.read(accountProvider.notifier).deleteAccount(account.id);
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+        actions: [
+          FrostedButton.text(
+            label: 'Annuler',
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FrostedButton.text(
+            label: 'Supprimer',
+            destructive: true,
+            onPressed: () async {
+              try {
+                await ref
+                    .read(accountProvider.notifier)
+                    .deleteAccount(account.id);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  FrostedSnackbar.show(
+                    context,
+                    message: 'Erreur lors de la suppression: $e',
+                  );
+                }
               }
-            } catch (e) {
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                FrostedSnackbar.show(context, message: 'Erreur lors de la suppression: \$e');
-              }
-            }
-          },
-          child: Text(
-            'Supprimer',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TransfersSection extends StatelessWidget {
+  final List<Transfer> transfers;
+  final int currentAccountId;
+  final List<AccountModel> accounts;
+  final ValueChanged<Transfer> onEditTransfer;
+  final ValueChanged<Transfer> onDeleteTransfer;
+
+  const _TransfersSection({
+    required this.transfers,
+    required this.currentAccountId,
+    required this.accounts,
+    required this.onEditTransfer,
+    required this.onDeleteTransfer,
+  });
+
+  String _otherName(Transfer transfer) {
+    final otherId = transfer.isOutgoingFrom(currentAccountId)
+        ? transfer.toAccountId
+        : transfer.fromAccountId;
+    final other = accounts.where((a) => a.id == otherId).firstOrNull;
+    return other?.name ?? 'Compte inconnu';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (transfers.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Virements actifs', trailing: '0'),
+          SolidCard(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Center(
+              child: Text(
+                'Aucun virement',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(
+          title: 'Virements actifs',
+          trailing: '${transfers.length}',
+        ),
+        SolidCard(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          child: Column(
+            children: [
+              for (var i = 0; i < transfers.length; i++)
+                TransferRow(
+                  transfer: transfers[i],
+                  currentAccountId: currentAccountId,
+                  otherAccountName: _otherName(transfers[i]),
+                  showDivider: i < transfers.length - 1,
+                  onEdit: () => onEditTransfer(transfers[i]),
+                  onDelete: () => onDeleteTransfer(transfers[i]),
+                ),
+            ],
           ),
         ),
       ],

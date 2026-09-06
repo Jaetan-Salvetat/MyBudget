@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/37.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-23",
+  "total": 5.24,
+  "items": [
+   {
+    "name": "*3X TWIX 150G",
+    "amount": 1.13,
+    "discount": 0.0
+   },
+   {
+    "name": "*NOUILLES THAI PLT",
+    "amount": 4.11,
+    "discount": 0.0
+   }
+  ]
+ }
+}

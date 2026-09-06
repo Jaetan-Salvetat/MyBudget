@@ -1,0 +1,99 @@
+{
+ "source": "dataset_findit/T1-test/img/370.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-14",
+  "total": 59.11,
+  "items": [
+   {
+    "name": "* 250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*350G COULOMMIERS",
+    "amount": 2.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*4X MAGNUM FRAISE",
+    "amount": 3.54,
+    "discount": 0.0
+   },
+   {
+    "name": "*CITRON JAUNE",
+    "amount": 0.61,
+    "discount": 0.0
+   },
+   {
+    "name": "*ESC.POULET BLANC",
+    "amount": 4.55,
+    "discount": 0.0
+   },
+   {
+    "name": "*FILET PLT BLCX6SF",
+    "amount": 6.36,
+    "discount": 0.0
+   },
+   {
+    "name": "*GRIGNOT.PLT BARBEC",
+    "amount": 2.88,
+    "discount": 0.0
+   },
+   {
+    "name": "*GRIGNOT.PLT NATURE",
+    "amount": 2.77,
+    "discount": 0.0
+   },
+   {
+    "name": "*KG COMTE RDF",
+    "amount": 3.43,
+    "discount": 0.0
+   },
+   {
+    "name": "*KIT PANADILLAS",
+    "amount": 12.44,
+    "discount": 0.0
+   },
+   {
+    "name": "*MINI SAUCIS.NAT.MA",
+    "amount": 3.01,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOZZARELLA BIO CRF",
+    "amount": 2.34,
+    "discount": 0.0
+   },
+   {
+    "name": "*PERENNE CAMPAGNE.",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*POIVRONS",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*PREFOU CHEVRE",
+    "amount": 4.8,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATES BIO BQ 500GR",
+    "amount": 2.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*X4 AMANDE MAGNUM",
+    "amount": 3.11,
+    "discount": 0.0
+   }
+  ]
+ }
+}

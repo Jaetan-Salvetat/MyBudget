@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/112.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-07-19",
+  "total": 5.57,
+  "items": [
+   {
+    "name": "200G HOUMMOUS CRF",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "4X 95G LES 2 VACHE",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "MOZZARELLA BIO CRF",
+    "amount": 1.14,
+    "discount": 0
+   }
+  ]
+ }
+}

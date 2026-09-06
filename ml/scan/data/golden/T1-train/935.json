@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/935.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SSP France RITAZZA",
+  "date": "2017-05-30",
+  "total": 8.6,
+  "items": [
+   {
+    "name": "Quiche legumes RIT",
+    "amount": 5.9,
+    "discount": 0.0
+   },
+   {
+    "name": "Fromage Blanc Fr Rouge",
+    "amount": 2.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

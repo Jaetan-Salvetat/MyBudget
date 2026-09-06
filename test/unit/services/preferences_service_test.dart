@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -20,31 +20,68 @@ void main() {
       expect(PreferencesService.isFirstLaunch(), isFalse);
     });
 
+    test('getGeminiApiKey returns an empty key by default', () {
+      expect(PreferencesService.getGeminiApiKey(), isEmpty);
+    });
+
+    test('setGeminiApiKey persists the key', () async {
+      await PreferencesService.setGeminiApiKey('user-key');
+      expect(PreferencesService.getGeminiApiKey(), 'user-key');
+    });
+
     test('getThemeMode returns ThemeMode.system by default', () {
       expect(PreferencesService.getThemeMode(), ThemeMode.system);
     });
 
-    test('setThemeMode persists and getThemeMode returns the set value', () async {
-      await PreferencesService.setThemeMode(ThemeMode.dark);
-      expect(PreferencesService.getThemeMode(), ThemeMode.dark);
+    test(
+      'setThemeMode persists and getThemeMode returns the set value',
+      () async {
+        await PreferencesService.setThemeMode(ThemeMode.dark);
+        expect(PreferencesService.getThemeMode(), ThemeMode.dark);
+      },
+    );
+
+    test('getAiModel returns the fallback model by default', () {
+      expect(PreferencesService.getAiModel(), AiModel.fallback);
     });
 
-    test('getThemeType returns AppThemeType.purple by default', () {
-      expect(PreferencesService.getThemeType(), AppThemeType.purple);
+    test('setAiModel persists the chosen model', () async {
+      await PreferencesService.setAiModel(AiModel.flash37);
+      expect(PreferencesService.getAiModel(), AiModel.flash37);
     });
 
-    test('isCategoriesCreated is false by default and true after setCategoriesCreated', () async {
-      expect(PreferencesService.isCategoriesCreated(), isFalse);
-      await PreferencesService.setCategoriesCreated();
-      expect(PreferencesService.isCategoriesCreated(), isTrue);
+    test('getAiModel falls back when the stored id is unknown', () async {
+      SharedPreferences.setMockInitialValues({
+        PreferencesService.keyAiModel: 'gemini-9-turbo',
+      });
+      await PreferencesService.init();
+
+      expect(PreferencesService.getAiModel(), AiModel.fallback);
     });
 
-    test('hasSeenUpdateOnboarding is false by default and true after set', () async {
-      expect(PreferencesService.hasSeenUpdateOnboarding(), isFalse);
-      await PreferencesService.setHasSeenUpdateOnboarding();
-      expect(PreferencesService.hasSeenUpdateOnboarding(), isTrue);
+    test('getQuickAddAccountId holds nothing until an account is picked', () {
+      expect(PreferencesService.getQuickAddAccountId(), isNull);
     });
 
+    test('setQuickAddAccountId persists the account', () async {
+      await PreferencesService.setQuickAddAccountId(4);
+      expect(PreferencesService.getQuickAddAccountId(), 4);
+    });
 
+    test('clearQuickAddAccountId forgets the account', () async {
+      await PreferencesService.setQuickAddAccountId(4);
+      await PreferencesService.clearQuickAddAccountId();
+
+      expect(PreferencesService.getQuickAddAccountId(), isNull);
+    });
+
+    test('getRevenuesGroupBy returns nothing by default', () {
+      expect(PreferencesService.getRevenuesGroupBy(), isNull);
+    });
+
+    test('setRevenuesGroupBy persists the axis', () async {
+      await PreferencesService.setRevenuesGroupBy('beneficiary');
+      expect(PreferencesService.getRevenuesGroupBy(), 'beneficiary');
+    });
   });
 }

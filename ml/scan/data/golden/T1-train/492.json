@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-train/img/492.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-02",
+  "total": 23.93,
+  "items": [
+   {
+    "name": "*1/5 THON ENTIER",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "10X OEUFS FRAIS",
+    "amount": 1.01,
+    "discount": 0
+   },
+   {
+    "name": "1L HUILE TOURNESOL",
+    "amount": 1.38,
+    "discount": 0
+   },
+   {
+    "name": "*250G CAMEMBERT",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "500G GOUTER FOURRE",
+    "amount": 0.87,
+    "discount": 0
+   },
+   {
+    "name": "*850ML POIS CHICHES",
+    "amount": 0.85,
+    "discount": 0
+   },
+   {
+    "name": "FARINE BLE GRUAU D",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 5.73,
+    "discount": 0
+   },
+   {
+    "name": "*MFP FRAISE GOURMAN",
+    "amount": 2.34,
+    "discount": 0
+   },
+   {
+    "name": "*PANIER STD EXOTIQ.",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "SARDINE ATLANTIQUE",
+    "amount": 1.97,
+    "discount": 0
+   },
+   {
+    "name": "*VOLAILLE BOEUF 500",
+    "amount": 2.55,
+    "discount": 0
+   }
+  ]
+ }
+}

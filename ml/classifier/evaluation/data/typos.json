@@ -1,0 +1,481 @@
+{
+ "note": "Fautes réelles sur des noms que la base connaît : chaque cas porte sa forme correcte, et la mesure est la chute entre les deux. La classe vient de dataset/entities.jsonl, jamais d'un jugement à la main.",
+ "cases": [
+  {
+   "input": "carfour",
+   "clean": "carrefour",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "carrfour",
+   "clean": "carrefour",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "carrefour marekt",
+   "clean": "carrefour market",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "intermarcher",
+   "clean": "intermarche",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "leclrec",
+   "clean": "leclerc",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "aamazon",
+   "clean": "amazon",
+   "type": "expense",
+   "category": "shopping.electronique",
+   "axis": "frappe"
+  },
+  {
+   "input": "amazone",
+   "clean": "amazon",
+   "type": "expense",
+   "category": "shopping.electronique",
+   "axis": "frappe"
+  },
+  {
+   "input": "netflx",
+   "clean": "netflix",
+   "type": "expense",
+   "category": "loisirs.streaming",
+   "axis": "frappe"
+  },
+  {
+   "input": "netflixx",
+   "clean": "netflix",
+   "type": "expense",
+   "category": "loisirs.streaming",
+   "axis": "frappe"
+  },
+  {
+   "input": "spotifi",
+   "clean": "spotify",
+   "type": "expense",
+   "category": "loisirs.musique",
+   "axis": "frappe"
+  },
+  {
+   "input": "decatlhon",
+   "clean": "decathlon",
+   "type": "expense",
+   "category": "loisirs.sport",
+   "axis": "frappe"
+  },
+  {
+   "input": "decatlon",
+   "clean": "decathlon",
+   "type": "expense",
+   "category": "loisirs.sport",
+   "axis": "frappe"
+  },
+  {
+   "input": "leroy merln",
+   "clean": "leroy merlin",
+   "type": "expense",
+   "category": "logement.bricolage_jardin",
+   "axis": "frappe"
+  },
+  {
+   "input": "boulengerie",
+   "clean": "boulangerie",
+   "type": "expense",
+   "category": "alimentation.pain_patisserie",
+   "axis": "frappe"
+  },
+  {
+   "input": "boulangerei",
+   "clean": "boulangerie",
+   "type": "expense",
+   "category": "alimentation.pain_patisserie",
+   "axis": "frappe"
+  },
+  {
+   "input": "pharmacei",
+   "clean": "pharmacie",
+   "type": "expense",
+   "category": "sante_beaute.pharmacie",
+   "axis": "frappe"
+  },
+  {
+   "input": "resturant",
+   "clean": "restaurant",
+   "type": "expense",
+   "category": "restauration.restaurant",
+   "axis": "frappe"
+  },
+  {
+   "input": "restaurnt",
+   "clean": "restaurant",
+   "type": "expense",
+   "category": "restauration.restaurant",
+   "axis": "frappe"
+  },
+  {
+   "input": "coifeur",
+   "clean": "coiffeur",
+   "type": "expense",
+   "category": "sante_beaute.coiffeur",
+   "axis": "frappe"
+  },
+  {
+   "input": "essance",
+   "clean": "essence",
+   "type": "expense",
+   "category": "transport.carburant",
+   "axis": "frappe"
+  },
+  {
+   "input": "assurence habitation",
+   "clean": "assurance habitation",
+   "type": "expense",
+   "category": "logement.assurance_habitation",
+   "axis": "frappe"
+  },
+  {
+   "input": "mutuele",
+   "clean": "mutuelle",
+   "type": "expense",
+   "category": "sante_beaute.mutuelle",
+   "axis": "frappe"
+  },
+  {
+   "input": "electrcite",
+   "clean": "electricite",
+   "type": "expense",
+   "category": "logement.energie",
+   "axis": "frappe"
+  },
+  {
+   "input": "abonement salle de sport",
+   "clean": "abonnement salle de sport",
+   "type": "expense",
+   "category": "loisirs.sport",
+   "axis": "frappe"
+  },
+  {
+   "input": "uber eatz",
+   "clean": "uber eats",
+   "type": "expense",
+   "category": "restauration.livraison",
+   "axis": "frappe"
+  },
+  {
+   "input": "deliverooo",
+   "clean": "deliveroo",
+   "type": "expense",
+   "category": "restauration.livraison",
+   "axis": "frappe"
+  },
+  {
+   "input": "zalendo",
+   "clean": "zalando",
+   "type": "expense",
+   "category": "shopping.vetements",
+   "axis": "frappe"
+  },
+  {
+   "input": "sephore",
+   "clean": "sephora",
+   "type": "expense",
+   "category": "sante_beaute.esthetique",
+   "axis": "frappe"
+  },
+  {
+   "input": "monopris",
+   "clean": "monoprix",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "franprx",
+   "clean": "franprix",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "lidle",
+   "clean": "lidl",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "auchen",
+   "clean": "auchan",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "piscard",
+   "clean": "picard",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "frappe"
+  },
+  {
+   "input": "nesspresso",
+   "clean": "nespresso",
+   "type": "expense",
+   "category": "restauration.cafe",
+   "axis": "frappe"
+  },
+  {
+   "input": "ikeaa",
+   "clean": "ikea",
+   "type": "expense",
+   "category": "shopping.mobilier_deco",
+   "axis": "frappe"
+  },
+  {
+   "input": "fnak",
+   "clean": "fnac",
+   "type": "expense",
+   "category": "loisirs.livre_presse",
+   "axis": "frappe"
+  },
+  {
+   "input": "darthy",
+   "clean": "darty",
+   "type": "expense",
+   "category": "shopping.electronique",
+   "axis": "frappe"
+  },
+  {
+   "input": "boulenger",
+   "clean": "boulanger",
+   "type": "expense",
+   "category": "shopping.electronique",
+   "axis": "frappe"
+  },
+  {
+   "input": "noratuo",
+   "clean": "norauto",
+   "type": "expense",
+   "category": "transport.entretien_vehicule",
+   "axis": "frappe"
+  },
+  {
+   "input": "farmacie",
+   "clean": "pharmacie",
+   "type": "expense",
+   "category": "sante_beaute.pharmacie",
+   "axis": "phonetique"
+  },
+  {
+   "input": "bulangerie",
+   "clean": "boulangerie",
+   "type": "expense",
+   "category": "alimentation.pain_patisserie",
+   "axis": "phonetique"
+  },
+  {
+   "input": "restaurent",
+   "clean": "restaurant",
+   "type": "expense",
+   "category": "restauration.restaurant",
+   "axis": "phonetique"
+  },
+  {
+   "input": "koiffeur",
+   "clean": "coiffeur",
+   "type": "expense",
+   "category": "sante_beaute.coiffeur",
+   "axis": "phonetique"
+  },
+  {
+   "input": "essense",
+   "clean": "essence",
+   "type": "expense",
+   "category": "transport.carburant",
+   "axis": "phonetique"
+  },
+  {
+   "input": "peaje",
+   "clean": "peage",
+   "type": "expense",
+   "category": "transport.peage",
+   "axis": "phonetique"
+  },
+  {
+   "input": "garaje",
+   "clean": "garage",
+   "type": "expense",
+   "category": "transport.entretien_vehicule",
+   "axis": "phonetique"
+  },
+  {
+   "input": "telephonne",
+   "clean": "telephone",
+   "type": "expense",
+   "category": "shopping.electronique",
+   "axis": "phonetique"
+  },
+  {
+   "input": "aboneman internet",
+   "clean": "box internet",
+   "type": "expense",
+   "category": "numerique.telecom",
+   "axis": "phonetique"
+  },
+  {
+   "input": "cantinne",
+   "clean": "cantine",
+   "type": "expense",
+   "category": "famille_education.cantine",
+   "axis": "phonetique"
+  },
+  {
+   "input": "creshe",
+   "clean": "creche",
+   "type": "expense",
+   "category": "famille_education.garde_enfant",
+   "axis": "phonetique"
+  },
+  {
+   "input": "loier",
+   "clean": "loyer",
+   "type": "expense",
+   "category": "logement.loyer",
+   "axis": "phonetique"
+  },
+  {
+   "input": "salere",
+   "clean": "salaire",
+   "type": "income",
+   "category": "salaire.salaire_net",
+   "axis": "phonetique"
+  },
+  {
+   "input": "carrefourcity",
+   "clean": "carrefour city",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "agglutination"
+  },
+  {
+   "input": "burgerking",
+   "clean": "burger king",
+   "type": "expense",
+   "category": "restauration.fast_food",
+   "axis": "agglutination"
+  },
+  {
+   "input": "ubereats",
+   "clean": "uber eats",
+   "type": "expense",
+   "category": "restauration.livraison",
+   "axis": "agglutination"
+  },
+  {
+   "input": "leroymerlin",
+   "clean": "leroy merlin",
+   "type": "expense",
+   "category": "logement.bricolage_jardin",
+   "axis": "agglutination"
+  },
+  {
+   "input": "salledesport",
+   "clean": "salle de sport",
+   "type": "expense",
+   "category": "loisirs.sport",
+   "axis": "agglutination"
+  },
+  {
+   "input": "grandfrais",
+   "clean": "grand frais",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "agglutination"
+  },
+  {
+   "input": "pizzahut",
+   "clean": "pizza hut",
+   "type": "expense",
+   "category": "restauration.fast_food",
+   "axis": "agglutination"
+  },
+  {
+   "input": "h&m",
+   "clean": "h & m",
+   "type": "expense",
+   "category": "shopping.vetements",
+   "axis": "ponctuation"
+  },
+  {
+   "input": "c&a",
+   "clean": "c & a",
+   "type": "expense",
+   "category": "shopping.vetements",
+   "axis": "ponctuation"
+  },
+  {
+   "input": "CARREFOUR",
+   "clean": "carrefour",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "casse"
+  },
+  {
+   "input": "NETFLIX",
+   "clean": "netflix",
+   "type": "expense",
+   "category": "loisirs.streaming",
+   "axis": "casse"
+  },
+  {
+   "input": "Décathlon",
+   "clean": "decathlon",
+   "type": "expense",
+   "category": "loisirs.sport",
+   "axis": "casse"
+  },
+  {
+   "input": "PHARMACIE",
+   "clean": "pharmacie",
+   "type": "expense",
+   "category": "sante_beaute.pharmacie",
+   "axis": "casse"
+  },
+  {
+   "input": "carre four",
+   "clean": "carrefour",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "coupure"
+  },
+  {
+   "input": "boulan gerie",
+   "clean": "boulangerie",
+   "type": "expense",
+   "category": "alimentation.pain_patisserie",
+   "axis": "coupure"
+  },
+  {
+   "input": "super marche",
+   "clean": "supermarche",
+   "type": "expense",
+   "category": "alimentation.courses",
+   "axis": "coupure"
+  }
+ ]
+}

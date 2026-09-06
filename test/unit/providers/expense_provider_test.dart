@@ -2,70 +2,78 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/utils/history_utils.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
-
 class FakeExpenseModel extends Fake implements ExpenseModel {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
 
 void main() {
   late MockExpenseRepository mockExpenseRepo;
-  late MockCategoryRepository mockCategoryRepo;
 
   setUpAll(() {
     registerFallbackValue(FakeExpenseModel());
   });
 
+  late MockTransactionEventRepository events;
+
   setUp(() {
+    events = MockTransactionEventRepository();
     mockExpenseRepo = MockExpenseRepository();
-    mockCategoryRepo = MockCategoryRepository();
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
+    when(() => mockExpenseRepo.getChain(any())).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
     return ProviderContainer(
       overrides: [
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
+        transactionEventRepositoryProvider.overrideWithValue(events),
       ],
     );
   }
 
-  test('getTotalExpenses (Annual) should show full amount in matching month', () async {
-    final expense = ExpenseModel.create(
-      name: 'Annual',
-      amount: 1200,
-      categoryId: 1,
-      startDate: DateTime.now(),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses (Annual) should show full amount in matching month',
+    () async {
+      final expense = ExpenseModel.create(
+        name: 'Annual',
+        amount: 1200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 1200.0);
-  });
+      expect(total, 1200.0);
+    },
+  );
 
   test('getTotalExpenses (Monthly) should sum directly', () async {
     final expense = ExpenseModel.create(
       name: 'Monthly',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
@@ -79,41 +87,44 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+    final total = container.read(monthlyExpensesProvider);
 
     expect(total, 100.0);
   });
 
-  test('getTotalExpenses should sum monthly and annual in matching month', () async {
-    final monthly = ExpenseModel.create(
-      name: 'Monthly',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
-    final annual = ExpenseModel.create(
-      name: 'Annual',
-      amount: 1200,
-      categoryId: 1,
-      startDate: DateTime.now(),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses should sum monthly and annual in matching month',
+    () async {
+      final monthly = ExpenseModel.create(
+        name: 'Monthly',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
+      final annual = ExpenseModel.create(
+        name: 'Annual',
+        amount: 1200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 1700.0);
-  });
+      expect(total, 1700.0);
+    },
+  );
 
   test('getTotalExpenses with empty list returns 0.0', () async {
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
@@ -123,14 +134,14 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getTotalExpenses(), 0.0);
+    expect(container.read(monthlyExpensesProvider), 0.0);
   });
 
   test('getTotalExpenses with zero-amount expense returns 0.0', () async {
     final zeroExpense = ExpenseModel.create(
       name: 'Zero',
       amount: 0,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
       frequency: 'Mensuel',
       accountId: 1,
@@ -144,218 +155,220 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getTotalExpenses(), 0.0);
+    expect(container.read(monthlyExpensesProvider), 0.0);
   });
 
-  test('getExpensesByCategory ignores expenses with unknown categoryId', () async {
-    final expense = ExpenseModel.create(
-      name: 'Orphan expense',
-      amount: 100,
-      categoryId: 999,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
+  test(
+    'getUpcomingExpenses includes monthly expense due later this month',
+    () async {
+      final now = DateTime.now();
+      final futureDay = clampDayOfMonth(now.year, now.month, now.day + 3);
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
-    when(() => mockCategoryRepo.get(999)).thenReturn(null);
+      final upcoming = ExpenseModel.create(
+        name: 'Upcoming',
+        amount: 200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, futureDay),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
+      final past = ExpenseModel.create(
+        name: 'Past',
+        amount: 100,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 1),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      when(() => mockExpenseRepo.getAll()).thenReturn([upcoming, past]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([upcoming, past]);
 
-    await container.read(expenseProvider.future);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    final result = container.read(expenseProvider.notifier).getExpensesByCategory();
+      await container.read(expenseProvider.future);
 
-    expect(result, isEmpty);
-  });
+      final result = container.read(upcomingExpensesProvider);
 
-  test('getUpcomingExpenses includes monthly expense due later this month', () async {
-    final now = DateTime.now();
-    final futureDay = now.day + 3;
-    if (futureDay > 28) return;
+      expect(result.any((e) => e.name == 'Upcoming'), isTrue);
+    },
+  );
 
-    final upcoming = ExpenseModel.create(
-      name: 'Upcoming',
-      amount: 200,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, futureDay),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
-    final past = ExpenseModel.create(
-      name: 'Past',
-      amount: 100,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 1),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses (Annual) should return 0 in non-matching month',
+    () async {
+      final now = DateTime.now();
+      final otherMonth = (now.month % 12) + 1;
+      final expense = ExpenseModel.create(
+        name: 'Annual Other',
+        amount: 1200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, otherMonth, 15),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([upcoming, past]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([upcoming, past]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final result = container.read(expenseProvider.notifier).getUpcomingExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(result.any((e) => e.name == 'Upcoming'), isTrue);
-  });
+      expect(total, 0.0);
+    },
+  );
 
-  test('getTotalExpenses (Annual) should return 0 in non-matching month', () async {
-    final now = DateTime.now();
-    final otherMonth = (now.month % 12) + 1;
-    final expense = ExpenseModel.create(
-      name: 'Annual Other',
-      amount: 1200,
-      categoryId: 1,
-      startDate: DateTime(now.year, otherMonth, 15),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses (OneTime) should show amount in matching month',
+    () async {
+      final now = DateTime.now();
+      final expense = ExpenseModel.create(
+        name: 'One-time',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 10),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 0.0);
-  });
+      expect(total, 500.0);
+    },
+  );
 
-  test('getTotalExpenses (OneTime) should show amount in matching month', () async {
-    final now = DateTime.now();
-    final expense = ExpenseModel.create(
-      name: 'One-time',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 10),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses (OneTime) should return 0 in non-matching month',
+    () async {
+      final now = DateTime.now();
+      final otherMonth = (now.month % 12) + 1;
+      final expense = ExpenseModel.create(
+        name: 'One-time Other',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, otherMonth, 10),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 500.0);
-  });
+      expect(total, 0.0);
+    },
+  );
 
-  test('getTotalExpenses (OneTime) should return 0 in non-matching month', () async {
-    final now = DateTime.now();
-    final otherMonth = (now.month % 12) + 1;
-    final expense = ExpenseModel.create(
-      name: 'One-time Other',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime(now.year, otherMonth, 10),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses sums monthly, annual and oneTime in matching month',
+    () async {
+      final now = DateTime.now();
+      final monthly = ExpenseModel.create(
+        name: 'Monthly',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 5),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
+      final annual = ExpenseModel.create(
+        name: 'Annual',
+        amount: 1200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 10),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
+      final oneTime = ExpenseModel.create(
+        name: 'One-time',
+        amount: 300,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 15),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(
+        () => mockExpenseRepo.getAll(),
+      ).thenReturn([monthly, annual, oneTime]);
+      when(
+        () => mockExpenseRepo.getActive(),
+      ).thenReturn([monthly, annual, oneTime]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 0.0);
-  });
+      expect(total, 2000.0);
+    },
+  );
 
-  test('getTotalExpenses sums monthly, annual and oneTime in matching month', () async {
-    final now = DateTime.now();
-    final monthly = ExpenseModel.create(
-      name: 'Monthly',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 5),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
-    final annual = ExpenseModel.create(
-      name: 'Annual',
-      amount: 1200,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 10),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
-    final oneTime = ExpenseModel.create(
-      name: 'One-time',
-      amount: 300,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 15),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
-
-    when(() => mockExpenseRepo.getAll()).thenReturn([monthly, annual, oneTime]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([monthly, annual, oneTime]);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
-
-    expect(total, 2000.0);
-  });
-
-  test('getUpcomingExpenses excludes oneTime expenses', () async {
-    final now = DateTime.now();
-    final futureDay = now.day + 3;
-    if (futureDay > 28) return;
-
-    final oneTime = ExpenseModel.create(
+  test('getUpcomingExpenses holds a one-off still to come', () async {
+    final today = dayOnly(DateTime.now());
+    final stillToCome = ExpenseModel.create(
       name: 'One-time Upcoming',
       amount: 400,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, futureDay),
+      categorySlug: 'restauration.cafe',
+      startDate: today.add(const Duration(days: 3)),
+      frequency: 'Ponctuel',
+      accountId: 1,
+    );
+    final alreadyPassed = ExpenseModel.create(
+      name: 'One-time Passed',
+      amount: 400,
+      categorySlug: 'restauration.cafe',
+      startDate: today.subtract(const Duration(days: 3)),
       frequency: 'Ponctuel',
       accountId: 1,
     );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([oneTime]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([oneTime]);
+    when(
+      () => mockExpenseRepo.getAll(),
+    ).thenReturn([stillToCome, alreadyPassed]);
+    when(
+      () => mockExpenseRepo.getActive(),
+    ).thenReturn([stillToCome, alreadyPassed]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
 
     await container.read(expenseProvider.future);
 
-    final result = container.read(expenseProvider.notifier).getUpcomingExpenses();
+    final result = container.read(upcomingExpensesProvider);
 
-    expect(result, isEmpty);
+    expect(result.map((e) => e.name), ['One-time Upcoming']);
   });
 
   test('getUpcomingExpenses includes annual expense due this month', () async {
     final now = DateTime.now();
-    final futureDay = now.day + 2;
-    if (futureDay > 28) return;
+    final futureDay = clampDayOfMonth(now.year, now.month, now.day + 2);
 
     final annualThisMonth = ExpenseModel.create(
       name: 'Annual This Month',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, futureDay),
       frequency: 'Annuel',
       accountId: 1,
@@ -363,125 +376,138 @@ void main() {
     final annualOtherMonth = ExpenseModel.create(
       name: 'Annual Other Month',
       amount: 300,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, (now.month % 12) + 1, 15),
       frequency: 'Annuel',
       accountId: 1,
     );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([annualThisMonth, annualOtherMonth]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([annualThisMonth, annualOtherMonth]);
+    when(
+      () => mockExpenseRepo.getAll(),
+    ).thenReturn([annualThisMonth, annualOtherMonth]);
+    when(
+      () => mockExpenseRepo.getActive(),
+    ).thenReturn([annualThisMonth, annualOtherMonth]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
 
     await container.read(expenseProvider.future);
 
-    final result = container.read(expenseProvider.notifier).getUpcomingExpenses();
+    final result = container.read(upcomingExpensesProvider);
 
     expect(result.any((e) => e.name == 'Annual This Month'), isTrue);
     expect(result.any((e) => e.name == 'Annual Other Month'), isFalse);
   });
 
-  test('getTotalExpenses counts annual expense from different year if month matches', () async {
-    final now = DateTime.now();
-    final expense = ExpenseModel.create(
-      name: 'Annual Old Year',
-      amount: 600,
-      categoryId: 1,
-      startDate: DateTime(2020, now.month, 10),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses counts annual expense from different year if month matches',
+    () async {
+      final now = DateTime.now();
+      final expense = ExpenseModel.create(
+        name: 'Annual Old Year',
+        amount: 600,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(2020, now.month, 10),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 600.0);
-  });
+      expect(total, 600.0);
+    },
+  );
 
-  test('getTotalExpenses ignores oneTime from different year same month', () async {
-    final now = DateTime.now();
-    final expense = ExpenseModel.create(
-      name: 'OneTime Last Year',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime(now.year - 1, now.month, 10),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
+  test(
+    'getTotalExpenses ignores oneTime from different year same month',
+    () async {
+      final now = DateTime.now();
+      final expense = ExpenseModel.create(
+        name: 'OneTime Last Year',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year - 1, now.month, 10),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getTotalExpenses();
+      final total = container.read(monthlyExpensesProvider);
 
-    expect(total, 0.0);
-  });
+      expect(total, 0.0);
+    },
+  );
 
-  test('getAnnualExpenses calculates monthly*12 + annual + oneTime of year', () async {
-    final now = DateTime.now();
-    final monthly = ExpenseModel.create(
-      name: 'Monthly',
-      amount: 100,
-      categoryId: 1,
-      startDate: DateTime(now.year, now.month, 5),
-      frequency: 'Mensuel',
-      accountId: 1,
-    );
-    final annual = ExpenseModel.create(
-      name: 'Annual',
-      amount: 600,
-      categoryId: 1,
-      startDate: DateTime(now.year, 3, 10),
-      frequency: 'Annuel',
-      accountId: 1,
-    );
-    final oneTimeThisYear = ExpenseModel.create(
-      name: 'OneTime This Year',
-      amount: 200,
-      categoryId: 1,
-      startDate: DateTime(now.year, 6, 15),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
-    final oneTimeOtherYear = ExpenseModel.create(
-      name: 'OneTime Other Year',
-      amount: 300,
-      categoryId: 1,
-      startDate: DateTime(now.year - 1, 6, 15),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    );
+  test(
+    'getAnnualExpenses calculates monthly*12 + annual + oneTime of year',
+    () async {
+      final now = DateTime.now();
+      final monthly = ExpenseModel.create(
+        name: 'Monthly',
+        amount: 100,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, now.month, 5),
+        frequency: 'Mensuel',
+        accountId: 1,
+      );
+      final annual = ExpenseModel.create(
+        name: 'Annual',
+        amount: 600,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, 3, 10),
+        frequency: 'Annuel',
+        accountId: 1,
+      );
+      final oneTimeThisYear = ExpenseModel.create(
+        name: 'OneTime This Year',
+        amount: 200,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year, 6, 15),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
+      final oneTimeOtherYear = ExpenseModel.create(
+        name: 'OneTime Other Year',
+        amount: 300,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(now.year - 1, 6, 15),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      );
 
-    when(() => mockExpenseRepo.getAll()).thenReturn([
-      monthly, annual, oneTimeThisYear, oneTimeOtherYear,
-    ]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([
-      monthly, annual, oneTimeThisYear, oneTimeOtherYear,
-    ]);
+      when(
+        () => mockExpenseRepo.getAll(),
+      ).thenReturn([monthly, annual, oneTimeThisYear, oneTimeOtherYear]);
+      when(
+        () => mockExpenseRepo.getActive(),
+      ).thenReturn([monthly, annual, oneTimeThisYear, oneTimeOtherYear]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
+      await container.read(expenseProvider.future);
 
-    final total = container.read(expenseProvider.notifier).getAnnualExpenses();
+      final total = container.read(annualExpensesProvider);
 
-    expect(total, 2000.0);
-  });
+      expect(total, 2000.0);
+    },
+  );
 
   test('getAnnualExpenses with empty list returns 0.0', () async {
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
@@ -491,14 +517,14 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    expect(container.read(expenseProvider.notifier).getAnnualExpenses(), 0.0);
+    expect(container.read(annualExpensesProvider), 0.0);
   });
 
   test('deleteExpense soft deletes recurring expense', () async {
     final expense = ExpenseModel.create(
       name: 'Loyer',
       amount: 800,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -521,7 +547,7 @@ void main() {
     final expense = ExpenseModel.create(
       name: 'Achat unique',
       amount: 200,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Ponctuel',
       accountId: 1,
@@ -540,11 +566,11 @@ void main() {
     verifyNever(() => mockExpenseRepo.update(any()));
   });
 
-  test('updateExpense with name-only change propagates to chain', () async {
+  test('updateExpense with category-only change propagates to chain', () async {
     final existing = ExpenseModel.create(
       name: 'Ancien nom',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -553,7 +579,7 @@ void main() {
     final chainEntry = ExpenseModel.create(
       name: 'Ancien nom',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 8, 15),
       frequency: 'Mensuel',
       accountId: 1,
@@ -569,69 +595,76 @@ void main() {
 
     await container.read(expenseProvider.future);
 
-    final updated = existing.copyWith(name: 'Nouveau nom');
+    final updated = existing.copyWith(categorySlug: 'finance.frais_bancaires');
     await container.read(expenseProvider.notifier).updateExpense(updated);
 
     verify(() => mockExpenseRepo.getChain(1)).called(1);
     verify(() => mockExpenseRepo.update(any())).called(2);
-  });
-
-  test('updateExpense with structural change on recurring closes old and creates new', () async {
-    final existing = ExpenseModel.create(
-      name: 'Loyer',
-      amount: 500,
-      categoryId: 1,
-      startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
-      accountId: 1,
-    )..id = 1;
-
-    when(() => mockExpenseRepo.get(1)).thenReturn(existing);
-    when(() => mockExpenseRepo.update(any())).thenReturn(1);
-    when(() => mockExpenseRepo.add(any())).thenReturn(2);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-
-    final updated = existing.copyWith(amount: 600);
-    await container.read(expenseProvider.notifier).updateExpense(updated);
-
-    verify(() => mockExpenseRepo.update(any())).called(1);
-    verify(() => mockExpenseRepo.add(any())).called(1);
-  });
-
-  test('updateExpense with structural change on oneTime does simple update', () async {
-    final existing = ExpenseModel.create(
-      name: 'Achat',
-      amount: 300,
-      categoryId: 1,
-      startDate: DateTime(2024, 6, 15),
-      frequency: 'Ponctuel',
-      accountId: 1,
-    )..id = 1;
-
-    when(() => mockExpenseRepo.get(1)).thenReturn(existing);
-    when(() => mockExpenseRepo.update(any())).thenReturn(1);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(expenseProvider.future);
-
-    final updated = existing.copyWith(amount: 400);
-    await container.read(expenseProvider.notifier).updateExpense(updated);
-
-    verify(() => mockExpenseRepo.update(any())).called(1);
     verifyNever(() => mockExpenseRepo.add(any()));
   });
+
+  test(
+    'updateExpense with structural change on recurring closes old and creates new',
+    () async {
+      final existing = ExpenseModel.create(
+        name: 'Loyer',
+        amount: 500,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(2024, 6, 15),
+        frequency: 'Mensuel',
+        accountId: 1,
+      )..id = 1;
+
+      when(() => mockExpenseRepo.get(1)).thenReturn(existing);
+      when(() => mockExpenseRepo.update(any())).thenReturn(1);
+      when(() => mockExpenseRepo.add(any())).thenReturn(2);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+
+      await container.read(expenseProvider.future);
+
+      final updated = existing.copyWith(amount: 600);
+      await container.read(expenseProvider.notifier).updateExpense(updated);
+
+      verify(() => mockExpenseRepo.update(any())).called(1);
+      verify(() => mockExpenseRepo.add(any())).called(1);
+    },
+  );
+
+  test(
+    'updateExpense with structural change on oneTime does simple update',
+    () async {
+      final existing = ExpenseModel.create(
+        name: 'Achat',
+        amount: 300,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime(2024, 6, 15),
+        frequency: 'Ponctuel',
+        accountId: 1,
+      )..id = 1;
+
+      when(() => mockExpenseRepo.get(1)).thenReturn(existing);
+      when(() => mockExpenseRepo.update(any())).thenReturn(1);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+
+      await container.read(expenseProvider.future);
+
+      final updated = existing.copyWith(amount: 400);
+      await container.read(expenseProvider.notifier).updateExpense(updated);
+
+      verify(() => mockExpenseRepo.update(any())).called(1);
+      verifyNever(() => mockExpenseRepo.add(any()));
+    },
+  );
 
   test('getClosedExpenses returns closed entries', () async {
     final closed = ExpenseModel.create(
       name: 'Ancien',
       amount: 100,
-      categoryId: 1,
+      categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 1, 15),
       frequency: 'Mensuel',
       accountId: 1,

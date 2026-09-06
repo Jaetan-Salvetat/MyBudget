@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/548.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-03-13",
+  "total": 1.08,
+  "items": [
+   {
+    "name": "*80G CHOC NOIR 80%",
+    "amount": 1.08,
+    "discount": 0
+   }
+  ]
+ }
+}

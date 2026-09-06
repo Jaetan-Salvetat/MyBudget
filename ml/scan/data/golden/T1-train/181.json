@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/181.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-01-19",
+  "total": 13.01,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "*80G CHOC NOIR 80%",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "*F POMME CANADA",
+    "amount": 0.48,
+    "discount": 0
+   },
+   {
+    "name": "*F POMME ROYAL GALA",
+    "amount": 0.42,
+    "discount": 0
+   },
+   {
+    "name": "*POULET CHAMP NOIR",
+    "amount": 3.65,
+    "discount": 0
+   },
+   {
+    "name": "*SAUMON OSEILLE/RIZ",
+    "amount": 4.18,
+    "discount": 0
+   }
+  ]
+ }
+}

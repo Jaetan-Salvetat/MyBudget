@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/121.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-08-29",
+  "total": 6.11,
+  "items": [
+   {
+    "name": "180G (UINOA BOULG",
+    "amount": 2.77,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME GOLDEN GROSSE",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "SDW TFI JBN CHEDDA",
+    "amount": 1.74,
+    "discount": 0.0
+   }
+  ]
+ }
+}

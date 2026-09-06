@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/735.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BOULANGER",
+  "date": "2016-12-14",
+  "total": 90.0,
+  "items": [
+   {
+    "name": "Carte BOULANGER Cadeau Anniversaire",
+    "amount": 90.0,
+    "discount": 0
+   }
+  ]
+ }
+}

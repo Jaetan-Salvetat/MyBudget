@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/124.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-12",
+  "total": 6.84,
+  "items": [
+   {
+    "name": "CIABATTA",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "PIM'S FRAMBOISE LU",
+    "amount": 1.46,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE VENEZIA",
+    "amount": 4.23,
+    "discount": 0.0
+   }
+  ]
+ }
+}

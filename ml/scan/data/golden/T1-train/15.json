@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/15.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-10-25",
+  "total": 12.07,
+  "items": [
+   {
+    "name": "200G SCHOKOBONS KI",
+    "amount": 3.12,
+    "discount": 0.0
+   },
+   {
+    "name": "75 CAB ANJ RSE MDD",
+    "amount": 4.15,
+    "discount": 0.0
+   },
+   {
+    "name": "PREFOU CHEVRE",
+    "amount": 4.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

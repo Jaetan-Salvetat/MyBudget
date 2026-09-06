@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/695.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ALDI",
+  "date": "2016-12-27",
+  "total": 5.67,
+  "items": [
+   {
+    "name": "ROCHERS 4X35G NOIR",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "R-TOMATE/CHOUX FARCI 900G",
+    "amount": 2.89,
+    "discount": 0.0
+   },
+   {
+    "name": "FROMAGE CHEVRE FRAIS",
+    "amount": 1.79,
+    "discount": 0.0
+   }
+  ]
+ }
+}

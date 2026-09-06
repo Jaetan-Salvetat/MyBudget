@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1403.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CAFE DE LA PLACE",
+  "date": "2016-08-06",
+  "total": 36.4,
+  "items": [
+   {
+    "name": "2 MENU CORSAIRE.",
+    "amount": 35.0,
+    "discount": 0
+   },
+   {
+    "name": "1 CAFE EXPRESS",
+    "amount": 1.4,
+    "discount": 0
+   }
+  ]
+ }
+}

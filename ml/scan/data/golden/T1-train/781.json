@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/781.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LIDL",
+  "date": "2017-01-07",
+  "total": 20.89,
+  "items": [
+   {
+    "name": "Torsade pépites",
+    "amount": 1.96,
+    "discount": 0
+   },
+   {
+    "name": "Escargot aux raisins",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "Croissant pur beurre",
+    "amount": 0.29,
+    "discount": 0
+   },
+   {
+    "name": "Beignet fruits",
+    "amount": 0.59,
+    "discount": 0
+   },
+   {
+    "name": "Chocolat blanc à la",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "Pizza végétarienne",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "Tartelettes frambois",
+    "amount": 1.09,
+    "discount": 0
+   },
+   {
+    "name": "Sac en papier",
+    "amount": 0.15,
+    "discount": 0
+   },
+   {
+    "name": "Baskets F no 0281568",
+    "amount": 12.99,
+    "discount": 0
+   }
+  ]
+ }
+}

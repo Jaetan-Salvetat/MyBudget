@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1842.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TRIPERIE BOUJU",
+  "date": null,
+  "total": 8.52,
+  "items": [
+   {
+    "name": "ONGLET",
+    "amount": 8.52,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-test/img/68.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-16",
+  "total": 19964.29,
+  "items": [
+   {
+    "name": "1L LT 1/2EC LACTEL",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "4 RLX ESSUIE TOUT",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUF GROS EXTRA",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "BQT 4FRT R.GALA FR",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "KIWI LOT DE 4 1 EUR",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "LINGET.SOL SAV.MAR",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "P.PAIN PREC.LC CRF",
+    "amount": 1.88,
+    "discount": 0
+   },
+   {
+    "name": "PAIC CIT STD 750ML",
+    "amount": 2.05,
+    "discount": 0
+   },
+   {
+    "name": "POIRE COMICE",
+    "amount": 19950.0,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/1041.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "SELF",
+  "date": "2014-02-24",
+  "total": 4.76,
+  "items": [
+   {
+    "name": "1 Nems ( 3 x 50grs)",
+    "amount": 1.84,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Riz au lait",
+    "amount": 0.47,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Filet de dinde",
+    "amount": 2.45,
+    "discount": 0.0
+   }
+  ]
+ }
+}

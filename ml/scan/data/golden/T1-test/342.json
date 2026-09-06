@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/342.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-21",
+  "total": 8.05,
+  "items": [
+   {
+    "name": "*240G SALADE SAUMON",
+    "amount": 4.42,
+    "discount": 0
+   },
+   {
+    "name": "*BUBBLES LEMON&LIME",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 2.07,
+    "discount": 0
+   }
+  ]
+ }
+}

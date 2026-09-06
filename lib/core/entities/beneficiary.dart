@@ -8,8 +8,7 @@ class Beneficiary {
 
   Beneficiary._(this._model);
 
-  factory Beneficiary.fromModel(BeneficiaryModel model) =>
-      Beneficiary._(model);
+  factory Beneficiary.fromModel(BeneficiaryModel model) => Beneficiary._(model);
 
   int get id => _model.id;
   String get name => _model.name;
@@ -18,8 +17,11 @@ class Beneficiary {
   String get initials {
     if (name.trim().isEmpty) return '?';
 
-    final parts =
-        name.trim().split(RegExp(r'[\s\-]+')).where((p) => p.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'[\s\-]+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
 
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();

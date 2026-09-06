@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/273.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-07-12",
+  "total": 8.23,
+  "items": [
+   {
+    "name": "*AVOCAT",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "*ENDIVE",
+    "amount": 0.63,
+    "discount": 0
+   },
+   {
+    "name": "*FOZZA CHORIZO POIV",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*PECHE A CHAIR BLANCH",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE NOIRE",
+    "amount": 2.41,
+    "discount": 0
+   }
+  ]
+ }
+}

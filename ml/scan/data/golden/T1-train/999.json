@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/999.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PHARMACIE DU MARCHE",
+  "date": "2016-12-27",
+  "total": 12.55,
+  "items": [
+   {
+    "name": "1xDOLIPRANETABS 1 000 MG CP",
+    "amount": 2.1,
+    "discount": 0.0
+   },
+   {
+    "name": "1xDOLIPRANETABS 500MG CPR 1",
+    "amount": 2.1,
+    "discount": 0.0
+   },
+   {
+    "name": "1xCICALFATE AVENE LOTION FL",
+    "amount": 8.35,
+    "discount": 0.0
+   }
+  ]
+ }
+}

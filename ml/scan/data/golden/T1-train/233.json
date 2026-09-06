@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/233.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-11-30",
+  "total": 18.96,
+  "items": [
+   {
+    "name": "*105G DESHY SGM PDT",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "100EUF.BIO MOY.CRF",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "*2L P.J.ORANGE CRF",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1.5L PASTEQUE",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*SPE CRME DE LEGUME",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "80 MAXI CARRES BB",
+    "amount": 3.88,
+    "discount": 0
+   },
+   {
+    "name": "LT DOUC.COQUELICOT",
+    "amount": 4.86,
+    "discount": 0
+   }
+  ]
+ }
+}

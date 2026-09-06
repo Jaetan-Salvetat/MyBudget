@@ -1,59 +1,65 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:mybudget/core/theme/text_styles.dart';
 
 class OnboardingSlide extends StatelessWidget {
   final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color? iconColor;
+  final String body;
+  final Widget scene;
 
   const OnboardingSlide({
-    super.key,
     required this.title,
-    required this.subtitle,
-    required this.icon,
-    this.iconColor,
+    required this.body,
+    required this.scene,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FrostedCard(
-            padding: const EdgeInsets.all(40),
-            borderRadius: 40,
-            child: Icon(
-              icon,
-              size: 80,
-              color: iconColor ?? Theme.of(context).colorScheme.primary,
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              FrostedSpacing.sp5,
+              FrostedSpacing.sp4,
+              FrostedSpacing.sp5,
+              0,
             ),
+            child: Center(child: scene),
           ),
-          const SizedBox(height: 48),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            FrostedSpacing.sp5,
+            0,
+            FrostedSpacing.sp5,
+            FrostedSpacing.sp3,
           ),
-          const SizedBox(height: 16),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-              height: 1.5,
-              fontSize: 18,
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.displaySerifItalic(
+                  fontSize: 34,
+                  height: 38 / 34,
+                  color: scheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: FrostedSpacing.sp3),
+              Text(
+                body,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

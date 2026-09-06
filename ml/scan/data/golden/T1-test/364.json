@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/364.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-23",
+  "total": 2.89,
+  "items": [
+   {
+    "name": "*TEURGOULE CANNELLE",
+    "amount": 2.89,
+    "discount": 0
+   }
+  ]
+ }
+}

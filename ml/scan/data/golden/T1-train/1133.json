@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/1133.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "H&M Hennes & Mauritz",
+  "date": "2017-01-21",
+  "total": 52.0,
+  "items": [
+   {
+    "name": "Maille 0435086 M Rose",
+    "amount": 9.0,
+    "discount": 15.99
+   },
+   {
+    "name": "Maille 0435086 M Beige",
+    "amount": 9.0,
+    "discount": 15.99
+   },
+   {
+    "name": "Maille 0417396 M Beige",
+    "amount": 10.0,
+    "discount": 14.99
+   },
+   {
+    "name": "Maille Basic 0217497 L Blanc",
+    "amount": 12.0,
+    "discount": 7.99
+   },
+   {
+    "name": "Maille 0390642 S Orange",
+    "amount": 12.0,
+    "discount": 7.99
+   }
+  ]
+ }
+}

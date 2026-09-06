@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/275.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-17",
+  "total": 8.02,
+  "items": [
+   {
+    "name": "*180G CAROTTES RAPE",
+    "amount": 1.21,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.35,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*ST JACQ.TORT.CREM.",
+    "amount": 4.02,
+    "discount": 0
+   }
+  ]
+ }
+}

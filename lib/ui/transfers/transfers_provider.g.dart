@@ -33,13 +33,13 @@ final class TransferNotifierProvider
   TransferNotifier create() => TransferNotifier();
 }
 
-String _$transferNotifierHash() => r'39fef31424d570bc25a2da4723aa1705ed31a629';
+String _$transferNotifierHash() => r'ed7022083cf32f2c49a9b4e83cc1dbc50a63d9c8';
 
 abstract class _$TransferNotifier extends $AsyncNotifier<List<Transfer>> {
   FutureOr<List<Transfer>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<List<Transfer>>, List<Transfer>>;
     final element =
         ref.element
@@ -49,6 +49,6 @@ abstract class _$TransferNotifier extends $AsyncNotifier<List<Transfer>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

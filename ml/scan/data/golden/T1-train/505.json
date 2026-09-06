@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/505.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-15",
+  "total": 11.73,
+  "items": [
+   {
+    "name": "100G NESCAFE SELEC",
+    "amount": 3.12,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE CAMPAGNAR",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "*FLT 1KG TOMATE IMP",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSERV.BLCHE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1L PJ MULTIFRU",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE BQ 3FRT 0,99",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "4 RLX ESSUIE TOUT",
+    "amount": 1.62,
+    "discount": 0
+   }
+  ]
+ }
+}

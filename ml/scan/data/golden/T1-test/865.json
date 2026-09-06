@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/865.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Restaurant McDonald's",
+  "date": "2017-05-16",
+  "total": 5.6,
+  "items": [
+   {
+    "name": "Ptit Wrap",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Hamb",
+    "amount": 1.6,
+    "discount": 0.0
+   }
+  ]
+ }
+}

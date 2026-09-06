@@ -1,0 +1,79 @@
+{
+ "source": "dataset_findit/T1-test/img/632.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TABLAPIZZA LA ROCHELLE",
+  "date": "2017-06-23",
+  "total": 123.0,
+  "items": [
+   {
+    "name": "3 1664 33 cl",
+    "amount": 11.7,
+    "discount": 0
+   },
+   {
+    "name": "1 Grim Blonde 33",
+    "amount": 4.4,
+    "discount": 0
+   },
+   {
+    "name": "1 Grim Blanche 33",
+    "amount": 4.7,
+    "discount": 0
+   },
+   {
+    "name": "1 5 Fromages",
+    "amount": 12.7,
+    "discount": 0
+   },
+   {
+    "name": "1 Roul Chevre Miel",
+    "amount": 13.5,
+    "discount": 0
+   },
+   {
+    "name": "1 Roul BBQ",
+    "amount": 12.9,
+    "discount": 0
+   },
+   {
+    "name": "1 Roul Pizzatier",
+    "amount": 13.9,
+    "discount": 0
+   },
+   {
+    "name": "1 Montagnarde",
+    "amount": 11.9,
+    "discount": 0
+   },
+   {
+    "name": "1 Napolitaine",
+    "amount": 9.5,
+    "discount": 0
+   },
+   {
+    "name": "1 Sld Fermiere",
+    "amount": 13.5,
+    "discount": 0
+   },
+   {
+    "name": "3 Cafe Creme",
+    "amount": 6.0,
+    "discount": 0
+   },
+   {
+    "name": "2 Expresso",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "1 Glace/Sorbet 3B",
+    "amount": 4.5,
+    "discount": 0
+   }
+  ]
+ }
+}

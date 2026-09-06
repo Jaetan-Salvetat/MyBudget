@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/1191.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-06-23",
+  "total": 61.27,
+  "items": [
+   {
+    "name": "TOMATE RONDE EN GRAPPE",
+    "amount": 5.68,
+    "discount": 0
+   },
+   {
+    "name": "POIRE CONFERENCE",
+    "amount": 2.1,
+    "discount": 0
+   },
+   {
+    "name": "AVOCAT HASS",
+    "amount": 1.4,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE BIO",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "FEUILLE CHENE BLONDE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "LIT D'APPOINT PLUSH FIBER 2PL.",
+    "amount": 55.0,
+    "discount": 5.1
+   }
+  ]
+ }
+}

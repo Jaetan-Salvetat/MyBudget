@@ -1,0 +1,189 @@
+{
+ "source": "dataset_findit/T1-test/img/227.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-05-09",
+  "total": 70.18,
+  "items": [
+   {
+    "name": "1/2 CANNELLONI CRF",
+    "amount": 1.33,
+    "discount": 0.0
+   },
+   {
+    "name": "1/2 CONFIT AUBERGI",
+    "amount": 2.49,
+    "discount": 0.0
+   },
+   {
+    "name": "1/2 QUENEL.VOLAIL.",
+    "amount": 1.75,
+    "discount": 0.0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "1L LAIT ECREME BIO",
+    "amount": 2.97,
+    "discount": 0.0
+   },
+   {
+    "name": "200G CROQ'SOJA",
+    "amount": 2.64,
+    "discount": 0.0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 2.75,
+    "discount": 0.0
+   },
+   {
+    "name": "300G BISCOTTE COMP",
+    "amount": 1.27,
+    "discount": 0.0
+   },
+   {
+    "name": "360G CONF.FRAMB.",
+    "amount": 2.39,
+    "discount": 0.0
+   },
+   {
+    "name": "400G SAUCE OLIVES",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "500G PDM COMPLET",
+    "amount": 1.92,
+    "discount": 0.0
+   },
+   {
+    "name": "6X OEUFS PPA FQC",
+    "amount": 1.74,
+    "discount": 0.0
+   },
+   {
+    "name": "ANDROS POMME POIRE",
+    "amount": 1.35,
+    "discount": 0.0
+   },
+   {
+    "name": "BETHMALE CHEVRE",
+    "amount": 2.29,
+    "discount": 0.0
+   },
+   {
+    "name": "BOULE BLANCHE",
+    "amount": 1.35,
+    "discount": 0.0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 0.83,
+    "discount": 0.0
+   },
+   {
+    "name": "DOLCE PIZZA REGINA",
+    "amount": 9.32,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTAL RAPE CRF",
+    "amount": 2.84,
+    "discount": 0.0
+   },
+   {
+    "name": "JBN PARIS CRF 6TR.",
+    "amount": 2.51,
+    "discount": 0.0
+   },
+   {
+    "name": "KIRI CREME X 12",
+    "amount": 2.17,
+    "discount": 0.0
+   },
+   {
+    "name": "PATE PANZANI",
+    "amount": 1.4,
+    "discount": 0.0
+   },
+   {
+    "name": "PCE 250G BETTERAVE",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "PETIT DEJEUNER CHO",
+    "amount": 2.24,
+    "discount": 0.0
+   },
+   {
+    "name": "PETITS FILOUS PANA",
+    "amount": 1.34,
+    "discount": 0.0
+   },
+   {
+    "name": "POIREAU VRAC",
+    "amount": 0.67,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME ARIANE VRAC",
+    "amount": 1.43,
+    "discount": 0.0
+   },
+   {
+    "name": "QUENEL VOLAI.PJEAN",
+    "amount": 1.43,
+    "discount": 0.0
+   },
+   {
+    "name": "SALSIFIS BONDUELLE",
+    "amount": 1.33,
+    "discount": 0.0
+   },
+   {
+    "name": "TOMATE GRAPPE",
+    "amount": 1.64,
+    "discount": 0.0
+   },
+   {
+    "name": "YAOUR.BRAS.NAT.CRF",
+    "amount": 1.36,
+    "discount": 0.0
+   },
+   {
+    "name": "250ML SH.J.DESSANG",
+    "amount": 3.2,
+    "discount": 0.0
+   },
+   {
+    "name": "4X BLOC WC MARINE",
+    "amount": 1.53,
+    "discount": 0.0
+   },
+   {
+    "name": "BATONNE.OUATES CRF",
+    "amount": 0.77,
+    "discount": 0.0
+   },
+   {
+    "name": "ESSUIE TOUT X6 RLX",
+    "amount": 2.86,
+    "discount": 0.0
+   },
+   {
+    "name": "GD LAIT COTON CRF",
+    "amount": 1.28,
+    "discount": 0.0
+   }
+  ]
+ }
+}

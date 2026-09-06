@@ -41,13 +41,13 @@ final class DataNotifierProvider
   }
 }
 
-String _$dataNotifierHash() => r'cf93a57d2d9fd047ea896fa190718f1102f28dff';
+String _$dataNotifierHash() => r'1d46f5671a14e6aeea9107356e9e1b872bac461e';
 
 abstract class _$DataNotifier extends $Notifier<DataState> {
   DataState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DataState, DataState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$DataNotifier extends $Notifier<DataState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

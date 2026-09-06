@@ -1,0 +1,23 @@
+service: mybudget-site
+image: jaetan-salvetat/mybudget-site
+
+servers:
+  web:
+    hosts:
+      - 204.168.156.177
+
+proxy:
+  ssl: true
+  host: mybudget.jaetan.dev
+  app_port: 80
+  healthcheck:
+    path: /
+
+registry:
+  server: localhost:5555
+
+builder:
+  arch: arm64
+
+aliases:
+  logs: app logs -f

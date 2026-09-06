@@ -1,0 +1,79 @@
+{
+ "source": "dataset_findit/T1-test/img/875.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-08",
+  "total": 134.8,
+  "items": [
+   {
+    "name": "ANANAS",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "2 STELLA ARTOIS 50",
+    "amount": 12.8,
+    "discount": 0
+   },
+   {
+    "name": "BLUE HAWAIAN",
+    "amount": 7.1,
+    "discount": 0
+   },
+   {
+    "name": "HOEGAARDEN 50 CL",
+    "amount": 8.5,
+    "discount": 0
+   },
+   {
+    "name": "2 MOJITO",
+    "amount": 14.2,
+    "discount": 0
+   },
+   {
+    "name": "SEX ON THE BEACH",
+    "amount": 7.1,
+    "discount": 0
+   },
+   {
+    "name": "2 happy 5OCL HOEGA",
+    "amount": 11.0,
+    "discount": 0
+   },
+   {
+    "name": "VERRE MONTEPULCIANO",
+    "amount": 3.6,
+    "discount": 0
+   },
+   {
+    "name": "*4CL SEVE DE JOIE",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "LA BIQUETTE",
+    "amount": 14.3,
+    "discount": 0
+   },
+   {
+    "name": "LA MANZIO",
+    "amount": 16.4,
+    "discount": 0
+   },
+   {
+    "name": "LA PAPERINA",
+    "amount": 15.9,
+    "discount": 0
+   },
+   {
+    "name": "LA FERMIERE",
+    "amount": 14.0,
+    "discount": 0
+   }
+  ]
+ }
+}

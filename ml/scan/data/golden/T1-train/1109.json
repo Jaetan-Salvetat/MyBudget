@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1109.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CAFE DE RENNES",
+  "date": "2017-04-23",
+  "total": null,
+  "items": [
+   {
+    "name": "-1 RICARD",
+    "amount": -2.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

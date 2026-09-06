@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/1546.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "DA MONNALI",
+  "date": "2017-01-28",
+  "total": 56.0,
+  "items": [
+   {
+    "name": "Coppa",
+    "amount": 14.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Orientale",
+    "amount": 13.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Parma Bianca",
+    "amount": 14.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Peroni",
+    "amount": 9.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Tiramisu",
+    "amount": 6.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,139 @@
+{
+ "source": "dataset_findit/T1-train/img/480.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-04-01",
+  "total": 45.41,
+  "items": [
+   {
+    "name": "*1/2 HARICOT BLANC",
+    "amount": 0.61,
+    "discount": 0
+   },
+   {
+    "name": "*1/4 THON ALBA.PREC",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "*300G LT ECR.REGILA",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "*550G MAXI SSA JAC",
+    "amount": 1.59,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUF GROS EXTRA",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*DANETTE NOIR EXTRA",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FR.POMM/BANAN",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL FRANCAIS",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "*FL 500G CITRON PP",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*FLAN X2",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "FUSILLI CPLTE 500G",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "GAUFRETTES CHOCO",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "*GOLDEN GROSSE",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 3.57,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 5.66,
+    "discount": 0
+   },
+   {
+    "name": "*KIWI PIECE",
+    "amount": 1.5,
+    "discount": 0.51
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*PASTIN MULTICEREAL",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA FOUR 4FROMAG",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "*POIRE 4 FRUITS",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*PUR JUS ORANGE CRF",
+    "amount": 1.47,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "*T.CERISE PX ROND",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "2X FA MEN DC PULSE",
+    "amount": 4.48,
+    "discount": 1.79
+   }
+  ]
+ }
+}

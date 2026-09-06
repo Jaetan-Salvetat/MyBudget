@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/675.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PATAPAIN",
+  "date": "2017-05-07",
+  "total": 9.1,
+  "items": [
+   {
+    "name": "Pain tourné Origine",
+    "amount": 2.9,
+    "discount": 0.0
+   },
+   {
+    "name": "Brioche pépite chocolat",
+    "amount": 6.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

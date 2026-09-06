@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/317.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-15",
+  "total": 5.99,
+  "items": [
+   {
+    "name": "*1L ORANGE CRF DISC",
+    "amount": 1.01,
+    "discount": 0.0
+   },
+   {
+    "name": "*DESS.FRTS POM/PEC/",
+    "amount": 1.68,
+    "discount": 0.0
+   },
+   {
+    "name": "*SALADE SAUMON FUME",
+    "amount": 3.3,
+    "discount": 0.0
+   }
+  ]
+ }
+}

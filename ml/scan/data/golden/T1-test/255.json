@@ -1,0 +1,94 @@
+{
+ "source": "dataset_findit/T1-test/img/255.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-07",
+  "total": 34.43,
+  "items": [
+   {
+    "name": "*11G CORIANDRE FLOR",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*3X1/4 CHAMP.EMINCE",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "*4X120G PANIER EXTR",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUFS PLEIN AIR",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "CHUTE.SAUM.FUM.**",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "FUSILLI CPLTE 500G",
+    "amount": 0.98,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 4.31,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 2.13,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSO VP",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "*PET 1L PJ CLEMENTI",
+    "amount": 1.92,
+    "discount": 0
+   },
+   {
+    "name": "*PET1L PJ TONUS CRF",
+    "amount": 1.97,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.43,
+    "discount": 0
+   },
+   {
+    "name": "*POMME GALA MOYENNE",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "AXE DEO BLACK",
+    "amount": 3.05,
+    "discount": 0
+   }
+  ]
+ }
+}

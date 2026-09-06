@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/906.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SUPER U",
+  "date": "2017-06-12",
+  "total": 1.14,
+  "items": [
+   {
+    "name": "STARBUCKS NOIS.MACCH.CUP 220ML",
+    "amount": 1.64,
+    "discount": 0.5
+   }
+  ]
+ }
+}

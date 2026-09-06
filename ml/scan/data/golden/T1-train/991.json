@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/991.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "NOZ ST JEAN D'ANGELY",
+  "date": "2016-12-31",
+  "total": 5.39,
+  "items": [
+   {
+    "name": "SX SEYCH2EN1 1.",
+    "amount": 3.99,
+    "discount": 0.0
+   },
+   {
+    "name": "BLOC WC FOREST 40G",
+    "amount": 0.7,
+    "discount": 0.0
+   },
+   {
+    "name": "BLOC WC FOREST 40G",
+    "amount": 0.7,
+    "discount": 0.0
+   }
+  ]
+ }
+}

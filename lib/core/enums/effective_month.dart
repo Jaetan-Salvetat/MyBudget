@@ -1,0 +1,5 @@
+enum EffectiveMonth {
+  thisMonth,
+
+  nextMonth,
+}

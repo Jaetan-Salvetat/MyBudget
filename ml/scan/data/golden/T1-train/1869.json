@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1869.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA HALLE",
+  "date": "2017-01-21",
+  "total": 17.49,
+  "items": [
+   {
+    "name": "JEAN *082242000033 36",
+    "amount": 34.99,
+    "discount": 17.5
+   }
+  ]
+ }
+}

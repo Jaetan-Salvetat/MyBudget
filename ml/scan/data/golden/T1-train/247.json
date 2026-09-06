@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/247.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-16",
+  "total": 3.85,
+  "items": [
+   {
+    "name": "6 OEUFS PLEIN AIR",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN AUX CEREALES",
+    "amount": 0.83,
+    "discount": 0
+   },
+   {
+    "name": "*PUR JUS ORANGE CRF",
+    "amount": 1.47,
+    "discount": 0
+   }
+  ]
+ }
+}

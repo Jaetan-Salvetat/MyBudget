@@ -9,6 +9,100 @@ part of 'revenue_queries.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(revenueHistory)
+final revenueHistoryProvider = RevenueHistoryProvider._();
+
+final class RevenueHistoryProvider
+    extends
+        $FunctionalProvider<
+          List<RevenueModel>,
+          List<RevenueModel>,
+          List<RevenueModel>
+        >
+    with $Provider<List<RevenueModel>> {
+  RevenueHistoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'revenueHistoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$revenueHistoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<RevenueModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<RevenueModel> create(Ref ref) {
+    return revenueHistory(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<RevenueModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<RevenueModel>>(value),
+    );
+  }
+}
+
+String _$revenueHistoryHash() => r'601d44e7096774c31d47c263b075d69dee99776e';
+
+@ProviderFor(monthRevenues)
+final monthRevenuesProvider = MonthRevenuesProvider._();
+
+final class MonthRevenuesProvider
+    extends
+        $FunctionalProvider<
+          List<RevenueModel>,
+          List<RevenueModel>,
+          List<RevenueModel>
+        >
+    with $Provider<List<RevenueModel>> {
+  MonthRevenuesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'monthRevenuesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$monthRevenuesHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<RevenueModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<RevenueModel> create(Ref ref) {
+    return monthRevenues(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<RevenueModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<RevenueModel>>(value),
+    );
+  }
+}
+
+String _$monthRevenuesHash() => r'bbe604c1085ddf6b0eaeb1b329ad436dabcd4344';
+
 @ProviderFor(activeRevenues)
 final activeRevenuesProvider = ActiveRevenuesProvider._();
 
@@ -95,7 +189,7 @@ final class MonthlyRevenuesProvider
   }
 }
 
-String _$monthlyRevenuesHash() => r'fc027e0d4cbb7c69cac483f3aa917cee8e7c03ef';
+String _$monthlyRevenuesHash() => r'f87f1a7b5ef64d84f52e4ca7c250e55d789a612c';
 
 @ProviderFor(currentMonthRevenues)
 final currentMonthRevenuesProvider = CurrentMonthRevenuesProvider._();
@@ -137,7 +231,7 @@ final class CurrentMonthRevenuesProvider
 }
 
 String _$currentMonthRevenuesHash() =>
-    r'ef667fa60df2ae5d71ae1df3ae95d48ea093ebce';
+    r'1488b8d5ed6f4b6f9dcfb5c49f086dc5cd7bde21';
 
 @ProviderFor(upcomingRevenues)
 final upcomingRevenuesProvider = UpcomingRevenuesProvider._();
@@ -185,3 +279,86 @@ final class UpcomingRevenuesProvider
 }
 
 String _$upcomingRevenuesHash() => r'c3677c5e943e6b1d04781a051646d84d8b995a06';
+
+@ProviderFor(revenueEvents)
+final revenueEventsProvider = RevenueEventsFamily._();
+
+final class RevenueEventsProvider
+    extends
+        $FunctionalProvider<
+          List<TransactionEventModel>,
+          List<TransactionEventModel>,
+          List<TransactionEventModel>
+        >
+    with $Provider<List<TransactionEventModel>> {
+  RevenueEventsProvider._({
+    required RevenueEventsFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'revenueEventsProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$revenueEventsHash();
+
+  @override
+  String toString() {
+    return r'revenueEventsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<List<TransactionEventModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<TransactionEventModel> create(Ref ref) {
+    final argument = this.argument as int;
+    return revenueEvents(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<TransactionEventModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<TransactionEventModel>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RevenueEventsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$revenueEventsHash() => r'77f9e1ccfc86e24f601bb921a773a14354a7cf7f';
+
+final class RevenueEventsFamily extends $Family
+    with $FunctionalFamilyOverride<List<TransactionEventModel>, int> {
+  RevenueEventsFamily._()
+    : super(
+        retry: null,
+        name: r'revenueEventsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  RevenueEventsProvider call(int rootId) =>
+      RevenueEventsProvider._(argument: rootId, from: this);
+
+  @override
+  String toString() => r'revenueEventsProvider';
+}

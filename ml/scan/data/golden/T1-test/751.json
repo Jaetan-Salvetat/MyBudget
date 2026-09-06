@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/751.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Centre de Beauté Yves Rocher",
+  "date": "2016-09-27",
+  "total": 3.5,
+  "items": [
+   {
+    "name": "56015 LAIT CORPS ENERGISANT FRAMB-MP",
+    "amount": 3.5,
+    "discount": 0
+   }
+  ]
+ }
+}

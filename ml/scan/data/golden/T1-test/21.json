@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/21.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-28",
+  "total": 5.73,
+  "items": [
+   {
+    "name": "*PENNE A LA BOLOGN,",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "*SUNDY QUINTO 180G",
+    "amount": 2.74,
+    "discount": 0
+   }
+  ]
+ }
+}

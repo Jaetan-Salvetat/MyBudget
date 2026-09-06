@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/974.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MONOPRIX MONTPARNASSE",
+  "date": "2016-06-04",
+  "total": 1.88,
+  "items": [
+   {
+    "name": "PIM'S FRAMBOISE LU",
+    "amount": 1.4,
+    "discount": 0.0
+   },
+   {
+    "name": "1L VITTEL",
+    "amount": 0.48,
+    "discount": 0.0
+   }
+  ]
+ }
+}

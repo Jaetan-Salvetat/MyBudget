@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/719.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Jardinerie de l'Océan Pépinières ROBIN",
+  "date": "2017-04-01",
+  "total": 87.4,
+  "items": [
+   {
+    "name": "*Terreau Bio Actif 40L Secret",
+    "amount": 10.5,
+    "discount": 0
+   },
+   {
+    "name": "*Vivace (godet noir)",
+    "amount": 23.6,
+    "discount": 0
+   },
+   {
+    "name": "*Vivace",
+    "amount": 8.0,
+    "discount": 0
+   },
+   {
+    "name": "*Vivace (godet rouge).",
+    "amount": 21.0,
+    "discount": 0
+   },
+   {
+    "name": "*Azal{e japonaise",
+    "amount": 17.5,
+    "discount": 0
+   },
+   {
+    "name": "*Bulbes categorie A",
+    "amount": 6.8,
+    "discount": 0
+   }
+  ]
+ }
+}

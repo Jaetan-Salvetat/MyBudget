@@ -1,0 +1,573 @@
+{
+    "version": 2,
+    "expenses": {
+        "alimentation": {
+            "label": "Alimentation",
+            "icon": "shopping_cart",
+            "color": "#FF9800",
+            "subcategories": {
+                "courses": {
+                    "label": "Courses",
+                    "icon": "local_grocery_store"
+                },
+                "pain_patisserie": {
+                    "label": "Pain & pâtisserie",
+                    "icon": "bakery_dining"
+                },
+                "supermarche": {
+                    "label": "Supermarché",
+                    "icon": "local_grocery_store",
+                    "deprecated": true,
+                    "alias_of": "alimentation.courses"
+                },
+                "marche": {
+                    "label": "Marché",
+                    "icon": "storefront",
+                    "deprecated": true,
+                    "alias_of": "alimentation.courses"
+                },
+                "epicerie": {
+                    "label": "Épicerie",
+                    "icon": "local_convenience_store",
+                    "deprecated": true,
+                    "alias_of": "alimentation.courses"
+                },
+                "boulangerie": {
+                    "label": "Boulangerie",
+                    "icon": "bakery_dining",
+                    "deprecated": true,
+                    "alias_of": "alimentation.pain_patisserie"
+                }
+            }
+        },
+        "restauration": {
+            "label": "Restauration",
+            "icon": "restaurant",
+            "color": "#F44336",
+            "subcategories": {
+                "restaurant": {
+                    "label": "Restaurant",
+                    "icon": "dinner_dining"
+                },
+                "fast_food": {
+                    "label": "Fast-food",
+                    "icon": "fastfood"
+                },
+                "bar": {
+                    "label": "Bar & apéro",
+                    "icon": "local_bar"
+                },
+                "cafe": {
+                    "label": "Café",
+                    "icon": "local_cafe"
+                },
+                "livraison": {
+                    "label": "Livraison",
+                    "icon": "delivery_dining"
+                }
+            }
+        },
+        "transport": {
+            "label": "Transport",
+            "icon": "directions_car",
+            "color": "#2196F3",
+            "subcategories": {
+                "carburant": {
+                    "label": "Carburant",
+                    "icon": "local_gas_station"
+                },
+                "transport_commun": {
+                    "label": "Transport en commun",
+                    "icon": "directions_bus"
+                },
+                "taxi_vtc": {
+                    "label": "Taxi & VTC",
+                    "icon": "local_taxi"
+                },
+                "parking": {
+                    "label": "Parking",
+                    "icon": "local_parking"
+                },
+                "peage": {
+                    "label": "Péage",
+                    "icon": "toll"
+                },
+                "entretien_vehicule": {
+                    "label": "Entretien véhicule",
+                    "icon": "car_repair"
+                },
+                "achat_vehicule": {
+                    "label": "Achat de véhicule",
+                    "icon": "garage"
+                },
+                "assurance_auto": {
+                    "label": "Assurance auto",
+                    "icon": "car_crash"
+                },
+                "essence": {
+                    "label": "Essence",
+                    "icon": "local_gas_station",
+                    "deprecated": true,
+                    "alias_of": "transport.carburant"
+                }
+            }
+        },
+        "logement": {
+            "label": "Logement",
+            "icon": "home",
+            "color": "#3F51B5",
+            "subcategories": {
+                "loyer": {
+                    "label": "Loyer",
+                    "icon": "apartment"
+                },
+                "charges": {
+                    "label": "Charges",
+                    "icon": "receipt_long"
+                },
+                "energie": {
+                    "label": "Énergie",
+                    "icon": "bolt"
+                },
+                "eau": {
+                    "label": "Eau",
+                    "icon": "water_drop"
+                },
+                "bricolage_jardin": {
+                    "label": "Bricolage & jardin",
+                    "icon": "handyman"
+                },
+                "services": {
+                    "label": "Services à domicile",
+                    "icon": "cleaning_services"
+                },
+                "demenagement": {
+                    "label": "Déménagement & frais",
+                    "icon": "local_shipping"
+                },
+                "assurance_habitation": {
+                    "label": "Assurance habitation",
+                    "icon": "shield"
+                },
+                "telecom": {
+                    "label": "Télécom & internet",
+                    "icon": "wifi",
+                    "deprecated": true,
+                    "alias_of": "numerique.telecom"
+                },
+                "travaux": {
+                    "label": "Travaux & bricolage",
+                    "icon": "handyman",
+                    "deprecated": true,
+                    "alias_of": "logement.bricolage_jardin"
+                }
+            }
+        },
+        "sante_beaute": {
+            "label": "Santé & Beauté",
+            "icon": "health_and_safety",
+            "color": "#E91E63",
+            "subcategories": {
+                "soins_medicaux": {
+                    "label": "Médecin & soins",
+                    "icon": "stethoscope"
+                },
+                "dentaire": {
+                    "label": "Dentiste",
+                    "icon": "dentistry"
+                },
+                "optique": {
+                    "label": "Optique",
+                    "icon": "eyeglasses"
+                },
+                "pharmacie": {
+                    "label": "Pharmacie",
+                    "icon": "local_pharmacy"
+                },
+                "cosmetiques": {
+                    "label": "Cosmétiques & parfum",
+                    "icon": "face"
+                },
+                "coiffeur": {
+                    "label": "Coiffeur",
+                    "icon": "content_cut"
+                },
+                "esthetique": {
+                    "label": "Institut & spa",
+                    "icon": "spa"
+                },
+                "mutuelle": {
+                    "label": "Mutuelle santé",
+                    "icon": "medical_services"
+                },
+                "medecin": {
+                    "label": "Médecin",
+                    "icon": "stethoscope",
+                    "deprecated": true,
+                    "alias_of": "sante_beaute.soins_medicaux"
+                }
+            }
+        },
+        "loisirs": {
+            "label": "Loisirs",
+            "icon": "local_activity",
+            "color": "#9C27B0",
+            "subcategories": {
+                "sorties": {
+                    "label": "Sorties & spectacles",
+                    "icon": "theater_comedy"
+                },
+                "jeux_video": {
+                    "label": "Jeux vidéo",
+                    "icon": "sports_esports"
+                },
+                "sport": {
+                    "label": "Sport",
+                    "icon": "fitness_center"
+                },
+                "livre_presse": {
+                    "label": "Livres & presse",
+                    "icon": "menu_book"
+                },
+                "streaming": {
+                    "label": "Streaming",
+                    "icon": "subscriptions"
+                },
+                "musique": {
+                    "label": "Musique",
+                    "icon": "music_note"
+                },
+                "loisirs_creatifs": {
+                    "label": "Loisirs créatifs",
+                    "icon": "palette"
+                },
+                "cinema_sortie": {
+                    "label": "Cinéma & sorties",
+                    "icon": "movie",
+                    "deprecated": true,
+                    "alias_of": "loisirs.sorties"
+                }
+            }
+        },
+        "numerique": {
+            "label": "Numérique",
+            "icon": "cloud",
+            "color": "#673AB7",
+            "subcategories": {
+                "logiciel_service": {
+                    "label": "Logiciels & services",
+                    "icon": "apps"
+                },
+                "ia": {
+                    "label": "Intelligence artificielle",
+                    "icon": "smart_toy"
+                },
+                "hebergement_domaine": {
+                    "label": "Hébergement & domaines",
+                    "icon": "dns"
+                },
+                "stockage_cloud": {
+                    "label": "Stockage cloud",
+                    "icon": "hard_drive"
+                },
+                "telecom": {
+                    "label": "Télécom & internet",
+                    "icon": "wifi"
+                }
+            }
+        },
+        "shopping": {
+            "label": "Shopping",
+            "icon": "shopping_bag",
+            "color": "#FF5722",
+            "subcategories": {
+                "vetements": {
+                    "label": "Vêtements",
+                    "icon": "checkroom"
+                },
+                "electronique": {
+                    "label": "Électronique",
+                    "icon": "devices"
+                },
+                "mobilier_deco": {
+                    "label": "Mobilier & déco",
+                    "icon": "chair"
+                }
+            }
+        },
+        "finance": {
+            "label": "Finance",
+            "icon": "account_balance",
+            "color": "#607D8B",
+            "subcategories": {
+                "retrait_dab": {
+                    "label": "Retrait DAB",
+                    "icon": "atm"
+                },
+                "frais_bancaires": {
+                    "label": "Frais bancaires",
+                    "icon": "account_balance_wallet"
+                },
+                "impots_taxes": {
+                    "label": "Impôts & taxes",
+                    "icon": "request_quote"
+                },
+                "amende": {
+                    "label": "Amende",
+                    "icon": "gavel"
+                },
+                "assurance_autre": {
+                    "label": "Autre assurance",
+                    "icon": "policy"
+                },
+                "epargne_investissement": {
+                    "label": "Épargne & investissement",
+                    "icon": "savings"
+                },
+                "credit_pret": {
+                    "label": "Crédit & prêt",
+                    "icon": "credit_score"
+                },
+                "charges_pro": {
+                    "label": "Charges professionnelles",
+                    "icon": "business_center"
+                },
+                "assurance_habitation": {
+                    "label": "Assurance habitation",
+                    "icon": "shield",
+                    "deprecated": true,
+                    "alias_of": "logement.assurance_habitation"
+                },
+                "assurance_auto": {
+                    "label": "Assurance auto",
+                    "icon": "car_crash",
+                    "deprecated": true,
+                    "alias_of": "transport.assurance_auto"
+                },
+                "assurance_sante": {
+                    "label": "Mutuelle santé",
+                    "icon": "medical_services",
+                    "deprecated": true,
+                    "alias_of": "sante_beaute.mutuelle"
+                }
+            }
+        },
+        "famille_education": {
+            "label": "Famille & Éducation",
+            "icon": "school",
+            "color": "#795548",
+            "subcategories": {
+                "scolarite": {
+                    "label": "Scolarité",
+                    "icon": "school"
+                },
+                "fournitures": {
+                    "label": "Fournitures",
+                    "icon": "backpack"
+                },
+                "formation": {
+                    "label": "Formation",
+                    "icon": "cast_for_education"
+                },
+                "garde_enfant": {
+                    "label": "Garde d'enfant",
+                    "icon": "child_care"
+                },
+                "cantine": {
+                    "label": "Cantine",
+                    "icon": "lunch_dining"
+                },
+                "activites_enfants": {
+                    "label": "Activités enfants",
+                    "icon": "toys"
+                },
+                "pension_alimentaire": {
+                    "label": "Pension alimentaire",
+                    "icon": "family_restroom"
+                },
+                "enfant": {
+                    "label": "Enfant",
+                    "icon": "child_friendly"
+                }
+            }
+        },
+        "voyage": {
+            "label": "Voyages",
+            "icon": "flight_takeoff",
+            "color": "#00BCD4",
+            "subcategories": {
+                "transport_longue_distance": {
+                    "label": "Avion & train",
+                    "icon": "flight"
+                },
+                "sejour": {
+                    "label": "Hôtel & séjour",
+                    "icon": "hotel"
+                },
+                "location_vehicule": {
+                    "label": "Location de véhicule",
+                    "icon": "car_rental"
+                },
+                "hebergement": {
+                    "label": "Hébergement",
+                    "icon": "hotel",
+                    "deprecated": true,
+                    "alias_of": "voyage.sejour"
+                },
+                "activite_visite": {
+                    "label": "Activités & visites",
+                    "icon": "museum",
+                    "deprecated": true,
+                    "alias_of": "loisirs.sorties"
+                }
+            }
+        },
+        "divers": {
+            "label": "Divers",
+            "icon": "more_horiz",
+            "color": "#9E9E9E",
+            "subcategories": {
+                "cadeau_offert": {
+                    "label": "Cadeau offert",
+                    "icon": "card_giftcard"
+                },
+                "animaux": {
+                    "label": "Animaux",
+                    "icon": "pets"
+                },
+                "tabac_paris": {
+                    "label": "Tabac & jeux d'argent",
+                    "icon": "casino"
+                },
+                "don": {
+                    "label": "Don",
+                    "icon": "volunteer_activism"
+                },
+                "services": {
+                    "label": "Pressing & services",
+                    "icon": "dry_cleaning"
+                },
+                "autre": {
+                    "label": "Autre",
+                    "icon": "more_horiz"
+                },
+                "tabac_jeux": {
+                    "label": "Tabac & jeux d'argent",
+                    "icon": "casino",
+                    "deprecated": true,
+                    "alias_of": "divers.tabac_paris"
+                }
+            }
+        }
+    },
+    "income": {
+        "salaire": {
+            "label": "Salaire",
+            "icon": "paid",
+            "color": "#4CAF50",
+            "subcategories": {
+                "salaire_net": {
+                    "label": "Salaire net",
+                    "icon": "payments"
+                },
+                "prime": {
+                    "label": "Prime",
+                    "icon": "workspace_premium"
+                },
+                "freelance": {
+                    "label": "Revenu freelance",
+                    "icon": "work"
+                },
+                "retraite": {
+                    "label": "Retraite",
+                    "icon": "elderly"
+                }
+            }
+        },
+        "aide_allocation": {
+            "label": "Aides & Allocations",
+            "icon": "volunteer_activism",
+            "color": "#8BC34A",
+            "subcategories": {
+                "allocation_familiale": {
+                    "label": "Allocation familiale",
+                    "icon": "family_restroom"
+                },
+                "chomage": {
+                    "label": "Chômage",
+                    "icon": "work_history"
+                },
+                "aide_logement": {
+                    "label": "Aide au logement",
+                    "icon": "home_work"
+                },
+                "bourse": {
+                    "label": "Bourse",
+                    "icon": "school"
+                },
+                "aide_sociale": {
+                    "label": "Aide sociale",
+                    "icon": "handshake"
+                }
+            }
+        },
+        "transfert": {
+            "label": "Transfert",
+            "icon": "swap_horiz",
+            "color": "#009688",
+            "subcategories": {
+                "virement_recu": {
+                    "label": "Virement reçu",
+                    "icon": "swap_horiz"
+                },
+                "remboursement_sante": {
+                    "label": "Remboursement santé",
+                    "icon": "medical_services"
+                },
+                "remboursement_ami": {
+                    "label": "Remboursement d'un proche",
+                    "icon": "groups"
+                },
+                "remboursement_impots": {
+                    "label": "Remboursement d'impôts",
+                    "icon": "request_quote"
+                },
+                "remboursement_achat": {
+                    "label": "Remboursement d'achat",
+                    "icon": "assignment_return"
+                },
+                "pension_alimentaire": {
+                    "label": "Pension alimentaire reçue",
+                    "icon": "family_restroom"
+                }
+            }
+        },
+        "exceptionnel": {
+            "label": "Exceptionnel",
+            "icon": "trending_up",
+            "color": "#CDDC39",
+            "subcategories": {
+                "vente_occasion": {
+                    "label": "Vente d'occasion",
+                    "icon": "sell"
+                },
+                "don_recu": {
+                    "label": "Don reçu",
+                    "icon": "card_giftcard"
+                },
+                "interets": {
+                    "label": "Intérêts",
+                    "icon": "trending_up"
+                },
+                "loyer_percu": {
+                    "label": "Loyer perçu",
+                    "icon": "key"
+                },
+                "autre_revenu": {
+                    "label": "Autre revenu",
+                    "icon": "currency_exchange"
+                }
+            }
+        }
+    }
+}

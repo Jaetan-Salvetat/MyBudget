@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1827.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Toquenelle Cafétéria",
+  "date": "2017-03-18",
+  "total": 11.35,
+  "items": [
+   {
+    "name": "Jambon a l'Os",
+    "amount": 7.55,
+    "discount": 0.0
+   },
+   {
+    "name": "Crepe mousse chocolat",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "Eau de source 50cl",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "Petit pain trad",
+    "amount": 0.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/revenues/widgets/revenues_list.dart';
 
 class RevenuesScreen extends StatelessWidget {

@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1535.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PASTAVINO - OENOTRIA",
+  "date": "2017-01-28",
+  "total": 18.8,
+  "items": [
+   {
+    "name": "CAPPUCCINO",
+    "amount": 3.1,
+    "discount": 0
+   },
+   {
+    "name": "JUS FRUITS BOUTEILLE",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "GLACE 3.2",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "GLACE 2.9",
+    "amount": 2.9,
+    "discount": 0
+   }
+  ]
+ }
+}

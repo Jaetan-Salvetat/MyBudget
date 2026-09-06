@@ -1,0 +1,29 @@
+name: frosted_ui
+description: "Glass Expressive design system for Flutter — M3 Expressive content paired with translucent Liquid Glass chrome."
+version: 0.5.0
+homepage:
+
+environment:
+  sdk: ^3.11.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  fonts:
+    - family: Bricolage Grotesque
+      fonts:
+        - asset: fonts/BricolageGrotesque-VariableFont_opsz_wdth_wght.ttf
+    - family: Geist
+      fonts:
+        - asset: fonts/Geist[wght].ttf
+        - asset: fonts/Geist-Italic[wght].ttf
+          style: italic

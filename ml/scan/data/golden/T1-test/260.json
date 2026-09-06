@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/260.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-06",
+  "total": 5.5,
+  "items": [
+   {
+    "name": "*BUDDHA BOL FALAFEL",
+    "amount": 5.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/246.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-02",
+  "total": 8.78,
+  "items": [
+   {
+    "name": "*BATAVIA PIECE",
+    "amount": 1.49,
+    "discount": 0.0
+   },
+   {
+    "name": "KERISAC CIDRE BRUT",
+    "amount": 2.45,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUMON ATLANTIQUE",
+    "amount": 4.84,
+    "discount": 0.0
+   }
+  ]
+ }
+}

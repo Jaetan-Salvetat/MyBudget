@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/589.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2017-05-27",
+  "total": 21.82,
+  "items": [
+   {
+    "name": "*6X2 KINDER BUENO",
+    "amount": 4.1,
+    "discount": 0
+   },
+   {
+    "name": "*ABRICOT GROS",
+    "amount": 1.18,
+    "discount": 0
+   },
+   {
+    "name": "*APERIVRAIS PROVENC",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "*BIER.BLOND.NOR.RDF",
+    "amount": 4.26,
+    "discount": 0
+   },
+   {
+    "name": "*BON AP BOULE COMPL",
+    "amount": 2.06,
+    "discount": 0
+   },
+   {
+    "name": "*DES GOUDA CUMIN",
+    "amount": 1.78,
+    "discount": 0
+   },
+   {
+    "name": "*MINIZZA BELIN",
+    "amount": 1.16,
+    "discount": 0
+   },
+   {
+    "name": "*NOIX CAJOU S/SEL",
+    "amount": 2.26,
+    "discount": 0
+   },
+   {
+    "name": "*PESTO VERT 190G",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE BQ 250",
+    "amount": 0.99,
+    "discount": 0
+   }
+  ]
+ }
+}

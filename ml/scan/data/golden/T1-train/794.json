@@ -1,0 +1,124 @@
+{
+ "source": "dataset_findit/T1-train/img/794.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-01-14",
+  "total": 59.3,
+  "items": [
+   {
+    "name": "LABELL PH 2PL BLANC",
+    "amount": 2.93,
+    "discount": 0
+   },
+   {
+    "name": "LPM DCH&BAIN ORAN/PA",
+    "amount": 3.97,
+    "discount": 0
+   },
+   {
+    "name": "VANIA KOTY SERV SUPE",
+    "amount": 3.03,
+    "discount": 0
+   },
+   {
+    "name": "REXONA WOMEN DEO MUS",
+    "amount": 2.63,
+    "discount": 0
+   },
+   {
+    "name": "SCORPIO EDT DEODOR.R",
+    "amount": 2.93,
+    "discount": 0
+   },
+   {
+    "name": "STMARC PIST SAVON NO",
+    "amount": 1.91,
+    "discount": 0
+   },
+   {
+    "name": "APTA RECH BROSSE ADH",
+    "amount": 4.8,
+    "discount": 0
+   },
+   {
+    "name": "TOP BUDGET CREME FR.",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*LE VIENNOIS CHOCOLA",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "*DANET.VAN.S/LIT CHO",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*DAN.DANETTE CARAMEL",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "1ER PRIX LT UHT 1/2E",
+    "amount": 4.02,
+    "discount": 0
+   },
+   {
+    "name": "PAIC EXCEL+DESTRUC G",
+    "amount": 1.85,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 510G",
+    "amount": 1.72,
+    "discount": 0
+   },
+   {
+    "name": "AGNEAU GIGOT*** 4 TR",
+    "amount": 10.18,
+    "discount": 0
+   },
+   {
+    "name": "*PANZANI TORTI 500GX",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "B.OR CORNICHONS E.F",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "*ALSA SUCRE VANIL 12",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "BENEDICTA MAYON NATU",
+    "amount": 1.12,
+    "discount": 0
+   },
+   {
+    "name": "BENEDICTA MAYO CITRO",
+    "amount": 1.64,
+    "discount": 0
+   },
+   {
+    "name": "*P.NAV THON ALBACO N",
+    "amount": 6.32,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1700.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Gibert Jeune",
+  "date": "2016-11-22",
+  "total": 21.8,
+  "items": [
+   {
+    "name": "CARTE POP UP 2 3770004768165 (3)",
+    "amount": 8.0,
+    "discount": 0
+   },
+   {
+    "name": "CALENDRIER CHEVALET 9789462238336 (3)",
+    "amount": 6.9,
+    "discount": 0
+   },
+   {
+    "name": "CALENDRIER CHEVALET 9789462237285 (3)",
+    "amount": 6.9,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/435.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-24",
+  "total": 9.57,
+  "items": [
+   {
+    "name": "*BEURRE BIO 1/2 SEL",
+    "amount": 2.28,
+    "discount": 0.0
+   },
+   {
+    "name": "*BRIOCHE CARREFOUR",
+    "amount": 1.48,
+    "discount": 0.0
+   },
+   {
+    "name": "*BRK 1L PJ ORANGE",
+    "amount": 2.07,
+    "discount": 0.0
+   },
+   {
+    "name": "*LT 1/2E.BIO CRF 1L",
+    "amount": 1.05,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZA MOZZAR.RISTO",
+    "amount": 2.69,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/570.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour Market",
+  "date": "2017-02-17",
+  "total": 13.82,
+  "items": [
+   {
+    "name": "*2KG ORANGE A JUS",
+    "amount": 3.29,
+    "discount": 0
+   },
+   {
+    "name": "*AIGUILL.POULET X2",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "*BAGUETTE 250",
+    "amount": 0.55,
+    "discount": 0
+   },
+   {
+    "name": "*BTE 6X50CL LAIT UH",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "*PET 2L TROPICANA",
+    "amount": 3.42,
+    "discount": 0
+   }
+  ]
+ }
+}

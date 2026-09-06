@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/844.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-14",
+  "total": 17.5,
+  "items": [
+   {
+    "name": "LA FERMIERE",
+    "amount": 14.0,
+    "discount": 0.0
+   },
+   {
+    "name": "SPRITE",
+    "amount": 3.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

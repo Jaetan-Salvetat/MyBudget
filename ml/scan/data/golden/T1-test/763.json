@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/763.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Intermarché",
+  "date": "2017-01-18",
+  "total": 37.74,
+  "items": [
+   {
+    "name": "BARANNE BRILLETTE NO",
+    "amount": 3.05,
+    "discount": 0
+   },
+   {
+    "name": "FOIRE AU MENAGE",
+    "amount": 6.0,
+    "discount": 0
+   },
+   {
+    "name": "FOIRE AU MENAGE",
+    "amount": 6.0,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCHIN SAVON NOIR",
+    "amount": 3.7,
+    "discount": 0
+   },
+   {
+    "name": "BRIOCHIN SAVON NOIR",
+    "amount": 3.7,
+    "discount": 0
+   },
+   {
+    "name": "VILEDA RECH. ULTRA M",
+    "amount": 8.85,
+    "discount": 0
+   },
+   {
+    "name": "BARANNE CREME NOIR T",
+    "amount": 3.49,
+    "discount": 0
+   },
+   {
+    "name": "APTA BALAYETTE WC FO",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

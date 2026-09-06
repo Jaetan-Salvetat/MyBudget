@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/66.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-01-12",
+  "total": 19.46,
+  "items": [
+   {
+    "name": "30M ALUMINIUM*****",
+    "amount": 1.43,
+    "discount": 0.0
+   },
+   {
+    "name": "BANANE",
+    "amount": 1.24,
+    "discount": 0.0
+   },
+   {
+    "name": "CHAMPI.PIED MCX CR",
+    "amount": 0.75,
+    "discount": 0.0
+   },
+   {
+    "name": "CREME LAVANTE PECH",
+    "amount": 0.81,
+    "discount": 0.0
+   },
+   {
+    "name": "ECOSAC CABAS CRF AGI",
+    "amount": 2.8,
+    "discount": 0.0
+   },
+   {
+    "name": "EMMENTAL RAPE 100G",
+    "amount": 0.97,
+    "discount": 0.0
+   },
+   {
+    "name": "FARINE BLE T45",
+    "amount": 0.6,
+    "discount": 0.0
+   },
+   {
+    "name": "LASAGNE BARILLA",
+    "amount": 2.12,
+    "discount": 0.0
+   },
+   {
+    "name": "MANDARINE",
+    "amount": 2.35,
+    "discount": 0.0
+   },
+   {
+    "name": "OLIVE NRE GRECQUE",
+    "amount": 1.28,
+    "discount": 0.0
+   },
+   {
+    "name": "PAIN MIE MOELL.CRF",
+    "amount": 0.52,
+    "discount": 0.0
+   },
+   {
+    "name": "PATE BRISEE ETALEE",
+    "amount": 0.75,
+    "discount": 0.0
+   },
+   {
+    "name": "PDT GROSSE KG",
+    "amount": 0.97,
+    "discount": 0.0
+   },
+   {
+    "name": "PET 1.5L EAU MIN.",
+    "amount": 1.16,
+    "discount": 0.0
+   },
+   {
+    "name": "RAVIOLI 4FROMAGES",
+    "amount": 1.71,
+    "discount": 0.0
+   }
+  ]
+ }
+}

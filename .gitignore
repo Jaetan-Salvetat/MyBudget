@@ -48,3 +48,43 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ML training artifacts
+ml/**/.venv/
+ml/**/output/
+ml/**/dataset/
+ml/**/.dart_tool/
+ml/**/__pycache__/
+
+# Les modèles embarqués vivent dans les release assets, pas dans le dépôt :
+# LFS facturerait leur stockage et leur bande passante à chaque run de CI.
+# Publiés et récupérés d'un bloc par tool/models/{publish,fetch}.sh, épinglés
+# dans tool/models/lock.env.
+assets/models/*.onnx
+assets/models/tokenizer_v*.bin
+assets/models/line_clf_v*.json
+assets/models/line_roles_v*.json
+assets/models/label_link_v*.json
+assets/models/label_span_v*.json
+assets/models/store_classifier_v*.json
+assets/models/store_gazetteer_v*.json
+# Source du tokenizer : sert seulement à régénérer le tokenizer binaire
+assets/models/tokenizer.json
+
+# ML scan : datasets, corpus et sorties OCR volumineux. Seul le golden FindIt
+# est versionné : curé à la main, stable, irremplaçable. Tout le reste vit dans
+# le dépôt Hugging Face privé, épinglé par tool/ml_data/lock.env.
+ml/scan/data/*
+!ml/scan/data/golden/
+
+# Journal de téléchargement de `hf download --local-dir ml`.
+ml/.cache/
+ml/scan/harness/assets/corpus/
+# Artefacts d'entrainement du scan : regeneres par line_classifier.train*,
+# livres a l'app en release (tool/models/)
+ml/scan/research/models/
+
+# Dart pipeline (ml/scan) build artefacts
+ml/scan/pipeline/build/
+ml/scan/research/.pytest_cache/
+ml/scan/research/.ruff_cache/

@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/264.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-17",
+  "total": 19.07,
+  "items": [
+   {
+    "name": "* 250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*ABRICOT PETIT",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "*BUDDHA BOL PATATE",
+    "amount": 5.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*DES FROMAGE HERBES",
+    "amount": 2.62,
+    "discount": 0.0
+   },
+   {
+    "name": "*FRUITS ET LEGUMES",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*MAGRET CANARD SECH",
+    "amount": 5.01,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 2.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

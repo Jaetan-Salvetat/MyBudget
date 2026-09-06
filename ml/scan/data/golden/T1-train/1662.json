@@ -1,0 +1,13 @@
+{
+ "source": "dataset_findit/T1-train/img/1662.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PAVILLON GARONNE",
+  "date": "2017-04-04",
+  "total": 17.95,
+  "items": []
+ }
+}

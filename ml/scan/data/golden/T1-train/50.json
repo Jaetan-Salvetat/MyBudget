@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/50.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-02-17",
+  "total": 15.05,
+  "items": [
+   {
+    "name": "*4X 95G LES 2 VACHE",
+    "amount": 1.67,
+    "discount": 0.0
+   },
+   {
+    "name": "*CAMEMB.BIO CRF250G",
+    "amount": 2.27,
+    "discount": 0.0
+   },
+   {
+    "name": "*CIABATTA",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*MELANGE DE SAISON",
+    "amount": 1.93,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOZZARELLA CRF",
+    "amount": 0.82,
+    "discount": 0.0
+   },
+   {
+    "name": "*SANEX DOUCHE DERMO",
+    "amount": 2.91,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATES 250GR BIO",
+    "amount": 1.9,
+    "discount": 0.0
+   },
+   {
+    "name": "*YT BRASSE NAT.VRAI",
+    "amount": 2.4,
+    "discount": 0.0
+   }
+  ]
+ }
+}

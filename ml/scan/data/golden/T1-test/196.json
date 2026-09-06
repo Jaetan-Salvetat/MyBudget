@@ -1,0 +1,79 @@
+{
+ "source": "dataset_findit/T1-test/img/196.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2016-12-17",
+  "total": 28.21,
+  "items": [
+   {
+    "name": "*150G CHIPS GOURMAN",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "*400G PIZZA ROYALE",
+    "amount": 2.22,
+    "discount": 0
+   },
+   {
+    "name": "*BEUR.MOULE 1/2 SEL",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "*BONNE MAMAN FRAISE",
+    "amount": 1.41,
+    "discount": 0
+   },
+   {
+    "name": "*CHORIZO FORT",
+    "amount": 2.21,
+    "discount": 0
+   },
+   {
+    "name": "*CLEMENTINE FILET 1KG",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "*PET 6X1.5L EAU SCE C",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZ.CHORIZ.POIVRO",
+    "amount": 2.92,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZ.ROYA.CRF 440G",
+    "amount": 2.86,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA PCI BOLOGNAI",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*RUSTIQUE CAMEMBERT",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "*SANEX ZERO% DCHE",
+    "amount": 5.41,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATES ALLONGEES BQ",
+    "amount": 0.99,
+    "discount": 0
+   }
+  ]
+ }
+}

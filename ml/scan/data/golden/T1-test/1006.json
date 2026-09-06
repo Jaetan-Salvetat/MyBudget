@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/1006.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Jardiland",
+  "date": "2017-01-07",
+  "total": 15.95,
+  "items": [
+   {
+    "name": "TUSCA H11D12 BL",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "PEPEROMIA",
+    "amount": 5.95,
+    "discount": 0
+   },
+   {
+    "name": "FITTONIA",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "ARECA LUTESCENS",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "PEPEROMIA",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

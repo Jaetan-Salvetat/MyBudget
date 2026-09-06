@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/26.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-01",
+  "total": 4.93,
+  "items": [
+   {
+    "name": "*COUSCOUS MAROCAINE",
+    "amount": 3.65,
+    "discount": 0.0
+   },
+   {
+    "name": "*FILET MAQUERX MOUT",
+    "amount": 1.28,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/402.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-10-08",
+  "total": 1.71,
+  "items": [
+   {
+    "name": "100G CHOCOLA.NOIR",
+    "amount": 1.09,
+    "discount": 0.0
+   },
+   {
+    "name": "EAU SCE MONTAG.CRF",
+    "amount": 0.62,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-train/img/490.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-01",
+  "total": 32.78,
+  "items": [
+   {
+    "name": "*16X PANACHE ANDROS",
+    "amount": 4.5,
+    "discount": 0
+   },
+   {
+    "name": "*250G LT ECREME BIO",
+    "amount": 2.84,
+    "discount": 0
+   },
+   {
+    "name": "*400G NUGGET DDE HA",
+    "amount": 2.91,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA YOPA 2",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "AIL SEMOULE",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "*AMANDE POUDRE 400G",
+    "amount": 5.85,
+    "discount": 0
+   },
+   {
+    "name": "*BQ 1KG KIWI PP FR",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "*CREM UHT 30% BRK 3",
+    "amount": 1.82,
+    "discount": 0
+   },
+   {
+    "name": "*DANETTE NOIR EXTRA",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*FLT OIGN PPRIX FR",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "KG FLT PLT JNE HAL",
+    "amount": 5.93,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/281.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-22",
+  "total": 6.24,
+  "items": [
+   {
+    "name": "*CHOCOLATINE X4 + 1 G",
+    "amount": 2.6,
+    "discount": 0
+   },
+   {
+    "name": "*GDS SAUC MOUTRD AN",
+    "amount": 3.64,
+    "discount": 0
+   }
+  ]
+ }
+}

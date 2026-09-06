@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/244.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-03",
+  "total": 12.24,
+  "items": [
+   {
+    "name": "*100G PAVE POIVR.6T",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "*BRESAOLA 10TR CRF",
+    "amount": 3.14,
+    "discount": 0
+   },
+   {
+    "name": "*COPPA CRF 100G",
+    "amount": 2.03,
+    "discount": 0
+   },
+   {
+    "name": "*FILET MIGNON FUME",
+    "amount": 2.07,
+    "discount": 0
+   },
+   {
+    "name": "*JB SERRANO 10T.FIN",
+    "amount": 3.21,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -38,7 +38,8 @@ class TransferNotifier extends _$TransferNotifier {
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly = updated.amount == old.amount &&
+      final bool isNameOnly =
+          updated.amount == old.amount &&
           updated.frequency == old.frequency &&
           updated.fromAccountId == old.fromAccountId &&
           updated.toAccountId == old.toAccountId &&
@@ -55,16 +56,31 @@ class TransferNotifier extends _$TransferNotifier {
         return;
       }
 
-      final bool isStructural = updated.amount != old.amount ||
+      final bool isStructural =
+          updated.amount != old.amount ||
           updated.frequency != old.frequency ||
           updated.fromAccountId != old.fromAccountId ||
           updated.toAccountId != old.toAccountId;
 
       if (isStructural && old.frequencyEnum != Frequency.oneTime) {
         final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
-        final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
+        final frequency = updated.frequencyEnum;
+        final newStartDate = startDateFor(
+          frequency: frequency,
+          anchor: updated.startDate,
+          asOf: now,
+          scope: defaultEffectiveMonth(
+            frequency: frequency,
+            anchor: updated.startDate,
+            asOf: now,
+          ),
+        );
+        final closing = dayOnly(newStartDate).subtract(const Duration(days: 1));
+        if (hasStarted(old.startDate, closing)) {
+          repo.update(old.copyWith(endDate: closing));
+        } else {
+          repo.delete(old.id);
+        }
         final newTransfer = TransferModel.create(
           name: updated.name,
           amount: updated.amount,
@@ -91,12 +107,12 @@ class TransferNotifier extends _$TransferNotifier {
       final transfer = repo.get(id);
       if (transfer == null) return;
 
-      if (transfer.frequencyEnum == Frequency.oneTime) {
+      final now = DateTime.now();
+      if (transfer.frequencyEnum == Frequency.oneTime ||
+          !hasStarted(transfer.startDate, now)) {
         repo.delete(id);
       } else {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, transfer.startDate.day);
-        repo.update(transfer.copyWith(endDate: endDate));
+        repo.update(transfer.copyWith(endDate: dayOnly(now)));
       }
       ref.invalidateSelf();
       await future;
@@ -110,26 +126,26 @@ class TransferNotifier extends _$TransferNotifier {
     return repo.getClosed();
   }
 
-  List<Transfer> getTransfersForAccount(int accountId) =>
-      _currentTransfers()
-          .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
-          .toList();
+  List<Transfer> getTransfersForAccount(int accountId) => _currentTransfers()
+      .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
+      .toList();
 
   List<Transfer> getActiveTransfersForAccount(int accountId) =>
       _activeTransfers()
-          .where((t) => t.fromAccountId == accountId || t.toAccountId == accountId)
+          .where(
+            (t) => t.fromAccountId == accountId || t.toAccountId == accountId,
+          )
           .toList();
 
-  double getOutgoingTotalForAccount(int accountId) =>
-      _activeTransfers()
-          .where((t) => t.isOutgoingFrom(accountId))
-          .fold(0.0, (sum, t) => sum + t.monthlyAmount);
+  double getOutgoingTotalForAccount(int accountId) => _activeTransfers()
+      .where((t) => t.isOutgoingFrom(accountId))
+      .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
-  double getIncomingTotalForAccount(int accountId) =>
-      _activeTransfers()
-          .where((t) => t.isIncomingTo(accountId))
-          .fold(0.0, (sum, t) => sum + t.monthlyAmount);
+  double getIncomingTotalForAccount(int accountId) => _activeTransfers()
+      .where((t) => t.isIncomingTo(accountId))
+      .fold(0.0, (sum, t) => sum + t.monthlyAmount);
 
   double getMonthlyTransferBalance(int accountId) =>
-      getIncomingTotalForAccount(accountId) - getOutgoingTotalForAccount(accountId);
+      getIncomingTotalForAccount(accountId) -
+      getOutgoingTotalForAccount(accountId);
 }

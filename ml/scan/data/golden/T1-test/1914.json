@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1914.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "L'Eau Vive",
+  "date": "2016-12-17",
+  "total": 4.86,
+  "items": [
+   {
+    "name": "* JUS RAISIN 1ACHETE/1OFF",
+    "amount": 7.9,
+    "discount": 3.95
+   },
+   {
+    "name": "VRAC FIGUES LERIDA N",
+    "amount": 0.91,
+    "discount": 0
+   }
+  ]
+ }
+}

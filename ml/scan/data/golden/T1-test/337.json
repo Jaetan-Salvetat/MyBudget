@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/337.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour City",
+  "date": "2017-06-03",
+  "total": 14.76,
+  "items": [
+   {
+    "name": "*1L HOVE BIO NX CRF",
+    "amount": 6.5,
+    "discount": 0.0
+   },
+   {
+    "name": "*500G SPAGHETTI BIO",
+    "amount": 1.25,
+    "discount": 0.0
+   },
+   {
+    "name": "*75CL SIR.GRENA CRF",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*MOZZARELLA CRF",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "*PANSEMENT X20 CRF",
+    "amount": 1.78,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZA MOZZAR.RISTO",
+    "amount": 2.69,
+    "discount": 0.0
+   }
+  ]
+ }
+}

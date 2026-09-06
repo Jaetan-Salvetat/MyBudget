@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/525.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-06-16",
+  "total": 7.48,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*90G MOELLEUX CHOCOLA",
+    "amount": 1.7,
+    "discount": 0.0
+   },
+   {
+    "name": "*SAUMON OSEILLE/RIZ",
+    "amount": 4.18,
+    "discount": 0.0
+   }
+  ]
+ }
+}

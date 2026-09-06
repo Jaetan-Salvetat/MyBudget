@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/995.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "O SAISONS",
+  "date": "2016-12-16",
+  "total": 1.75,
+  "items": [
+   {
+    "name": "OIGNON BIO",
+    "amount": 0.65,
+    "discount": 0.0
+   },
+   {
+    "name": "SALADE",
+    "amount": 1.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

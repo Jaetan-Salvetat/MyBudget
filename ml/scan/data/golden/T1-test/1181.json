@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1181.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "RESTAURANT ORANGE",
+  "date": "2017-03-08",
+  "total": 4.35,
+  "items": [
+   {
+    "name": "TARTIFLETTE",
+    "amount": 2.46,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 0.44,
+    "discount": 0
+   },
+   {
+    "name": "BAVAROIS AU CITRON",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "SALADE MESCLUN / ROQ",
+    "amount": 0.46,
+    "discount": 0
+   }
+  ]
+ }
+}

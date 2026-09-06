@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/639.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "POUPEE POUDREE",
+  "date": "2017-05-04",
+  "total": 75.99,
+  "items": [
+   {
+    "name": "T SHIRT VISUMI BLEU MARINE M 002074",
+    "amount": 16.99,
+    "discount": 0.0
+   },
+   {
+    "name": "BLOUSE POMPOM RAINBOW VERT 38 002085",
+    "amount": 59.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

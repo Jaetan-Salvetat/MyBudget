@@ -3,10 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/services/loan_calculation_service.dart';
-import 'package:mybudget/core/services/loan_payment_breakdown_service.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
+
+import '../../helpers/loan_test_factory.dart';
 
 void main() {
   group('LoanEditNotifier', () {
@@ -31,16 +31,12 @@ void main() {
         insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
       );
 
-      const calculationService = LoanCalculationService();
-      const breakdownService = LoanPaymentBreakdownService(calculationService);
-      testLoan = Loan(testLoanModel, calculationService, breakdownService);
+      testLoan = buildTestLoan(testLoanModel);
     });
 
     ProviderContainer makeContainer(Loan loan) {
       return ProviderContainer(
-        overrides: [
-          loanToEditProvider.overrideWithValue(loan),
-        ],
+        overrides: [loanToEditProvider.overrideWithValue(loan)],
       );
     }
 
@@ -77,9 +73,9 @@ void main() {
         insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
       );
 
-      const calculationService = LoanCalculationService();
-      const breakdownService = LoanPaymentBreakdownService(calculationService);
-      final loan = Loan(loanWithoutInsurance, calculationService, breakdownService);
+      final loan = buildTestLoan(
+        loanWithoutInsurance,
+      );
       final container = makeContainer(loan);
       addTearDown(container.dispose);
 
@@ -94,7 +90,7 @@ void main() {
 
       expect(state.capital, 10000);
       expect(state.signatureDate, DateTime(2024, 1, 1));
-      expect(state.endDate, DateTime(2025, 1, 1));
+      expect(state.endDate, DateTime(2025, 1, 15));
       expect(state.duration, 12);
       expect(state.interestRate, 5.0);
       expect(state.repaymentType, LoanRepaymentType.amortizable);
@@ -114,7 +110,9 @@ void main() {
       final container = makeContainer(testLoan);
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setLenderName('Nouvelle Banque');
+      container
+          .read(loanEditProvider.notifier)
+          .setLenderName('Nouvelle Banque');
 
       expect(container.read(loanEditProvider).lenderName, 'Nouvelle Banque');
     });
@@ -164,7 +162,9 @@ void main() {
 
       container
           .read(loanEditProvider.notifier)
-          .setInsuranceCalculationMode(InsuranceCalculationMode.remainingCapital);
+          .setInsuranceCalculationMode(
+            InsuranceCalculationMode.remainingCapital,
+          );
 
       expect(
         container.read(loanEditProvider).insuranceCalcMode,
@@ -337,9 +337,7 @@ void main() {
         insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
       );
 
-      const calculationService = LoanCalculationService();
-      const breakdownService = LoanPaymentBreakdownService(calculationService);
-      final loan = Loan(loanWithDeferred, calculationService, breakdownService);
+      final loan = buildTestLoan(loanWithDeferred);
       final container = makeContainer(loan);
       addTearDown(container.dispose);
 
@@ -364,13 +362,14 @@ void main() {
         insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
       );
 
-      const calculationService = LoanCalculationService();
-      const breakdownService = LoanPaymentBreakdownService(calculationService);
-      final loan = Loan(inFineLoan, calculationService, breakdownService);
+      final loan = buildTestLoan(inFineLoan);
       final container = makeContainer(loan);
       addTearDown(container.dispose);
 
-      expect(container.read(loanEditProvider).repaymentType, LoanRepaymentType.inFine);
+      expect(
+        container.read(loanEditProvider).repaymentType,
+        LoanRepaymentType.inFine,
+      );
     });
   });
 }

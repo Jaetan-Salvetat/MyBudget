@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1905.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "La popote du marché",
+  "date": "2017-01-26",
+  "total": 44.0,
+  "items": [
+   {
+    "name": "2 Tartare",
+    "amount": 32.0,
+    "discount": 0.0
+   },
+   {
+    "name": "2 Cafe gourmand",
+    "amount": 12.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

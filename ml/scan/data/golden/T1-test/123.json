@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/123.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-11-02",
+  "total": 12.92,
+  "items": [
+   {
+    "name": "160G JBN SUP DD CR",
+    "amount": 2.17,
+    "discount": 0
+   },
+   {
+    "name": "200G SCE PROVENCAL",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "250G TORTELL.PESTO",
+    "amount": 3.21,
+    "discount": 0
+   },
+   {
+    "name": "500G PAIN DE MIE",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE FEUILLE E",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE 100G",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "KIRI CREME X 8",
+    "amount": 1.77,
+    "discount": 0
+   }
+  ]
+ }
+}

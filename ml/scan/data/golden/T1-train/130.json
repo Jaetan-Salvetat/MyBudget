@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/130.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-10-26",
+  "total": 10.91,
+  "items": [
+   {
+    "name": "150G SDW TR.POLAIR",
+    "amount": 6.48,
+    "discount": 0
+   },
+   {
+    "name": "190G SDW TR. JBN C",
+    "amount": 3.23,
+    "discount": 0
+   },
+   {
+    "name": "BARQUET.CHOCO.LU",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

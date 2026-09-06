@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1152.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "A LA FERME D'AUNIS",
+  "date": "2016-12-09",
+  "total": 18.92,
+  "items": [
+   {
+    "name": "MIEL ACACIA 500GR",
+    "amount": 7.5,
+    "discount": 0.0
+   },
+   {
+    "name": "MIEL PRINTEMPS 1KG",
+    "amount": 8.5,
+    "discount": 0.0
+   },
+   {
+    "name": "EPINARD VRAC",
+    "amount": 1.46,
+    "discount": 0.0
+   },
+   {
+    "name": "FENOUIL",
+    "amount": 1.46,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/180.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2016-12-09",
+  "total": 5.71,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*PARMENTIER DE CABILL",
+    "amount": 4.11,
+    "discount": 0
+   }
+  ]
+ }
+}

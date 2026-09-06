@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1310.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Fruits-Tradition",
+  "date": "2017-04-05",
+  "total": 3.74,
+  "items": [
+   {
+    "name": "POMME",
+    "amount": 1.32,
+    "discount": 0.0
+   },
+   {
+    "name": "ENDIVE",
+    "amount": 2.42,
+    "discount": 0.0
+   }
+  ]
+ }
+}

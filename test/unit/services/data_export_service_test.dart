@@ -1,17 +1,22 @@
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/models/category_memory_model.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/data_export_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -20,42 +25,56 @@ class MockAccountRepository extends Mock implements AccountRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
-
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
 
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
+
 class MockTransferRepository extends Mock implements TransferRepository {}
+
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
+class MockCategoryMemoryRepository extends Mock
+    implements CategoryMemoryRepository {}
 
 void main() {
   late DataExportService service;
   late MockAccountRepository mockAccountRepo;
   late MockBeneficiaryRepository mockBeneficiaryRepo;
-  late MockCategoryRepository mockCategoryRepo;
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
+  late MockCategoryMemoryRepository mockCategoryMemoryRepo;
 
   setUp(() {
     mockAccountRepo = MockAccountRepository();
     mockBeneficiaryRepo = MockBeneficiaryRepository();
-    mockCategoryRepo = MockCategoryRepository();
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
+    when(() => mockLoanEventRepo.deleteAll()).thenReturn(null);
     mockTransferRepo = MockTransferRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
+    mockCategoryMemoryRepo = MockCategoryMemoryRepository();
 
     service = DataExportService(
       accountRepo: mockAccountRepo,
       beneficiaryRepo: mockBeneficiaryRepo,
-      categoryRepo: mockCategoryRepo,
+      categoryOverrideRepo: mockCategoryOverrideRepo,
+      categoryMemoryRepo: mockCategoryMemoryRepo,
       expenseRepo: mockExpenseRepo,
       revenueRepo: mockRevenueRepo,
       loanRepo: mockLoanRepo,
+      loanEventRepo: mockLoanEventRepo,
       transferRepo: mockTransferRepo,
     );
   });
@@ -63,10 +82,12 @@ void main() {
   void stubEmptyRepos() {
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockBeneficiaryRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
+    when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
+    when(() => mockCategoryMemoryRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
   }
 
@@ -75,13 +96,14 @@ void main() {
 
     final result = service.buildExportData();
 
-    expect(result['version'], 2);
+    expect(result['version'], 3);
     expect(result['exportDate'], isNotNull);
     expect(result['filename'], startsWith('mybudget_backup_'));
     expect(result['filename'], endsWith('.json'));
     expect(result['accounts'], isA<List>());
     expect(result['beneficiaries'], isA<List>());
-    expect(result['categories'], isA<List>());
+    expect(result['categoryOverrides'], isA<List>());
+    expect(result['categoryMemory'], isA<List>());
     expect(result['expenses'], isA<List>());
     expect(result['revenues'], isA<List>());
     expect(result['loans'], isA<List>());
@@ -92,12 +114,14 @@ void main() {
     account.id = 1;
     final beneficiary = BeneficiaryModel.create(name: 'Alice');
     beneficiary.id = 2;
-    final category = CategoryModel.create(name: 'Loisirs', icon: 'movie');
-    category.id = 3;
+    final override = CategoryOverrideModel.create(
+      slug: 'loisirs.cinema_sortie',
+      name: 'Sorties ciné',
+    );
     final expense = ExpenseModel.create(
       name: 'Netflix',
       amount: 15.0,
-      categoryId: 3,
+      categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(2025, 1, 15),
       frequency: 'Mensuel',
@@ -126,7 +150,16 @@ void main() {
 
     when(() => mockAccountRepo.getAll()).thenReturn([account]);
     when(() => mockBeneficiaryRepo.getAll()).thenReturn([beneficiary]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([category]);
+    when(
+      () => mockCategoryOverrideRepo.getAll(),
+    ).thenReturn({override.slug: override});
+    when(() => mockCategoryMemoryRepo.getAll()).thenReturn([
+      CategoryMemoryModel.create(
+        key: 'macdo',
+        slug: 'restauration.fast_food',
+        updatedAt: DateTime(2026, 8, 21),
+      ),
+    ]);
     when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockLoanRepo.getAll()).thenReturn([loan]);
@@ -137,7 +170,11 @@ void main() {
     expect((result['accounts'] as List), hasLength(1));
     expect((result['accounts'] as List).first['name'], 'Compte');
     expect((result['beneficiaries'] as List).first['name'], 'Alice');
-    expect((result['categories'] as List).first['name'], 'Loisirs');
+    expect(
+      (result['categoryOverrides'] as List).first['slug'],
+      'loisirs.cinema_sortie',
+    );
+    expect((result['categoryMemory'] as List).first['key'], 'macdo');
     expect((result['expenses'] as List).first['name'], 'Netflix');
     expect((result['revenues'] as List).first['name'], 'Salaire');
     expect((result['loans'] as List).first['name'], 'Prêt');
@@ -167,6 +204,26 @@ void main() {
     expect(loanJson.containsKey('account_id'), isFalse);
     expect(loanJson.containsKey('lender_name'), isFalse);
     expect(loanJson.containsKey('start_date'), isFalse);
+  });
+
+  test('buildExportData includes loan events in export', () {
+    stubEmptyRepos();
+    final event = LoanEventModel.create(
+      loanId: 3,
+      type: LoanEventType.earlyRepaymentPartial,
+      date: DateTime(2026, 7, 5),
+      amount: 5000,
+      reamortizationMode: ReamortizationMode.reducePayment,
+    );
+    when(() => mockLoanEventRepo.getAll()).thenReturn([event]);
+
+    final data = service.buildExportData();
+    final exported = (data['loanEvents'] as List).first as Map;
+
+    expect(exported['loanId'], '3');
+    expect(exported['typeId'], 'earlyRepaymentPartial');
+    expect(exported['amount'], 5000.0);
+    expect(exported['reamortizationModeId'], 'reducePayment');
   });
 
   test('buildExportData includes transfers in export', () {

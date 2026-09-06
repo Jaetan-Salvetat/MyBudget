@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/4.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-27",
+  "total": 6.74,
+  "items": [
+   {
+    "name": "*85G VERRINE TIRAMI",
+    "amount": 2.01,
+    "discount": 0
+   },
+   {
+    "name": "*PARMENTIER CANARD",
+    "amount": 4.73,
+    "discount": 0
+   }
+  ]
+ }
+}

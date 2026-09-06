@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/175.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CONTACT LA ROCHELLE",
+  "date": "2017-01-05",
+  "total": 13.76,
+  "items": [
+   {
+    "name": "*250G MLU EQUATEUR",
+    "amount": 3.7,
+    "discount": 0
+   },
+   {
+    "name": "*ANETH FRAICHE",
+    "amount": 1.56,
+    "discount": 0
+   },
+   {
+    "name": "*CITRON BIO FILET",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*CREM.SEM/EPAIS.CRF",
+    "amount": 1.92,
+    "discount": 0
+   },
+   {
+    "name": "*GALETTE BLE NOIR",
+    "amount": 1.93,
+    "discount": 0
+   },
+   {
+    "name": "*X4 F.FRAIS VANILLE",
+    "amount": 2.15,
+    "discount": 0
+   }
+  ]
+ }
+}

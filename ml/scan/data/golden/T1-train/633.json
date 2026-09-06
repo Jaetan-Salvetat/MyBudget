@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/633.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "POISSONNERIE PRON",
+  "date": "2017-06-18",
+  "total": 11.58,
+  "items": [
+   {
+    "name": "Thon blanc t10 ligne",
+    "amount": 11.58,
+    "discount": 0.0
+   }
+  ]
+ }
+}

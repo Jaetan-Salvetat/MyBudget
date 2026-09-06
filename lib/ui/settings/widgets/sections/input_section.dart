@@ -1,28 +1,37 @@
-import 'package:flutter/material.dart';
-import 'package:mybudget/ui/settings/widgets/settings_section.dart';
-import 'package:mybudget/ui/settings/widgets/settings_tile.dart';
-import 'package:mybudget/ui/settings/widgets/categories_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/widgets/beneficiaries_bottom_sheet.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
+import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
+import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 
 class InputSection extends StatelessWidget {
   const InputSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SettingsSection(
-      title: 'Saisie',
-      children: [
-        SettingsTile(
+    return FrostedListSection(
+      label: 'Saisie',
+      tiles: [
+        FrostedListTile(
           title: 'Gérer les catégories',
-          subtitle: 'Ajouter, modifier ou supprimer des catégories',
-          leading: const Icon(Icons.category),
-          onTap: () => CategoriesBottomSheet.show(context: context),
+          subtitle: 'Renommer, changer icône et couleur',
+          leading: const FrostedListAvatar(icon: Symbols.category_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CategoriesScreen()),
+          ),
         ),
-        SettingsTile(
+        FrostedListTile(
           title: 'Gérer les bénéficiaires',
           subtitle: 'Ajouter ou supprimer des bénéficiaires',
-          leading: const Icon(Icons.people_outline),
-          onTap: () => BeneficiariesBottomSheet.show(context: context),
+          leading: const FrostedListAvatar(icon: Symbols.people_rounded),
+          trailing: const Icon(Symbols.chevron_right_rounded),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BeneficiariesScreen()),
+          ),
         ),
       ],
     );

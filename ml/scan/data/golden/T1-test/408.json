@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/408.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-27",
+  "total": 5.01,
+  "items": [
+   {
+    "name": "*BQ 4FRT GOLDEN RDF",
+    "amount": 3.5,
+    "discount": 0
+   },
+   {
+    "name": "*SABLES TOUT CHOCO",
+    "amount": 1.51,
+    "discount": 0
+   }
+  ]
+ }
+}

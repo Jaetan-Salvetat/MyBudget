@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/938.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PATÀPAIN",
+  "date": "2017-02-23",
+  "total": 7.1,
+  "items": [
+   {
+    "name": "Brioche pur beurre",
+    "amount": 4.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Baguette des moissons",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Baguette des moissons",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Baguette 86",
+    "amount": 1.1,
+    "discount": 0.0
+   }
+  ]
+ }
+}

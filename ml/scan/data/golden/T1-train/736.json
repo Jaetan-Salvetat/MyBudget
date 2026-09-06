@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/736.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "OUISHOP",
+  "date": "2016-12-26",
+  "total": 6.9,
+  "items": [
+   {
+    "name": "1 PETITS COOKIES BONNE MAMA",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "1 KIT KAT TRIPACK 135G",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -65,8 +65,10 @@ void main() {
       expect(restored.deferredMonths, original.deferredMonths);
       expect(restored.insuranceTypeId, original.insuranceTypeId);
       expect(restored.insuranceValue, original.insuranceValue);
-      expect(restored.insuranceCalculationModeId,
-          original.insuranceCalculationModeId);
+      expect(
+        restored.insuranceCalculationModeId,
+        original.insuranceCalculationModeId,
+      );
       expect(restored.notes, original.notes);
     });
 

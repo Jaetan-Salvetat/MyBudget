@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-test/img/487.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-23",
+  "total": 32.44,
+  "items": [
+   {
+    "name": "125G AMANDES EMOND",
+    "amount": 3.61,
+    "discount": 0
+   },
+   {
+    "name": "*4X90G COQ STJ POIR",
+    "amount": 7.16,
+    "discount": 0
+   },
+   {
+    "name": "*FLOCONS AVOIN GR",
+    "amount": 2.8,
+    "discount": 0
+   },
+   {
+    "name": "*LAIT AMANDE S.SUCR",
+    "amount": 2.32,
+    "discount": 0
+   },
+   {
+    "name": "*TARTELETTE FINE PO",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "250ML LAIT CICA MI",
+    "amount": 6.25,
+    "discount": 0
+   },
+   {
+    "name": "500ML HUILE DCHE H",
+    "amount": 5.4,
+    "discount": 0
+   },
+   {
+    "name": "VP FEMININ-",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

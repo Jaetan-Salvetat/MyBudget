@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1780.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TABLAPIZZA LA ROCHELLE",
+  "date": "2016-11-04",
+  "total": 12.9,
+  "items": [
+   {
+    "name": "1 Menu Midi *",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "Tiramisu Speculo",
+    "amount": 3.0,
+    "discount": 0
+   }
+  ]
+ }
+}

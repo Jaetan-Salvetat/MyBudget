@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/768.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SMM",
+  "date": "2017-01-12",
+  "total": 3.65,
+  "items": [
+   {
+    "name": "Cocottes céréales et",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "Cocottes PDJ nature",
+    "amount": 2.0,
+    "discount": 0
+   }
+  ]
+ }
+}

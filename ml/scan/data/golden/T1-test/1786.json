@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1786.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2016-11-30",
+  "total": 6.84,
+  "items": [
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 3.4,
+    "discount": 0
+   },
+   {
+    "name": "PS POCKET PLIE KOTYDIA.30P",
+    "amount": 1.37,
+    "discount": 0
+   },
+   {
+    "name": "UHT 1/2E BK CHARENTE POITO,1",
+    "amount": 2.07,
+    "discount": 0
+   }
+  ]
+ }
+}

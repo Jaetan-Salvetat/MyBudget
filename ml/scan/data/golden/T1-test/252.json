@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-test/img/252.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-01-27",
+  "total": 42.63,
+  "items": [
+   {
+    "name": "12 OEUFS MOY.CRF",
+    "amount": 2.83,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.95,
+    "discount": 1.17
+   },
+   {
+    "name": "*CHAMPIGON EMINCE",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "CHUTE.SAUM.FUM.**",
+    "amount": 2.12,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FR.POMM/BANAN",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL PLAQUETTE",
+    "amount": 3.52,
+    "discount": 0
+   },
+   {
+    "name": "*FL 500G CITRON PP",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*FLAN X2",
+    "amount": 1.08,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "*JUS DE RAISIN 1L",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 4.21,
+    "discount": 0
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "*LENTILLES CRF",
+    "amount": 0.91,
+    "discount": 0
+   },
+   {
+    "name": "MIEL MONTAGNE CRF",
+    "amount": 4.95,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 2.66,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.43,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE IMP",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "SP TRAD 50LX20",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "BGIE CYL 68H150 RG",
+    "amount": 2.66,
+    "discount": 1.33
+   }
+  ]
+ }
+}

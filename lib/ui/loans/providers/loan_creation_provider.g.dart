@@ -42,13 +42,13 @@ final class LoanCreationNotifierProvider
 }
 
 String _$loanCreationNotifierHash() =>
-    r'682b63a9049307bc3a84136780c13fbf3993de71';
+    r'6c7bb2a15ff1b3ab710ed6f3a6905feb9fb0c9a2';
 
 abstract class _$LoanCreationNotifier extends $Notifier<LoanCreationState> {
   LoanCreationState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<LoanCreationState, LoanCreationState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$LoanCreationNotifier extends $Notifier<LoanCreationState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/1637.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "parapharmacie E.Leclerc",
+  "date": "2017-03-27",
+  "total": 24.14,
+  "items": [
+   {
+    "name": "* DEO VAPORISATEUR",
+    "amount": 7.08,
+    "discount": 0.0
+   },
+   {
+    "name": "* DEO VAPORISATEUR",
+    "amount": 7.08,
+    "discount": 0.0
+   },
+   {
+    "name": "* HYDRALIN QUOTIDIEN-20%2E",
+    "amount": 9.98,
+    "discount": 0.0
+   }
+  ]
+ }
+}

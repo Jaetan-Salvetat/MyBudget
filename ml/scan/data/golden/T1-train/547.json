@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/547.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CARREFOUR CITY ORLEANS",
+  "date": "2017-03-02",
+  "total": 3.98,
+  "items": [
+   {
+    "name": "*200G CAROTTE RAPE BI",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*280G PENNE PLT PES",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

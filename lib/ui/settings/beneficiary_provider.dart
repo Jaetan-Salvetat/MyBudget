@@ -75,14 +75,27 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     }
   }
 
-  Future<void> updateBeneficiary(BeneficiaryModel beneficiary) async {
+  Future<String?> renameBeneficiary(int id, String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return 'Le nom ne peut pas être vide';
+
+    final current = state.value ?? [];
+    final duplicate = current.any(
+      (b) => b.id != id && b.name.toLowerCase() == trimmed.toLowerCase(),
+    );
+    if (duplicate) return 'Ce bénéficiaire existe déjà';
+
+    final repo = ref.read(beneficiaryRepositoryProvider);
     try {
-      final repo = ref.read(beneficiaryRepositoryProvider);
-      repo.update(beneficiary);
+      final existing = repo.get(id);
+      if (existing == null) return 'Ce bénéficiaire n\'existe plus';
+
+      repo.update(existing.copyWith(name: trimmed));
       ref.invalidateSelf();
       await future;
+      return null;
     } catch (e) {
-      rethrow;
+      return e.toString();
     }
   }
 
@@ -103,18 +116,25 @@ class BeneficiaryNotifier extends _$BeneficiaryNotifier {
     }
   }
 
-  int countUsages(int beneficiaryId) {
-    final expenseRepo = ref.read(expenseRepositoryProvider);
-    final revenueRepo = ref.read(revenueRepositoryProvider);
-    final expenses = expenseRepo
-        .getAll()
-        .where((e) => e.beneficiaryId == beneficiaryId)
-        .length;
-    final revenues = revenueRepo
-        .getAll()
-        .where((r) => r.beneficiaryId == beneficiaryId)
-        .length;
-    return expenses + revenues;
+  int countUsages(int beneficiaryId) => usageCounts()[beneficiaryId] ?? 0;
+
+  Map<int, int> usageCounts() {
+    final counts = <int, int>{};
+    for (final id in _referencedBeneficiaryIds()) {
+      counts.update(id, (count) => count + 1, ifAbsent: () => 1);
+    }
+    return counts;
+  }
+
+  Iterable<int> _referencedBeneficiaryIds() sync* {
+    for (final expense in ref.read(expenseRepositoryProvider).getAll()) {
+      final id = expense.beneficiaryId;
+      if (id != null) yield id;
+    }
+    for (final revenue in ref.read(revenueRepositoryProvider).getAll()) {
+      final id = revenue.beneficiaryId;
+      if (id != null) yield id;
+    }
   }
 
   Beneficiary? getBeneficiaryById(int id) {

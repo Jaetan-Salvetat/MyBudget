@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1296.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "PRIMEURS 17",
+  "date": "2017-03-04",
+  "total": 5.04,
+  "items": [
+   {
+    "name": "rd",
+    "amount": 2.44,
+    "discount": 0
+   },
+   {
+    "name": "pomme",
+    "amount": 2.6,
+    "discount": 0
+   }
+  ]
+ }
+}

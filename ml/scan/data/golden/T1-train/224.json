@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/224.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-30",
+  "total": 11.73,
+  "items": [
+   {
+    "name": "GATEAU CHARENTAIS",
+    "amount": 3.53,
+    "discount": 0
+   },
+   {
+    "name": "GUIGNETTE RINCE GO",
+    "amount": 8.2,
+    "discount": 0
+   }
+  ]
+ }
+}

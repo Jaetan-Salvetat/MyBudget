@@ -1,0 +1,119 @@
+{
+ "source": "dataset_findit/T1-train/img/467.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-06-03",
+  "total": 112.46,
+  "items": [
+   {
+    "name": "PORC POITRINE A/O",
+    "amount": 2.93,
+    "discount": 0
+   },
+   {
+    "name": "20X25CL HEINEKEN",
+    "amount": 20.58,
+    "discount": 9.15
+   },
+   {
+    "name": "*250G ECHALOTE RDF",
+    "amount": 1.39,
+    "discount": 0
+   },
+   {
+    "name": "*300G QUEUE CREVET.",
+    "amount": 12.2,
+    "discount": 0
+   },
+   {
+    "name": "C6BDX RGE BARON15",
+    "amount": 29.7,
+    "discount": 10.85
+   },
+   {
+    "name": "*ECHALOTE 350GR",
+    "amount": 2.78,
+    "discount": 0
+   },
+   {
+    "name": "*FLT3 TETES AIL IMP",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "*GINGEMBRE",
+    "amount": 0.62,
+    "discount": 0
+   },
+   {
+    "name": "GITE NOIX X10",
+    "amount": 8.61,
+    "discount": 0
+   },
+   {
+    "name": "GITE NOIX X10",
+    "amount": 8.4,
+    "discount": 0
+   },
+   {
+    "name": "*LAITUE ROUGE",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "*PIECE PASTEQUE",
+    "amount": 4.49,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE S/OS",
+    "amount": 3.97,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE S/OS",
+    "amount": 3.44,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE TRANCHE",
+    "amount": 6.86,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE TRANCHE",
+    "amount": 6.9,
+    "discount": 0
+   },
+   {
+    "name": "POITRINE TRANCHE",
+    "amount": 7.49,
+    "discount": 0
+   },
+   {
+    "name": "*TARTARE 10 PORTION",
+    "amount": 3.32,
+    "discount": 0
+   },
+   {
+    "name": "*TROPICANA REVEIL",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "50 MOUCH.BLC PP B",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "100 GOBELETS BLANC",
+    "amount": 1.35,
+    "discount": 0
+   }
+  ]
+ }
+}

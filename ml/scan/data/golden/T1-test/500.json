@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/500.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-03-14",
+  "total": 2.39,
+  "items": [
+   {
+    "name": "*8 FEUIL.BRICK CRF",
+    "amount": 0.73,
+    "discount": 0.0
+   },
+   {
+    "name": "*EMPRESURE CHOCOLAT",
+    "amount": 1.66,
+    "discount": 0.0
+   }
+  ]
+ }
+}

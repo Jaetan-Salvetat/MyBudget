@@ -33,13 +33,13 @@ final class LoanNotifierProvider
   LoanNotifier create() => LoanNotifier();
 }
 
-String _$loanNotifierHash() => r'e6d46c1849ae7df9e81635cc0d5fac1f18cd1538';
+String _$loanNotifierHash() => r'745a1612eb8c27169f35b3492e0de53197e1acf2';
 
 abstract class _$LoanNotifier extends $AsyncNotifier<List<Loan>> {
   FutureOr<List<Loan>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<List<Loan>>, List<Loan>>;
     final element =
         ref.element
@@ -49,6 +49,6 @@ abstract class _$LoanNotifier extends $AsyncNotifier<List<Loan>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

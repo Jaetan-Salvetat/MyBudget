@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-train/img/204.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2016-09-08",
+  "total": 25.68,
+  "items": [
+   {
+    "name": "4 NECTARINE BQ 1KG P",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "4 PAVE BIO 500G TR P",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "4 FILET DE SAUMON",
+    "amount": 10.85,
+    "discount": 0
+   },
+   {
+    "name": "4 CITRON JAUNE 500G",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "4 FROMAGE BLANC 20%",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "4 8X125G PANIER 0% F",
+    "amount": 2.37,
+    "discount": 0
+   },
+   {
+    "name": "4 FEUILLETEE ROULEE",
+    "amount": 0.67,
+    "discount": 0
+   },
+   {
+    "name": "4 SSA POM MANGUE 4X9",
+    "amount": 1.62,
+    "discount": 0
+   },
+   {
+    "name": "4 DESS.FRTS POM/PEC/",
+    "amount": 1.62,
+    "discount": 0
+   },
+   {
+    "name": "4 300G BSICOTTE BRIO",
+    "amount": 1.42,
+    "discount": 0
+   }
+  ]
+ }
+}

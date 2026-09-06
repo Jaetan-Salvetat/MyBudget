@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/282.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-11",
+  "total": 13.33,
+  "items": [
+   {
+    "name": "*BANANE",
+    "amount": 0.38,
+    "discount": 0
+   },
+   {
+    "name": "*BENTO KATSUSHIKA",
+    "amount": 11.75,
+    "discount": 0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

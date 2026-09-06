@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1224.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TOTAL Relais ROUILLE PAMPROUX NORD",
+  "date": "2017-03-20",
+  "total": 2.0,
+  "items": [
+   {
+    "name": "Choupette 28G Lcg, Unité €",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "Choupette 28G Lcg, Unité €",
+    "amount": 1.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

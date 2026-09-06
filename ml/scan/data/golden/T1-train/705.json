@@ -1,0 +1,99 @@
+{
+ "source": "dataset_findit/T1-train/img/705.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BIOCOOP REGAIN",
+  "date": "2017-02-23",
+  "total": 69.96,
+  "items": [
+   {
+    "name": "SPAGHETTI RIZ SS GLUTEN",
+    "amount": 5.25,
+    "discount": 0
+   },
+   {
+    "name": "BICARBONATE DE SOUDE KG",
+    "amount": 4.1,
+    "discount": 0
+   },
+   {
+    "name": "PERCARBONATE SOUDE 1KG",
+    "amount": 5.6,
+    "discount": 0
+   },
+   {
+    "name": "CHOCOLAT NOIR PEPITES",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "MAYONNAISE NATURE",
+    "amount": 3.8,
+    "discount": 0
+   },
+   {
+    "name": "NOIX DE CAJOU VRAC",
+    "amount": 6.85,
+    "discount": 0
+   },
+   {
+    "name": "HUILE LIN FRANCE 25CL",
+    "amount": 6.7,
+    "discount": 0
+   },
+   {
+    "name": "RIZ BASM 1/2 COMPL VRAC",
+    "amount": 3.38,
+    "discount": 0
+   },
+   {
+    "name": "NOIX DU BRESIL VRAC",
+    "amount": 9.8,
+    "discount": 0
+   },
+   {
+    "name": "HUILE OLIVE CAVANA 75CL",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 2.33,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERIE DE LOZER",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERIE DE LOZER",
+    "amount": 1.1,
+    "discount": 0
+   }
+  ]
+ }
+}

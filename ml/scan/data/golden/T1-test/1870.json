@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1870.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "RESTAURANT ORANGE",
+  "date": "2017-01-12",
+  "total": 2.91,
+  "items": [
+   {
+    "name": "FILET DE COLIN",
+    "amount": 2.27,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTES RAPEES",
+    "amount": 0.22,
+    "discount": 0
+   },
+   {
+    "name": "FAISSELLE LA BRESSAN",
+    "amount": 0.42,
+    "discount": 0
+   },
+   {
+    "name": "ADMISSION",
+    "amount": 14.12,
+    "discount": 14.12
+   }
+  ]
+ }
+}

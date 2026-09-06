@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1800.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "O DELICES DE VERO",
+  "date": "2017-03-12",
+  "total": 6.3,
+  "items": [
+   {
+    "name": "1 NUTELLA",
+    "amount": 2.7,
+    "discount": 0.0
+   },
+   {
+    "name": "1 CHOCOLAT VIENNOIS",
+    "amount": 3.6,
+    "discount": 0.0
+   }
+  ]
+ }
+}

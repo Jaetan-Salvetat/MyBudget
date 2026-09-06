@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-test/img/618.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "BOUCHERIE CHARCUTERIE SARL CLUGNET",
+  "date": "2017-05-20",
+  "total": 21.61,
+  "items": [
+   {
+    "name": "CARRELET",
+    "amount": 6.2,
+    "discount": 0.0
+   },
+   {
+    "name": "RAPE POM-TERRE",
+    "amount": 1.8,
+    "discount": 0.0
+   },
+   {
+    "name": "PANIS",
+    "amount": 2.2,
+    "discount": 0.0
+   },
+   {
+    "name": "QUICHE",
+    "amount": 3.8,
+    "discount": 0.0
+   },
+   {
+    "name": "PIZZA",
+    "amount": 3.8,
+    "discount": 0.0
+   },
+   {
+    "name": "FROMAGE DE CHEVRE",
+    "amount": 1.45,
+    "discount": 0.0
+   },
+   {
+    "name": "MORBIER",
+    "amount": 2.36,
+    "discount": 0.0
+   }
+  ]
+ }
+}

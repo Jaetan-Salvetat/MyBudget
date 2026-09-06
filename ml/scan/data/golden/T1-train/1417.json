@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/1417.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2016-09-19",
+  "total": 13.18,
+  "items": [
+   {
+    "name": "REINE REINETTE,1KG,FRUITS",
+    "amount": 1.42,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME GOLDEN",
+    "amount": 1.59,
+    "discount": 0.0
+   },
+   {
+    "name": "NECTARINE BLANCHE",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "FEUILLE DE CHENE BLONDE/ROUGE",
+    "amount": 0.95,
+    "discount": 0.0
+   },
+   {
+    "name": "JAMBON SUP SC MADRANGE 6T 240G",
+    "amount": 3.3,
+    "discount": 0.0
+   },
+   {
+    "name": "NEZ DE ROBINET FILET",
+    "amount": 2.12,
+    "discount": 0.0
+   },
+   {
+    "name": "PAINS 6 CEREALES + 3 GRAINES",
+    "amount": 1.25,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE DE SESAME,BOULANGERI",
+    "amount": 1.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

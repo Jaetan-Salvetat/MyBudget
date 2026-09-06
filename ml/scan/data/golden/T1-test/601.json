@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/601.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "SATORIZ Le bio pour tous",
+  "date": "2017-07-03",
+  "total": 23.99,
+  "items": [
+   {
+    "name": "VELOUTE LEGUMES",
+    "amount": 2.7,
+    "discount": 0.0
+   },
+   {
+    "name": "MELANGE ETUDIAN",
+    "amount": 5.79,
+    "discount": 0.0
+   },
+   {
+    "name": "FLOCONS AVOINE",
+    "amount": 14.15,
+    "discount": 0.0
+   },
+   {
+    "name": "GALETTES MAIS",
+    "amount": 1.35,
+    "discount": 0.0
+   }
+  ]
+ }
+}

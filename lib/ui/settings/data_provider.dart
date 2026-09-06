@@ -60,10 +60,13 @@ class DataNotifier extends _$DataNotifier {
     return DataImportService(
       accountRepo: ref.read(accountRepositoryProvider),
       beneficiaryRepo: ref.read(beneficiaryRepositoryProvider),
-      categoryRepo: ref.read(categoryRepositoryProvider),
+      categoryOverrideRepo: ref.read(categoryOverrideRepositoryProvider),
+      categoryMemoryRepo: ref.read(categoryMemoryRepositoryProvider),
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      loanEventRepo: ref.read(loanEventRepositoryProvider),
+      loanService: ref.read(loanServiceProvider),
       transferRepo: ref.read(transferRepositoryProvider),
     );
   }
@@ -72,10 +75,12 @@ class DataNotifier extends _$DataNotifier {
     return DataExportService(
       accountRepo: ref.read(accountRepositoryProvider),
       beneficiaryRepo: ref.read(beneficiaryRepositoryProvider),
-      categoryRepo: ref.read(categoryRepositoryProvider),
+      categoryOverrideRepo: ref.read(categoryOverrideRepositoryProvider),
+      categoryMemoryRepo: ref.read(categoryMemoryRepositoryProvider),
       expenseRepo: ref.read(expenseRepositoryProvider),
       revenueRepo: ref.read(revenueRepositoryProvider),
       loanRepo: ref.read(loanRepositoryProvider),
+      loanEventRepo: ref.read(loanEventRepositoryProvider),
       transferRepo: ref.read(transferRepositoryProvider),
     );
   }
@@ -103,9 +108,13 @@ class DataNotifier extends _$DataNotifier {
   }
 
   ImportValidationResult validateImportData(String jsonContent) {
-    final data = jsonDecode(jsonContent) as Map<String, dynamic>;
     final importService = _createImportService();
-    return importService.validate(data);
+    return importService.validate(_decodeBackup(jsonContent));
+  }
+
+  Map<String, dynamic> _decodeBackup(String jsonContent) {
+    final data = jsonDecode(jsonContent) as Map<String, dynamic>;
+    return ref.read(legacyBackupUpgraderProvider).upgrade(data);
   }
 
   Future<void> importUserData(String jsonContent) async {
@@ -117,7 +126,7 @@ class DataNotifier extends _$DataNotifier {
         importStatus: 'Validation des données...',
       );
 
-      final data = jsonDecode(jsonContent) as Map<String, dynamic>;
+      final data = _decodeBackup(jsonContent);
       final importService = _createImportService();
 
       final validated = importService.validate(data);
@@ -143,10 +152,6 @@ class DataNotifier extends _$DataNotifier {
         },
       );
 
-      if (validated.hasCategories) {
-        await PreferencesService.setCategoriesCreated();
-      }
-
       state = state.copyWith(
         importProgress: 1.0,
         importStatus: 'Importation terminée',
@@ -171,7 +176,8 @@ class DataNotifier extends _$DataNotifier {
       ref.read(revenueRepositoryProvider).deleteAll();
       ref.read(loanRepositoryProvider).deleteAll();
       ref.read(transferRepositoryProvider).deleteAll();
-      ref.read(categoryRepositoryProvider).deleteAll();
+      ref.read(categoryOverrideRepositoryProvider).deleteAll();
+      ref.read(categoryMemoryRepositoryProvider).deleteAll();
 
       await PreferencesService.clearAll();
     } catch (e) {

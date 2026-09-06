@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/222.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-01",
+  "total": 14.48,
+  "items": [
+   {
+    "name": "250G PL BEUR AOP",
+    "amount": 1.75,
+    "discount": 0.0
+   },
+   {
+    "name": "*8X100G GERVITA NAT",
+    "amount": 2.75,
+    "discount": 0.0
+   },
+   {
+    "name": "AIGUIL.PLT JNE CRF",
+    "amount": 3.19,
+    "discount": 0.0
+   },
+   {
+    "name": "CREME FRAICHE 20%",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*P.SUISS.GERVAIS X6",
+    "amount": 0.99,
+    "discount": 0.0
+   },
+   {
+    "name": "*PETIT POIS CAROTTE",
+    "amount": 0.76,
+    "discount": 0.0
+   },
+   {
+    "name": "*VIENNOIS CHOCOLAT",
+    "amount": 3.44,
+    "discount": 0.0
+   }
+  ]
+ }
+}

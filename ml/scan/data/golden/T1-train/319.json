@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/319.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-26",
+  "total": 6.68,
+  "items": [
+   {
+    "name": "*DESS. POMMES SS CRF",
+    "amount": 0.93,
+    "discount": 0.0
+   },
+   {
+    "name": "*SALADE PLT LIBANAI",
+    "amount": 3.09,
+    "discount": 0.0
+   },
+   {
+    "name": "*WRAP BACON UFS TO",
+    "amount": 2.66,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,6 +1,10 @@
 import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/entities/loan_schedule.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
+import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
+import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
+import 'package:mybudget/core/services/loan_schedule_service.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,7 +20,13 @@ class LoanEditState {
   final double insuranceValue;
   final InsuranceCalculationMode insuranceCalcMode;
 
-  const LoanEditState({
+  static const LoanScheduleService _scheduleService = LoanScheduleService(
+    EarlyRepaymentIndemnityService(),
+  );
+  static const AnnualPercentageRateService _rateService =
+      AnnualPercentageRateService();
+
+  LoanEditState({
     required this.initialLoan,
     required this.name,
     required this.lenderName,
@@ -70,15 +80,36 @@ class LoanEditState {
   int get deferredMonths => initialLoan.deferredMonths;
   bool get immediateFirstPayment => initialLoan.immediateFirstPayment;
 
-  double get monthlyInsurancePayment {
-    if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {
-      return 0.0;
-    }
-    if (insuranceType == LoanInsuranceType.fixed) {
-      return insuranceValue;
-    }
-    return (capital * (insuranceValue / 100)) / 12;
-  }
+  late final LoanSchedule schedule = _scheduleService.build(
+    editedModel.toTerms(),
+    events: initialLoan.events,
+  );
+
+  late final LoanSchedule contractualSchedule = _scheduleService.build(
+    editedModel.toTerms(),
+  );
+
+  late final double annualPercentageRate = _rateService.compute(
+    schedule: contractualSchedule,
+    originDate: signatureDate,
+  );
+
+  LoanModel get editedModel => initialLoan.model.copyWith(
+    name: name.trim(),
+    lenderName: lenderName.trim(),
+    accountId: selectedAccountId,
+    dayOfMonth: dayOfMonth,
+    insuranceType: insuranceType,
+    insuranceValue: insuranceValue,
+    insuranceCalculationMode: insuranceCalcMode,
+  );
+
+  double get monthlyInsurancePayment =>
+      schedule.installments.firstOrNull?.insurance ?? 0.0;
+
+  double get totalMonthlyPayment => schedule.scheduledMonthlyPayment;
+
+  double get totalCost => schedule.totalCost;
 
   bool get isValid {
     return name.trim().isNotEmpty &&
@@ -103,7 +134,8 @@ class LoanEditNotifier extends _$LoanEditNotifier {
   void setName(String value) => state = state.copyWith(name: value);
   void setLenderName(String value) => state = state.copyWith(lenderName: value);
   void setAccountId(int id) => state = state.copyWith(selectedAccountId: id);
-  void setDayOfMonth(int day) => state = state.copyWith(dayOfMonth: day.clamp(1, 31));
+  void setDayOfMonth(int day) =>
+      state = state.copyWith(dayOfMonth: day.clamp(1, 31));
 
   void setInsuranceType(LoanInsuranceType type) {
     state = state.copyWith(insuranceType: type);
@@ -118,15 +150,5 @@ class LoanEditNotifier extends _$LoanEditNotifier {
     state = state.copyWith(insuranceCalcMode: mode);
   }
 
-  LoanModel createUpdatedLoanModel() {
-    return state.initialLoan.model.copyWith(
-      name: state.name.trim(),
-      lenderName: state.lenderName.trim(),
-      accountId: state.selectedAccountId,
-      dayOfMonth: state.dayOfMonth,
-      insuranceType: state.insuranceType,
-      insuranceValue: state.insuranceValue,
-      insuranceCalculationMode: state.insuranceCalcMode,
-    );
-  }
+  LoanModel createUpdatedLoanModel() => state.editedModel;
 }

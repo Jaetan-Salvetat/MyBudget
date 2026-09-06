@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/132.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-15",
+  "total": 6.88,
+  "items": [
+   {
+    "name": "CIABATTA",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "OLIVE VERT FROMAG",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "TAPAS FOURRE BACON",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE CERISES",
+    "amount": 0.99,
+    "discount": 0
+   }
+  ]
+ }
+}

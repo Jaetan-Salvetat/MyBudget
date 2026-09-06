@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/648.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TABLAPIZZA",
+  "date": "2017-03-12",
+  "total": 49.5,
+  "items": [
+   {
+    "name": "1 Dos Saumon Frites",
+    "amount": 15.2,
+    "discount": 0
+   },
+   {
+    "name": "2 Carre Norm Pomme",
+    "amount": 27.8,
+    "discount": 0
+   },
+   {
+    "name": "1 Profiterole",
+    "amount": 6.5,
+    "discount": 0
+   }
+  ]
+ }
+}

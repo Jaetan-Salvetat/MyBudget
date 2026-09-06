@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/637.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "O SAISONS",
+  "date": "2017-06-18",
+  "total": 0.96,
+  "items": [
+   {
+    "name": "AIL",
+    "amount": 0.96,
+    "discount": 0
+   }
+  ]
+ }
+}

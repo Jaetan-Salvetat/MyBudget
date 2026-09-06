@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 
 class EmptyState extends StatelessWidget {
@@ -12,7 +13,7 @@ class EmptyState extends StatelessWidget {
     super.key,
     required this.message,
     this.subMessage,
-    this.icon = Icons.add_circle_outline,
+    this.icon = Symbols.add_circle_rounded,
     required this.buttonText,
     required this.onPressed,
   });
@@ -61,10 +62,10 @@ class EmptyState extends StatelessWidget {
             ],
 
             const SizedBox(height: 32),
-            FrostedFilledButton.icon(
+            FrostedButton.filled(
+              label: buttonText,
+              icon: Symbols.add_rounded,
               onPressed: onPressed,
-              icon: const Icon(Icons.add),
-              label: Text(buttonText),
             ),
           ],
         ),

@@ -1,0 +1,64 @@
+{
+ "source": "dataset_findit/T1-test/img/145.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-12-31",
+  "total": 22.03,
+  "items": [
+   {
+    "name": "1664 BIERE X6",
+    "amount": 4.34,
+    "discount": 0
+   },
+   {
+    "name": "2L COCA COLA MB",
+    "amount": 1.97,
+    "discount": 0
+   },
+   {
+    "name": "BIERE ABBAYE X6",
+    "amount": 7.44,
+    "discount": 0
+   },
+   {
+    "name": "BROCHETTE BOIS",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "CITRON JAUNE",
+    "amount": 1.82,
+    "discount": 0
+   },
+   {
+    "name": "CITRON VERT KG",
+    "amount": 0.23,
+    "discount": 0
+   },
+   {
+    "name": "LIMONADE LIGH.CRF",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "NECT.ORANG.CRF 2L",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "P.J.ORANGE CRF 2L",
+    "amount": 2.53,
+    "discount": 0
+   },
+   {
+    "name": "SAC POIGN",
+    "amount": 0.15,
+    "discount": 0
+   }
+  ]
+ }
+}

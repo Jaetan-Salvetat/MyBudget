@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/315.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-03-01",
+  "total": 9.0,
+  "items": [
+   {
+    "name": "*4X100GDESS.PANACHE",
+    "amount": 1.34,
+    "discount": 0
+   },
+   {
+    "name": "*COUSCOUS CRF 440G",
+    "amount": 3.26,
+    "discount": 0
+   },
+   {
+    "name": "*INNOCENT MANG/PASS",
+    "amount": 4.4,
+    "discount": 0
+   }
+  ]
+ }
+}

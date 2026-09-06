@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/887.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Espace Culturel E.Leclerc",
+  "date": "2017-06-17",
+  "total": 14.99,
+  "items": [
+   {
+    "name": "BATMAN V SUPERMAN : L AUBE DE L",
+    "amount": 14.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/729.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "L'HEURE DU MARCHE",
+  "date": "2017-02-11",
+  "total": 35.28,
+  "items": [
+   {
+    "name": "POISSONNERIE PESEE",
+    "amount": 35.28,
+    "discount": 0
+   }
+  ]
+ }
+}

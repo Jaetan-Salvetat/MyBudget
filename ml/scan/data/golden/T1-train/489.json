@@ -1,0 +1,164 @@
+{
+ "source": "dataset_findit/T1-train/img/489.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-25",
+  "total": 53.38,
+  "items": [
+   {
+    "name": "140G MOUTARDE MI F",
+    "amount": 0.81,
+    "discount": 0
+   },
+   {
+    "name": "*200G PAP SAUM CIB",
+    "amount": 2.6,
+    "discount": 0
+   },
+   {
+    "name": "*2X1/4 THON ALB.CRF",
+    "amount": 2.97,
+    "discount": 0
+   },
+   {
+    "name": "*300G LT ECR.REGILA",
+    "amount": 1.94,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "500G COUSCOUS CPLT",
+    "amount": 1.23,
+    "discount": 0
+   },
+   {
+    "name": "6 OEUF GROS EXTRA",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGON EMINCE",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "*DANETTE NOIR EXTRA",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*DESSERT SSA POM/PO",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "DOSETTE CORSE CRF",
+    "amount": 3.15,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL FRANCAIS",
+    "amount": 3.42,
+    "discount": 0
+   },
+   {
+    "name": "EXC.NOIR 85% LINDT",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "*FL 500G CITRON PP",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 1.51,
+    "discount": 0
+   },
+   {
+    "name": "FRUITS",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "GAUFRETTES CHOCO",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "KG ESCALOP DDE HAL",
+    "amount": 2.7,
+    "discount": 0
+   },
+   {
+    "name": "KG POULET HALAL BL",
+    "amount": 5.19,
+    "discount": 0
+   },
+   {
+    "name": "*KIWI PIECE",
+    "amount": 1.8,
+    "discount": 0.81
+   },
+   {
+    "name": "*LEGUME DU SUD 1L",
+    "amount": 2.15,
+    "discount": 0
+   },
+   {
+    "name": "LENTILLES CRF",
+    "amount": 0.45,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE DESS.GROS",
+    "amount": 1.65,
+    "discount": 0
+   },
+   {
+    "name": "*PASTIN MULTICEREAL",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSO VP",
+    "amount": 1.79,
+    "discount": 0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.43,
+    "discount": 0
+   },
+   {
+    "name": "POMME GALA MOYENNE",
+    "amount": 1.53,
+    "discount": 0
+   },
+   {
+    "name": "PUR JUS ORANGE CRF",
+    "amount": 1.47,
+    "discount": 0
+   },
+   {
+    "name": "*ST BANANE P.PRIX",
+    "amount": 1.28,
+    "discount": 0
+   },
+   {
+    "name": "150 MOUCH.BLC PP B",
+    "amount": 0.77,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/77.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2016-12-19",
+  "total": 4.86,
+  "items": [
+   {
+    "name": "*2X40G BLOCS CARF",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "*BAGUETTE C R ALES",
+    "amount": 1.15,
+    "discount": 0.0
+   },
+   {
+    "name": "*TROPICANA ORANGE",
+    "amount": 2.11,
+    "discount": 0.0
+   }
+  ]
+ }
+}

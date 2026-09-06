@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/219.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2014-12-04",
+  "total": 17.12,
+  "items": [
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "BAD SYST.BL.SIGNAL",
+    "amount": 2.73,
+    "discount": 0
+   },
+   {
+    "name": "4 LR03 HIGH TECH>A",
+    "amount": 5.7,
+    "discount": 0
+   },
+   {
+    "name": "4 LR6 HIGH TECH 10",
+    "amount": 5.7,
+    "discount": 0
+   }
+  ]
+ }
+}

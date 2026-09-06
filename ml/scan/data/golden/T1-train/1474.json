@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/1474.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-11",
+  "total": 80.71,
+  "items": [
+   {
+    "name": "VALISE COSTA 71CM",
+    "amount": 39.9,
+    "discount": 0
+   },
+   {
+    "name": "SNICKERS X12 600G FORMAT XL",
+    "amount": 9.9,
+    "discount": 0
+   },
+   {
+    "name": "RIZ THAI BIEN VU 1KG",
+    "amount": 23.6,
+    "discount": 0
+   },
+   {
+    "name": "SUCRE POUDRE BLANC BIEN VU 1KG",
+    "amount": 0.75,
+    "discount": 0
+   },
+   {
+    "name": "SEL FIN SALINE EINVILLE 750G",
+    "amount": 0.31,
+    "discount": 0
+   },
+   {
+    "name": "FRAISE BARQUETTE COEUR 450G",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "POM.C.PK P.LADY POITOU CHARENT",
+    "amount": 2.83,
+    "discount": 0
+   },
+   {
+    "name": "DATTE RAVIER 500G",
+    "amount": 3.4,
+    "discount": 0
+   }
+  ]
+ }
+}

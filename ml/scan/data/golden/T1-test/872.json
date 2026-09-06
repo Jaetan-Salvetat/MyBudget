@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/872.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BURGER KING",
+  "date": "2017-06-08",
+  "total": 8.2,
+  "items": [
+   {
+    "name": "MENU CRUNCHY CHICKEN BBQ",
+    "amount": 8.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

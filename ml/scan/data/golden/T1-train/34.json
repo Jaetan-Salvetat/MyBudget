@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/34.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-13",
+  "total": 6.71,
+  "items": [
+   {
+    "name": "*BAGUETTE PERENE CERE",
+    "amount": 1.15,
+    "discount": 0
+   },
+   {
+    "name": "*PETIT BEURRE BIO 1",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "*SALADE VENEZIA",
+    "amount": 4.23,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/874.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LE MANZIO",
+  "date": "2017-06-08",
+  "total": 51.0,
+  "items": [
+   {
+    "name": "ANANAS",
+    "amount": 3.5,
+    "discount": 0.0
+   },
+   {
+    "name": "HOEGAARDEN 50 CL",
+    "amount": 8.5,
+    "discount": 0.0
+   },
+   {
+    "name": "happy 50CL HOEGAARDEN",
+    "amount": 5.5,
+    "discount": 0.0
+   },
+   {
+    "name": "VERRE MONTEPULCIANO",
+    "amount": 3.6,
+    "discount": 0.0
+   },
+   {
+    "name": "LA PAPERINA",
+    "amount": 15.9,
+    "discount": 0.0
+   },
+   {
+    "name": "LA FERMIERE",
+    "amount": 14.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

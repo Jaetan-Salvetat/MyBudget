@@ -1,0 +1,59 @@
+{
+ "source": "dataset_findit/T1-train/img/1287.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEADER PRICE EXPRESS",
+  "date": "2017-02-05",
+  "total": 8.31,
+  "items": [
+   {
+    "name": "F & L TX RED",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE 100G",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "EAU SOURCE",
+    "amount": 0.19,
+    "discount": 0
+   },
+   {
+    "name": "EAU VOLCANIA",
+    "amount": 0.3,
+    "discount": 0
+   },
+   {
+    "name": "F & L TX MOY",
+    "amount": 0.35,
+    "discount": 0
+   },
+   {
+    "name": "LAIT MONTAGNE 1L",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "CHAMP.EMINCE 230G",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "MECHOUIA",
+    "amount": 2.73,
+    "discount": 0
+   },
+   {
+    "name": "F & L TX MOY",
+    "amount": 1.2,
+    "discount": 0
+   }
+  ]
+ }
+}

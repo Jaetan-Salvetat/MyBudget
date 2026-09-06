@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/369.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-30",
+  "total": 6.75,
+  "items": [
+   {
+    "name": "*320G MLD.MANHATTAN",
+    "amount": 3.74,
+    "discount": 0.0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.3,
+    "discount": 0.0
+   },
+   {
+    "name": "*EAU CRISTALINE X6",
+    "amount": 1.2,
+    "discount": 0.0
+   },
+   {
+    "name": "*NECTARINE A CHAIR JA",
+    "amount": 1.51,
+    "discount": 0.0
+   }
+  ]
+ }
+}

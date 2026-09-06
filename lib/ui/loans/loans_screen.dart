@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/loans/widgets/loans_list.dart';
 
 class LoansScreen extends StatelessWidget {
@@ -6,8 +6,6 @@ class LoansScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [SizedBox(height: 100), Expanded(child: LoansList())],
-    );
+    return const Column(children: [Expanded(child: LoansList())]);
   }
 }

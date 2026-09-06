@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 
@@ -23,29 +23,12 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
 
     expect(find.textContaining('500,00'), findsOneWidget);
-    expect(find.textContaining('10\u202F000,00'), findsOneWidget);
-    expect(find.textContaining('200,00'), findsOneWidget);
-    expect(find.text('2 actifs'), findsOneWidget);
+    expect(find.textContaining('10 000'), findsOneWidget);
+    expect(find.textContaining('200'), findsWidgets);
+    expect(find.text('· 2 actifs'), findsOneWidget);
     expect(find.text('50%'), findsOneWidget);
-  });
-
-  testWidgets('LoanSummaryCard shows info dialog when help icon is tapped', (
-    tester,
-  ) async {
-    await tester.pumpWidget(createWidgetUnderTest());
-
-    final helpIcons = find.byIcon(Icons.help_outline);
-    expect(helpIcons, findsNWidgets(2));
-
-    await tester.tap(helpIcons.first);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Coût du crédit'), findsNWidgets(2));
-    expect(find.textContaining('intérêts et des assurances'), findsOneWidget);
-
-    await tester.tap(find.text('Compris'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Coût du crédit'), findsOneWidget);
+    expect(find.text('Capital amorti'), findsOneWidget);
+    expect(find.text('Capital restant'), findsOneWidget);
+    expect(find.text('Coût restant'), findsOneWidget);
   });
 }

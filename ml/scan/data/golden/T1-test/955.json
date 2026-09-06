@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/955.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CAMAIEU",
+  "date": "2016-06-11",
+  "total": 33.94,
+  "items": [
+   {
+    "name": "a)2360017508455 TEETULLE M",
+    "amount": 12.99,
+    "discount": 0
+   },
+   {
+    "name": "a 2360017215261 TAZUR NEW L",
+    "amount": 5.99,
+    "discount": 0
+   },
+   {
+    "name": "a 2360017136450 TAZUR NEW L",
+    "amount": 5.99,
+    "discount": 0
+   },
+   {
+    "name": "a 2360017504907 TASSIONV L",
+    "amount": 5.99,
+    "discount": 0
+   },
+   {
+    "name": "a)2360017358234 TAZUR NEW L",
+    "amount": 5.99,
+    "discount": 0
+   },
+   {
+    "name": "a)2360017515088 TASSIONROND L",
+    "amount": 5.99,
+    "discount": 0
+   }
+  ]
+ }
+}

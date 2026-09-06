@@ -1,0 +1,174 @@
+{
+ "source": "dataset_findit/T1-test/img/952.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "U express",
+  "date": "2016-03-21",
+  "total": 61.52,
+  "items": [
+   {
+    "name": "MOTHAIS S/F.LT CHE.PAS.25%180G",
+    "amount": 4.53,
+    "discount": 0
+   },
+   {
+    "name": "HACHE P.BOEUF 15%MAT.GR U 350G",
+    "amount": 4.42,
+    "discount": 0
+   },
+   {
+    "name": "POIVRON PANACHE SACHET 500G",
+    "amount": 3.6,
+    "discount": 0
+   },
+   {
+    "name": "GACHES TRANC.X2+10%GRT 1,1KG",
+    "amount": 3.59,
+    "discount": 0
+   },
+   {
+    "name": "RISTE D'AUBERGINES U 520G",
+    "amount": 3.28,
+    "discount": 0
+   },
+   {
+    "name": "LAPIN VICHY LT CARA.CEMOI 175G",
+    "amount": 3.28,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE CHAUDE FAJITAS U 430G",
+    "amount": 2.83,
+    "discount": 0
+   },
+   {
+    "name": "JBON DD LE BON PARIS HERTA 4TR",
+    "amount": 2.63,
+    "discount": 0
+   },
+   {
+    "name": "WRAPS SOUPLES U PAQUET 370G",
+    "amount": 2.6,
+    "discount": 0
+   },
+   {
+    "name": "TERRINE DE CAMPAGNE U BIO 180G",
+    "amount": 2.54,
+    "discount": 0
+   },
+   {
+    "name": "DANET.POP SAV.VAN.3CHOC.4X117G",
+    "amount": 2.53,
+    "discount": 0
+   },
+   {
+    "name": "CHOCO .LAIT/NOIS.MILKA 2X100G",
+    "amount": 2.45,
+    "discount": 0
+   },
+   {
+    "name": "CEREALES CRUESLI CHOCOLAT 500G",
+    "amount": 2.26,
+    "discount": 0
+   },
+   {
+    "name": "PATE A TARTINER NOIS.U POT400G",
+    "amount": 1.76,
+    "discount": 0
+   },
+   {
+    "name": "SAUCE PESTO VERT PANZANI 200G",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "CROQUES JAMBON DINDE U X2",
+    "amount": 1.61,
+    "discount": 0
+   },
+   {
+    "name": "EMMENT.PAST.RAPE 28%MG U 200G",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "FRAIC.FRT POM/CAS/FR.R/F U 1L",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "PAIN PAVE RUSTIQUE",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "PT POT CREM.CHOC.LAITIE.4X100G",
+    "amount": 1.48,
+    "discount": 0
+   },
+   {
+    "name": "RAVIOLI PUR BOEUF U BOITE 4/4",
+    "amount": 1.24,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 59%MG BQ 250G",
+    "amount": 1.04,
+    "discount": 0
+   },
+   {
+    "name": "RADIS NOIR",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "LAIT UHT ECREME U BOUTEILLE 1L",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "LAIT UHT ECREME U BOUTEILLE 1L",
+    "amount": 2.85,
+    "discount": 0
+   },
+   {
+    "name": "LAIT UHT ECREME U BOUTEILLE 1L",
+    "amount": -2.85,
+    "discount": 0
+   },
+   {
+    "name": "COMPOTE POMME ALLEGEE BOC.730G",
+    "amount": 0.89,
+    "discount": 0
+   },
+   {
+    "name": "HARICOTS ROUGES U 250G",
+    "amount": 0.72,
+    "discount": 0
+   },
+   {
+    "name": "TOMATE ALLONGEE",
+    "amount": 0.63,
+    "discount": 0
+   },
+   {
+    "name": "OIGNON JAUNE",
+    "amount": 0.52,
+    "discount": 0
+   },
+   {
+    "name": "TORSADE Q.SUPERIE.U CELLO 500G",
+    "amount": 0.5,
+    "discount": 0
+   },
+   {
+    "name": "MAIS DOUX GRAINS U BOITE 285G",
+    "amount": 0.5,
+    "discount": 0
+   }
+  ]
+ }
+}

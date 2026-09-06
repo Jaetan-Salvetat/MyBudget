@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/936.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-05-17",
+  "total": 3.03,
+  "items": [
+   {
+    "name": "LITIERE POUR CHAT PARF",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "JBON SUP DD LE CHARCUTIER",
+    "amount": 1.83,
+    "discount": 0
+   }
+  ]
+ }
+}

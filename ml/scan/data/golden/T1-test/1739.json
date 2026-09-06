@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1739.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "MONTREUX JAZZ CAFE",
+  "date": "2016-09-05",
+  "total": 24.7,
+  "items": [
+   {
+    "name": "1 Menu Tempo Dessert",
+    "amount": 19.9,
+    "discount": 0
+   },
+   {
+    "name": "1 Pepsi Max 40cl",
+    "amount": 4.8,
+    "discount": 0
+   }
+  ]
+ }
+}

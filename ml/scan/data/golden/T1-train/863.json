@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/863.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PARASHOP",
+  "date": "2017-06-07",
+  "total": 7.6,
+  "items": [
+   {
+    "name": "ELMEX SENS.PRO 2X7",
+    "amount": 7.6,
+    "discount": 0.0
+   }
+  ]
+ }
+}

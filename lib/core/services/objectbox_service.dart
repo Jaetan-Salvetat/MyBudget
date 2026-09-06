@@ -1,10 +1,14 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/models/category_memory_model.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/legacy_category_model.dart';
+import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:path/path.dart' as p;
 
@@ -13,13 +17,19 @@ import 'package:mybudget/objectbox.g.dart';
 class ObjectBoxService {
   late Store store;
 
+  Admin? _admin;
+
   late Box<BeneficiaryModel> beneficiaryBox;
-  late Box<CategoryModel> categoryBox;
+  late Box<CategoryOverrideModel> categoryOverrideBox;
+  late Box<CategoryMemoryModel> categoryMemoryBox;
   late Box<ExpenseModel> expenseBox;
   late Box<RevenueModel> revenueBox;
   late Box<AccountModel> accountBox;
   late Box<LoanModel> loanBox;
+  late Box<LoanEventModel> loanEventBox;
   late Box<TransferModel> transferBox;
+  late Box<LegacyCategoryModel> legacyCategoryBox;
+  late Box<TransactionEventModel> transactionEventBox;
 
   static ObjectBoxService? _instance;
 
@@ -37,17 +47,24 @@ class ObjectBoxService {
     final docsDir = await getApplicationDocumentsDirectory();
     final storeDir = p.join(docsDir.path, "objectbox");
     store = await openStore(directory: storeDir);
+    if (Admin.isAvailable()) _admin = Admin(store);
 
     beneficiaryBox = Box<BeneficiaryModel>(store);
-    categoryBox = Box<CategoryModel>(store);
+    categoryOverrideBox = Box<CategoryOverrideModel>(store);
+    categoryMemoryBox = Box<CategoryMemoryModel>(store);
     expenseBox = Box<ExpenseModel>(store);
     revenueBox = Box<RevenueModel>(store);
     accountBox = Box<AccountModel>(store);
     loanBox = Box<LoanModel>(store);
+    loanEventBox = Box<LoanEventModel>(store);
     transferBox = Box<TransferModel>(store);
+    legacyCategoryBox = Box<LegacyCategoryModel>(store);
+    transactionEventBox = Box<TransactionEventModel>(store);
   }
 
   void closeStore() {
+    _admin?.close();
+    _admin = null;
     if (!store.isClosed()) {
       store.close();
     }
@@ -62,11 +79,13 @@ class ObjectBoxService {
 
   Future<void> clearAllData() async {
     beneficiaryBox.removeAll();
-    categoryBox.removeAll();
+    categoryOverrideBox.removeAll();
+    categoryMemoryBox.removeAll();
     expenseBox.removeAll();
     revenueBox.removeAll();
     accountBox.removeAll();
     loanBox.removeAll();
+    loanEventBox.removeAll();
     transferBox.removeAll();
   }
 }

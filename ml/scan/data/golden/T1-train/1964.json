@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-train/img/1964.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "RAGAZZI DA PEPPONE",
+  "date": "2017-01-20",
+  "total": 69.4,
+  "items": [
+   {
+    "name": "1 VERRE DE ROUGE 15CL",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "1 INTERVISTA",
+    "amount": 13.9,
+    "discount": 0
+   },
+   {
+    "name": "2 TAGLIATELLE CARBONARA",
+    "amount": 23.8,
+    "discount": 0
+   },
+   {
+    "name": "1 SPAGHETTI GROSSES CREVET",
+    "amount": 13.9,
+    "discount": 0
+   },
+   {
+    "name": "1 TIRAMISU",
+    "amount": 6.95,
+    "discount": 0
+   },
+   {
+    "name": "1 GATERIE AU CAFE",
+    "amount": 6.95,
+    "discount": 0
+   }
+  ]
+ }
+}

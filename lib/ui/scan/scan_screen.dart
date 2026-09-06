@@ -1,855 +1,460 @@
-import 'dart:async';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frosted_ui/frosted_ui.dart' hide FrostedContainer;
-import 'package:intl/intl.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/common/widgets/frosted_container.dart';
+import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
-import 'package:mybudget/ui/scan/widgets/scanned_item_edit_bottom_sheet.dart';
-import 'package:mybudget/ui/settings/category_provider.dart';
+import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
+import 'package:mybudget/ui/scan/widgets/scan_commit_bar.dart';
+import 'package:mybudget/ui/scan/widgets/scan_item_list.dart';
+import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
+import 'package:mybudget/ui/scan/widgets/scan_photo_viewer.dart';
+import 'package:mybudget/ui/scan/widgets/scan_reading_view.dart';
+import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
+import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
+import 'package:mybudget/ui/scan/widgets/scan_saved_view.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
-  final Uint8List imageBytes;
+  static const String missingLineName = 'Ligne manquante';
+  static const String removedMessage = 'Article retiré';
+  static const String undoLabel = 'Annuler';
 
-  const ScanScreen({required this.imageBytes, super.key});
+  final Future<Uint8List> image;
+
+  const ScanScreen({required this.image, super.key});
 
   @override
   ConsumerState<ScanScreen> createState() => _ScanScreenState();
 }
 
 class _ScanScreenState extends ConsumerState<ScanScreen>
-    with TickerProviderStateMixin {
-  int? _selectedAccountId;
-  late final AnimationController _scanLineController;
-  late final AnimationController _pulseController;
-  int _statusMessageIndex = 0;
-  Timer? _statusTimer;
-  Timer? _countdownTimer;
-  int _countdownSeconds = 0;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _revealController = AnimationController(
+    vsync: this,
+    duration: ScanReveal.duration,
+  );
+  late final Animation<double> _reveal = CurvedAnimation(
+    parent: _revealController,
+    curve: Curves.easeOutCubic,
+  );
+  final ScrollController _scroll = ScrollController();
 
-  static const _statusMessages = [
-    'Analyse du ticket en cours...',
-    'Identification des articles...',
-    'Catégorisation en cours...',
-    'Presque terminé...',
-  ];
+  int? _selectedAccountId;
+  bool _revealed = false;
+  int? _highlightedIndex;
+  List<int>? _createdIds;
+  Uint8List? _imageBytes;
+  Object? _imageError;
 
   @override
   void initState() {
     super.initState();
-    _scanLineController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.listenManual(scanProvider, (_, next) {
-        if (next is AsyncError) {
-          final error = next.error;
-          if (error is ScanException && error.retryAfterSeconds > 0) {
-            _startCountdown(error.retryAfterSeconds);
-          }
-        } else if (next is AsyncData && next.value != null) {
-          _initSelectedAccount();
-        }
+        if (next is AsyncData && next.value != null) _onResultReady();
       });
-      ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
-      _startStatusRotation();
+      _readThenScan();
     });
   }
 
-  void _startStatusRotation() {
-    _statusTimer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (_statusMessageIndex < _statusMessages.length - 1) {
-        setState(() => _statusMessageIndex++);
-      }
-    });
+  Future<void> _readThenScan() async {
+    try {
+      final bytes = await widget.image;
+      if (!mounted) return;
+      _imageBytes = bytes;
+      await ref.read(scanProvider.notifier).scanReceipt(bytes);
+    } catch (error, stackTrace) {
+      debugPrint('[scan] photo illisible : $error\n$stackTrace');
+      if (!mounted) return;
+      setState(() => _imageError = const ScanUnreadableException());
+    }
   }
 
   @override
   void dispose() {
-    _scanLineController.dispose();
-    _pulseController.dispose();
-    _statusTimer?.cancel();
-    _countdownTimer?.cancel();
+    _scroll.dispose();
+    _revealController.dispose();
     super.dispose();
+  }
+
+  void _onResultReady() {
+    _initSelectedAccount();
+    if (_revealed) return;
+    _revealed = true;
+
+    Future<void>.delayed(ScanReveal.settle, () {
+      if (mounted) _revealController.forward();
+    });
+  }
+
+  void _initSelectedAccount() {
+    if (_selectedAccountId != null) return;
+    final accounts = ref.read(accountProvider).value ?? const [];
+    if (accounts.isEmpty) return;
+    setState(() => _selectedAccountId = accounts.first.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    final scanState = ref.watch(scanProvider);
-    final isLoading = scanState is AsyncLoading;
-    final hasError = scanState is AsyncError;
-    final result = scanState.value;
-    final hasData = result != null && result.items.isNotEmpty;
+    final state = ref.watch(scanProvider);
+    final result = state.value;
+    final saved = _createdIds != null;
+    final hasItems = result != null && result.items.isNotEmpty;
 
     return FrostedScaffold(
-      appBar: FrostedAppBar(title: 'Scanner un ticket'),
-      bottomNavigationBar: hasData ? _buildBottomBar(context, result) : null,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        child: isLoading
-            ? _buildLoadingView(context)
-            : hasError
-                ? _buildErrorView(context, scanState as AsyncError)
-                : hasData
-                    ? _buildValidationView(context, result)
-                    : _buildEmptyView(context),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _TopRow(
+              loading: state is AsyncLoading,
+              hideActions: saved,
+              onShowPhoto: _imageBytes == null
+                  ? null
+                  : () => ScanPhotoViewer.show(context, _imageBytes!),
+            ),
+            Expanded(
+              child: saved
+                  ? _buildSaved(result!)
+                  : _buildStage(context, state, result, hasItems),
+            ),
+            if (hasItems && !saved) _buildCommitBar(result),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildLoadingView(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget _buildStage(
+    BuildContext context,
+    AsyncValue<ReceiptScanResultModel?> state,
+    ReceiptScanResultModel? result,
+    bool hasItems,
+  ) {
+    final failure = _imageError ?? (state is AsyncError ? state.error : null);
+    if (failure != null) return _ErrorView(error: failure, onRetry: _retry);
+    if (result == null) {
+      return ScanReadingView(
+        reveal: _reveal,
+        progress: ref.watch(scanProgressProvider),
+      );
+    }
+    if (!hasItems) return _EmptyView(onRetry: _retry);
 
-    return ListView(
-      key: const ValueKey('loading'),
-      padding: const EdgeInsets.only(top: 120, left: 16, right: 16, bottom: 32),
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              Image.memory(
-                widget.imageBytes,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _scanLineController,
-                  builder: (context, _) {
-                    return CustomPaint(
-                      painter: _ScanLinePainter(
-                        progress: _scanLineController.value,
-                        color: theme.colorScheme.primary,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        FrostedLinearProgressIndicator(),
-        const SizedBox(height: 24),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: Text(
-            _statusMessages[_statusMessageIndex],
-            key: ValueKey(_statusMessageIndex),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-        const SizedBox(height: 32),
-        ...List.generate(3, (index) {
-          return AnimatedBuilder(
-            animation: _pulseController,
-            builder: (context, _) {
-              final opacity = 0.3 + (_pulseController.value * 0.3);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: opacity),
-                  ),
-                ),
-              );
-            },
-          );
-        }),
-      ],
+    final resolver = ref.watch(categoryDisplayResolverProvider).value;
+
+    return ScanReviewView(
+      result: result,
+      resolve: (slug) => slug == null ? null : resolver?.resolve(slug),
+      reveal: _reveal,
+      highlightedIndex: _highlightedIndex,
+      controller: _scroll,
+      onStoreChanged: ref.read(scanProvider.notifier).updateStoreName,
+      onPickDate: () => _pickDate(result),
+      onFillGap: () => _fillGap(result),
+      onFocusPending: () => _focusPending(result),
+      onPickCategory: (index) => _pickCategory(index, result),
+      onNameChanged: ref.read(scanProvider.notifier).updateItemName,
+      onAmountChanged: ref.read(scanProvider.notifier).updateItemAmount,
+      onRemove: (index) => _removeItem(index, result),
     );
   }
 
-  Widget _buildErrorView(BuildContext context, AsyncError error) {
-    final theme = Theme.of(context);
-    final scanError = error.error;
+  Widget _buildSaved(ReceiptScanResultModel result) {
+    return ScanSavedView(
+      result: result,
+      resolve: (slug) => slug == null
+          ? null
+          : ref.watch(categoryDisplayResolverProvider).value?.resolve(slug),
+      onDone: () => Navigator.pop(context),
+      onDiscard: _discardCreated,
+    );
+  }
 
-    final IconData icon;
-    final String title;
-    final String subtitle;
-    final bool hasCooldown;
+  Widget _buildCommitBar(ReceiptScanResultModel result) {
+    return ScanCommitBar(
+      pendingCount: result.pendingCount,
+      total: result.itemsTotal,
+      accounts: ref.watch(accountProvider).value ?? const [],
+      selectedAccountId: _selectedAccountId,
+      onSelectAccount: (id) => setState(() => _selectedAccountId = id),
+      onFocusPending: () => _focusPending(result),
+      onCommit: _validateAndCreate,
+    );
+  }
 
-    switch (scanError) {
-      case ScanCooldownException():
-        icon = Icons.timer_outlined;
-        title = scanError.message;
-        subtitle = 'Vous pourrez réessayer dans un instant';
-        hasCooldown = true;
-      case ScanRateLimitException():
-        icon = Icons.cloud_off_outlined;
-        title = scanError.message;
-        subtitle = 'Réessayez dans quelques instants';
-        hasCooldown = true;
-      case ScanServiceUnavailableException():
-        icon = Icons.cloud_off_outlined;
-        title = scanError.message;
-        subtitle = 'Réessayez dans quelques instants';
-        hasCooldown = true;
-      case ScanGenericException():
-        icon = Icons.error_outline;
-        title = scanError.message;
-        subtitle = '';
-        hasCooldown = false;
-      default:
-        icon = Icons.error_outline;
-        title = 'Une erreur est survenue';
-        subtitle = '$scanError';
-        hasCooldown = false;
+  void _retry() {
+    _revealed = false;
+    _revealController.value = 0;
+    setState(() => _imageError = null);
+
+    final bytes = _imageBytes;
+    if (bytes == null) {
+      _readThenScan();
+      return;
     }
+    ref.read(scanProvider.notifier).scanReceipt(bytes);
+  }
 
-    final canRetry = !hasCooldown || _countdownSeconds <= 0;
+  Future<void> _pickDate(ReceiptScanResultModel result) async {
+    final picked = await DateSelector.showFullDatePicker(
+      context: context,
+      initialDate: result.date,
+    );
+    if (picked == null) return;
+    ref.read(scanProvider.notifier).updateDate(picked);
+  }
+
+  Future<void> _pickCategory(int index, ReceiptScanResultModel result) async {
+    if (index < 0 || index >= result.items.length) return;
+    final item = result.items[index];
+
+    final proposed = item.categorySlug;
+    final slug = await CategoryPickerSheet.show(
+      context,
+      selectedSlug: proposed,
+      suggestions: [?proposed],
+    );
+    if (slug == null) return;
+
+    final label = ref
+        .read(categoryDisplayResolverProvider)
+        .value
+        ?.resolve(slug)
+        ?.label;
+    if (label == null) return;
+
+    ref.read(scanProvider.notifier).updateItemCategory(index, slug, label);
+  }
+
+  void _fillGap(ReceiptScanResultModel result) {
+    final gap = result.gap;
+    if (gap == null || !result.hasGap) return;
+
+    ref
+        .read(scanProvider.notifier)
+        .addItem(
+          ScannedItemModel(name: ScanScreen.missingLineName, amount: gap),
+        );
+    _focusIndex(result.items.length);
+  }
+
+  void _focusPending(ReceiptScanResultModel result) {
+    final index = result.items.indexWhere((item) => item.needsAttention);
+    if (index < 0) return;
+    _focusIndex(index);
+  }
+
+  void _focusIndex(int index) {
+    setState(() => _highlightedIndex = index);
+    Future<void>.delayed(ScanItemRow.highlightFade, () {
+      if (mounted) setState(() => _highlightedIndex = null);
+    });
+
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    final target = ScanItemList.offsetOf(index, position.viewportDimension);
+
+    _scroll.animateTo(
+      target.clamp(position.minScrollExtent, position.maxScrollExtent),
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _removeItem(int index, ReceiptScanResultModel result) {
+    if (index < 0 || index >= result.items.length) return;
+    final removed = result.items[index];
+    ref.read(scanProvider.notifier).removeItem(index);
+
+    FrostedSnackbar.show(
+      context,
+      message: ScanScreen.removedMessage,
+      actionLabel: ScanScreen.undoLabel,
+      onAction: () =>
+          ref.read(scanProvider.notifier).insertItem(index, removed),
+    );
+  }
+
+  Future<void> _validateAndCreate() async {
+    final accountId = _selectedAccountId;
+    final bytes = _imageBytes;
+    if (accountId == null || bytes == null) return;
+
+    try {
+      final created = await ref
+          .read(scanProvider.notifier)
+          .validateAndCreate(accountId, bytes);
+
+      if (!mounted) return;
+      setState(() => _createdIds = created);
+    } catch (error, stackTrace) {
+      debugPrint(
+        '[scan] création des dépenses impossible : $error\n$stackTrace',
+      );
+      if (!mounted) return;
+      FrostedSnackbar.show(
+        context,
+        message: 'Les dépenses n\'ont pas pu être enregistrées',
+      );
+    }
+  }
+
+  Future<void> _discardCreated() async {
+    final ids = _createdIds;
+    if (ids == null) return;
+
+    setState(() => _createdIds = null);
+    try {
+      await ref.read(scanProvider.notifier).discardCreated(ids);
+    } catch (error, stackTrace) {
+      debugPrint('[scan] annulation impossible : $error\n$stackTrace');
+      if (!mounted) return;
+      FrostedSnackbar.show(
+        context,
+        message: 'L\'enregistrement n\'a pas pu être défait',
+      );
+    }
+  }
+}
+
+class _TopRow extends StatelessWidget {
+  static const String photoLabel = 'Photo';
+
+  final bool loading;
+  final bool hideActions;
+  final VoidCallback? onShowPhoto;
+
+  const _TopRow({
+    required this.loading,
+    this.hideActions = false,
+    this.onShowPhoto,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp2),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Symbols.arrow_back_rounded),
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Retour',
+          ),
+          const Spacer(),
+          if (onShowPhoto != null && !hideActions)
+            TextButton(onPressed: onShowPhoto, child: const Text(photoLabel)),
+          if (kDebugMode && !loading && !hideActions)
+            IconButton(
+              icon: const Icon(Symbols.bug_report_rounded),
+              tooltip: 'Inspecter le scan',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ScanInspectorScreen(),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  final Object error;
+  final VoidCallback onRetry;
+
+  const _ErrorView({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scanError = error;
+
+    final (IconData icon, String title, String subtitle) = switch (scanError) {
+      ScanUnreadableException() => (
+        Symbols.no_photography_rounded,
+        scanError.message,
+        'Reprenez la photo bien à plat, ticket entier dans le cadre',
+      ),
+      ScanNoItemsException() => (
+        Symbols.receipt_long_rounded,
+        scanError.message,
+        'Vérifiez que la partie articles du ticket est visible',
+      ),
+      ScanGenericException() => (Symbols.error_rounded, scanError.message, ''),
+      _ => (Symbols.error_rounded, 'Une erreur est survenue', '$scanError'),
+    };
 
     return Center(
-      key: const ValueKey('error'),
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(FrostedSpacing.sp6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: hasCooldown
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
-            ),
-            const SizedBox(height: 16),
+            Icon(icon, size: 56, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(height: FrostedSpacing.sp4),
             Text(
               title,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (hasCooldown && _countdownSeconds > 0) ...[
-              const SizedBox(height: 16),
+            if (subtitle.isNotEmpty) ...[
+              const SizedBox(height: FrostedSpacing.sp2),
               Text(
-                _formatCountdown(_countdownSeconds),
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 24),
-            FrostedFilledButton(
-              onPressed: canRetry ? _retry : null,
-              child: const Text('Réessayer'),
-            ),
+            const SizedBox(height: FrostedSpacing.sp5),
+            FrostedButton.filled(label: 'Réessayer', onPressed: onRetry),
           ],
         ),
       ),
     );
   }
+}
 
-  void _initSelectedAccount() {
-    if (_selectedAccountId != null) return;
-    final accounts = ref.read(accountProvider).value ?? [];
-    if (accounts.length == 1) {
-      setState(() => _selectedAccountId = accounts.first.id);
-    }
-  }
+class _EmptyView extends StatelessWidget {
+  static const String message = 'Aucun article lu sur ce ticket';
 
-  void _startCountdown(int seconds) {
-    if (_countdownTimer?.isActive ?? false) return;
-    _countdownSeconds = seconds;
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        _countdownSeconds--;
-        if (_countdownSeconds <= 0) {
-          _countdownTimer?.cancel();
-        }
-      });
-    });
-  }
+  final VoidCallback onRetry;
 
-  void _retry() {
-    _countdownTimer?.cancel();
-    _countdownSeconds = 0;
-    setState(() => _statusMessageIndex = 0);
-    _statusTimer?.cancel();
-    _startStatusRotation();
-    ref.read(scanProvider.notifier).scanReceipt(widget.imageBytes);
-  }
+  const _EmptyView({required this.onRetry});
 
-  String _formatCountdown(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-    return '$m:${s.toString().padLeft(2, '0')}';
-  }
-
-  Widget _buildEmptyView(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Center(
-      key: const ValueKey('empty'),
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(FrostedSpacing.sp6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.receipt_long_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              Symbols.receipt_long_rounded,
+              size: 56,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Aucun article détecté',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 24),
-            FrostedTextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Retour'),
-            ),
+            const SizedBox(height: FrostedSpacing.sp4),
+            Text(message, style: theme.textTheme.titleMedium),
+            const SizedBox(height: FrostedSpacing.sp5),
+            FrostedButton.text(label: 'Réessayer', onPressed: onRetry),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildValidationView(
-    BuildContext context,
-    ReceiptScanResultModel result,
-  ) {
-    final categories = ref.watch(categoryProvider).value ?? [];
-    final accounts = ref.watch(accountProvider).value ?? [];
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
-    final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
-
-
-    final grouped = _groupItemsByCategory(result.items, categories);
-    final uncategorized =
-        result.items.where((i) => i.categoryId == null).toList();
-
-    return ListView(
-      key: const ValueKey('validation'),
-      padding: const EdgeInsets.only(top: 120, left: 16, right: 16, bottom: 145),
-      children: [
-        _buildHeaderCard(
-          context,
-          result,
-          dateFormat,
-        ),
-        const SizedBox(height: 16),
-        if (accounts.isNotEmpty)
-          FrostedDropdown<int>(
-            value: _selectedAccountId,
-            items: accounts.map((account) {
-              return DropdownMenuItem<int>(
-                value: account.id,
-                child: Text(account.name),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedAccountId = value);
-              }
-            },
-            hint: 'Compte',
-          ),
-        const SizedBox(height: 16),
-        ...grouped.entries.map((entry) {
-          return _buildCategoryCard(
-            context,
-            entry.key,
-            entry.value,
-            formatter,
-            categories,
-          );
-        }),
-        if (uncategorized.isNotEmpty)
-          _buildUncategorizedCard(
-            context,
-            uncategorized,
-            formatter,
-            categories,
-          ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCard(
-    BuildContext context,
-    ReceiptScanResultModel result,
-    DateFormat dateFormat,
-  ) {
-    final theme = Theme.of(context);
-    final date = result.date ?? DateTime.now();
-
-    return FrostedCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                widget.imageBytes,
-                height: 60,
-                width: 60,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (result.storeName != null)
-                    Text(
-                      result.storeName!,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  const SizedBox(height: 4),
-                  GestureDetector(
-                    onTap: () => _pickDate(context, date),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          dateFormat.format(date),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.edit,
-                          size: 14,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(
-    BuildContext context,
-    CategoryModel category,
-    List<_IndexedItem> items,
-    NumberFormat formatter,
-    List<CategoryModel> categories,
-  ) {
-    final theme = Theme.of(context);
-    final total = items.fold(0.0, (sum, i) => sum + i.item.effectiveAmount);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: FrostedCard(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    category.getIconData(),
-                    color: Color(category.color),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      category.name,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    formatter.format(total),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ...items.map((indexedItem) {
-                return _buildItemRow(
-                  context,
-                  indexedItem,
-                  formatter,
-                  categories,
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUncategorizedCard(
-    BuildContext context,
-    List<ScannedItemModel> items,
-    NumberFormat formatter,
-    List<CategoryModel> categories,
-  ) {
-    final theme = Theme.of(context);
-    final total = items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
-    final result = ref.read(scanProvider).value;
-    if (result == null) return const SizedBox.shrink();
-
-    final indexedItems = items.map((item) {
-      return _IndexedItem(
-        index: result.items.indexOf(item),
-        item: item,
-      );
-    }).toList();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: FrostedCard(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: theme.colorScheme.error,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Non catégorisé',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    formatter.format(total),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.error,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ...indexedItems.map((indexedItem) {
-                return _buildItemRow(
-                  context,
-                  indexedItem,
-                  formatter,
-                  categories,
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemRow(
-    BuildContext context,
-    _IndexedItem indexedItem,
-    NumberFormat formatter,
-    List<CategoryModel> categories,
-  ) {
-    final theme = Theme.of(context);
-
-    final item = indexedItem.item;
-
-    return InkWell(
-      onTap: () => _openEditSheet(
-        context,
-        indexedItem.index,
-        item,
-        categories,
-      ),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-        child: Row(
-          children: [
-            Text(
-              '·',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                item.name,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-            if (item.hasDiscount)
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Text(
-                  '-${formatter.format(item.discount)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.tertiary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            Text(
-              formatter.format(item.effectiveAmount),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.edit_outlined,
-              size: 14,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(
-    BuildContext context,
-    ReceiptScanResultModel result,
-  ) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
-    final total = result.items.fold(0.0, (sum, i) => sum + i.effectiveAmount);
-    final hasUncategorized = result.items.any((i) => i.categoryId == null);
-    final categoryCount = _countCategories(result.items);
-
-    return FrostedContainer(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  formatter.format(total),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: FrostedFilledButton(
-                onPressed: hasUncategorized || _selectedAccountId == null
-                    ? null
-                    : () => _validateAndCreate(context),
-                child: Text(
-                  'Valider $categoryCount dépense${categoryCount > 1 ? 's' : ''}',
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Map<CategoryModel, List<_IndexedItem>> _groupItemsByCategory(
-    List<ScannedItemModel> items,
-    List<CategoryModel> categories,
-  ) {
-    final Map<int, List<_IndexedItem>> grouped = {};
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
-      if (item.categoryId != null) {
-        grouped
-            .putIfAbsent(item.categoryId!, () => [])
-            .add(_IndexedItem(index: i, item: item));
-      }
-    }
-
-    final Map<CategoryModel, List<_IndexedItem>> result = {};
-    for (final entry in grouped.entries) {
-      final category = categories.firstWhere(
-        (c) => c.id == entry.key,
-        orElse: () => CategoryModel()..name = 'Inconnu',
-      );
-      result[category] = entry.value;
-    }
-    return result;
-  }
-
-  int _countCategories(List<ScannedItemModel> items) {
-    return items
-        .where((i) => i.categoryId != null)
-        .map((i) => i.categoryId)
-        .toSet()
-        .length;
-  }
-
-  void _openEditSheet(
-    BuildContext context,
-    int index,
-    ScannedItemModel item,
-    List<CategoryModel> categories,
-  ) {
-    ScannedItemEditBottomSheet.show(
-      context: context,
-      item: item,
-      categories: categories,
-      onCategoryChanged: (categoryId, categoryName) {
-        ref.read(scanProvider.notifier).updateItemCategory(
-              index,
-              categoryId,
-              categoryName,
-            );
-      },
-      onAmountChanged: (amount) {
-        ref.read(scanProvider.notifier).updateItemAmount(index, amount);
-      },
-      onDiscountChanged: (discount) {
-        ref.read(scanProvider.notifier).updateItemDiscount(index, discount);
-      },
-      onDelete: () {
-        ref.read(scanProvider.notifier).removeItem(index);
-      },
-    );
-  }
-
-  Future<void> _pickDate(BuildContext context, DateTime currentDate) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: currentDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      locale: const Locale('fr'),
-    );
-    if (picked != null) {
-      ref.read(scanProvider.notifier).updateDate(picked);
-    }
-  }
-
-  Future<void> _validateAndCreate(BuildContext context) async {
-    if (_selectedAccountId == null) return;
-
-    try {
-      final count = await ref.read(scanProvider.notifier).validateAndCreate(
-            _selectedAccountId!,
-            widget.imageBytes,
-          );
-
-      if (context.mounted) {
-        FrostedSnackbar.show(
-          context,
-          message: '$count dépense${count > 1 ? 's' : ''} ajoutée${count > 1 ? 's' : ''}',
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (context.mounted) {
-        FrostedSnackbar.show(
-          context,
-          message: 'Erreur lors de la création : $e',
-        );
-      }
-    }
-  }
-}
-
-class _IndexedItem {
-  final int index;
-  final ScannedItemModel item;
-
-  const _IndexedItem({required this.index, required this.item});
-}
-
-class _ScanLinePainter extends CustomPainter {
-  final double progress;
-  final Color color;
-
-  _ScanLinePainter({required this.progress, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final y = size.height * progress;
-    final paint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          color.withValues(alpha: 0.0),
-          color.withValues(alpha: 0.6),
-          color.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromLTWH(0, y - 2, size.width, 4));
-
-    canvas.drawRect(
-      Rect.fromLTWH(0, y - 2, size.width, 4),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_ScanLinePainter oldDelegate) =>
-      progress != oldDelegate.progress;
 }

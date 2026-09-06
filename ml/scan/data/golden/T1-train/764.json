@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/764.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PICARD SURGELES SAS",
+  "date": "2017-01-12",
+  "total": 15.96,
+  "items": [
+   {
+    "name": "*Soupe Kiew Wan",
+    "amount": 7.98,
+    "discount": 0.0
+   },
+   {
+    "name": "*Soupe Shabu CE",
+    "amount": 7.98,
+    "discount": 0.0
+   }
+  ]
+ }
+}

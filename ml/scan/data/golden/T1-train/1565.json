@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/1565.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "WELDOM ANGLE BRICOLAGE",
+  "date": "2016-11-07",
+  "total": 60.7,
+  "items": [
+   {
+    "name": "1 TUBE DESCENTE D100 2M80 SABL",
+    "amount": 12.4,
+    "discount": 0
+   },
+   {
+    "name": "1 COUDE MF 67°30 D100 SABLE",
+    "amount": 9.4,
+    "discount": 0
+   },
+   {
+    "name": "1 REDUCTION R100F/80M",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "1 REP125/100 REDUCTION PVC",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "1 PATIN FEUTRE ADH BI 215X80",
+    "amount": 6.1,
+    "discount": 0
+   },
+   {
+    "name": "1 GAIN.PVC EXT.PS-M1 125/6M",
+    "amount": 16.5,
+    "discount": 0
+   },
+   {
+    "name": "1 GAIN.PVC EXT.PS-M1  80/6M",
+    "amount": 10.9,
+    "discount": 0
+   }
+  ]
+ }
+}

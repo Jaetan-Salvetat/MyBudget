@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/210.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour ANGOULINS",
+  "date": "2016-12-09",
+  "total": 86.29,
+  "items": [
+   {
+    "name": "6 DLP MALLETTE DOC",
+    "amount": 25.49,
+    "discount": 0
+   },
+   {
+    "name": "6 CUISTO DINGO",
+    "amount": 20.9,
+    "discount": 0
+   },
+   {
+    "name": "6 SUPER SAND CASTLE",
+    "amount": 39.9,
+    "discount": 0
+   }
+  ]
+ }
+}

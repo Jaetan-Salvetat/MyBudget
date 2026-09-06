@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1697.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Eurodif",
+  "date": "2016-07-12",
+  "total": 9.99,
+  "items": [
+   {
+    "name": "3010006582667 MOULE CHARNIERE ROND",
+    "amount": 9.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

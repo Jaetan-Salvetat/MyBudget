@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/986.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEROY MERLIN PUILBOREAU",
+  "date": "2016-12-17",
+  "total": 15.2,
+  "items": [
+   {
+    "name": "CADRE PVC NOIR INSP 50X70CM",
+    "amount": 15.2,
+    "discount": 0
+   }
+  ]
+ }
+}

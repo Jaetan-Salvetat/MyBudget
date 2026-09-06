@@ -1,6 +1,11 @@
+import 'package:mybudget/core/entities/loan_installment.dart';
+import 'package:mybudget/core/entities/loan_schedule.dart';
+import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/services/loan_calculation_service.dart';
+import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
+import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
+import 'package:mybudget/core/services/loan_schedule_service.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -22,12 +27,22 @@ class LoanCreationState {
   final LoanRepaymentType repaymentType;
   final int deferredMonths;
   final bool hasDeferredPeriod;
+  final LoanDeferralType deferralType;
+  final double fees;
+  final LoanPurpose purpose;
+  final bool hasIndemnityClause;
   final LoanInsuranceType insuranceType;
   final double insuranceValue;
   final InsuranceCalculationMode insuranceCalcMode;
   final bool immediateFirstPayment;
 
-  const LoanCreationState({
+  static const LoanScheduleService _scheduleService = LoanScheduleService(
+    EarlyRepaymentIndemnityService(),
+  );
+  static const AnnualPercentageRateService _rateService =
+      AnnualPercentageRateService();
+
+  LoanCreationState({
     this.currentStep = 0,
     this.name = '',
     this.lenderName = '',
@@ -41,6 +56,10 @@ class LoanCreationState {
     this.repaymentType = LoanRepaymentType.amortizable,
     this.deferredMonths = 0,
     this.hasDeferredPeriod = false,
+    this.deferralType = LoanDeferralType.partial,
+    this.fees = 0.0,
+    this.purpose = LoanPurpose.other,
+    this.hasIndemnityClause = true,
     this.insuranceType = LoanInsuranceType.none,
     this.insuranceValue = 0.0,
     this.insuranceCalcMode = InsuranceCalculationMode.initialCapital,
@@ -61,6 +80,10 @@ class LoanCreationState {
     LoanRepaymentType? repaymentType,
     int? deferredMonths,
     bool? hasDeferredPeriod,
+    LoanDeferralType? deferralType,
+    double? fees,
+    LoanPurpose? purpose,
+    bool? hasIndemnityClause,
     LoanInsuranceType? insuranceType,
     double? insuranceValue,
     InsuranceCalculationMode? insuranceCalcMode,
@@ -80,72 +103,95 @@ class LoanCreationState {
       repaymentType: repaymentType ?? this.repaymentType,
       deferredMonths: deferredMonths ?? this.deferredMonths,
       hasDeferredPeriod: hasDeferredPeriod ?? this.hasDeferredPeriod,
+      deferralType: deferralType ?? this.deferralType,
+      fees: fees ?? this.fees,
+      purpose: purpose ?? this.purpose,
+      hasIndemnityClause: hasIndemnityClause ?? this.hasIndemnityClause,
       insuranceType: insuranceType ?? this.insuranceType,
       insuranceValue: insuranceValue ?? this.insuranceValue,
       insuranceCalcMode: insuranceCalcMode ?? this.insuranceCalcMode,
-      immediateFirstPayment: immediateFirstPayment ?? this.immediateFirstPayment,
+      immediateFirstPayment:
+          immediateFirstPayment ?? this.immediateFirstPayment,
     );
   }
 
   int get totalSteps => 5;
 
   int get durationInMonths {
-    return durationUnit == DurationUnit.years ? durationValue * 12 : durationValue;
+    return durationUnit == DurationUnit.years
+        ? durationValue * 12
+        : durationValue;
   }
 
-  DateTime get calculatedEndDate {
-    final effectiveMonths = immediateFirstPayment
-        ? durationInMonths - 1
-        : durationInMonths;
-    final years = effectiveMonths ~/ 12;
-    final remainingMonths = effectiveMonths % 12;
-    return DateTime(
-      startDate.year + years,
-      startDate.month + remainingMonths,
-      startDate.day,
-    );
-  }
+  LoanTerms get terms => LoanTerms(
+    amount: amount,
+    annualInterestRate: interestRate,
+    durationInMonths: durationInMonths,
+    startDate: startDate,
+    dayOfMonth: dayOfMonth,
+    immediateFirstPayment: immediateFirstPayment,
+    repaymentType: repaymentType,
+    deferredMonths: effectiveDeferredMonths,
+    deferralType: hasDeferredPeriod ? deferralType : LoanDeferralType.none,
+    insuranceType: insuranceType,
+    insuranceValue: insuranceValue,
+    insuranceCalculationMode: insuranceCalcMode,
+    fees: fees,
+    regime: effectiveRegime,
+    hasIndemnityClause: hasIndemnityClause,
+  );
+
+  int get effectiveDeferredMonths => hasDeferredPeriod ? deferredMonths : 0;
+
+  CreditRegime get effectiveRegime =>
+      purpose.fixedRegime ?? LoanTerms.defaultRegimeFor(amount);
+
+  late final LoanSchedule schedule = _scheduleService.build(terms);
+
+  late final double annualPercentageRate = _rateService.compute(
+    schedule: schedule,
+    originDate: startDate,
+  );
+
+  LoanInstallment? get _firstBilledInstallment =>
+      schedule.installments.where((i) => !i.isDeferred).firstOrNull;
+
+  DateTime get calculatedEndDate => schedule.endDate ?? startDate;
 
   double get monthlyPrincipalPayment {
-    const calc = LoanCalculationService();
-    if (repaymentType == LoanRepaymentType.inFine) {
-      return (amount * interestRate / 100) / 12;
-    }
-    return calc.calculateCurrentMonthlyPayment(
-      repaymentType: repaymentType,
-      amount: amount,
-      interestRate: interestRate,
-      durationInMonths: durationInMonths - deferredMonths,
-      startDate: startDate,
-      currentDate: startDate,
-      deferredMonths: 0,
-      insuranceType: LoanInsuranceType.none,
-      insuranceValue: 0,
-      insuranceCalcMode: InsuranceCalculationMode.initialCapital,
-    );
+    final installment = _firstBilledInstallment;
+    if (installment == null) return 0.0;
+    return installment.principal + installment.interest;
   }
 
-  double get monthlyInsurancePayment {
-    if (insuranceType == LoanInsuranceType.none || insuranceValue <= 0) {
-      return 0.0;
-    }
-    if (insuranceType == LoanInsuranceType.fixed) {
-      return insuranceValue;
-    }
-    return (amount * (insuranceValue / 100)) / 12;
-  }
+  double get monthlyInsurancePayment =>
+      _firstBilledInstallment?.insurance ?? 0.0;
 
-  double get totalMonthlyPayment => monthlyPrincipalPayment + monthlyInsurancePayment;
+  double get totalMonthlyPayment => schedule.scheduledMonthlyPayment;
+
+  double get totalCost => schedule.totalCost;
 
   bool get isStep1Valid {
-    return name.isNotEmpty && lenderName.isNotEmpty && amount > 0 && selectedAccountId != -1;
+    return name.isNotEmpty &&
+        lenderName.isNotEmpty &&
+        amount > 0 &&
+        selectedAccountId != -1;
   }
 
-  bool get isStep2Valid => durationInMonths > 0 && interestRate >= 0;
-  bool get isStep3Valid => true;
+  bool get isStep2Valid =>
+      durationInMonths > 0 &&
+      durationInMonths <= LoanTerms.maxDurationInMonths &&
+      interestRate >= 0 &&
+      fees >= 0 &&
+      fees < amount;
+
+  bool get isStep3Valid =>
+      !hasDeferredPeriod ||
+      (deferredMonths > 0 && deferredMonths < durationInMonths);
   bool get isStep4Valid => true;
 
-  bool get isValid => isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid;
+  bool get isValid =>
+      isStep1Valid && isStep2Valid && isStep3Valid && isStep4Valid;
 
   bool get canGoNext {
     if (currentStep == 0) return isStep1Valid;
@@ -191,23 +237,51 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
 
   void setAccountId(int id) => state = state.copyWith(selectedAccountId: id);
 
+  void setDeferralType(LoanDeferralType type) =>
+      state = state.copyWith(deferralType: type);
+
+  void setPurpose(LoanPurpose purpose) {
+    state = state.copyWith(
+      purpose: purpose,
+      repaymentType: purpose == LoanPurpose.bridge
+          ? LoanRepaymentType.inFine
+          : null,
+      immediateFirstPayment: purpose == LoanPurpose.instalmentPlan
+          ? true
+          : null,
+      hasIndemnityClause: purpose.waivesIndemnityByDefault ? false : null,
+    );
+  }
+
+  void toggleIndemnityClause() => state = state.copyWith(
+    hasIndemnityClause: !state.hasIndemnityClause,
+  );
+
+  void setFees(String value) {
+    final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
+    state = state.copyWith(fees: parsed);
+  }
+
   void setStartDate(DateTime date) => state = state.copyWith(startDate: date);
 
-  void setDayOfMonth(int day) => state = state.copyWith(dayOfMonth: day.clamp(1, 31));
+  void setDayOfMonth(int day) =>
+      state = state.copyWith(dayOfMonth: day.clamp(1, 31));
 
   void setDurationValue(String value) {
     final parsed = int.tryParse(value) ?? 0;
     state = state.copyWith(durationValue: parsed);
   }
 
-  void setDurationUnit(DurationUnit unit) => state = state.copyWith(durationUnit: unit);
+  void setDurationUnit(DurationUnit unit) =>
+      state = state.copyWith(durationUnit: unit);
 
   void setInterestRate(String value) {
     final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
     state = state.copyWith(interestRate: parsed);
   }
 
-  void setRepaymentType(LoanRepaymentType type) => state = state.copyWith(repaymentType: type);
+  void setRepaymentType(LoanRepaymentType type) =>
+      state = state.copyWith(repaymentType: type);
 
   void toggleDeferredPeriod() {
     final newValue = !state.hasDeferredPeriod;
@@ -222,7 +296,8 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
     state = state.copyWith(deferredMonths: parsed);
   }
 
-  void setInsuranceType(LoanInsuranceType type) => state = state.copyWith(insuranceType: type);
+  void setInsuranceType(LoanInsuranceType type) =>
+      state = state.copyWith(insuranceType: type);
 
   void setInsuranceValue(String value) {
     final parsed = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
@@ -249,7 +324,11 @@ class LoanCreationNotifier extends _$LoanCreationNotifier {
       interestRate: state.interestRate,
       duration: state.durationInMonths,
       repaymentType: state.repaymentType,
-      deferredMonths: state.hasDeferredPeriod ? state.deferredMonths : 0,
+      deferredMonths: state.effectiveDeferredMonths,
+      deferralType: state.deferralType,
+      fees: state.fees,
+      purpose: state.purpose,
+      hasIndemnityClause: state.hasIndemnityClause,
       insuranceType: state.insuranceType,
       insuranceValue: state.insuranceValue,
       insuranceCalculationMode: state.insuranceCalcMode,

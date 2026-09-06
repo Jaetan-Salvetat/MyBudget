@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/946.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-02-23",
+  "total": 7.35,
+  "items": [
+   {
+    "name": "DELICE CARAMEL X22",
+    "amount": 4.7,
+    "discount": 0
+   },
+   {
+    "name": "ASS.MINI VIENNOISERIE PB U X12",
+    "amount": 2.65,
+    "discount": 0
+   }
+  ]
+ }
+}

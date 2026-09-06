@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/703.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 27.98,
+  "items": [
+   {
+    "name": "MACHE",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "SALADE",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "ENDIVE",
+    "amount": 1.69,
+    "discount": 0
+   },
+   {
+    "name": "BLETTE",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "CHOU CHINOIS",
+    "amount": 1.29,
+    "discount": 0
+   },
+   {
+    "name": "BROCOLIS",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "POIREAU",
+    "amount": 4.04,
+    "discount": 0
+   },
+   {
+    "name": "CONCOMBRE",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "COURGETTE",
+    "amount": 1.77,
+    "discount": 0
+   },
+   {
+    "name": "CLEMENTINE",
+    "amount": 3.04,
+    "discount": 0
+   },
+   {
+    "name": "POMMES",
+    "amount": 2.26,
+    "discount": 0
+   },
+   {
+    "name": "POMME DE TERRE",
+    "amount": 4.1,
+    "discount": 0
+   },
+   {
+    "name": "CAROTTE",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "CITRON",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "OIGNON",
+    "amount": 1.62,
+    "discount": 0
+   }
+  ]
+ }
+}

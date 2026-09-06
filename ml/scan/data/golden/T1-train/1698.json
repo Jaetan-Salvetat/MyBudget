@@ -1,0 +1,49 @@
+{
+ "source": "dataset_findit/T1-train/img/1698.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "TABLAPIZZA LA ROCHELLE",
+  "date": "2016-07-19",
+  "total": 64.1,
+  "items": [
+   {
+    "name": "1 Martini rouge",
+    "amount": 3.9,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Signature",
+    "amount": 6.5,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Kir",
+    "amount": 3.9,
+    "discount": 0.0
+   },
+   {
+    "name": "2 Sld Chevre Chaud",
+    "amount": 25.8,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Sld Boeuf",
+    "amount": 12.9,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Tiramisu Nutella",
+    "amount": 5.9,
+    "discount": 0.0
+   },
+   {
+    "name": "1 Sld Fruits",
+    "amount": 5.2,
+    "discount": 0.0
+   }
+  ]
+ }
+}

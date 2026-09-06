@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/455.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-02-28",
+  "total": 7.15,
+  "items": [
+   {
+    "name": "*300G HACHIS PARMEN",
+    "amount": 2.32,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FOMM.FRAI.CRF",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "*NOUILLES JAP.POUL.",
+    "amount": 1.92,
+    "discount": 0
+   },
+   {
+    "name": "*VACHE A BOIRE VANI",
+    "amount": 1.99,
+    "discount": 0
+   }
+  ]
+ }
+}

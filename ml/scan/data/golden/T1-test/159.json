@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/159.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-12-09",
+  "total": 10.85,
+  "items": [
+   {
+    "name": "205G DESSERT NOIR",
+    "amount": 4.24,
+    "discount": 0.0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0.0
+   },
+   {
+    "name": "4 OEUFS BIO GROS",
+    "amount": 1.52,
+    "discount": 0.0
+   },
+   {
+    "name": "BAGUETTE 250G",
+    "amount": 0.84,
+    "discount": 0.0
+   },
+   {
+    "name": "PLAQUETTE BEURRE D",
+    "amount": 1.04,
+    "discount": 0.0
+   }
+  ]
+ }
+}

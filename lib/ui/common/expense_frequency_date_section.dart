@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
@@ -37,34 +37,33 @@ class _ExpenseFrequencyDateSectionState
         ),
         const SizedBox(height: 12),
         Row(
-          children:
-              Frequency.values.map((freq) {
-                final isSelected = widget.frequency == freq.label;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: FrostedChip(
-                    label: Text(freq.label),
-                    selected: isSelected,
-                    onPressed: () {
-                      if (!isSelected) {
-                        widget.onChanged(freq.label, widget.date);
-                      }
-                    },
-                  ),
-                );
-              }).toList(),
+          children: Frequency.values.map((freq) {
+            final isSelected = widget.frequency == freq.label;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: FrostedChip.filter(
+                label: freq.label,
+                selected: isSelected,
+                onSelected: (_) {
+                  if (!isSelected) {
+                    widget.onChanged(freq.label, widget.date);
+                  }
+                },
+              ),
+            );
+          }).toList(),
         ),
         const SizedBox(height: 16),
         InkWell(
           onTap: () => _selectDate(context),
           borderRadius: BorderRadius.circular(12),
           child: FrostedCard(
-            borderRadius: 12,
+            radius: FrostedRadius.md,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
               children: [
                 Icon(
-                  Icons.calendar_today,
+                  Symbols.calendar_today_rounded,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
@@ -94,36 +93,18 @@ class _ExpenseFrequencyDateSectionState
     );
   }
 
-  String _formatDate(DateTime date) {
-    if (widget.frequency == Frequency.monthly.label) {
-      return 'Le ${date.day} du mois';
-    } else if (widget.frequency == Frequency.oneTime.label) {
-      return DateFormat('d MMMM yyyy', 'fr_FR').format(date);
-    } else {
-      return DateFormat('d MMMM', 'fr_FR').format(date);
-    }
-  }
+  Frequency get _frequency => Frequency.fromString(widget.frequency);
+
+  String _formatDate(DateTime date) => DateSelector.labelFor(_frequency, date);
 
   Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked;
-    if (widget.frequency == Frequency.monthly.label) {
-      picked = await DateSelector.showDayPicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    } else if (widget.frequency == Frequency.oneTime.label) {
-      picked = await DateSelector.showFullDatePicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    } else {
-      picked = await DateSelector.showMonthDayPicker(
-        context: context,
-        initialDate: widget.date,
-      );
-    }
-    if (picked != null) {
-      widget.onChanged(widget.frequency, picked);
-    }
+    final picked = await DateSelector.showFor(
+      context: context,
+      frequency: _frequency,
+      initialDate: widget.date,
+    );
+    if (picked == null) return;
+
+    widget.onChanged(widget.frequency, picked);
   }
 }

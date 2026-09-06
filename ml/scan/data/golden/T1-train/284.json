@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/284.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-07-10",
+  "total": 8.2,
+  "items": [
+   {
+    "name": "*20 FOURCHET",
+    "amount": 1.11,
+    "discount": 0
+   },
+   {
+    "name": "*320G SLD.MANHATTAN",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.33,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*NECTARINE A CHAIR BL",
+    "amount": 1.42,
+    "discount": 0
+   }
+  ]
+ }
+}

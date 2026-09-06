@@ -42,13 +42,13 @@ final class OnboardingNotifierProvider
 }
 
 String _$onboardingNotifierHash() =>
-    r'0ab99d906dcdf0417391129333118f3cbac5a2ed';
+    r'e0f8b1c6c634be608c82e965710353e0bd076426';
 
 abstract class _$OnboardingNotifier extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$OnboardingNotifier extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

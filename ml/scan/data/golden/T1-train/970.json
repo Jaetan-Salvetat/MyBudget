@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/970.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Quick",
+  "date": "2016-05-31",
+  "total": 8.25,
+  "items": [
+   {
+    "name": "Menu Classic Supreme Classiq Moyenne Rustique Sauce Tomate Basilic ORANGINA 35cl",
+    "amount": 8.25,
+    "discount": 0
+   }
+  ]
+ }
+}

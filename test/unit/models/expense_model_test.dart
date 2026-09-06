@@ -8,7 +8,7 @@ void main() {
       final expense = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
         accountId: 1,
@@ -24,7 +24,7 @@ void main() {
       final original = ExpenseModel.create(
         name: 'Original',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Mensuel',
         accountId: 1,
@@ -42,7 +42,7 @@ void main() {
       final original = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Mensuel',
         accountId: 1,
@@ -68,7 +68,7 @@ void main() {
       final expense = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Mensuel',
         accountId: 1,
@@ -86,7 +86,7 @@ void main() {
       final expense = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Mensuel',
         accountId: 1,
@@ -138,7 +138,7 @@ void main() {
       final original = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Ponctuel',
         accountId: 1,
@@ -160,7 +160,7 @@ void main() {
       final expense = ExpenseModel.create(
         name: 'Ticket Carrefour',
         amount: 50,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Ponctuel',
         accountId: 1,
@@ -175,7 +175,7 @@ void main() {
       final expense = ExpenseModel.create(
         name: 'Test',
         amount: 100,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
         frequency: 'Mensuel',
         accountId: 1,

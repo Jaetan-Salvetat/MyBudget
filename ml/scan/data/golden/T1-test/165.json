@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/165.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-10-27",
+  "total": 6.9,
+  "items": [
+   {
+    "name": "CHILI CON CARNE CR",
+    "amount": 3.37,
+    "discount": 0.0
+   },
+   {
+    "name": "SEL DE GUERANDE",
+    "amount": 1.61,
+    "discount": 0.0
+   },
+   {
+    "name": "VACHE A BOIRE YRT",
+    "amount": 1.92,
+    "discount": 0.0
+   }
+  ]
+ }
+}

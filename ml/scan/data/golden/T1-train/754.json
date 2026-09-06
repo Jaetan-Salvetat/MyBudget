@@ -1,0 +1,124 @@
+{
+ "source": "dataset_findit/T1-train/img/754.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BIOCOOP REGAIN",
+  "date": "2017-01-20",
+  "total": 92.82,
+  "items": [
+   {
+    "name": "RICE DRINK NATURE X6",
+    "amount": 8.7,
+    "discount": 0
+   },
+   {
+    "name": "FARINE NOIX COCO",
+    "amount": 5.5,
+    "discount": 0
+   },
+   {
+    "name": "FLOCONS MILLET POCHE",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "OEUF*10  CALI53 63",
+    "amount": 4.05,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERIE DE LOZER",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 2.2,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERI",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE POMME FRAMBOISE BANANE",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "FLOCONS DE SARRASIN POCHE",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "MADELEINE AMANDE SS GLUT",
+    "amount": 4.25,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "FUSILLI SARRASIN",
+    "amount": 4.9,
+    "discount": 0
+   },
+   {
+    "name": "BIO TAMARI 250ML",
+    "amount": 5.15,
+    "discount": 0
+   },
+   {
+    "name": "BOUILLON POUDRE SANS LEVURE",
+    "amount": 9.1,
+    "discount": 0
+   },
+   {
+    "name": "TOFU LACTOFERMENTE AU TAMARI",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "THON GERMON AU NATUREL 132G",
+    "amount": 7.2,
+    "discount": 0
+   },
+   {
+    "name": "SPECIALITE FIGUES",
+    "amount": 3.3,
+    "discount": 0
+   },
+   {
+    "name": "GINGEMBRE RACINE FRAICHE",
+    "amount": 1.12,
+    "discount": 0
+   },
+   {
+    "name": "RIZ BASM 1/2 COMPL VRAC",
+    "amount": 4.32,
+    "discount": 0
+   },
+   {
+    "name": "NOIX DE CAJOU VRAC",
+    "amount": 6.49,
+    "discount": 0
+   },
+   {
+    "name": "GRENADE",
+    "amount": 1.24,
+    "discount": 0
+   }
+  ]
+ }
+}

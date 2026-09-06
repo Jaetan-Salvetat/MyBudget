@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/471.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-07-17",
+  "total": 4.1,
+  "items": [
+   {
+    "name": "*BADOIT CITRON 1L",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 0.83,
+    "discount": 0
+   },
+   {
+    "name": "*SAND.MEGA.VIEN.TH.",
+    "amount": 2.27,
+    "discount": 0
+   }
+  ]
+ }
+}

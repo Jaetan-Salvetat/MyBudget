@@ -1,3 +1,6 @@
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,17 +12,19 @@ import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/category_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mybudget/core/services/data/legacy_backup_upgrader.dart';
+import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -31,7 +36,7 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -41,11 +46,17 @@ class FakeExpenseModel extends Fake implements ExpenseModel {}
 
 class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
 
-class FakeCategoryModel extends Fake implements CategoryModel {}
+class FakeCategoryOverrideModel extends Fake implements CategoryOverrideModel {}
 
 class FakeRevenueModel extends Fake implements RevenueModel {}
 
 class FakeLoanModel extends Fake implements LoanModel {}
+
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
+class MockCategoryMemoryRepository extends Mock
+    implements CategoryMemoryRepository {}
 
 void main() {
   late MockAccountRepository mockAccountRepo;
@@ -53,14 +64,24 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
-  late MockCategoryRepository mockCategoryRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
+  late MockCategoryMemoryRepository mockCategoryMemoryRepo;
 
-  setUpAll(() {
+  late LegacyBackupUpgrader upgrader;
+
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    final taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
+    upgrader = LegacyBackupUpgrader(LegacyCategoryMapper(taxonomy));
+
     registerFallbackValue(FakeAccountModel());
     registerFallbackValue(FakeExpenseModel());
     registerFallbackValue(FakeBeneficiaryModel());
-    registerFallbackValue(FakeCategoryModel());
+    registerFallbackValue(FakeCategoryOverrideModel());
     registerFallbackValue(FakeRevenueModel());
     registerFallbackValue(FakeLoanModel());
   });
@@ -74,8 +95,11 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
-    mockCategoryRepo = MockCategoryRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     mockTransferRepo = MockTransferRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
+    mockCategoryMemoryRepo = MockCategoryMemoryRepository();
   });
 
   ProviderContainer makeContainer() {
@@ -86,8 +110,15 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          mockCategoryOverrideRepo,
+        ),
+        categoryMemoryRepositoryProvider.overrideWithValue(
+          mockCategoryMemoryRepo,
+        ),
+        legacyBackupUpgraderProvider.overrideWithValue(upgrader),
       ],
     );
   }
@@ -98,7 +129,8 @@ void main() {
     when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
     when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
     when(() => mockLoanRepo.deleteAll()).thenReturn(null);
-    when(() => mockCategoryRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
     when(() => mockTransferRepo.deleteAll()).thenReturn(null);
   }
 
@@ -154,37 +186,6 @@ void main() {
     expect(container.read(dataProvider).isImporting, isFalse);
   });
 
-  test('importUserData ignores expense with orphan categoryId', () async {
-    final jsonContent = jsonEncode({
-      'accounts': [
-        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
-      ],
-      'expenses': [
-        {
-          'id': '1',
-          'name': 'Orphan expense',
-          'amount': 50.0,
-          'accountId': 100,
-          'categoryId': 99,
-          'date': DateTime.now().toIso8601String(),
-          'frequency': 'Mensuel',
-        },
-      ],
-      'revenues': [],
-      'loans': [],
-    });
-
-    stubDeleteAll();
-    when(() => mockAccountRepo.add(any())).thenReturn(200);
-
-    final container = makeContainer();
-    addTearDown(container.dispose);
-
-    await container.read(dataProvider.notifier).importUserData(jsonContent);
-
-    verifyNever(() => mockExpenseRepo.add(any()));
-  });
-
   test('importUserData correctly remaps beneficiaryId', () async {
     final jsonContent = jsonEncode({
       'beneficiaries': [
@@ -224,6 +225,58 @@ void main() {
     expect(addedExpense.beneficiaryId, 55);
   });
 
+  test('importUserData maps categories from a v0.7.5 backup', () async {
+    final jsonContent = jsonEncode({
+      'version': 2,
+      'accounts': [
+        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
+      ],
+      'categories': [
+        {'id': '1', 'name': 'Alimentation', 'icon': 'restaurant'},
+        {'id': '2', 'name': 'Chats', 'icon': 'pets'},
+      ],
+      'expenses': [
+        {
+          'id': '1',
+          'name': 'Courses',
+          'amount': 50.0,
+          'accountId': '100',
+          'categoryId': '1',
+          'date': DateTime(2026, 1, 5).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+        {
+          'id': '2',
+          'name': 'Croquettes',
+          'amount': 20.0,
+          'accountId': '100',
+          'categoryId': '2',
+          'date': DateTime(2026, 1, 6).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+      ],
+    });
+
+    stubDeleteAll();
+    when(() => mockAccountRepo.add(any())).thenReturn(200);
+    when(() => mockExpenseRepo.add(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+    final imported = verify(
+      () => mockExpenseRepo.add(captureAny()),
+    ).captured.cast<ExpenseModel>();
+
+    expect(imported.map((e) => e.categorySlug), [
+      'alimentation.courses',
+      LegacyCategoryMapper.fallback,
+    ]);
+    expect(imported.first.startDate, DateTime(2026, 1, 5));
+  });
+
   test('importUserData sets importReport on success', () async {
     final jsonContent = jsonEncode({
       'accounts': [
@@ -259,7 +312,7 @@ void main() {
     verify(() => mockExpenseRepo.deleteAll()).called(1);
     verify(() => mockRevenueRepo.deleteAll()).called(1);
     verify(() => mockLoanRepo.deleteAll()).called(1);
-    verify(() => mockCategoryRepo.deleteAll()).called(1);
+    verify(() => mockCategoryOverrideRepo.deleteAll()).called(1);
 
     expect(container.read(dataProvider).isDeleting, isFalse);
   });

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/852.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PRIMEURS 17",
+  "date": "2017-06-10",
+  "total": 7.08,
+  "items": [
+   {
+    "name": "abricot",
+    "amount": 4.08,
+    "discount": 0
+   },
+   {
+    "name": "avocat",
+    "amount": 3.0,
+    "discount": 0
+   }
+  ]
+ }
+}

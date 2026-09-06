@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/679.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ISEO BISTROT DE LA MER",
+  "date": "2017-05-28",
+  "total": 116.2,
+  "items": [
+   {
+    "name": "MENU BISTROT 3",
+    "amount": 102.0,
+    "discount": 0
+   },
+   {
+    "name": "PERRIER",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "DIABOLO",
+    "amount": 6.4,
+    "discount": 0
+   },
+   {
+    "name": "COCA ZERO",
+    "amount": 3.9,
+    "discount": 0
+   }
+  ]
+ }
+}

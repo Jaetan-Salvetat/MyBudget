@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-test/img/933.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LES SERRES DES ANGLOIS",
+  "date": null,
+  "total": 12.2,
+  "items": [
+   {
+    "name": "POIREAUX",
+    "amount": 2.27,
+    "discount": 0.0
+   },
+   {
+    "name": "CAROTTE",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "BROCOLIS",
+    "amount": 2.39,
+    "discount": 0.0
+   },
+   {
+    "name": "CLEMENVILLA",
+    "amount": 1.12,
+    "discount": 0.0
+   },
+   {
+    "name": "POMME",
+    "amount": 5.42,
+    "discount": 0.0
+   }
+  ]
+ }
+}

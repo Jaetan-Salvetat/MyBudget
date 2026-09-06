@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/91.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-05",
+  "total": 6.0,
+  "items": [
+   {
+    "name": "*180G QUINOA BOULG",
+    "amount": 2.77,
+    "discount": 0.0
+   },
+   {
+    "name": "*190G SDW TR. JBN C",
+    "amount": 3.23,
+    "discount": 0.0
+   }
+  ]
+ }
+}

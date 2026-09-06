@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/645.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "RESTAURANT LA MARIE GALANTE",
+  "date": "2017-06-20",
+  "total": 59.5,
+  "items": [
+   {
+    "name": "MENU AUTOUR DE MIDI",
+    "amount": 14.0,
+    "discount": 0
+   },
+   {
+    "name": "MENU A 20 F",
+    "amount": 10.0,
+    "discount": 0
+   },
+   {
+    "name": "SUPP. 6 HUITRES MENU",
+    "amount": 3.0,
+    "discount": 0
+   }
+  ]
+ }
+}

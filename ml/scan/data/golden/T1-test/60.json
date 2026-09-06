@@ -1,0 +1,74 @@
+{
+ "source": "dataset_findit/T1-test/img/60.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2015-09-10",
+  "total": 23.3,
+  "items": [
+   {
+    "name": "250 GR BAGUETTE CRF",
+    "amount": 1.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1/2 CONFIT AUBERGI",
+    "amount": 3.48,
+    "discount": 0.0
+   },
+   {
+    "name": "1/2 RAVIOLI PUR BF",
+    "amount": 1.2,
+    "discount": 0.0
+   },
+   {
+    "name": "25 POCH KRAFT C4",
+    "amount": 2.67,
+    "discount": 0.0
+   },
+   {
+    "name": "250G TORT RICOTTA",
+    "amount": 3.21,
+    "discount": 0.0
+   },
+   {
+    "name": "300G BISCOTT.CRF",
+    "amount": 0.85,
+    "discount": 0.0
+   },
+   {
+    "name": "300G MOUSSAKA BARQ",
+    "amount": 3.82,
+    "discount": 0.0
+   },
+   {
+    "name": "BOURGUIGNON W.SAUR",
+    "amount": 3.08,
+    "discount": 0.0
+   },
+   {
+    "name": "COOKIES TT CHOCO",
+    "amount": 0.98,
+    "discount": 0.0
+   },
+   {
+    "name": "HARRY'S EXTRA MOEL",
+    "amount": 0.69,
+    "discount": 0.0
+   },
+   {
+    "name": "PT BEUR.CHO LT NOI",
+    "amount": 1.27,
+    "discount": 0.0
+   },
+   {
+    "name": "SAUCIS.LENTILL.CRF",
+    "amount": 1.05,
+    "discount": 0.0
+   }
+  ]
+ }
+}

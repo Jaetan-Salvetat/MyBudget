@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/837.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Restaurant McDonald's LA ROCHELLE LES MINIMES",
+  "date": "2017-06-12",
+  "total": 8.4,
+  "items": [
+   {
+    "name": "BO McWrap Ba.Cro",
+    "amount": 8.4,
+    "discount": 0
+   },
+   {
+    "name": "Ketchup.",
+    "amount": 0.0,
+    "discount": 0
+   }
+  ]
+ }
+}

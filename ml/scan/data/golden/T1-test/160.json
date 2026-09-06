@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/160.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-06",
+  "total": 7.9,
+  "items": [
+   {
+    "name": "320G ELDE STOCKHOL",
+    "amount": 4.23,
+    "discount": 0
+   },
+   {
+    "name": "VACHE A BOIRE VANI",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "X4 POM.MURE MATERN",
+    "amount": 1.68,
+    "discount": 0
+   }
+  ]
+ }
+}

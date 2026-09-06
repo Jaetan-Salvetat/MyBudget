@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/469.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-05-20",
+  "total": 4.79,
+  "items": [
+   {
+    "name": "*SCSSON AIL SUP.CHP",
+    "amount": 4.79,
+    "discount": 0
+   }
+  ]
+ }
+}

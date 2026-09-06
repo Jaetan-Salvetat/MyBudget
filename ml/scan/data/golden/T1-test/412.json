@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/412.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-04-21",
+  "total": 3.89,
+  "items": [
+   {
+    "name": "*CHAUSSONS AUX POMMES",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*CRF CAFE BIO DOUX",
+    "amount": 2.29,
+    "discount": 0
+   }
+  ]
+ }
+}

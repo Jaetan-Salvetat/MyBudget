@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1031.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "GAUMONT NANTES",
+  "date": "2017-06-26",
+  "total": 2.7,
+  "items": [
+   {
+    "name": "EVIAN 50 CL",
+    "amount": 2.7,
+    "discount": 0
+   }
+  ]
+ }
+}

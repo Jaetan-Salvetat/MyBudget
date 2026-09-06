@@ -1,56 +1,76 @@
 import 'dart:async';
 
 import 'package:app_updater/app_updater.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/core/constants/feature_flags.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/models/feature_flag.dart';
+import 'package:mybudget/core/providers/feature_flags_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-    };
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+      };
 
-    await dotenv.load();
-    await PreferencesService.init();
-    await initializeDateFormatting('fr_FR', null);
+      await PreferencesService.init();
+      await PreferencesService.purgeUnknownFlagChoices(
+        featureFlags.map((FeatureFlag flag) => flag.id).toSet(),
+      );
+      await ApiKeyService().migrateLegacyGeminiKey();
+      await initializeDateFormatting('fr_FR', null);
 
-    final packageInfo = await PackageInfo.fromPlatform();
-    final isBeta = packageInfo.packageName.endsWith('.beta');
+      final flavor = BuildFlavor.current;
+      final packageInfo = await PackageInfo.fromPlatform();
 
-    final appUpdater = await AppUpdater.initialize(UpdateConfig(
+      runApp(
+        ProviderScope(
+          overrides: [
+            buildFlavorProvider.overrideWithValue(flavor),
+            appVersionProvider.overrideWithValue(packageInfo.version),
+            appBuildNumberProvider.overrideWithValue(
+              packageInfo.buildNumber,
+            ),
+            if (flavor.supportsInAppUpdate)
+              appUpdaterProvider.overrideWithValue(await _initUpdater(flavor)),
+          ],
+          child: const MyApp(),
+        ),
+      );
+    },
+    (error, stack) {
+      debugPrint('Uncaught error: $error\n$stack');
+    },
+  );
+}
+
+Future<AppUpdater> _initUpdater(BuildFlavor flavor) {
+  return AppUpdater.initialize(
+    UpdateConfig(
       githubOwner: 'Jaetan-Salvetat',
       githubRepo: 'MyBudget',
-      channel: isBeta ? UpdateChannel.beta : UpdateChannel.stable,
+      channel: flavor == BuildFlavor.beta
+          ? UpdateChannel.beta
+          : UpdateChannel.stable,
       versionComparator: _isNewerVersion,
-    ));
-
-    runApp(
-      ProviderScope(
-        overrides: [
-          appUpdaterProvider.overrideWithValue(appUpdater),
-        ],
-        child: const MyApp(),
-      ),
-    );
-  }, (error, stack) {
-    debugPrint('Uncaught error: $error\n$stack');
-  });
+    ),
+  );
 }
 
 bool _isNewerVersion(String current, String candidate) {
@@ -128,33 +148,54 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class _AppContent extends ConsumerWidget {
+class _AppContent extends ConsumerStatefulWidget {
   const _AppContent();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends ConsumerState<_AppContent> {
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycleListener = AppLifecycleListener(onResume: _refreshDatedState);
+    _refreshBlocklist();
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
+
+  void _refreshDatedState() {
+    ref.invalidate(loanProvider);
+    _refreshBlocklist();
+  }
+
+  void _refreshBlocklist() {
+    unawaited(ref.read(flagBlocklistProvider.notifier).refresh());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
     ref.watch(homeWidgetProvider);
 
-    return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          title: 'My Budget',
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('fr')],
-          theme: themeNotifier.getLightTheme(dynamicColorScheme: lightDynamic),
-          darkTheme: themeNotifier.getDarkTheme(dynamicColorScheme: darkDynamic),
-          themeMode: themeState.themeMode,
-          home: const SplashScreen(),
-        );
-      },
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      debugShowCheckedModeBanner: false,
+      title: 'My Budget',
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: const [Locale('fr')],
+      theme: themeNotifier.lightTheme,
+      darkTheme: themeNotifier.darkTheme,
+      themeMode: themeState.themeMode,
+      home: const SplashScreen(),
     );
   }
 }

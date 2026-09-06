@@ -1,0 +1,39 @@
+{
+ "source": "dataset_findit/T1-train/img/372.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-03",
+  "total": 8.0,
+  "items": [
+   {
+    "name": "*320G SAL.MONTMART",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*BANANE",
+    "amount": 0.29,
+    "discount": 0
+   },
+   {
+    "name": "*CAROTTE RAPE BIO",
+    "amount": 1.6,
+    "discount": 0
+   },
+   {
+    "name": "*ORANGE",
+    "amount": 0.79,
+    "discount": 0
+   },
+   {
+    "name": "*POMME CHANTECLERC",
+    "amount": 1.58,
+    "discount": 0
+   }
+  ]
+ }
+}

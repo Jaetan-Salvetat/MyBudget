@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/909.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "DECATHLON LA ROCHELLE",
+  "date": "2017-05-25",
+  "total": 9.99,
+  "items": [
+   {
+    "name": "ELIOFEET HOMME BLEUM",
+    "amount": 9.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

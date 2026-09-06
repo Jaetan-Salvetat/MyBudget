@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/869.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "GÉMO",
+  "date": "2017-06-09",
+  "total": 12.98,
+  "items": [
+   {
+    "name": "PASSE-ORTEILS BLEU",
+    "amount": 7.99,
+    "discount": 0.0
+   },
+   {
+    "name": "SHORT DE BAIN NOIR",
+    "amount": 4.99,
+    "discount": 0.0
+   }
+  ]
+ }
+}

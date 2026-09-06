@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/1500.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "VIAMARIS SAS",
+  "date": "2017-02-28",
+  "total": 42.7,
+  "items": [
+   {
+    "name": "BONNET MARIN DOUBLE ROUGE",
+    "amount": 6.9,
+    "discount": 0.0
+   },
+   {
+    "name": "BONNET MARIN DOUBLE ROUGE",
+    "amount": 6.9,
+    "discount": 0.0
+   },
+   {
+    "name": "MARINIERE CODY VM",
+    "amount": 28.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,89 @@
+{
+ "source": "dataset_findit/T1-train/img/194.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-01-28",
+  "total": 36.73,
+  "items": [
+   {
+    "name": "*100G EXCEL.NR AMAN",
+    "amount": 1.74,
+    "discount": 0
+   },
+   {
+    "name": "*16X DOS CAFE EQUIL",
+    "amount": 2.11,
+    "discount": 0
+   },
+   {
+    "name": "*1L BOISS.RIZ CRF B",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "*2 RLX ESS-TT CARF",
+    "amount": 2.37,
+    "discount": 0
+   },
+   {
+    "name": "*500G MUESLI CROUST",
+    "amount": 3.13,
+    "discount": 0
+   },
+   {
+    "name": "*AVOCAT",
+    "amount": 2.9,
+    "discount": 0
+   },
+   {
+    "name": "*BANANES",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "*BRETS CHIPS CRAQ.",
+    "amount": 1.23,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGNON VRAC",
+    "amount": 2.49,
+    "discount": 0
+   },
+   {
+    "name": "*EXCELL.NOIR ORANGE",
+    "amount": 1.58,
+    "discount": 0
+   },
+   {
+    "name": "*FLT.PLT JNE CRF X2",
+    "amount": 3.67,
+    "discount": 0
+   },
+   {
+    "name": "*GALET RIZ COMP NAT",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "*MANDARINE FILET BIO",
+    "amount": 4.4,
+    "discount": 0
+   },
+   {
+    "name": "*SOUPE LEG.MOULINEE",
+    "amount": 2.95,
+    "discount": 0
+   },
+   {
+    "name": "*STK HACHE XXL VBF",
+    "amount": 2.95,
+    "discount": 0
+   }
+  ]
+ }
+}

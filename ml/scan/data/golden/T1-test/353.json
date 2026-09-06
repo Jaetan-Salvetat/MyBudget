@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/353.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-19",
+  "total": 6.73,
+  "items": [
+   {
+    "name": "*BUDDHA BOL PATATE",
+    "amount": 5.5,
+    "discount": 0
+   },
+   {
+    "name": "*X16 CHOCOLAT BN",
+    "amount": 1.23,
+    "discount": 0
+   }
+  ]
+ }
+}

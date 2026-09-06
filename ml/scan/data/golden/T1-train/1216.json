@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/1216.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "ALFA PRIM",
+  "date": "2017-06-16",
+  "total": 2.88,
+  "items": [
+   {
+    "name": "FRUITS ET LEGUMES",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "FRUITS ET LEGUMES",
+    "amount": 0.8,
+    "discount": 0
+   },
+   {
+    "name": "FRUITS ET LEGUMES",
+    "amount": 0.86,
+    "discount": 0
+   }
+  ]
+ }
+}

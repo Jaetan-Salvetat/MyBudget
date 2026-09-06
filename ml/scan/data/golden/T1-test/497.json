@@ -1,0 +1,84 @@
+{
+ "source": "dataset_findit/T1-test/img/497.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2017-02-01",
+  "total": 24.93,
+  "items": [
+   {
+    "name": "400G SCE OLIV/BASI",
+    "amount": 1.48,
+    "discount": 0
+   },
+   {
+    "name": "*4X100G YOPA 0% LIT",
+    "amount": 1.95,
+    "discount": 1.17
+   },
+   {
+    "name": "*4X100G YOPA 2% LIT",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "DOSET.GD CLASS.CRF",
+    "amount": 2.99,
+    "discount": 0
+   },
+   {
+    "name": "*FLT 1KG ORANGE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "*FLT OIGN PPRIX FR",
+    "amount": 1.89,
+    "discount": 0
+   },
+   {
+    "name": "*PDT CONSERV.BLCHE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "RIZ SOUFFLE CHOCO",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "THE VERT MENTHE",
+    "amount": 0.97,
+    "discount": 0
+   },
+   {
+    "name": "*YAOUR.FRT X16 CRF",
+    "amount": 2.69,
+    "discount": 0
+   },
+   {
+    "name": "5 CARRES VSL.CRF",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "LIQ.VLS NACRE CRF",
+    "amount": 1.3,
+    "discount": 0
+   },
+   {
+    "name": "CASSEROLE 18CM PP",
+    "amount": 4.65,
+    "discount": 0
+   },
+   {
+    "name": "SAC DE CAISSE",
+    "amount": 0.75,
+    "discount": 0
+   }
+  ]
+ }
+}

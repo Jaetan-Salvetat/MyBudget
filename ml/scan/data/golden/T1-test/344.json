@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-test/img/344.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": null,
+  "total": 4.39,
+  "items": [
+   {
+    "name": "*200G HOUMMOUS CRF",
+    "amount": 1.79,
+    "discount": 0.0
+   },
+   {
+    "name": "*CONCOMBRE",
+    "amount": 1.1,
+    "discount": 0.0
+   },
+   {
+    "name": "*PETIT ECOL.CHOC.LT",
+    "amount": 1.5,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "source": "dataset_findit/T1-train/img/715.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BIOCOOP REGAIN",
+  "date": "2017-03-06",
+  "total": 71.11,
+  "items": [
+   {
+    "name": "LAIT AMANDE CHOCO MINI",
+    "amount": 1.9,
+    "discount": 0
+   },
+   {
+    "name": "FUSILLI SARRASIN",
+    "amount": 4.41,
+    "discount": 0
+   },
+   {
+    "name": "RICE DRINK NATURE X6",
+    "amount": 8.7,
+    "discount": 0
+   },
+   {
+    "name": "SEL MOULU SALIERE 250G",
+    "amount": 2.4,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT CHOCOLAT/BREBIS 125G",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "FONDANT DE BREBIS 35%MG",
+    "amount": 4.28,
+    "discount": 0
+   },
+   {
+    "name": "SOJADE NATURE X4",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "SOJADE NATURE X4",
+    "amount": 1.8,
+    "discount": 0
+   },
+   {
+    "name": "TOFU LACTOFERMENTE AU TAMARI",
+    "amount": 3.2,
+    "discount": 0
+   },
+   {
+    "name": "SALADE",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "BROCOLI",
+    "amount": 1.43,
+    "discount": 0
+   },
+   {
+    "name": "BANANE",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERIE DE LOZER",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "DESSERT BREBIS VANILLE BERGERIE DE LOZER",
+    "amount": 1.1,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE YAOURT FRAISE/BANANE",
+    "amount": 4.2,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE POMME FRAMBOISE BANANE",
+    "amount": 3.95,
+    "discount": 0
+   },
+   {
+    "name": "GOURDE POMME POIRE X6",
+    "amount": 3.9,
+    "discount": 0
+   },
+   {
+    "name": "PASSATA BJP 680GR",
+    "amount": 1.45,
+    "discount": 0
+   },
+   {
+    "name": "OEUF*10 CALI53 63",
+    "amount": 4.05,
+    "discount": 0
+   },
+   {
+    "name": "FLOCONS DE SARRASIN POCHE",
+    "amount": 3.0,
+    "discount": 0
+   },
+   {
+    "name": "FLOCONS MILLET POCHE",
+    "amount": 2.35,
+    "discount": 0
+   },
+   {
+    "name": "POMME",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "RIZ BASM 1/2 COMPL VRAC",
+    "amount": 3.77,
+    "discount": 0
+   },
+   {
+    "name": "GINGEMBRE RACINE FRAICHE",
+    "amount": 0.3,
+    "discount": 0
+   }
+  ]
+ }
+}

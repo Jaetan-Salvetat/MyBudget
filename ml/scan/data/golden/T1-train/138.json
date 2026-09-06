@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/138.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-04-04",
+  "total": 4.23,
+  "items": [
+   {
+    "name": "SALADE VENEZIA",
+    "amount": 4.23,
+    "discount": 0
+   }
+  ]
+ }
+}

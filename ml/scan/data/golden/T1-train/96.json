@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/96.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-24",
+  "total": 2.52,
+  "items": [
+   {
+    "name": "*CAROT.RAPE/TABOULE",
+    "amount": 1.95,
+    "discount": 0.0
+   },
+   {
+    "name": "*PET 1.25L EAU GAZ",
+    "amount": 0.57,
+    "discount": 0.0
+   }
+  ]
+ }
+}

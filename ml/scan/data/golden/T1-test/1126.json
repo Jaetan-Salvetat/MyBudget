@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/1126.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "HYPER U",
+  "date": "2017-04-22",
+  "total": 7.86,
+  "items": [
+   {
+    "name": "DCHE LT GUIMAUVE COTTAGE 250ML",
+    "amount": 1.99,
+    "discount": 0
+   },
+   {
+    "name": "BAGUETT.DE TRADITION FRANCAISE",
+    "amount": 0.82,
+    "discount": 0
+   },
+   {
+    "name": "OEUFS PPA LABEL ROUGE U BTE X6",
+    "amount": 1.95,
+    "discount": 0
+   },
+   {
+    "name": "ROCHER FERRERO CUBE X6 75G",
+    "amount": 6.2,
+    "discount": 3.1
+   }
+  ]
+ }
+}

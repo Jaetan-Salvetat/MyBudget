@@ -1,0 +1,114 @@
+{
+ "source": "dataset_findit/T1-test/img/1255.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Netto",
+  "date": "2017-01-17",
+  "total": 28.5,
+  "items": [
+   {
+    "name": "GALBANI MOZZARELLA 1",
+    "amount": 0.82,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO CONFITURE FRAM",
+    "amount": 0.94,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO HARICO.BLC PRE",
+    "amount": 0.45,
+    "discount": 0.0
+   },
+   {
+    "name": "PAT CREME FLEURETTE",
+    "amount": 1.31,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO MELANGE EXOTIQ",
+    "amount": 1.6,
+    "discount": 0.0
+   },
+   {
+    "name": "POIVRON TRICOLORE 50",
+    "amount": 1.99,
+    "discount": 0.0
+   },
+   {
+    "name": "GALZIN BAGUETTE 6GRA",
+    "amount": 1.19,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO CHEVRE A DORER",
+    "amount": 2.09,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO RAPE 3 FROMAGE",
+    "amount": 1.55,
+    "discount": 0.0
+   },
+   {
+    "name": "KIWI VERT PIECE",
+    "amount": 0.75,
+    "discount": 0.0
+   },
+   {
+    "name": "PERSIL PLAT BOTTE",
+    "amount": 0.89,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO NOIR ORANGE 10",
+    "amount": 0.95,
+    "discount": 0.0
+   },
+   {
+    "name": "LIEB.PSOUP VELOU.10L",
+    "amount": 1.92,
+    "discount": 0.0
+   },
+   {
+    "name": "LIEB.PSOUP VELOU.10L",
+    "amount": 1.92,
+    "discount": 0.0
+   },
+   {
+    "name": "STMICHEL MAD COQ PEP",
+    "amount": 2.47,
+    "discount": 0.0
+   },
+   {
+    "name": "ALWAYS SERV.ULTRA NO",
+    "amount": 1.9,
+    "discount": 0.0
+   },
+   {
+    "name": "YOPA S/LIT FRTS RGES",
+    "amount": 1.47,
+    "discount": 0.0
+   },
+   {
+    "name": "NETTO MELANGE RAISIN",
+    "amount": 1.78,
+    "discount": 0.0
+   },
+   {
+    "name": "MANDARINE TOP BUDGET",
+    "amount": 1.69,
+    "discount": 0.0
+   },
+   {
+    "name": "BANANE VRAC",
+    "amount": 0.82,
+    "discount": 0.0
+   }
+  ]
+ }
+}

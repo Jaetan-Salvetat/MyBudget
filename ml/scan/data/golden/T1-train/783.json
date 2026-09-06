@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/783.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "ESPACE CULTUREL ST JEAN D'ANGELY",
+  "date": "2016-12-24",
+  "total": 88.0,
+  "items": [
+   {
+    "name": "BILLETTERIE TICKETNET",
+    "amount": 88.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

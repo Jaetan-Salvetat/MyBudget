@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/994.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LA HALLE",
+  "date": "2016-12-21",
+  "total": 89.98,
+  "items": [
+   {
+    "name": "BASKETS/TENNIS MONTANTES",
+    "amount": 39.99,
+    "discount": 0
+   },
+   {
+    "name": "BOTTES",
+    "amount": 45.0,
+    "discount": 0
+   },
+   {
+    "name": "SEMELLES",
+    "amount": 4.99,
+    "discount": 0
+   }
+  ]
+ }
+}

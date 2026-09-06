@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/25.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-01-16",
+  "total": 27.72,
+  "items": [
+   {
+    "name": "*75 MONBAZILLAC ML",
+    "amount": 17.14,
+    "discount": 0.0
+   },
+   {
+    "name": "*D.PIZZA 4 FORMAGGI",
+    "amount": 4.9,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZ.CHEV.CRF 440G",
+    "amount": 2.98,
+    "discount": 0.0
+   },
+   {
+    "name": "*PIZZA 4SAISONS CRF",
+    "amount": 2.72,
+    "discount": 0.0
+   }
+  ]
+ }
+}

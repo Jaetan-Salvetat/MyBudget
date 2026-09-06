@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/771.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Côté SUD RESTAURANT",
+  "date": "2016-12-16",
+  "total": 58.5,
+  "items": [
+   {
+    "name": "BARDOLINO ROUGE 1/2",
+    "amount": 12.9,
+    "discount": 0.0
+   },
+   {
+    "name": "ENTREE PLAT DESSERT",
+    "amount": 41.8,
+    "discount": 0.0
+   },
+   {
+    "name": "EXPRESSO",
+    "amount": 3.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/266.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-08",
+  "total": 2.74,
+  "items": [
+   {
+    "name": "*ABRICOT GROS",
+    "amount": 0.94,
+    "discount": 0.0
+   },
+   {
+    "name": "*BQ TOMATE CERISE BIO",
+    "amount": 1.8,
+    "discount": 0.0
+   }
+  ]
+ }
+}

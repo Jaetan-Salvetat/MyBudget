@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/557.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-06-28",
+  "total": 11.59,
+  "items": [
+   {
+    "name": "*1L LT EC MATIN LEG",
+    "amount": 3.52,
+    "discount": 0
+   },
+   {
+    "name": "*75 VDP OC MERLOTML",
+    "amount": 3.07,
+    "discount": 0
+   },
+   {
+    "name": "*BEURRE PRESIDENT",
+    "amount": 2.01,
+    "discount": 0
+   },
+   {
+    "name": "*EVIAN NEW 1.5L",
+    "amount": 0.61,
+    "discount": 0
+   },
+   {
+    "name": "*PET 6X1.5L EAU SCE C",
+    "amount": 1.14,
+    "discount": 0
+   },
+   {
+    "name": "*PIM'S ORANGE LU",
+    "amount": 1.24,
+    "discount": 0
+   }
+  ]
+ }
+}

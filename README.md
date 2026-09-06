@@ -58,3 +58,83 @@ Pas de compte à créer, pas de serveur, aucune donnée ne sort de ton appareil.
 Récupère la dernière version (APK) sur la page [Releases](https://github.com/Jaetan-Salvetat/MyBudget/releases).
 
 Une version **beta** est aussi disponible pour tester les nouveautés en avant-première.
+
+## Développement
+
+**Prérequis** : Flutter 3.47.1, JDK 17.
+
+```bash
+git clone https://github.com/Jaetan-Salvetat/MyBudget.git
+cd MyBudget
+flutter pub get
+./tool/models/fetch.sh   # tous les modèles embarqués (~160 Mo)
+flutter run --flavor dev
+```
+
+`./tool/models/fetch.sh` n'est pas optionnel. Les modèles vivent dans les
+[release assets](https://github.com/Jaetan-Salvetat/MyBudget/releases) plutôt que dans le dépôt :
+160 Mo par version que LFS facturerait en stockage et en bande passante à chaque checkout de CI.
+Sans eux, le build passe et l'APK se construit — mais l'app échoue au premier ajout rapide ou au
+premier ticket scanné, parce que `assets/models/` est déclaré comme dossier dans `pubspec.yaml`
+et qu'un fichier manquant ne casse rien à la compilation. Le script vérifie chaque empreinte
+SHA-256 décrite dans `tool/models/lock.env` et sort en erreur si l'une ne correspond pas.
+
+Cinq modèles, une seule version, une seule release : le classifieur ONNX de l'ajout rapide et son
+tokenizer, et les trois modèles du scan local (classifieur de lignes, tagger de rôles, modèle de
+lien). Ils sont utilisés ensemble et mesurés ensemble — une installation qui mélangerait les
+versions déciderait autrement que la référence.
+
+### Publier de nouveaux modèles
+
+Après un ré-entraînement (`ml/classifier/` pour l'ajout rapide, `ml/scan/` pour le scan) :
+
+```bash
+./tool/models/publish.sh          # ou ./tool/models/publish.sh v9 pour imposer la version
+flutter test
+```
+
+Un seul script pour les cinq. Chacun est repris de sa sortie d'entraînement si elle existe, et
+**reporté tel quel sous la nouvelle version** sinon : ré-entraîner un seul modèle suffit, les
+autres suivent sans être régénérés. Le script régénère le tokenizer binaire depuis le tokenizer
+d'entraînement, crée la release GitHub avec les cinq assets et la source du tokenizer, et réécrit
+`tool/models/lock.env`. Il refuse de publier sur un tag existant. Reste à committer :
+`tool/models/lock.env`.
+
+De l'autre côté, `fetch.sh` ne retélécharge que ce qui a changé : un modèle déjà présent dont
+l'empreinte correspond est simplement renommé sous la nouvelle version — faire avancer la version
+commune ne coûte pas 142 Mo de trafic pour un modèle inchangé.
+
+Aucun code n'est à éditer : `QuickAddModelRunner` lit le nom du modèle dans le manifeste des
+assets, et échoue avec un message explicite si `assets/models/` n'en contient aucun — ou plusieurs.
+
+**La version dans le nom du fichier n'est pas cosmétique.** `flutter_onnxruntime` extrait l'asset
+dans le dossier temporaire et le met en cache sous son seul nom de fichier : republier un modèle
+sous un nom déjà utilisé laisserait toutes les installations existantes tourner sur l'ancien après
+mise à jour, sans erreur visible. `QuickAddModelRunner` supprime au chargement les extractions des
+versions précédentes, qui pèsent autant que le modèle.
+
+Garder `QuickAddLabels` synchronisé avec l'ordre des labels du training. Le golden
+`test/fixtures/tokenizer_golden.json` vérifie que le tokenizer binaire encode exactement comme le
+`tokenizer.json` d'origine.
+
+### Corpus d'entraînement
+
+Les modèles sont publiés ici, les données qui les entraînent ne le sont pas : elles vivent dans un
+dépôt Hugging Face **privé**, seul endroit où le corpus FindIt peut tenir sans enfreindre sa licence
+de recherche. Rien de tout ça n'est nécessaire pour construire l'app — seulement pour ré-entraîner.
+
+```bash
+./tool/ml_data/fetch.sh --list        # l'inventaire des corpus
+./tool/ml_data/fetch.sh annotations   # ~57 Mo, suffit à entraîner le tagger de rôles
+```
+
+Détail dans [`ml/README.md`](ml/README.md).
+
+### Fonctionnalités sous drapeau
+
+Les nouveautés en cours de mise au point s'activent depuis *Réglages → Aide & Support →
+Labo*, et peuvent être coupées à distance sur un parc déjà installé — une version publiée
+ne se rétracte pas. Le registre embarqué décide des défauts, le serveur ne connaît que les
+blocages, et un blocage l'emporte toujours sur le choix de l'utilisateur.
+
+Détail dans [`FEATURE_FLAGS.md`](FEATURE_FLAGS.md).

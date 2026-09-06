@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-train/img/197.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE/CRD",
+  "date": "2017-01-18",
+  "total": 21.49,
+  "items": [
+   {
+    "name": "*100G CHIPS LEGUMES",
+    "amount": 2.39,
+    "discount": 0
+   },
+   {
+    "name": "*75 CHILI RG CASILL",
+    "amount": 13.9,
+    "discount": 0
+   },
+   {
+    "name": "*AMANDES DECORTIQUE",
+    "amount": 3.45,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATE CERISE BIO BQ",
+    "amount": 1.75,
+    "discount": 0
+   }
+  ]
+ }
+}

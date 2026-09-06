@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1530.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PAUL QUAI",
+  "date": "2017-02-28",
+  "total": 5.0,
+  "items": [
+   {
+    "name": "1 TOMATE MOZZA",
+    "amount": 5.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

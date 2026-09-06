@@ -7,6 +7,7 @@ class ImportReport {
   final ImportEntityReport expenses;
   final ImportEntityReport revenues;
   final ImportEntityReport loans;
+  final ImportEntityReport loanEvents;
   final ImportEntityReport transfers;
 
   const ImportReport({
@@ -16,11 +17,22 @@ class ImportReport {
     this.expenses = const ImportEntityReport(entityName: 'Dépenses'),
     this.revenues = const ImportEntityReport(entityName: 'Revenus'),
     this.loans = const ImportEntityReport(entityName: 'Emprunts'),
+    this.loanEvents = const ImportEntityReport(
+      entityName: 'Remboursements anticipés',
+    ),
     this.transfers = const ImportEntityReport(entityName: 'Virements'),
   });
 
-  List<ImportEntityReport> get all =>
-      [beneficiaries, accounts, categories, expenses, revenues, loans, transfers];
+  List<ImportEntityReport> get all => [
+    beneficiaries,
+    accounts,
+    categories,
+    expenses,
+    revenues,
+    loans,
+    loanEvents,
+    transfers,
+  ];
 
   bool get hasWarnings => all.any((r) => r.hasIssues);
 

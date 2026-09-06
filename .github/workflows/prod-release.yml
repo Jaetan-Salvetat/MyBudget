@@ -1,9 +1,7 @@
 name: Create Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   create_release:
@@ -27,8 +25,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.4'
-          channel: 'stable'
+          flutter-version: '3.47.1'
           cache: true
 
       - name: Cache Gradle
@@ -53,11 +50,17 @@ jobs:
 
 
 
-      - name: Create .env
-        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
-
       - name: Flutter pub get
         run: flutter pub get
+
+      - name: Cache models
+        uses: actions/cache@v4
+        with:
+          path: assets/models
+          key: models-${{ hashFiles('tool/models/lock.env') }}
+
+      - name: Fetch models
+        run: ./tool/models/fetch.sh
 
       - name: Build apk
         run: flutter build apk --flavor prod --release --no-tree-shake-icons

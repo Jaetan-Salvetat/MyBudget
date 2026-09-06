@@ -1,15 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/loans/widgets/loan_card.dart';
-import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
-import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
-import 'package:mybudget/ui/loans/widgets/loan_creation_bottom_sheet.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/loans/screens/loan_details_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_card.dart';
+import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_summary_card.dart';
 
 class LoansList extends ConsumerWidget {
   const LoansList({super.key});
@@ -19,7 +21,7 @@ class LoansList extends ConsumerWidget {
     return ref
         .watch(loanProvider)
         .when(
-          loading: () => const Center(child: FrostedCircularProgressIndicator()),
+          loading: () => const Center(child: FrostedCircularProgress()),
           error: (error, _) => Center(child: Text('Erreur: $error')),
           data: (loans) {
             final loanNotifier = ref.read(loanProvider.notifier);
@@ -31,39 +33,30 @@ class LoansList extends ConsumerWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(
-                top: 16,
-                bottom: 100,
-                left: 16,
-                right: 16,
+              padding: EdgeInsets.fromLTRB(
+                kMainFlowGutter,
+                16,
+                kMainFlowGutter,
+                mainFlowBottomInset(context),
               ),
               children: [
                 _buildSummaryCard(context, ref),
-                const SizedBox(height: 24),
-                if (isEmpty) _buildEmptyState(context, ref),
+                if (isEmpty) ...[
+                  const SizedBox(height: 24),
+                  _buildEmptyState(context, ref),
+                ],
                 if (activeLoans.isNotEmpty) ...[
-                  Text(
-                    'Emprunts actifs (${activeLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  _buildSectionTitle(context, 'Actifs', activeLoans.length),
                   ...activeLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
                 ],
                 if (completedLoans.isNotEmpty) ...[
-                  const SizedBox(height: 32),
-                  Text(
-                    'Emprunts remboursés (${completedLoans.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  _buildSectionTitle(
+                    context,
+                    'Remboursés',
+                    completedLoans.length,
                   ),
-                  const SizedBox(height: 16),
                   ...completedLoans.map(
                     (loan) => _buildLoanCard(context, loan, accounts, ref),
                   ),
@@ -74,23 +67,60 @@ class LoansList extends ConsumerWidget {
         );
   }
 
-  Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {
-    final totalActiveInitialAmount =
-        ref.read(loanProvider.notifier).getTotalActiveInitialAmount();
-    final totalRemainingAmount =
-        ref.read(loanProvider.notifier).getTotalRemainingAmount();
-    final totalMonthlyPayment =
-        ref.read(loanProvider.notifier).getTotalMonthlyPayments();
-    final totalRemainingCost =
-        ref.read(loanProvider.notifier).getTotalRemainingCost();
-    final activeLoanCount =
-        ref.read(loanProvider.notifier).getActiveLoans().length;
+  Widget _buildSectionTitle(BuildContext context, String title, int count) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 8, left: 4, right: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.09 * 11,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 11,
+              height: 14 / 11,
+              fontWeight: FontWeight.w500,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    final progress =
-        totalActiveInitialAmount == 0
-            ? 0.0
-            : (totalActiveInitialAmount - totalRemainingAmount) /
-                totalActiveInitialAmount;
+  Widget _buildSummaryCard(BuildContext context, WidgetRef ref) {
+    final totalActiveInitialAmount = ref
+        .read(loanProvider.notifier)
+        .getTotalActiveInitialAmount();
+    final totalRemainingAmount = ref
+        .read(loanProvider.notifier)
+        .getTotalRemainingAmount();
+    final totalMonthlyPayment = ref
+        .read(loanProvider.notifier)
+        .getTotalMonthlyPayments();
+    final totalRemainingCost = ref
+        .read(loanProvider.notifier)
+        .getTotalRemainingCost();
+    final activeLoanCount = ref
+        .read(loanProvider.notifier)
+        .getActiveLoans()
+        .length;
+
+    final progress = totalActiveInitialAmount == 0
+        ? 0.0
+        : (totalActiveInitialAmount - totalRemainingAmount) /
+              totalActiveInitialAmount;
 
     return LoanSummaryCard(
       totalDebt: totalRemainingAmount,
@@ -107,17 +137,15 @@ class LoansList extends ConsumerWidget {
     List<AccountModel> accounts,
     WidgetRef ref,
   ) {
-    final accountName =
-        accounts.isEmpty
-            ? 'Compte inconnu'
-            : accounts
-                .firstWhere(
-                  (a) => a.id == loan.accountId,
-                  orElse:
-                      () =>
-                          AccountModel.create(name: 'Compte inconnu', bank: ''),
-                )
-                .name;
+    final accountName = accounts.isEmpty
+        ? 'Compte inconnu'
+        : accounts
+              .firstWhere(
+                (a) => a.id == loan.accountId,
+                orElse: () =>
+                    AccountModel.create(name: 'Compte inconnu', bank: ''),
+              )
+              .name;
 
     return LoanCard(
       loan: loan,
@@ -137,21 +165,49 @@ class LoansList extends ConsumerWidget {
     return EmptyState(
       message: 'Aucun emprunt enregistré',
       subMessage: 'Ajoutez vos emprunts pour suivre vos remboursements',
-      icon: Icons.payments,
+      icon: Symbols.payments_rounded,
       buttonText: 'Ajouter un emprunt',
       onPressed: () {
         final accounts = ref.read(accountProvider).value ?? [];
-        final loanNotifier = ref.read(loanProvider.notifier);
-
-        LoanCreationBottomSheet.show(
-          context: context,
-          accounts: accounts,
-          onSubmit: (newLoan) {
-            loanNotifier.addLoan(newLoan);
-          },
-          onCancel: () {},
-        );
+        if (accounts.isEmpty) {
+          _showNoAccountDialog(context, 'un emprunt');
+          return;
+        }
+        _openLoanForm(context, ref, accounts);
       },
+    );
+  }
+
+  Future<void> _openLoanForm(
+    BuildContext context,
+    WidgetRef ref,
+    List<AccountModel> accounts,
+  ) async {
+    final loan = await LoanCreationScreen.push(
+      context: context,
+      accounts: accounts,
+    );
+    if (loan == null) return;
+
+    await ref.read(loanProvider.notifier).addLoan(loan);
+  }
+
+  void _showNoAccountDialog(BuildContext context, String action) {
+    showFrostedDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => FrostedDialog(
+        title: 'Aucun compte disponible',
+        body: Text(
+          'Vous devez d\'abord créer un compte avant d\'ajouter $action.',
+        ),
+        actions: [
+          FrostedButton.text(
+            label: 'OK',
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }

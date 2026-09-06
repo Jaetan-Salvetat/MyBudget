@@ -1,0 +1,29 @@
+{
+ "source": "dataset_findit/T1-train/img/391.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-05-12",
+  "total": 11.71,
+  "items": [
+   {
+    "name": "*75 BDX ROS CAF ML",
+    "amount": 3.89,
+    "discount": 0.0
+   },
+   {
+    "name": "*KINDER SCHOKOBONS",
+    "amount": 4.87,
+    "discount": 0.0
+   },
+   {
+    "name": "*TOMATE JAUNE BQ 250G",
+    "amount": 2.95,
+    "discount": 0.0
+   }
+  ]
+ }
+}

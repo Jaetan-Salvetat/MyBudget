@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/1142.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.Leclerc",
+  "date": "2017-04-08",
+  "total": 14.56,
+  "items": [
+   {
+    "name": "CHOCO EXCELLENCE NR 85% LINDT",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "MOELLEUX TOUT CHOCOLAT X6,180G",
+    "amount": 1.55,
+    "discount": 0
+   },
+   {
+    "name": "4 CRAQUANT ET FONDAN",
+    "amount": 1.98,
+    "discount": 0
+   },
+   {
+    "name": "SLA LIT FRTS RGES YOPA.4X100G",
+    "amount": 1.25,
+    "discount": 0
+   },
+   {
+    "name": "CR FRAICHE EPAISSE 15%,200G",
+    "amount": 0.77,
+    "discount": 0
+   },
+   {
+    "name": "EMMENTAL RAPE",
+    "amount": 1.22,
+    "discount": 0
+   },
+   {
+    "name": "OEUFS PA OMEGA 3 X6",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "ALUMINIUM 30M",
+    "amount": 1.04,
+    "discount": 0
+   },
+   {
+    "name": "JOKER LE FRUIT MULTIFRUIT,1L",
+    "amount": 1.33,
+    "discount": 0
+   },
+   {
+    "name": "BAGUET/ANCIENNE",
+    "amount": 0.7,
+    "discount": 0
+   },
+   {
+    "name": "MINI VIENNOISERIES 10 +2 GRT",
+    "amount": 2.2,
+    "discount": 0
+   }
+  ]
+ }
+}

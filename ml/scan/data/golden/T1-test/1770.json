@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/1770.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "espace culturel E.Leclerc",
+  "date": "2014-12-14",
+  "total": 79.99,
+  "items": [
+   {
+    "name": "* HD EXT 2.5 1TO SAMSUNG USB3",
+    "amount": 79.99,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/1690.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Le Moulin",
+  "date": "2016-07-15",
+  "total": 36.0,
+  "items": [
+   {
+    "name": "2 Menu à 18",
+    "amount": 36.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

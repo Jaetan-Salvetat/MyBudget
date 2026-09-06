@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/855.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "le jardin de Tonnay",
+  "date": "2017-06-14",
+  "total": 1.04,
+  "items": [
+   {
+    "name": "CERISE",
+    "amount": 1.04,
+    "discount": 0
+   }
+  ]
+ }
+}

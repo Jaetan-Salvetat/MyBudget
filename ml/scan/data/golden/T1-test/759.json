@@ -1,0 +1,44 @@
+{
+ "source": "dataset_findit/T1-test/img/759.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-01-19",
+  "total": 12.63,
+  "items": [
+   {
+    "name": "UHT BK CHARENTE POITOU",
+    "amount": 4.14,
+    "discount": 0.0
+   },
+   {
+    "name": "ST FELICIEN,180G",
+    "amount": 1.94,
+    "discount": 0.0
+   },
+   {
+    "name": "PLANTA FIN DOUX 510G",
+    "amount": 1.71,
+    "discount": 0.0
+   },
+   {
+    "name": "FOIE DE BOEUF",
+    "amount": 3.0,
+    "discount": 0.0
+   },
+   {
+    "name": "CLEMENTINES",
+    "amount": 0.94,
+    "discount": 0.0
+   },
+   {
+    "name": "RADIS BOTTE",
+    "amount": 0.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

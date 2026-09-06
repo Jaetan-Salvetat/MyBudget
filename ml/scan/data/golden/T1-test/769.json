@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/769.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "AUTOGRILL - COTE FRANCE",
+  "date": "2017-01-02",
+  "total": 14.0,
+  "items": [
+   {
+    "name": "SSR T/ MENU BURGER P+D HV",
+    "amount": 14.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

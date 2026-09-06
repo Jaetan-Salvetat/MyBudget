@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1096.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LA GALETTIERE CREPERIE",
+  "date": "2017-05-13",
+  "total": 16.1,
+  "items": [
+   {
+    "name": "L INDIENNE",
+    "amount": 10.5,
+    "discount": 0
+   },
+   {
+    "name": "BANANES NUTTELA",
+    "amount": 5.6,
+    "discount": 0
+   }
+  ]
+ }
+}

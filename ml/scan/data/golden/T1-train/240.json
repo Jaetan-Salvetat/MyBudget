@@ -1,0 +1,54 @@
+{
+ "source": "dataset_findit/T1-train/img/240.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour market AYTRE",
+  "date": "2016-12-17",
+  "total": 5.25,
+  "items": [
+   {
+    "name": "150G BISC TAB CHOC",
+    "amount": 0.91,
+    "discount": 0
+   },
+   {
+    "name": "*400G NUGGET DDE HA",
+    "amount": 0.91,
+    "discount": 0
+   },
+   {
+    "name": "*AMANDE EMONDE 300G",
+    "amount": 0.9,
+    "discount": 0
+   },
+   {
+    "name": "*CHAMPIGON EMINCE",
+    "amount": 0.92,
+    "discount": 0
+   },
+   {
+    "name": "*DESS.FR.POMM/BANAN",
+    "amount": 0.22,
+    "discount": 0
+   },
+   {
+    "name": "*EMMENTAL FRANCAIS",
+    "amount": 0.42,
+    "discount": 0
+   },
+   {
+    "name": "*FR.FRAIS 0%MG CRF",
+    "amount": 0.51,
+    "discount": 0
+   },
+   {
+    "name": "*SALADE IRRESISTIB.",
+    "amount": 0.46,
+    "discount": 0
+   }
+  ]
+ }
+}

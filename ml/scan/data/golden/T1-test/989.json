@@ -1,0 +1,34 @@
+{
+ "source": "dataset_findit/T1-test/img/989.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "bagel corner",
+  "date": "2016-12-21",
+  "total": 8.9,
+  "items": [
+   {
+    "name": "1 MENU CHEDDAR",
+    "amount": 8.9,
+    "discount": 0.0
+   },
+   {
+    "name": "1 SUPREME WINTER BAGEL PAVOT",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1 SPRITE",
+    "amount": 0.0,
+    "discount": 0.0
+   },
+   {
+    "name": "1 MUFFIN MYRTILLE",
+    "amount": 0.0,
+    "discount": 0.0
+   }
+  ]
+ }
+}

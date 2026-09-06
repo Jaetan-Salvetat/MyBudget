@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/ai_model.dart';
+import 'package:mybudget/core/enums/ai_provider.dart';
+import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
@@ -11,11 +13,27 @@ class PreferencesService {
 
   static const String keyExportFrequency = 'exportFrequency';
   static const String keySkipAuth = 'skipAuth';
-  static const String keyThemeType = 'themeType';
-  static const String keyIsCategoriesCreated = 'isCategoriesCreated';
-  static const String keyHasSeenUpdateOnboarding = 'hasSeenUpdateOnboarding';
+  static const String keyLegacyCategoryMigrationDone =
+      'legacyCategoryMigrationDone';
+  static const String keyLegacyLoanDefaultsMigrationDone =
+      'legacyLoanDefaultsMigrationDone';
 
-  static const String keyLastScanTimestamp = 'lastScanTimestamp';
+  static const String keyGeminiApiKey = 'geminiApiKey';
+
+  static const String keyQuickAddEnabled = 'quickAddEnabled';
+  static const String keyQuickAddEngineMode = 'quickAddEngineMode';
+  static const String keyGeminiNanoScan = 'geminiNanoScan';
+  static const String keyAiProvider = 'aiProvider';
+  static const String keyAiModel = 'aiModel';
+
+  static const String keyQuickAddAccountId = 'quickAddAccountId';
+
+  static const String keyExpensesGroupBy = 'expensesGroupBy';
+  static const String keyExpensesSortBy = 'expensesSortBy';
+  static const String keyRevenuesGroupBy = 'revenuesGroupBy';
+
+  static const String keyFlagBlocklist = 'flagBlocklist';
+  static const String keyFlagChoicePrefix = 'flagChoice.';
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -40,6 +58,14 @@ class PreferencesService {
     await _prefs.setString(keyThemeMode, mode.name);
   }
 
+  static String getGeminiApiKey() {
+    return _prefs.getString(keyGeminiApiKey) ?? '';
+  }
+
+  static Future<void> setGeminiApiKey(String key) async {
+    await _prefs.setString(keyGeminiApiKey, key);
+  }
+
   static String getLanguage() {
     return _prefs.getString(keyLanguage) ?? 'fr';
   }
@@ -47,7 +73,6 @@ class PreferencesService {
   static Future<void> setLanguage(String language) async {
     await _prefs.setString(keyLanguage, language);
   }
-
 
   static int getExportFrequency() {
     return _prefs.getInt(keyExportFrequency) ?? 0;
@@ -65,43 +90,137 @@ class PreferencesService {
     await _prefs.setBool(keySkipAuth, skip);
   }
 
-  static AppThemeType getThemeType() {
-    return AppThemeType.values.firstWhere(
-      (element) => element.name == _prefs.getString(keyThemeType),
-      orElse: () => AppThemeType.purple,
-    );
+  static bool isLegacyCategoryMigrationDone() {
+    return _prefs.getBool(keyLegacyCategoryMigrationDone) ?? false;
   }
 
-  static Future<void> setThemeType(AppThemeType themeType) async {
-    await _prefs.setString(keyThemeType, themeType.name);
+  static Future<void> setLegacyCategoryMigrationDone() async {
+    await _prefs.setBool(keyLegacyCategoryMigrationDone, true);
   }
 
-  static bool isCategoriesCreated() {
-    return _prefs.getBool(keyIsCategoriesCreated) ?? false;
+  static bool isLegacyLoanDefaultsMigrationDone() {
+    return _prefs.getBool(keyLegacyLoanDefaultsMigrationDone) ?? false;
   }
 
-  static Future<void> setCategoriesCreated() async {
-    await _prefs.setBool(keyIsCategoriesCreated, true);
+  static Future<void> setLegacyLoanDefaultsMigrationDone() async {
+    await _prefs.setBool(keyLegacyLoanDefaultsMigrationDone, true);
   }
 
-  static bool hasSeenUpdateOnboarding() {
-    return _prefs.getBool(keyHasSeenUpdateOnboarding) ?? false;
+  static bool isQuickAddEnabled() {
+    return _prefs.getBool(keyQuickAddEnabled) ?? true;
   }
 
-  static Future<void> setHasSeenUpdateOnboarding() async {
-    await _prefs.setBool(keyHasSeenUpdateOnboarding, true);
+  static Future<void> setQuickAddEnabled(bool enabled) async {
+    await _prefs.setBool(keyQuickAddEnabled, enabled);
   }
 
-
-  static int getLastScanTimestamp() {
-    return _prefs.getInt(keyLastScanTimestamp) ?? 0;
+  static bool isGeminiNanoScanEnabled() {
+    return _prefs.getBool(keyGeminiNanoScan) ?? false;
   }
 
-  static Future<void> setLastScanTimestamp(int timestamp) async {
-    await _prefs.setInt(keyLastScanTimestamp, timestamp);
+  static Future<void> setGeminiNanoScanEnabled(bool enabled) async {
+    await _prefs.setBool(keyGeminiNanoScan, enabled);
+  }
+
+  static QuickAddEngineMode getQuickAddEngineMode() {
+    return QuickAddEngineMode.fromId(_prefs.getString(keyQuickAddEngineMode));
+  }
+
+  static Future<void> setQuickAddEngineMode(QuickAddEngineMode mode) async {
+    await _prefs.setString(keyQuickAddEngineMode, mode.id);
+  }
+
+  static AiProvider getAiProvider() {
+    return AiProvider.fromId(_prefs.getString(keyAiProvider));
+  }
+
+  static Future<void> setAiProvider(AiProvider provider) async {
+    await _prefs.setString(keyAiProvider, provider.id);
+  }
+
+  static AiModel getAiModel() {
+    return AiModel.fromId(_prefs.getString(keyAiModel));
+  }
+
+  static Future<void> setAiModel(AiModel model) async {
+    await _prefs.setString(keyAiModel, model.id);
+  }
+
+  static int? getQuickAddAccountId() {
+    return _prefs.getInt(keyQuickAddAccountId);
+  }
+
+  static Future<void> setQuickAddAccountId(int accountId) async {
+    await _prefs.setInt(keyQuickAddAccountId, accountId);
+  }
+
+  static Future<void> clearQuickAddAccountId() async {
+    await _prefs.remove(keyQuickAddAccountId);
+  }
+
+  static String getExpensesGroupBy() {
+    return _prefs.getString(keyExpensesGroupBy) ?? 'day';
+  }
+
+  static Future<void> setExpensesGroupBy(String value) async {
+    await _prefs.setString(keyExpensesGroupBy, value);
+  }
+
+  static String getExpensesSortBy() {
+    return _prefs.getString(keyExpensesSortBy) ?? 'dateDesc';
+  }
+
+  static Future<void> setExpensesSortBy(String value) async {
+    await _prefs.setString(keyExpensesSortBy, value);
+  }
+
+  static String? getRevenuesGroupBy() {
+    return _prefs.getString(keyRevenuesGroupBy);
+  }
+
+  static Future<void> setRevenuesGroupBy(String value) async {
+    await _prefs.setString(keyRevenuesGroupBy, value);
   }
 
   static Future<void> clearAll() async {
     await _prefs.clear();
+  }
+
+  static String? getFlagBlocklist() {
+    return _prefs.getString(keyFlagBlocklist);
+  }
+
+  static Future<void> setFlagBlocklist(String payload) async {
+    await _prefs.setString(keyFlagBlocklist, payload);
+  }
+
+  static bool? getFlagChoice(String flagId) {
+    return _prefs.getBool('$keyFlagChoicePrefix$flagId');
+  }
+
+  static Future<void> setFlagChoice(String flagId, bool enabled) async {
+    await _prefs.setBool('$keyFlagChoicePrefix$flagId', enabled);
+  }
+
+  static Future<void> clearFlagChoices() async {
+    for (final String key in _flagChoiceKeys()) {
+      await _prefs.remove(key);
+    }
+  }
+
+  static Future<void> purgeUnknownFlagChoices(Set<String> knownIds) async {
+    for (final String key in _flagChoiceKeys()) {
+      if (knownIds.contains(key.substring(keyFlagChoicePrefix.length))) {
+        continue;
+      }
+      await _prefs.remove(key);
+    }
+  }
+
+  static Iterable<String> _flagChoiceKeys() {
+    return _prefs
+        .getKeys()
+        .where((String key) => key.startsWith(keyFlagChoicePrefix))
+        .toList(growable: false);
   }
 }

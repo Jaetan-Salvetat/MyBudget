@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/1784.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "BISTRO REGENT",
+  "date": "2016-08-28",
+  "total": 38.8,
+  "items": [
+   {
+    "name": "2 TARTARE",
+    "amount": 25.8,
+    "discount": 0
+   },
+   {
+    "name": "2 PROFITEROLES",
+    "amount": 13.0,
+    "discount": 0
+   }
+  ]
+ }
+}

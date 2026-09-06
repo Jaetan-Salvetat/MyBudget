@@ -1,0 +1,159 @@
+{
+ "source": "dataset_findit/T1-train/img/1829.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": false,
+ "receipt": {
+  "store": "E.LECLERC SAINT JEAN D'ANGELY",
+  "date": "2017-03-08",
+  "total": 67.69,
+  "items": [
+   {
+    "name": "GROS SEL MER SAC,1KG",
+    "amount": 0.59,
+    "discount": 0
+   },
+   {
+    "name": "CHAMP.PERSILLADE350G",
+    "amount": 2.75,
+    "discount": 0
+   },
+   {
+    "name": "* COUSCOUS FIN 500G CDG",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "* BRIOCHE TRESS PEPI 600G EPIDOR",
+    "amount": 1.54,
+    "discount": 0
+   },
+   {
+    "name": "* AMANDE EN POUDRE T.BLANC",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "* AMANDE EN POUDRE T.BLANC",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "* AMANDES EFFILEES T. BLANC",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "* AMANDES EFFILEES T. BLANC",
+    "amount": 2.0,
+    "discount": 0
+   },
+   {
+    "name": "* EXQUIS THON/CREVETTE 80G LYCAT",
+    "amount": 5.44,
+    "discount": 0
+   },
+   {
+    "name": "LITIERE POUR CHAT 7L,7L",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "LITIERE POUR CHAT 7L,7L",
+    "amount": 0.95,
+    "discount": 0
+   },
+   {
+    "name": "Annulation : LITIERE POUR CHAT 7L,7L",
+    "amount": -0.95,
+    "discount": 0
+   },
+   {
+    "name": "BISCOTTE NAT HEUDEBERT 102T",
+    "amount": 2.37,
+    "discount": 0
+   },
+   {
+    "name": "ULTIMA CHAT STERIL.POULET,1.5K",
+    "amount": 5.58,
+    "discount": 0
+   },
+   {
+    "name": "INFUSIONS MAROC LIPTON X20,40G",
+    "amount": 1.5,
+    "discount": 0
+   },
+   {
+    "name": "DEODORANT RGE SCORPIO ATO150ML",
+    "amount": 2.68,
+    "discount": 0
+   },
+   {
+    "name": "P.TOILETTE ULTRA DX LOTUS.24P",
+    "amount": 8.49,
+    "discount": 3.4
+   },
+   {
+    "name": "DENTIFRICE CAPITAL GENCIVE 75M",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "UHT BK CHARENTE POITOU",
+    "amount": 4.14,
+    "discount": 0
+   },
+   {
+    "name": "DECORE NOIX PIECE 30%MG,200G",
+    "amount": 2.86,
+    "discount": 0
+   },
+   {
+    "name": "SAINT AGUR PORTION,135G",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "* CREME DESSERT PRALIN X4DELISSE",
+    "amount": 0.99,
+    "discount": 0
+   },
+   {
+    "name": "* COULOMMIERS 24% 350G CROISES,3",
+    "amount": 1.52,
+    "discount": 0
+   },
+   {
+    "name": "* CREM DESS VANI/CARA X4 DELISSE",
+    "amount": 1.0,
+    "discount": 0
+   },
+   {
+    "name": "* YAOURTS AROMATISES,8X125G",
+    "amount": 2.44,
+    "discount": 0
+   },
+   {
+    "name": "PLANTA FIN DOUX 510G",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "SAUCISSES NATURES",
+    "amount": 7.9,
+    "discount": 0
+   },
+   {
+    "name": "BANANES",
+    "amount": 1.7,
+    "discount": 0
+   },
+   {
+    "name": "POIRES WILLIAMS",
+    "amount": 2.35,
+    "discount": 0
+   }
+  ]
+ }
+}

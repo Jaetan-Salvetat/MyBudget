@@ -1,7 +1,12 @@
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/entities/transaction_change_entry.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/category_model.dart';
+import 'package:mybudget/core/services/transaction_change_service.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -22,7 +27,9 @@ class ExpenseNotifier extends _$ExpenseNotifier {
         case Frequency.annual:
           return e.startDate.month * 100 + e.startDate.day;
         case Frequency.oneTime:
-          return e.startDate.year * 10000 + e.startDate.month * 100 + e.startDate.day;
+          return e.startDate.year * 10000 +
+              e.startDate.month * 100 +
+              e.startDate.day;
       }
     }
 
@@ -30,66 +37,39 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     return expenses;
   }
 
-  Future<void> addExpense(ExpenseModel expense) async {
+  Future<int> addExpense(ExpenseModel expense) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
-      repo.add(expense);
+      final id = repo.add(expense);
       ref.invalidateSelf();
       await future;
+      return id;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> updateExpense(ExpenseModel updated) async {
+  Future<void> updateExpense(
+    ExpenseModel updated, {
+    EffectiveMonth? effectiveMonth,
+  }) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
       final old = repo.get(updated.id);
       if (old == null) return;
 
-      final bool isNameOnly = updated.amount == old.amount &&
-          updated.frequency == old.frequency &&
-          updated.categoryId == old.categoryId &&
-          updated.accountId == old.accountId &&
-          updated.beneficiaryId == old.beneficiaryId &&
-          updated.name != old.name;
+      final changesTerms = TransactionChangeService.changesTerms(old, updated);
+      final forked = changesTerms && old.frequencyEnum != Frequency.oneTime;
 
-      if (isNameOnly) {
-        final int rootId = old.parentId ?? old.id;
-        final chain = repo.getChain(rootId);
-        for (final entry in chain) {
-          repo.update(entry.copyWith(name: updated.name));
-        }
-        ref.invalidateSelf();
-        await future;
-        return;
-      }
-
-      final bool isStructural = updated.amount != old.amount ||
-          updated.frequency != old.frequency ||
-          updated.categoryId != old.categoryId ||
-          updated.accountId != old.accountId ||
-          updated.beneficiaryId != old.beneficiaryId;
-
-      if (isStructural && old.frequencyEnum != Frequency.oneTime) {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, old.startDate.day);
-        final newStartDate = computeNewStartDate(now, old.startDate.day);
-        repo.update(old.copyWith(endDate: endDate));
-        final newExpense = ExpenseModel.create(
-          name: updated.name,
-          amount: updated.amount,
-          categoryId: updated.categoryId,
-          startDate: newStartDate,
-          frequency: updated.frequency,
-          accountId: updated.accountId,
-          beneficiaryId: updated.beneficiaryId,
-          parentId: old.parentId ?? old.id,
-        );
-        repo.add(newExpense);
-      } else {
+      if (forked) {
+        _fork(repo, old, updated, effectiveMonth);
+      } else if (changesTerms) {
         repo.update(updated);
       }
+
+      _recordChanges(old, updated, forked: forked);
+      _recategorizeChain(repo, old, updated);
+
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -97,19 +77,128 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     }
   }
 
-  Future<void> deleteExpense(int id) async {
+  void _fork(
+    ExpenseRepository repo,
+    ExpenseModel old,
+    ExpenseModel updated,
+    EffectiveMonth? effectiveMonth,
+  ) {
+    final now = DateTime.now();
+    final frequency = updated.frequencyEnum;
+    final scope =
+        effectiveMonth ??
+        defaultEffectiveMonth(
+          frequency: frequency,
+          anchor: updated.startDate,
+          asOf: now,
+        );
+    final startDate = startDateFor(
+      frequency: frequency,
+      anchor: updated.startDate,
+      asOf: now,
+      scope: scope,
+    );
+    final closing = startDate.subtract(const Duration(days: 1));
+
+    if (hasStarted(old.startDate, closing)) {
+      repo.update(old.copyWith(endDate: dayOnly(closing)));
+    } else {
+      repo.delete(old.id);
+    }
+
+    repo.add(
+      ExpenseModel.create(
+        name: updated.name,
+        amount: updated.amount,
+        categorySlug: updated.categorySlug,
+        startDate: startDate,
+        frequency: updated.frequency,
+        accountId: updated.accountId,
+        beneficiaryId: updated.beneficiaryId,
+        parentId: old.parentId ?? old.id,
+      ),
+    );
+  }
+
+  void _recordChanges(
+    ExpenseModel old,
+    ExpenseModel updated, {
+    required bool forked,
+  }) {
+    final changes = TransactionChangeService.inPlaceChanges(
+      old,
+      updated,
+      at: DateTime.now(),
+      forked: forked,
+    );
+    if (changes.isEmpty) return;
+
+    final events = ref.read(transactionEventRepositoryProvider);
+    final rootId = old.parentId ?? old.id;
+    for (final TransactionChangeEntry change in changes) {
+      events.add(
+        TransactionEventModel.create(
+          rootId: rootId,
+          type: TransactionType.expense,
+          entry: change,
+        ),
+      );
+    }
+  }
+
+  void _forgetOrphanEvents(ExpenseRepository repo, ExpenseModel deleted) {
+    final rootId = deleted.parentId ?? deleted.id;
+    if (repo.getChain(rootId).isNotEmpty) return;
+
+    ref
+        .read(transactionEventRepositoryProvider)
+        .deleteForRoot(rootId, TransactionType.expense);
+  }
+
+  void _recategorizeChain(
+    ExpenseRepository repo,
+    ExpenseModel old,
+    ExpenseModel updated,
+  ) {
+    if (updated.categorySlug == old.categorySlug) return;
+
+    for (final entry in repo.getChain(old.parentId ?? old.id)) {
+      repo.update(entry..categorySlug = updated.categorySlug);
+    }
+  }
+
+  Future<void> deletePermanently(int id) async {
+    final repo = ref.read(expenseRepositoryProvider);
+    final expense = repo.get(id);
+    repo.delete(id);
+    if (expense != null) _forgetOrphanEvents(repo, expense);
+    ref.invalidateSelf();
+    await future;
+  }
+
+  Future<void> deleteExpense(
+    int id, {
+    RecurringDeletion scope = RecurringDeletion.afterThisMonth,
+  }) async {
     try {
       final repo = ref.read(expenseRepositoryProvider);
       final expense = repo.get(id);
       if (expense == null) return;
 
-      if (expense.frequencyEnum == Frequency.oneTime) {
-        repo.delete(id);
-      } else {
-        final now = DateTime.now();
-        final endDate = computeEndDate(now, expense.startDate.day);
-        repo.update(expense.copyWith(endDate: endDate));
+      final closing = closingDateOf(
+        scope,
+        expense.startDate,
+        expense.frequencyEnum,
+        DateTime.now(),
+      );
+
+      if (expense.frequencyEnum == Frequency.oneTime ||
+          closing.isBefore(dayOnly(expense.startDate))) {
+        await deletePermanently(id);
+        return;
       }
+
+      repo.update(expense.copyWith(endDate: closing));
       ref.invalidateSelf();
       await future;
     } catch (e) {
@@ -122,106 +211,8 @@ class ExpenseNotifier extends _$ExpenseNotifier {
     return repo.getClosed();
   }
 
-  List<ExpenseModel> _currentExpenses() => state.value ?? [];
-
-  double getMonthlyExpenses() => getTotalExpenses(_currentExpenses());
-
-  List<ExpenseModel> getUpcomingExpenses() {
-    final now = DateTime.now();
-    final upcoming = _currentExpenses().where((expense) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          return expense.startDate.day >= now.day;
-        case Frequency.annual:
-          return expense.startDate.month == now.month && expense.startDate.day >= now.day;
-        case Frequency.oneTime:
-          return false;
-      }
-    }).toList();
-
-    upcoming.sort((a, b) => a.startDate.day.compareTo(b.startDate.day));
-    return upcoming;
-  }
-
-  List<ExpenseModel> getRecentExpenses(int count) =>
-      _currentExpenses().take(count).toList();
-
-  Map<CategoryModel, double> getExpensesByCategory() {
-    final categoryRepo = ref.read(categoryRepositoryProvider);
-    final Map<int, double> categoryTotals = {};
-
-    for (final expense in _currentExpenses()) {
-      categoryTotals.update(
-        expense.categoryId,
-        (value) => value + expense.amount,
-        ifAbsent: () => expense.amount,
-      );
-    }
-
-    final Map<CategoryModel, double> result = {};
-    for (final entry in categoryTotals.entries) {
-      final category = categoryRepo.get(entry.key);
-      if (category != null) {
-        result[category] = entry.value;
-      }
-    }
-    return result;
-  }
-
   List<ExpenseModel> getExpensesForAccount(int accountId) =>
-      _currentExpenses()
+      (state.value ?? const <ExpenseModel>[])
           .where((expense) => expense.accountId == accountId)
           .toList();
-
-  List<ExpenseModel> getExpensesForCategory(int categoryId) =>
-      _currentExpenses()
-          .where((expense) => expense.categoryId == categoryId)
-          .toList();
-
-  double getTotalExpensesForAccount(int accountId) =>
-      getExpensesForAccount(accountId)
-          .fold(0.0, (sum, e) => sum + e.amount);
-
-  double getTotalExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount;
-        case Frequency.annual:
-          if (expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year &&
-              expense.startDate.month == selectedMonth.month) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
-
-  double getAnnualExpenses([List<ExpenseModel>? expensesList]) {
-    final selectedMonth = ref.read(selectedMonthProvider);
-    double total = 0.0;
-    final listToUse = expensesList ?? _currentExpenses();
-
-    for (final expense in listToUse) {
-      switch (expense.frequencyEnum) {
-        case Frequency.monthly:
-          total += expense.amount * 12;
-        case Frequency.annual:
-          total += expense.amount;
-        case Frequency.oneTime:
-          if (expense.startDate.year == selectedMonth.year) {
-            total += expense.amount;
-          }
-      }
-    }
-    return total;
-  }
 }

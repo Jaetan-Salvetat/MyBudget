@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/1143.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "pimkie",
+  "date": "2017-01-03",
+  "total": 7.99,
+  "items": [
+   {
+    "name": "9510401203800001 Lingerie 38",
+    "amount": 6.99,
+    "discount": 0
+   },
+   {
+    "name": "9510371303800001 Lingerie 38",
+    "amount": 1.0,
+    "discount": 0
+   }
+  ]
+ }
+}

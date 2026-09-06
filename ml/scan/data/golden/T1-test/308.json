@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-test/img/308.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2017-06-27",
+  "total": 6.85,
+  "items": [
+   {
+    "name": "*320G SLDE ROMA JBN",
+    "amount": 3.74,
+    "discount": 0
+   },
+   {
+    "name": "*X4 AMANDE MAGNUM",
+    "amount": 3.11,
+    "discount": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "source": "dataset_findit/T1-test/img/659.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "LIDL",
+  "date": "2017-06-10",
+  "total": 26.83,
+  "items": [
+   {
+    "name": "Abricot vrac",
+    "amount": 1.38,
+    "discount": 0
+   },
+   {
+    "name": "Pomme de terre nouve",
+    "amount": 2.29,
+    "discount": 0
+   },
+   {
+    "name": "Concombre",
+    "amount": 0.69,
+    "discount": 0
+   },
+   {
+    "name": "Melon caissette",
+    "amount": 3.49,
+    "discount": 0
+   },
+   {
+    "name": "Citron",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "Lait fermenté",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "Emmental français bl",
+    "amount": 1.71,
+    "discount": 0
+   },
+   {
+    "name": "Pina colada sans alc",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "Panzani Torti",
+    "amount": 0.63,
+    "discount": 0
+   },
+   {
+    "name": "Lait 1/2 écrémé UHT",
+    "amount": 1.46,
+    "discount": 0
+   },
+   {
+    "name": "Levure chimique",
+    "amount": 0.43,
+    "discount": 0
+   },
+   {
+    "name": "Purée de tomates",
+    "amount": 0.78,
+    "discount": 0
+   },
+   {
+    "name": "LU Granola pocket",
+    "amount": 1.31,
+    "discount": 0
+   },
+   {
+    "name": "Pain au chocolat",
+    "amount": 1.05,
+    "discount": 0
+   },
+   {
+    "name": "Nett. super dégraiss",
+    "amount": 1.19,
+    "discount": 0
+   },
+   {
+    "name": "Lingettes épais sens",
+    "amount": 2.18,
+    "discount": 0
+   },
+   {
+    "name": "Filets de sardine au",
+    "amount": 2.19,
+    "discount": 0
+   },
+   {
+    "name": "Escalopes de dinde",
+    "amount": 2.59,
+    "discount": 0
+   }
+  ]
+ }
+}

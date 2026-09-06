@@ -9,8 +9,8 @@ import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/category_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -26,7 +26,7 @@ class MockRevenueRepository extends Mock implements RevenueRepository {}
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 
-class MockCategoryRepository extends Mock implements CategoryRepository {}
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
 
 class MockTransferRepository extends Mock implements TransferRepository {}
 
@@ -35,7 +35,7 @@ void main() {
   late MockExpenseRepository mockExpenseRepo;
   late MockRevenueRepository mockRevenueRepo;
   late MockLoanRepository mockLoanRepo;
-  late MockCategoryRepository mockCategoryRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
   late MockTransferRepository mockTransferRepo;
 
   setUp(() {
@@ -43,18 +43,21 @@ void main() {
     mockExpenseRepo = MockExpenseRepository();
     mockRevenueRepo = MockRevenueRepository();
     mockLoanRepo = MockLoanRepository();
-    mockCategoryRepo = MockCategoryRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
     mockTransferRepo = MockTransferRepository();
 
     when(() => mockAccountRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockExpenseRepo.getActive()).thenReturn([]);
+    when(() => mockExpenseRepo.getClosed()).thenReturn([]);
     when(() => mockRevenueRepo.getAll()).thenReturn([]);
     when(() => mockRevenueRepo.getActive()).thenReturn([]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
-    when(() => mockCategoryRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getAll()).thenReturn([]);
     when(() => mockTransferRepo.getActive()).thenReturn([]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
   });
 
   ProviderContainer makeContainer() {
@@ -64,7 +67,7 @@ void main() {
         expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
         revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
         loanRepositoryProvider.overrideWithValue(mockLoanRepo),
-        categoryRepositoryProvider.overrideWithValue(mockCategoryRepo),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
         transferRepositoryProvider.overrideWithValue(mockTransferRepo),
       ],
     );
@@ -84,17 +87,19 @@ void main() {
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
       when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getClosed()).thenReturn([]);
 
       final expense = ExpenseModel.create(
         name: 'Groceries',
         amount: 500,
         accountId: accountId,
-        categoryId: 1,
+        categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
         frequency: 'Mensuel',
       );
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
 
       final loanModel = LoanModel.create(
         name: 'Car Loan',
@@ -118,7 +123,9 @@ void main() {
       await container.read(transferProvider.future);
       await container.read(accountProvider.future);
 
-      final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+      final balance = container
+          .read(accountProvider.notifier)
+          .getAccountBalance(accountId);
 
       expect(balance, closeTo(1071.96, 0.01));
     },
@@ -140,46 +147,56 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    expect(container.read(accountProvider.notifier).getAccountBalance(accountId), 0.0);
+    expect(
+      container.read(accountProvider.notifier).getAccountBalance(accountId),
+      0.0,
+    );
   });
 
-  test('getAccountBalance returns negative value when expenses exceed revenues', () async {
-    const int accountId = 1;
+  test(
+    'getAccountBalance returns negative value when expenses exceed revenues',
+    () async {
+      const int accountId = 1;
 
-    final revenue = RevenueModel.create(
-      name: 'Small income',
-      amount: 100,
-      accountId: accountId,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-    );
-    final expense = ExpenseModel.create(
-      name: 'Big expense',
-      amount: 800,
-      accountId: accountId,
-      categoryId: 1,
-      startDate: DateTime.now(),
-      frequency: 'Mensuel',
-    );
+      final revenue = RevenueModel.create(
+        name: 'Small income',
+        amount: 100,
+        accountId: accountId,
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
+      final expense = ExpenseModel.create(
+        name: 'Big expense',
+        amount: 800,
+        accountId: accountId,
+        categorySlug: 'restauration.cafe',
+        startDate: DateTime.now(),
+        frequency: 'Mensuel',
+      );
 
-    when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
-    when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
-    when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
-    when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
-    when(() => mockLoanRepo.getAll()).thenReturn([]);
+      when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+      when(() => mockRevenueRepo.getClosed()).thenReturn([]);
+      when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
+      when(() => mockExpenseRepo.getClosed()).thenReturn([]);
+      when(() => mockLoanRepo.getAll()).thenReturn([]);
 
-    final container = makeContainer();
-    addTearDown(container.dispose);
+      final container = makeContainer();
+      addTearDown(container.dispose);
 
-    await container.read(expenseProvider.future);
-    await container.read(revenueProvider.future);
-    await container.read(loanProvider.future);
-    await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+      await container.read(expenseProvider.future);
+      await container.read(revenueProvider.future);
+      await container.read(loanProvider.future);
+      await container.read(transferProvider.future);
+      await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
-    expect(balance, -700.0);
-  });
+      final balance = container
+          .read(accountProvider.notifier)
+          .getAccountBalance(accountId);
+      expect(balance, -700.0);
+    },
+  );
 
   test('getAccountBalance includes outgoing transfer in balance', () async {
     const int accountId = 1;
@@ -193,6 +210,7 @@ void main() {
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -206,6 +224,7 @@ void main() {
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -216,7 +235,9 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    final balance = container
+        .read(accountProvider.notifier)
+        .getAccountBalance(accountId);
     expect(balance, 1500.0);
   });
 
@@ -232,6 +253,7 @@ void main() {
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
+    when(() => mockRevenueRepo.getClosed()).thenReturn([]);
     when(() => mockExpenseRepo.getAll()).thenReturn([]);
     when(() => mockLoanRepo.getAll()).thenReturn([]);
 
@@ -245,6 +267,7 @@ void main() {
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
+    when(() => mockTransferRepo.getClosed()).thenReturn([]);
 
     final container = makeContainer();
     addTearDown(container.dispose);
@@ -255,7 +278,9 @@ void main() {
     await container.read(transferProvider.future);
     await container.read(accountProvider.future);
 
-    final balance = container.read(accountProvider.notifier).getAccountBalance(accountId);
+    final balance = container
+        .read(accountProvider.notifier)
+        .getAccountBalance(accountId);
     expect(balance, 2300.0);
   });
 }

@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-train/img/663.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "PAUL",
+  "date": "2017-05-30",
+  "total": 5.7,
+  "items": [
+   {
+    "name": "1 SLD FETA AOP ET CRUDITJS",
+    "amount": 5.7,
+    "discount": 0
+   }
+  ]
+ }
+}

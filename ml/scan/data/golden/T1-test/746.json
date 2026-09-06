@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/746.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": null,
+ "receipt": {
+  "store": "Newrest Wagons-Lits France",
+  "date": "2016-12-09",
+  "total": 8.5,
+  "items": [
+   {
+    "name": "1  x Risotto Poulet MS",
+    "amount": 8.5,
+    "discount": 0
+   }
+  ]
+ }
+}

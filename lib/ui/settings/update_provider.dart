@@ -78,7 +78,11 @@ class UpdateNotifier extends _$UpdateNotifier {
     final release = state.availableUpdate;
     if (release == null || state.isDownloading) return;
 
-    state = state.copyWith(isDownloading: true, downloadProgress: 0.0, error: null);
+    state = state.copyWith(
+      isDownloading: true,
+      downloadProgress: 0.0,
+      error: null,
+    );
 
     try {
       final stream = _updater.downloadUpdate(release);
@@ -120,7 +124,8 @@ class UpdateNotifier extends _$UpdateNotifier {
     return switch (e) {
       NetworkException() => 'Erreur réseau. Vérifiez votre connexion.',
       GitHubApiException() => 'Erreur serveur (${e.statusCode}).',
-      DownloadException() => 'Échec du téléchargement après ${e.attempts} tentatives.',
+      DownloadException() =>
+        'Échec du téléchargement après ${e.attempts} tentatives.',
       InstallException() => 'Erreur lors de l\'installation.',
       VersionParseException() => 'Version invalide détectée.',
     };

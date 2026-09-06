@@ -1,0 +1,24 @@
+{
+ "source": "dataset_findit/T1-train/img/630.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "LEROY MERLIN PUILBOREAU",
+  "date": null,
+  "total": 46.0,
+  "items": [
+   {
+    "name": "4 CACHES PRISES 16A BLANC LEGRAND",
+    "amount": 10.1,
+    "discount": 0.0
+   },
+   {
+    "name": "ABATTANT BOLERO SENSEA BLANC BLANC O",
+    "amount": 35.9,
+    "discount": 0.0
+   }
+  ]
+ }
+}

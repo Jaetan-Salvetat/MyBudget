@@ -1,0 +1,69 @@
+{
+ "source": "dataset_findit/T1-test/img/339.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "api",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "CRF-CITY LA ROCHELLE",
+  "date": "2006-05-17",
+  "total": 18.51,
+  "items": [
+   {
+    "name": "*200G HOUMMOUS CRF",
+    "amount": 1.86,
+    "discount": 0
+   },
+   {
+    "name": "*300G PRINCE CHOCOL",
+    "amount": 1.36,
+    "discount": 0
+   },
+   {
+    "name": "*6 RLX P.H.2PLI CRF",
+    "amount": 1.49,
+    "discount": 0
+   },
+   {
+    "name": "*BUCHE DE CHEVRE BI",
+    "amount": 2.55,
+    "discount": 0
+   },
+   {
+    "name": "*COMCOMBRE BIO",
+    "amount": 1.2,
+    "discount": 0
+   },
+   {
+    "name": "*COURGETTE BIO",
+    "amount": 2.5,
+    "discount": 0
+   },
+   {
+    "name": "*LT 1/2E.BIO CRF 1L",
+    "amount": 1.05,
+    "discount": 0
+   },
+   {
+    "name": "*MOZZARELLA BIO CRF",
+    "amount": 1.17,
+    "discount": 0
+   },
+   {
+    "name": "*PAIN VOLLKORNBROT",
+    "amount": 2.11,
+    "discount": 0
+   },
+   {
+    "name": "*PATE FEUILL.ROULEE",
+    "amount": 0.72,
+    "discount": 0
+   },
+   {
+    "name": "*TOMATES GRAPPE COCKT",
+    "amount": 2.5,
+    "discount": 0
+   }
+  ]
+ }
+}

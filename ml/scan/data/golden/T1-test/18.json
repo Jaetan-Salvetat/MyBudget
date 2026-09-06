@@ -1,0 +1,19 @@
+{
+ "source": "dataset_findit/T1-test/img/18.jpg",
+ "annotator": "google/gemini-3.7-flash",
+ "annotated_on": "2026-08-24",
+ "provenance": "cache",
+ "transcript_agrees": true,
+ "receipt": {
+  "store": "Carrefour city",
+  "date": "2016-09-02",
+  "total": 4.14,
+  "items": [
+   {
+    "name": "320G SLDE ROMA JBN",
+    "amount": 4.14,
+    "discount": 0
+   }
+  ]
+ }
+}
