@@ -12,47 +12,90 @@ class CategoryMoversSection extends StatelessWidget {
 
   final List<CategoryTrend> movers;
   final int comparedMonths;
+  final bool hasComparison;
   final ValueChanged<String> onCategoryTap;
 
   const CategoryMoversSection({
     super.key,
     required this.movers,
     required this.comparedMonths,
+    required this.hasComparison,
     required this.onCategoryTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (movers.isEmpty) return const SizedBox.shrink();
-
-    final visible = movers.take(maxVisible).toList();
-    final widest = visible
-        .map((trend) => trend.delta.abs())
-        .reduce((a, b) => a > b ? a : b);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionHeader(
           title: 'Ce qui a bougé',
-          trailing: 'vs $comparedMonths mois précédents',
+          trailing: hasComparison ? 'vs $comparedMonths mois précédents' : null,
         ),
-        SolidCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final trend in visible)
-                _MoverRow(
-                  trend: trend,
-                  widest: widest,
-                  isFirst: trend == visible.first,
-                  onTap: () => onCategoryTap(trend.groupKey),
-                ),
-            ],
+        movers.isEmpty
+            ? _EmptyCard(message: _emptyMessage)
+            : _MoversCard(
+                movers: movers.take(maxVisible).toList(),
+                onCategoryTap: onCategoryTap,
+              ),
+      ],
+    );
+  }
+
+  String get _emptyMessage => hasComparison
+      ? 'Aucun poste n\u2019a bougé sur la période'
+      : 'Pas encore assez d\u2019historique pour comparer les $comparedMonths mois précédents';
+}
+
+class _MoversCard extends StatelessWidget {
+  final List<CategoryTrend> movers;
+  final ValueChanged<String> onCategoryTap;
+
+  const _MoversCard({required this.movers, required this.onCategoryTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final widest = movers
+        .map((trend) => trend.delta.abs())
+        .reduce((a, b) => a > b ? a : b);
+
+    return SolidCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final trend in movers)
+            _MoverRow(
+              trend: trend,
+              widest: widest,
+              isFirst: trend == movers.first,
+              onTap: () => onCategoryTap(trend.groupKey),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyCard extends StatelessWidget {
+  final String message;
+
+  const _EmptyCard({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return SolidCard(
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Center(
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
-      ],
+      ),
     );
   }
 }

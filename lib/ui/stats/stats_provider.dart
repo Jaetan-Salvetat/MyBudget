@@ -7,6 +7,7 @@ import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/stats/models/category_slice.dart';
 import 'package:mybudget/ui/stats/models/category_trend.dart';
 import 'package:mybudget/ui/stats/models/stats_range.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,6 +17,7 @@ part 'stats_provider.g.dart';
 class StatsState {
   static const int minimumTrackedMonths = 3;
   static const int effortReferenceMonths = 12;
+  static const double minimumMoveAmount = 1;
 
   final StatsRange range;
   final List<MonthlyFlow> flows;
@@ -29,7 +31,8 @@ class StatsState {
   final double monthlyRecurringIncomes;
   final double annualRecurringExpenses;
   final double annualRecurringIncomes;
-  final List<CategoryTrend> categories;
+  final List<CategoryTrend> trends;
+  final List<CategorySlice> slices;
   final int trackedMonths;
 
   const StatsState({
@@ -45,7 +48,8 @@ class StatsState {
     required this.monthlyRecurringIncomes,
     required this.annualRecurringExpenses,
     required this.annualRecurringIncomes,
-    required this.categories,
+    required this.trends,
+    required this.slices,
     required this.trackedMonths,
   });
 
@@ -76,10 +80,15 @@ class StatsState {
 
   bool get hasComparison => previousExpenses > 0 || previousIncomes > 0;
 
+  bool get hasExpenseComparison => previousExpenses > 0;
+
   int get monthsUntilHistory => minimumTrackedMonths - trackedMonths;
 
   List<CategoryTrend> get movers {
-    final moved = categories.where((trend) => trend.delta.abs() >= 1).toList();
+    if (!hasExpenseComparison) return const [];
+    final moved = trends
+        .where((trend) => trend.delta.abs() >= minimumMoveAmount)
+        .toList();
     moved.sort((a, b) => b.delta.abs().compareTo(a.delta.abs()));
     return moved;
   }
@@ -126,6 +135,7 @@ class StatsNotifier extends _$StatsNotifier {
     final earliest = calculator.earliestMonth();
 
     final totals = calculator.expensesByGroupOver(months);
+    final monthTotals = calculator.expensesByGroupOver(currentMonth);
     final previousTotals = calculator.expensesByGroupOver(earlier);
     final totalExpenses = flows.fold(0.0, (sum, flow) => sum + flow.expenses);
 
@@ -150,7 +160,8 @@ class StatsNotifier extends _$StatsNotifier {
         referenceMonths,
       ),
       annualRecurringIncomes: calculator.recurringIncomesOver(referenceMonths),
-      categories: _buildTrends(totals, previousTotals, totalExpenses, resolver),
+      trends: _buildTrends(totals, previousTotals, resolver),
+      slices: _buildSlices(monthTotals, resolver),
       trackedMonths: _trackedMonths(earliest, anchor),
     );
   }
@@ -161,30 +172,48 @@ class StatsNotifier extends _$StatsNotifier {
   List<CategoryTrend> _buildTrends(
     Map<String, double> totals,
     Map<String, double> previousTotals,
-    double totalExpenses,
     CategoryDisplayResolver? resolver,
   ) {
-    if (totalExpenses <= 0 || resolver == null) return const [];
+    if (resolver == null) return const [];
 
-    final trends = <CategoryTrend>[];
-    totals.forEach((groupKey, amount) {
-      final group =
-          resolver.resolveGroup(groupKey) ??
-          resolver.uncategorized(TransactionType.expense);
-      trends.add(
+    return [
+      for (final groupKey in {...totals.keys, ...previousTotals.keys})
         CategoryTrend(
           groupKey: groupKey,
-          label: group.label,
-          color: Color(group.color),
-          amount: amount,
+          label: _groupOf(resolver, groupKey).label,
+          color: Color(_groupOf(resolver, groupKey).color),
+          amount: totals[groupKey] ?? 0,
           previousAmount: previousTotals[groupKey] ?? 0,
-          share: amount / totalExpenses,
         ),
-      );
-    });
-    trends.sort((a, b) => b.amount.compareTo(a.amount));
-    return trends;
+    ];
   }
+
+  List<CategorySlice> _buildSlices(
+    Map<String, double> monthTotals,
+    CategoryDisplayResolver? resolver,
+  ) {
+    if (resolver == null) return const [];
+
+    final total = monthTotals.values.fold(0.0, (sum, amount) => sum + amount);
+    if (total <= 0) return const [];
+
+    final slices = [
+      for (final entry in monthTotals.entries)
+        CategorySlice(
+          groupKey: entry.key,
+          label: _groupOf(resolver, entry.key).label,
+          color: Color(_groupOf(resolver, entry.key).color),
+          amount: entry.value,
+          share: entry.value / total,
+        ),
+    ];
+    slices.sort((a, b) => b.amount.compareTo(a.amount));
+    return slices;
+  }
+
+  CategoryDisplay _groupOf(CategoryDisplayResolver resolver, String groupKey) =>
+      resolver.resolveGroup(groupKey) ??
+      resolver.uncategorized(TransactionType.expense);
 
   int _trackedMonths(DateTime? earliest, DateTime anchor) {
     if (earliest == null) return 0;

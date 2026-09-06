@@ -3,7 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/ui/stats/models/category_trend.dart';
+import 'package:mybudget/ui/stats/models/category_slice.dart';
 import 'package:mybudget/ui/stats/widgets/category_breakdown_section.dart';
 
 void main() {
@@ -14,46 +14,37 @@ void main() {
 
   Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
 
-  CategoryTrend trend({
+  CategorySlice slice({
     required String label,
     required double amount,
     required double share,
-    double previousAmount = 0,
     String? groupKey,
-  }) => CategoryTrend(
+  }) => CategorySlice(
     groupKey: groupKey ?? label.toLowerCase(),
     label: label,
     color: Colors.blue,
     amount: amount,
-    previousAmount: previousAmount,
     share: share,
   );
 
   testWidgets('renders an empty state without categories', (tester) async {
     await tester.pumpWidget(
-      host(const CategoryBreakdownSection(categories: [])),
+      host(const CategoryBreakdownSection(slices: [])),
     );
 
-    expect(find.text('Aucune dépense sur la période'), findsOneWidget);
+    expect(find.text('Aucune dépense ce mois-ci'), findsOneWidget);
   });
 
-  testWidgets('marks a falling category with a down arrow', (tester) async {
+  testWidgets('scopes the section to the current month', (tester) async {
     await tester.pumpWidget(
       host(
         CategoryBreakdownSection(
-          categories: [
-            trend(
-              label: 'Shopping',
-              amount: 200,
-              share: 1,
-              previousAmount: 400,
-            ),
-          ],
+          slices: [slice(label: 'Logement', amount: 720, share: 1)],
         ),
       ),
     );
 
-    expect(find.text('↓ 100%'), findsOneWidget);
+    expect(find.text('ce mois-ci'), findsOneWidget);
   });
 
   testWidgets('renders each category with its share and amount', (
@@ -62,27 +53,40 @@ void main() {
     await tester.pumpWidget(
       host(
         CategoryBreakdownSection(
-          categories: [
-            trend(label: 'Logement', amount: 720, share: 0.5),
-            trend(label: 'Transport', amount: 360, share: 0.25),
+          slices: [
+            slice(label: 'Logement', amount: 720, share: 0.5),
+            slice(label: 'Transport', amount: 360, share: 0.25),
           ],
         ),
       ),
     );
 
     expect(find.text('Logement'), findsOneWidget);
-    expect(find.text('↑ 50%'), findsOneWidget);
+    expect(find.text('50%'), findsOneWidget);
     expect(find.text('Transport'), findsOneWidget);
-    expect(find.text('↑ 25%'), findsOneWidget);
+    expect(find.text('25%'), findsOneWidget);
+  });
+
+  testWidgets('leaves the trend arrows to the movers section', (tester) async {
+    await tester.pumpWidget(
+      host(
+        CategoryBreakdownSection(
+          slices: [slice(label: 'Logement', amount: 720, share: 1)],
+        ),
+      ),
+    );
+
+    expect(find.textContaining('↑'), findsNothing);
+    expect(find.textContaining('↓'), findsNothing);
   });
 
   testWidgets('paints one stacked segment per category', (tester) async {
     await tester.pumpWidget(
       host(
         CategoryBreakdownSection(
-          categories: [
-            trend(label: 'Logement', amount: 720, share: 0.6),
-            trend(label: 'Transport', amount: 480, share: 0.4),
+          slices: [
+            slice(label: 'Logement', amount: 720, share: 0.6),
+            slice(label: 'Transport', amount: 480, share: 0.4),
           ],
         ),
       ),
@@ -105,9 +109,9 @@ void main() {
       host(
         CategoryBreakdownSection(
           maxVisible: 1,
-          categories: [
-            trend(label: 'Logement', amount: 720, share: 0.5),
-            trend(label: 'Transport', amount: 360, share: 0.25),
+          slices: [
+            slice(label: 'Logement', amount: 720, share: 0.5),
+            slice(label: 'Transport', amount: 360, share: 0.25),
           ],
         ),
       ),
@@ -123,8 +127,8 @@ void main() {
     await tester.pumpWidget(
       host(
         CategoryBreakdownSection(
-          categories: [
-            trend(
+          slices: [
+            slice(
               label: 'Logement',
               amount: 720,
               share: 1,

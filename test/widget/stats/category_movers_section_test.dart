@@ -23,21 +23,52 @@ void main() {
     color: Colors.blue,
     amount: amount,
     previousAmount: previousAmount,
-    share: 0.5,
   );
 
-  testWidgets('renders nothing when nothing moved', (tester) async {
+  testWidgets('says nothing moved when the comparison is quiet', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       host(
         CategoryMoversSection(
           movers: const [],
           comparedMonths: 6,
+          hasComparison: true,
           onCategoryTap: (_) {},
         ),
       ),
     );
 
-    expect(find.text('CE QUI A BOUGÉ'), findsNothing);
+    expect(find.text('CE QUI A BOUGÉ'), findsOneWidget);
+    expect(
+      find.text('Aucun poste n\u2019a bougé sur la période'),
+      findsOneWidget,
+    );
+    expect(find.text('vs 6 mois précédents'), findsOneWidget);
+  });
+
+  testWidgets('says why it cannot compare without an earlier window', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        CategoryMoversSection(
+          movers: const [],
+          comparedMonths: 6,
+          hasComparison: false,
+          onCategoryTap: (_) {},
+        ),
+      ),
+    );
+
+    expect(find.text('CE QUI A BOUGÉ'), findsOneWidget);
+    expect(
+      find.text(
+        'Pas encore assez d\u2019historique pour comparer les 6 mois précédents',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('vs 6 mois précédents'), findsNothing);
   });
 
   testWidgets('signs a rise and a drop', (tester) async {
@@ -49,6 +80,7 @@ void main() {
             trend(label: 'Shopping', amount: 840, previousAmount: 1106),
           ],
           comparedMonths: 6,
+          hasComparison: true,
           onCategoryTap: (_) {},
         ),
       ),
@@ -72,6 +104,7 @@ void main() {
               ),
           ],
           comparedMonths: 12,
+          hasComparison: true,
           onCategoryTap: (_) {},
         ),
       ),
@@ -90,6 +123,7 @@ void main() {
         CategoryMoversSection(
           movers: [trend(label: 'Loisirs', amount: 300, previousAmount: 100)],
           comparedMonths: 6,
+          hasComparison: true,
           onCategoryTap: (groupKey) => tapped = groupKey,
         ),
       ),

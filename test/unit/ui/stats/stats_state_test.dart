@@ -28,7 +28,8 @@ void main() {
     monthlyRecurringIncomes: monthlyRecurringIncomes,
     annualRecurringExpenses: annualRecurringExpenses,
     annualRecurringIncomes: annualRecurringIncomes,
-    categories: const [],
+    trends: const [],
+    slices: const [],
     trackedMonths: coveredMonths,
   );
 

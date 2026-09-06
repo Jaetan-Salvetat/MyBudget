@@ -260,8 +260,31 @@ void main() {
     });
   });
 
-  group('categories', () {
-    test('sums each group over the range and shares to 100 %', () async {
+  group('slices', () {
+    test('covers the current month only', () async {
+      final state = await readState(
+        expenses: [
+          expense(
+            amount: 300,
+            startDate: monthsAgo(5),
+            categorySlug: 'alimentation.courses',
+          ),
+          expense(
+            amount: 600,
+            startDate: monthsAgo(2),
+            frequency: 'Ponctuel',
+            categorySlug: 'transport.essence',
+          ),
+        ],
+      );
+
+      final food = state.slices.single;
+      expect(food.groupKey, 'alimentation');
+      expect(food.amount, 300);
+      expect(food.share, closeTo(1, 0.001));
+    });
+
+    test('shares the month between its groups', () async {
       final state = await readState(
         expenses: [
           expense(
@@ -277,13 +300,10 @@ void main() {
         ],
       );
 
-      final food = state.categories.firstWhere(
-        (trend) => trend.groupKey == 'alimentation',
-      );
-      expect(food.amount, 1800);
-      expect(food.share, closeTo(0.75, 0.001));
+      expect(state.slices.first.groupKey, 'alimentation');
+      expect(state.slices.first.share, closeTo(0.75, 0.001));
       expect(
-        state.categories.fold<double>(0, (sum, t) => sum + t.share),
+        state.slices.fold<double>(0, (sum, slice) => sum + slice.share),
         closeTo(1.0, 0.001),
       );
     });
@@ -293,34 +313,34 @@ void main() {
         expenses: [expense(amount: 100, startDate: monthsAgo(5))],
       );
 
-      final bucket = state.categories.single;
+      final bucket = state.slices.single;
       expect(bucket.groupKey, CategoryDisplayResolver.uncategorizedKey);
       expect(bucket.label, 'Non catégorisé');
     });
 
-    test('is sorted by amount descending', () async {
+    test('drops a category that no longer costs anything', () async {
       final state = await readState(
         expenses: [
           expense(
             amount: 100,
-            startDate: monthsAgo(5),
+            startDate: monthsAgo(11),
             categorySlug: 'alimentation.courses',
           ),
           expense(
-            amount: 400,
-            startDate: monthsAgo(5),
-            categorySlug: 'transport.essence',
-          ),
+            amount: 300,
+            startDate: monthsAgo(11),
+            categorySlug: 'loisirs.sorties',
+          )..endDate = DateTime(thisMonth.year, thisMonth.month - 6, 28),
         ],
       );
 
-      expect(state.categories.first.groupKey, 'transport');
+      expect(state.slices.map((slice) => slice.groupKey), ['alimentation']);
     });
 
     test('is empty when nothing was spent', () async {
       final state = await readState();
 
-      expect(state.categories, isEmpty);
+      expect(state.slices, isEmpty);
     });
   });
 
@@ -347,6 +367,45 @@ void main() {
         state.movers.map((trend) => trend.groupKey),
         isNot(contains('alimentation')),
       );
+    });
+
+    test('surfaces a category that stopped costing anything', () async {
+      final state = await readState(
+        expenses: [
+          expense(
+            amount: 100,
+            startDate: monthsAgo(11),
+            categorySlug: 'alimentation.courses',
+          ),
+          expense(
+            amount: 300,
+            startDate: monthsAgo(11),
+            categorySlug: 'loisirs.sorties',
+          )..endDate = DateTime(thisMonth.year, thisMonth.month - 6, 28),
+        ],
+      );
+
+      final leisure = state.movers.firstWhere(
+        (trend) => trend.groupKey == 'loisirs',
+      );
+      expect(leisure.amount, 0);
+      expect(leisure.delta, -1800);
+      expect(state.movers.first.groupKey, 'loisirs');
+    });
+
+    test('stays silent when nothing precedes the range', () async {
+      final state = await readState(
+        expenses: [
+          expense(
+            amount: 200,
+            startDate: monthsAgo(3),
+            categorySlug: 'alimentation.courses',
+          ),
+        ],
+      );
+
+      expect(state.hasExpenseComparison, isFalse);
+      expect(state.movers, isEmpty);
     });
   });
 

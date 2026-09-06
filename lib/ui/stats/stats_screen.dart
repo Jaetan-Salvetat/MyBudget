@@ -54,6 +54,13 @@ class _Content extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(statsProvider);
+    final movers = CategoryMoversSection(
+      movers: state.movers,
+      comparedMonths: state.range.months,
+      hasComparison: state.hasExpenseComparison,
+      onCategoryTap: onCategoryTap,
+    );
+    final hasMoved = state.movers.isNotEmpty;
 
     return SafeArea(
       bottom: false,
@@ -84,15 +91,12 @@ class _Content extends ConsumerWidget {
               recurringExpenses: state.monthlyRecurringExpenses,
               leftover: state.monthlyLeftover,
             ),
-            CategoryMoversSection(
-              movers: state.movers,
-              comparedMonths: state.range.months,
-              onCategoryTap: onCategoryTap,
-            ),
+            if (hasMoved) movers,
             CategoryBreakdownSection(
-              categories: state.categories,
+              slices: state.slices,
               onCategoryTap: onCategoryTap,
             ),
+            if (!hasMoved) movers,
           ],
         ),
       ),
