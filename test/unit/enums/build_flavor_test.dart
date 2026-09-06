@@ -29,14 +29,6 @@ void main() {
   });
 
   group('capacités', () {
-    test('seule la saveur store renonce à la mise à jour intégrée', () {
-      expect(BuildFlavor.store.supportsInAppUpdate, isFalse);
-
-      for (final BuildFlavor flavor in sideloadedFlavors) {
-        expect(flavor.supportsInAppUpdate, isTrue);
-      }
-    });
-
     test('seule la saveur store masque le choix du moteur d\'analyse', () {
       expect(BuildFlavor.store.exposesQuickAddEngineSettings, isFalse);
 

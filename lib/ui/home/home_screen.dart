@@ -2,14 +2,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
 import 'package:mybudget/ui/home/home_navigation_provider.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
-import 'package:mybudget/ui/settings/update_provider.dart';
 import 'package:mybudget/ui/stats/stats_screen.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
 
@@ -27,32 +24,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void dispose() {
     _landing.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (!ref.read(buildFlavorProvider).supportsInAppUpdate) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(updateProvider.notifier).checkForUpdates(silent: true);
-      ref.listenManual(updateProvider, (previous, next) {
-        if (previous?.availableUpdate == null &&
-            next.availableUpdate != null &&
-            context.mounted) {
-          FrostedSnackbar.show(
-            context,
-            message: 'Mise à jour v${next.availableUpdate!.version} disponible',
-            actionLabel: 'Voir',
-            onAction: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const UpdateScreen()),
-            ),
-          );
-        }
-      });
-    });
   }
 
   static const List<_NavItem> _items = [

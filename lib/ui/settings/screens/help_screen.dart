@@ -10,7 +10,6 @@ import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
 import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 import 'package:mybudget/ui/settings/screens/theme_screen.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
 Widget helpDestinationScreen(HelpDestination destination) {
   switch (destination) {
@@ -22,8 +21,6 @@ Widget helpDestinationScreen(HelpDestination destination) {
       return const QuickAddEngineScreen();
     case HelpDestination.theme:
       return const ThemeScreen();
-    case HelpDestination.update:
-      return const UpdateScreen();
   }
 }
 

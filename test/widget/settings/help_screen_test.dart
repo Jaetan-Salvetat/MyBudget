@@ -12,7 +12,6 @@ import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 import 'package:mybudget/ui/settings/screens/help_screen.dart';
 import 'package:mybudget/ui/settings/screens/quick_add_engine_screen.dart';
 import 'package:mybudget/ui/settings/screens/theme_screen.dart';
-import 'package:mybudget/ui/settings/screens/update_screen.dart';
 
 void main() {
   Future<void> pump(
@@ -125,7 +124,6 @@ void main() {
         HelpDestination.beneficiaries: isA<BeneficiariesScreen>(),
         HelpDestination.quickAddEngine: isA<QuickAddEngineScreen>(),
         HelpDestination.theme: isA<ThemeScreen>(),
-        HelpDestination.update: isA<UpdateScreen>(),
       };
 
       expect(expected.keys, HelpDestination.values);

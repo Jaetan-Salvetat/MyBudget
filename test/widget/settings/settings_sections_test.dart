@@ -11,18 +11,7 @@ import 'package:mybudget/ui/settings/widgets/sections/about_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/appearance_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/help_and_support_section.dart';
 import 'package:mybudget/ui/settings/widgets/sections/input_section.dart';
-import 'package:mybudget/ui/settings/update_provider.dart';
-import 'package:app_updater/app_updater.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class _StubUpdateNotifier extends UpdateNotifier {
-  _StubUpdateNotifier(this._state);
-
-  final UpdateState _state;
-
-  @override
-  UpdateState build() => _state;
-}
 
 void main() {
   setUp(() async {
@@ -33,7 +22,6 @@ void main() {
   Future<void> pump(
     WidgetTester tester,
     Widget section, {
-    UpdateState? update,
     String version = '1.2.3',
     String buildNumber = '128',
     BuildFlavor flavor = BuildFlavor.prod,
@@ -44,8 +32,6 @@ void main() {
           buildFlavorProvider.overrideWithValue(flavor),
           appVersionProvider.overrideWithValue(version),
           appBuildNumberProvider.overrideWithValue(buildNumber),
-          if (update != null)
-            updateProvider.overrideWith(() => _StubUpdateNotifier(update)),
         ],
         child: MaterialApp(
           theme: AppTheme.dark(),
@@ -129,52 +115,16 @@ void main() {
       expect(tile.subtitle, 'Automatique');
     });
 
-    testWidgets('the version tile shows no badge without an update', (
+    testWidgets('the version tile leads nowhere', (
       WidgetTester tester,
     ) async {
-      await pump(
-        tester,
-        const AboutSection(),
-        update: const UpdateState(),
-      );
-
-      expect(find.text('1.2.3 (128)'), findsOneWidget);
-      expect(find.byType(FrostedBadgeView), findsNothing);
-    });
-
-    testWidgets('the version tile badges an available update', (
-      WidgetTester tester,
-    ) async {
-      await pump(
-        tester,
-        const AboutSection(),
-        update: UpdateState(
-          availableUpdate: ReleaseInfo(
-            version: '2.0.0',
-            tagName: 'v2.0.0',
-            title: 'Nouvelle version',
-            notes: '',
-            publishedAt: DateTime(2026, 8, 22),
-            isPrerelease: false,
-            assets: const <ReleaseAsset>[],
-          ),
-        ),
-      );
-
-      expect(find.byType(FrostedBadgeView), findsOneWidget);
-    });
-
-    testWidgets('the store build shows the version without leading anywhere', (
-      WidgetTester tester,
-    ) async {
-      await pump(tester, const AboutSection(), flavor: BuildFlavor.store);
+      await pump(tester, const AboutSection());
 
       final FrostedListTile tile = sectionOf(tester).tiles.single;
 
       expect(tile.subtitle, '1.2.3 (128)');
       expect(tile.onTap, isNull);
       expect(tile.trailing, isNull);
-      expect(find.byType(FrostedBadgeView), findsNothing);
     });
   });
 }

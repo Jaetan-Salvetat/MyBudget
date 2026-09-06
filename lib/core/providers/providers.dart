@@ -1,4 +1,3 @@
-import 'package:app_updater/app_updater.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/core/providers/retry_policy.dart';
@@ -39,10 +38,6 @@ import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
-
-final appUpdaterProvider = Provider<AppUpdater>(
-  (ref) => throw UnimplementedError('AppUpdater must be overridden at startup'),
-);
 
 final buildFlavorProvider = Provider<BuildFlavor>((ref) => BuildFlavor.current);
 

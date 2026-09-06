@@ -176,19 +176,6 @@ const List<HelpChapter> helpChapters = [
           destination: HelpDestination.theme,
         ),
       ),
-      HelpTopic(
-        title: 'Mises à jour',
-        summary: 'Sans passer par un store',
-        icon: Symbols.system_update_rounded,
-        paragraphs: [
-          'L\'app vérifie elle-même s\'il existe une version plus récente et te propose de l\'installer.',
-          'Quand une mise à jour est prête, une pastille apparaît sur « Version » dans les Paramètres et les nouveautés sont listées avant l\'installation.',
-        ],
-        action: HelpAction(
-          label: 'Vérifier les mises à jour',
-          destination: HelpDestination.update,
-        ),
-      ),
     ],
   ),
 ];

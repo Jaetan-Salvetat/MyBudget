@@ -5,15 +5,13 @@ enum HelpDestination {
   categories,
   beneficiaries,
   quickAddEngine,
-  theme,
-  update;
+  theme;
 
   bool isAvailableIn(BuildFlavor flavor) => switch (this) {
     HelpDestination.categories ||
     HelpDestination.beneficiaries ||
     HelpDestination.theme => true,
     HelpDestination.quickAddEngine => flavor.exposesQuickAddEngineSettings,
-    HelpDestination.update => flavor.supportsInAppUpdate,
   };
 }
 

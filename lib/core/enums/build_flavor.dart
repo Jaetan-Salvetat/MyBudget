@@ -21,7 +21,5 @@ enum BuildFlavor {
     return fallback;
   }
 
-  bool get supportsInAppUpdate => this != store;
-
   bool get exposesQuickAddEngineSettings => this != store;
 }
