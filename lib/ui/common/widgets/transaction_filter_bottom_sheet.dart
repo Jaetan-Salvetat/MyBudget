@@ -10,14 +10,6 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transaction_filter_data.dart';
 
 class TransactionFilterBottomSheet extends StatefulWidget {
-  final TransactionFilterData initialFilterData;
-  final List<CategoryDisplay> categories;
-  final List<AccountModel> accounts;
-  final List<Beneficiary> beneficiaries;
-  final double highestAmount;
-  final int Function(TransactionFilterData filter) resultCount;
-  final void Function(TransactionFilterData filter) onApply;
-
   const TransactionFilterBottomSheet({
     required this.initialFilterData,
     required this.categories,
@@ -28,6 +20,13 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required this.onApply,
     super.key,
   });
+  final TransactionFilterData initialFilterData;
+  final List<CategoryDisplay> categories;
+  final List<AccountModel> accounts;
+  final List<Beneficiary> beneficiaries;
+  final double highestAmount;
+  final int Function(TransactionFilterData filter) resultCount;
+  final void Function(TransactionFilterData filter) onApply;
 
   static void show({
     required BuildContext context,
@@ -216,7 +215,9 @@ class _TransactionFilterBottomSheetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _AmountBound(label: MoneyFormatter.formatRounded(0)),
-              _AmountBound(label: MoneyFormatter.formatRounded(_amountScale.ceiling)),
+              _AmountBound(
+                label: MoneyFormatter.formatRounded(_amountScale.ceiling),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -300,9 +301,8 @@ class _TransactionFilterBottomSheetState
 }
 
 class _AmountBound extends StatelessWidget {
-  final String label;
-
   const _AmountBound({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -321,10 +321,9 @@ class _AmountBound extends StatelessWidget {
 }
 
 class _GroupLabel extends StatelessWidget {
+  const _GroupLabel({required this.text, this.hint});
   final String text;
   final String? hint;
-
-  const _GroupLabel({required this.text, this.hint});
 
   @override
   Widget build(BuildContext context) {
@@ -361,12 +360,6 @@ class _GroupLabel extends StatelessWidget {
 }
 
 class _Chip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final IconData? icon;
-  final Color? color;
-  final VoidCallback onTap;
-
   const _Chip({
     required this.label,
     required this.selected,
@@ -374,6 +367,11 @@ class _Chip extends StatelessWidget {
     this.icon,
     this.color,
   });
+  final String label;
+  final bool selected;
+  final IconData? icon;
+  final Color? color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -231,7 +231,7 @@ final class CurrentMonthRevenuesProvider
 }
 
 String _$currentMonthRevenuesHash() =>
-    r'1488b8d5ed6f4b6f9dcfb5c49f086dc5cd7bde21';
+    r'195e234c65d8cc5db2cb61cdd4239ee4b1a784ed';
 
 @ProviderFor(upcomingRevenues)
 final upcomingRevenuesProvider = UpcomingRevenuesProvider._();
@@ -278,7 +278,7 @@ final class UpcomingRevenuesProvider
   }
 }
 
-String _$upcomingRevenuesHash() => r'c3677c5e943e6b1d04781a051646d84d8b995a06';
+String _$upcomingRevenuesHash() => r'aa98a3d5291244645a75cc1c24cf5f003ef418d0';
 
 @ProviderFor(revenueEvents)
 final revenueEventsProvider = RevenueEventsFamily._();

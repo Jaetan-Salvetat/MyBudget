@@ -5,14 +5,13 @@ import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/core/utils/money.dart';
 
 class EarlyRepaymentIndemnityService {
+  const EarlyRepaymentIndemnityService();
   static const double _mortgageCapitalCapRate = 0.03;
   static const int _mortgageInterestMonths = 6;
   static const double _consumerYearlyFreeAllowance = 10000;
   static const double _consumerLongTermRate = 0.01;
   static const double _consumerShortTermRate = 0.005;
   static const int _consumerShortTermMonths = 12;
-
-  const EarlyRepaymentIndemnityService();
 
   double compute({
     required CreditRegime regime,

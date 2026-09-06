@@ -23,10 +23,7 @@ void main() {
     });
 
     test('drops non-breaking and zero-width characters', () {
-      expect(
-        ApiKeyService.sanitize('AIza abc​def﻿'),
-        'AIzaabcdef',
-      );
+      expect(ApiKeyService.sanitize('AIza abc​def﻿'), 'AIzaabcdef');
     });
 
     test('leaves a clean key untouched', () {

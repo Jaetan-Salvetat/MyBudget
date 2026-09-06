@@ -12,14 +12,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'data_provider.g.dart';
 
 class DataState {
-  final bool isExporting;
-  final bool isImporting;
-  final bool isDeleting;
-  final String error;
-  final double importProgress;
-  final String importStatus;
-  final ImportReport? importReport;
-
   const DataState({
     this.isExporting = false,
     this.isImporting = false,
@@ -29,6 +21,13 @@ class DataState {
     this.importStatus = '',
     this.importReport,
   });
+  final bool isExporting;
+  final bool isImporting;
+  final bool isDeleting;
+  final String error;
+  final double importProgress;
+  final String importStatus;
+  final ImportReport? importReport;
 
   DataState copyWith({
     bool? isExporting,
@@ -68,6 +67,7 @@ class DataNotifier extends _$DataNotifier {
       loanEventRepo: ref.read(loanEventRepositoryProvider),
       loanService: ref.read(loanServiceProvider),
       transferRepo: ref.read(transferRepositoryProvider),
+      clock: ref.read(clockProvider),
     );
   }
 
@@ -82,6 +82,7 @@ class DataNotifier extends _$DataNotifier {
       loanRepo: ref.read(loanRepositoryProvider),
       loanEventRepo: ref.read(loanEventRepositoryProvider),
       transferRepo: ref.read(transferRepositoryProvider),
+      clock: ref.read(clockProvider),
     );
   }
 
@@ -168,7 +169,7 @@ class DataNotifier extends _$DataNotifier {
     try {
       state = state.copyWith(isDeleting: true, error: '');
 
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<void>.delayed(ref.read(dataWipeFeedbackDelayProvider));
 
       ref.read(beneficiaryRepositoryProvider).deleteAll();
       ref.read(accountRepositoryProvider).deleteAll();

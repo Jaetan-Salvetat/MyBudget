@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
@@ -104,6 +105,7 @@ Future<ReceiptScanComposer> receiptScanComposer(Ref ref) async {
   return ReceiptScanComposer(
     categorizer: ReceiptCategorizer(QuickAddReceiptLineClassifier(quickAdd)),
     resolver: await ref.watch(categoryDisplayResolverProvider.future),
+    clock: ref.watch(clockProvider),
   );
 }
 
@@ -177,7 +179,8 @@ class ScanProgress extends _$ScanProgress {
 
 @riverpod
 class ScanNotifier extends _$ScanNotifier {
-  final ReceiptStorageService _storageService = ReceiptStorageService();
+  ReceiptStorageService get _storageService =>
+      ReceiptStorageService(ref.read(clockProvider));
 
   @override
   AsyncValue<ReceiptScanResultModel?> build() {
@@ -319,7 +322,7 @@ class ScanNotifier extends _$ScanNotifier {
             amount: group.total,
             categorySlug: group.slug,
             startDate: date,
-            frequency: Frequency.oneTime.label,
+            frequency: Frequency.oneTime,
             accountId: accountId,
             receiptPath: receiptPath,
           ),

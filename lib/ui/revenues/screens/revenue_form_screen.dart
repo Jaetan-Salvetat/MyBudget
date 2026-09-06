@@ -6,6 +6,7 @@ import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -17,16 +18,15 @@ import 'package:mybudget/ui/common/widgets/form_text.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class RevenueFormScreen extends ConsumerStatefulWidget {
-  final List<AccountModel> accounts;
-  final RevenueModel? revenue;
-  final List<RevenueModel> closedRevenues;
-
   const RevenueFormScreen({
     required this.accounts,
     this.revenue,
     this.closedRevenues = const [],
     super.key,
   });
+  final List<AccountModel> accounts;
+  final RevenueModel? revenue;
+  final List<RevenueModel> closedRevenues;
 
   static Future<RevenueModel?> push({
     required BuildContext context,
@@ -36,7 +36,7 @@ class RevenueFormScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<RevenueModel>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<RevenueModel>(
         builder: (_) => RevenueFormScreen(
           accounts: accounts,
           revenue: revenue,
@@ -53,8 +53,8 @@ class RevenueFormScreen extends ConsumerStatefulWidget {
 class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  DateTime _selectedDate = DateTime.now();
-  late String _selectedFrequency;
+  late DateTime _selectedDate;
+  late Frequency _selectedFrequency;
   int? _selectedAccountId;
   String? _selectedCategorySlug;
   String? _categoryError;
@@ -77,8 +77,8 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
       text: widget.revenue?.amount.toString() ?? '',
     );
 
-    _selectedDate = widget.revenue?.startDate ?? DateTime.now();
-    _selectedFrequency = widget.revenue?.frequency ?? Frequency.monthly.label;
+    _selectedDate = widget.revenue?.startDate ?? _now;
+    _selectedFrequency = widget.revenue?.frequencyEnum ?? Frequency.monthly;
     _selectedCategorySlug = widget.revenue?.categorySlug;
     _selectedAccountId =
         widget.revenue?.accountId ??
@@ -88,13 +88,15 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
     _resetEffectiveMonth();
   }
 
-  Frequency get _frequency => Frequency.fromString(_selectedFrequency);
+  DateTime get _now => ref.read(clockProvider)();
+
+  Frequency get _frequency => _selectedFrequency;
 
   void _resetEffectiveMonth() {
     _effectiveMonth = defaultEffectiveMonth(
       frequency: _frequency,
       anchor: _selectedDate,
-      asOf: DateTime.now(),
+      asOf: _now,
     );
   }
 
@@ -197,6 +199,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         if (!_isEditing && offersEffectiveMonthChoice(_frequency)) ...[
           const SizedBox(height: 16),
           EffectiveMonthField(
+            now: _now,
             value: _effectiveMonth,
             frequency: _frequency,
             anchor: _selectedDate,
@@ -252,13 +255,13 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
     setState(() {
       _nameController.text = closed.name;
       _amountController.text = closed.amount.toString();
-      _selectedFrequency = closed.frequency;
+      _selectedFrequency = closed.frequencyEnum;
       _selectedAccountId = closed.accountId;
       _selectedCategorySlug = closed.categorySlug;
       _selectedBeneficiaryId = closed.beneficiaryId;
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
-      _selectedDate = DateTime.now();
+      _selectedDate = _now;
       _resetEffectiveMonth();
     });
   }
@@ -301,7 +304,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   DateTime _createStartDate() => startDateFor(
     frequency: _frequency,
     anchor: _selectedDate,
-    asOf: DateTime.now(),
+    asOf: _now,
     scope: _effectiveMonth,
   );
 

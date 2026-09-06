@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -29,9 +30,8 @@ class InMemoryExpenseRepository implements ExpenseRepository {
       rows.where((row) => row.endDate != null).toList();
 
   @override
-  List<ExpenseModel> getChain(int rootId) => rows
-      .where((row) => row.id == rootId || row.parentId == rootId)
-      .toList();
+  List<ExpenseModel> getChain(int rootId) =>
+      rows.where((row) => row.id == rootId || row.parentId == rootId).toList();
 
   @override
   int add(ExpenseModel expense) {
@@ -58,8 +58,7 @@ class InMemoryExpenseRepository implements ExpenseRepository {
   void deleteAll() => rows.clear();
 }
 
-class InMemoryTransactionEventRepository
-    implements TransactionEventRepository {
+class InMemoryTransactionEventRepository implements TransactionEventRepository {
   final List<TransactionEventModel> rows = [];
 
   @override
@@ -72,9 +71,8 @@ class InMemoryTransactionEventRepository
   void add(TransactionEventModel event) => rows.add(event);
 
   @override
-  void deleteForRoot(int rootId, TransactionType type) => rows.removeWhere(
-    (row) => row.rootId == rootId && row.typeEnum == type,
-  );
+  void deleteForRoot(int rootId, TransactionType type) =>
+      rows.removeWhere((row) => row.rootId == rootId && row.typeEnum == type);
 
   @override
   void deleteAll() => rows.clear();
@@ -106,7 +104,7 @@ void main() {
       amount: 800,
       categorySlug: 'logement.loyer',
       startDate: DateTime(DateTime.now().year, DateTime.now().month - 2, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     );
     expenses.add(expense);

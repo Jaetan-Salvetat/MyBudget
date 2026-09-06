@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -55,10 +55,7 @@ void main() {
     testWidgets('annonce le cloud comme indisponible', (tester) async {
       await pumpScreen(tester);
 
-      expect(
-        find.text(cloudQuickAddEngineUnavailableNotice),
-        findsOneWidget,
-      );
+      expect(find.text(cloudQuickAddEngineUnavailableNotice), findsOneWidget);
     });
 
     testWidgets('le cloud ne repond plus au toucher', (tester) async {
@@ -99,20 +96,22 @@ void main() {
       );
     });
 
-    testWidgets('ouvre la page Gemini cloud quand aucune clé n\'est enregistrée', (
-      tester,
-    ) async {
-      await pumpScreen(tester);
+    testWidgets(
+      'ouvre la page Gemini cloud quand aucune clé n\'est enregistrée',
+      (tester) async {
+        await pumpScreen(tester);
 
-      await tester.tap(find.text('Clé API personnelle'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Clé API personnelle'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(GeminiCloudScreen), findsOneWidget);
-      expect(
-        PreferencesService.getQuickAddEngineMode(),
-        QuickAddEngineMode.onDevice,
-      );
-    }, skip: !isCloudQuickAddEngineAvailable);
+        expect(find.byType(GeminiCloudScreen), findsOneWidget);
+        expect(
+          PreferencesService.getQuickAddEngineMode(),
+          QuickAddEngineMode.onDevice,
+        );
+      },
+      skip: !isCloudQuickAddEngineAvailable,
+    );
 
     testWidgets('demande le consentement avant de repasser au cloud', (
       tester,

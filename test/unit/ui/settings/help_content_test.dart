@@ -22,7 +22,10 @@ void main() {
         expect(topic.title, isNotEmpty);
         expect(topic.summary, isNotEmpty);
         expect(topic.paragraphs, isNotEmpty);
-        expect(topic.paragraphs.every((String body) => body.isNotEmpty), isTrue);
+        expect(
+          topic.paragraphs.every((String body) => body.isNotEmpty),
+          isTrue,
+        );
       }
     });
 

@@ -1,7 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/ui/settings/widgets/settings_note.dart';
 

@@ -1,12 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/ui/settings/screens/categories_screen.dart';
 

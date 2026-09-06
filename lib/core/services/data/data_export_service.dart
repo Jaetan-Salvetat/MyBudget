@@ -7,18 +7,9 @@ import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
+import 'package:mybudget/core/time/clock.dart';
 
 class DataExportService {
-  final AccountRepository accountRepo;
-  final BeneficiaryRepository beneficiaryRepo;
-  final CategoryOverrideRepository categoryOverrideRepo;
-  final CategoryMemoryRepository categoryMemoryRepo;
-  final ExpenseRepository expenseRepo;
-  final RevenueRepository revenueRepo;
-  final LoanRepository loanRepo;
-  final LoanEventRepository loanEventRepo;
-  final TransferRepository transferRepo;
-
   const DataExportService({
     required this.accountRepo,
     required this.beneficiaryRepo,
@@ -29,10 +20,21 @@ class DataExportService {
     required this.loanRepo,
     required this.loanEventRepo,
     required this.transferRepo,
+    required this.clock,
   });
+  final AccountRepository accountRepo;
+  final BeneficiaryRepository beneficiaryRepo;
+  final CategoryOverrideRepository categoryOverrideRepo;
+  final CategoryMemoryRepository categoryMemoryRepo;
+  final ExpenseRepository expenseRepo;
+  final RevenueRepository revenueRepo;
+  final LoanRepository loanRepo;
+  final LoanEventRepository loanEventRepo;
+  final TransferRepository transferRepo;
+  final Clock clock;
 
   Map<String, dynamic> buildExportData() {
-    final now = DateTime.now();
+    final now = clock();
     final dateStr =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 

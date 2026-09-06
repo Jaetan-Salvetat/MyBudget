@@ -1,10 +1,16 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class AccountSetupSlide extends StatelessWidget {
+  const AccountSetupSlide({
+    required this.nameController,
+    required this.bankController,
+    required this.bankFocusNode,
+    super.key,
+  });
   static const String title = 'Un compte,\net c\'est parti.';
   static const String body =
       'C\'est là que tes dépenses atterrissent. Tu pourras en ajouter '
@@ -16,13 +22,6 @@ class AccountSetupSlide extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController bankController;
   final FocusNode bankFocusNode;
-
-  const AccountSetupSlide({
-    required this.nameController,
-    required this.bankController,
-    required this.bankFocusNode,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +47,9 @@ class AccountSetupSlide extends StatelessWidget {
         const SizedBox(height: FrostedSpacing.sp3),
         Text(
           body,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: FrostedSpacing.sp5),
         FrostedTextField(
@@ -80,9 +79,9 @@ class AccountSetupSlide extends StatelessWidget {
             Expanded(
               child: Text(
                 privacy,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ),
           ],

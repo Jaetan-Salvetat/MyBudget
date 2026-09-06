@@ -13,9 +13,9 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/ui/transfers/transfers_provider.dart';
-import 'package:mybudget/ui/onboarding/onboarding_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
@@ -85,7 +85,7 @@ void main() {
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
     await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
   }
 
   test('la page courante suit le PageView', () {

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:mybudget/core/entities/loan_schedule.dart';
 
 class AnnualPercentageRateService {
+  const AnnualPercentageRateService();
   static const double _maxMonthlyRate = 1.0;
   static const double _tolerance = 1e-9;
   static const int _maxIterations = 200;
@@ -11,8 +12,6 @@ class AnnualPercentageRateService {
   static final double _saturatedRate = double.parse(
     ((pow(1 + _maxMonthlyRate, 12) - 1) * 100).toStringAsFixed(_decimals),
   );
-
-  const AnnualPercentageRateService();
 
   double compute({
     required LoanSchedule schedule,

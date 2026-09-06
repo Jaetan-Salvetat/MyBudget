@@ -1,13 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/entities/transaction_change_entry.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -15,12 +17,11 @@ import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/core/entities/transaction_change_entry.dart';
-import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/transaction_details/screens/expense_details_screen.dart';
@@ -72,9 +73,7 @@ void main() {
     when(
       () => events.getForRoot(any(), TransactionType.expense),
     ).thenReturn([]);
-    when(
-      () => events.getForRoot(any(), TransactionType.income),
-    ).thenReturn([]);
+    when(() => events.getForRoot(any(), TransactionType.income)).thenReturn([]);
     accountRepository = MockAccountRepository();
     expenseRepository = MockExpenseRepository();
     revenueRepository = MockRevenueRepository();
@@ -113,7 +112,7 @@ void main() {
       amount: amount,
       categorySlug: 'logement.loyer',
       startDate: startDate ?? monthsAgo(3, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
       endDate: endDate,
       parentId: parentId,
@@ -149,7 +148,9 @@ void main() {
             categoryOverrideRepository,
           ),
           transactionEventRepositoryProvider.overrideWithValue(events),
-          beneficiaryRepositoryProvider.overrideWithValue(beneficiaryRepository),
+          beneficiaryRepositoryProvider.overrideWithValue(
+            beneficiaryRepository,
+          ),
           categoryTaxonomyProvider.overrideWith((ref) async => taxonomy),
         ],
         child: MaterialApp(
@@ -183,15 +184,9 @@ void main() {
     await pumpDetails(
       tester,
       expenseId: 2,
-      open: [
-        rent(id: 2, amount: 900, startDate: monthsAgo(2, 1), parentId: 1),
-      ],
+      open: [rent(id: 2, amount: 900, startDate: monthsAgo(2, 1), parentId: 1)],
       closed: [
-        rent(
-          id: 1,
-          startDate: monthsAgo(6, 1),
-          endDate: monthsAgo(3, 15),
-        ),
+        rent(id: 1, startDate: monthsAgo(6, 1), endDate: monthsAgo(3, 15)),
       ],
     );
 
@@ -203,15 +198,9 @@ void main() {
     await pumpDetails(
       tester,
       expenseId: 2,
-      open: [
-        rent(id: 2, amount: 900, startDate: monthsAgo(2, 1), parentId: 1),
-      ],
+      open: [rent(id: 2, amount: 900, startDate: monthsAgo(2, 1), parentId: 1)],
       closed: [
-        rent(
-          id: 1,
-          startDate: monthsAgo(6, 1),
-          endDate: monthsAgo(3, 15),
-        ),
+        rent(id: 1, startDate: monthsAgo(6, 1), endDate: monthsAgo(3, 15)),
       ],
     );
 
@@ -225,9 +214,7 @@ void main() {
   });
 
   testWidgets('tells a recorded change of category', (tester) async {
-    when(
-      () => events.getForRoot(any(), TransactionType.expense),
-    ).thenReturn([
+    when(() => events.getForRoot(any(), TransactionType.expense)).thenReturn([
       TransactionEventModel.create(
         rootId: 1,
         type: TransactionType.expense,
@@ -292,7 +279,7 @@ void main() {
       amount: 42,
       categorySlug: 'logement.loyer',
       startDate: DateTime.now(),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
       accountId: 1,
     )..id = 1;
 

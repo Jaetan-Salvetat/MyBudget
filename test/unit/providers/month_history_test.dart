@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -37,7 +38,7 @@ void main() {
       name: 'Loyer',
       amount: 800,
       startDate: DateTime(2026, 4, 12),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
       categorySlug: 'logement.loyer',
       endDate: endDate,
@@ -138,7 +139,7 @@ void main() {
         name: 'Ancien salaire',
         amount: 2400,
         startDate: DateTime(2026, 4, 2),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
         endDate: DateTime(2026, 8, 2),
       );
@@ -194,7 +195,7 @@ void main() {
         name: 'Abonnement',
         amount: 12,
         startDate: DateTime(2026, 1, 31),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
       expense.id = 3;
@@ -227,7 +228,7 @@ void main() {
         name: 'Ancien salaire',
         amount: 2400,
         startDate: DateTime(2026, 4, 2),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
         endDate: DateTime(2026, 8, 2),
       );
@@ -253,7 +254,7 @@ void main() {
         name: 'Loyer',
         amount: 850,
         startDate: DateTime(2026, 8, 12),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
         categorySlug: 'logement.loyer',
         parentId: 1,

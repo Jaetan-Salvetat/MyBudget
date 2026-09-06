@@ -8,6 +8,7 @@ import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
@@ -16,9 +17,8 @@ import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 const double _durationUnitToggleHeight = 50;
 
 class LoanCreationScreen extends ConsumerStatefulWidget {
-  final List<AccountModel> accounts;
-
   const LoanCreationScreen({required this.accounts, super.key});
+  final List<AccountModel> accounts;
 
   static Future<LoanModel?> push({
     required BuildContext context,
@@ -26,11 +26,8 @@ class LoanCreationScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<LoanModel>(
       context,
-      MaterialPageRoute(
-        builder: (_) => ProviderScope(
-          overrides: [loanCreationProvider],
-          child: LoanCreationScreen(accounts: accounts),
-        ),
+      MaterialPageRoute<LoanModel>(
+        builder: (_) => LoanCreationScreen(accounts: accounts),
       ),
     );
   }
@@ -91,7 +88,8 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
           .setInsuranceValue(_insuranceValueController.text),
     );
     _feesController.addListener(
-      () => ref.read(loanCreationProvider.notifier).setFees(_feesController.text),
+      () =>
+          ref.read(loanCreationProvider.notifier).setFees(_feesController.text),
     );
     _deferredMonthsController.addListener(
       () => ref
@@ -111,6 +109,11 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
     _deferredMonthsController.dispose();
     _feesController.dispose();
     super.dispose();
+  }
+
+  DateTime _dayOfMonthAnchor(int dayOfMonth) {
+    final DateTime now = ref.read(clockProvider)();
+    return DateTime(now.year, now.month, dayOfMonth);
   }
 
   @override
@@ -331,11 +334,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
                 onTap: () async {
                   final selectedDate = await DateSelector.showDayPicker(
                     context: context,
-                    initialDate: DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
-                      state.dayOfMonth,
-                    ),
+                    initialDate: _dayOfMonthAnchor(state.dayOfMonth),
                   );
                   if (selectedDate != null) {
                     notifier.setDayOfMonth(selectedDate.day);
@@ -1066,8 +1065,7 @@ class _LoanCreationScreenState extends ConsumerState<LoanCreationScreen> {
               FrostedButton.filled(
                 label: 'Terminer',
                 onPressed: state.isValid
-                    ? () =>
-                          Navigator.pop(context, notifier.createLoanModel())
+                    ? () => Navigator.pop(context, notifier.createLoanModel())
                     : null,
               ),
           ],

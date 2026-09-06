@@ -114,9 +114,9 @@ void main() {
 
     test('derives the regime from the selected purpose', () {
       final container = containerWithAmount('20000');
-      container.read(loanCreationProvider.notifier).setPurpose(
-        LoanPurpose.mortgage,
-      );
+      container
+          .read(loanCreationProvider.notifier)
+          .setPurpose(LoanPurpose.mortgage);
 
       expect(
         container.read(loanCreationProvider).effectiveRegime,
@@ -126,9 +126,9 @@ void main() {
 
     test('preselects an in fine bridge loan without an indemnity', () {
       final container = containerWithAmount('200000');
-      container.read(loanCreationProvider.notifier).setPurpose(
-        LoanPurpose.bridge,
-      );
+      container
+          .read(loanCreationProvider.notifier)
+          .setPurpose(LoanPurpose.bridge);
 
       final state = container.read(loanCreationProvider);
       expect(state.repaymentType, LoanRepaymentType.inFine);
@@ -137,9 +137,9 @@ void main() {
 
     test('preselects an upfront first payment on an instalment plan', () {
       final container = containerWithAmount('1000');
-      container.read(loanCreationProvider.notifier).setPurpose(
-        LoanPurpose.instalmentPlan,
-      );
+      container
+          .read(loanCreationProvider.notifier)
+          .setPurpose(LoanPurpose.instalmentPlan);
 
       expect(
         container.read(loanCreationProvider).immediateFirstPayment,

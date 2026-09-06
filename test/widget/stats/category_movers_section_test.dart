@@ -87,8 +87,18 @@ void main() {
       ),
     );
 
-    expect(find.text('${MoneyFormatter.plusSign}${MoneyFormatter.formatRounded(271)}'), findsOneWidget);
-    expect(find.text('${MoneyFormatter.minusSign}${MoneyFormatter.formatRounded(266)}'), findsOneWidget);
+    expect(
+      find.text(
+        '${MoneyFormatter.plusSign}${MoneyFormatter.formatRounded(271)}',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        '${MoneyFormatter.minusSign}${MoneyFormatter.formatRounded(266)}',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('vs 6 mois précédents'), findsOneWidget);
   });
 

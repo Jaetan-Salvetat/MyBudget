@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
@@ -26,7 +26,7 @@ class AppUtils {
 
   static void _resetNavigation(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const SplashScreen()),
+      MaterialPageRoute<void>(builder: (_) => const SplashScreen()),
       (_) => false,
     );
   }

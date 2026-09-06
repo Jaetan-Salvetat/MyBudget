@@ -1,14 +1,13 @@
 import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 
 class LegacyBackupUpgrader {
+  const LegacyBackupUpgrader(this._mapper);
   static const String _categoriesKey = 'categories';
   static const String _categoryIdKey = 'categoryId';
   static const String _categorySlugKey = 'categorySlug';
   static const String _expensesKey = 'expenses';
 
   final LegacyCategoryMapper _mapper;
-
-  const LegacyBackupUpgrader(this._mapper);
 
   Map<String, dynamic> upgrade(Map<String, dynamic> data) {
     final categories = data[_categoriesKey];
@@ -28,8 +27,10 @@ class LegacyBackupUpgrader {
 
     upgraded[_expensesKey] = [
       for (final item in expenses)
-        if (item is Map) _upgradeExpense(Map<String, dynamic>.from(item), names)
-        else item,
+        if (item is Map)
+          _upgradeExpense(Map<String, dynamic>.from(item), names)
+        else
+          item,
     ];
 
     return upgraded;

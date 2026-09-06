@@ -14,7 +14,8 @@ class _ScriptedLineClassifier implements ReceiptLineClassifier {
   @override
   Future<LinePrediction> classify(String normalizedLine) async {
     seen.add(normalizedLine);
-    return predictions[normalizedLine] ?? (slug: 'divers.autre', confidence: 0.1);
+    return predictions[normalizedLine] ??
+        (slug: 'divers.autre', confidence: 0.1);
   }
 }
 
@@ -37,6 +38,8 @@ LocalReceiptScan scanOf({
   );
 }
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -52,17 +55,21 @@ void main() {
     return ReceiptScanComposer(
       categorizer: ReceiptCategorizer(_ScriptedLineClassifier(predictions)),
       resolver: resolver,
+      clock: () => _fixedNow,
     );
   }
 
   group('ReceiptScanComposer', () {
     test('chaque article porte la catégorie de son propre libellé', () async {
-      final result = await composerOf({
-        'pain': (slug: 'alimentation.pain_patisserie', confidence: 0.9),
-        'croquettes chien': (slug: 'divers.animaux', confidence: 0.95),
-      }).compose(
-        scanOf(items: const [('PAIN', 2.0, 0.0), ('CROQUETTES CHIEN', 9.0, 0.0)]),
-      );
+      final result =
+          await composerOf({
+            'pain': (slug: 'alimentation.pain_patisserie', confidence: 0.9),
+            'croquettes chien': (slug: 'divers.animaux', confidence: 0.95),
+          }).compose(
+            scanOf(
+              items: const [('PAIN', 2.0, 0.0), ('CROQUETTES CHIEN', 9.0, 0.0)],
+            ),
+          );
 
       expect(result.items[0].categorySlug, 'alimentation.pain_patisserie');
       expect(result.items[1].categorySlug, 'divers.animaux');
@@ -76,6 +83,7 @@ void main() {
       final result = await ReceiptScanComposer(
         categorizer: ReceiptCategorizer(classifier),
         resolver: resolver,
+        clock: () => _fixedNow,
       ).compose(scanOf(store: 'CARREFOUR'));
 
       expect(result.items.single.categorySlug, 'alimentation.pain_patisserie');
@@ -87,20 +95,23 @@ void main() {
       await ReceiptScanComposer(
         categorizer: ReceiptCategorizer(classifier),
         resolver: resolver,
+        clock: () => _fixedNow,
       ).compose(scanOf(store: null, items: const [('*PAIN 4X125G', 2.0, 0.0)]));
 
       expect(classifier.seen, ['pain']);
     });
 
-    test('une catégorie inconnue de la taxonomie n\'est pas inventée',
-        () async {
-      final result = await composerOf({
-        'pain': (slug: 'categorie.disparue', confidence: 0.99),
-      }).compose(scanOf());
+    test(
+      'une catégorie inconnue de la taxonomie n\'est pas inventée',
+      () async {
+        final result = await composerOf({
+          'pain': (slug: 'categorie.disparue', confidence: 0.99),
+        }).compose(scanOf());
 
-      expect(result.items.single.categorySlug, isNull);
-      expect(result.items.single.categoryName, isNull);
-    });
+        expect(result.items.single.categorySlug, isNull);
+        expect(result.items.single.categoryName, isNull);
+      },
+    );
 
     test('la date lue est rendue en DateTime', () async {
       final result = await composerOf(const {}).compose(scanOf());
@@ -138,20 +149,22 @@ void main() {
       expect(result.items.single.isCategoryUncertain, isTrue);
     });
 
-    test('une catégorie inconnue ne garde pas la confiance du modèle',
-        () async {
-      final result = await composerOf({
-        'pain': (slug: 'categorie.disparue', confidence: 0.99),
-      }).compose(scanOf());
+    test(
+      'une catégorie inconnue ne garde pas la confiance du modèle',
+      () async {
+        final result = await composerOf({
+          'pain': (slug: 'categorie.disparue', confidence: 0.99),
+        }).compose(scanOf());
 
-      expect(result.items.single.categoryConfidence, 0);
-      expect(result.items.single.needsAttention, isTrue);
-    });
+        expect(result.items.single.categoryConfidence, 0);
+        expect(result.items.single.needsAttention, isTrue);
+      },
+    );
 
     test('les libellés affichés ne crient plus', () async {
-      final result = await composerOf(const {}).compose(
-        scanOf(items: const [('LAIT ECREME 6X1L', 6.54, 0.0)]),
-      );
+      final result = await composerOf(
+        const {},
+      ).compose(scanOf(items: const [('LAIT ECREME 6X1L', 6.54, 0.0)]));
 
       expect(result.items.single.name, 'Lait ecreme 6X1L');
     });

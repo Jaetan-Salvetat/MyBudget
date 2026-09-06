@@ -231,7 +231,7 @@ final class CurrentMonthExpensesProvider
 }
 
 String _$currentMonthExpensesHash() =>
-    r'd466c2826cd0e8792dd67f2f0a241879b34cc9d0';
+    r'3a2a09b1e90ec8a545c75b00f6a3d5ed6b65fd66';
 
 @ProviderFor(annualExpenses)
 final annualExpensesProvider = AnnualExpensesProvider._();
@@ -319,7 +319,7 @@ final class UpcomingExpensesProvider
   }
 }
 
-String _$upcomingExpensesHash() => r'8908328bd73786860ade4a4427ef726b3d45604b';
+String _$upcomingExpensesHash() => r'c08dd13165d01faf4773d067c93624f63f67e684';
 
 @ProviderFor(expensesByGroup)
 final expensesByGroupProvider = ExpensesByGroupProvider._();

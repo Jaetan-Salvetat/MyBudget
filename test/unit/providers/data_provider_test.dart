@@ -1,30 +1,30 @@
-import 'package:mybudget/core/repositories/category_memory_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/models/category_override_model.dart';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/settings/data_provider.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mybudget/core/services/data/legacy_backup_upgrader.dart';
 import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/models/category_override_model.dart';
+import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/ui/settings/data_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -151,8 +151,8 @@ void main() {
             'frequency': 'Mensuel',
           },
         ],
-        'revenues': [],
-        'loans': [],
+        'revenues': <Map<String, dynamic>>[],
+        'loans': <Map<String, dynamic>>[],
       });
 
       stubDeleteAll();
@@ -205,8 +205,8 @@ void main() {
           'frequency': 'Mensuel',
         },
       ],
-      'revenues': [],
-      'loans': [],
+      'revenues': <Map<String, dynamic>>[],
+      'loans': <Map<String, dynamic>>[],
     });
 
     stubDeleteAll();

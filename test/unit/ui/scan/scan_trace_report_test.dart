@@ -109,18 +109,22 @@ void main() {
     });
 
     test('un mot porte sa boîte, de quoi rejouer le regroupement', () async {
-      final reads = (await wordsOf('5,00'))['reads'] as List;
-      final words = ((reads.first as Map)['words'] as List).cast<Map>();
+      final reads = (await wordsOf('5,00'))['reads'] as List<Object?>;
+      final words =
+          ((reads.first as Map<String, Object?>)['words'] as List<Object?>)
+              .cast<Map<String, Object?>>();
       expect(words.first['text'], 'PAIN');
-      expect((words.first['box'] as List), hasLength(4));
+      expect(words.first['box'] as List<Object?>, hasLength(4));
       expect(words.first['confidence'], isNotNull);
     });
 
     test(
       'tous les mots du ticket sont là, pas seulement les chiffrés',
       () async {
-        final reads = (await wordsOf('5,00'))['reads'] as List;
-        final words = ((reads.first as Map)['words'] as List).cast<Map>();
+        final reads = (await wordsOf('5,00'))['reads'] as List<Object?>;
+        final words =
+            ((reads.first as Map<String, Object?>)['words'] as List<Object?>)
+                .cast<Map<String, Object?>>();
         expect(
           [for (final word in words) word['text']],
           ['PAIN', '2,00', 'LAIT', '3,00', 'TOTAL', '5,00'],

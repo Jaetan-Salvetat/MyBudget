@@ -68,7 +68,9 @@ void main() {
         GeminiNanoFailure.malformedResponse,
       );
       expect(
-        GeminiNanoFailure.fromCode(GeminiNanoErrorCode.structuredOutputResponse),
+        GeminiNanoFailure.fromCode(
+          GeminiNanoErrorCode.structuredOutputResponse,
+        ),
         GeminiNanoFailure.malformedResponse,
       );
       expect(
@@ -98,7 +100,10 @@ void main() {
         GeminiNanoFailure.fromPlatformCode('error'),
         GeminiNanoFailure.unknown,
       );
-      expect(GeminiNanoFailure.fromPlatformCode(null), GeminiNanoFailure.unknown);
+      expect(
+        GeminiNanoFailure.fromPlatformCode(null),
+        GeminiNanoFailure.unknown,
+      );
     });
   });
 

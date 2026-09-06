@@ -9,21 +9,32 @@ import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
 import 'package:mybudget/ui/quick_add/widgets/quick_add_stale.dart';
 
 class QuickAddCategoryPreview {
-  final String label;
-  final IconData icon;
-  final Color color;
-
-  final bool isUncertain;
-
   const QuickAddCategoryPreview({
     required this.label,
     required this.icon,
     required this.color,
     required this.isUncertain,
   });
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  final bool isUncertain;
 }
 
 class QuickAddDraftLine extends StatelessWidget {
+  const QuickAddDraftLine({
+    required this.amount,
+    required this.isIncome,
+    required this.category,
+    required this.recurrenceLabel,
+    required this.dateLabel,
+    required this.isStale,
+    required this.onPickCategory,
+    required this.onPickDate,
+    required this.onPickFrequency,
+    super.key,
+  });
   final double? amount;
   final bool isIncome;
 
@@ -37,19 +48,6 @@ class QuickAddDraftLine extends StatelessWidget {
   final VoidCallback? onPickCategory;
   final VoidCallback? onPickDate;
   final VoidCallback? onPickFrequency;
-
-  const QuickAddDraftLine({
-    required this.amount,
-    required this.isIncome,
-    required this.category,
-    required this.recurrenceLabel,
-    required this.dateLabel,
-    required this.isStale,
-    required this.onPickCategory,
-    required this.onPickDate,
-    required this.onPickFrequency,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +93,11 @@ class QuickAddDraftLine extends StatelessWidget {
 }
 
 class _DraftAmount extends StatelessWidget {
+  const _DraftAmount({
+    required this.amount,
+    required this.isIncome,
+    required this.isAwaitingAmount,
+  });
   static const double _integerFontSize = 30;
   static const double _decimalFontSize = 19;
   static const double _decimalAlpha = 0.65;
@@ -104,12 +107,6 @@ class _DraftAmount extends StatelessWidget {
   final bool isIncome;
 
   final bool isAwaitingAmount;
-
-  const _DraftAmount({
-    required this.amount,
-    required this.isIncome,
-    required this.isAwaitingAmount,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -151,10 +148,14 @@ class _DraftAmount extends StatelessWidget {
       },
     );
   }
-
 }
 
 class _CategoryPill extends StatelessWidget {
+  const _CategoryPill({
+    required this.category,
+    required this.isStale,
+    required this.onTap,
+  });
   static const double _fillAlpha = 0.14;
   static const double _outlineAlpha = 0.5;
   static const double _pendingOutlineAlpha = 0.3;
@@ -164,12 +165,6 @@ class _CategoryPill extends StatelessWidget {
   final QuickAddCategoryPreview? category;
   final bool isStale;
   final VoidCallback? onTap;
-
-  const _CategoryPill({
-    required this.category,
-    required this.isStale,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +247,11 @@ class _CategoryPill extends StatelessWidget {
 }
 
 class _PillSurface extends StatelessWidget {
+  const _PillSurface({
+    required this.background,
+    required this.outline,
+    required this.child,
+  });
   static const EdgeInsets _padding = EdgeInsets.symmetric(
     horizontal: FrostedSpacing.sp3,
     vertical: FrostedSpacing.sp2,
@@ -260,12 +260,6 @@ class _PillSurface extends StatelessWidget {
   final Color background;
   final Color outline;
   final Widget child;
-
-  const _PillSurface({
-    required this.background,
-    required this.outline,
-    required this.child,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -282,14 +276,6 @@ class _PillSurface extends StatelessWidget {
 }
 
 class _MetaLine extends StatelessWidget {
-  static const double _fontSize = 11;
-
-  final String? dateLabel;
-  final String? recurrenceLabel;
-  final bool isStale;
-  final VoidCallback? onPickDate;
-  final VoidCallback? onPickFrequency;
-
   const _MetaLine({
     required this.dateLabel,
     required this.recurrenceLabel,
@@ -297,6 +283,13 @@ class _MetaLine extends StatelessWidget {
     required this.onPickDate,
     required this.onPickFrequency,
   });
+  static const double _fontSize = 11;
+
+  final String? dateLabel;
+  final String? recurrenceLabel;
+  final bool isStale;
+  final VoidCallback? onPickDate;
+  final VoidCallback? onPickFrequency;
 
   @override
   Widget build(BuildContext context) {

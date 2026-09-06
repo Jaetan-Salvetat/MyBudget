@@ -1,13 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
 import 'package:mybudget/models/account_model.dart';
 
 class AccountFormScreen extends StatefulWidget {
-  final AccountModel? account;
-
   const AccountFormScreen({this.account, super.key});
+  final AccountModel? account;
 
   static Future<AccountModel?> push({
     required BuildContext context,
@@ -15,7 +14,9 @@ class AccountFormScreen extends StatefulWidget {
   }) {
     return Navigator.push<AccountModel>(
       context,
-      MaterialPageRoute(builder: (_) => AccountFormScreen(account: account)),
+      MaterialPageRoute<AccountModel>(
+        builder: (_) => AccountFormScreen(account: account),
+      ),
     );
   }
 

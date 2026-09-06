@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -19,38 +19,30 @@ class AccountList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(accountProvider)
-        .when(
-          loading: () => const Center(child: FrostedCircularProgress()),
-          error: (error, _) => Center(child: Text('Erreur: $error')),
-          data: (accounts) {
-            if (accounts.isEmpty) {
-              return Center(
-                child: EmptyState(
-                  message: 'Aucun compte',
-                  subMessage: 'Ajoutez un compte pour commencer',
-                  icon: Symbols.account_balance_wallet_rounded,
-                  buttonText: 'Ajouter un compte',
-                  onPressed: () => _openAccountForm(context, ref),
-                ),
-              );
-            }
+    final accounts = ref.watch(accountProvider);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final account in accounts) ...[
-                  _AccountCardEntry(account: account),
-                  const SizedBox(height: 12),
-                ],
-                AddAccountTile(
-                  onTap: () => _openAccountForm(context, ref),
-                ),
-              ],
-            );
-          },
-        );
+    if (accounts.isEmpty) {
+      return Center(
+        child: EmptyState(
+          message: 'Aucun compte',
+          subMessage: 'Ajoutez un compte pour commencer',
+          icon: Symbols.account_balance_wallet_rounded,
+          buttonText: 'Ajouter un compte',
+          onPressed: () => _openAccountForm(context, ref),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final account in accounts) ...[
+          _AccountCardEntry(account: account),
+          const SizedBox(height: 12),
+        ],
+        AddAccountTile(onTap: () => _openAccountForm(context, ref)),
+      ],
+    );
   }
 
   Future<void> _openAccountForm(BuildContext context, WidgetRef ref) async {
@@ -58,7 +50,7 @@ class AccountList extends ConsumerWidget {
     if (account == null || !context.mounted) return;
 
     try {
-      await ref.read(accountProvider.notifier).addAccount(account);
+      ref.read(accountProvider.notifier).addAccount(account);
     } catch (e) {
       if (context.mounted) {
         FrostedSnackbar.show(context, message: 'Erreur lors de l\'ajout: $e');
@@ -68,9 +60,8 @@ class AccountList extends ConsumerWidget {
 }
 
 class _AccountCardEntry extends ConsumerWidget {
-  final AccountModel account;
-
   const _AccountCardEntry({required this.account});
+  final AccountModel account;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,7 +97,7 @@ class _AccountCardEntry extends ConsumerWidget {
       monthlyCharges: charges,
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
+        MaterialPageRoute<void>(
           builder: (context) => AccountDetailsScreen(account: account),
           settings: RouteSettings(arguments: account),
         ),

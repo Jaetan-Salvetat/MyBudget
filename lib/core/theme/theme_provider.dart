@@ -1,14 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'app_theme.dart';
 
 part 'theme_provider.g.dart';
 
 class ThemeState {
-  final ThemeMode themeMode;
-
   const ThemeState({required this.themeMode});
+  final ThemeMode themeMode;
 
   ThemeState copyWith({ThemeMode? themeMode}) {
     return ThemeState(themeMode: themeMode ?? this.themeMode);
@@ -26,7 +24,4 @@ class ThemeNotifier extends _$ThemeNotifier {
     state = state.copyWith(themeMode: mode);
     PreferencesService.setThemeMode(mode);
   }
-
-  ThemeData get lightTheme => AppTheme.light();
-  ThemeData get darkTheme => AppTheme.dark();
 }

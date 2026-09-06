@@ -9,16 +9,15 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 
 class LoanEarlyRepaymentsCard extends StatelessWidget {
-  final Loan loan;
-  final List<LoanEventModel> events;
-  final void Function(LoanEventModel) onDelete;
-
   const LoanEarlyRepaymentsCard({
     required this.loan,
     required this.events,
     required this.onDelete,
     super.key,
   });
+  final Loan loan;
+  final List<LoanEventModel> events;
+  final void Function(LoanEventModel) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +44,7 @@ class LoanEarlyRepaymentsCard extends StatelessWidget {
           child: Column(
             children: [
               for (var index = 0; index < sorted.length; index++)
-                _buildEventRow(
-                  context,
-                  sorted[index],
-                  showDivider: true,
-                ),
+                _buildEventRow(context, sorted[index], showDivider: true),
               _buildSavingsRow(context),
             ],
           ),

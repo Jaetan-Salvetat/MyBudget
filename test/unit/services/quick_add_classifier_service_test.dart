@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/constants/quick_add_labels.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
@@ -12,6 +12,8 @@ import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
 class MockTokenizer extends Mock implements QuickAddTokenizer {}
 
 class MockModelRunner extends Mock implements QuickAddModelRunner {}
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +62,7 @@ void main() {
       tokenizer: tokenizer,
       modelRunner: runner,
       taxonomy: taxonomy,
+      clock: () => _fixedNow,
     );
   });
 
@@ -94,20 +97,23 @@ void main() {
       verify(() => tokenizer.encode('courses carrefour')).called(1);
     });
 
-    test('sends the canonical form to the model, keeps the typed name', () async {
-      when(() => runner.run(any())).thenAnswer(
-        (_) async => outputFor(
-          typeIndex: 0,
-          category: 'alimentation.courses',
-          recurrenceIndex: 0,
-        ),
-      );
+    test(
+      'sends the canonical form to the model, keeps the typed name',
+      () async {
+        when(() => runner.run(any())).thenAnswer(
+          (_) async => outputFor(
+            typeIndex: 0,
+            category: 'alimentation.courses',
+            recurrenceIndex: 0,
+          ),
+        );
 
-      final result = await classifier.classify('Père &Fils 20€');
+        final result = await classifier.classify('Père &Fils 20€');
 
-      verify(() => tokenizer.encode('pere & fils')).called(1);
-      expect(result.name, 'Père &Fils');
-    });
+        verify(() => tokenizer.encode('pere & fils')).called(1);
+        expect(result.name, 'Père &Fils');
+      },
+    );
 
     test('classifies a one-time expense', () async {
       when(() => runner.run(any())).thenAnswer(

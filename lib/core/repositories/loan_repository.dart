@@ -2,9 +2,8 @@ import 'package:mybudget/models/loan_model.dart';
 import 'package:objectbox/objectbox.dart';
 
 class LoanRepository {
-  final Box<LoanModel> _box;
-
   LoanRepository(this._box);
+  final Box<LoanModel> _box;
 
   List<LoanModel> getAll() {
     return _box.getAll();

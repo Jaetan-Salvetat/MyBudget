@@ -7,24 +7,11 @@ import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 
 class ScanReviewView extends StatelessWidget {
-  final ReceiptScanResultModel result;
-  final CategoryDisplay? Function(String? slug) resolve;
-  final Animation<double> reveal;
-  final int? highlightedIndex;
-  final ScrollController? controller;
-  final ValueChanged<String> onStoreChanged;
-  final VoidCallback onPickDate;
-  final VoidCallback onFillGap;
-  final VoidCallback onFocusPending;
-  final void Function(int index) onPickCategory;
-  final void Function(int index, String name) onNameChanged;
-  final void Function(int index, double amount) onAmountChanged;
-  final void Function(int index) onRemove;
-
   const ScanReviewView({
     required this.result,
     required this.resolve,
     required this.reveal,
+    required this.now,
     this.highlightedIndex,
     required this.onStoreChanged,
     required this.onPickDate,
@@ -37,6 +24,20 @@ class ScanReviewView extends StatelessWidget {
     this.controller,
     super.key,
   });
+  final ReceiptScanResultModel result;
+  final CategoryDisplay? Function(String? slug) resolve;
+  final Animation<double> reveal;
+  final DateTime now;
+  final int? highlightedIndex;
+  final ScrollController? controller;
+  final ValueChanged<String> onStoreChanged;
+  final VoidCallback onPickDate;
+  final VoidCallback onFillGap;
+  final VoidCallback onFocusPending;
+  final void Function(int index) onPickCategory;
+  final void Function(int index, String name) onNameChanged;
+  final void Function(int index, double amount) onAmountChanged;
+  final void Function(int index) onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +60,7 @@ class ScanReviewView extends StatelessWidget {
       children: [
         ScanReceiptHeader(
           result: result,
+          now: now,
           reveal: reveal,
           onStoreChanged: onStoreChanged,
           onPickDate: onPickDate,

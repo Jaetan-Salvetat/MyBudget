@@ -1,12 +1,19 @@
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
 class RevenueGroupIdentity {
+  const RevenueGroupIdentity({
+    required this.key,
+    required this.label,
+    this.icon,
+    this.color,
+    this.rank = leadingRank,
+  });
   static const int leadingRank = 0;
   static const int trailingRank = 1 << 20;
 
@@ -16,29 +23,20 @@ class RevenueGroupIdentity {
   final String? icon;
   final int? color;
   final int rank;
-
-  const RevenueGroupIdentity({
-    required this.key,
-    required this.label,
-    this.icon,
-    this.color,
-    this.rank = leadingRank,
-  });
 }
 
 class RevenueGroup {
-  final RevenueGroupIdentity identity;
-  final List<RevenueModel> items;
-  final double total;
-
-  final double share;
-
   const RevenueGroup({
     required this.identity,
     required this.items,
     required this.total,
     required this.share,
   });
+  final RevenueGroupIdentity identity;
+  final List<RevenueModel> items;
+  final double total;
+
+  final double share;
 
   String get key => identity.key;
 
@@ -56,9 +54,8 @@ abstract class RevenueGrouper {
 }
 
 class FlatRevenueGrouper extends RevenueGrouper {
-  static const String key = '__all__';
-
   const FlatRevenueGrouper();
+  static const String key = '__all__';
 
   @override
   RevenueGroupIdentity identify(RevenueModel revenue) =>
@@ -84,9 +81,8 @@ class FrequencyRevenueGrouper extends RevenueGrouper {
 }
 
 class CategoryRevenueGrouper extends RevenueGrouper {
-  final CategoryDisplayResolver _resolver;
-
   const CategoryRevenueGrouper(this._resolver);
+  final CategoryDisplayResolver _resolver;
 
   @override
   RevenueGroupIdentity identify(RevenueModel revenue) {
@@ -112,13 +108,12 @@ class CategoryRevenueGrouper extends RevenueGrouper {
 }
 
 class BeneficiaryRevenueGrouper extends RevenueGrouper {
+  BeneficiaryRevenueGrouper(List<Beneficiary> beneficiaries)
+    : _byId = {for (final b in beneficiaries) b.id: b};
   static const String unassignedKey = '__no_beneficiary__';
   static const String unassignedLabel = 'Sans bénéficiaire';
 
   final Map<int, Beneficiary> _byId;
-
-  BeneficiaryRevenueGrouper(List<Beneficiary> beneficiaries)
-    : _byId = {for (final b in beneficiaries) b.id: b};
 
   @override
   RevenueGroupIdentity identify(RevenueModel revenue) {
@@ -139,13 +134,12 @@ class BeneficiaryRevenueGrouper extends RevenueGrouper {
 }
 
 class AccountRevenueGrouper extends RevenueGrouper {
+  AccountRevenueGrouper(List<AccountModel> accounts)
+    : _byId = {for (final a in accounts) a.id: a};
   static const String unknownKey = '__unknown_account__';
   static const String unknownLabel = 'Compte inconnu';
 
   final Map<int, AccountModel> _byId;
-
-  AccountRevenueGrouper(List<AccountModel> accounts)
-    : _byId = {for (final a in accounts) a.id: a};
 
   @override
   RevenueGroupIdentity identify(RevenueModel revenue) {

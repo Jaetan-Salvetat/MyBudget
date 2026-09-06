@@ -8,9 +8,8 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class LoanDetailHero extends StatelessWidget {
-  final Loan loan;
-
   const LoanDetailHero({required this.loan, super.key});
+  final Loan loan;
 
   @override
   Widget build(BuildContext context) {

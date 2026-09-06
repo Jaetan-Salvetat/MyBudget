@@ -47,7 +47,9 @@ class QuickAddTokenizer {
       asset.lengthInBytes,
     );
     if (!QuickAddTokenizerFormat.hasMagic(bytes)) {
-      throw FormatException('Tokenizer illisible : en-tete inattendu dans $assetPath');
+      throw FormatException(
+        'Tokenizer illisible : en-tete inattendu dans $assetPath',
+      );
     }
 
     _data = ByteData.view(

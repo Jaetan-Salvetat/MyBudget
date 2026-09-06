@@ -11,21 +11,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'loan_edit_provider.g.dart';
 
 class LoanEditState {
-  final Loan initialLoan;
-  final String name;
-  final String lenderName;
-  final int selectedAccountId;
-  final int dayOfMonth;
-  final LoanInsuranceType insuranceType;
-  final double insuranceValue;
-  final InsuranceCalculationMode insuranceCalcMode;
-
-  static const LoanScheduleService _scheduleService = LoanScheduleService(
-    EarlyRepaymentIndemnityService(),
-  );
-  static const AnnualPercentageRateService _rateService =
-      AnnualPercentageRateService();
-
   LoanEditState({
     required this.initialLoan,
     required this.name,
@@ -49,6 +34,20 @@ class LoanEditState {
       insuranceCalcMode: loan.insuranceCalculationMode,
     );
   }
+  final Loan initialLoan;
+  final String name;
+  final String lenderName;
+  final int selectedAccountId;
+  final int dayOfMonth;
+  final LoanInsuranceType insuranceType;
+  final double insuranceValue;
+  final InsuranceCalculationMode insuranceCalcMode;
+
+  static const LoanScheduleService _scheduleService = LoanScheduleService(
+    EarlyRepaymentIndemnityService(),
+  );
+  static const AnnualPercentageRateService _rateService =
+      AnnualPercentageRateService();
 
   LoanEditState copyWith({
     String? name,
@@ -119,17 +118,9 @@ class LoanEditState {
 }
 
 @Riverpod(keepAlive: false)
-Loan loanToEdit(Ref ref) => throw UnimplementedError(
-  'loanToEditProvider must be overridden via ProviderScope',
-);
-
-@Riverpod(keepAlive: false, dependencies: [loanToEdit])
 class LoanEditNotifier extends _$LoanEditNotifier {
   @override
-  LoanEditState build() {
-    final loan = ref.watch(loanToEditProvider);
-    return LoanEditState.fromLoan(loan);
-  }
+  LoanEditState build(Loan loan) => LoanEditState.fromLoan(loan);
 
   void setName(String value) => state = state.copyWith(name: value);
   void setLenderName(String value) => state = state.copyWith(lenderName: value);

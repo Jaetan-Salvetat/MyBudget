@@ -39,7 +39,10 @@ void main() {
   testWidgets('recalls the twelve month rate', (tester) async {
     await tester.pumpWidget(section());
 
-    expect(find.textContaining('${PercentFormatter.formatWhole(42)} sur 12 mois'), findsOneWidget);
+    expect(
+      find.textContaining('${PercentFormatter.formatWhole(42)} sur 12 mois'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('drops the twelve month rate when it reads the same', (

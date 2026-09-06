@@ -7,6 +7,7 @@ import 'package:mybudget/core/entities/transaction_rule_version.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
 import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
@@ -29,14 +30,13 @@ const String _unknownAccount = 'Compte inconnu';
 const String _deleteMessage = 'Voulez-vous vraiment supprimer cette dépense ?';
 
 class ExpenseDetailsScreen extends ConsumerStatefulWidget {
-  final int expenseId;
-  final bool isCurrentMonth;
-
   const ExpenseDetailsScreen({
     required this.expenseId,
     required this.isCurrentMonth,
     super.key,
   });
+  final int expenseId;
+  final bool isCurrentMonth;
 
   static Future<void> push({
     required BuildContext context,
@@ -78,7 +78,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       );
     }
 
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
     final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
     final resolver = ref.watch(categoryDisplayResolverProvider).value;
 
@@ -99,6 +99,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
     );
 
     return TransactionDetailsView(
+      now: ref.read(clockProvider)(),
       screenTitle: _screenTitle,
       name: expense.name,
       category: category,
@@ -110,7 +111,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       endDate: expense.endDate,
       summary: TransactionRuleSummaryService.summarize(
         versions,
-        asOf: DateTime.now(),
+        asOf: ref.read(clockProvider)(),
       ),
       timeline: TransactionTimelineService.build(
         versions: versions,
@@ -145,7 +146,10 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
           endDate: entry.endDate,
           frequency: entry.frequencyEnum,
           accountLabel:
-              accounts.where((a) => a.id == entry.accountId).firstOrNull?.name ??
+              accounts
+                  .where((a) => a.id == entry.accountId)
+                  .firstOrNull
+                  ?.name ??
               _unknownAccount,
           beneficiaryLabel: _beneficiaryOf(
             entry.beneficiaryId,
@@ -181,7 +185,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
   Future<void> _openEditScreen(ExpenseModel expense) async {
     final updated = await ExpenseFormScreen.push(
       context: context,
-      accounts: ref.read(accountProvider).value ?? [],
+      accounts: ref.read(accountProvider),
       expense: expense,
     );
     if (updated == null || !mounted) return;
@@ -190,11 +194,9 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       context: context,
       before: expense,
       after: updated,
-      onConfirmed: (effectiveMonth) => _saveExpense(
-        expense,
-        updated,
-        effectiveMonth: effectiveMonth,
-      ),
+      now: ref.read(clockProvider)(),
+      onConfirmed: (effectiveMonth) =>
+          _saveExpense(expense, updated, effectiveMonth: effectiveMonth),
     );
   }
 

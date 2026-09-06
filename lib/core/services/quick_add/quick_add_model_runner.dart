@@ -29,6 +29,12 @@ typedef QuickAddModelOutput = ({
 const int kCategorySuggestionCount = 3;
 
 class QuickAddModelRunner {
+  QuickAddModelRunner(
+    this._ort, {
+    TempDirectoryResolver? tempDirectory,
+    ModelAssetResolver? modelAsset,
+  }) : _tempDirectory = tempDirectory ?? getTemporaryDirectory,
+       _modelAsset = modelAsset ?? _assetFromManifest;
   static final RegExp assetPattern = RegExp(
     r'^assets/models/model_v\d+\.onnx$',
   );
@@ -39,13 +45,6 @@ class QuickAddModelRunner {
   final TempDirectoryResolver _tempDirectory;
   final ModelAssetResolver _modelAsset;
   OrtSession? _session;
-
-  QuickAddModelRunner(
-    this._ort, {
-    TempDirectoryResolver? tempDirectory,
-    ModelAssetResolver? modelAsset,
-  }) : _tempDirectory = tempDirectory ?? getTemporaryDirectory,
-       _modelAsset = modelAsset ?? _assetFromManifest;
 
   bool get isLoaded => _session != null;
 
@@ -70,8 +69,10 @@ class QuickAddModelRunner {
         await entry.delete();
       }
     } on FileSystemException catch (error, stackTrace) {
-      debugPrint('Nettoyage des modeles caches impossible : '
-          '$error\n$stackTrace');
+      debugPrint(
+        'Nettoyage des modeles caches impossible : '
+        '$error\n$stackTrace',
+      );
     }
   }
 

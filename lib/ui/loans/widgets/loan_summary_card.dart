@@ -5,12 +5,6 @@ import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanSummaryCard extends StatelessWidget {
-  final double totalDebt;
-  final double monthlyPayment;
-  final double progress;
-  final int activeLoanCount;
-  final double remainingCost;
-
   const LoanSummaryCard({
     required this.totalDebt,
     required this.monthlyPayment,
@@ -19,6 +13,11 @@ class LoanSummaryCard extends StatelessWidget {
     required this.remainingCost,
     super.key,
   });
+  final double totalDebt;
+  final double monthlyPayment;
+  final double progress;
+  final int activeLoanCount;
+  final double remainingCost;
 
   @override
   Widget build(BuildContext context) {
@@ -134,11 +133,10 @@ class LoanSummaryCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, this.hint});
   final String label;
   final String value;
   final String? hint;
-
-  const _Stat({required this.label, required this.value, this.hint});
 
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
@@ -36,7 +37,7 @@ ExpenseModel _expenseOf(int beneficiaryId) {
     accountId: 1,
     categorySlug: 'restauration.cafe',
     startDate: DateTime(2026, 1, 1),
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
   );
   expense.beneficiaryId = beneficiaryId;
   return expense;
@@ -124,10 +125,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Personne 3');
     await tester.pumpAndSettle();
 
-    expect(
-      find.widgetWithText(FrostedListTile, 'Personne 3'),
-      findsOneWidget,
-    );
+    expect(find.widgetWithText(FrostedListTile, 'Personne 3'), findsOneWidget);
     expect(find.widgetWithText(FrostedListTile, 'Personne 4'), findsNothing);
   });
 

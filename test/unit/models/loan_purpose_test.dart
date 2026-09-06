@@ -2,11 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/loan_model.dart';
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
-  LoanModel modelOf({
-    required LoanPurpose purpose,
-    double amount = 20000,
-  }) {
+  LoanModel modelOf({required LoanPurpose purpose, double amount = 20000}) {
     return LoanModel.create(
       name: 'Prêt',
       amount: amount,
@@ -81,7 +80,7 @@ void main() {
 
       expect(json['purposeId'], 'car');
       expect(json.containsKey('regimeId'), isFalse);
-      expect(LoanModel.fromJson(json).purpose, LoanPurpose.car);
+      expect(LoanModel.fromJson(json, now: _fixedNow).purpose, LoanPurpose.car);
     });
 
     test('falls back to the neutral purpose for an unknown value', () {
@@ -95,7 +94,10 @@ void main() {
       final json = modelOf(purpose: LoanPurpose.car).toJson()
         ..remove('purposeId');
 
-      expect(LoanModel.fromJson(json).purpose, LoanPurpose.other);
+      expect(
+        LoanModel.fromJson(json, now: _fixedNow).purpose,
+        LoanPurpose.other,
+      );
     });
   });
 
@@ -115,11 +117,7 @@ void main() {
         LoanPurpose.instalmentPlan,
         LoanPurpose.other,
       ]) {
-        expect(
-          purpose.waivesIndemnityByDefault,
-          isFalse,
-          reason: purpose.name,
-        );
+        expect(purpose.waivesIndemnityByDefault, isFalse, reason: purpose.name);
       }
     });
   });

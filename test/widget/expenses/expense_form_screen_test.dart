@@ -1,9 +1,12 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -13,8 +16,6 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
 
@@ -163,7 +164,7 @@ void main() {
       amount: 800,
       startDate: DateTime(2026, 1, 1),
       accountId: account.id,
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       categorySlug: 'logement_loyer',
     )..id = 7;
 
@@ -194,7 +195,7 @@ void main() {
       amount: 15.99,
       startDate: DateTime(2026, 1, 12),
       accountId: 1,
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       categorySlug: 'loisirs.abonnements',
     )..id = 3;
 
@@ -237,7 +238,7 @@ void main() {
         amount: 800,
         startDate: DateTime(2026, 1, 1),
         accountId: account.id,
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         categorySlug: 'logement.loyer',
       )..id = 7;
 

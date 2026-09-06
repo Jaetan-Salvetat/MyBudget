@@ -16,17 +16,16 @@ enum JournalBucketKind {
 }
 
 class JournalBucket {
-  final JournalBucketKind kind;
-
-  final DateTime anchor;
-
-  final List<JournalEntry> entries;
-
   const JournalBucket({
     required this.kind,
     required this.anchor,
     required this.entries,
   });
+  final JournalBucketKind kind;
+
+  final DateTime anchor;
+
+  final List<JournalEntry> entries;
 
   String get label => kind == JournalBucketKind.month
       ? DateFormatter.monthYear.format(anchor)

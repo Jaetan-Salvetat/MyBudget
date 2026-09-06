@@ -3,6 +3,14 @@ enum Frequency {
   annual,
   oneTime;
 
+  static const Map<String, Frequency> _legacyLabels = {
+    'Mensuel': Frequency.monthly,
+    'Annuel': Frequency.annual,
+    'Ponctuel': Frequency.oneTime,
+  };
+
+  String get storageKey => name;
+
   String get label {
     switch (this) {
       case Frequency.monthly:
@@ -14,16 +22,10 @@ enum Frequency {
     }
   }
 
-  static Frequency fromString(String value) {
-    switch (value) {
-      case 'Mensuel':
-        return Frequency.monthly;
-      case 'Annuel':
-        return Frequency.annual;
-      case 'Ponctuel':
-        return Frequency.oneTime;
-      default:
-        return Frequency.monthly;
+  static Frequency fromStorage(String value) {
+    for (final frequency in Frequency.values) {
+      if (frequency.storageKey == value) return frequency;
     }
+    return _legacyLabels[value] ?? Frequency.monthly;
   }
 }

@@ -1,11 +1,50 @@
-import 'package:objectbox/objectbox.dart';
-import 'package:mybudget/core/entities/filterable_transaction.dart';
+import 'package:mybudget/core/entities/recurring_transaction.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/utils/json_fields.dart';
+import 'package:objectbox/objectbox.dart';
 
 const _sentinel = Object();
 
 @Entity()
-class ExpenseModel implements FilterableTransaction {
+class ExpenseModel implements RecurringTransaction<ExpenseModel> {
+  ExpenseModel();
+
+  ExpenseModel.create({
+    required this.name,
+    required this.amount,
+    this.categorySlug,
+    required this.startDate,
+    required Frequency frequency,
+    required this.accountId,
+    this.endDate,
+    this.parentId,
+    this.beneficiaryId,
+    this.receiptPath,
+  }) {
+    this.frequency = frequency.storageKey;
+  }
+
+  factory ExpenseModel.fromJson(
+    Map<String, dynamic> json, {
+    required DateTime now,
+  }) {
+    final model = ExpenseModel()
+      ..id = json.readInt('id', 0)
+      ..name = json.readString('name', '')
+      ..amount = json.readDouble('amount', 0)
+      ..startDate = json.readFirstDate(const ['startDate', 'date']) ?? now
+      ..endDate = json.readOptionalDate('endDate')
+      ..parentId = json.readOptionalInt('parentId')
+      ..frequencyEnum = Frequency.fromStorage(
+        json.readString('frequency', Frequency.monthly.storageKey),
+      )
+      ..categorySlug = json.readOptionalString('categorySlug')
+      ..accountId = json.readInt('accountId', 0)
+      ..beneficiaryId = json.readOptionalInt('beneficiaryId')
+      ..receiptPath = json.readOptionalString('receiptPath');
+    return model;
+  }
+  @override
   @Id()
   int id = 0;
 
@@ -31,6 +70,7 @@ class ExpenseModel implements FilterableTransaction {
   @override
   DateTime? endDate;
 
+  @override
   int? parentId;
 
   late String frequency;
@@ -43,27 +83,12 @@ class ExpenseModel implements FilterableTransaction {
 
   String? receiptPath;
 
-  ExpenseModel();
-
-  ExpenseModel.create({
-    required this.name,
-    required this.amount,
-    this.categorySlug,
-    required this.startDate,
-    required this.frequency,
-    required this.accountId,
-    this.endDate,
-    this.parentId,
-    this.beneficiaryId,
-    this.receiptPath,
-  });
-
   ExpenseModel copyWith({
     String? name,
     double? amount,
     String? categorySlug,
     DateTime? startDate,
-    String? frequency,
+    Frequency? frequency,
     int? accountId,
     Object? endDate = _sentinel,
     Object? parentId = _sentinel,
@@ -75,8 +100,9 @@ class ExpenseModel implements FilterableTransaction {
       ..name = name ?? this.name
       ..amount = amount ?? this.amount
       ..categorySlug = categorySlug ?? this.categorySlug
+      ..legacyCategoryId = legacyCategoryId
       ..startDate = startDate ?? this.startDate
-      ..frequency = frequency ?? this.frequency
+      ..frequency = frequency?.storageKey ?? this.frequency
       ..accountId = accountId ?? this.accountId
       ..endDate = endDate == _sentinel ? this.endDate : endDate as DateTime?
       ..parentId = parentId == _sentinel ? this.parentId : parentId as int?
@@ -88,6 +114,21 @@ class ExpenseModel implements FilterableTransaction {
           : receiptPath as String?;
     return model;
   }
+
+  @override
+  ExpenseModel closedOn(DateTime endDate) => copyWith(endDate: endDate);
+
+  @override
+  ExpenseModel forkedAt(DateTime startDate, int rootId) => ExpenseModel.create(
+    name: name,
+    amount: amount,
+    categorySlug: categorySlug,
+    startDate: startDate,
+    frequency: frequencyEnum,
+    accountId: accountId,
+    beneficiaryId: beneficiaryId,
+    parentId: rootId,
+  );
 
   Map<String, dynamic> toJson() {
     return {
@@ -105,41 +146,15 @@ class ExpenseModel implements FilterableTransaction {
     };
   }
 
-  factory ExpenseModel.fromJson(Map<String, dynamic> json) {
-    final dateStr = json['startDate'] ?? json['date'];
-    final model = ExpenseModel()
-      ..name = json['name'] ?? ''
-      ..amount = (json['amount'] ?? 0.0).toDouble()
-      ..startDate = dateStr != null
-          ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
-          : DateTime.now()
-      ..endDate = json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'].toString())
-          : null
-      ..parentId = json['parentId'] != null
-          ? int.tryParse(json['parentId'].toString())
-          : null
-      ..frequency = json['frequency'] ?? ''
-      ..categorySlug = json['categorySlug'] as String?
-      ..accountId = json['accountId'] != null
-          ? (int.tryParse(json['accountId'].toString()) ?? 0)
-          : 0
-      ..beneficiaryId = json['beneficiaryId'] != null
-          ? int.tryParse(json['beneficiaryId'].toString())
-          : null
-      ..receiptPath = json['receiptPath'] as String?;
-
-    if (json['id'] != null) {
-      model.id = int.tryParse(json['id'].toString()) ?? 0;
-    }
-
-    return model;
-  }
+  @override
+  @override
+  String get storedFrequency => frequency;
 
   @override
-  Frequency get frequencyEnum => Frequency.fromString(frequency);
+  Frequency get frequencyEnum => Frequency.fromStorage(frequency);
 
+  @override
   set frequencyEnum(Frequency value) {
-    frequency = value.label;
+    frequency = value.storageKey;
   }
 }

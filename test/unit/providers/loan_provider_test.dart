@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 
 class MockLoanRepository extends Mock implements LoanRepository {}
 

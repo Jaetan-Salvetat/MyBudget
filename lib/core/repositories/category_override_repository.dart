@@ -2,9 +2,8 @@ import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/objectbox.g.dart';
 
 class CategoryOverrideRepository {
-  final Box<CategoryOverrideModel> _box;
-
   CategoryOverrideRepository(this._box);
+  final Box<CategoryOverrideModel> _box;
 
   Map<String, CategoryOverrideModel> getAll() {
     return {for (final override in _box.getAll()) override.slug: override};

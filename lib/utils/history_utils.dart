@@ -54,11 +54,7 @@ double totalInMonth(
   return total;
 }
 
-DateTime dayInMonthOf(
-  DateTime startDate,
-  Frequency frequency,
-  DateTime month,
-) {
+DateTime dayInMonthOf(DateTime startDate, Frequency frequency, DateTime month) {
   if (frequency == Frequency.oneTime) return startDate;
 
   return DateTime(

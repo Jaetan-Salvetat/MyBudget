@@ -21,8 +21,14 @@ void main() {
         uint32(encoded.bytes, QuickAddTokenizerFormat.versionOffset),
         QuickAddTokenizerFormat.version,
       );
-      expect(uint32(encoded.bytes, QuickAddTokenizerFormat.vocabCountOffset), 2);
-      expect(uint32(encoded.bytes, QuickAddTokenizerFormat.mergeCountOffset), 1);
+      expect(
+        uint32(encoded.bytes, QuickAddTokenizerFormat.vocabCountOffset),
+        2,
+      );
+      expect(
+        uint32(encoded.bytes, QuickAddTokenizerFormat.mergeCountOffset),
+        1,
+      );
     });
 
     test('trie le vocabulaire par octets et non par identifiant', () {
@@ -31,7 +37,10 @@ void main() {
       final blob = QuickAddTokenizerFormat.vocabBlobOffset(2);
       expect(encoded.bytes[blob], 'a'.codeUnitAt(0));
       expect(encoded.bytes[blob + 1], 'z'.codeUnitAt(0));
-      expect(uint32(encoded.bytes, QuickAddTokenizerFormat.vocabIdsOffset(2)), 1);
+      expect(
+        uint32(encoded.bytes, QuickAddTokenizerFormat.vocabIdsOffset(2)),
+        1,
+      );
     });
 
     test('conserve le rang d origine malgre le tri des fusions', () {
@@ -53,7 +62,10 @@ void main() {
       );
 
       expect(encoded.skippedMerges, 1);
-      expect(uint32(encoded.bytes, QuickAddTokenizerFormat.mergeCountOffset), 1);
+      expect(
+        uint32(encoded.bytes, QuickAddTokenizerFormat.mergeCountOffset),
+        1,
+      );
     });
 
     test('aligne les fusions apres un blob de longueur quelconque', () {
@@ -70,7 +82,10 @@ void main() {
     test('accepte un vocabulaire non ASCII', () {
       final encoded = encodeTokenizer(vocab: {'▁': 0, 'é': 1}, merges: []);
 
-      expect(uint32(encoded.bytes, QuickAddTokenizerFormat.vocabCountOffset), 2);
+      expect(
+        uint32(encoded.bytes, QuickAddTokenizerFormat.vocabCountOffset),
+        2,
+      );
       expect(QuickAddTokenizerFormat.hasMagic(encoded.bytes), isTrue);
     });
   });

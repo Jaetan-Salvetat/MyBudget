@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/monthly_flow.dart';
 import 'package:mybudget/ui/stats/widgets/monthly_flow_section.dart';

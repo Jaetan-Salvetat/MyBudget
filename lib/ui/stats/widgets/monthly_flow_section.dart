@@ -11,12 +11,6 @@ import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class MonthlyFlowSection extends StatelessWidget {
-  final List<MonthlyFlow> flows;
-  final double averageNet;
-  final double netDelta;
-  final bool hasComparison;
-  final ValueChanged<DateTime> onMonthTap;
-
   const MonthlyFlowSection({
     super.key,
     required this.flows,
@@ -25,6 +19,11 @@ class MonthlyFlowSection extends StatelessWidget {
     required this.hasComparison,
     required this.onMonthTap,
   });
+  final List<MonthlyFlow> flows;
+  final double averageNet;
+  final double netDelta;
+  final bool hasComparison;
+  final ValueChanged<DateTime> onMonthTap;
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +61,14 @@ class MonthlyFlowSection extends StatelessWidget {
 }
 
 class _Headline extends StatelessWidget {
-  final double averageNet;
-  final double netDelta;
-  final bool hasComparison;
-
   const _Headline({
     required this.averageNet,
     required this.netDelta,
     required this.hasComparison,
   });
+  final double averageNet;
+  final double netDelta;
+  final bool hasComparison;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +129,8 @@ class _Headline extends StatelessWidget {
 }
 
 class _DeltaPill extends StatelessWidget {
-  final double delta;
-
   const _DeltaPill({required this.delta});
+  final double delta;
 
   @override
   Widget build(BuildContext context) {
@@ -160,10 +157,9 @@ class _DeltaPill extends StatelessWidget {
 }
 
 class _Chart extends StatelessWidget {
+  const _Chart({required this.flows, required this.onMonthTap});
   final List<MonthlyFlow> flows;
   final ValueChanged<DateTime> onMonthTap;
-
-  const _Chart({required this.flows, required this.onMonthTap});
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +188,8 @@ class _Chart extends StatelessWidget {
     );
   }
 
-  String _label(DateTime month) => DateFormatter.shortMonth.format(month).replaceAll('.', '').toUpperCase();
+  String _label(DateTime month) =>
+      DateFormatter.shortMonth.format(month).replaceAll('.', '').toUpperCase();
 }
 
 class _Legend extends StatelessWidget {

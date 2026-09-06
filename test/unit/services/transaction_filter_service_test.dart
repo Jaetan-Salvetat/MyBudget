@@ -5,6 +5,15 @@ import 'package:mybudget/core/services/transaction_filter_service.dart';
 import 'package:mybudget/models/transaction_filter_data.dart';
 
 class _Transaction implements FilterableTransaction {
+  _Transaction({
+    this.name = 'Loyer',
+    this.amount = 500,
+    this.accountId = 1,
+    this.beneficiaryId,
+    this.categorySlug,
+    this.frequencyEnum = Frequency.monthly,
+    DateTime? startDate,
+  }) : startDate = startDate ?? DateTime(2026, 1, 12);
   @override
   final String name;
   @override
@@ -21,16 +30,6 @@ class _Transaction implements FilterableTransaction {
   final DateTime startDate;
   @override
   DateTime? get endDate => null;
-
-  _Transaction({
-    this.name = 'Loyer',
-    this.amount = 500,
-    this.accountId = 1,
-    this.beneficiaryId,
-    this.categorySlug,
-    this.frequencyEnum = Frequency.monthly,
-    DateTime? startDate,
-  }) : startDate = startDate ?? DateTime(2026, 1, 12);
 }
 
 void main() {

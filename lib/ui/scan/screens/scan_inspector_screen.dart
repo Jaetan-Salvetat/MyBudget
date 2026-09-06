@@ -56,7 +56,9 @@ class ScanInspectorScreen extends ConsumerWidget {
     }
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(path == null ? 'Rapport copié' : 'Rapport → $path')),
+      SnackBar(
+        content: Text(path == null ? 'Rapport copié' : 'Rapport → $path'),
+      ),
     );
   }
 }
@@ -107,7 +109,9 @@ String _roleSummary(ReadTrace read) {
   }
   final ordered = counts.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
-  return [for (final entry in ordered) '${entry.key} ${entry.value}'].join(' · ');
+  return [
+    for (final entry in ordered) '${entry.key} ${entry.value}',
+  ].join(' · ');
 }
 
 String _decodingSummary(ReadTrace read) {
@@ -249,7 +253,9 @@ class _DecodingTable extends StatelessWidget {
     int rank,
     PricedLine priced,
   ) {
-    final candidates = [for (final c in priced.candidates) _amount(c)].join(', ');
+    final candidates = [
+      for (final c in priced.candidates) _amount(c),
+    ].join(', ');
     final lax = decoding.laxRanks.contains(priced.index)
         ? ' · lecture lâche autorisée'
         : '';

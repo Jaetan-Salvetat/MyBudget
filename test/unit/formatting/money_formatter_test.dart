@@ -47,7 +47,10 @@ void main() {
 
   group('formatPlainRounded', () {
     test('omet le symbole et les décimales', () {
-      expect(MoneyFormatter.formatPlainRounded(1234.5), '1${groupSeparator}235');
+      expect(
+        MoneyFormatter.formatPlainRounded(1234.5),
+        '1${groupSeparator}235',
+      );
     });
   });
 

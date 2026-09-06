@@ -1,7 +1,6 @@
 sealed class FlagBlocklistException implements Exception {
-  final String message;
-
   const FlagBlocklistException({required this.message});
+  final String message;
 }
 
 final class FlagBlocklistMalformedException extends FlagBlocklistException {

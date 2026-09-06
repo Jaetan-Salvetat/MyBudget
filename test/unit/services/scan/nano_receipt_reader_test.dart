@@ -84,37 +84,41 @@ Map<String, Object> _sections({
 
 void main() {
   group('NanoReceiptReader', () {
-    test('une section par donnée, dans l\'ordre, photo et texte à chaque fois',
-        () async {
-      final service = _StubService(
-        sections: _sections(),
-        attempts: const [_pairOfItems],
-      );
+    test(
+      'une section par donnée, dans l\'ordre, photo et texte à chaque fois',
+      () async {
+        final service = _StubService(
+          sections: _sections(),
+          attempts: const [_pairOfItems],
+        );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+        final scan = await NanoReceiptReader(
+          service: service,
+        ).read(_photo, _lines);
 
-      expect(
-        [for (final call in service.calls) call.schema],
-        [
-          ReceiptSchema.totalName,
-          ReceiptSchema.storeName,
-          ReceiptSchema.dateName,
-          ReceiptSchema.itemsName,
-        ],
-        reason: 'le total est lu en premier : c\'est lui que l\'écran pose',
-      );
-      expect(
-        [for (final call in service.calls) call.prompt],
-        everyElement(contains('## Transcription OCR')),
-        reason: 'chaque section reçoit la transcription OCR',
-      );
-      expect(scan, isNotNull);
-      expect(scan!.store, 'CARREFOUR CITY');
-      expect(scan.date, '2017-02-24');
-      expect(scan.total, 5.0);
-      expect([for (final item in scan.items) item.name], ['PAIN', 'LAIT']);
-      expect(scan.verified, isTrue);
-    });
+        expect(
+          [for (final call in service.calls) call.schema],
+          [
+            ReceiptSchema.totalName,
+            ReceiptSchema.storeName,
+            ReceiptSchema.dateName,
+            ReceiptSchema.itemsName,
+          ],
+          reason: 'le total est lu en premier : c\'est lui que l\'écran pose',
+        );
+        expect(
+          [for (final call in service.calls) call.prompt],
+          everyElement(contains('## Transcription OCR')),
+          reason: 'chaque section reçoit la transcription OCR',
+        );
+        expect(scan, isNotNull);
+        expect(scan!.store, 'CARREFOUR CITY');
+        expect(scan.date, '2017-02-24');
+        expect(scan.total, 5.0);
+        expect([for (final item in scan.items) item.name], ['PAIN', 'LAIT']);
+        expect(scan.verified, isTrue);
+      },
+    );
 
     test('chaque section est rendue dès qu\'elle tombe', () async {
       final service = _StubService(
@@ -123,11 +127,9 @@ void main() {
       );
       final parts = <ReceiptReadPart>[];
 
-      await NanoReceiptReader(service: service).read(
-        _photo,
-        _lines,
-        onPart: parts.add,
-      );
+      await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines, onPart: parts.add);
 
       expect(parts.length, 3);
       expect(parts[0].total, 5.0);
@@ -142,11 +144,9 @@ void main() {
       );
       final parts = <ReceiptReadPart>[];
 
-      await NanoReceiptReader(service: service).read(
-        _photo,
-        _lines,
-        onPart: parts.add,
-      );
+      await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines, onPart: parts.add);
 
       expect([for (final part in parts) part.store], everyElement(isNull));
       expect(parts.length, 2);
@@ -174,7 +174,9 @@ void main() {
         attempts: const [_oneItem, _pairOfItems],
       );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+      final scan = await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines);
 
       expect(
         service.calls.where((call) => call.schema == ReceiptSchema.itemsName),
@@ -190,7 +192,9 @@ void main() {
         attempts: const [_oneItem, _oneItem, _pairOfItems],
       );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+      final scan = await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines);
 
       final items = service.calls
           .where((call) => call.schema == ReceiptSchema.itemsName)
@@ -204,23 +208,27 @@ void main() {
       expect(scan!.verified, isTrue);
     });
 
-    test('aucun tirage prouvé garde le premier lu, sans le déclarer vérifié',
-        () async {
-      final service = _StubService(
-        sections: _sections(),
-        attempts: const [_oneItem, _oneItem, _oneItem, _oneItem],
-      );
+    test(
+      'aucun tirage prouvé garde le premier lu, sans le déclarer vérifié',
+      () async {
+        final service = _StubService(
+          sections: _sections(),
+          attempts: const [_oneItem, _oneItem, _oneItem, _oneItem],
+        );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+        final scan = await NanoReceiptReader(
+          service: service,
+        ).read(_photo, _lines);
 
-      expect(scan, isNotNull);
-      expect(scan!.verified, isFalse);
-      expect([for (final item in scan.items) item.name], ['PAIN']);
-      expect(
-        service.calls.where((call) => call.schema == ReceiptSchema.itemsName),
-        hasLength(4),
-      );
-    });
+        expect(scan, isNotNull);
+        expect(scan!.verified, isFalse);
+        expect([for (final item in scan.items) item.name], ['PAIN']);
+        expect(
+          service.calls.where((call) => call.schema == ReceiptSchema.itemsName),
+          hasLength(4),
+        );
+      },
+    );
 
     test('sans le moindre article il n\'y a pas de lecture', () async {
       final service = _StubService(
@@ -243,7 +251,9 @@ void main() {
         attempts: const [_pairOfItems],
       );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+      final scan = await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines);
 
       expect(scan, isNotNull);
       expect(scan!.store, isNull);
@@ -257,7 +267,9 @@ void main() {
         attempts: const [_pairOfItems],
       );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+      final scan = await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines);
 
       expect(scan?.date, '2017-02-24');
     });
@@ -268,7 +280,9 @@ void main() {
         attempts: const [_pairOfItems],
       );
 
-      final scan = await NanoReceiptReader(service: service).read(_photo, _lines);
+      final scan = await NanoReceiptReader(
+        service: service,
+      ).read(_photo, _lines);
 
       expect(scan?.date, isNull);
     });

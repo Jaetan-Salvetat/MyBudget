@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -47,7 +48,7 @@ class FakeAccountNotifier extends AccountNotifier {
   final List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 }
 
 void main() {
@@ -83,7 +84,7 @@ void main() {
       name: 'Salaire',
       amount: 2480,
       startDate: DateTime(DateTime.now().year, DateTime.now().month, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     );
     salary.id = 1;

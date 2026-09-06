@@ -26,32 +26,13 @@ const String _endedLabel = 'Terminé';
 typedef _Entry = ({String label, String value, IconData? icon});
 
 class TransactionDetailsView extends StatelessWidget {
-  final String screenTitle;
-  final String name;
-  final CategoryDisplay? category;
-  final Beneficiary? beneficiary;
-  final String accountLabel;
-  final double amount;
-  final Frequency frequency;
-  final DateTime startDate;
-  final DateTime? endDate;
-  final TransactionRuleSummary summary;
-  final List<TransactionChangeEntry> timeline;
-  final bool isIncome;
-  final IconData fallbackIcon;
-  final Color fallbackColor;
-  final bool isEditable;
-  final String? receiptPath;
-  final String deleteConfirmationMessage;
-  final VoidCallback onEdit;
-  final ValueChanged<RecurringDeletion> onDelete;
-
   const TransactionDetailsView({
     required this.screenTitle,
     required this.name,
     required this.accountLabel,
     required this.amount,
     required this.frequency,
+    required this.now,
     required this.startDate,
     required this.summary,
     required this.timeline,
@@ -68,6 +49,26 @@ class TransactionDetailsView extends StatelessWidget {
     this.receiptPath,
     super.key,
   });
+  final String screenTitle;
+  final String name;
+  final CategoryDisplay? category;
+  final Beneficiary? beneficiary;
+  final String accountLabel;
+  final double amount;
+  final Frequency frequency;
+  final DateTime now;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final TransactionRuleSummary summary;
+  final List<TransactionChangeEntry> timeline;
+  final bool isIncome;
+  final IconData fallbackIcon;
+  final Color fallbackColor;
+  final bool isEditable;
+  final String? receiptPath;
+  final String deleteConfirmationMessage;
+  final VoidCallback onEdit;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +210,7 @@ class TransactionDetailsView extends StatelessWidget {
                 startDate,
                 endDate,
                 frequency,
-                DateTime.now(),
+                now,
               ),
               onDelete: onDelete,
             ),

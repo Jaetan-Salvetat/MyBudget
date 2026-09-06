@@ -1,11 +1,11 @@
-import 'package:mybudget/core/repositories/category_memory_repository.dart';
-import 'package:mybudget/models/category_memory_model.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/models/category_override_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
@@ -14,8 +14,9 @@ import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/data_export_service.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/models/category_memory_model.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -40,6 +41,8 @@ class MockCategoryOverrideRepository extends Mock
 
 class MockCategoryMemoryRepository extends Mock
     implements CategoryMemoryRepository {}
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   late DataExportService service;
@@ -76,6 +79,7 @@ void main() {
       loanRepo: mockLoanRepo,
       loanEventRepo: mockLoanEventRepo,
       transferRepo: mockTransferRepo,
+      clock: () => _fixedNow,
     );
   });
 
@@ -100,13 +104,13 @@ void main() {
     expect(result['exportDate'], isNotNull);
     expect(result['filename'], startsWith('mybudget_backup_'));
     expect(result['filename'], endsWith('.json'));
-    expect(result['accounts'], isA<List>());
-    expect(result['beneficiaries'], isA<List>());
-    expect(result['categoryOverrides'], isA<List>());
-    expect(result['categoryMemory'], isA<List>());
-    expect(result['expenses'], isA<List>());
-    expect(result['revenues'], isA<List>());
-    expect(result['loans'], isA<List>());
+    expect(result['accounts'], isA<List<Map<String, dynamic>>>());
+    expect(result['beneficiaries'], isA<List<Map<String, dynamic>>>());
+    expect(result['categoryOverrides'], isA<List<Map<String, dynamic>>>());
+    expect(result['categoryMemory'], isA<List<Map<String, dynamic>>>());
+    expect(result['expenses'], isA<List<Map<String, dynamic>>>());
+    expect(result['revenues'], isA<List<Map<String, dynamic>>>());
+    expect(result['loans'], isA<List<Map<String, dynamic>>>());
   });
 
   test('buildExportData serializes all entities via toJson()', () {
@@ -124,7 +128,7 @@ void main() {
       categorySlug: 'restauration.cafe',
       accountId: 1,
       startDate: DateTime(2025, 1, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     expense.id = 4;
     final revenue = RevenueModel.create(
@@ -132,7 +136,7 @@ void main() {
       amount: 3000.0,
       accountId: 1,
       startDate: DateTime(2025, 1, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     revenue.id = 5;
     final loan = LoanModel(
@@ -167,17 +171,35 @@ void main() {
 
     final result = service.buildExportData();
 
-    expect((result['accounts'] as List), hasLength(1));
-    expect((result['accounts'] as List).first['name'], 'Compte');
-    expect((result['beneficiaries'] as List).first['name'], 'Alice');
+    expect(result['accounts'] as List<Map<String, dynamic>>, hasLength(1));
     expect(
-      (result['categoryOverrides'] as List).first['slug'],
+      (result['accounts'] as List<Map<String, dynamic>>).first['name'],
+      'Compte',
+    );
+    expect(
+      (result['beneficiaries'] as List<Map<String, dynamic>>).first['name'],
+      'Alice',
+    );
+    expect(
+      (result['categoryOverrides'] as List<Map<String, dynamic>>).first['slug'],
       'loisirs.cinema_sortie',
     );
-    expect((result['categoryMemory'] as List).first['key'], 'macdo');
-    expect((result['expenses'] as List).first['name'], 'Netflix');
-    expect((result['revenues'] as List).first['name'], 'Salaire');
-    expect((result['loans'] as List).first['name'], 'Prêt');
+    expect(
+      (result['categoryMemory'] as List<Map<String, dynamic>>).first['key'],
+      'macdo',
+    );
+    expect(
+      (result['expenses'] as List<Map<String, dynamic>>).first['name'],
+      'Netflix',
+    );
+    expect(
+      (result['revenues'] as List<Map<String, dynamic>>).first['name'],
+      'Salaire',
+    );
+    expect(
+      (result['loans'] as List<Map<String, dynamic>>).first['name'],
+      'Prêt',
+    );
   });
 
   test('buildExportData uses camelCase keys for loans', () {
@@ -196,7 +218,7 @@ void main() {
     when(() => mockLoanRepo.getAll()).thenReturn([loan]);
 
     final result = service.buildExportData();
-    final loanJson = (result['loans'] as List).first as Map<String, dynamic>;
+    final loanJson = (result['loans'] as List<Map<String, dynamic>>).first;
 
     expect(loanJson.containsKey('accountId'), isTrue);
     expect(loanJson.containsKey('lenderName'), isTrue);
@@ -218,7 +240,8 @@ void main() {
     when(() => mockLoanEventRepo.getAll()).thenReturn([event]);
 
     final data = service.buildExportData();
-    final exported = (data['loanEvents'] as List).first as Map;
+    final exported =
+        (data['loanEvents'] as List<Map<String, dynamic>>).first as Map;
 
     expect(exported['loanId'], '3');
     expect(exported['typeId'], 'earlyRepaymentPartial');
@@ -234,15 +257,15 @@ void main() {
       fromAccountId: 1,
       toAccountId: 2,
       startDate: DateTime(2025, 3, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     transfer.id = 10;
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
 
     final result = service.buildExportData();
 
-    expect(result['transfers'], isA<List>());
-    final transfers = result['transfers'] as List;
+    expect(result['transfers'], isA<List<Map<String, dynamic>>>());
+    final transfers = result['transfers'] as List<Map<String, dynamic>>;
     expect(transfers, hasLength(1));
     expect(transfers.first['name'], 'Epargne');
     expect(transfers.first['amount'], 500.0);

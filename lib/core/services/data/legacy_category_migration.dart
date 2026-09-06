@@ -4,15 +4,14 @@ import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 
 class LegacyCategoryMigration {
-  final ExpenseRepository expenses;
-  final LegacyCategoryRepository legacyCategories;
-  final LegacyCategoryMapper mapper;
-
   const LegacyCategoryMigration({
     required this.expenses,
     required this.legacyCategories,
     required this.mapper,
   });
+  final ExpenseRepository expenses;
+  final LegacyCategoryRepository legacyCategories;
+  final LegacyCategoryMapper mapper;
 
   Future<void> run() async {
     if (PreferencesService.isLegacyCategoryMigrationDone()) return;

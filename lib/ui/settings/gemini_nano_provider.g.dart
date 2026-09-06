@@ -95,7 +95,7 @@ final class GeminiNanoDownloadNotifierProvider
 }
 
 String _$geminiNanoDownloadNotifierHash() =>
-    r'794e0891d1b870b9d54f59e25083758d138267c8';
+    r'53a6d1bc8b9d4201a3c876515f6680d5e23adf53';
 
 abstract class _$GeminiNanoDownloadNotifier
     extends $Notifier<GeminiNanoDownload?> {

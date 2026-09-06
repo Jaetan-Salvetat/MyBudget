@@ -1,43 +1,50 @@
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/enums/gemini_nano_channel.dart';
+import 'package:mybudget/core/enums/gemini_nano_preference.dart';
+import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/providers/retry_policy.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/legacy_category_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
+import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/ai/api_key_service.dart';
+import 'package:mybudget/core/services/ai/api_key_verifier.dart';
+import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
+import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
+import 'package:mybudget/core/services/category_memory_service.dart';
 import 'package:mybudget/core/services/data/legacy_backup_upgrader.dart';
 import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
 import 'package:mybudget/core/services/data/legacy_category_migration.dart';
 import 'package:mybudget/core/services/data/legacy_loan_defaults_migration.dart';
-import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
 import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
 import 'package:mybudget/core/services/loan_payoff_service.dart';
 import 'package:mybudget/core/services/loan_schedule_service.dart';
 import 'package:mybudget/core/services/loan_service.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/objectbox_service.dart';
-import 'package:mybudget/core/services/ai/ai_chat_client.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
-import 'package:mybudget/core/services/ai/api_key_verifier.dart';
-import 'package:mybudget/core/enums/build_flavor.dart';
-import 'package:mybudget/core/enums/gemini_nano_channel.dart';
-import 'package:mybudget/core/enums/gemini_nano_preference.dart';
-import 'package:mybudget/core/enums/gemini_nano_status.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
+import 'package:mybudget/core/time/clock.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
+
+final clockProvider = Provider<Clock>((ref) => systemNow);
+
+final dataWipeFeedbackDelayProvider = Provider<Duration>(
+  (ref) => const Duration(seconds: 1),
+);
 
 final buildFlavorProvider = Provider<BuildFlavor>((ref) => BuildFlavor.current);
 
@@ -86,6 +93,7 @@ Future<QuickAddClassifierService> quickAddClassifier(Ref ref) async {
     tokenizer: QuickAddTokenizer(),
     modelRunner: QuickAddModelRunner(OnnxRuntime()),
     taxonomy: await ref.watch(categoryTaxonomyProvider.future),
+    clock: ref.watch(clockProvider),
   );
   await service.load();
   return service;
@@ -152,7 +160,10 @@ CategoryMemoryRepository categoryMemoryRepository(Ref ref) {
 
 @Riverpod(keepAlive: true)
 CategoryMemoryService categoryMemory(Ref ref) {
-  return CategoryMemoryService(ref.watch(categoryMemoryRepositoryProvider));
+  return CategoryMemoryService(
+    ref.watch(categoryMemoryRepositoryProvider),
+    ref.watch(clockProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)

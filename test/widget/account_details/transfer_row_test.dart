@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/transfer.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
@@ -15,7 +16,7 @@ void main() {
       fromAccountId: 1,
       toAccountId: 2,
       startDate: DateTime(2026, 1, 5),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     ),
   );
 
@@ -72,7 +73,10 @@ void main() {
     await tester.tap(find.text('Supprimer'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Voulez-vous vraiment supprimer ce virement ?'), findsOneWidget);
+    expect(
+      find.text('Voulez-vous vraiment supprimer ce virement ?'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.widgetWithText(FrostedButton, 'Supprimer'));
     await tester.pumpAndSettle();

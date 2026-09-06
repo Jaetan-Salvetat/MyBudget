@@ -1,17 +1,11 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 
 class ExpensesQuickFilters extends StatelessWidget {
-  final List<CategoryDisplay> categories;
-  final List<String> selectedGroupKeys;
-  final ExpenseSortBy sortBy;
-  final VoidCallback onOpenSort;
-  final ValueChanged<String?> onCategoryTap;
-
   const ExpensesQuickFilters({
     required this.categories,
     required this.selectedGroupKeys,
@@ -20,6 +14,11 @@ class ExpensesQuickFilters extends StatelessWidget {
     required this.onCategoryTap,
     super.key,
   });
+  final List<CategoryDisplay> categories;
+  final List<String> selectedGroupKeys;
+  final ExpenseSortBy sortBy;
+  final VoidCallback onOpenSort;
+  final ValueChanged<String?> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +76,9 @@ class ExpensesQuickFilters extends StatelessWidget {
 }
 
 class _SortChip extends StatelessWidget {
+  const _SortChip({required this.label, required this.onTap});
   final String label;
   final VoidCallback onTap;
-
-  const _SortChip({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

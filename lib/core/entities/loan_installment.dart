@@ -9,17 +9,6 @@ enum LoanInstallmentKind {
 }
 
 class LoanInstallment {
-  final int number;
-  final DateTime date;
-  final double openingCapital;
-  final double interest;
-  final double insurance;
-  final double principal;
-  final double earlyPrincipal;
-  final double indemnity;
-  final double closingCapital;
-  final LoanInstallmentKind kind;
-
   const LoanInstallment({
     required this.number,
     required this.date,
@@ -32,9 +21,18 @@ class LoanInstallment {
     this.earlyPrincipal = 0.0,
     this.indemnity = 0.0,
   });
+  final int number;
+  final DateTime date;
+  final double openingCapital;
+  final double interest;
+  final double insurance;
+  final double principal;
+  final double earlyPrincipal;
+  final double indemnity;
+  final double closingCapital;
+  final LoanInstallmentKind kind;
 
-  double get scheduledPayment =>
-      roundToCents(principal + interest + insurance);
+  double get scheduledPayment => roundToCents(principal + interest + insurance);
 
   double get totalPayment =>
       roundToCents(scheduledPayment + earlyPrincipal + indemnity);

@@ -44,11 +44,7 @@ void main() {
     tester,
   ) async {
     var focused = 0;
-    await pumpBar(
-      tester,
-      pendingCount: 2,
-      onFocusPending: () => focused++,
-    );
+    await pumpBar(tester, pendingCount: 2, onFocusPending: () => focused++);
 
     await tester.tap(find.text(ScanCommitBar.pendingLabelOf(2)));
     await tester.pump();

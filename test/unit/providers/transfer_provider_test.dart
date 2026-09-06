@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/models/transfer_model.dart';
@@ -37,7 +38,7 @@ void main() {
     double amount = 500,
     int fromAccountId = 1,
     int toAccountId = 2,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
   }) {
     return TransferModel.create(
       name: name,
@@ -127,7 +128,7 @@ void main() {
     );
 
     test('deleteTransfer soft deletes recurring transfer', () async {
-      final existing = makeTransfer(id: 1, frequency: 'Mensuel');
+      final existing = makeTransfer(id: 1, frequency: Frequency.monthly);
       when(() => mockRepo.get(1)).thenReturn(existing);
       when(() => mockRepo.update(any())).thenReturn(1);
       final container = makeContainer(transfers: [existing]);
@@ -142,7 +143,7 @@ void main() {
     });
 
     test('deleteTransfer hard deletes oneTime transfer', () async {
-      final existing = makeTransfer(id: 1, frequency: 'Ponctuel');
+      final existing = makeTransfer(id: 1, frequency: Frequency.oneTime);
       when(() => mockRepo.get(1)).thenReturn(existing);
       when(() => mockRepo.delete(any())).thenReturn(true);
       final container = makeContainer(transfers: [existing]);
@@ -191,7 +192,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 3,
         amount: 1200,
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
       final incoming = makeTransfer(
         id: 3,
@@ -224,7 +225,7 @@ void main() {
         fromAccountId: 3,
         toAccountId: 1,
         amount: 2400,
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
       final outgoing = makeTransfer(
         id: 3,
@@ -350,7 +351,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 1, 15),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         endDate: DateTime(2024, 6, 15),
       )..id = 1;
 

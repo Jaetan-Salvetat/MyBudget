@@ -5,13 +5,12 @@ enum HomeTab { capture, transactions, stats, accounts }
 enum TransactionsTab { expenses, revenues, loans }
 
 class HomeNavigationState {
-  final HomeTab tab;
-  final TransactionsTab transactionsTab;
-
   const HomeNavigationState({
     this.tab = HomeTab.capture,
     this.transactionsTab = TransactionsTab.expenses,
   });
+  final HomeTab tab;
+  final TransactionsTab transactionsTab;
 
   HomeNavigationState copyWith({
     HomeTab? tab,

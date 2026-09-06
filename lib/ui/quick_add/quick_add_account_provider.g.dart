@@ -42,7 +42,7 @@ final class QuickAddAccountNotifierProvider
 }
 
 String _$quickAddAccountNotifierHash() =>
-    r'e883cade2792dbcea2e0e1acf370b449fcca8c01';
+    r'fe32c16dbc40a8f3dc20605dbdeecb70a24dc20a';
 
 abstract class _$QuickAddAccountNotifier extends $Notifier<int?> {
   int? build();

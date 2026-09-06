@@ -1,7 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
@@ -76,13 +77,16 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CaptureAnchor(
+                  now: ref.read(clockProvider)(),
                   remaining: _heldFigure ?? remaining,
                   monthlyRevenues: ref.watch(currentMonthRevenuesProvider),
                   onTap: () =>
                       ref.read(homeNavigationProvider.notifier).openStats(),
                   onSettings: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SettingsScreen(),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -107,9 +111,8 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
 }
 
 class _MeasuredHeight extends SingleChildRenderObjectWidget {
-  final ValueChanged<double> onHeight;
-
   const _MeasuredHeight({required this.onHeight, required Widget super.child});
+  final ValueChanged<double> onHeight;
 
   @override
   _RenderMeasuredHeight createRenderObject(BuildContext context) =>
@@ -123,10 +126,9 @@ class _MeasuredHeight extends SingleChildRenderObjectWidget {
 }
 
 class _RenderMeasuredHeight extends RenderProxyBox {
+  _RenderMeasuredHeight(this.onHeight);
   ValueChanged<double> onHeight;
   double? _reported;
-
-  _RenderMeasuredHeight(this.onHeight);
 
   @override
   void performLayout() {

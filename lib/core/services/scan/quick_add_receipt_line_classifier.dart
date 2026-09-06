@@ -2,9 +2,8 @@ import 'package:mybudget/core/services/quick_add/quick_add_classifier_service.da
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 class QuickAddReceiptLineClassifier implements ReceiptLineClassifier {
-  final QuickAddClassifierService _service;
-
   const QuickAddReceiptLineClassifier(this._service);
+  final QuickAddClassifierService _service;
 
   @override
   Future<LinePrediction> classify(String normalizedLine) {

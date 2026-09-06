@@ -36,8 +36,7 @@ class NanoReceiptReader {
   final GeminiNanoService _service;
   final GeminiNanoChannel _channel;
 
-  Future<void> warmUp() =>
-      _service.warmUp(_channel, GeminiNanoPreference.scan);
+  Future<void> warmUp() => _service.warmUp(_channel, GeminiNanoPreference.scan);
 
   Future<LocalReceiptScan?> read(
     Uint8List imageBytes,

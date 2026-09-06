@@ -1,19 +1,18 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
 class BeneficiarySelector extends ConsumerStatefulWidget {
-  final int? initialBeneficiaryId;
-  final ValueChanged<int?> onChanged;
-
   const BeneficiarySelector({
     required this.onChanged,
     this.initialBeneficiaryId,
     super.key,
   });
+  final int? initialBeneficiaryId;
+  final ValueChanged<int?> onChanged;
 
   @override
   ConsumerState<BeneficiarySelector> createState() =>

@@ -9,6 +9,13 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 
 class ScanSavedView extends StatefulWidget {
+  const ScanSavedView({
+    required this.result,
+    required this.resolve,
+    required this.onDone,
+    required this.onDiscard,
+    super.key,
+  });
   static const String doneLabel = 'Terminé';
   static const String discardLabel = 'Annuler';
 
@@ -23,14 +30,6 @@ class ScanSavedView extends StatefulWidget {
   final CategoryDisplay? Function(String? slug) resolve;
   final VoidCallback onDone;
   final VoidCallback onDiscard;
-
-  const ScanSavedView({
-    required this.result,
-    required this.resolve,
-    required this.onDone,
-    required this.onDiscard,
-    super.key,
-  });
 
   @override
   State<ScanSavedView> createState() => _ScanSavedViewState();
@@ -144,9 +143,8 @@ class _ScanSavedViewState extends State<ScanSavedView>
 }
 
 class _Mark extends StatelessWidget {
-  final Animation<double> controller;
-
   const _Mark({required this.controller});
+  final Animation<double> controller;
 
   @override
   Widget build(BuildContext context) {
@@ -175,10 +173,9 @@ class _Mark extends StatelessWidget {
 }
 
 class _Rise extends StatelessWidget {
+  const _Rise({required this.animation, required this.child});
   final Animation<double> animation;
   final Widget child;
-
-  const _Rise({required this.animation, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -196,10 +193,9 @@ class _Rise extends StatelessWidget {
 }
 
 class _GroupLine extends StatelessWidget {
+  const _GroupLine({required this.group, required this.category});
   final ScannedExpenseGroup group;
   final CategoryDisplay? category;
-
-  const _GroupLine({required this.group, required this.category});
 
   @override
   Widget build(BuildContext context) {

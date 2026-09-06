@@ -1,10 +1,13 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +21,7 @@ void main() {
       name: 'Loyer',
       amount: 800,
       startDate: DateTime(2026, 6, 12),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
       endDate: endDate,
     );
@@ -41,6 +44,7 @@ void main() {
           body: CompactExpenseRow(
             expense: expense,
             isCurrentMonth: isCurrentMonth,
+            now: _fixedNow,
             onOpen: onOpen ?? () {},
             onEdit: onEdit,
             onDelete: (_) => onDelete(),
@@ -127,7 +131,6 @@ void main() {
 
     expect(find.byIcon(Symbols.more_vert_rounded), findsNothing);
   });
-
 
   testWidgets('a closed rule keeps its amount aligned with an open one', (
     tester,

@@ -1,20 +1,19 @@
 import 'dart:math' as math;
 
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 class QuickAddThinkingBorder extends StatefulWidget {
-  static const Duration sweepPeriod = Duration(milliseconds: 1400);
-  static const Duration fade = Duration(milliseconds: 240);
-
-  final bool thinking;
-  final Widget child;
-
   const QuickAddThinkingBorder({
     required this.thinking,
     required this.child,
     super.key,
   });
+  static const Duration sweepPeriod = Duration(milliseconds: 1400);
+  static const Duration fade = Duration(milliseconds: 240);
+
+  final bool thinking;
+  final Widget child;
 
   @override
   State<QuickAddThinkingBorder> createState() => _QuickAddThinkingBorderState();
@@ -94,6 +93,12 @@ class _QuickAddThinkingBorderState extends State<QuickAddThinkingBorder>
 }
 
 class QuickAddThinkingBorderPainter extends CustomPainter {
+  const QuickAddThinkingBorderPainter({
+    required this.progress,
+    required this.opacity,
+    required this.headColor,
+    required this.tailColor,
+  });
   static const double strokeWidth = 2.5;
   static const double _cornerRadius = FrostedRadius.md;
   static const List<double> _stops = [0.0, 0.45, 0.7, 1.0];
@@ -108,13 +113,6 @@ class QuickAddThinkingBorderPainter extends CustomPainter {
   final double opacity;
   final Color headColor;
   final Color tailColor;
-
-  const QuickAddThinkingBorderPainter({
-    required this.progress,
-    required this.opacity,
-    required this.headColor,
-    required this.tailColor,
-  });
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -10,7 +10,10 @@ void main() {
     });
 
     test('retombe sur unavailable pour un identifiant inconnu ou nul', () {
-      expect(GeminiNanoStatus.fromId('downloaded'), GeminiNanoStatus.unavailable);
+      expect(
+        GeminiNanoStatus.fromId('downloaded'),
+        GeminiNanoStatus.unavailable,
+      );
       expect(GeminiNanoStatus.fromId(null), GeminiNanoStatus.unavailable);
     });
 

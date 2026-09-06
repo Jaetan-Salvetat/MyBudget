@@ -61,10 +61,10 @@ abstract final class DateParserService {
     caseSensitive: false,
   );
 
-  static DateParseResult? parse(String input, {DateTime? today}) {
+  static DateParseResult? parse(String input, {required DateTime today}) {
     if (input.trim().isEmpty) return null;
 
-    final reference = _atMidnight(today ?? DateTime.now());
+    final reference = _atMidnight(today);
     final match = _firstOf(input, reference);
     if (match == null) return null;
 
@@ -95,9 +95,7 @@ abstract final class DateParserService {
 
     void add(RegExp pattern, DateTime Function(RegExpMatch match) resolve) {
       for (final match in pattern.allMatches(input)) {
-        matches.add(
-          _DateMatch(resolve(match), match.start, match.end),
-        );
+        matches.add(_DateMatch(resolve(match), match.start, match.end));
       }
     }
 
@@ -222,16 +220,14 @@ abstract final class DateParserService {
 }
 
 class DateParseResult {
+  const DateParseResult({required this.date, required this.remaining});
   final DateTime date;
   final String remaining;
-
-  const DateParseResult({required this.date, required this.remaining});
 }
 
 class _DateMatch {
+  const _DateMatch(this.date, this.start, this.end);
   final DateTime date;
   final int start;
   final int end;
-
-  const _DateMatch(this.date, this.start, this.end);
 }

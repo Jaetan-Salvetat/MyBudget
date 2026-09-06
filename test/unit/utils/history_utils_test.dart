@@ -325,11 +325,21 @@ void main() {
       );
 
       expect(
-        occursInMonth(anniversary, closing, Frequency.annual, DateTime(2026, 3)),
+        occursInMonth(
+          anniversary,
+          closing,
+          Frequency.annual,
+          DateTime(2026, 3),
+        ),
         isFalse,
       );
       expect(
-        occursInMonth(anniversary, closing, Frequency.annual, DateTime(2025, 3)),
+        occursInMonth(
+          anniversary,
+          closing,
+          Frequency.annual,
+          DateTime(2025, 3),
+        ),
         isTrue,
       );
     });
@@ -338,14 +348,22 @@ void main() {
   group('dayInMonthOf', () {
     test('keeps the day of the month a recurring rule started on', () {
       expect(
-        dayInMonthOf(DateTime(2026, 4, 12), Frequency.monthly, DateTime(2026, 8)),
+        dayInMonthOf(
+          DateTime(2026, 4, 12),
+          Frequency.monthly,
+          DateTime(2026, 8),
+        ),
         DateTime(2026, 8, 12),
       );
     });
 
     test('brings the 31st back to the last day of a shorter month', () {
       expect(
-        dayInMonthOf(DateTime(2026, 1, 31), Frequency.monthly, DateTime(2026, 2)),
+        dayInMonthOf(
+          DateTime(2026, 1, 31),
+          Frequency.monthly,
+          DateTime(2026, 2),
+        ),
         DateTime(2026, 2, 28),
       );
     });

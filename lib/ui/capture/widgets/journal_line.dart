@@ -12,6 +12,15 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
 class JournalLine extends StatelessWidget {
+  const JournalLine({
+    required this.entry,
+    required this.category,
+    required this.keepsTheHour,
+    required this.isFresh,
+    this.onUndo,
+    this.onTap,
+    super.key,
+  });
   static const double radius = 18;
 
   static const double _railInset = 6;
@@ -25,16 +34,6 @@ class JournalLine extends StatelessWidget {
 
   final VoidCallback? onUndo;
   final VoidCallback? onTap;
-
-  const JournalLine({
-    required this.entry,
-    required this.category,
-    required this.keepsTheHour,
-    required this.isFresh,
-    this.onUndo,
-    this.onTap,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,11 +149,10 @@ class JournalLine extends StatelessWidget {
 }
 
 class _UndoRail extends StatelessWidget {
+  const _UndoRail({required this.color});
   static const double width = 2;
 
   final Color color;
-
-  const _UndoRail({required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -177,9 +175,8 @@ class _UndoRail extends StatelessWidget {
 }
 
 class _UndoLink extends StatelessWidget {
-  final VoidCallback onTap;
-
   const _UndoLink({required this.onTap});
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

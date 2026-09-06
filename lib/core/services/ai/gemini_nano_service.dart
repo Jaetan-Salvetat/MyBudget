@@ -58,7 +58,10 @@ class GeminiNanoService {
 
     try {
       return GeminiNanoStatus.fromId(
-        await _channel.invokeMethod<String>(statusMethod, _argumentsFor(channel, preference)),
+        await _channel.invokeMethod<String>(
+          statusMethod,
+          _argumentsFor(channel, preference),
+        ),
       );
     } on PlatformException catch (error, stackTrace) {
       debugPrint('Statut Gemini Nano illisible : $error\n$stackTrace');
@@ -96,7 +99,10 @@ class GeminiNanoService {
     if (!isSupportedPlatform) return;
 
     try {
-      await _channel.invokeMethod<void>(warmUpMethod, _argumentsFor(channel, preference));
+      await _channel.invokeMethod<void>(
+        warmUpMethod,
+        _argumentsFor(channel, preference),
+      );
     } on PlatformException catch (error, stackTrace) {
       debugPrint('Préchauffage Gemini Nano impossible : $error\n$stackTrace');
     } on MissingPluginException catch (error, stackTrace) {
@@ -158,20 +164,22 @@ class GeminiNanoService {
       );
     }
 
-    return _downloads.receiveBroadcastStream(_argumentsFor(channel, preference)).transform(
-      StreamTransformer<dynamic, GeminiNanoDownload>.fromHandlers(
-        handleData: (event, sink) {
-          final step = _stepFrom(event);
-          if (step != null) sink.add(step);
-        },
-        handleError: (error, stackTrace, sink) {
-          debugPrint(
-            'Téléchargement Gemini Nano interrompu : $error\n$stackTrace',
-          );
-          sink.add(GeminiNanoDownloadFailed(_failureOf(error)));
-        },
-      ),
-    );
+    return _downloads
+        .receiveBroadcastStream(_argumentsFor(channel, preference))
+        .transform(
+          StreamTransformer<dynamic, GeminiNanoDownload>.fromHandlers(
+            handleData: (event, sink) {
+              final step = _stepFrom(event);
+              if (step != null) sink.add(step);
+            },
+            handleError: (error, stackTrace, sink) {
+              debugPrint(
+                'Téléchargement Gemini Nano interrompu : $error\n$stackTrace',
+              );
+              sink.add(GeminiNanoDownloadFailed(_failureOf(error)));
+            },
+          ),
+        );
   }
 
   static Map<String, String> _argumentsFor(

@@ -9,15 +9,6 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 typedef ReceiptImageEnhancer = Future<Uint8List> Function(Uint8List bytes);
 
 class LocalReceiptScanner {
-  final ReceiptLineRecognizer _recognizer;
-  final RoleTagger _tagger;
-  final LabelLinkModel _link;
-  final LabelSpanModel _span;
-  final ReceiptImageEnhancer _enhance;
-
-  final Gazetteer? _gazetteer;
-  final StoreClassifier? _classifier;
-
   const LocalReceiptScanner({
     required this._recognizer,
     required this._tagger,
@@ -27,6 +18,14 @@ class LocalReceiptScanner {
     this._classifier,
     this._enhance = enhanceReceiptForRetry,
   });
+  final ReceiptLineRecognizer _recognizer;
+  final RoleTagger _tagger;
+  final LabelLinkModel _link;
+  final LabelSpanModel _span;
+  final ReceiptImageEnhancer _enhance;
+
+  final Gazetteer? _gazetteer;
+  final StoreClassifier? _classifier;
 
   Future<LocalReceiptScan> scan(
     Uint8List imageBytes, {

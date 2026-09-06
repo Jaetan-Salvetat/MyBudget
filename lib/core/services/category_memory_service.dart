@@ -1,15 +1,14 @@
 import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/time/clock.dart';
 import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/models/category_memory_model.dart';
 
 class CategoryMemoryService {
+  const CategoryMemoryService(this._repository, this._now);
   static const int maxEntries = 500;
 
   final CategoryMemoryRepository _repository;
-  final DateTime Function() _now;
-
-  CategoryMemoryService(this._repository, {DateTime Function()? now})
-    : _now = now ?? DateTime.now;
+  final Clock _now;
 
   static String normalizeKey(String text) => TextNormalizer.normalize(text);
 

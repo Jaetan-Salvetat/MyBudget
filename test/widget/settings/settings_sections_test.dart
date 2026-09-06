@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
@@ -94,14 +94,14 @@ void main() {
     ) async {
       await pump(tester, const HelpAndSupportSection());
 
-      final List<FrostedListTile> tiles = sectionOf(tester).tiles
-          .cast<FrostedListTile>()
-          .toList();
+      final List<FrostedListTile> tiles = sectionOf(
+        tester,
+      ).tiles.cast<FrostedListTile>().toList();
 
-      expect(
-        tiles.map((FrostedListTile tile) => tile.title),
-        <String>['Guide d\'utilisation', 'Labo'],
-      );
+      expect(tiles.map((FrostedListTile tile) => tile.title), <String>[
+        'Guide d\'utilisation',
+        'Labo',
+      ]);
     });
 
     testWidgets('the appearance tile reads the current theme mode', (
@@ -115,9 +115,7 @@ void main() {
       expect(tile.subtitle, 'Automatique');
     });
 
-    testWidgets('the version tile leads nowhere', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('the version tile leads nowhere', (WidgetTester tester) async {
       await pump(tester, const AboutSection());
 
       final FrostedListTile tile = sectionOf(tester).tiles.single;

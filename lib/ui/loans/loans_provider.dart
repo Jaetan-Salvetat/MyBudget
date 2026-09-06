@@ -29,7 +29,7 @@ class LoanNotifier extends _$LoanNotifier {
 
     return ref
         .watch(loanServiceProvider)
-        .createLoans(models, asOf: DateTime.now(), events: events);
+        .createLoans(models, asOf: ref.watch(clockProvider)(), events: events);
   }
 
   Future<void> addLoan(LoanModel loan) async {
@@ -116,8 +116,10 @@ class LoanNotifier extends _$LoanNotifier {
   double getTotalRemainingAmount() =>
       getActiveLoans().fold(0.0, (sum, loan) => sum + loan.remainingCapital);
 
-  double getTotalMonthlyPayments() =>
-      getActiveLoans().fold(0.0, (sum, loan) => sum + loan.currentMonthlyPayment);
+  double getTotalMonthlyPayments() => getActiveLoans().fold(
+    0.0,
+    (sum, loan) => sum + loan.currentMonthlyPayment,
+  );
 
   double getTotalMonthlyPaymentsForAccount(int accountId) =>
       getActiveLoansForAccount(

@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/filterable_transaction.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -20,11 +20,12 @@ class RecurringEditScopeDialog {
     required BuildContext context,
     required FilterableTransaction before,
     required FilterableTransaction after,
+    required DateTime now,
     required Future<void> Function(EffectiveMonth? effectiveMonth) onConfirmed,
   }) async {
     if (!_needsChoice(before, after)) return onConfirmed(null);
 
-    final scope = await _ask(context, after);
+    final scope = await _ask(context, after, now);
     if (scope == null) return;
 
     return onConfirmed(scope);
@@ -42,11 +43,12 @@ class RecurringEditScopeDialog {
   static Future<EffectiveMonth?> _ask(
     BuildContext context,
     FilterableTransaction after,
+    DateTime now,
   ) {
     var scope = defaultEffectiveMonth(
       frequency: after.frequencyEnum,
       anchor: after.startDate,
-      asOf: DateTime.now(),
+      asOf: now,
     );
 
     return showFrostedDialog<EffectiveMonth>(
@@ -58,6 +60,7 @@ class RecurringEditScopeDialog {
             value: scope,
             frequency: after.frequencyEnum,
             anchor: after.startDate,
+            now: now,
             label: _switchLabel,
             dueLabel: _dueLabel,
             onChanged: (value) => setState(() => scope = value),

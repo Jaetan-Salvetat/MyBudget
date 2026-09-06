@@ -75,11 +75,7 @@ void main() {
   });
 
   Future<ApiKeyCheck> verify(String key, {AiModel model = AiModel.fallback}) =>
-      verifier.verify(
-        provider: AiProvider.gemini,
-        model: model,
-        rawKey: key,
-      );
+      verifier.verify(provider: AiProvider.gemini, model: model, rawKey: key);
 
   group('ApiKeyVerifier local checks', () {
     test('probes the service with the chosen model', () async {
@@ -190,9 +186,7 @@ void main() {
     });
 
     test('reports a connection error rather than storing anything', () async {
-      useClient(
-        _StubChatClient(error: const SocketException('no route')),
-      );
+      useClient(_StubChatClient(error: const SocketException('no route')));
 
       final check = await verify(validKey);
 
@@ -207,7 +201,10 @@ void main() {
     test('reports an unavailable service as retryable', () async {
       useClient(
         _StubChatClient(
-          error: const InternalServerException(message: 'boom', statusCode: 503),
+          error: const InternalServerException(
+            message: 'boom',
+            statusCode: 503,
+          ),
         ),
       );
 

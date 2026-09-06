@@ -12,7 +12,10 @@ void main() {
     });
 
     test('un libellé déjà en casse mixte est laissé tel quel', () {
-      expect(receiptItemDisplayName('Café moulu Arabica'), 'Café moulu Arabica');
+      expect(
+        receiptItemDisplayName('Café moulu Arabica'),
+        'Café moulu Arabica',
+      );
     });
 
     test('les marqueurs de ticket en tête sont retirés', () {

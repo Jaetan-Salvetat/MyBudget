@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/transfer.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/account_details/widgets/account_balance_breakdown.dart';
 import 'package:mybudget/ui/account_details/widgets/account_hero_card.dart';
@@ -20,9 +21,8 @@ import 'package:mybudget/ui/transfers/transfers_provider.dart';
 import 'package:mybudget/ui/transfers/widgets/transfer_bottom_sheet.dart';
 
 class AccountDetailsScreen extends ConsumerStatefulWidget {
-  final AccountModel account;
-
   const AccountDetailsScreen({required this.account, super.key});
+  final AccountModel account;
 
   @override
   ConsumerState<AccountDetailsScreen> createState() =>
@@ -61,7 +61,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
       account.id,
     );
     final transfers = transferNotifier.getActiveTransfersForAccount(account.id);
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
 
     final balance =
         totalRevenues - totalExpenses - totalLoanPayments + totalTransfers;
@@ -138,7 +138,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
     if (updatedAccount == null) return;
 
     try {
-      await ref.read(accountProvider.notifier).updateAccount(updatedAccount);
+      ref.read(accountProvider.notifier).updateAccount(updatedAccount);
       if (mounted) setState(() => account = updatedAccount);
     } catch (e) {
       if (context.mounted) {
@@ -151,10 +151,11 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   }
 
   void _showAddTransferBottomSheet(BuildContext context) {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     TransferBottomSheet.show(
       context: context,
       accounts: accounts,
+      now: ref.read(clockProvider)(),
       closedTransfers: ref.read(transferProvider.notifier).getClosedTransfers(),
       onSubmit: (transfer) async {
         try {
@@ -173,10 +174,11 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
   }
 
   void _showEditTransferBottomSheet(BuildContext context, Transfer transfer) {
-    final accounts = ref.read(accountProvider).value ?? [];
+    final accounts = ref.read(accountProvider);
     TransferBottomSheet.show(
       context: context,
       accounts: accounts,
+      now: ref.read(clockProvider)(),
       transfer: transfer.model,
       onSubmit: (updatedTransfer) async {
         try {
@@ -287,9 +289,7 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
             destructive: true,
             onPressed: () async {
               try {
-                await ref
-                    .read(accountProvider.notifier)
-                    .deleteAccount(account.id);
+                ref.read(accountProvider.notifier).deleteAccount(account.id);
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -312,12 +312,6 @@ class _AccountDetailsScreenState extends ConsumerState<AccountDetailsScreen> {
 }
 
 class _TransfersSection extends StatelessWidget {
-  final List<Transfer> transfers;
-  final int currentAccountId;
-  final List<AccountModel> accounts;
-  final ValueChanged<Transfer> onEditTransfer;
-  final ValueChanged<Transfer> onDeleteTransfer;
-
   const _TransfersSection({
     required this.transfers,
     required this.currentAccountId,
@@ -325,6 +319,11 @@ class _TransfersSection extends StatelessWidget {
     required this.onEditTransfer,
     required this.onDeleteTransfer,
   });
+  final List<Transfer> transfers;
+  final int currentAccountId;
+  final List<AccountModel> accounts;
+  final ValueChanged<Transfer> onEditTransfer;
+  final ValueChanged<Transfer> onDeleteTransfer;
 
   String _otherName(Transfer transfer) {
     final otherId = transfer.isOutgoingFrom(currentAccountId)

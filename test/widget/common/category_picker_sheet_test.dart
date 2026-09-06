@@ -1,14 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 
@@ -51,7 +52,7 @@ void main() {
     categorySlug: slug,
     accountId: 1,
     startDate: DateTime(2026, 1, 1),
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
   );
 
   Future<String? Function()> openPicker(

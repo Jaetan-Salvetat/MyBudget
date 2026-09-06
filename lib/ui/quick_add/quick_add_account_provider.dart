@@ -12,7 +12,7 @@ class QuickAddAccountNotifier extends _$QuickAddAccountNotifier {
 
   @override
   int? build() {
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
     if (accounts.isEmpty) return null;
 
     final picked = _picked;

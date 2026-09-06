@@ -1,14 +1,6 @@
 import 'dart:math';
 
 class AmountSliderScale {
-  static const double fallbackCeiling = 100;
-  static const int _maxDivisions = 100;
-  static const List<double> _mantissas = [1, 2, 5];
-  static const double _roundingTolerance = 1e-9;
-
-  final double ceiling;
-  final int divisions;
-
   const AmountSliderScale._({required this.ceiling, required this.divisions});
 
   factory AmountSliderScale.forHighest(double highest) {
@@ -26,13 +18,21 @@ class AmountSliderScale {
       divisions: (ceiling / step).round(),
     );
   }
+  static const double fallbackCeiling = 100;
+  static const int _maxDivisions = 100;
+  static const List<double> _mantissas = [1, 2, 5];
+  static const double _roundingTolerance = 1e-9;
+
+  final double ceiling;
+  final int divisions;
 
   static double _stepFor(double highest) {
     var index = 0;
     var step = _mantissas.first;
     while (highest / step > _maxDivisions) {
       index++;
-      step = _mantissas[index % _mantissas.length] *
+      step =
+          _mantissas[index % _mantissas.length] *
           pow(10, index ~/ _mantissas.length);
     }
     return step;

@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
@@ -10,10 +10,10 @@ enum LoanStatus {
   partiallyPaid('En cours', Symbols.pending_actions_rounded),
   completed('Remboursé', Symbols.check_circle_rounded);
 
+  const LoanStatus(this.label, this.icon);
+
   final String label;
   final IconData icon;
-
-  const LoanStatus(this.label, this.icon);
 
   Color getColor(BuildContext context) {
     switch (this) {
@@ -35,6 +35,96 @@ enum LoanStatus {
 
 @Entity()
 class LoanModel {
+  LoanModel({
+    this.id = 0,
+    required this.name,
+    required this.amount,
+    required this.lenderName,
+    required this.accountId,
+    required this.dayOfMonth,
+    required this.startDate,
+    required this.endDate,
+    required this.interestRate,
+    required this.duration,
+    this.repaymentTypeId = 'amortizable',
+    this.deferredMonths = 0,
+    this.insuranceTypeId = 'none',
+    this.insuranceValue = 0.0,
+    this.insuranceCalculationModeId = 'initialCapital',
+    this.immediateFirstPayment = false,
+    this.deferralTypeId = 'partial',
+    this.fees = 0.0,
+    this.purposeId = 'other',
+    this.hasIndemnityClause = true,
+    this.notes,
+  });
+
+  factory LoanModel.fromJson(
+    Map<String, dynamic> json, {
+    required DateTime now,
+  }) {
+    dynamic resolve(String camelKey, String snakeKey) {
+      return json[camelKey] ?? json[snakeKey];
+    }
+
+    return LoanModel(
+      id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
+      name: (resolve('name', 'name') as String?) ?? '',
+      amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
+      accountId:
+          int.tryParse(
+            (resolve('accountId', 'account_id') ?? '0').toString(),
+          ) ??
+          0,
+      lenderName:
+          (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
+      dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,
+      startDate:
+          DateTime.tryParse(
+            (resolve('startDate', 'start_date') ?? '').toString(),
+          ) ??
+          now,
+      endDate:
+          DateTime.tryParse(
+            (resolve('endDate', 'end_date') ?? '').toString(),
+          ) ??
+          now.add(const Duration(days: 365)),
+      interestRate:
+          (resolve('interestRate', 'interest_rate') as num?)?.toDouble() ?? 0.0,
+      duration: (resolve('duration', 'duration') as int?) ?? 0,
+      repaymentTypeId:
+          (resolve('repaymentTypeId', 'repayment_type_id') as String?) ??
+          'amortizable',
+      deferredMonths:
+          (resolve('deferredMonths', 'deferred_months') as int?) ?? 0,
+      insuranceTypeId:
+          (resolve('insuranceTypeId', 'insurance_type_id') as String?) ??
+          'none',
+      insuranceValue:
+          (resolve('insuranceValue', 'insurance_value') as num?)?.toDouble() ??
+          0.0,
+      insuranceCalculationModeId:
+          (resolve(
+                'insuranceCalculationModeId',
+                'insurance_calculation_mode_id',
+              )
+              as String?) ??
+          'initialCapital',
+      immediateFirstPayment:
+          (resolve('immediateFirstPayment', 'immediate_first_payment')
+              as bool?) ??
+          false,
+      deferralTypeId:
+          (resolve('deferralTypeId', 'deferral_type_id') as String?) ??
+          'partial',
+      fees: (resolve('fees', 'fees') as num?)?.toDouble() ?? 0.0,
+      purposeId: (resolve('purposeId', 'purpose_id') as String?) ?? 'other',
+      hasIndemnityClause:
+          (resolve('hasIndemnityClause', 'has_indemnity_clause') as bool?) ??
+          true,
+      notes: json['notes'] as String?,
+    );
+  }
   @Id()
   int id = 0;
 
@@ -130,30 +220,6 @@ class LoanModel {
     insuranceTypeId = type.name;
   }
 
-  LoanModel({
-    this.id = 0,
-    required this.name,
-    required this.amount,
-    required this.lenderName,
-    required this.accountId,
-    required this.dayOfMonth,
-    required this.startDate,
-    required this.endDate,
-    required this.interestRate,
-    required this.duration,
-    this.repaymentTypeId = 'amortizable',
-    this.deferredMonths = 0,
-    this.insuranceTypeId = 'none',
-    this.insuranceValue = 0.0,
-    this.insuranceCalculationModeId = 'initialCapital',
-    this.immediateFirstPayment = false,
-    this.deferralTypeId = 'partial',
-    this.fees = 0.0,
-    this.purposeId = 'other',
-    this.hasIndemnityClause = true,
-    this.notes,
-  });
-
   static LoanModel create({
     required String name,
     required double amount,
@@ -245,70 +311,6 @@ class LoanModel {
       'hasIndemnityClause': hasIndemnityClause,
       'notes': notes,
     };
-  }
-
-  factory LoanModel.fromJson(Map<String, dynamic> json) {
-    dynamic resolve(String camelKey, String snakeKey) {
-      return json[camelKey] ?? json[snakeKey];
-    }
-
-    return LoanModel(
-      id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
-      name: (resolve('name', 'name') as String?) ?? '',
-      amount: (resolve('amount', 'amount') as num?)?.toDouble() ?? 0.0,
-      accountId:
-          int.tryParse(
-            (resolve('accountId', 'account_id') ?? '0').toString(),
-          ) ??
-          0,
-      lenderName:
-          (resolve('lenderName', 'lender_name') as String?) ?? 'Non spécifié',
-      dayOfMonth: (resolve('dayOfMonth', 'day_of_month') as int?) ?? 1,
-      startDate:
-          DateTime.tryParse(
-            (resolve('startDate', 'start_date') ?? '').toString(),
-          ) ??
-          DateTime.now(),
-      endDate:
-          DateTime.tryParse(
-            (resolve('endDate', 'end_date') ?? '').toString(),
-          ) ??
-          DateTime.now().add(const Duration(days: 365)),
-      interestRate:
-          (resolve('interestRate', 'interest_rate') as num?)?.toDouble() ?? 0.0,
-      duration: (resolve('duration', 'duration') as int?) ?? 0,
-      repaymentTypeId:
-          (resolve('repaymentTypeId', 'repayment_type_id') as String?) ??
-          'amortizable',
-      deferredMonths:
-          (resolve('deferredMonths', 'deferred_months') as int?) ?? 0,
-      insuranceTypeId:
-          (resolve('insuranceTypeId', 'insurance_type_id') as String?) ??
-          'none',
-      insuranceValue:
-          (resolve('insuranceValue', 'insurance_value') as num?)?.toDouble() ??
-          0.0,
-      insuranceCalculationModeId:
-          (resolve(
-                'insuranceCalculationModeId',
-                'insurance_calculation_mode_id',
-              )
-              as String?) ??
-          'initialCapital',
-      immediateFirstPayment:
-          (resolve('immediateFirstPayment', 'immediate_first_payment')
-              as bool?) ??
-          false,
-      deferralTypeId:
-          (resolve('deferralTypeId', 'deferral_type_id') as String?) ??
-          'partial',
-      fees: (resolve('fees', 'fees') as num?)?.toDouble() ?? 0.0,
-      purposeId: (resolve('purposeId', 'purpose_id') as String?) ?? 'other',
-      hasIndemnityClause:
-          (resolve('hasIndemnityClause', 'has_indemnity_clause') as bool?) ??
-          true,
-      notes: json['notes'] as String?,
-    );
   }
 
   LoanModel copyWith({

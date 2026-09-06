@@ -142,10 +142,13 @@ void main() {
     await pump(tester, highestAmount: 347.2);
 
     expect(find.text(MoneyFormatter.formatRounded(350)), findsOneWidget);
-    expect(find.text(
+    expect(
+      find.text(
         '${MoneyFormatter.formatPlainRounded(0)} – '
         '${MoneyFormatter.formatRounded(350)}',
-      ), findsOneWidget);
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('pulls a stale amount range back under the cap', (tester) async {

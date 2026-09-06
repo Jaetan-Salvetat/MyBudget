@@ -14,21 +14,11 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class CompactRevenueRow extends StatelessWidget {
-  final RevenueModel revenue;
-  final String accountName;
-  final Beneficiary? beneficiary;
-  final CategoryDisplay? category;
-  final bool showDivider;
-
-  final bool isCurrentMonth;
-  final VoidCallback onOpen;
-  final VoidCallback onEdit;
-  final ValueChanged<RecurringDeletion> onDelete;
-
   const CompactRevenueRow({
     required this.revenue,
     required this.accountName,
     required this.isCurrentMonth,
+    required this.now,
     required this.onOpen,
     required this.onEdit,
     required this.onDelete,
@@ -37,6 +27,17 @@ class CompactRevenueRow extends StatelessWidget {
     this.showDivider = true,
     super.key,
   });
+  final RevenueModel revenue;
+  final String accountName;
+  final Beneficiary? beneficiary;
+  final CategoryDisplay? category;
+  final bool showDivider;
+
+  final bool isCurrentMonth;
+  final DateTime now;
+  final VoidCallback onOpen;
+  final VoidCallback onEdit;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,8 @@ class CompactRevenueRow extends StatelessWidget {
 
     final dateLabel = switch (revenue.frequencyEnum) {
       Frequency.monthly => 'Le ${revenue.startDate.day}',
-      Frequency.annual => 'Le ${DateFormatter.dayMonth.format(revenue.startDate)}',
+      Frequency.annual =>
+        'Le ${DateFormatter.dayMonth.format(revenue.startDate)}',
       Frequency.oneTime => DateFormatter.dayMonth.format(revenue.startDate),
     };
 
@@ -149,7 +151,7 @@ class CompactRevenueRow extends StatelessWidget {
     revenue.startDate,
     revenue.endDate,
     revenue.frequencyEnum,
-    DateTime.now(),
+    now,
   );
 
   void _showOptionsBottomSheet(BuildContext context) {

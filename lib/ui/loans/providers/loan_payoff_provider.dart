@@ -11,6 +11,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'loan_payoff_provider.g.dart';
 
 class LoanPayoffState {
+  LoanPayoffState({
+    required this.loan,
+    required this.date,
+    this.type = LoanEventType.earlyRepaymentTotal,
+    this.amount = 0.0,
+    this.reamortizationMode = ReamortizationMode.reduceDuration,
+    this.exemption = EarlyRepaymentExemption.none,
+  });
   static const LoanPayoffService _payoffService = LoanPayoffService(
     LoanScheduleService(EarlyRepaymentIndemnityService()),
   );
@@ -21,15 +29,6 @@ class LoanPayoffState {
   final double amount;
   final ReamortizationMode reamortizationMode;
   final EarlyRepaymentExemption exemption;
-
-  LoanPayoffState({
-    required this.loan,
-    required this.date,
-    this.type = LoanEventType.earlyRepaymentTotal,
-    this.amount = 0.0,
-    this.reamortizationMode = ReamortizationMode.reduceDuration,
-    this.exemption = EarlyRepaymentExemption.none,
-  });
 
   LoanPayoffState copyWith({
     LoanEventType? type,
@@ -76,17 +75,10 @@ class LoanPayoffState {
 }
 
 @Riverpod(keepAlive: false)
-Loan loanToPayoff(Ref ref) => throw UnimplementedError(
-  'loanToPayoffProvider must be overridden via ProviderScope',
-);
-
-@Riverpod(keepAlive: false, dependencies: [loanToPayoff])
 class LoanPayoffNotifier extends _$LoanPayoffNotifier {
   @override
-  LoanPayoffState build() {
-    final loan = ref.watch(loanToPayoffProvider);
-    return LoanPayoffState(loan: loan, date: _defaultDate(loan));
-  }
+  LoanPayoffState build(Loan loan) =>
+      LoanPayoffState(loan: loan, date: _defaultDate(loan));
 
   DateTime _defaultDate(Loan loan) {
     final next = loan.schedule.currentInstallmentAt(loan.asOf);

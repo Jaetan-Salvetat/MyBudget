@@ -24,9 +24,7 @@ void main() {
 
     test('une image indéchiffrable est signalée, pas avalée', () async {
       expect(
-        () => enhanceReceiptForRetry(
-          Uint8List.fromList(const [0, 1, 2, 3]),
-        ),
+        () => enhanceReceiptForRetry(Uint8List.fromList(const [0, 1, 2, 3])),
         throwsA(isA<FormatException>()),
       );
     });

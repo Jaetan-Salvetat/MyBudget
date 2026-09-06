@@ -4,6 +4,23 @@ import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 
 class LoanTerms {
+  const LoanTerms({
+    required this.amount,
+    required this.annualInterestRate,
+    required this.durationInMonths,
+    required this.startDate,
+    required this.dayOfMonth,
+    this.immediateFirstPayment = false,
+    this.repaymentType = LoanRepaymentType.amortizable,
+    this.deferredMonths = 0,
+    this.deferralType = LoanDeferralType.none,
+    this.insuranceType = LoanInsuranceType.none,
+    this.insuranceValue = 0.0,
+    this.insuranceCalculationMode = InsuranceCalculationMode.initialCapital,
+    this.fees = 0.0,
+    this.regime,
+    this.hasIndemnityClause = true,
+  });
   static const int maxDurationInMonths = 600;
   static const double mortgageRegimeThreshold = 75000;
 
@@ -22,24 +39,6 @@ class LoanTerms {
   final double fees;
   final CreditRegime? regime;
   final bool hasIndemnityClause;
-
-  const LoanTerms({
-    required this.amount,
-    required this.annualInterestRate,
-    required this.durationInMonths,
-    required this.startDate,
-    required this.dayOfMonth,
-    this.immediateFirstPayment = false,
-    this.repaymentType = LoanRepaymentType.amortizable,
-    this.deferredMonths = 0,
-    this.deferralType = LoanDeferralType.none,
-    this.insuranceType = LoanInsuranceType.none,
-    this.insuranceValue = 0.0,
-    this.insuranceCalculationMode = InsuranceCalculationMode.initialCapital,
-    this.fees = 0.0,
-    this.regime,
-    this.hasIndemnityClause = true,
-  });
 
   static CreditRegime defaultRegimeFor(double amount) =>
       amount > mortgageRegimeThreshold

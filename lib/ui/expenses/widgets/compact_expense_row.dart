@@ -13,20 +13,10 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class CompactExpenseRow extends StatelessWidget {
-  final ExpenseModel expense;
-  final CategoryDisplay? category;
-  final Beneficiary? beneficiary;
-  final bool showDivider;
-
-  final bool isCurrentMonth;
-  final bool showDate;
-  final VoidCallback onOpen;
-  final VoidCallback onEdit;
-  final ValueChanged<RecurringDeletion> onDelete;
-
   const CompactExpenseRow({
     required this.expense,
     required this.isCurrentMonth,
+    required this.now,
     required this.onOpen,
     required this.onEdit,
     required this.onDelete,
@@ -36,6 +26,17 @@ class CompactExpenseRow extends StatelessWidget {
     this.showDate = false,
     super.key,
   });
+  final ExpenseModel expense;
+  final CategoryDisplay? category;
+  final Beneficiary? beneficiary;
+  final bool showDivider;
+
+  final bool isCurrentMonth;
+  final DateTime now;
+  final bool showDate;
+  final VoidCallback onOpen;
+  final VoidCallback onEdit;
+  final ValueChanged<RecurringDeletion> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +139,8 @@ class CompactExpenseRow extends StatelessWidget {
   String _dateLabel() {
     return switch (expense.frequencyEnum) {
       Frequency.monthly => 'Le ${expense.startDate.day}',
-      Frequency.annual => 'Le ${DateFormatter.dayMonth.format(expense.startDate)}',
+      Frequency.annual =>
+        'Le ${DateFormatter.dayMonth.format(expense.startDate)}',
       Frequency.oneTime => DateFormatter.dayMonth.format(expense.startDate),
     };
   }
@@ -149,14 +151,15 @@ class CompactExpenseRow extends StatelessWidget {
     expense.startDate,
     expense.endDate,
     expense.frequencyEnum,
-    DateTime.now(),
+    now,
   );
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(
       context: context,
       initialScope: _initialDeletionScope,
-      deleteConfirmationMessage: 'Voulez-vous vraiment supprimer cette dépense ?',
+      deleteConfirmationMessage:
+          'Voulez-vous vraiment supprimer cette dépense ?',
       onEdit: onEdit,
       onDelete: onDelete,
     );

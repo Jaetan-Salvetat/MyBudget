@@ -1,7 +1,18 @@
+import 'package:mybudget/core/utils/json_fields.dart';
 import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class AccountModel {
+  AccountModel();
+
+  AccountModel.create({required this.name, required this.bank});
+
+  factory AccountModel.fromJson(Map<String, dynamic> json) {
+    return AccountModel()
+      ..id = json.readInt('id', 0)
+      ..name = json.readString('name', '')
+      ..bank = json.readString('bank', '');
+  }
   @Id()
   int id = 0;
 
@@ -9,22 +20,6 @@ class AccountModel {
   late String name;
 
   late String bank;
-
-  AccountModel();
-
-  AccountModel.create({required this.name, required this.bank});
-
-  factory AccountModel.fromJson(Map<String, dynamic> json) {
-    final model = AccountModel()
-      ..name = json['name'] ?? ''
-      ..bank = json['bank'] ?? '';
-
-    if (json['id'] != null) {
-      model.id = int.tryParse(json['id'].toString()) ?? 0;
-    }
-
-    return model;
-  }
 
   AccountModel copyWith({String? name, String? bank}) {
     final model = AccountModel()

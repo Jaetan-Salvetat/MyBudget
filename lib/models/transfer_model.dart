@@ -1,10 +1,45 @@
-import 'package:objectbox/objectbox.dart';
+import 'package:mybudget/core/entities/stored_frequency.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/utils/json_fields.dart';
+import 'package:objectbox/objectbox.dart';
 
 const _sentinel = Object();
 
 @Entity()
-class TransferModel {
+class TransferModel implements StoredFrequency {
+  TransferModel();
+
+  TransferModel.create({
+    required this.name,
+    required this.amount,
+    required this.fromAccountId,
+    required this.toAccountId,
+    required this.startDate,
+    required Frequency frequency,
+    this.endDate,
+    this.parentId,
+  }) {
+    this.frequency = frequency.storageKey;
+  }
+
+  factory TransferModel.fromJson(
+    Map<String, dynamic> json, {
+    required DateTime now,
+  }) {
+    final model = TransferModel()
+      ..id = json.readInt('id', 0)
+      ..name = json.readString('name', '')
+      ..amount = json.readDouble('amount', 0)
+      ..startDate = json.readFirstDate(const ['startDate', 'date']) ?? now
+      ..endDate = json.readOptionalDate('endDate')
+      ..parentId = json.readOptionalInt('parentId')
+      ..frequencyEnum = Frequency.fromStorage(
+        json.readString('frequency', Frequency.monthly.storageKey),
+      )
+      ..fromAccountId = json.readInt('fromAccountId', 0)
+      ..toAccountId = json.readInt('toAccountId', 0);
+    return model;
+  }
   @Id()
   int id = 0;
 
@@ -27,26 +62,13 @@ class TransferModel {
 
   late String frequency;
 
-  TransferModel();
-
-  TransferModel.create({
-    required this.name,
-    required this.amount,
-    required this.fromAccountId,
-    required this.toAccountId,
-    required this.startDate,
-    required this.frequency,
-    this.endDate,
-    this.parentId,
-  });
-
   TransferModel copyWith({
     String? name,
     double? amount,
     int? fromAccountId,
     int? toAccountId,
     DateTime? startDate,
-    String? frequency,
+    Frequency? frequency,
     Object? endDate = _sentinel,
     Object? parentId = _sentinel,
   }) {
@@ -57,7 +79,7 @@ class TransferModel {
       ..fromAccountId = fromAccountId ?? this.fromAccountId
       ..toAccountId = toAccountId ?? this.toAccountId
       ..startDate = startDate ?? this.startDate
-      ..frequency = frequency ?? this.frequency
+      ..frequency = frequency?.storageKey ?? this.frequency
       ..endDate = endDate == _sentinel ? this.endDate : endDate as DateTime?
       ..parentId = parentId == _sentinel ? this.parentId : parentId as int?;
     return model;
@@ -77,38 +99,14 @@ class TransferModel {
     };
   }
 
-  factory TransferModel.fromJson(Map<String, dynamic> json) {
-    final dateStr = json['startDate'] ?? json['date'];
-    final model = TransferModel()
-      ..name = json['name'] ?? ''
-      ..amount = (json['amount'] ?? 0.0).toDouble()
-      ..startDate = dateStr != null
-          ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
-          : DateTime.now()
-      ..endDate = json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'].toString())
-          : null
-      ..parentId = json['parentId'] != null
-          ? int.tryParse(json['parentId'].toString())
-          : null
-      ..frequency = json['frequency'] ?? ''
-      ..fromAccountId = json['fromAccountId'] != null
-          ? (int.tryParse(json['fromAccountId'].toString()) ?? 0)
-          : 0
-      ..toAccountId = json['toAccountId'] != null
-          ? (int.tryParse(json['toAccountId'].toString()) ?? 0)
-          : 0;
+  @override
+  String get storedFrequency => frequency;
 
-    if (json['id'] != null) {
-      model.id = int.tryParse(json['id'].toString()) ?? 0;
-    }
+  @override
+  Frequency get frequencyEnum => Frequency.fromStorage(frequency);
 
-    return model;
-  }
-
-  Frequency get frequencyEnum => Frequency.fromString(frequency);
-
+  @override
   set frequencyEnum(Frequency value) {
-    frequency = value.label;
+    frequency = value.storageKey;
   }
 }

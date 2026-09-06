@@ -8,7 +8,9 @@ import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 final RegExp _isoDate = RegExp(r'^(\d{4})-(\d{1,2})-(\d{1,2})$');
 
-final RegExp _frenchDate = RegExp(r'^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2}|\d{4})$');
+final RegExp _frenchDate = RegExp(
+  r'^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2}|\d{4})$',
+);
 
 LocalReceiptScan? receiptScanOf(String raw) {
   final Object? decoded;
@@ -34,12 +36,15 @@ LocalReceiptScan? receiptScanOf(String raw) {
 }
 
 /// Lecture d'une section : l'enseigne seule.
-String? sectionStoreOf(String raw) => _textOf(_decode(raw)?[ReceiptSchema.storeKey]);
+String? sectionStoreOf(String raw) =>
+    _textOf(_decode(raw)?[ReceiptSchema.storeKey]);
 
-String? sectionDateOf(String raw) => _dateOf(_decode(raw)?[ReceiptSchema.dateKey]);
+String? sectionDateOf(String raw) =>
+    _dateOf(_decode(raw)?[ReceiptSchema.dateKey]);
 
 /// Lecture d'une section : le total seul.
-double? sectionTotalOf(String raw) => _amountOf(_decode(raw)?[ReceiptSchema.totalKey]);
+double? sectionTotalOf(String raw) =>
+    _amountOf(_decode(raw)?[ReceiptSchema.totalKey]);
 
 /// Lecture d'une section : les articles et le total que le modèle leur associe.
 ({double? total, List<ExtractedItem> items})? sectionArticlesOf(String raw) {
@@ -108,11 +113,7 @@ String? _dateOf(Object? value) {
 
   final iso = _isoDate.firstMatch(text);
   if (iso != null) {
-    return _isoOf(
-      int.parse(iso[1]!),
-      int.parse(iso[2]!),
-      int.parse(iso[3]!),
-    );
+    return _isoOf(int.parse(iso[1]!), int.parse(iso[2]!), int.parse(iso[3]!));
   }
 
   final french = _frenchDate.firstMatch(text);

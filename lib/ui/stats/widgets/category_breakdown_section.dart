@@ -8,16 +8,15 @@ import 'package:mybudget/ui/common/widgets/solid_card.dart';
 import 'package:mybudget/ui/stats/models/category_slice.dart';
 
 class CategoryBreakdownSection extends StatelessWidget {
-  final List<CategorySlice> slices;
-  final int maxVisible;
-  final ValueChanged<String>? onCategoryTap;
-
   const CategoryBreakdownSection({
     super.key,
     required this.slices,
     this.maxVisible = 5,
     this.onCategoryTap,
   });
+  final List<CategorySlice> slices;
+  final int maxVisible;
+  final ValueChanged<String>? onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +74,9 @@ class CategoryBreakdownSection extends StatelessWidget {
 }
 
 class _CategoryRow extends StatelessWidget {
+  const _CategoryRow({required this.slice, this.onTap});
   final CategorySlice slice;
   final VoidCallback? onTap;
-
-  const _CategoryRow({required this.slice, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -133,5 +131,4 @@ class _CategoryRow extends StatelessWidget {
       ),
     );
   }
-
 }

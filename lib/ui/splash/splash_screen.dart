@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
@@ -7,9 +7,8 @@ import 'package:mybudget/ui/onboarding/onboarding_page.dart';
 import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
-  static const Duration entranceDuration = Duration(milliseconds: 1000);
-
   const SplashScreen({super.key});
+  static const Duration entranceDuration = Duration(milliseconds: 1000);
 
   static Widget destination() => PreferencesService.isFirstLaunch()
       ? const OnboardingPage()
@@ -34,13 +33,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       vsync: this,
     );
 
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _navigate();
   }
@@ -64,7 +65,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
 
     Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
+      PageRouteBuilder<void>(
         pageBuilder: (_, _, _) => SplashScreen.destination(),
         transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);

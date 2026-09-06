@@ -3,17 +3,15 @@ import 'package:mybudget/ui/common/widgets/detail/detail_row.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_section.dart';
 
 class DetailInfoCard extends StatelessWidget {
+  const DetailInfoCard({required this.title, required this.rows, super.key});
   final String title;
   final List<DetailRow> rows;
 
-  const DetailInfoCard({
-    required this.title,
-    required this.rows,
-    super.key,
-  });
-
   @override
   Widget build(BuildContext context) {
-    return DetailSection(title: title, child: Column(children: rows));
+    return DetailSection(
+      title: title,
+      child: Column(children: rows),
+    );
   }
 }

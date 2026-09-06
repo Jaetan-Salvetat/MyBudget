@@ -6,22 +6,23 @@ import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class EffectiveMonthField extends StatelessWidget {
-  final EffectiveMonth value;
-  final Frequency frequency;
-  final DateTime anchor;
-  final String label;
-  final String dueLabel;
-  final ValueChanged<EffectiveMonth> onChanged;
-
   const EffectiveMonthField({
     required this.value,
     required this.frequency,
     required this.anchor,
+    required this.now,
     required this.label,
     required this.dueLabel,
     required this.onChanged,
     super.key,
   });
+  final EffectiveMonth value;
+  final Frequency frequency;
+  final DateTime anchor;
+  final DateTime now;
+  final String label;
+  final String dueLabel;
+  final ValueChanged<EffectiveMonth> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,7 @@ class EffectiveMonthField extends StatelessWidget {
     final due = startDateFor(
       frequency: frequency,
       anchor: anchor,
-      asOf: DateTime.now(),
+      asOf: now,
       scope: value,
     );
     return '$dueLabel le ${DateFormatter.dayMonth.format(due)}.';

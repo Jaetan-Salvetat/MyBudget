@@ -1,6 +1,13 @@
 import 'package:mybudget/models/scanned_item_model.dart';
 
 class ReceiptScanResultModel {
+  ReceiptScanResultModel({
+    required this.date,
+    required this.items,
+    this.storeName,
+    this.printedTotal,
+    this.verified = false,
+  });
   static const double _centTolerance = 0.005;
 
   final String? storeName;
@@ -10,14 +17,6 @@ class ReceiptScanResultModel {
   final double? printedTotal;
 
   final bool verified;
-
-  ReceiptScanResultModel({
-    this.storeName,
-    DateTime? date,
-    this.printedTotal,
-    this.verified = false,
-    required this.items,
-  }) : date = date ?? DateTime.now();
 
   double get itemsTotal =>
       items.fold(0, (sum, item) => sum + item.effectiveAmount);
@@ -79,17 +78,16 @@ class ReceiptScanResultModel {
 }
 
 class ScannedExpenseGroup {
-  final String slug;
-  final String label;
-  final double total;
-  final int count;
-
   const ScannedExpenseGroup({
     required this.slug,
     required this.label,
     required this.total,
     required this.count,
   });
+  final String slug;
+  final String label;
+  final double total;
+  final int count;
 
   ScannedExpenseGroup plus(double amount) => ScannedExpenseGroup(
     slug: slug,

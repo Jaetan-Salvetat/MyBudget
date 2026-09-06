@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/core/services/transaction_change_service.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -10,7 +11,7 @@ void main() {
     String name = 'Loyer',
     double amount = 800,
     String? categorySlug = 'logement.loyer',
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
     int accountId = 1,
     int? beneficiaryId,
     DateTime? startDate,
@@ -84,7 +85,7 @@ void main() {
         expense(
           name: 'Loyer appart',
           amount: 900,
-          frequency: 'Annuel',
+          frequency: Frequency.annual,
           accountId: 2,
           beneficiaryId: 3,
         ),
@@ -188,7 +189,7 @@ void main() {
       expect(
         TransactionChangeService.changesTerms(
           expense(),
-          expense(frequency: 'Annuel'),
+          expense(frequency: Frequency.annual),
         ),
         isTrue,
       );
@@ -207,8 +208,14 @@ void main() {
     test('move with the month a yearly rule falls on', () {
       expect(
         TransactionChangeService.changesTerms(
-          expense(frequency: 'Annuel', startDate: DateTime(2026, 1, 10)),
-          expense(frequency: 'Annuel', startDate: DateTime(2026, 3, 10)),
+          expense(
+            frequency: Frequency.annual,
+            startDate: DateTime(2026, 1, 10),
+          ),
+          expense(
+            frequency: Frequency.annual,
+            startDate: DateTime(2026, 3, 10),
+          ),
         ),
         isTrue,
       );
@@ -217,8 +224,14 @@ void main() {
     test('leave a yearly rule alone when only its year moved', () {
       expect(
         TransactionChangeService.changesTerms(
-          expense(frequency: 'Annuel', startDate: DateTime(2026, 1, 10)),
-          expense(frequency: 'Annuel', startDate: DateTime(2027, 1, 10)),
+          expense(
+            frequency: Frequency.annual,
+            startDate: DateTime(2026, 1, 10),
+          ),
+          expense(
+            frequency: Frequency.annual,
+            startDate: DateTime(2027, 1, 10),
+          ),
         ),
         isFalse,
       );
@@ -227,8 +240,14 @@ void main() {
     test('move with the date of a one-off', () {
       expect(
         TransactionChangeService.changesTerms(
-          expense(frequency: 'Ponctuel', startDate: DateTime(2026, 1, 10)),
-          expense(frequency: 'Ponctuel', startDate: DateTime(2026, 2, 10)),
+          expense(
+            frequency: Frequency.oneTime,
+            startDate: DateTime(2026, 1, 10),
+          ),
+          expense(
+            frequency: Frequency.oneTime,
+            startDate: DateTime(2026, 2, 10),
+          ),
         ),
         isTrue,
       );

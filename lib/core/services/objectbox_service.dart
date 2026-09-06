@@ -1,20 +1,24 @@
-import 'package:path_provider/path_provider.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transfer_repository.dart';
+import 'package:mybudget/core/services/data/frequency_storage_migration.dart';
+import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/category_memory_model.dart';
 import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/legacy_category_model.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
-import 'package:path/path.dart' as p;
-
 import 'package:mybudget/objectbox.g.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class ObjectBoxService {
+  ObjectBoxService._();
   late Store store;
 
   Admin? _admin;
@@ -33,8 +37,6 @@ class ObjectBoxService {
 
   static ObjectBoxService? _instance;
 
-  ObjectBoxService._();
-
   static Future<ObjectBoxService> getInstance() async {
     if (_instance == null) {
       _instance = ObjectBoxService._();
@@ -45,7 +47,7 @@ class ObjectBoxService {
 
   Future<void> _init() async {
     final docsDir = await getApplicationDocumentsDirectory();
-    final storeDir = p.join(docsDir.path, "objectbox");
+    final storeDir = p.join(docsDir.path, 'objectbox');
     store = await openStore(directory: storeDir);
     if (Admin.isAvailable()) _admin = Admin(store);
 
@@ -60,6 +62,14 @@ class ObjectBoxService {
     transferBox = Box<TransferModel>(store);
     legacyCategoryBox = Box<LegacyCategoryModel>(store);
     transactionEventBox = Box<TransactionEventModel>(store);
+
+    _canonicalizeStoredFrequencies();
+  }
+
+  void _canonicalizeStoredFrequencies() {
+    FrequencyStorageMigration.run(ExpenseRepository(expenseBox));
+    FrequencyStorageMigration.run(RevenueRepository(revenueBox));
+    FrequencyStorageMigration.run(TransferRepository(transferBox));
   }
 
   void closeStore() {

@@ -9,6 +9,14 @@ import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class CaptureAnchor extends StatelessWidget {
+  const CaptureAnchor({
+    required this.remaining,
+    required this.monthlyRevenues,
+    required this.onTap,
+    required this.onSettings,
+    required this.now,
+    super.key,
+  });
   static const double integerFontSize = 52;
   static const double centsFontSize = 30;
   static const double _centsOpacity = 0.62;
@@ -23,13 +31,7 @@ class CaptureAnchor extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onSettings;
 
-  const CaptureAnchor({
-    required this.remaining,
-    required this.monthlyRevenues,
-    required this.onTap,
-    required this.onSettings,
-    super.key,
-  });
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +112,6 @@ class CaptureAnchor extends StatelessWidget {
   bool get _isIdle => monthlyRevenues == 0 && remaining == 0;
 
   String _subtitle() {
-    final now = DateTime.now();
     final daysLeft = DateTime(now.year, now.month + 1, 0).day - now.day + 1;
     final revenues = MoneyFormatter.format(monthlyRevenues);
     final days = daysLeft > 1 ? '$daysLeft jours' : '$daysLeft jour';
@@ -120,9 +121,8 @@ class CaptureAnchor extends StatelessWidget {
 }
 
 class _Figure extends StatelessWidget {
-  final double amount;
-
   const _Figure({required this.amount});
+  final double amount;
 
   @override
   Widget build(BuildContext context) {

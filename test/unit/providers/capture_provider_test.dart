@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
@@ -34,7 +35,7 @@ ExpenseModel expenseOf({
   required String name,
   required double amount,
   required DateTime startDate,
-  String frequency = 'Ponctuel',
+  Frequency frequency = Frequency.oneTime,
   String? categorySlug,
   DateTime? endDate,
 }) {
@@ -56,7 +57,7 @@ RevenueModel revenueOf({
   required String name,
   required double amount,
   required DateTime startDate,
-  String frequency = 'Ponctuel',
+  Frequency frequency = Frequency.oneTime,
   DateTime? endDate,
 }) {
   final revenue = RevenueModel.create(
@@ -153,10 +154,10 @@ void main() {
 
       final container = await containerReady();
 
-      expect(
-        container.read(todayJournalProvider).map((e) => e.name),
-        ['Carrefour', 'Café'],
-      );
+      expect(container.read(todayJournalProvider).map((e) => e.name), [
+        'Carrefour',
+        'Café',
+      ]);
     });
 
     test('holds revenues next to expenses', () async {
@@ -192,7 +193,7 @@ void main() {
           name: 'Netflix',
           amount: 13.99,
           startDate: today,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
         ),
       ]);
 
@@ -321,7 +322,7 @@ void main() {
           name: 'Netflix',
           amount: 13.99,
           startDate: twoMonthsAgo,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
         ),
       ]);
 
@@ -332,10 +333,7 @@ void main() {
           .toList();
 
       expect(landings.length, 3);
-      expect(
-        landings.map((entry) => entry.at.month).toSet().length,
-        3,
-      );
+      expect(landings.map((entry) => entry.at.month).toSet().length, 3);
     });
 
     test('a yearly expense comes back a year on, same month', () async {
@@ -348,7 +346,7 @@ void main() {
           name: 'Assurance habitation',
           amount: 214,
           startDate: lastYear,
-          frequency: 'Annuel',
+          frequency: Frequency.annual,
         ),
       ]);
 
@@ -359,10 +357,10 @@ void main() {
           .toList();
 
       expect(landings.length, 2);
-      expect(
-        landings.map((entry) => entry.at.year).toSet(),
-        {now.year - 1, now.year},
-      );
+      expect(landings.map((entry) => entry.at.year).toSet(), {
+        now.year - 1,
+        now.year,
+      });
     });
 
     test('never reaches past today', () async {
@@ -395,7 +393,7 @@ void main() {
           name: 'Loyer',
           amount: 800,
           startDate: start,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
           endDate: closedOn,
         ),
       ]);
@@ -421,7 +419,7 @@ void main() {
           name: 'Loyer',
           amount: 800,
           startDate: start,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
           endDate: closedOn,
         ),
       ]);
@@ -451,7 +449,7 @@ void main() {
           name: 'Loyer',
           amount: 800,
           startDate: start,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
           endDate: closedOn,
         ),
       ]);
@@ -461,7 +459,7 @@ void main() {
           name: 'Loyer',
           amount: 850,
           startDate: DateTime(now.year, now.month, 1, 9, 0),
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
         ),
       ]);
 
@@ -485,7 +483,7 @@ void main() {
           name: 'Ancien salaire',
           amount: 2400,
           startDate: DateTime(now.year, now.month - 2, 2, 9, 0),
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
           endDate: DateTime(now.year, now.month - 1, 2),
         ),
       ]);
@@ -587,7 +585,7 @@ void main() {
           name: 'Loyer',
           amount: 800,
           startDate: thisMonth,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
         ),
       ]);
       when(() => revenues.getActive()).thenReturn([
@@ -596,7 +594,7 @@ void main() {
           name: 'Salaire',
           amount: 2480,
           startDate: thisMonth,
-          frequency: 'Mensuel',
+          frequency: Frequency.monthly,
         ),
       ]);
 

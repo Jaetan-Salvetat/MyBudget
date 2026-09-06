@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
+import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -32,11 +32,11 @@ class GeminiNanoDownloadNotifier extends _$GeminiNanoDownloadNotifier {
     return null;
   }
 
-  bool get isRunning =>
+  bool get _isRunning =>
       state is GeminiNanoDownloadStarted || state is GeminiNanoDownloadProgress;
 
   void start() {
-    if (isRunning) return;
+    if (_isRunning) return;
 
     state = const GeminiNanoDownloadStarted(totalBytes: 0);
     _subscription = ref

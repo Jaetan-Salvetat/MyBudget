@@ -33,7 +33,7 @@ final class TransferNotifierProvider
   TransferNotifier create() => TransferNotifier();
 }
 
-String _$transferNotifierHash() => r'ed7022083cf32f2c49a9b4e83cc1dbc50a63d9c8';
+String _$transferNotifierHash() => r'9a7fde8d52892a6747a5ffd153e71ee078adf4ac';
 
 abstract class _$TransferNotifier extends $AsyncNotifier<List<Transfer>> {
   FutureOr<List<Transfer>> build();

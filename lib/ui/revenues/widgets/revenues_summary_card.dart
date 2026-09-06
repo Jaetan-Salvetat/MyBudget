@@ -5,14 +5,13 @@ import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class RevenuesSummaryCard extends StatelessWidget {
-  final double monthlyRevenues;
-  final int transactionCount;
-
   const RevenuesSummaryCard({
     required this.monthlyRevenues,
     required this.transactionCount,
     super.key,
   });
+  final double monthlyRevenues;
+  final int transactionCount;
 
   @override
   Widget build(BuildContext context) {

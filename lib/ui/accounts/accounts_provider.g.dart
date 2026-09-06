@@ -13,7 +13,7 @@ part of 'accounts_provider.dart';
 final accountProvider = AccountNotifierProvider._();
 
 final class AccountNotifierProvider
-    extends $AsyncNotifierProvider<AccountNotifier, List<AccountModel>> {
+    extends $NotifierProvider<AccountNotifier, List<AccountModel>> {
   AccountNotifierProvider._()
     : super(
         from: null,
@@ -31,22 +31,29 @@ final class AccountNotifierProvider
   @$internal
   @override
   AccountNotifier create() => AccountNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<AccountModel> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<AccountModel>>(value),
+    );
+  }
 }
 
-String _$accountNotifierHash() => r'a6793e1a40556495df16b16f67691e3f9da6d435';
+String _$accountNotifierHash() => r'ac21b5588ac2f8818e31b217872beaeeaceee912';
 
-abstract class _$AccountNotifier extends $AsyncNotifier<List<AccountModel>> {
-  FutureOr<List<AccountModel>> build();
+abstract class _$AccountNotifier extends $Notifier<List<AccountModel>> {
+  List<AccountModel> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref =
-        this.ref as $Ref<AsyncValue<List<AccountModel>>, List<AccountModel>>;
+    final ref = this.ref as $Ref<List<AccountModel>, List<AccountModel>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<AccountModel>>, List<AccountModel>>,
-              AsyncValue<List<AccountModel>>,
+              AnyNotifier<List<AccountModel>, List<AccountModel>>,
+              List<AccountModel>,
               Object?,
               Object?
             >;

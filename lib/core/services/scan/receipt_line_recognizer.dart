@@ -42,16 +42,16 @@ List<PhysicalLine> recognizedLines(RecognizedText recognized) {
 }
 
 class MlKitReceiptLineRecognizer implements ReceiptLineRecognizer {
+  MlKitReceiptLineRecognizer({
+    TextRecognizer? recognizer,
+    TempDirectoryResolver? tempDirectory,
+  }) : _recognizer =
+           recognizer ?? TextRecognizer(script: TextRecognitionScript.latin),
+       _tempDirectory = tempDirectory ?? getTemporaryDirectory;
   static const String _fileName = 'receipt_scan_pass.jpg';
 
   final TextRecognizer _recognizer;
   final TempDirectoryResolver _tempDirectory;
-
-  MlKitReceiptLineRecognizer({
-    TextRecognizer? recognizer,
-    TempDirectoryResolver? tempDirectory,
-  }) : _recognizer = recognizer ?? TextRecognizer(script: TextRecognitionScript.latin),
-       _tempDirectory = tempDirectory ?? getTemporaryDirectory;
 
   @override
   Future<List<PhysicalLine>> recognize(Uint8List imageBytes) async {

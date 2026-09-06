@@ -10,11 +10,6 @@ import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class AccountCard extends StatelessWidget {
-  final AccountModel account;
-  final double monthlyIncomes;
-  final double monthlyCharges;
-  final VoidCallback onTap;
-
   const AccountCard({
     super.key,
     required this.account,
@@ -22,6 +17,10 @@ class AccountCard extends StatelessWidget {
     required this.monthlyCharges,
     required this.onTap,
   });
+  final AccountModel account;
+  final double monthlyIncomes;
+  final double monthlyCharges;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +141,9 @@ class AccountCard extends StatelessWidget {
                           Expanded(
                             child: _StatItem(
                               label: 'Entrées',
-                              value: MoneyFormatter.formatRounded(monthlyIncomes),
+                              value: MoneyFormatter.formatRounded(
+                                monthlyIncomes,
+                              ),
                               color: finance.income,
                             ),
                           ),
@@ -153,7 +154,9 @@ class AccountCard extends StatelessWidget {
                           Expanded(
                             child: _StatItem(
                               label: 'Charges',
-                              value: MoneyFormatter.formatRounded(monthlyCharges),
+                              value: MoneyFormatter.formatRounded(
+                                monthlyCharges,
+                              ),
                               color: finance.expense,
                             ),
                           ),
@@ -172,15 +175,14 @@ class AccountCard extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
   const _StatItem({
     required this.label,
     required this.value,
     required this.color,
   });
+  final String label;
+  final String value;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {

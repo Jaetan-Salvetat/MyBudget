@@ -9,14 +9,13 @@ import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class AccountHeroCard extends StatelessWidget {
-  final AccountModel account;
-  final double balance;
-
   const AccountHeroCard({
     super.key,
     required this.account,
     required this.balance,
   });
+  final AccountModel account;
+  final double balance;
 
   @override
   Widget build(BuildContext context) {

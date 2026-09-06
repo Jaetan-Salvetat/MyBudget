@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
@@ -72,7 +72,8 @@ void main() {
   testWidgets('keeps the edited account id when saving', (
     WidgetTester tester,
   ) async {
-    final account = AccountModel.create(name: 'Courant', bank: 'Banque')..id = 3;
+    final account = AccountModel.create(name: 'Courant', bank: 'Banque')
+      ..id = 3;
     final submitted = await pushForm(tester, account: account);
 
     await tester.enterText(find.byType(TextField).first, 'Livret A');

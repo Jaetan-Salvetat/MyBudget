@@ -1,7 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 
@@ -28,7 +27,7 @@ class DebugSection extends StatelessWidget {
     await PreferencesService.clearAll();
     if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const SplashScreen()),
+      MaterialPageRoute<void>(builder: (_) => const SplashScreen()),
       (route) => false,
     );
   }

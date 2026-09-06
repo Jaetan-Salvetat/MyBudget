@@ -1,8 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +25,7 @@ void main() {
             monthlyRevenues: monthlyRevenues,
             onTap: () {},
             onSettings: () {},
+            now: _fixedNow,
           ),
         ),
       ),

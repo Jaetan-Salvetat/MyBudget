@@ -2,9 +2,8 @@ import 'package:mybudget/models/category_memory_model.dart';
 import 'package:mybudget/objectbox.g.dart';
 
 class CategoryMemoryRepository {
-  final Box<CategoryMemoryModel> _box;
-
   CategoryMemoryRepository(this._box);
+  final Box<CategoryMemoryModel> _box;
 
   CategoryMemoryModel? get(String key) {
     final query = _box.query(CategoryMemoryModel_.key.equals(key)).build();

@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
 class QuickAddShimmer extends StatefulWidget {
+  const QuickAddShimmer({required this.child, super.key});
   static const Duration period = Duration(milliseconds: 1100);
 
   final Widget child;
-
-  const QuickAddShimmer({required this.child, super.key});
 
   @override
   State<QuickAddShimmer> createState() => _QuickAddShimmerState();

@@ -18,7 +18,10 @@ void main() {
     });
 
     test('le store garde les destinations sans rapport', () {
-      expect(HelpDestination.categories.isAvailableIn(BuildFlavor.store), isTrue);
+      expect(
+        HelpDestination.categories.isAvailableIn(BuildFlavor.store),
+        isTrue,
+      );
       expect(
         HelpDestination.beneficiaries.isAvailableIn(BuildFlavor.store),
         isTrue,

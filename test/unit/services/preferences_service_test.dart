@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -61,7 +61,10 @@ void main() {
     await pumpLine(tester, amount: 12);
     await tester.pumpAndSettle();
 
-    expect(find.text(MoneyFormatter.format(12), findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('an income reads with its plus sign', (tester) async {
@@ -77,7 +80,10 @@ void main() {
     await pumpLine(tester, amount: 12, isStale: true);
     await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.text(MoneyFormatter.format(12), findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text('Fast-food'), findsNothing);
   });
 
@@ -96,7 +102,10 @@ void main() {
     await pumpLine(tester, category: category);
     await tester.pumpAndSettle();
 
-    expect(find.text(MoneyFormatter.format(0), findRichText: true), findsOneWidget);
+    expect(
+      find.text(MoneyFormatter.format(0), findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the zero placeholder never reads as an income', (tester) async {
@@ -115,8 +124,14 @@ void main() {
     await pumpLine(tester, amount: 12, category: category);
     await tester.pumpAndSettle();
 
-    expect(find.text(MoneyFormatter.format(12), findRichText: true), findsOneWidget);
-    expect(find.text(MoneyFormatter.format(0), findRichText: true), findsNothing);
+    expect(
+      find.text(MoneyFormatter.format(12), findRichText: true),
+      findsOneWidget,
+    );
+    expect(
+      find.text(MoneyFormatter.format(0), findRichText: true),
+      findsNothing,
+    );
   });
 
   testWidgets('shows the category once it lands', (tester) async {

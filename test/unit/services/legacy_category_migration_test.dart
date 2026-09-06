@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/legacy_category_repository.dart';
 import 'package:mybudget/core/services/data/legacy_category_mapper.dart';
@@ -20,15 +21,17 @@ ExpenseModel _expense({
   required int id,
   int? legacyCategoryId,
   String? categorySlug,
-}) => ExpenseModel.create(
-  name: 'Courses',
-  amount: 12,
-  startDate: DateTime(2026, 1, 1),
-  frequency: 'Mensuel',
-  accountId: 1,
-  categorySlug: categorySlug,
-)..id = id
- ..legacyCategoryId = legacyCategoryId;
+}) =>
+    ExpenseModel.create(
+        name: 'Courses',
+        amount: 12,
+        startDate: DateTime(2026, 1, 1),
+        frequency: Frequency.monthly,
+        accountId: 1,
+        categorySlug: categorySlug,
+      )
+      ..id = id
+      ..legacyCategoryId = legacyCategoryId;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -60,10 +63,9 @@ void main() {
   });
 
   test('maps every legacy id to its taxonomy slug', () async {
-    when(() => legacyCategories.namesById()).thenReturn({
-      1: 'Alimentation',
-      2: 'Transport',
-    });
+    when(
+      () => legacyCategories.namesById(),
+    ).thenReturn({1: 'Alimentation', 2: 'Transport'});
     when(() => expenses.getAll()).thenReturn([
       _expense(id: 10, legacyCategoryId: 1),
       _expense(id: 11, legacyCategoryId: 2),
@@ -71,8 +73,9 @@ void main() {
 
     await migration.run();
 
-    final saved = verify(() => expenses.update(captureAny())).captured
-        .cast<ExpenseModel>();
+    final saved = verify(
+      () => expenses.update(captureAny()),
+    ).captured.cast<ExpenseModel>();
     expect(saved.map((e) => e.categorySlug), [
       'alimentation.courses',
       'transport.carburant',

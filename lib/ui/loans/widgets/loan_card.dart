@@ -6,16 +6,15 @@ import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanCard extends StatelessWidget {
-  final Loan loan;
-  final String accountName;
-  final VoidCallback onTap;
-
   const LoanCard({
     required this.loan,
     required this.accountName,
     required this.onTap,
     super.key,
   });
+  final Loan loan;
+  final String accountName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

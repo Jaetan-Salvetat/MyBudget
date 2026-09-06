@@ -1,9 +1,4 @@
 class LoanPaymentBreakdown {
-  final double capitalPayment;
-  final double interestPayment;
-  final double insurancePayment;
-  final double totalPayment;
-
   const LoanPaymentBreakdown({
     required this.capitalPayment,
     required this.interestPayment,
@@ -16,6 +11,10 @@ class LoanPaymentBreakdown {
       interestPayment = 0.0,
       insurancePayment = 0.0,
       totalPayment = 0.0;
+  final double capitalPayment;
+  final double interestPayment;
+  final double insurancePayment;
+  final double totalPayment;
 
   @override
   bool operator ==(Object other) =>

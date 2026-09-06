@@ -13,6 +13,5 @@ void main() {
       expect(QuickAddEngineMode.fromId('nano'), QuickAddEngineMode.onDevice);
       expect(QuickAddEngineMode.fromId(null), QuickAddEngineMode.onDevice);
     });
-
   });
 }

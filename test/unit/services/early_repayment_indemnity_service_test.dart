@@ -9,10 +9,7 @@ void main() {
 
   group('default regime', () {
     test('suggests the mortgage regime above the legal threshold', () {
-      expect(
-        LoanTerms.defaultRegimeFor(75000.01),
-        CreditRegime.mortgage,
-      );
+      expect(LoanTerms.defaultRegimeFor(75000.01), CreditRegime.mortgage);
     });
 
     test('suggests the consumer regime at or below the threshold', () {

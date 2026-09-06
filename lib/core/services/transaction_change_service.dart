@@ -33,11 +33,7 @@ class TransactionChangeService {
       );
     }
 
-    record(
-      TransactionChange.category,
-      before.categorySlug,
-      after.categorySlug,
-    );
+    record(TransactionChange.category, before.categorySlug, after.categorySlug);
 
     if (forked) return entries;
 

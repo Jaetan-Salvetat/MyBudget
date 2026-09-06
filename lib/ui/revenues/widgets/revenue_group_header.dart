@@ -9,16 +9,15 @@ import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 
 class RevenueGroupHeader extends StatelessWidget {
-  static const double _fullShare = 1;
-
-  final RevenueGroup group;
-  final RevenueGroupBy axis;
-
   const RevenueGroupHeader({
     required this.group,
     required this.axis,
     super.key,
   });
+  static const double _fullShare = 1;
+
+  final RevenueGroup group;
+  final RevenueGroupBy axis;
 
   @override
   Widget build(BuildContext context) {
@@ -79,12 +78,11 @@ class RevenueGroupHeader extends StatelessWidget {
 }
 
 class _ShareBar extends StatelessWidget {
+  const _ShareBar({required this.share, required this.color});
   static const double _height = 3;
 
   final double share;
   final Color color;
-
-  const _ShareBar({required this.share, required this.color});
 
   @override
   Widget build(BuildContext context) {

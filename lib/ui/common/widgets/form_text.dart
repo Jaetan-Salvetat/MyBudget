@@ -1,9 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
 class FormSectionTitle extends StatelessWidget {
-  final String text;
-
   const FormSectionTitle(this.text, {super.key});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +17,8 @@ class FormSectionTitle extends StatelessWidget {
 }
 
 class FormFieldLabel extends StatelessWidget {
-  final String text;
-
   const FormFieldLabel(this.text, {super.key});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +34,8 @@ class FormFieldLabel extends StatelessWidget {
 }
 
 class FormFieldError extends StatelessWidget {
-  final String? message;
-
   const FormFieldError(this.message, {super.key});
+  final String? message;
 
   @override
   Widget build(BuildContext context) {

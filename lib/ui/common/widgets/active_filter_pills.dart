@@ -1,27 +1,25 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ActiveFilterPill {
-  final String id;
-  final String label;
-  final VoidCallback onRemove;
-
   const ActiveFilterPill({
     required this.id,
     required this.label,
     required this.onRemove,
   });
+  final String id;
+  final String label;
+  final VoidCallback onRemove;
 }
 
 class ActiveFilterPills extends StatelessWidget {
-  final List<ActiveFilterPill> pills;
-  final VoidCallback onReset;
-
   const ActiveFilterPills({
     required this.pills,
     required this.onReset,
     super.key,
   });
+  final List<ActiveFilterPill> pills;
+  final VoidCallback onReset;
 
   @override
   Widget build(BuildContext context) {

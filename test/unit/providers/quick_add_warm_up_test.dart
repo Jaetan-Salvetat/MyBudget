@@ -60,7 +60,10 @@ void main() {
         failure: StateError('modele absent'),
       );
 
-      await expectLater(container.read(quickAddWarmUpProvider.future), completes);
+      await expectLater(
+        container.read(quickAddWarmUpProvider.future),
+        completes,
+      );
     });
 
     test('ne recharge pas le moteur a chaque lecture', () async {
@@ -72,5 +75,4 @@ void main() {
       expect(engineLoads, 1);
     });
   });
-
 }

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/monthly_flow.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/stats_calculator.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
@@ -15,6 +16,23 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'stats_provider.g.dart';
 
 class StatsState {
+  const StatsState({
+    required this.range,
+    required this.flows,
+    required this.totalIncomes,
+    required this.totalExpenses,
+    required this.coveredMonths,
+    required this.previousIncomes,
+    required this.previousExpenses,
+    required this.previousCoveredMonths,
+    required this.monthlyRecurringExpenses,
+    required this.monthlyRecurringIncomes,
+    required this.annualRecurringExpenses,
+    required this.annualRecurringIncomes,
+    required this.trends,
+    required this.slices,
+    required this.trackedMonths,
+  });
   static const int minimumTrackedMonths = 3;
   static const int effortReferenceMonths = 12;
   static const double minimumMoveAmount = 1;
@@ -34,24 +52,6 @@ class StatsState {
   final List<CategoryTrend> trends;
   final List<CategorySlice> slices;
   final int trackedMonths;
-
-  const StatsState({
-    required this.range,
-    required this.flows,
-    required this.totalIncomes,
-    required this.totalExpenses,
-    required this.coveredMonths,
-    required this.previousIncomes,
-    required this.previousExpenses,
-    required this.previousCoveredMonths,
-    required this.monthlyRecurringExpenses,
-    required this.monthlyRecurringIncomes,
-    required this.annualRecurringExpenses,
-    required this.annualRecurringIncomes,
-    required this.trends,
-    required this.slices,
-    required this.trackedMonths,
-  });
 
   double get averageNet =>
       _perMonth(totalIncomes - totalExpenses, coveredMonths);
@@ -116,7 +116,7 @@ class StatsNotifier extends _$StatsNotifier {
       resolver: resolver,
     );
 
-    final now = DateTime.now();
+    final now = ref.watch(clockProvider)();
     final anchor = DateTime(now.year, now.month);
     final months = StatsCalculator.monthsEndingAt(anchor, range.months);
     final earlier = StatsCalculator.monthsEndingAt(

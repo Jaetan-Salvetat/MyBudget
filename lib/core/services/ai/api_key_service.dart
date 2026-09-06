@@ -27,8 +27,7 @@ class ApiKeyService {
     return stored;
   }
 
-  Future<bool> has(AiProvider provider) async =>
-      await read(provider) != null;
+  Future<bool> has(AiProvider provider) async => await read(provider) != null;
 
   Future<void> save(AiProvider provider, String key) =>
       _storage.write(key: _storageKey(provider), value: sanitize(key));

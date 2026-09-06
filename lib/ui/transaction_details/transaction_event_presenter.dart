@@ -7,15 +7,14 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
 
 class TransactionEventPresenter {
-  final CategoryDisplayResolver? resolver;
-  final List<AccountModel> accounts;
-  final List<Beneficiary> beneficiaries;
-
   const TransactionEventPresenter({
     required this.resolver,
     required this.accounts,
     required this.beneficiaries,
   });
+  final CategoryDisplayResolver? resolver;
+  final List<AccountModel> accounts;
+  final List<Beneficiary> beneficiaries;
 
   TransactionChangeEntry describe(TransactionEventModel event) {
     final change = event.changeEnum;

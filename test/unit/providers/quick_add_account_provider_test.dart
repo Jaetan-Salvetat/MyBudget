@@ -18,11 +18,11 @@ class FakeAccountNotifier extends AccountNotifier {
   List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 
   void emit(List<AccountModel> accounts) {
     _accounts = accounts;
-    state = AsyncData(accounts);
+    state = accounts;
   }
 }
 
@@ -53,14 +53,14 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     expect(container.read(quickAddAccountProvider), 1);
   });
 
   test('holds no account when there is none', () async {
     final container = makeContainer([]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     expect(container.read(quickAddAccountProvider), isNull);
   });
@@ -70,7 +70,7 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
     container.read(quickAddAccountProvider.notifier).select(2);
 
     expect(container.read(quickAddAccountProvider), 2);
@@ -81,7 +81,7 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
     container.read(quickAddAccountProvider.notifier).select(2);
 
     accounts.emit([accountOf(1, 'Courant'), accountOf(2, 'Livret A')]);
@@ -95,7 +95,7 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     expect(container.read(quickAddAccountProvider), 2);
   });
@@ -105,7 +105,7 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
     container.read(quickAddAccountProvider.notifier).select(2);
     await Future<void>.delayed(Duration.zero);
 
@@ -115,7 +115,7 @@ void main() {
   test('a written down account that is gone is forgotten', () async {
     await initPreferences({PreferencesService.keyQuickAddAccountId: 2});
     final container = makeContainer([accountOf(1, 'Courant')]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
     await Future<void>.delayed(Duration.zero);
 
     expect(container.read(quickAddAccountProvider), 1);
@@ -127,7 +127,7 @@ void main() {
       accountOf(1, 'Courant'),
       accountOf(2, 'Livret'),
     ]);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
     container.read(quickAddAccountProvider.notifier).select(2);
 
     accounts.emit([accountOf(1, 'Courant')]);

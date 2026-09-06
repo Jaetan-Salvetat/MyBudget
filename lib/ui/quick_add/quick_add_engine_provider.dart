@@ -49,6 +49,7 @@ Future<QuickAddEngine> quickAddEngine(Ref ref) async {
     client: client,
     taxonomy: taxonomy,
     prompt: CloudQuickAddPrompt(taxonomy.selectableLeaves),
+    clock: ref.watch(clockProvider),
   );
 }
 

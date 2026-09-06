@@ -1,16 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 
 class SolidCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final BorderRadius? borderRadius;
-
   const SolidCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.borderRadius,
   });
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {

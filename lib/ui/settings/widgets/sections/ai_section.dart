@@ -1,8 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -76,7 +75,7 @@ class AiSection extends ConsumerWidget {
   }
 
   void _open(BuildContext context, Widget screen) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    Navigator.push(context, MaterialPageRoute<void>(builder: (_) => screen));
   }
 
   String _cloudSubtitle(WidgetRef ref) {

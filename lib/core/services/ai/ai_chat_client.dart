@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:openai_dart/openai_dart.dart';
-
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
+import 'package:openai_dart/openai_dart.dart';
 
 abstract interface class AiChatClient {
   Future<String> complete({

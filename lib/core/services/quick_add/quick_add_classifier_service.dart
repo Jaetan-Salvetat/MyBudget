@@ -8,20 +8,22 @@ import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_model_runner.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_tokenizer.dart';
+import 'package:mybudget/core/time/clock.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 class QuickAddClassifierService implements QuickAddEngine {
+  QuickAddClassifierService({
+    required this._tokenizer,
+    required this._modelRunner,
+    required this._taxonomy,
+    required this._clock,
+  });
   static const String _recurringLabel = 'fixe';
 
   final QuickAddTokenizer _tokenizer;
   final QuickAddModelRunner _modelRunner;
   final CategoryTaxonomyService _taxonomy;
-
-  QuickAddClassifierService({
-    required this._tokenizer,
-    required this._modelRunner,
-    required this._taxonomy,
-  });
+  final Clock _clock;
 
   Future<void> load() async {
     await _tokenizer.load();
@@ -31,7 +33,7 @@ class QuickAddClassifierService implements QuickAddEngine {
 
   @override
   Future<QuickAddClassification> classify(String input) async {
-    final facts = QuickAddTextReader.read(input);
+    final facts = QuickAddTextReader.read(input, today: _clock());
     final cleanedText = facts.modelText;
 
     final tokens = _tokenizer.encode(normalizeQuery(cleanedText));

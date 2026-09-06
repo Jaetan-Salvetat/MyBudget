@@ -1,5 +1,5 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 abstract final class CategoryDefaults {
   static const List<int> colors = [

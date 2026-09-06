@@ -22,20 +22,21 @@ void main() {
       final output = tokenizer.encode('café');
 
       expect(output.inputIds.length, QuickAddTokenizer.lengthBuckets.first);
-      expect(output.attentionMask.length, QuickAddTokenizer.lengthBuckets.first);
+      expect(
+        output.attentionMask.length,
+        QuickAddTokenizer.lengthBuckets.first,
+      );
     });
 
     test('pads to a bucket that fits when the input overflows the first', () {
       final text = List.filled(10, 'restaurant').join(' ');
       final output = tokenizer.encode(text);
 
-      expect(output.inputIds.length, greaterThan(
-        QuickAddTokenizer.lengthBuckets.first,
-      ));
       expect(
-        QuickAddTokenizer.lengthBuckets,
-        contains(output.inputIds.length),
+        output.inputIds.length,
+        greaterThan(QuickAddTokenizer.lengthBuckets.first),
       );
+      expect(QuickAddTokenizer.lengthBuckets, contains(output.inputIds.length));
     });
 
     test('always lands on a declared bucket', () {

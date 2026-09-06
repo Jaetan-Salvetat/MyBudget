@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -15,19 +16,18 @@ import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
-const String _defaultFrequency = 'Mensuel';
+const Frequency _defaultFrequency = Frequency.monthly;
 
 class ExpenseFormScreen extends ConsumerStatefulWidget {
-  final List<AccountModel> accounts;
-  final ExpenseModel? expense;
-  final List<ExpenseModel> closedExpenses;
-
   const ExpenseFormScreen({
     required this.accounts,
     this.expense,
     this.closedExpenses = const [],
     super.key,
   });
+  final List<AccountModel> accounts;
+  final ExpenseModel? expense;
+  final List<ExpenseModel> closedExpenses;
 
   static Future<ExpenseModel?> push({
     required BuildContext context,
@@ -37,7 +37,7 @@ class ExpenseFormScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<ExpenseModel>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<ExpenseModel>(
         builder: (_) => ExpenseFormScreen(
           accounts: accounts,
           expense: expense,
@@ -55,8 +55,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   String? _selectedCategorySlug;
-  DateTime _selectedDate = DateTime.now();
-  String _selectedFrequency = _defaultFrequency;
+  late DateTime _selectedDate;
+  Frequency _selectedFrequency = _defaultFrequency;
   int? _selectedAccountId;
   String? _nameError;
   String? _categoryError;
@@ -79,8 +79,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     );
 
     _selectedCategorySlug = widget.expense?.categorySlug;
-    _selectedDate = widget.expense?.startDate ?? DateTime.now();
-    _selectedFrequency = widget.expense?.frequency ?? _defaultFrequency;
+    _selectedDate = widget.expense?.startDate ?? _now;
+    _selectedFrequency = widget.expense?.frequencyEnum ?? _defaultFrequency;
     _selectedAccountId =
         widget.expense?.accountId ??
         (widget.accounts.isNotEmpty ? widget.accounts.first.id : null);
@@ -89,13 +89,15 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     _resetEffectiveMonth();
   }
 
-  Frequency get _frequency => Frequency.fromString(_selectedFrequency);
+  DateTime get _now => ref.read(clockProvider)();
+
+  Frequency get _frequency => _selectedFrequency;
 
   void _resetEffectiveMonth() {
     _effectiveMonth = defaultEffectiveMonth(
       frequency: _frequency,
       anchor: _selectedDate,
-      asOf: DateTime.now(),
+      asOf: _now,
     );
   }
 
@@ -180,6 +182,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
         if (!_isEditing && offersEffectiveMonthChoice(_frequency)) ...[
           const SizedBox(height: 16),
           EffectiveMonthField(
+            now: _now,
             value: _effectiveMonth,
             frequency: _frequency,
             anchor: _selectedDate,
@@ -289,7 +292,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   DateTime _createStartDate() => startDateFor(
     frequency: _frequency,
     anchor: _selectedDate,
-    asOf: DateTime.now(),
+    asOf: _now,
     scope: _effectiveMonth,
   );
 
@@ -325,12 +328,12 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       _nameController.text = closed.name;
       _amountController.text = closed.amount.toString();
       _selectedCategorySlug = closed.categorySlug;
-      _selectedFrequency = closed.frequency;
+      _selectedFrequency = closed.frequencyEnum;
       _selectedAccountId = closed.accountId;
       _selectedBeneficiaryId = closed.beneficiaryId;
       _beneficiaryEnabled = closed.beneficiaryId != null;
       _parentId = closed.parentId ?? closed.id;
-      _selectedDate = DateTime.now();
+      _selectedDate = _now;
       _resetEffectiveMonth();
     });
   }

@@ -1,17 +1,9 @@
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/core/utils/text_normalizer.dart';
 import 'package:mybudget/models/category_override_model.dart';
 
 class CategoryDisplay {
-  final String slug;
-  final String label;
-  final String icon;
-  final int color;
-  final String groupKey;
-  final String groupLabel;
-  final TransactionType type;
-
   const CategoryDisplay({
     required this.slug,
     required this.label,
@@ -21,11 +13,22 @@ class CategoryDisplay {
     required this.groupLabel,
     required this.type,
   });
+  final String slug;
+  final String label;
+  final String icon;
+  final int color;
+  final String groupKey;
+  final String groupLabel;
+  final TransactionType type;
 
   bool get isGroup => slug == groupKey;
 }
 
 class CategoryDisplayResolver {
+  const CategoryDisplayResolver({
+    required this._taxonomy,
+    required this._overrides,
+  });
   static const String uncategorizedKey = '__uncategorized__';
   static const String uncategorizedLabel = 'Non catégorisé';
   static const int uncategorizedColor = 0xFF9E9E9E;
@@ -33,11 +36,6 @@ class CategoryDisplayResolver {
 
   final CategoryTaxonomyService _taxonomy;
   final Map<String, CategoryOverrideModel> _overrides;
-
-  const CategoryDisplayResolver({
-    required this._taxonomy,
-    required this._overrides,
-  });
 
   CategoryDisplay? resolve(String slug) {
     final node = _taxonomy.resolve(slug);

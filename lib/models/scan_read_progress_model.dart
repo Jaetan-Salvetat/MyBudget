@@ -1,12 +1,10 @@
 class ScanReadProgress {
+  const ScanReadProgress({this.storeName, this.date, this.printedTotal});
   final String? storeName;
   final DateTime? date;
   final double? printedTotal;
 
-  const ScanReadProgress({this.storeName, this.date, this.printedTotal});
-
-  bool get isEmpty =>
-      storeName == null && date == null && printedTotal == null;
+  bool get isEmpty => storeName == null && date == null && printedTotal == null;
 
   ScanReadProgress copyWith({
     String? storeName,

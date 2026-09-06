@@ -2,9 +2,8 @@ import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:objectbox/objectbox.dart';
 
 class BeneficiaryRepository {
-  final Box<BeneficiaryModel> _box;
-
   BeneficiaryRepository(this._box);
+  final Box<BeneficiaryModel> _box;
 
   List<BeneficiaryModel> getAll() {
     return _box.getAll();

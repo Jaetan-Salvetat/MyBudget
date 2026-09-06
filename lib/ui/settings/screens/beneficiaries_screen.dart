@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_avatar.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
@@ -228,17 +228,16 @@ String _transactionCount(int count) =>
     '$count transaction${count > 1 ? 's' : ''}';
 
 class _BeneficiaryTile extends StatelessWidget {
-  final Beneficiary beneficiary;
-  final int usageCount;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
   const _BeneficiaryTile({
     required this.beneficiary,
     required this.usageCount,
     required this.onEdit,
     required this.onDelete,
   });
+  final Beneficiary beneficiary;
+  final int usageCount;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -276,9 +275,7 @@ class _EmptyState extends StatelessWidget {
       child: Text(
         'Aucun bénéficiaire',
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }

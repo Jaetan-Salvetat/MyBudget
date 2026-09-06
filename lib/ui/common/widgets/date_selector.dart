@@ -143,7 +143,9 @@ class DateSelector {
                       itemBuilder: (context, index) {
                         final month = index + 1;
                         final isSelected = tempMonth == month;
-                        final monthName = DateFormatter.shortMonth.format(DateTime(initialDate.year, month));
+                        final monthName = DateFormatter.shortMonth.format(
+                          DateTime(initialDate.year, month),
+                        );
                         final label = monthName.replaceFirst(
                           monthName[0],
                           monthName[0].toUpperCase(),
@@ -279,7 +281,9 @@ class DateSelector {
                       itemBuilder: (context, index) {
                         final month = index + 1;
                         final isSelected = tempMonth == month;
-                        final monthName = DateFormatter.shortMonth.format(DateTime(tempYear, month));
+                        final monthName = DateFormatter.shortMonth.format(
+                          DateTime(tempYear, month),
+                        );
                         final label = monthName.replaceFirst(
                           monthName[0],
                           monthName[0].toUpperCase(),
@@ -318,17 +322,16 @@ class DateSelector {
 }
 
 class _DateSelectionItem extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final double fontSize;
-
   const _DateSelectionItem({
     required this.label,
     required this.isSelected,
     required this.onTap,
     this.fontSize = 14,
   });
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {

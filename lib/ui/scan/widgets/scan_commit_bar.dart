@@ -7,6 +7,16 @@ import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 
 class ScanCommitBar extends StatelessWidget {
+  const ScanCommitBar({
+    required this.pendingCount,
+    required this.total,
+    required this.accounts,
+    required this.selectedAccountId,
+    required this.onSelectAccount,
+    required this.onFocusPending,
+    required this.onCommit,
+    super.key,
+  });
   static const String noAccountLabel = 'Créez un compte pour enregistrer';
 
   static String pendingLabelOf(int count) =>
@@ -22,17 +32,6 @@ class ScanCommitBar extends StatelessWidget {
   final ValueChanged<int> onSelectAccount;
   final VoidCallback onFocusPending;
   final VoidCallback onCommit;
-
-  const ScanCommitBar({
-    required this.pendingCount,
-    required this.total,
-    required this.accounts,
-    required this.selectedAccountId,
-    required this.onSelectAccount,
-    required this.onFocusPending,
-    required this.onCommit,
-    super.key,
-  });
 
   AccountModel? get _selected {
     if (accounts.isEmpty) return null;
@@ -132,10 +131,9 @@ class ScanCommitBar extends StatelessWidget {
 }
 
 class _AccountLine extends StatelessWidget {
+  const _AccountLine({required this.label, required this.onTap});
   final String label;
   final VoidCallback onTap;
-
-  const _AccountLine({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

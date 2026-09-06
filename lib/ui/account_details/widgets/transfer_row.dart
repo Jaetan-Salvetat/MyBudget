@@ -9,13 +9,6 @@ import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 
 class TransferRow extends StatelessWidget {
-  final Transfer transfer;
-  final int currentAccountId;
-  final String otherAccountName;
-  final bool showDivider;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
   const TransferRow({
     super.key,
     required this.transfer,
@@ -25,6 +18,12 @@ class TransferRow extends StatelessWidget {
     required this.onDelete,
     this.showDivider = true,
   });
+  final Transfer transfer;
+  final int currentAccountId;
+  final String otherAccountName;
+  final bool showDivider;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   void _showOptionsBottomSheet(BuildContext context) {
     TransactionActionsSheet.show(

@@ -2,13 +2,6 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 
 class QuickAddDemoPhrase {
-  final String text;
-  final double amount;
-  final String categorySlug;
-  final String dateLabel;
-  final TransactionType type;
-  final Frequency frequency;
-
   const QuickAddDemoPhrase({
     required this.text,
     required this.amount,
@@ -17,16 +10,15 @@ class QuickAddDemoPhrase {
     this.type = TransactionType.expense,
     this.frequency = Frequency.oneTime,
   });
+  final String text;
+  final double amount;
+  final String categorySlug;
+  final String dateLabel;
+  final TransactionType type;
+  final Frequency frequency;
 }
 
 class RecurrenceDemo {
-  final String phrase;
-  final String name;
-  final double amount;
-  final String categorySlug;
-  final Frequency frequency;
-  final int reportedMonths;
-
   const RecurrenceDemo({
     required this.phrase,
     required this.name,
@@ -35,28 +27,31 @@ class RecurrenceDemo {
     required this.frequency,
     required this.reportedMonths,
   });
+  final String phrase;
+  final String name;
+  final double amount;
+  final String categorySlug;
+  final Frequency frequency;
+  final int reportedMonths;
 }
 
 class ReceiptDemoLine {
-  final String label;
-  final double amount;
-  final String categorySlug;
-
   const ReceiptDemoLine({
     required this.label,
     required this.amount,
     required this.categorySlug,
   });
+  final String label;
+  final double amount;
+  final String categorySlug;
 }
 
 class ReceiptDemo {
+  const ReceiptDemo({required this.store, required this.lines});
   final String store;
   final List<ReceiptDemoLine> lines;
 
-  const ReceiptDemo({required this.store, required this.lines});
-
-  double get total =>
-      lines.fold<double>(0, (sum, line) => sum + line.amount);
+  double get total => lines.fold<double>(0, (sum, line) => sum + line.amount);
 }
 
 abstract final class OnboardingDemo {

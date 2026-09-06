@@ -84,7 +84,7 @@ void main() {
           reason: group.key,
         );
         expect(
-          (value['subcategories'] as Map<String, dynamic>),
+          value['subcategories'] as Map<String, dynamic>,
           isNotEmpty,
           reason: group.key,
         );

@@ -4,5 +4,7 @@ final RegExp storeGazetteerAssetPattern = RegExp(
   r'^assets/models/store_gazetteer_v\d+\.json$',
 );
 
-Future<String> storeGazetteerAssetFromManifest() =>
-    modelAssetFromManifest(storeGazetteerAssetPattern, "répertoire d'enseignes");
+Future<String> storeGazetteerAssetFromManifest() => modelAssetFromManifest(
+  storeGazetteerAssetPattern,
+  "répertoire d'enseignes",
+);

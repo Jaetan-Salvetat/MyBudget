@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:mybudget/core/time/clock.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ReceiptStorageService {
+  const ReceiptStorageService(this._clock);
   static const _receiptsDirName = 'receipts';
+
+  final Clock _clock;
 
   Future<Directory> _getReceiptsDir() async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -17,7 +20,7 @@ class ReceiptStorageService {
 
   Future<String> saveReceipt(Uint8List imageBytes) async {
     final dir = await _getReceiptsDir();
-    final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final fileName = '${_clock().millisecondsSinceEpoch}.jpg';
     final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(imageBytes);
     return file.path;

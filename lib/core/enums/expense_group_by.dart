@@ -19,26 +19,24 @@ enum ExpenseGroupBy {
 }
 
 class ExpenseDayGroup {
+  const ExpenseDayGroup({required this.date, required this.items});
   final DateTime date;
   final List<ExpenseModel> items;
-
-  const ExpenseDayGroup({required this.date, required this.items});
 
   double get total => items.fold(0, (s, e) => s + e.amount);
 }
 
 class ExpenseWeekGroup {
-  final int weekNumber;
-  final DateTime weekStart;
-  final DateTime weekEnd;
-  final List<ExpenseModel> items;
-
   const ExpenseWeekGroup({
     required this.weekNumber,
     required this.weekStart,
     required this.weekEnd,
     required this.items,
   });
+  final int weekNumber;
+  final DateTime weekStart;
+  final DateTime weekEnd;
+  final List<ExpenseModel> items;
 
   double get total => items.fold(0, (s, e) => s + e.amount);
 }

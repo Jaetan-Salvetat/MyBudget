@@ -16,7 +16,7 @@ void main() {
     amount: amount,
     startDate: DateTime(2026, 8, 5),
     accountId: 1,
-    frequency: Frequency.monthly.label,
+    frequency: Frequency.monthly,
   );
 
   Future<void> pump(WidgetTester tester, RevenueGroup group) {
@@ -45,7 +45,10 @@ void main() {
     );
 
     expect(find.text('ALEX'), findsOneWidget);
-    expect(find.textContaining(PercentFormatter.formatWhole(63)), findsOneWidget);
+    expect(
+      find.textContaining(PercentFormatter.formatWhole(63)),
+      findsOneWidget,
+    );
     expect(find.textContaining('2'), findsWidgets);
   });
 

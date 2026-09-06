@@ -33,7 +33,8 @@ void main() {
     test('back from the dashboard leaves the app', () {
       final container = makeContainer();
 
-      final handled = container.read(homeNavigationProvider.notifier)
+      final handled = container
+          .read(homeNavigationProvider.notifier)
           .handleBack();
 
       expect(handled, isFalse);

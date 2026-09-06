@@ -9,68 +9,31 @@ part of 'loan_edit_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(loanToEdit)
-final loanToEditProvider = LoanToEditProvider._();
-
-final class LoanToEditProvider extends $FunctionalProvider<Loan, Loan, Loan>
-    with $Provider<Loan> {
-  LoanToEditProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'loanToEditProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$loanToEditHash();
-
-  @$internal
-  @override
-  $ProviderElement<Loan> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  Loan create(Ref ref) {
-    return loanToEdit(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Loan value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Loan>(value),
-    );
-  }
-}
-
-String _$loanToEditHash() => r'9fc60950f99cb9d90418fb5292f6b9537bb0ac87';
-
 @ProviderFor(LoanEditNotifier)
-final loanEditProvider = LoanEditNotifierProvider._();
+final loanEditProvider = LoanEditNotifierFamily._();
 
 final class LoanEditNotifierProvider
     extends $NotifierProvider<LoanEditNotifier, LoanEditState> {
-  LoanEditNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'loanEditProvider',
-        isAutoDispose: true,
-        dependencies: <ProviderOrFamily>[loanToEditProvider],
-        $allTransitiveDependencies: <ProviderOrFamily>[
-          LoanEditNotifierProvider.$allTransitiveDependencies0,
-        ],
-      );
-
-  static final $allTransitiveDependencies0 = loanToEditProvider;
+  LoanEditNotifierProvider._({
+    required LoanEditNotifierFamily super.from,
+    required Loan super.argument,
+  }) : super(
+         retry: null,
+         name: r'loanEditProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$loanEditNotifierHash();
+
+  @override
+  String toString() {
+    return r'loanEditProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -83,12 +46,50 @@ final class LoanEditNotifierProvider
       providerOverride: $SyncValueProvider<LoanEditState>(value),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LoanEditNotifierProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-String _$loanEditNotifierHash() => r'cccc074469082f93de1cbeefda281b8f854fc778';
+String _$loanEditNotifierHash() => r'cbb29a6c5e31e44a037f9911e96ee2ca22ea1672';
+
+final class LoanEditNotifierFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          LoanEditNotifier,
+          LoanEditState,
+          LoanEditState,
+          LoanEditState,
+          Loan
+        > {
+  LoanEditNotifierFamily._()
+    : super(
+        retry: null,
+        name: r'loanEditProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  LoanEditNotifierProvider call(Loan loan) =>
+      LoanEditNotifierProvider._(argument: loan, from: this);
+
+  @override
+  String toString() => r'loanEditProvider';
+}
 
 abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
-  LoanEditState build();
+  late final _$args = ref.$arg as Loan;
+  Loan get loan => _$args;
+
+  LoanEditState build(Loan loan);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -101,6 +102,6 @@ abstract class _$LoanEditNotifier extends $Notifier<LoanEditState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

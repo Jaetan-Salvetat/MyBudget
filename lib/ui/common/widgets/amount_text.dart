@@ -6,15 +6,6 @@ import 'package:mybudget/core/theme/text_styles.dart';
 enum AmountDirection { income, expense, neutral }
 
 class AmountText extends StatelessWidget {
-  final double amount;
-  final AmountDirection direction;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final bool showSign;
-  final int decimals;
-  final bool serifItalic;
-  final Color? overrideColor;
-
   const AmountText({
     super.key,
     required this.amount,
@@ -26,6 +17,14 @@ class AmountText extends StatelessWidget {
     this.serifItalic = false,
     this.overrideColor,
   });
+  final double amount;
+  final AmountDirection direction;
+  final double fontSize;
+  final FontWeight fontWeight;
+  final bool showSign;
+  final int decimals;
+  final bool serifItalic;
+  final Color? overrideColor;
 
   @override
   Widget build(BuildContext context) {

@@ -9,13 +9,6 @@ import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class Loan {
-  final LoanModel model;
-  final LoanSchedule schedule;
-  final LoanSchedule contractualSchedule;
-  final List<LoanEvent> events;
-  final double annualPercentageRate;
-  final DateTime asOf;
-
   const Loan({
     required this.model,
     required this.schedule,
@@ -24,6 +17,12 @@ class Loan {
     required this.annualPercentageRate,
     required this.asOf,
   });
+  final LoanModel model;
+  final LoanSchedule schedule;
+  final LoanSchedule contractualSchedule;
+  final List<LoanEvent> events;
+  final double annualPercentageRate;
+  final DateTime asOf;
 
   int get id => model.id;
   String get name => model.name;
@@ -93,10 +92,8 @@ class Loan {
 
   double get costSaved => max(0.0, contractualCost - totalCost);
 
-  int get monthsSaved => max(
-    0,
-    contractualSchedule.installmentCount - schedule.installmentCount,
-  );
+  int get monthsSaved =>
+      max(0, contractualSchedule.installmentCount - schedule.installmentCount);
 
   bool get isCompleted => schedule.isCompletedAt(asOf);
 

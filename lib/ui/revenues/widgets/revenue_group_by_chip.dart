@@ -1,16 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 
 class RevenueGroupByChip extends StatelessWidget {
-  final RevenueGroupBy axis;
-  final VoidCallback onTap;
-
   const RevenueGroupByChip({
     required this.axis,
     required this.onTap,
     super.key,
   });
+  final RevenueGroupBy axis;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

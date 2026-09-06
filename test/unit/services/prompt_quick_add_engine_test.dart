@@ -32,6 +32,8 @@ class _ScriptedChatClient implements AiChatClient {
   void close() {}
 }
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -56,6 +58,7 @@ void main() {
         client: client,
         taxonomy: taxonomy,
         prompt: CloudQuickAddPrompt(taxonomy.selectableLeaves),
+        clock: () => _fixedNow,
       );
 
   setUpAll(() async {
@@ -103,16 +106,19 @@ void main() {
       );
     });
 
-    test('takes the transaction type from the category, not the model', () async {
-      final engine = engineWith(
-        _ScriptedChatClient([answer(slug: 'salaire.salaire_net')]),
-      );
+    test(
+      'takes the transaction type from the category, not the model',
+      () async {
+        final engine = engineWith(
+          _ScriptedChatClient([answer(slug: 'salaire.salaire_net')]),
+        );
 
-      expect(
-        (await engine.classify('salaire 2500')).type,
-        TransactionType.income,
-      );
-    });
+        expect(
+          (await engine.classify('salaire 2500')).type,
+          TransactionType.income,
+        );
+      },
+    );
 
     test('constrains the answer to the taxonomy', () async {
       final client = _ScriptedChatClient([answer()]);
@@ -154,10 +160,9 @@ void main() {
         ]),
       );
 
-      expect(
-        (await engine.classify('resto italien 25')).categorySuggestions,
-        ['restauration.fast_food'],
-      );
+      expect((await engine.classify('resto italien 25')).categorySuggestions, [
+        'restauration.fast_food',
+      ]);
     });
 
     test('retries once when the category is off the taxonomy', () async {

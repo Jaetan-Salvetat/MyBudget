@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/models/revenue_model.dart';
 
 class MockRevenueRepository extends Mock implements RevenueRepository {}
 
@@ -48,21 +49,21 @@ void main() {
       amount: 2000,
       accountId: 1,
       startDate: DateTime(2025, 1, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     final rev2 = RevenueModel.create(
       name: 'Freelance',
       amount: 500,
       accountId: 1,
       startDate: DateTime(2026, 6, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     final rev3 = RevenueModel.create(
       name: 'Bonus',
       amount: 300,
       accountId: 1,
       startDate: DateTime(2024, 12, 31),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2, rev3]);
@@ -74,10 +75,7 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    expect(
-      container.read(monthlyRevenuesProvider),
-      2800.0,
-    );
+    expect(container.read(monthlyRevenuesProvider), 2800.0);
   });
 
   test('getMonthlyRevenues with empty list returns 0.0', () async {
@@ -88,10 +86,7 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    expect(
-      container.read(monthlyRevenuesProvider),
-      0.0,
-    );
+    expect(container.read(monthlyRevenuesProvider), 0.0);
   });
 
   test(
@@ -103,7 +98,7 @@ void main() {
         amount: 6000,
         accountId: 1,
         startDate: DateTime(now.year, now.month, 15),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
@@ -115,10 +110,7 @@ void main() {
 
       await container.read(revenueProvider.future);
 
-      expect(
-        container.read(monthlyRevenuesProvider),
-        6000.0,
-      );
+      expect(container.read(monthlyRevenuesProvider), 6000.0);
     },
   );
 
@@ -132,7 +124,7 @@ void main() {
         amount: 6000,
         accountId: 1,
         startDate: DateTime(now.year, otherMonth, 15),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
@@ -144,10 +136,7 @@ void main() {
 
       await container.read(revenueProvider.future);
 
-      expect(
-        container.read(monthlyRevenuesProvider),
-        0.0,
-      );
+      expect(container.read(monthlyRevenuesProvider), 0.0);
     },
   );
 
@@ -160,7 +149,7 @@ void main() {
         amount: 1000,
         accountId: 1,
         startDate: DateTime(now.year, now.month, 10),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
@@ -172,10 +161,7 @@ void main() {
 
       await container.read(revenueProvider.future);
 
-      expect(
-        container.read(monthlyRevenuesProvider),
-        1000.0,
-      );
+      expect(container.read(monthlyRevenuesProvider), 1000.0);
     },
   );
 
@@ -189,7 +175,7 @@ void main() {
         amount: 1000,
         accountId: 1,
         startDate: DateTime(now.year, otherMonth, 10),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
 
       when(() => mockRepository.getAll()).thenReturn([rev]);
@@ -201,10 +187,7 @@ void main() {
 
       await container.read(revenueProvider.future);
 
-      expect(
-        container.read(monthlyRevenuesProvider),
-        0.0,
-      );
+      expect(container.read(monthlyRevenuesProvider), 0.0);
     },
   );
 
@@ -215,21 +198,21 @@ void main() {
       amount: 2000,
       accountId: 1,
       startDate: DateTime(now.year, now.month, 1),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     final annual = RevenueModel.create(
       name: 'Annual Bonus',
       amount: 3000,
       accountId: 1,
       startDate: DateTime(now.year, now.month, 15),
-      frequency: 'Annuel',
+      frequency: Frequency.annual,
     );
     final oneTime = RevenueModel.create(
       name: 'Gift',
       amount: 500,
       accountId: 1,
       startDate: DateTime(now.year, now.month, 20),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
     );
 
     when(() => mockRepository.getAll()).thenReturn([monthly, annual, oneTime]);
@@ -242,10 +225,7 @@ void main() {
 
     await container.read(revenueProvider.future);
 
-    expect(
-      container.read(monthlyRevenuesProvider),
-      5500.0,
-    );
+    expect(container.read(monthlyRevenuesProvider), 5500.0);
   });
 
   test('getRevenuesForAccount filters by accountId', () async {
@@ -254,14 +234,14 @@ void main() {
       amount: 1000,
       accountId: 1,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     final rev2 = RevenueModel.create(
       name: 'Acc2 revenue',
       amount: 500,
       accountId: 2,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
 
     when(() => mockRepository.getAll()).thenReturn([rev1, rev2]);
@@ -286,7 +266,7 @@ void main() {
       amount: 2000,
       accountId: 1,
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     )..id = 1;
 
     when(() => mockRepository.get(1)).thenReturn(revenue);
@@ -308,7 +288,7 @@ void main() {
       amount: 500,
       accountId: 1,
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
     )..id = 2;
 
     when(() => mockRepository.get(2)).thenReturn(revenue);
@@ -330,7 +310,7 @@ void main() {
       amount: 1000,
       accountId: 1,
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     )..id = 1;
 
     final chainEntry = RevenueModel.create(
@@ -338,7 +318,7 @@ void main() {
       amount: 1000,
       accountId: 1,
       startDate: DateTime(2024, 8, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       parentId: 1,
     )..id = 2;
 
@@ -367,7 +347,7 @@ void main() {
         amount: 2000,
         accountId: 1,
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       )..id = 1;
 
       when(() => mockRepository.get(1)).thenReturn(existing);
@@ -395,7 +375,7 @@ void main() {
         amount: 500,
         accountId: 1,
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       )..id = 1;
 
       when(() => mockRepository.get(1)).thenReturn(existing);
@@ -420,7 +400,7 @@ void main() {
       amount: 1000,
       accountId: 1,
       startDate: DateTime(2024, 1, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       endDate: DateTime(2024, 6, 15),
     )..id = 1;
 

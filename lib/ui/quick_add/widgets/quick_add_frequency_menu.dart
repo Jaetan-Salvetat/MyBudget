@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 
 IconData quickAddFrequencyIcon(Frequency frequency) => switch (frequency) {
@@ -10,6 +10,7 @@ IconData quickAddFrequencyIcon(Frequency frequency) => switch (frequency) {
 };
 
 class QuickAddFrequencyMenu {
+  const QuickAddFrequencyMenu._();
   static const String title = 'Rythme';
 
   static const List<Frequency> options = [
@@ -17,8 +18,6 @@ class QuickAddFrequencyMenu {
     Frequency.monthly,
     Frequency.annual,
   ];
-
-  const QuickAddFrequencyMenu._();
 
   static void show({
     required BuildContext context,

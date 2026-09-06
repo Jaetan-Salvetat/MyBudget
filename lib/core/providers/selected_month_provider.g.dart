@@ -41,7 +41,7 @@ final class SelectedMonthProvider
   }
 }
 
-String _$selectedMonthHash() => r'20f4b6d5dedfc8ff76f930b24c44371a2f806bc7';
+String _$selectedMonthHash() => r'fc2a20b68c4d400e63d795478116044e520afbc1';
 
 abstract class _$SelectedMonth extends $Notifier<DateTime> {
   DateTime build();

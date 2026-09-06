@@ -34,9 +34,7 @@ class ActiveFilterPillsBuilder {
     }
 
     for (final groupKey in filter.groupKeys) {
-      final category = categories
-          .where((c) => c.slug == groupKey)
-          .firstOrNull;
+      final category = categories.where((c) => c.slug == groupKey).firstOrNull;
       pills.add(
         ActiveFilterPill(
           id: 'cat-$groupKey',

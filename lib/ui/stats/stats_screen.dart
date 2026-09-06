@@ -15,9 +15,8 @@ import 'package:mybudget/ui/stats/widgets/monthly_flow_section.dart';
 import 'package:mybudget/ui/stats/widgets/stats_header.dart';
 
 class StatsScreen extends ConsumerWidget {
-  final bool isNested;
-
   const StatsScreen({this.isNested = false, super.key});
+  final bool isNested;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,10 +45,9 @@ class StatsScreen extends ConsumerWidget {
 }
 
 class _Content extends ConsumerWidget {
+  const _Content({required this.onCategoryTap, required this.onMonthTap});
   final ValueChanged<String> onCategoryTap;
   final ValueChanged<DateTime> onMonthTap;
-
-  const _Content({required this.onCategoryTap, required this.onMonthTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -105,9 +103,8 @@ class _Content extends ConsumerWidget {
 }
 
 class _YoungBudgetNotice extends StatelessWidget {
-  final int monthsToGo;
-
   const _YoungBudgetNotice({required this.monthsToGo});
+  final int monthsToGo;
 
   @override
   Widget build(BuildContext context) {

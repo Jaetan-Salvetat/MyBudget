@@ -1,19 +1,19 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:frosted_ui/frosted_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
-import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
+import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -95,9 +95,7 @@ void main() {
     testWidgets('gathers the cloud settings behind a single entry', (
       tester,
     ) async {
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
       await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
@@ -114,9 +112,7 @@ void main() {
     testWidgets('names the selected model under the cloud entry', (
       tester,
     ) async {
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
       await PreferencesService.setAiModel(AiModel.flash37);
       await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
@@ -129,9 +125,7 @@ void main() {
     }, skip: !isCloudQuickAddEngineAvailable);
 
     testWidgets('calls out a remote engine left without a key', (tester) async {
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
 
       await pumpSection(tester);
 
@@ -142,9 +136,7 @@ void main() {
       tester,
     ) async {
       await PreferencesService.setQuickAddEnabled(false);
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
       await ApiKeyService().save(AiProvider.gemini, 'AIzaStored');
 
       await pumpSection(tester);
@@ -164,9 +156,7 @@ void main() {
     testWidgets('hides Gemini Nano while the engine runs in the cloud', (
       tester,
     ) async {
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
 
       await pumpSection(tester, nano: GeminiNanoStatus.available);
 
@@ -191,9 +181,7 @@ void main() {
       expect(find.text('Installé, pas encore utilisé'), findsOneWidget);
     });
 
-    testWidgets('drops the engine entry from the store build', (
-      tester,
-    ) async {
+    testWidgets('drops the engine entry from the store build', (tester) async {
       await pumpSection(tester, flavor: BuildFlavor.store);
 
       expect(find.text('Moteur d\'analyse'), findsNothing);
@@ -259,9 +247,7 @@ void main() {
     testWidgets('reads the current engine under the engine entry', (
       tester,
     ) async {
-      await PreferencesService.setQuickAddEngineMode(
-        QuickAddEngineMode.apiKey,
-      );
+      await PreferencesService.setQuickAddEngineMode(QuickAddEngineMode.apiKey);
 
       await pumpSection(tester);
 

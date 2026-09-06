@@ -1,11 +1,50 @@
-import 'package:mybudget/core/entities/filterable_transaction.dart';
+import 'package:mybudget/core/entities/recurring_transaction.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/utils/json_fields.dart';
 import 'package:objectbox/objectbox.dart';
 
 const _sentinel = Object();
 
 @Entity()
-class RevenueModel implements FilterableTransaction {
+class RevenueModel implements RecurringTransaction<RevenueModel> {
+  RevenueModel() {
+    frequency = Frequency.monthly.storageKey;
+  }
+
+  RevenueModel.create({
+    required this.name,
+    required this.amount,
+    required this.startDate,
+    required this.accountId,
+    required Frequency frequency,
+    this.endDate,
+    this.parentId,
+    this.beneficiaryId,
+    this.categorySlug,
+  }) {
+    this.frequency = frequency.storageKey;
+  }
+
+  factory RevenueModel.fromJson(
+    Map<String, dynamic> json, {
+    required DateTime now,
+  }) {
+    final model = RevenueModel()
+      ..id = json.readInt('id', 0)
+      ..name = json.readString('name', '')
+      ..amount = json.readDouble('amount', 0)
+      ..startDate = json.readFirstDate(const ['startDate', 'date']) ?? now
+      ..endDate = json.readOptionalDate('endDate')
+      ..parentId = json.readOptionalInt('parentId')
+      ..accountId = json.readInt('accountId', 0)
+      ..frequencyEnum = Frequency.fromStorage(
+        json.readString('frequency', Frequency.monthly.storageKey),
+      )
+      ..beneficiaryId = json.readOptionalInt('beneficiaryId')
+      ..categorySlug = json.readOptionalString('categorySlug');
+    return model;
+  }
+  @override
   @Id()
   int id = 0;
 
@@ -27,6 +66,7 @@ class RevenueModel implements FilterableTransaction {
   @override
   DateTime? endDate;
 
+  @override
   int? parentId;
 
   late String frequency;
@@ -38,57 +78,16 @@ class RevenueModel implements FilterableTransaction {
   @override
   String? categorySlug;
 
-  RevenueModel() {
-    frequency = Frequency.monthly.label;
-  }
-
-  RevenueModel.create({
-    required this.name,
-    required this.amount,
-    required this.startDate,
-    required this.accountId,
-    required this.frequency,
-    this.endDate,
-    this.parentId,
-    this.beneficiaryId,
-    this.categorySlug,
-  });
+  @override
+  @override
+  String get storedFrequency => frequency;
 
   @override
-  Frequency get frequencyEnum => Frequency.fromString(frequency);
+  Frequency get frequencyEnum => Frequency.fromStorage(frequency);
 
+  @override
   set frequencyEnum(Frequency value) {
-    frequency = value.label;
-  }
-
-  factory RevenueModel.fromJson(Map<String, dynamic> json) {
-    final dateStr = json['startDate'] ?? json['date'];
-    final model = RevenueModel()
-      ..name = json['name'] ?? ''
-      ..amount = (json['amount'] ?? 0.0).toDouble()
-      ..startDate = dateStr != null
-          ? (DateTime.tryParse(dateStr.toString()) ?? DateTime.now())
-          : DateTime.now()
-      ..endDate = json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'].toString())
-          : null
-      ..parentId = json['parentId'] != null
-          ? int.tryParse(json['parentId'].toString())
-          : null
-      ..accountId = json['accountId'] != null
-          ? (int.tryParse(json['accountId'].toString()) ?? 0)
-          : 0
-      ..frequency = json['frequency'] ?? Frequency.monthly.label
-      ..beneficiaryId = json['beneficiaryId'] != null
-          ? int.tryParse(json['beneficiaryId'].toString())
-          : null
-      ..categorySlug = json['categorySlug'] as String?;
-
-    if (json['id'] != null) {
-      model.id = int.tryParse(json['id'].toString()) ?? 0;
-    }
-
-    return model;
+    frequency = value.storageKey;
   }
 
   RevenueModel copyWith({
@@ -96,7 +95,7 @@ class RevenueModel implements FilterableTransaction {
     double? amount,
     DateTime? startDate,
     int? accountId,
-    String? frequency,
+    Frequency? frequency,
     Object? endDate = _sentinel,
     Object? parentId = _sentinel,
     Object? beneficiaryId = _sentinel,
@@ -108,7 +107,7 @@ class RevenueModel implements FilterableTransaction {
       ..amount = amount ?? this.amount
       ..startDate = startDate ?? this.startDate
       ..accountId = accountId ?? this.accountId
-      ..frequency = frequency ?? this.frequency
+      ..frequency = frequency?.storageKey ?? this.frequency
       ..categorySlug = categorySlug ?? this.categorySlug
       ..endDate = endDate == _sentinel ? this.endDate : endDate as DateTime?
       ..parentId = parentId == _sentinel ? this.parentId : parentId as int?
@@ -117,6 +116,21 @@ class RevenueModel implements FilterableTransaction {
           : beneficiaryId as int?;
     return model;
   }
+
+  @override
+  RevenueModel closedOn(DateTime endDate) => copyWith(endDate: endDate);
+
+  @override
+  RevenueModel forkedAt(DateTime startDate, int rootId) => RevenueModel.create(
+    name: name,
+    amount: amount,
+    categorySlug: categorySlug,
+    startDate: startDate,
+    frequency: frequencyEnum,
+    accountId: accountId,
+    beneficiaryId: beneficiaryId,
+    parentId: rootId,
+  );
 
   Map<String, dynamic> toJson() {
     return {

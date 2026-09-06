@@ -129,7 +129,7 @@ final class QuickAddClassifierProvider
 }
 
 String _$quickAddClassifierHash() =>
-    r'a99512fbd0f13741d051bdea15e264eec87e96ad';
+    r'cad8f9fb3c2380dcaad154bd5e02406bb829d578';
 
 @ProviderFor(legacyBackupUpgrader)
 final legacyBackupUpgraderProvider = LegacyBackupUpgraderProvider._();
@@ -569,7 +569,7 @@ final class CategoryMemoryProvider
   }
 }
 
-String _$categoryMemoryHash() => r'90ec89ba5feadabf4d0267fa3e1446ce11ef2bc5';
+String _$categoryMemoryHash() => r'1885e641cfd1b86190504ae5eeba36c0d2cf0c6f';
 
 @ProviderFor(categoryOverrideRepository)
 final categoryOverrideRepositoryProvider =

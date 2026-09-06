@@ -2,13 +2,6 @@ import 'dart:ui';
 import 'package:material_ui/material_ui.dart';
 
 class FrostedContainer extends StatelessWidget {
-  final Widget child;
-  final double blurStrength;
-  final double opacity;
-  final BorderRadius? borderRadius;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
-
   const FrostedContainer({
     super.key,
     required this.child,
@@ -18,6 +11,12 @@ class FrostedContainer extends StatelessWidget {
     this.padding,
     this.margin,
   });
+  final Widget child;
+  final double blurStrength;
+  final double opacity;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {

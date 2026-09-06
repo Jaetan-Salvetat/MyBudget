@@ -1,8 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
 
 Future<void> showReceiptScanSourceSheet(BuildContext context) {
@@ -41,6 +40,8 @@ Future<void> _pickAndScan(BuildContext context, ImageSource source) async {
   if (picked == null) return;
 
   await navigator.push(
-    MaterialPageRoute(builder: (_) => ScanScreen(image: picked.readAsBytes())),
+    MaterialPageRoute<void>(
+      builder: (_) => ScanScreen(image: picked.readAsBytes()),
+    ),
   );
 }

@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 

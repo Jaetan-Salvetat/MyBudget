@@ -125,20 +125,18 @@ abstract final class PriceParserService {
 }
 
 class PriceParseResult {
+  const PriceParseResult({required this.price, required this.remaining});
   final double price;
   final String remaining;
-
-  const PriceParseResult({required this.price, required this.remaining});
 }
 
 class _PriceMatch {
-  final double value;
-  final int start;
-  final int end;
-
   const _PriceMatch({
     required this.value,
     required this.start,
     required this.end,
   });
+  final double value;
+  final int start;
+  final int end;
 }

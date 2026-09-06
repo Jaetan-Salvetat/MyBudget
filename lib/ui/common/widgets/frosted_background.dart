@@ -1,9 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
 class FrostedBackground extends StatelessWidget {
-  final Widget child;
-
   const FrostedBackground({super.key, required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

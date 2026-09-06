@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
@@ -21,6 +21,8 @@ class MockCategoryOverrideRepository extends Mock
     implements CategoryOverrideRepository {}
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +84,7 @@ void main() {
           home: Scaffold(
             body: TransferBottomSheet(
               accounts: [account],
+              now: _fixedNow,
               transfer: transfer,
               onSubmit: submitted.add,
               onCancel: () {},

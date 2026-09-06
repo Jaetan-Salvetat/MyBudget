@@ -1,18 +1,15 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
-enum QuickAddSendState {
-  idle,
-
-  ready,
-
-  sending,
-
-  sent,
-}
+enum QuickAddSendState { idle, ready, sending, sent }
 
 class QuickAddSendAction extends StatelessWidget {
+  const QuickAddSendAction({
+    required this.state,
+    required this.onSend,
+    super.key,
+  });
   static const double slot = 24;
 
   static const double gap = FrostedSpacing.sp2;
@@ -23,12 +20,6 @@ class QuickAddSendAction extends StatelessWidget {
 
   final QuickAddSendState state;
   final VoidCallback onSend;
-
-  const QuickAddSendAction({
-    required this.state,
-    required this.onSend,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +97,6 @@ class QuickAddSendAction extends StatelessWidget {
 }
 
 class _Glyph extends StatelessWidget {
-  static const double _size = 20;
-
-  final IconData icon;
-  final Color color;
-  final String tooltip;
-  final VoidCallback? onTap;
-
   const _Glyph({
     required this.icon,
     required this.color,
@@ -120,6 +104,12 @@ class _Glyph extends StatelessWidget {
     required this.onTap,
     super.key,
   });
+  static const double _size = 20;
+
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -129,17 +119,18 @@ class _Glyph extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Center(child: Icon(icon, size: _size, color: color)),
+        child: Center(
+          child: Icon(icon, size: _size, color: color),
+        ),
       ),
     );
   }
 }
 
 class _Spinner extends StatelessWidget {
+  const _Spinner({super.key});
   static const double _size = 16;
   static const double _stroke = 2;
-
-  const _Spinner({super.key});
 
   @override
   Widget build(BuildContext context) {

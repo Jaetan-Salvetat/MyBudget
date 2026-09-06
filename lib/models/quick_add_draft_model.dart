@@ -3,6 +3,22 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 
 class QuickAddDraft {
+  const QuickAddDraft({
+    this.input = '',
+    this.analyzedInput = '',
+    this.amount,
+    this.date,
+    this.isDatePinned = false,
+    this.name,
+    this.categorySlug,
+    this.categoryConfidence = 0,
+    this.categorySuggestions = const [],
+    this.type = TransactionType.expense,
+    this.frequency = Frequency.oneTime,
+    this.isFrequencyPinned = false,
+    this.analysisError,
+    this.memoryKey = '',
+  });
   static const double categoryConfidenceThreshold =
       kCategoryConfidenceThreshold;
 
@@ -28,23 +44,6 @@ class QuickAddDraft {
   final String? analysisError;
 
   final String memoryKey;
-
-  const QuickAddDraft({
-    this.input = '',
-    this.analyzedInput = '',
-    this.amount,
-    this.date,
-    this.isDatePinned = false,
-    this.name,
-    this.categorySlug,
-    this.categoryConfidence = 0,
-    this.categorySuggestions = const [],
-    this.type = TransactionType.expense,
-    this.frequency = Frequency.oneTime,
-    this.isFrequencyPinned = false,
-    this.analysisError,
-    this.memoryKey = '',
-  });
 
   static const QuickAddDraft empty = QuickAddDraft();
 

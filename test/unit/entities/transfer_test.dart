@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/entities/transfer.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/transfer_model.dart';
 
 void main() {
@@ -9,7 +10,7 @@ void main() {
       double amount = 600,
       int fromAccountId = 1,
       int toAccountId = 2,
-      String frequency = 'Mensuel',
+      Frequency frequency = Frequency.monthly,
     }) {
       return TransferModel.create(
         name: name,
@@ -42,7 +43,7 @@ void main() {
 
     test('monthlyAmount returns amount directly for monthly frequency', () {
       final transfer = Transfer.fromModel(
-        makeModel(amount: 500, frequency: 'Mensuel'),
+        makeModel(amount: 500, frequency: Frequency.monthly),
       );
 
       expect(transfer.monthlyAmount, 500);
@@ -50,7 +51,7 @@ void main() {
 
     test('monthlyAmount divides by 12 for annual frequency', () {
       final transfer = Transfer.fromModel(
-        makeModel(amount: 1200, frequency: 'Annuel'),
+        makeModel(amount: 1200, frequency: Frequency.annual),
       );
 
       expect(transfer.monthlyAmount, 100);
@@ -58,7 +59,7 @@ void main() {
 
     test('monthlyAmount returns 0 for oneTime frequency', () {
       final transfer = Transfer.fromModel(
-        makeModel(amount: 500, frequency: 'Ponctuel'),
+        makeModel(amount: 500, frequency: Frequency.oneTime),
       );
 
       expect(transfer.monthlyAmount, 0);

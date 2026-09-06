@@ -3,9 +3,8 @@ import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 
 class LegacyLoanDefaultsMigration {
-  final LoanRepository loans;
-
   const LegacyLoanDefaultsMigration({required this.loans});
+  final LoanRepository loans;
 
   Future<void> run() async {
     if (PreferencesService.isLegacyLoanDefaultsMigrationDone()) return;

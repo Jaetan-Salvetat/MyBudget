@@ -6,13 +6,6 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 
 class TaxonomyGroup {
-  final String key;
-  final String label;
-  final String icon;
-  final int color;
-  final TransactionType type;
-  final List<TaxonomyNode> children = [];
-
   TaxonomyGroup({
     required this.key,
     required this.label,
@@ -20,19 +13,18 @@ class TaxonomyGroup {
     required this.color,
     required this.type,
   });
+  final String key;
+  final String label;
+  final String icon;
+  final int color;
+  final TransactionType type;
+  final List<TaxonomyNode> children = [];
 
   List<TaxonomyNode> get selectableChildren =>
       children.where((child) => !child.isDeprecated).toList();
 }
 
 class TaxonomyNode {
-  final String slug;
-  final String label;
-  final String icon;
-  final TaxonomyGroup group;
-  final bool isDeprecated;
-  final String? aliasOf;
-
   const TaxonomyNode({
     required this.slug,
     required this.label,
@@ -41,6 +33,12 @@ class TaxonomyNode {
     required this.isDeprecated,
     required this.aliasOf,
   });
+  final String slug;
+  final String label;
+  final String icon;
+  final TaxonomyGroup group;
+  final bool isDeprecated;
+  final String? aliasOf;
 
   int get color => group.color;
 }
@@ -74,15 +72,16 @@ class CategoryTaxonomyService {
   List<TaxonomyNode> get leaves => List.unmodifiable(_nodes.values);
 
   List<TaxonomyNode> get selectableLeaves => List.unmodifiable(
-    _nodes.values.where(
-      (node) => !node.isDeprecated && node.aliasOf == null,
-    ),
+    _nodes.values.where((node) => !node.isDeprecated && node.aliasOf == null),
   );
 
   Future<void> load() async {
     if (_loaded) return;
 
-    loadFromJson(json.decode(await rootBundle.loadString(assetPath)));
+    loadFromJson(
+      json.decode(await rootBundle.loadString(assetPath))
+          as Map<String, dynamic>,
+    );
   }
 
   @visibleForTesting
@@ -96,7 +95,7 @@ class CategoryTaxonomyService {
     }
 
     for (final section in _sections.entries) {
-      _parseSection(data[section.key], section.value);
+      _parseSection(data[section.key] as Map<String, dynamic>?, section.value);
     }
 
     _loaded = true;

@@ -3,14 +3,6 @@ import 'package:mybudget/core/enums/transaction_type.dart';
 enum JournalEntrySource { expense, revenue, loan }
 
 class JournalEntry {
-  final int id;
-  final JournalEntrySource source;
-  final TransactionType type;
-  final String name;
-  final double amount;
-  final DateTime at;
-  final String? categorySlug;
-
   const JournalEntry({
     required this.id,
     required this.source,
@@ -20,6 +12,13 @@ class JournalEntry {
     required this.at,
     required this.categorySlug,
   });
+  final int id;
+  final JournalEntrySource source;
+  final TransactionType type;
+  final String name;
+  final double amount;
+  final DateTime at;
+  final String? categorySlug;
 
   bool get hasTime => at.hour != 0 || at.minute != 0;
 

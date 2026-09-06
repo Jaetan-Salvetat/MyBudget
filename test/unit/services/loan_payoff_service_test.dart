@@ -179,10 +179,7 @@ void main() {
       expect(quote.settlementDate, DateTime(2027, 3, 5));
       expect(quote.repaidCapital, closeTo(10000, 0.01));
       expect(quote.indemnity, closeTo(150, 0.01));
-      expect(
-        quote.totalDue,
-        closeTo(quote.settlementPayment + 10150, 0.01),
-      );
+      expect(quote.totalDue, closeTo(quote.settlementPayment + 10150, 0.01));
     });
 
     test('excludes the earlier repayment from the outstanding capital', () {

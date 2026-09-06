@@ -2,17 +2,16 @@ import 'package:mybudget/core/entities/loan_installment.dart';
 import 'package:mybudget/core/entities/loan_payment_breakdown.dart';
 
 class LoanSchedule {
-  static const double _settledCapital = 0.005;
-
-  final List<LoanInstallment> installments;
-  final double borrowedAmount;
-  final double fees;
-
   const LoanSchedule({
     required this.installments,
     required this.borrowedAmount,
     this.fees = 0.0,
   });
+  static const double _settledCapital = 0.005;
+
+  final List<LoanInstallment> installments;
+  final double borrowedAmount;
+  final double fees;
 
   bool get isEmpty => installments.isEmpty;
 
@@ -34,7 +33,8 @@ class LoanSchedule {
   double get totalPaid =>
       installments.fold(0.0, (sum, i) => sum + i.totalPayment);
 
-  double get totalCost => totalInterest + totalInsurance + totalIndemnity + fees;
+  double get totalCost =>
+      totalInterest + totalInsurance + totalIndemnity + fees;
 
   double get scheduledMonthlyPayment {
     for (final installment in installments) {

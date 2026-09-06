@@ -4,11 +4,10 @@ import 'package:flutter/painting.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 
 class Beneficiary {
-  final BeneficiaryModel _model;
-
   Beneficiary._(this._model);
 
   factory Beneficiary.fromModel(BeneficiaryModel model) => Beneficiary._(model);
+  final BeneficiaryModel _model;
 
   int get id => _model.id;
   String get name => _model.name;

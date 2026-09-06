@@ -7,12 +7,6 @@ import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class AccountBalanceBreakdown extends StatelessWidget {
-  final double totalRevenues;
-  final double totalExpenses;
-  final double totalLoanPayments;
-  final double totalTransfers;
-  final double balance;
-
   const AccountBalanceBreakdown({
     super.key,
     required this.totalRevenues,
@@ -21,6 +15,11 @@ class AccountBalanceBreakdown extends StatelessWidget {
     required this.totalTransfers,
     required this.balance,
   });
+  final double totalRevenues;
+  final double totalExpenses;
+  final double totalLoanPayments;
+  final double totalTransfers;
+  final double balance;
 
   @override
   Widget build(BuildContext context) {
@@ -113,17 +112,16 @@ class AccountBalanceBreakdown extends StatelessWidget {
 }
 
 class _DecompRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color valueColor;
-
   const _DecompRow({
     required this.icon,
     required this.label,
     required this.value,
     required this.valueColor,
   });
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color valueColor;
 
   @override
   Widget build(BuildContext context) {

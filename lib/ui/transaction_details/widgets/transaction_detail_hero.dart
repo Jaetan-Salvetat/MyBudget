@@ -11,16 +11,6 @@ import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 const String _closedLabel = 'Terminé';
 
 class TransactionDetailHero extends StatelessWidget {
-  final String name;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final Beneficiary? beneficiary;
-  final double amount;
-  final Frequency frequency;
-  final bool isIncome;
-  final bool isClosed;
-
   const TransactionDetailHero({
     required this.name,
     required this.subtitle,
@@ -33,6 +23,15 @@ class TransactionDetailHero extends StatelessWidget {
     this.beneficiary,
     super.key,
   });
+  final String name;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final Beneficiary? beneficiary;
+  final double amount;
+  final Frequency frequency;
+  final bool isIncome;
+  final bool isClosed;
 
   @override
   Widget build(BuildContext context) {
@@ -117,10 +116,9 @@ class TransactionDetailHero extends StatelessWidget {
 }
 
 class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.label, required this.color});
   final String label;
   final Color color;
-
-  const _StatusPill({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

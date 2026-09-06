@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/models/loan_event_model.dart';
-import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 import '../../helpers/loan_test_factory.dart';
@@ -179,10 +179,7 @@ void main() {
         events: [payoffAt(DateTime(2026, 7, 5))],
       );
 
-      expect(
-        settled.annualPercentageRate,
-        contractual.annualPercentageRate,
-      );
+      expect(settled.annualPercentageRate, contractual.annualPercentageRate);
     });
 
     test('reports no savings when there is no event', () {

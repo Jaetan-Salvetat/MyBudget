@@ -3,6 +3,7 @@ import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart'
 import 'package:mybudget/core/utils/text_normalizer.dart';
 
 class LegacyCategoryMapper {
+  const LegacyCategoryMapper(this._taxonomy);
   static const String fallback = 'divers.autre';
 
   static const Map<String, String> _defaultCategorySlugs = {
@@ -16,8 +17,6 @@ class LegacyCategoryMapper {
   };
 
   final CategoryTaxonomyService _taxonomy;
-
-  const LegacyCategoryMapper(this._taxonomy);
 
   String expenseSlugFor(String legacyName) {
     final normalized = TextNormalizer.normalize(legacyName);

@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
 class ScanReadingThread extends StatefulWidget {
+  const ScanReadingThread({super.key});
   static const double thickness = 1.5;
   static const Duration period = Duration(milliseconds: 1600);
   static const double sweepWidth = 0.32;
-
-  const ScanReadingThread({super.key});
 
   @override
   State<ScanReadingThread> createState() => _ScanReadingThreadState();
@@ -58,15 +57,14 @@ class _ScanReadingThreadState extends State<ScanReadingThread>
 }
 
 class _ThreadPainter extends CustomPainter {
-  final double progress;
-  final Color color;
-  final Color track;
-
   _ThreadPainter({
     required this.progress,
     required this.color,
     required this.track,
   });
+  final double progress;
+  final Color color;
+  final Color track;
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
+import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class MockExpenseRepository extends Mock implements ExpenseRepository {}
@@ -51,7 +52,7 @@ void main() {
         amount: 1200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
 
@@ -75,7 +76,7 @@ void main() {
       amount: 100,
       categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     );
 
@@ -100,7 +101,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
       final annual = ExpenseModel.create(
@@ -108,7 +109,7 @@ void main() {
         amount: 1200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
 
@@ -143,7 +144,7 @@ void main() {
       amount: 0,
       categorySlug: 'restauration.cafe',
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     );
 
@@ -169,7 +170,7 @@ void main() {
         amount: 200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, futureDay),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
       final past = ExpenseModel.create(
@@ -177,7 +178,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
 
@@ -205,7 +206,7 @@ void main() {
         amount: 1200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, otherMonth, 15),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
 
@@ -232,7 +233,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 10),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -260,7 +261,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, otherMonth, 10),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -287,7 +288,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 5),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
       final annual = ExpenseModel.create(
@@ -295,7 +296,7 @@ void main() {
         amount: 1200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 10),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
       final oneTime = ExpenseModel.create(
@@ -303,7 +304,7 @@ void main() {
         amount: 300,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 15),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -332,7 +333,7 @@ void main() {
       amount: 400,
       categorySlug: 'restauration.cafe',
       startDate: today.add(const Duration(days: 3)),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
       accountId: 1,
     );
     final alreadyPassed = ExpenseModel.create(
@@ -340,7 +341,7 @@ void main() {
       amount: 400,
       categorySlug: 'restauration.cafe',
       startDate: today.subtract(const Duration(days: 3)),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
       accountId: 1,
     );
 
@@ -370,7 +371,7 @@ void main() {
       amount: 300,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, now.month, futureDay),
-      frequency: 'Annuel',
+      frequency: Frequency.annual,
       accountId: 1,
     );
     final annualOtherMonth = ExpenseModel.create(
@@ -378,7 +379,7 @@ void main() {
       amount: 300,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(now.year, (now.month % 12) + 1, 15),
-      frequency: 'Annuel',
+      frequency: Frequency.annual,
       accountId: 1,
     );
 
@@ -409,7 +410,7 @@ void main() {
         amount: 600,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2020, now.month, 10),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
 
@@ -436,7 +437,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year - 1, now.month, 10),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -463,7 +464,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, now.month, 5),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
       final annual = ExpenseModel.create(
@@ -471,7 +472,7 @@ void main() {
         amount: 600,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, 3, 10),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
         accountId: 1,
       );
       final oneTimeThisYear = ExpenseModel.create(
@@ -479,7 +480,7 @@ void main() {
         amount: 200,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year, 6, 15),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
       final oneTimeOtherYear = ExpenseModel.create(
@@ -487,7 +488,7 @@ void main() {
         amount: 300,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(now.year - 1, 6, 15),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -526,7 +527,7 @@ void main() {
       amount: 800,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     )..id = 1;
 
@@ -549,7 +550,7 @@ void main() {
       amount: 200,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Ponctuel',
+      frequency: Frequency.oneTime,
       accountId: 1,
     )..id = 2;
 
@@ -572,7 +573,7 @@ void main() {
       amount: 100,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 6, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
     )..id = 1;
 
@@ -581,7 +582,7 @@ void main() {
       amount: 100,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 8, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
       parentId: 1,
     )..id = 2;
@@ -611,7 +612,7 @@ void main() {
         amount: 500,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       )..id = 1;
 
@@ -640,7 +641,7 @@ void main() {
         amount: 300,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       )..id = 1;
 
@@ -666,7 +667,7 @@ void main() {
       amount: 100,
       categorySlug: 'restauration.cafe',
       startDate: DateTime(2024, 1, 15),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
       accountId: 1,
       endDate: DateTime(2024, 6, 15),
     )..id = 1;

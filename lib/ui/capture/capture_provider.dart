@@ -1,6 +1,7 @@
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/capture/models/journal_bucket.dart';
@@ -28,7 +29,7 @@ List<JournalBucket> journalBuckets(Ref ref) {
   final expenses = ref.watch(expenseHistoryProvider);
   final revenues = ref.watch(revenueHistoryProvider);
   final loans = ref.watch(loanProvider).value ?? const <Loan>[];
-  final today = dayOnly(DateTime.now());
+  final today = dayOnly(ref.watch(clockProvider)());
 
   final byBucket = <_BucketKey, List<JournalEntry>>{};
 
@@ -193,18 +194,15 @@ _BucketKey _bucketKeyOf(DateTime day, DateTime today) {
   return _BucketKey(kind, switch (kind) {
     JournalBucketKind.today || JournalBucketKind.yesterday => day,
     JournalBucketKind.thisWeek => startOfWeek(today),
-    JournalBucketKind.lastWeek =>
-      startOfWeek(today).subtract(const Duration(days: 7)),
+    JournalBucketKind.lastWeek => startOfWeek(
+      today,
+    ).subtract(const Duration(days: 7)),
     JournalBucketKind.earlierThisMonth ||
     JournalBucketKind.month => DateTime(day.year, day.month),
   });
 }
 
-DateTime? _dayInMonth(
-  DateTime startDate,
-  Frequency frequency,
-  DateTime month,
-) {
+DateTime? _dayInMonth(DateTime startDate, Frequency frequency, DateTime month) {
   if (frequency == Frequency.oneTime) {
     final day = dayOnly(startDate);
     final sameMonth = day.year == month.year && day.month == month.month;
@@ -230,10 +228,9 @@ DateTime _occurrence(DateTime startDate, Frequency frequency, DateTime day) {
 }
 
 class _BucketKey {
+  const _BucketKey(this.kind, this.anchor);
   final JournalBucketKind kind;
   final DateTime anchor;
-
-  const _BucketKey(this.kind, this.anchor);
 
   @override
   bool operator ==(Object other) =>

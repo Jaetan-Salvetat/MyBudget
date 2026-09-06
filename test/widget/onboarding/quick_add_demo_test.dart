@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -41,9 +41,7 @@ void main() {
           theme: AppTheme.light(),
           home: const MediaQuery(
             data: MediaQueryData(disableAnimations: true),
-            child: Scaffold(
-              body: Center(child: QuickAddDemo(isActive: true)),
-            ),
+            child: Scaffold(body: Center(child: QuickAddDemo(isActive: true))),
           ),
         ),
       ),
@@ -72,9 +70,6 @@ void main() {
     final phrase = OnboardingDemo.phrases.first;
 
     expect(find.textContaining('42'), findsWidgets);
-    expect(
-      find.text(phrase.frequency.label.toLowerCase()),
-      findsOneWidget,
-    );
+    expect(find.text(phrase.frequency.label.toLowerCase()), findsOneWidget);
   });
 }

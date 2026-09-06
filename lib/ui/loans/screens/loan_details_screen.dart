@@ -21,9 +21,8 @@ import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_payoff_bottom_sheet.dart';
 
 class LoanDetailsScreen extends ConsumerStatefulWidget {
-  final Loan loan;
-
   const LoanDetailsScreen({required this.loan, super.key});
+  final Loan loan;
 
   @override
   ConsumerState<LoanDetailsScreen> createState() => _LoanDetailsScreenState();
@@ -43,7 +42,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final loans = ref.watch(loanProvider).value ?? [];
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
 
     final exists = loans.any((l) => l.id == loan.id);
     if (!exists) {
@@ -85,9 +84,8 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
                 events: ref
                     .read(loanProvider.notifier)
                     .eventsOf(updatedLoan.id),
-                onDelete: (event) => ref
-                    .read(loanProvider.notifier)
-                    .deleteEvent(event),
+                onDelete: (event) =>
+                    ref.read(loanProvider.notifier).deleteEvent(event),
               ),
             if (updatedLoan.notes != null && updatedLoan.notes!.isNotEmpty) ...[
               const SizedBox(height: 18),
@@ -195,14 +193,8 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         icon: Symbols.trending_down_rounded,
       ),
       if (loan.deferredMonths > 0) ...[
-        DetailRow(
-          label: 'Mois de différé',
-          value: '${loan.deferredMonths}',
-        ),
-        DetailRow(
-          label: 'Type de différé',
-          value: loan.deferralType.label,
-        ),
+        DetailRow(label: 'Mois de différé', value: '${loan.deferredMonths}'),
+        DetailRow(label: 'Type de différé', value: loan.deferralType.label),
       ],
       DetailRow(
         label: 'Date de début',
@@ -212,10 +204,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         label: 'Date de fin',
         value: _dateFormatter.format(loan.endDate),
       ),
-      DetailRow(
-        label: 'Jour de prélèvement',
-        value: 'Le ${loan.dayOfMonth}',
-      ),
+      DetailRow(label: 'Jour de prélèvement', value: 'Le ${loan.dayOfMonth}'),
       if (loan.fees > 0)
         DetailRow(
           label: 'Frais de dossier',
@@ -233,8 +222,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         ),
       DetailRow(
         label: 'TAEG',
-        value:
-            PercentFormatter.formatRate(loan.annualPercentageRate),
+        value: PercentFormatter.formatRate(loan.annualPercentageRate),
         icon: Symbols.percent_rounded,
       ),
       DetailRow(
@@ -335,7 +323,10 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     try {
       await ref.read(loanProvider.notifier).updateLoan(updatedLoanModel);
       if (context.mounted) {
-        FrostedSnackbar.show(context, message: 'Emprunt mis à jour avec succès');
+        FrostedSnackbar.show(
+          context,
+          message: 'Emprunt mis à jour avec succès',
+        );
       }
     } catch (e) {
       if (context.mounted) {

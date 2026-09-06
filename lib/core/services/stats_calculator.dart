@@ -26,19 +26,18 @@ Map<String, double> groupTotalsIn(
 }
 
 class StatsCalculator {
-  static const String loanGroupKey = 'finance';
-
-  final List<ExpenseModel> expenses;
-  final List<RevenueModel> revenues;
-  final List<Loan> loans;
-  final CategoryDisplayResolver? resolver;
-
   const StatsCalculator({
     required this.expenses,
     required this.revenues,
     required this.loans,
     required this.resolver,
   });
+  static const String loanGroupKey = 'finance';
+
+  final List<ExpenseModel> expenses;
+  final List<RevenueModel> revenues;
+  final List<Loan> loans;
+  final CategoryDisplayResolver? resolver;
 
   static List<DateTime> monthsEndingAt(DateTime anchor, int count) => [
     for (var offset = count - 1; offset >= 0; offset--)

@@ -2,9 +2,8 @@ import 'package:mybudget/models/account_model.dart';
 import 'package:objectbox/objectbox.dart';
 
 class AccountRepository {
-  final Box<AccountModel> _box;
-
   AccountRepository(this._box);
+  final Box<AccountModel> _box;
 
   List<AccountModel> getAll() {
     return _box.getAll();

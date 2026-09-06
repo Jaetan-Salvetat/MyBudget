@@ -3,9 +3,9 @@ enum LoanEventType {
 
   earlyRepaymentPartial('Remboursement anticipé partiel');
 
-  final String label;
-
   const LoanEventType(this.label);
+
+  final String label;
 }
 
 enum ReamortizationMode {
@@ -13,10 +13,10 @@ enum ReamortizationMode {
 
   reducePayment('Réduire la mensualité', 'La durée reste identique');
 
+  const ReamortizationMode(this.label, this.description);
+
   final String label;
   final String description;
-
-  const ReamortizationMode(this.label, this.description);
 }
 
 enum EarlyRepaymentExemption {
@@ -28,9 +28,9 @@ enum EarlyRepaymentExemption {
 
   forcedJobLoss('Cessation forcée de l\'activité professionnelle');
 
-  final String label;
-
   const EarlyRepaymentExemption(this.label);
+
+  final String label;
 
   bool get exempts => this != EarlyRepaymentExemption.none;
 }

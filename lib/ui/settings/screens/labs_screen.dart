@@ -1,8 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/models/feature_flag.dart';
 import 'package:mybudget/core/providers/feature_flags_provider.dart';
 import 'package:mybudget/ui/settings/widgets/feature_flag_warning_dialog.dart';

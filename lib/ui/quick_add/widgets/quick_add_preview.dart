@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
@@ -33,7 +34,7 @@ class QuickAddPreview extends ConsumerWidget {
           isIncome: draft.type == TransactionType.income,
           category: _category(context, ref, draft),
           recurrenceLabel: draft.frequency.label,
-          dateLabel: _dateLabel(draft),
+          dateLabel: _dateLabel(ref, draft),
           isStale: draft.isStale,
           onPickCategory: () => _pickCategory(context, ref, draft),
           onPickDate: () => _pickDate(context, ref, draft),
@@ -48,12 +49,12 @@ class QuickAddPreview extends ConsumerWidget {
     );
   }
 
-  String? _dateLabel(QuickAddDraft draft) {
+  String? _dateLabel(WidgetRef ref, QuickAddDraft draft) {
     final date = draft.date;
     if (date == null) return null;
 
     if (draft.frequency == Frequency.oneTime) {
-      final today = DateUtils.dateOnly(DateTime.now());
+      final today = DateUtils.dateOnly(ref.read(clockProvider)());
       final days = today.difference(DateUtils.dateOnly(date)).inDays;
       if (days == 0) return 'Aujourd\'hui';
       if (days == 1) return 'Hier';
@@ -70,7 +71,7 @@ class QuickAddPreview extends ConsumerWidget {
     final picked = await DateSelector.showFor(
       context: context,
       frequency: draft.frequency,
-      initialDate: draft.date ?? DateTime.now(),
+      initialDate: draft.date ?? ref.read(clockProvider)(),
     );
     if (picked == null) return;
     ref.read(quickAddProvider.notifier).selectDate(picked);
@@ -135,9 +136,8 @@ class QuickAddPreview extends ConsumerWidget {
 }
 
 class _AnalysisError extends StatelessWidget {
-  final String message;
-
   const _AnalysisError({required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {

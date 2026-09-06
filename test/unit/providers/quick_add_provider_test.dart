@@ -578,7 +578,7 @@ void main() {
               as RevenueModel;
       expect(revenue.name, 'Salaire');
       expect(revenue.amount, 2500.0);
-      expect(revenue.frequency, Frequency.monthly.label);
+      expect(revenue.frequency, Frequency.monthly.storageKey);
       expect(submission.id, 9);
       expect(submission.type, TransactionType.income);
       verifyNever(() => expenseRepository.add(any()));
@@ -741,7 +741,7 @@ void main() {
       final expense =
           verify(() => expenseRepository.add(captureAny())).captured.single
               as ExpenseModel;
-      expect(expense.frequency, Frequency.monthly.label);
+      expect(expense.frequency, Frequency.monthly.storageKey);
     });
 
     test('a pick is ignored while the reading is stale', () async {

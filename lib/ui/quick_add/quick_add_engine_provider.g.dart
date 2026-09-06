@@ -46,7 +46,7 @@ final class QuickAddEngineProvider
   }
 }
 
-String _$quickAddEngineHash() => r'c5dfb1a7ba5f6901777df126950d3c9f4996d59a';
+String _$quickAddEngineHash() => r'541738acc6ff021bee932dab20bb144030dde610';
 
 @ProviderFor(quickAddWarmUp)
 final quickAddWarmUpProvider = QuickAddWarmUpProvider._();

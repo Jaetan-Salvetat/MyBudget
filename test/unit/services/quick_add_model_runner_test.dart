@@ -56,7 +56,9 @@ void main() {
     });
 
     test('accepts any version the bundle carries', () async {
-      runner = runnerWith(modelAsset: () async => 'assets/models/model_v7.onnx');
+      runner = runnerWith(
+        modelAsset: () async => 'assets/models/model_v7.onnx',
+      );
 
       await runner.load();
 
@@ -67,7 +69,9 @@ void main() {
 
     test('recognises a versioned model asset, and only that', () {
       expect(
-        QuickAddModelRunner.assetPattern.hasMatch('assets/models/model_v2.onnx'),
+        QuickAddModelRunner.assetPattern.hasMatch(
+          'assets/models/model_v2.onnx',
+        ),
         isTrue,
       );
       expect(
@@ -75,7 +79,9 @@ void main() {
         isFalse,
       );
       expect(
-        QuickAddModelRunner.assetPattern.hasMatch('assets/models/tokenizer.bin'),
+        QuickAddModelRunner.assetPattern.hasMatch(
+          'assets/models/tokenizer.bin',
+        ),
         isFalse,
       );
     });

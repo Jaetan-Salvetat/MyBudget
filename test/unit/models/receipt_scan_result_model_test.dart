@@ -21,6 +21,8 @@ ScannedItemModel itemOf({
   );
 }
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   group('ScannedItemModel', () {
     test('un article sans catégorie n\'est pas rangé', () {
@@ -36,12 +38,15 @@ void main() {
       expect(itemOf(confidence: 0.9).isCategoryUncertain, isFalse);
     });
 
-    test('une catégorie confirmée par l\'utilisateur n\'est plus incertaine', () {
-      final item = itemOf(confidence: 0.1, confirmed: true);
+    test(
+      'une catégorie confirmée par l\'utilisateur n\'est plus incertaine',
+      () {
+        final item = itemOf(confidence: 0.1, confirmed: true);
 
-      expect(item.isCategoryUncertain, isFalse);
-      expect(item.needsAttention, isFalse);
-    });
+        expect(item.isCategoryUncertain, isFalse);
+        expect(item.needsAttention, isFalse);
+      },
+    );
 
     test('le montant effectif retire la remise', () {
       expect(itemOf(amount: 8.90, discount: 1.50).effectiveAmount, 7.40);
@@ -49,15 +54,6 @@ void main() {
   });
 
   group('ReceiptScanResultModel', () {
-    test('un ticket sans date lue est daté d\'aujourd\'hui', () {
-      final today = DateTime.now();
-      final result = ReceiptScanResultModel(items: [itemOf()]);
-
-      expect(result.date.year, today.year);
-      expect(result.date.month, today.month);
-      expect(result.date.day, today.day);
-    });
-
     test('une date lue est conservée telle quelle', () {
       final read = DateTime(2026, 8, 31);
       final result = ReceiptScanResultModel(date: read, items: [itemOf()]);
@@ -67,6 +63,7 @@ void main() {
 
     ReceiptScanResultModel resultOf({double? printedTotal}) {
       return ReceiptScanResultModel(
+        date: _fixedNow,
         printedTotal: printedTotal,
         items: [
           itemOf(amount: 2.87),
@@ -101,6 +98,7 @@ void main() {
 
     test('les dépenses suivent l\'ordre d\'apparition des catégories', () {
       final result = ReceiptScanResultModel(
+        date: _fixedNow,
         items: [
           itemOf(amount: 2.0, slug: 'maison.entretien'),
           itemOf(amount: 3.0, slug: 'alimentation.boulangerie'),
@@ -119,6 +117,7 @@ void main() {
 
     test('un article non rangé ne crée aucune dépense', () {
       final result = ReceiptScanResultModel(
+        date: _fixedNow,
         items: [itemOf(slug: null, confidence: 0)],
       );
 
@@ -127,6 +126,7 @@ void main() {
 
     test('les articles à confirmer sont comptés', () {
       final result = ReceiptScanResultModel(
+        date: _fixedNow,
         items: [
           itemOf(),
           itemOf(confidence: 0.2),

@@ -29,9 +29,7 @@ void main() {
   );
 
   testWidgets('renders an empty state without categories', (tester) async {
-    await tester.pumpWidget(
-      host(const CategoryBreakdownSection(slices: [])),
-    );
+    await tester.pumpWidget(host(const CategoryBreakdownSection(slices: [])));
 
     expect(find.text('Aucune dépense ce mois-ci'), findsOneWidget);
   });

@@ -1,5 +1,1 @@
-enum RecurringDeletion {
-  afterThisMonth,
-
-  includingThisMonth,
-}
+enum RecurringDeletion { afterThisMonth, includingThisMonth }

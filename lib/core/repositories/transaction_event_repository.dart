@@ -3,19 +3,15 @@ import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/objectbox.g.dart';
 
 class TransactionEventRepository {
-  final Box<TransactionEventModel> _box;
-
   TransactionEventRepository(this._box);
+  final Box<TransactionEventModel> _box;
 
   List<TransactionEventModel> getForRoot(int rootId, TransactionType type) {
     final query = _box
         .query(TransactionEventModel_.rootId.equals(rootId))
         .build();
     try {
-      return query
-          .find()
-          .where((event) => event.typeEnum == type)
-          .toList();
+      return query.find().where((event) => event.typeEnum == type).toList();
     } finally {
       query.close();
     }
@@ -26,9 +22,7 @@ class TransactionEventRepository {
   }
 
   void deleteForRoot(int rootId, TransactionType type) {
-    _box.removeMany([
-      for (final event in getForRoot(rootId, type)) event.id,
-    ]);
+    _box.removeMany([for (final event in getForRoot(rootId, type)) event.id]);
   }
 
   void deleteAll() {

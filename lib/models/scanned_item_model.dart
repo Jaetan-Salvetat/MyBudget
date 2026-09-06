@@ -1,16 +1,6 @@
 import 'package:mybudget/core/constants/category_confidence.dart';
 
 class ScannedItemModel {
-  final String name;
-  final double amount;
-  final double discount;
-  final String? categoryName;
-  final String? categorySlug;
-
-  final double categoryConfidence;
-
-  final bool confirmedByUser;
-
   const ScannedItemModel({
     required this.name,
     required this.amount,
@@ -20,6 +10,15 @@ class ScannedItemModel {
     this.categoryConfidence = 0,
     this.confirmedByUser = false,
   });
+  final String name;
+  final double amount;
+  final double discount;
+  final String? categoryName;
+  final String? categorySlug;
+
+  final double categoryConfidence;
+
+  final bool confirmedByUser;
 
   double get effectiveAmount => amount - discount;
 

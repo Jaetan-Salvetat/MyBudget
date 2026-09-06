@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';

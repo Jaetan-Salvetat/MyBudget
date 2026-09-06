@@ -4,11 +4,6 @@ import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpenseDayHeader extends StatelessWidget {
-  final DateTime date;
-  final int count;
-  final double total;
-  final bool isToday;
-
   const ExpenseDayHeader({
     required this.date,
     required this.count,
@@ -16,6 +11,10 @@ class ExpenseDayHeader extends StatelessWidget {
     required this.isToday,
     super.key,
   });
+  final DateTime date;
+  final int count;
+  final double total;
+  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +36,6 @@ class ExpenseDayHeader extends StatelessWidget {
 }
 
 class ExpenseWeekHeader extends StatelessWidget {
-  final int weekNumber;
-  final DateTime weekStart;
-  final DateTime weekEnd;
-  final int count;
-  final double total;
-
   const ExpenseWeekHeader({
     required this.weekNumber,
     required this.weekStart,
@@ -51,6 +44,11 @@ class ExpenseWeekHeader extends StatelessWidget {
     required this.total,
     super.key,
   });
+  final int weekNumber;
+  final DateTime weekStart;
+  final DateTime weekEnd;
+  final int count;
+  final double total;
 
   @override
   Widget build(BuildContext context) {
@@ -68,17 +66,16 @@ class ExpenseWeekHeader extends StatelessWidget {
 }
 
 class _GroupHeader extends StatelessWidget {
-  final String title;
-  final double total;
-  final int count;
-  final Color color;
-
   const _GroupHeader({
     required this.title,
     required this.total,
     required this.count,
     required this.color,
   });
+  final String title;
+  final double total;
+  final int count;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {

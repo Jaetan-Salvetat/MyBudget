@@ -1,29 +1,28 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/common/providers/frequent_categories_provider.dart';
 import 'package:mybudget/ui/common/widgets/category_tile.dart';
-import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/common/widgets/expandable_group.dart';
+import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/common/widgets/search_input.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class CategoryPickerSheet extends ConsumerStatefulWidget {
-  static const String expensesLabel = 'Dépenses';
-  static const String incomeLabel = 'Revenus';
-
-  final TransactionType? type;
-  final String? selectedSlug;
-  final List<String> suggestions;
-
   const CategoryPickerSheet({
     super.key,
     this.type = TransactionType.expense,
     this.selectedSlug,
     this.suggestions = const [],
   });
+  static const String expensesLabel = 'Dépenses';
+  static const String incomeLabel = 'Revenus';
+
+  final TransactionType? type;
+  final String? selectedSlug;
+  final List<String> suggestions;
 
   static Future<String?> show(
     BuildContext context, {
@@ -148,7 +147,8 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           for (final leaf in frequent)
             _leafTile(leaf, subtitle: leaf.groupLabel),
         ],
-        if (widget.type != null && (suggestions.isNotEmpty || frequent.isNotEmpty))
+        if (widget.type != null &&
+            (suggestions.isNotEmpty || frequent.isNotEmpty))
           const _SectionLabel('Toutes les catégories'),
         ..._groupSections(resolver),
       ],
@@ -159,9 +159,8 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     final spansBothTypes = widget.type == null;
 
     return [
-      for (final type in spansBothTypes
-          ? TransactionType.values
-          : [widget.type!]) ...[
+      for (final type
+          in spansBothTypes ? TransactionType.values : [widget.type!]) ...[
         if (spansBothTypes)
           _SectionLabel(
             type == TransactionType.expense
@@ -200,13 +199,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
 }
 
 class _GroupSection extends StatelessWidget {
-  final CategoryDisplay group;
-  final List<CategoryDisplay> children;
-  final bool expanded;
-  final VoidCallback onToggle;
-  final Widget Function(CategoryDisplay leaf, {String? subtitle, bool indented})
-  leafBuilder;
-
   const _GroupSection({
     required this.group,
     required this.children,
@@ -214,6 +206,12 @@ class _GroupSection extends StatelessWidget {
     required this.onToggle,
     required this.leafBuilder,
   });
+  final CategoryDisplay group;
+  final List<CategoryDisplay> children;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final Widget Function(CategoryDisplay leaf, {String? subtitle, bool indented})
+  leafBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -232,9 +230,8 @@ class _GroupSection extends StatelessWidget {
 }
 
 class _SectionLabel extends StatelessWidget {
-  final String label;
-
   const _SectionLabel(this.label);
+  final String label;
 
   @override
   Widget build(BuildContext context) {

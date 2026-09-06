@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../helpers/scan_review_factory.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
@@ -11,6 +10,10 @@ import 'package:mybudget/ui/scan/widgets/scan_output_summary.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
+
+import '../../helpers/scan_review_factory.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 ReceiptScanResultModel receipt({double? printedTotal}) {
   return scanResult(
@@ -41,6 +44,7 @@ Future<void> pumpReview(
     scanHarness(
       ScanReviewView(
         result: result,
+        now: _fixedNow,
         resolve: resolveCategory,
         reveal: AlwaysStoppedAnimation<double>(reveal),
         onStoreChanged: onStoreChanged ?? (_) {},
@@ -167,9 +171,7 @@ void main() {
   });
 
   testWidgets('un article non rangé ne crée aucune dépense', (tester) async {
-    final result = scanResult(
-      items: [scannedItem(slug: null, confidence: 0)],
-    );
+    final result = scanResult(items: [scannedItem(slug: null, confidence: 0)]);
     await pumpReview(tester, result);
     await scrollToSummary(tester);
 
@@ -196,6 +198,7 @@ void main() {
 
   testWidgets('une date non lue devient la date du jour', (tester) async {
     final result = ReceiptScanResultModel(
+      date: _fixedNow,
       storeName: 'Carrefour Market',
       items: [scannedItem()],
     );
@@ -204,7 +207,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(ScanReceiptHeader),
-        matching: find.text(DateFormatter.longDate.format(DateTime.now())),
+        matching: find.text(DateFormatter.longDate.format(_fixedNow)),
       ),
       findsOneWidget,
     );

@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/expense_group_by.dart';
 import 'package:mybudget/core/providers/expenses_view_provider.dart';
@@ -56,16 +56,16 @@ void main() {
     final transfers = MockTransferRepository();
     final beneficiaries = MockBeneficiaryRepository();
 
-    when(() => accounts.getAll()).thenReturn([]);
-    when(() => expenses.getActive()).thenReturn([]);
-    when(() => expenses.getClosed()).thenReturn([]);
-    when(() => loans.getAll()).thenReturn([]);
-    when(() => loanEvents.getAll()).thenReturn([]);
-    when(() => overrides.getAll()).thenReturn({});
-    when(() => revenues.getActive()).thenReturn([]);
-    when(() => revenues.getClosed()).thenReturn([]);
-    when(() => transfers.getAll()).thenReturn([]);
-    when(() => beneficiaries.getAll()).thenReturn([]);
+    when(accounts.getAll).thenReturn([]);
+    when(expenses.getActive).thenReturn([]);
+    when(expenses.getClosed).thenReturn([]);
+    when(loans.getAll).thenReturn([]);
+    when(loanEvents.getAll).thenReturn([]);
+    when(overrides.getAll).thenReturn({});
+    when(revenues.getActive).thenReturn([]);
+    when(revenues.getClosed).thenReturn([]);
+    when(transfers.getAll).thenReturn([]);
+    when(beneficiaries.getAll).thenReturn([]);
 
     container = ProviderContainer(
       overrides: [

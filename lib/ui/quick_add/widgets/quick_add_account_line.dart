@@ -1,20 +1,19 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/quick_add/quick_add_account_provider.dart';
 
 class QuickAddAccountLine extends ConsumerWidget {
-  final VoidCallback onNoAccount;
-
   const QuickAddAccountLine({required this.onNoAccount, super.key});
+  final VoidCallback onNoAccount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
     final selectedId = ref.watch(quickAddAccountProvider);
 
     if (accounts.isEmpty) {
@@ -71,15 +70,14 @@ class QuickAddAccountLine extends ConsumerWidget {
 }
 
 class _Line extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-  final bool showChevron;
-
   const _Line({
     required this.label,
     required this.onTap,
     required this.showChevron,
   });
+  final String label;
+  final VoidCallback? onTap;
+  final bool showChevron;
 
   @override
   Widget build(BuildContext context) {

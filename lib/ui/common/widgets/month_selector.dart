@@ -6,9 +6,8 @@ import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
 class MonthSelector extends ConsumerWidget {
-  final AlignmentGeometry alignment;
-
   const MonthSelector({super.key, this.alignment = Alignment.center});
+  final AlignmentGeometry alignment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,10 +76,9 @@ class MonthSelector extends ConsumerWidget {
 }
 
 class _ChevronButton extends StatelessWidget {
+  const _ChevronButton({required this.icon, required this.onPressed});
   final IconData icon;
   final VoidCallback onPressed;
-
-  const _ChevronButton({required this.icon, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

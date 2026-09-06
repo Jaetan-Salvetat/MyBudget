@@ -9,33 +9,28 @@ import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 
 class ParsedBeneficiary {
+  const ParsedBeneficiary({required this.oldId, required this.model});
   final int oldId;
   final BeneficiaryModel model;
-  const ParsedBeneficiary({required this.oldId, required this.model});
 }
 
 class ParsedAccount {
+  const ParsedAccount({required this.oldId, required this.model});
   final int oldId;
   final AccountModel model;
-  const ParsedAccount({required this.oldId, required this.model});
 }
 
 class ParsedCategoryOverride {
-  final CategoryOverrideModel model;
   const ParsedCategoryOverride({required this.model});
+  final CategoryOverrideModel model;
 }
 
 class ParsedCategoryMemory {
-  final CategoryMemoryModel model;
   const ParsedCategoryMemory({required this.model});
+  final CategoryMemoryModel model;
 }
 
 class ParsedExpense {
-  final int oldId;
-  final int? oldAccountId;
-  final int? oldBeneficiaryId;
-  final int? oldParentId;
-  final ExpenseModel model;
   const ParsedExpense({
     required this.oldId,
     required this.model,
@@ -43,14 +38,14 @@ class ParsedExpense {
     this.oldBeneficiaryId,
     this.oldParentId,
   });
-}
-
-class ParsedRevenue {
   final int oldId;
   final int? oldAccountId;
   final int? oldBeneficiaryId;
   final int? oldParentId;
-  final RevenueModel model;
+  final ExpenseModel model;
+}
+
+class ParsedRevenue {
   const ParsedRevenue({
     required this.oldId,
     required this.model,
@@ -58,31 +53,31 @@ class ParsedRevenue {
     this.oldBeneficiaryId,
     this.oldParentId,
   });
+  final int oldId;
+  final int? oldAccountId;
+  final int? oldBeneficiaryId;
+  final int? oldParentId;
+  final RevenueModel model;
 }
 
 class ParsedLoan {
-  final int oldId;
-  final int? oldAccountId;
-  final LoanModel model;
   const ParsedLoan({
     required this.model,
     required this.oldId,
     this.oldAccountId,
   });
+  final int oldId;
+  final int? oldAccountId;
+  final LoanModel model;
 }
 
 class ParsedLoanEvent {
+  const ParsedLoanEvent({required this.model, required this.oldLoanId});
   final int oldLoanId;
   final LoanEventModel model;
-  const ParsedLoanEvent({required this.model, required this.oldLoanId});
 }
 
 class ParsedTransfer {
-  final int oldId;
-  final int? oldFromAccountId;
-  final int? oldToAccountId;
-  final int? oldParentId;
-  final TransferModel model;
   const ParsedTransfer({
     required this.oldId,
     required this.model,
@@ -90,21 +85,14 @@ class ParsedTransfer {
     this.oldToAccountId,
     this.oldParentId,
   });
+  final int oldId;
+  final int? oldFromAccountId;
+  final int? oldToAccountId;
+  final int? oldParentId;
+  final TransferModel model;
 }
 
 class ImportValidationResult {
-  final bool isValid;
-  final List<ParsedBeneficiary> beneficiaries;
-  final List<ParsedAccount> accounts;
-  final List<ParsedCategoryOverride> categoryOverrides;
-  final List<ParsedCategoryMemory> categoryMemory;
-  final List<ParsedExpense> expenses;
-  final List<ParsedRevenue> revenues;
-  final List<ParsedLoan> loans;
-  final List<ParsedLoanEvent> loanEvents;
-  final List<ParsedTransfer> transfers;
-  final List<String> errors;
-
   const ImportValidationResult({
     required this.isValid,
     this.beneficiaries = const [],
@@ -118,6 +106,17 @@ class ImportValidationResult {
     this.transfers = const [],
     this.errors = const [],
   });
+  final bool isValid;
+  final List<ParsedBeneficiary> beneficiaries;
+  final List<ParsedAccount> accounts;
+  final List<ParsedCategoryOverride> categoryOverrides;
+  final List<ParsedCategoryMemory> categoryMemory;
+  final List<ParsedExpense> expenses;
+  final List<ParsedRevenue> revenues;
+  final List<ParsedLoan> loans;
+  final List<ParsedLoanEvent> loanEvents;
+  final List<ParsedTransfer> transfers;
+  final List<String> errors;
 
   bool get hasCategoryOverrides => categoryOverrides.isNotEmpty;
 

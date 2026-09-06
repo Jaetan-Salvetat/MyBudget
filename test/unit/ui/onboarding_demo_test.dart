@@ -14,19 +14,22 @@ void main() {
     await taxonomy.load();
   });
 
-  test('chaque catégorie de démo est une catégorie vivante de la taxonomie', () {
-    final selectable = taxonomy.selectableLeaves
-        .map((node) => node.slug)
-        .toSet();
+  test(
+    'chaque catégorie de démo est une catégorie vivante de la taxonomie',
+    () {
+      final selectable = taxonomy.selectableLeaves
+          .map((node) => node.slug)
+          .toSet();
 
-    for (final slug in OnboardingDemo.slugs) {
-      expect(
-        selectable,
-        contains(slug),
-        reason: '$slug est absent de la taxonomie ou déprécié',
-      );
-    }
-  });
+      for (final slug in OnboardingDemo.slugs) {
+        expect(
+          selectable,
+          contains(slug),
+          reason: '$slug est absent de la taxonomie ou déprécié',
+        );
+      }
+    },
+  );
 
   test('les catégories montrées à la saisie sont connues du modèle', () {
     for (final slug in OnboardingDemo.quickAddSlugs) {

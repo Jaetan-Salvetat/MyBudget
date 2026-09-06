@@ -35,16 +35,19 @@ void main() {
       expect(resolver.resolve(flag: disabledByDefault), isFalse);
     });
 
-    test('laisse le choix utilisateur écraser le défaut dans les deux sens', () {
-      expect(
-        resolver.resolve(flag: enabledByDefault, userChoice: false),
-        isFalse,
-      );
-      expect(
-        resolver.resolve(flag: disabledByDefault, userChoice: true),
-        isTrue,
-      );
-    });
+    test(
+      'laisse le choix utilisateur écraser le défaut dans les deux sens',
+      () {
+        expect(
+          resolver.resolve(flag: enabledByDefault, userChoice: false),
+          isFalse,
+        );
+        expect(
+          resolver.resolve(flag: disabledByDefault, userChoice: true),
+          isTrue,
+        );
+      },
+    );
 
     test('n\'éteint rien quand le disjoncteur est injoignable', () {
       expect(resolver.resolve(flag: enabledByDefault), isTrue);

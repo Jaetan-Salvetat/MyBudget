@@ -52,7 +52,7 @@ void main() {
     final source = legacyBackup();
     upgrader.upgrade(source);
 
-    expect(source['categories'], isA<List>());
+    expect(source['categories'], isA<List<Map<String, dynamic>>>());
     expect(
       (source['expenses'] as List).first as Map<String, dynamic>,
       containsPair('categoryId', '1'),
@@ -82,8 +82,7 @@ void main() {
     };
 
     final upgraded = upgrader.upgrade(data);
-    final first =
-        (upgraded['expenses'] as List).first as Map<String, dynamic>;
+    final first = (upgraded['expenses'] as List).first as Map<String, dynamic>;
 
     expect(first['categorySlug'], 'divers.animaux');
   });

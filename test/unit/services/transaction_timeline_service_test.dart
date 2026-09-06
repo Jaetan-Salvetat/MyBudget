@@ -48,10 +48,7 @@ void main() {
 
   test('a revision tells the price it left and the one it took', () {
     final timeline = timelineOf([
-      version(
-        startDate: DateTime(2026, 1, 10),
-        endDate: DateTime(2026, 3, 20),
-      ),
+      version(startDate: DateTime(2026, 1, 10), endDate: DateTime(2026, 3, 20)),
       version(amount: 900, startDate: DateTime(2026, 4, 10)),
     ]);
 
@@ -64,10 +61,7 @@ void main() {
 
   test('a revision is dated on the day it was decided', () {
     final timeline = timelineOf([
-      version(
-        startDate: DateTime(2026, 1, 10),
-        endDate: DateTime(2026, 3, 20),
-      ),
+      version(startDate: DateTime(2026, 1, 10), endDate: DateTime(2026, 3, 20)),
       version(amount: 900, startDate: DateTime(2026, 4, 10)),
     ]);
 
@@ -81,10 +75,7 @@ void main() {
 
   test('a renaming, a new rhythm, a new account and a new payee all show', () {
     final timeline = timelineOf([
-      version(
-        startDate: DateTime(2026, 1, 10),
-        endDate: DateTime(2026, 3, 20),
-      ),
+      version(startDate: DateTime(2026, 1, 10), endDate: DateTime(2026, 3, 20)),
       version(
         name: 'Loyer appart',
         startDate: DateTime(2026, 4, 10),
@@ -107,10 +98,7 @@ void main() {
 
   test('a closed rule tells when it ended', () {
     final timeline = timelineOf([
-      version(
-        startDate: DateTime(2026, 1, 10),
-        endDate: DateTime(2026, 3, 20),
-      ),
+      version(startDate: DateTime(2026, 1, 10), endDate: DateTime(2026, 3, 20)),
     ]);
 
     expect(timeline.first.change, TransactionChange.closed);
@@ -151,14 +139,11 @@ void main() {
       ],
     );
 
-    expect(
-      timeline.map((entry) => entry.change).toList(),
-      [
-        TransactionChange.amount,
-        TransactionChange.category,
-        TransactionChange.created,
-      ],
-    );
+    expect(timeline.map((entry) => entry.change).toList(), [
+      TransactionChange.amount,
+      TransactionChange.category,
+      TransactionChange.created,
+    ]);
   });
 
   test('refuses a rule without any version', () {

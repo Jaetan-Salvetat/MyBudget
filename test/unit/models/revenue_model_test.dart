@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/revenue_model.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   group('RevenueModel', () {
@@ -9,7 +12,7 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       expect(revenue.name, 'Test');
@@ -22,7 +25,7 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       final updated = revenue.copyWith(name: 'New', amount: 200);
@@ -38,12 +41,12 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
-      final updated = revenue.copyWith(frequency: 'Annuel');
+      final updated = revenue.copyWith(frequency: Frequency.annual);
 
-      expect(updated.frequency, 'Annuel');
+      expect(updated.frequency, Frequency.annual.storageKey);
       expect(updated.name, 'Test');
     });
 
@@ -53,26 +56,26 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       final annual = RevenueModel.create(
         name: 'A',
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
       final oneTime = RevenueModel.create(
         name: 'O',
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
 
-      expect(monthly.frequency, 'Mensuel');
-      expect(annual.frequency, 'Annuel');
-      expect(oneTime.frequency, 'Ponctuel');
+      expect(monthly.frequency, Frequency.monthly.storageKey);
+      expect(annual.frequency, Frequency.annual.storageKey);
+      expect(oneTime.frequency, Frequency.oneTime.storageKey);
     });
 
     test('toJson includes frequency', () {
@@ -81,12 +84,12 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
 
       final json = revenue.toJson();
 
-      expect(json['frequency'], 'Annuel');
+      expect(json['frequency'], Frequency.annual.storageKey);
     });
 
     test('fromJson with frequency', () {
@@ -99,9 +102,9 @@ void main() {
         'frequency': 'Ponctuel',
       };
 
-      final revenue = RevenueModel.fromJson(json);
+      final revenue = RevenueModel.fromJson(json, now: _fixedNow);
 
-      expect(revenue.frequency, 'Ponctuel');
+      expect(revenue.frequency, Frequency.oneTime.storageKey);
     });
 
     test('fromJson without frequency defaults to Mensuel', () {
@@ -113,9 +116,9 @@ void main() {
         'startDate': '2024-01-01T00:00:00.000',
       };
 
-      final revenue = RevenueModel.fromJson(json);
+      final revenue = RevenueModel.fromJson(json, now: _fixedNow);
 
-      expect(revenue.frequency, 'Mensuel');
+      expect(revenue.frequency, Frequency.monthly.storageKey);
     });
 
     test('copyWith with endDate and parentId using sentinel pattern', () {
@@ -124,7 +127,7 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       )..id = 1;
 
       final withValues = original.copyWith(
@@ -149,7 +152,7 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         endDate: DateTime(2024, 6, 15),
         parentId: 3,
       )..id = 1;
@@ -166,7 +169,7 @@ void main() {
         amount: 100,
         accountId: 1,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       final json = revenue.toJson();
@@ -187,7 +190,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final revenue = RevenueModel.fromJson(json);
+      final revenue = RevenueModel.fromJson(json, now: _fixedNow);
 
       expect(revenue.endDate, DateTime(2024, 6, 15));
       expect(revenue.parentId, 3);
@@ -203,7 +206,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final revenue = RevenueModel.fromJson(json);
+      final revenue = RevenueModel.fromJson(json, now: _fixedNow);
 
       expect(revenue.endDate, isNull);
       expect(revenue.parentId, isNull);
@@ -219,7 +222,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final revenue = RevenueModel.fromJson(json);
+      final revenue = RevenueModel.fromJson(json, now: _fixedNow);
 
       expect(revenue.startDate, DateTime(2024, 3, 20));
     });

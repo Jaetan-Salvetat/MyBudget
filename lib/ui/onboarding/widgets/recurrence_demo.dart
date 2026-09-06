@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -12,12 +13,11 @@ import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class RecurrenceDemoView extends ConsumerStatefulWidget {
+  const RecurrenceDemoView({required this.isActive, super.key});
   static const Duration monthDelay = Duration(milliseconds: 320);
   static const Duration monthFade = Duration(milliseconds: 380);
 
   final bool isActive;
-
-  const RecurrenceDemoView({required this.isActive, super.key});
 
   @override
   ConsumerState<RecurrenceDemoView> createState() => _RecurrenceDemoViewState();
@@ -64,14 +64,13 @@ class _RecurrenceDemoViewState extends ConsumerState<RecurrenceDemoView>
   double _monthOpacity(int index) {
     final total = _controller.duration!.inMilliseconds;
     final start = RecurrenceDemoView.monthDelay.inMilliseconds * index / total;
-    final end =
-        start + RecurrenceDemoView.monthFade.inMilliseconds / total;
+    final end = start + RecurrenceDemoView.monthFade.inMilliseconds / total;
 
     return Interval(start, end.clamp(0.0, 1.0)).transform(_controller.value);
   }
 
   List<DateTime> _months() {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
 
     return List.generate(
       _demo.reportedMonths,
@@ -112,9 +111,8 @@ class _RecurrenceDemoViewState extends ConsumerState<RecurrenceDemoView>
 }
 
 class _Phrase extends StatelessWidget {
-  final String text;
-
   const _Phrase({required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -144,17 +142,16 @@ class _Phrase extends StatelessWidget {
 }
 
 class _MonthRow extends StatelessWidget {
-  static const double _pendingAlpha = 0.55;
-
-  final DateTime month;
-  final CategoryDisplay? display;
-  final bool isFirst;
-
   const _MonthRow({
     required this.month,
     required this.display,
     required this.isFirst,
   });
+  static const double _pendingAlpha = 0.55;
+
+  final DateTime month;
+  final CategoryDisplay? display;
+  final bool isFirst;
 
   @override
   Widget build(BuildContext context) {
@@ -200,9 +197,7 @@ class _MonthRow extends StatelessWidget {
           ),
           Text(
             _amount(),
-            style: AppTextStyles.amount(
-              color: context.financeColors.expense,
-            ),
+            style: AppTextStyles.amount(color: context.financeColors.expense),
           ),
         ],
       ),

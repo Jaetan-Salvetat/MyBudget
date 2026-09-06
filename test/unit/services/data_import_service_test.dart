@@ -1,10 +1,10 @@
-import 'package:mybudget/core/repositories/category_memory_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/models/category_override_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
+import 'package:mybudget/core/repositories/category_memory_repository.dart';
+import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
@@ -12,15 +12,15 @@ import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/data_import_service.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/models/category_override_model.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transfer_model.dart';
 
 import '../../helpers/loan_test_factory.dart';
-import 'package:mybudget/models/revenue_model.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -57,6 +57,8 @@ class MockCategoryOverrideRepository extends Mock
 
 class MockCategoryMemoryRepository extends Mock
     implements CategoryMemoryRepository {}
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   late MockAccountRepository mockAccountRepo;
@@ -105,6 +107,7 @@ void main() {
       loanEventRepo: mockLoanEventRepo,
       loanService: testLoanService,
       transferRepo: mockTransferRepo,
+      clock: () => _fixedNow,
     );
   });
 
@@ -524,8 +527,9 @@ void main() {
       final validated = service.validate(data);
       final report = service.execute(validated);
 
-      final captured = verify(() => mockLoanEventRepo.add(captureAny()))
-          .captured;
+      final captured = verify(
+        () => mockLoanEventRepo.add(captureAny()),
+      ).captured;
       final event = captured.first as LoanEventModel;
 
       expect(event.loanId, 42);

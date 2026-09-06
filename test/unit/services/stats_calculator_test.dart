@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/entities/loan_installment.dart';
 import 'package:mybudget/core/entities/loan_schedule.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/stats_calculator.dart';
@@ -22,7 +23,7 @@ void main() {
   ExpenseModel expense({
     required double amount,
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
     String? categorySlug,
     DateTime? endDate,
   }) {
@@ -40,7 +41,7 @@ void main() {
   RevenueModel revenue({
     required double amount,
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
   }) {
     return RevenueModel.create(
       name: 'Revenu',
@@ -146,7 +147,7 @@ void main() {
           expense(
             amount: 250,
             startDate: DateTime(2026, 2, 14),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
         ],
       );
@@ -202,7 +203,7 @@ void main() {
           expense(
             amount: 100,
             startDate: DateTime(2026, 3, 5),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
         ],
       );
@@ -223,12 +224,12 @@ void main() {
           expense(
             amount: 100,
             startDate: DateTime(2026, 2, 5),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
           expense(
             amount: 40,
             startDate: DateTime(2026, 4, 5),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
         ],
       );
@@ -329,7 +330,7 @@ void main() {
           expense(
             amount: 500,
             startDate: DateTime(2026, 2, 8),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
         ],
         loans: [
@@ -346,7 +347,7 @@ void main() {
           expense(
             amount: 300,
             startDate: DateTime(2025, 2, 20),
-            frequency: 'Annuel',
+            frequency: Frequency.annual,
           ),
         ],
       );
@@ -366,7 +367,7 @@ void main() {
           revenue(
             amount: 800,
             startDate: DateTime(2026, 2, 8),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
           ),
         ],
       );
@@ -377,9 +378,7 @@ void main() {
     test('counts a revenue only from the month it starts', () {
       final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
       final calculator = calculatorWith(
-        revenues: [
-          revenue(amount: 2000, startDate: DateTime(2026, 3, 5)),
-        ],
+        revenues: [revenue(amount: 2000, startDate: DateTime(2026, 3, 5))],
       );
 
       expect(calculator.recurringIncomesOver(months), 2000);

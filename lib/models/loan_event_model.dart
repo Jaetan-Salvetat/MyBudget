@@ -4,6 +4,39 @@ import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class LoanEventModel {
+  LoanEventModel({
+    this.id = 0,
+    required this.loanId,
+    required this.date,
+    this.typeId = 'earlyRepaymentPartial',
+    this.amount = 0.0,
+    this.reamortizationModeId = 'reduceDuration',
+    this.exemptionId = 'none',
+  });
+
+  factory LoanEventModel.fromJson(
+    Map<String, dynamic> json, {
+    required DateTime now,
+  }) {
+    dynamic resolve(String camelKey, String snakeKey) =>
+        json[camelKey] ?? json[snakeKey];
+
+    return LoanEventModel(
+      id: int.tryParse((json['id'] ?? '0').toString()) ?? 0,
+      loanId:
+          int.tryParse((resolve('loanId', 'loan_id') ?? '0').toString()) ?? 0,
+      typeId:
+          (resolve('typeId', 'type_id') as String?) ?? 'earlyRepaymentPartial',
+      date: DateTime.tryParse((json['date'] ?? '').toString()) ?? now,
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      reamortizationModeId:
+          (resolve('reamortizationModeId', 'reamortization_mode_id')
+              as String?) ??
+          'reduceDuration',
+      exemptionId:
+          (resolve('exemptionId', 'exemption_id') as String?) ?? 'none',
+    );
+  }
   @Id()
   int id = 0;
 
@@ -43,16 +76,6 @@ class LoanEventModel {
       );
 
   set exemption(EarlyRepaymentExemption value) => exemptionId = value.name;
-
-  LoanEventModel({
-    this.id = 0,
-    required this.loanId,
-    required this.date,
-    this.typeId = 'earlyRepaymentPartial',
-    this.amount = 0.0,
-    this.reamortizationModeId = 'reduceDuration',
-    this.exemptionId = 'none',
-  });
 
   static LoanEventModel create({
     required int loanId,
@@ -95,8 +118,7 @@ class LoanEventModel {
       typeId: type?.name ?? typeId,
       date: date ?? this.date,
       amount: amount ?? this.amount,
-      reamortizationModeId:
-          reamortizationMode?.name ?? reamortizationModeId,
+      reamortizationModeId: reamortizationMode?.name ?? reamortizationModeId,
       exemptionId: exemption?.name ?? exemptionId,
     );
   }
@@ -110,23 +132,4 @@ class LoanEventModel {
     'reamortizationModeId': reamortizationModeId,
     'exemptionId': exemptionId,
   };
-
-  factory LoanEventModel.fromJson(Map<String, dynamic> json) {
-    dynamic resolve(String camelKey, String snakeKey) =>
-        json[camelKey] ?? json[snakeKey];
-
-    return LoanEventModel(
-      id: int.tryParse((json['id'] ?? '0').toString()) ?? 0,
-      loanId: int.tryParse((resolve('loanId', 'loan_id') ?? '0').toString()) ?? 0,
-      typeId:
-          (resolve('typeId', 'type_id') as String?) ?? 'earlyRepaymentPartial',
-      date: DateTime.tryParse((json['date'] ?? '').toString()) ?? DateTime.now(),
-      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-      reamortizationModeId:
-          (resolve('reamortizationModeId', 'reamortization_mode_id')
-              as String?) ??
-          'reduceDuration',
-      exemptionId: (resolve('exemptionId', 'exemption_id') as String?) ?? 'none',
-    );
-  }
 }

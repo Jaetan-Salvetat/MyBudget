@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
@@ -19,6 +20,10 @@ import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'quick_add_provider.g.dart';
+
+final quickAddAnalysisDebounceProvider = Provider<Duration>(
+  (ref) => QuickAddNotifier.analysisDebounce,
+);
 
 @riverpod
 class QuickAddNotifier extends _$QuickAddNotifier {
@@ -49,7 +54,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
     state = _instantDraft(input);
 
     final seq = _analysisSeq;
-    _debounce = Timer(analysisDebounce, () {
+    _debounce = Timer(ref.read(quickAddAnalysisDebounceProvider), () {
       _analysisRun = _analyze(input, seq);
     });
   }
@@ -104,7 +109,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
               name: name,
               amount: amount,
               startDate: startDate,
-              frequency: draft.frequency.label,
+              frequency: draft.frequency,
               accountId: accountId,
               categorySlug: categorySlug,
             ),
@@ -118,7 +123,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
               amount: amount,
               categorySlug: categorySlug,
               startDate: startDate,
-              frequency: draft.frequency.label,
+              frequency: draft.frequency,
               accountId: accountId,
             ),
           );
@@ -133,7 +138,7 @@ class QuickAddNotifier extends _$QuickAddNotifier {
   }
 
   DateTime _recordedAt(DateTime? date) {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     if (date == null) return now;
     if (date.year == now.year &&
         date.month == now.month &&
@@ -177,7 +182,10 @@ class QuickAddNotifier extends _$QuickAddNotifier {
 
   QuickAddDraft _instantDraft(String input) {
     final previous = state;
-    final facts = QuickAddTextReader.read(input);
+    final facts = QuickAddTextReader.read(
+      input,
+      today: ref.read(clockProvider)(),
+    );
     return QuickAddDraft(
       input: input,
       analyzedInput: previous.analyzedInput,
@@ -247,7 +255,10 @@ class QuickAddNotifier extends _$QuickAddNotifier {
 
   QuickAddDraft _failedDraft(String input, String message) {
     final previous = state;
-    final facts = QuickAddTextReader.read(input);
+    final facts = QuickAddTextReader.read(
+      input,
+      today: ref.read(clockProvider)(),
+    );
     return QuickAddDraft(
       input: input,
       analyzedInput: input,

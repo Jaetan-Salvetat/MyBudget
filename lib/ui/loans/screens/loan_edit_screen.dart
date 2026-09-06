@@ -9,15 +9,16 @@ import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
 
 class LoanEditScreen extends ConsumerStatefulWidget {
+  const LoanEditScreen({required this.loan, required this.accounts, super.key});
+  final Loan loan;
   final List<AccountModel> accounts;
-
-  const LoanEditScreen({required this.accounts, super.key});
 
   static Future<LoanModel?> push({
     required BuildContext context,
@@ -26,11 +27,8 @@ class LoanEditScreen extends ConsumerStatefulWidget {
   }) {
     return Navigator.push<LoanModel>(
       context,
-      MaterialPageRoute(
-        builder: (_) => ProviderScope(
-          overrides: [loanToEditProvider.overrideWithValue(loan)],
-          child: LoanEditScreen(accounts: accounts),
-        ),
+      MaterialPageRoute<LoanModel>(
+        builder: (_) => LoanEditScreen(loan: loan, accounts: accounts),
       ),
     );
   }
@@ -47,7 +45,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
   @override
   void initState() {
     super.initState();
-    final initialState = ref.read(loanEditProvider);
+    final initialState = ref.read(loanEditProvider(widget.loan));
 
     _nameController = TextEditingController(text: initialState.name);
     _lenderController = TextEditingController(text: initialState.lenderName);
@@ -58,16 +56,18 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
     );
 
     _nameController.addListener(
-      () => ref.read(loanEditProvider.notifier).setName(_nameController.text),
+      () => ref
+          .read(loanEditProvider(widget.loan).notifier)
+          .setName(_nameController.text),
     );
     _lenderController.addListener(
       () => ref
-          .read(loanEditProvider.notifier)
+          .read(loanEditProvider(widget.loan).notifier)
           .setLenderName(_lenderController.text),
     );
     _insuranceValueController.addListener(
       () => ref
-          .read(loanEditProvider.notifier)
+          .read(loanEditProvider(widget.loan).notifier)
           .setInsuranceValue(_insuranceValueController.text),
     );
   }
@@ -80,10 +80,15 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
     super.dispose();
   }
 
+  DateTime _dayOfMonthAnchor(int dayOfMonth) {
+    final DateTime now = ref.read(clockProvider)();
+    return DateTime(now.year, now.month, dayOfMonth);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(loanEditProvider);
-    final notifier = ref.read(loanEditProvider.notifier);
+    final state = ref.watch(loanEditProvider(widget.loan));
+    final notifier = ref.read(loanEditProvider(widget.loan).notifier);
 
     return FrostedScaffold(
       appBar: FrostedTopBar(
@@ -325,11 +330,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
             onTap: () async {
               final selectedDate = await DateSelector.showDayPicker(
                 context: context,
-                initialDate: DateTime(
-                  DateTime.now().year,
-                  DateTime.now().month,
-                  state.dayOfMonth,
-                ),
+                initialDate: _dayOfMonthAnchor(state.dayOfMonth),
               );
               if (selectedDate != null) {
                 notifier.setDayOfMonth(selectedDate.day);

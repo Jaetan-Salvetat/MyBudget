@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/core/formatting/locales.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
+import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';

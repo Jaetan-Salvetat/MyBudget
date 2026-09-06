@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/models/expense_model.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   group('ExpenseModel', () {
@@ -10,14 +12,14 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
 
       expect(expense.frequencyEnum, Frequency.monthly);
 
       expense.frequencyEnum = Frequency.annual;
-      expect(expense.frequency, 'Annuel');
+      expect(expense.frequency, Frequency.annual.storageKey);
     });
 
     test('copyWith should preserve other fields', () {
@@ -26,7 +28,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       )..id = 5;
 
@@ -35,7 +37,7 @@ void main() {
       expect(copy.id, 5);
       expect(copy.name, 'Copy');
       expect(copy.amount, 100);
-      expect(copy.frequency, 'Mensuel');
+      expect(copy.frequency, Frequency.monthly.storageKey);
     });
 
     test('copyWith with endDate and parentId using sentinel pattern', () {
@@ -44,7 +46,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       )..id = 1;
 
@@ -70,7 +72,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
         endDate: DateTime(2024, 6, 15),
         parentId: 3,
@@ -88,7 +90,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
 
@@ -111,7 +113,7 @@ void main() {
         'accountId': '1',
       };
 
-      final expense = ExpenseModel.fromJson(json);
+      final expense = ExpenseModel.fromJson(json, now: _fixedNow);
 
       expect(expense.endDate, DateTime(2024, 6, 15));
       expect(expense.parentId, 3);
@@ -128,7 +130,7 @@ void main() {
         'accountId': '1',
       };
 
-      final expense = ExpenseModel.fromJson(json);
+      final expense = ExpenseModel.fromJson(json, now: _fixedNow);
 
       expect(expense.endDate, isNull);
       expect(expense.parentId, isNull);
@@ -140,7 +142,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
       );
 
@@ -162,7 +164,7 @@ void main() {
         amount: 50,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
         accountId: 1,
         receiptPath: '/receipts/123.jpg',
       );
@@ -177,7 +179,7 @@ void main() {
         amount: 100,
         categorySlug: 'restauration.cafe',
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         accountId: 1,
       );
 
@@ -197,7 +199,7 @@ void main() {
         'receiptPath': '/receipts/123.jpg',
       };
 
-      final expense = ExpenseModel.fromJson(json);
+      final expense = ExpenseModel.fromJson(json, now: _fixedNow);
       expect(expense.receiptPath, '/receipts/123.jpg');
     });
 
@@ -212,7 +214,7 @@ void main() {
         'accountId': '1',
       };
 
-      final expense = ExpenseModel.fromJson(json);
+      final expense = ExpenseModel.fromJson(json, now: _fixedNow);
       expect(expense.receiptPath, isNull);
     });
 
@@ -227,7 +229,7 @@ void main() {
         'accountId': '1',
       };
 
-      final expense = ExpenseModel.fromJson(json);
+      final expense = ExpenseModel.fromJson(json, now: _fixedNow);
 
       expect(expense.startDate, DateTime(2024, 3, 20));
     });

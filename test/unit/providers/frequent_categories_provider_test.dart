@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -47,7 +48,7 @@ void main() {
     categorySlug: slug,
     accountId: 1,
     startDate: DateTime(2026, 1, day),
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
   );
 
   RevenueModel revenue(String? slug) => RevenueModel.create(
@@ -56,7 +57,7 @@ void main() {
     categorySlug: slug,
     accountId: 1,
     startDate: DateTime(2026, 1, 1),
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
   );
 
   Future<List<String>> slugsFor(TransactionType? type) async {
@@ -140,13 +141,12 @@ void main() {
   });
 
   test('ranks expenses and revenues together when no type is given', () async {
-    when(() => expenseRepository.getActive()).thenReturn([
-      expense('transport.carburant'),
-    ]);
-    when(() => revenueRepository.getActive()).thenReturn([
-      revenue('salaire.prime'),
-      revenue('salaire.prime'),
-    ]);
+    when(
+      () => expenseRepository.getActive(),
+    ).thenReturn([expense('transport.carburant')]);
+    when(
+      () => revenueRepository.getActive(),
+    ).thenReturn([revenue('salaire.prime'), revenue('salaire.prime')]);
 
     expect(await slugsFor(null), ['salaire.prime', 'transport.carburant']);
   });

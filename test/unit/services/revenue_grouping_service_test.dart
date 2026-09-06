@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 
@@ -36,7 +36,7 @@ void main() {
       amount: amount,
       startDate: DateTime(2026, 8, 5),
       accountId: accountId,
-      frequency: frequency.label,
+      frequency: frequency,
       beneficiaryId: beneficiaryId,
       categorySlug: categorySlug,
     );

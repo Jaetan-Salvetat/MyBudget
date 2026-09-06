@@ -91,7 +91,7 @@ final class ReceiptScanComposerProvider
 }
 
 String _$receiptScanComposerHash() =>
-    r'5929bea723a0e84dc4a8f4004b8f347be224d2ac';
+    r'8a3b6591dd87079a203a99e5a4a27844c5b86563';
 
 @ProviderFor(nanoReceiptReader)
 final nanoReceiptReaderProvider = NanoReceiptReaderProvider._();
@@ -362,7 +362,7 @@ final class ScanNotifierProvider
   }
 }
 
-String _$scanNotifierHash() => r'f871515c83fd74f1972922982d6a7fefdf9aace6';
+String _$scanNotifierHash() => r'1d6eb6373ecd205f5e5128619fa4f02d855ed11f';
 
 abstract class _$ScanNotifier
     extends $Notifier<AsyncValue<ReceiptScanResultModel?>> {

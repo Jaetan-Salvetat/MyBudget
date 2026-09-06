@@ -1,10 +1,4 @@
 class UpcomingItemData {
-  final String name;
-  final double amount;
-  final int day;
-  final String type;
-  final String? categoryIcon;
-
   const UpcomingItemData({
     required this.name,
     required this.amount,
@@ -12,6 +6,11 @@ class UpcomingItemData {
     required this.type,
     this.categoryIcon,
   });
+  final String name;
+  final double amount;
+  final int day;
+  final String type;
+  final String? categoryIcon;
 
   Map<String, dynamic> toJson() => {
     'name': name,

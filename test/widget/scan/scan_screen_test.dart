@@ -13,13 +13,13 @@ import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/scan_screen.dart';
 import 'package:mybudget/ui/scan/widgets/scan_commit_bar.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_list.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reading_thread.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 import '../../helpers/scan_review_factory.dart';
 
@@ -41,7 +41,7 @@ class _StubAccounts extends AccountNotifier {
   final List<AccountModel> _accounts;
 
   @override
-  Future<List<AccountModel>> build() async => _accounts;
+  List<AccountModel> build() => _accounts;
 }
 
 late CategoryTaxonomyService taxonomy;
@@ -85,7 +85,10 @@ void main() {
     await pumpScreen(tester, const AsyncLoading());
 
     expect(find.byType(ScanReadingThread), findsOneWidget);
-    expect(find.text(ScanReceiptHeader.readingLabel.toUpperCase()), findsOneWidget);
+    expect(
+      find.text(ScanReceiptHeader.readingLabel.toUpperCase()),
+      findsOneWidget,
+    );
     expect(find.byType(ScanItemList), findsNothing);
     expect(find.byType(ScanCommitBar), findsNothing);
 
@@ -105,7 +108,9 @@ void main() {
           ],
         ),
       ),
-      accounts: [AccountModel.create(name: 'Compte courant', bank: 'B')..id = 1],
+      accounts: [
+        AccountModel.create(name: 'Compte courant', bank: 'B')..id = 1,
+      ],
     );
     await tester.pump(const Duration(seconds: 2));
 

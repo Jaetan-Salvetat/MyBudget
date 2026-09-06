@@ -2,11 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
+import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/repositories/expense_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
@@ -36,7 +37,7 @@ void main() {
 
   ExpenseModel subscription({
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
   }) {
     final expense = ExpenseModel.create(
       name: 'VPS',
@@ -231,7 +232,7 @@ void main() {
     test('is removed for good, whenever it was', () async {
       final expense = subscription(
         startDate: today.subtract(const Duration(days: 3)),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
 
       await (await notifierWith(expense)).deleteExpense(7);
@@ -271,12 +272,8 @@ void main() {
       ]) {
         final held = [closed!, opened!]
             .where(
-              (e) => occursInMonth(
-                e.startDate,
-                e.endDate,
-                e.frequencyEnum,
-                month,
-              ),
+              (e) =>
+                  occursInMonth(e.startDate, e.endDate, e.frequencyEnum, month),
             )
             .length;
         expect(held, 1, reason: 'month $month');
@@ -609,8 +606,9 @@ void main() {
 
   group('the trail an edit leaves behind', () {
     List<TransactionEventModel> recorded() {
-      return verify(() => events.add(captureAny())).captured
-          .cast<TransactionEventModel>();
+      return verify(
+        () => events.add(captureAny()),
+      ).captured.cast<TransactionEventModel>();
     }
 
     test('a refiling is written down, the chain cannot tell it', () async {
@@ -644,7 +642,7 @@ void main() {
     test('a new price on a one-off is written down', () async {
       final expense = subscription(
         startDate: DateTime(today.year, today.month, 1),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
       final notifier = await notifierWith(expense);
 

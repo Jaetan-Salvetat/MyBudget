@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/models/loan_model.dart';
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   group('LoanModel toJson/fromJson', () {
     late LoanModel original;
@@ -49,7 +51,7 @@ void main() {
 
     test('fromJson round-trip preserves all fields', () {
       final json = original.toJson();
-      final restored = LoanModel.fromJson(json);
+      final restored = LoanModel.fromJson(json, now: _fixedNow);
 
       expect(restored.id, original.id);
       expect(restored.name, original.name);
@@ -92,7 +94,7 @@ void main() {
         'notes': null,
       };
 
-      final model = LoanModel.fromJson(legacyJson);
+      final model = LoanModel.fromJson(legacyJson, now: _fixedNow);
 
       expect(model.id, 10);
       expect(model.name, 'Prêt auto');
@@ -114,7 +116,7 @@ void main() {
 
     test('fromJson uses defaults for missing fields', () {
       final minimalJson = <String, dynamic>{};
-      final model = LoanModel.fromJson(minimalJson);
+      final model = LoanModel.fromJson(minimalJson, now: _fixedNow);
 
       expect(model.id, 0);
       expect(model.name, '');
@@ -135,7 +137,7 @@ void main() {
     test('fromJson with notes null produces null notes', () {
       final json = original.toJson();
       json['notes'] = null;
-      final model = LoanModel.fromJson(json);
+      final model = LoanModel.fromJson(json, now: _fixedNow);
       expect(model.notes, isNull);
     });
   });

@@ -28,11 +28,14 @@ ScannedItemModel itemOf({
   );
 }
 
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
+
 void main() {
   late ProviderContainer container;
 
   ReceiptScanResultModel seedOf(List<ScannedItemModel> items) {
     return ReceiptScanResultModel(
+      date: _fixedNow,
       storeName: 'Carrefour',
       printedTotal: 10.0,
       items: items,

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -117,7 +118,7 @@ void main() {
   ExpenseModel expense({
     required double amount,
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
     String? categorySlug,
   }) => ExpenseModel.create(
     name: 'Dépense',
@@ -131,7 +132,7 @@ void main() {
   RevenueModel revenue({
     required double amount,
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
   }) => RevenueModel.create(
     name: 'Revenu',
     amount: amount,
@@ -165,7 +166,11 @@ void main() {
       final state = await readState(
         expenses: [
           expense(amount: 100, startDate: monthsAgo(11)),
-          expense(amount: 600, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+          expense(
+            amount: 600,
+            startDate: monthsAgo(1),
+            frequency: Frequency.oneTime,
+          ),
         ],
         revenues: [revenue(amount: 1000, startDate: monthsAgo(11))],
       );
@@ -189,7 +194,11 @@ void main() {
       final state = await readState(
         expenses: [
           expense(amount: 600, startDate: monthsAgo(5)),
-          expense(amount: 900, startDate: monthsAgo(0), frequency: 'Ponctuel'),
+          expense(
+            amount: 900,
+            startDate: monthsAgo(0),
+            frequency: Frequency.oneTime,
+          ),
         ],
         revenues: [revenue(amount: 2000, startDate: monthsAgo(5))],
       );
@@ -205,7 +214,11 @@ void main() {
         expenses: [expense(amount: 600, startDate: monthsAgo(5))],
         revenues: [
           revenue(amount: 2000, startDate: monthsAgo(5)),
-          revenue(amount: 1000, startDate: monthsAgo(0), frequency: 'Ponctuel'),
+          revenue(
+            amount: 1000,
+            startDate: monthsAgo(0),
+            frequency: Frequency.oneTime,
+          ),
         ],
       );
 
@@ -226,7 +239,11 @@ void main() {
       final state = await readState(
         expenses: [
           expense(amount: 600, startDate: monthsAgo(5)),
-          expense(amount: 300, startDate: monthsAgo(8), frequency: 'Annuel'),
+          expense(
+            amount: 300,
+            startDate: monthsAgo(8),
+            frequency: Frequency.annual,
+          ),
         ],
         revenues: [revenue(amount: 2000, startDate: monthsAgo(5))],
       );
@@ -250,7 +267,13 @@ void main() {
 
     test('keeps the twelve month rate when the range is six months', () async {
       final state = await readState(
-        expenses: [expense(amount: 300, startDate: monthsAgo(8), frequency: 'Annuel')],
+        expenses: [
+          expense(
+            amount: 300,
+            startDate: monthsAgo(8),
+            frequency: Frequency.annual,
+          ),
+        ],
         revenues: [revenue(amount: 2000, startDate: monthsAgo(11))],
         range: StatsRange.sixMonths,
       );
@@ -272,7 +295,7 @@ void main() {
           expense(
             amount: 600,
             startDate: monthsAgo(2),
-            frequency: 'Ponctuel',
+            frequency: Frequency.oneTime,
             categorySlug: 'transport.essence',
           ),
         ],
@@ -413,7 +436,11 @@ void main() {
     test('leaves the months before the first move out of the chart', () async {
       final state = await readState(
         expenses: [
-          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+          expense(
+            amount: 100,
+            startDate: monthsAgo(1),
+            frequency: Frequency.oneTime,
+          ),
         ],
       );
 
@@ -426,10 +453,18 @@ void main() {
     test('averages over the months that carry data only', () async {
       final state = await readState(
         revenues: [
-          revenue(amount: 600, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+          revenue(
+            amount: 600,
+            startDate: monthsAgo(1),
+            frequency: Frequency.oneTime,
+          ),
         ],
         expenses: [
-          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+          expense(
+            amount: 100,
+            startDate: monthsAgo(1),
+            frequency: Frequency.oneTime,
+          ),
         ],
       );
 
@@ -440,8 +475,16 @@ void main() {
     test('holds a quiet month between two moves against the average', () async {
       final state = await readState(
         expenses: [
-          expense(amount: 100, startDate: monthsAgo(2), frequency: 'Ponctuel'),
-          expense(amount: 200, startDate: thisMonth, frequency: 'Ponctuel'),
+          expense(
+            amount: 100,
+            startDate: monthsAgo(2),
+            frequency: Frequency.oneTime,
+          ),
+          expense(
+            amount: 200,
+            startDate: thisMonth,
+            frequency: Frequency.oneTime,
+          ),
         ],
       );
 

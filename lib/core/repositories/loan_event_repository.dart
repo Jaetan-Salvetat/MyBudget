@@ -2,9 +2,8 @@ import 'package:mybudget/models/loan_event_model.dart';
 import 'package:objectbox/objectbox.dart';
 
 class LoanEventRepository {
-  final Box<LoanEventModel> _box;
-
   LoanEventRepository(this._box);
+  final Box<LoanEventModel> _box;
 
   List<LoanEventModel> getAll() {
     return _box.getAll();

@@ -2,14 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 @immutable
 class FinanceColors extends ThemeExtension<FinanceColors> {
-  final Color income;
-  final Color incomeSoft;
-  final Color incomeOnSoft;
-  final Color expense;
-  final Color expenseSoft;
-  final Color expenseOnSoft;
-  final CategoryPalette categories;
-
   const FinanceColors({
     required this.income,
     required this.incomeSoft,
@@ -19,6 +11,13 @@ class FinanceColors extends ThemeExtension<FinanceColors> {
     required this.expenseOnSoft,
     required this.categories,
   });
+  final Color income;
+  final Color incomeSoft;
+  final Color incomeOnSoft;
+  final Color expense;
+  final Color expenseSoft;
+  final Color expenseOnSoft;
+  final CategoryPalette categories;
 
   static const FinanceColors light = FinanceColors(
     income: Color(0xFF1F8A5B),
@@ -78,15 +77,6 @@ class FinanceColors extends ThemeExtension<FinanceColors> {
 
 @immutable
 class CategoryPalette {
-  final Color food;
-  final Color housing;
-  final Color transport;
-  final Color leisure;
-  final Color subscription;
-  final Color health;
-  final Color shopping;
-  final Color other;
-
   const CategoryPalette({
     required this.food,
     required this.housing,
@@ -97,6 +87,14 @@ class CategoryPalette {
     required this.shopping,
     required this.other,
   });
+  final Color food;
+  final Color housing;
+  final Color transport;
+  final Color leisure;
+  final Color subscription;
+  final Color health;
+  final Color shopping;
+  final Color other;
 
   static const CategoryPalette light = CategoryPalette(
     food: Color(0xFFF4A261),

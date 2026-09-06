@@ -16,7 +16,7 @@ class OnboardingNotifier extends _$OnboardingNotifier {
     required String accountName,
     required String bank,
   }) async {
-    await ref
+    ref
         .read(accountProvider.notifier)
         .addAccount(AccountModel.create(name: accountName, bank: bank));
 

@@ -1,22 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
+import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/ui/transfers/transfers_provider.dart';
-import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/ui/transfers/transfers_provider.dart';
 
 class MockAccountRepository extends Mock implements AccountRepository {}
 
@@ -83,7 +84,7 @@ void main() {
         amount: 2000,
         accountId: accountId,
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
       when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
@@ -95,7 +96,7 @@ void main() {
         accountId: accountId,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);
       when(() => mockExpenseRepo.getActive()).thenReturn([expense]);
@@ -121,7 +122,7 @@ void main() {
       await container.read(revenueProvider.future);
       await container.read(loanProvider.future);
       await container.read(transferProvider.future);
-      await container.read(accountProvider.future);
+      container.read(accountProvider);
 
       final balance = container
           .read(accountProvider.notifier)
@@ -145,7 +146,7 @@ void main() {
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
     await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     expect(
       container.read(accountProvider.notifier).getAccountBalance(accountId),
@@ -163,7 +164,7 @@ void main() {
         amount: 100,
         accountId: accountId,
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       final expense = ExpenseModel.create(
         name: 'Big expense',
@@ -171,7 +172,7 @@ void main() {
         accountId: accountId,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
@@ -189,7 +190,7 @@ void main() {
       await container.read(revenueProvider.future);
       await container.read(loanProvider.future);
       await container.read(transferProvider.future);
-      await container.read(accountProvider.future);
+      container.read(accountProvider);
 
       final balance = container
           .read(accountProvider.notifier)
@@ -206,7 +207,7 @@ void main() {
       amount: 2000,
       accountId: accountId,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
@@ -220,7 +221,7 @@ void main() {
       fromAccountId: accountId,
       toAccountId: 2,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
@@ -233,7 +234,7 @@ void main() {
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
     await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     final balance = container
         .read(accountProvider.notifier)
@@ -249,7 +250,7 @@ void main() {
       amount: 2000,
       accountId: accountId,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     when(() => mockRevenueRepo.getAll()).thenReturn([revenue]);
     when(() => mockRevenueRepo.getActive()).thenReturn([revenue]);
@@ -263,7 +264,7 @@ void main() {
       fromAccountId: 2,
       toAccountId: accountId,
       startDate: DateTime.now(),
-      frequency: 'Mensuel',
+      frequency: Frequency.monthly,
     );
     when(() => mockTransferRepo.getAll()).thenReturn([transfer]);
     when(() => mockTransferRepo.getActive()).thenReturn([transfer]);
@@ -276,7 +277,7 @@ void main() {
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
     await container.read(transferProvider.future);
-    await container.read(accountProvider.future);
+    container.read(accountProvider);
 
     final balance = container
         .read(accountProvider.notifier)

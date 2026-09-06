@@ -3,9 +3,8 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class FrequencyBadge extends StatelessWidget {
-  final Frequency frequency;
-
   const FrequencyBadge({super.key, required this.frequency});
+  final Frequency frequency;
 
   @override
   Widget build(BuildContext context) {

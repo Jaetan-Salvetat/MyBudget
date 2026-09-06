@@ -1,3 +1,4 @@
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'selected_month_provider.g.dart';
@@ -6,7 +7,7 @@ part 'selected_month_provider.g.dart';
 class SelectedMonth extends _$SelectedMonth {
   @override
   DateTime build() {
-    final now = DateTime.now();
+    final now = ref.watch(clockProvider)();
     return DateTime(now.year, now.month);
   }
 
@@ -23,7 +24,7 @@ class SelectedMonth extends _$SelectedMonth {
   }
 
   void resetToCurrentMonth() {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     state = DateTime(now.year, now.month);
   }
 }

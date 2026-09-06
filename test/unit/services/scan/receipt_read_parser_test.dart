@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/constants/receipt_schema.dart';
 import 'package:mybudget/core/services/scan/receipt_read_parser.dart';
 
-String dateSection(Object? value) =>
-    jsonEncode({ReceiptSchema.dateKey: value});
+String dateSection(Object? value) => jsonEncode({ReceiptSchema.dateKey: value});
 
 void main() {
   group('sectionDateOf', () {

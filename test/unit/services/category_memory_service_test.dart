@@ -21,7 +21,7 @@ void main() {
   setUp(() {
     store = {};
     repository = MockCategoryMemoryRepository();
-    service = CategoryMemoryService(repository, now: () => now);
+    service = CategoryMemoryService(repository, () => now);
 
     when(() => repository.get(any())).thenAnswer(
       (invocation) => store[invocation.positionalArguments.first as String],

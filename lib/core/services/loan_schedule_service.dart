@@ -11,12 +11,11 @@ import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
 import 'package:mybudget/core/utils/money.dart';
 
 class LoanScheduleService {
+  const LoanScheduleService(this._indemnityService);
   static const double _settledCapital = 0.005;
   static const int _indemnityWindowMonths = 12;
 
   final EarlyRepaymentIndemnityService _indemnityService;
-
-  const LoanScheduleService(this._indemnityService);
 
   LoanSchedule build(LoanTerms terms, {List<LoanEvent> events = const []}) {
     return _build(terms, events, withIndemnities: true);

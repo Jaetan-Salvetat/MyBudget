@@ -2,7 +2,7 @@ import 'package:mybudget/core/services/quick_add/date_parser_service.dart';
 import 'package:mybudget/core/services/quick_add/price_parser_service.dart';
 
 abstract final class QuickAddTextReader {
-  static QuickAddTextFacts read(String input, {DateTime? today}) {
+  static QuickAddTextFacts read(String input, {required DateTime today}) {
     final dateResult = DateParserService.parse(input, today: today);
     final withoutDate = dateResult?.remaining ?? input;
 
@@ -11,7 +11,7 @@ abstract final class QuickAddTextReader {
 
     return QuickAddTextFacts(
       input: input,
-      date: dateResult?.date ?? _atMidnight(today ?? DateTime.now()),
+      date: dateResult?.date ?? _atMidnight(today),
       hasWrittenDate: dateResult != null,
       amount: priceResult?.price,
       remaining: withoutAmount.trim(),
@@ -23,6 +23,13 @@ abstract final class QuickAddTextReader {
 }
 
 class QuickAddTextFacts {
+  const QuickAddTextFacts({
+    required this.input,
+    required this.date,
+    required this.hasWrittenDate,
+    required this.amount,
+    required this.remaining,
+  });
   final String input;
 
   final DateTime date;
@@ -32,14 +39,6 @@ class QuickAddTextFacts {
   final double? amount;
 
   final String remaining;
-
-  const QuickAddTextFacts({
-    required this.input,
-    required this.date,
-    required this.hasWrittenDate,
-    required this.amount,
-    required this.remaining,
-  });
 
   String get modelText => remaining.isEmpty ? input : remaining;
 }

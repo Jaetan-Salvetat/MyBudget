@@ -69,11 +69,7 @@ class TransactionTimelineService {
       previous.frequency.label,
       next.frequency.label,
     );
-    record(
-      TransactionChange.account,
-      previous.accountLabel,
-      next.accountLabel,
-    );
+    record(TransactionChange.account, previous.accountLabel, next.accountLabel);
     record(
       TransactionChange.beneficiary,
       previous.beneficiaryLabel,

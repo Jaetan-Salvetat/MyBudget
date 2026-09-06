@@ -6,10 +6,9 @@ import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/models/loan_model.dart';
 
 class LoanService {
+  const LoanService(this._scheduleService, this._rateService);
   final LoanScheduleService _scheduleService;
   final AnnualPercentageRateService _rateService;
-
-  const LoanService(this._scheduleService, this._rateService);
 
   Loan createLoan(
     LoanModel model, {

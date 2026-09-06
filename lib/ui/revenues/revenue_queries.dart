@@ -2,8 +2,8 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,7 +50,7 @@ double monthlyRevenues(Ref ref) {
 
 @Riverpod(keepAlive: true)
 double currentMonthRevenues(Ref ref) {
-  final now = DateTime.now();
+  final now = ref.watch(clockProvider)();
   return totalInMonth(
     ref.watch(revenueHistoryProvider),
     DateTime(now.year, now.month),
@@ -60,7 +60,7 @@ double currentMonthRevenues(Ref ref) {
 @Riverpod(keepAlive: true)
 List<RevenueModel> upcomingRevenues(Ref ref) {
   final revenues = ref.watch(activeRevenuesProvider);
-  final now = DateTime.now();
+  final now = ref.watch(clockProvider)();
   final upcoming = revenues.where((revenue) {
     switch (revenue.frequencyEnum) {
       case Frequency.monthly:

@@ -1,15 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class DetailKpiCard extends StatelessWidget {
-  final String leftLabel;
-  final String leftValue;
-  final String? leftHint;
-  final String rightLabel;
-  final String rightValue;
-  final String? rightHint;
-
   const DetailKpiCard({
     required this.leftLabel,
     required this.leftValue,
@@ -19,6 +12,12 @@ class DetailKpiCard extends StatelessWidget {
     this.rightHint,
     super.key,
   });
+  final String leftLabel;
+  final String leftValue;
+  final String? leftHint;
+  final String rightLabel;
+  final String rightValue;
+  final String? rightHint;
 
   @override
   Widget build(BuildContext context) {
@@ -58,11 +57,10 @@ class DetailKpiCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, this.hint});
   final String label;
   final String value;
   final String? hint;
-
-  const _Stat({required this.label, required this.value, this.hint});
 
   @override
   Widget build(BuildContext context) {

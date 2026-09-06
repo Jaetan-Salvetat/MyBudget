@@ -10,6 +10,7 @@ import 'package:mybudget/core/providers/feature_flags_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
 import 'package:mybudget/ui/loans/loans_provider.dart';
@@ -42,9 +43,7 @@ void main() {
           overrides: [
             buildFlavorProvider.overrideWithValue(flavor),
             appVersionProvider.overrideWithValue(packageInfo.version),
-            appBuildNumberProvider.overrideWithValue(
-              packageInfo.buildNumber,
-            ),
+            appBuildNumberProvider.overrideWithValue(packageInfo.buildNumber),
           ],
           child: const MyApp(),
         ),
@@ -121,7 +120,6 @@ class _AppContentState extends ConsumerState<_AppContent> {
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
-    final themeNotifier = ref.read(themeProvider.notifier);
     ref.watch(homeWidgetProvider);
 
     return MaterialApp(
@@ -130,8 +128,8 @@ class _AppContentState extends ConsumerState<_AppContent> {
       title: 'My Budget',
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [Locale('fr')],
-      theme: themeNotifier.lightTheme,
-      darkTheme: themeNotifier.darkTheme,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: themeState.themeMode,
       home: const SplashScreen(),
     );

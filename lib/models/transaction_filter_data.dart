@@ -1,14 +1,6 @@
 import 'package:mybudget/core/enums/frequency.dart';
 
 class TransactionFilterData {
-  final double? minAmount;
-  final double? maxAmount;
-  final String? searchQuery;
-  final List<String> groupKeys;
-  final List<int> accountIds;
-  final List<int> beneficiaryIds;
-  final List<Frequency> types;
-
   const TransactionFilterData({
     this.minAmount,
     this.maxAmount,
@@ -18,6 +10,13 @@ class TransactionFilterData {
     this.beneficiaryIds = const [],
     this.types = const [],
   });
+  final double? minAmount;
+  final double? maxAmount;
+  final String? searchQuery;
+  final List<String> groupKeys;
+  final List<int> accountIds;
+  final List<int> beneficiaryIds;
+  final List<Frequency> types;
 
   bool get isEmpty {
     return minAmount == null &&

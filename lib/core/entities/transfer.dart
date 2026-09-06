@@ -2,9 +2,8 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/models/transfer_model.dart';
 
 class Transfer {
-  final TransferModel _model;
-
   Transfer(this._model);
+  final TransferModel _model;
 
   int get id => _model.id;
   String get name => _model.name;

@@ -1,15 +1,14 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:share_plus/share_plus.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';
 import 'package:mybudget/ui/settings/screens/import_preview_screen.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DataSection extends ConsumerWidget {
   const DataSection({super.key});
@@ -101,7 +100,7 @@ class DataSection extends ConsumerWidget {
 
           if (context.mounted) {
             Navigator.of(context).push(
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
                 builder: (_) => ImportPreviewScreen(
                   validationResult: validationResult,
                   jsonContent: jsonContent,

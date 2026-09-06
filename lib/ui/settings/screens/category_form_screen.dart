@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
@@ -14,22 +14,20 @@ final class CategoryReset extends CategoryFormResult {
 }
 
 final class CategoryCustomisation extends CategoryFormResult {
+  const CategoryCustomisation({this.name, this.icon, this.color});
   final String? name;
   final String? icon;
   final int? color;
-
-  const CategoryCustomisation({this.name, this.icon, this.color});
 }
 
 class CategoryFormScreen extends StatefulWidget {
-  final CategoryDisplay initial;
-  final CategoryDisplay defaults;
-
   const CategoryFormScreen({
     required this.initial,
     required this.defaults,
     super.key,
   });
+  final CategoryDisplay initial;
+  final CategoryDisplay defaults;
 
   static Future<CategoryFormResult?> push({
     required BuildContext context,
@@ -38,8 +36,9 @@ class CategoryFormScreen extends StatefulWidget {
   }) {
     return Navigator.push<CategoryFormResult>(
       context,
-      MaterialPageRoute(
-        builder: (_) => CategoryFormScreen(initial: initial, defaults: defaults),
+      MaterialPageRoute<CategoryFormResult>(
+        builder: (_) =>
+            CategoryFormScreen(initial: initial, defaults: defaults),
       ),
     );
   }
@@ -246,9 +245,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
 }
 
 class _Label extends StatelessWidget {
-  final String text;
-
   const _Label(this.text);
+  final String text;
 
   @override
   Widget build(BuildContext context) {

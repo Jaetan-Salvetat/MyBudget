@@ -1,14 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/capture/widgets/journal_landing.dart';
 
 void main() {
   const double lineHeight = 60;
 
-  Future<void> pumpLanding(
-    WidgetTester tester, {
-    bool animate = true,
-  }) {
+  Future<void> pumpLanding(WidgetTester tester, {bool animate = true}) {
     return tester.pumpWidget(
       MediaQuery(
         data: MediaQueryData(disableAnimations: !animate),

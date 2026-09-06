@@ -1,6 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
@@ -78,7 +78,10 @@ void main() {
     await pump(tester, colorlessBeneficiary);
 
     expect(find.text('Er'), findsOneWidget);
-    expect(decorationOf(containersOf(tester).last).color, isNot(const Color(0x00000000)));
+    expect(
+      decorationOf(containersOf(tester).last).color,
+      isNot(const Color(0x00000000)),
+    );
   });
 
   testWidgets('shows no badge without a beneficiary', (tester) async {

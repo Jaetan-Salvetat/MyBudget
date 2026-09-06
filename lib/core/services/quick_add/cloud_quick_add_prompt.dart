@@ -75,9 +75,13 @@ class CloudQuickAddPrompt implements QuickAddPrompt {
         'resto italien → restauration.restaurant · $QuickAddSchema.oneTimeLabel · '
         '"Resto italien"',
       )
-      ..writeln('netflix → loisirs.streaming · $QuickAddSchema.recurringLabel · "Netflix"')
-      ..writeln('virement mamie → transfert.virement_recu · $QuickAddSchema.oneTimeLabel · '
-          '"Virement mamie"')
+      ..writeln(
+        'netflix → loisirs.streaming · $QuickAddSchema.recurringLabel · "Netflix"',
+      )
+      ..writeln(
+        'virement mamie → transfert.virement_recu · $QuickAddSchema.oneTimeLabel · '
+        '"Virement mamie"',
+      )
       ..writeln()
       ..writeln('Catalogue :')
       ..write(_catalogueOfCategories());

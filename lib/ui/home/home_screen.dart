@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
@@ -86,8 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _NavItem {
+  const _NavItem(this.label, this.icon);
   final String label;
   final IconData icon;
-
-  const _NavItem(this.label, this.icon);
 }

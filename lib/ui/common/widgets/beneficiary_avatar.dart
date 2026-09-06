@@ -1,11 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 class BeneficiaryAvatar extends StatelessWidget {
-  final String name;
-  final double radius;
-  final int? avatarColor;
-  final String? initials;
-
   const BeneficiaryAvatar({
     required this.name,
     this.radius = 20,
@@ -13,6 +8,10 @@ class BeneficiaryAvatar extends StatelessWidget {
     this.initials,
     super.key,
   });
+  final String name;
+  final double radius;
+  final int? avatarColor;
+  final String? initials;
 
   @override
   Widget build(BuildContext context) {

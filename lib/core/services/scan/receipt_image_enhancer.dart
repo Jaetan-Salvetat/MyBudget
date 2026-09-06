@@ -53,7 +53,9 @@ img.Image _decode(Uint8List bytes) {
   try {
     decoded = img.decodeImage(bytes);
   } catch (error) {
-    throw FormatException('image indéchiffrable pour le prétraitement : $error');
+    throw FormatException(
+      'image indéchiffrable pour le prétraitement : $error',
+    );
   }
   if (decoded == null) {
     throw const FormatException('image indéchiffrable pour le prétraitement');

@@ -7,25 +7,24 @@ const String reportTag = '[scan-trace]';
 const String reportFileName = 'scan_trace.txt';
 const String wordsFileName = 'scan_trace.json';
 
-String scanTraceWords(List<ReadTrace> trace) => const JsonEncoder.withIndent(
-  '  ',
-).convert({
-  'reads': [
-    for (final read in trace)
-      {
-        'source': sourceName(read.source),
-        'words': [
-          for (final line in read.lines)
-            for (final word in line.words)
-              {
-                'text': word.text,
-                'box': [word.left, word.top, word.right, word.bottom],
-                if (word.confidence != null) 'confidence': word.confidence,
-              },
-        ],
-      },
-  ],
-});
+String scanTraceWords(List<ReadTrace> trace) =>
+    const JsonEncoder.withIndent('  ').convert({
+      'reads': [
+        for (final read in trace)
+          {
+            'source': sourceName(read.source),
+            'words': [
+              for (final line in read.lines)
+                for (final word in line.words)
+                  {
+                    'text': word.text,
+                    'box': [word.left, word.top, word.right, word.bottom],
+                    if (word.confidence != null) 'confidence': word.confidence,
+                  },
+            ],
+          },
+      ],
+    });
 
 String scanTraceReport(List<ReadTrace> trace) {
   if (trace.isEmpty) return '$reportTag aucune lecture';
@@ -55,8 +54,15 @@ List<String> _readReport(ReadTrace read) {
           '(sources ${hypothesis.sources.map((s) => s.name).join(',')})',
     if (hypothesis == null) '    aucune hypothèse : rien ne referme la somme',
     for (final (index, line) in read.merged.indexed)
-      _lineReport(index, line, roles[index], priced[index], rank[index],
-          hypothesis, decoding),
+      _lineReport(
+        index,
+        line,
+        roles[index],
+        priced[index],
+        rank[index],
+        hypothesis,
+        decoding,
+      ),
   ];
 }
 
@@ -78,7 +84,9 @@ String _lineReport(
     if (hypothesis != null && rank != null) {
       buffer.write(' | décodé ${_label(hypothesis.labels[rank])}');
       if (hypothesis.cents.isNotEmpty) {
-        buffer.write(' ${MoneyFormatter.formatPlain(hypothesis.cents[rank] / 100)}');
+        buffer.write(
+          ' ${MoneyFormatter.formatPlain(hypothesis.cents[rank] / 100)}',
+        );
       }
     }
   }
@@ -93,4 +101,3 @@ String _label(int label) => switch (label) {
   labelPayment => 'paiement',
   _ => 'ignorée',
 };
-

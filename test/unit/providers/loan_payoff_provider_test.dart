@@ -24,16 +24,15 @@ void main() {
     return buildTestLoan(model, asOf: DateTime(2026, 6, 20));
   }
 
-  ProviderContainer containerOf(Loan loan) {
-    final container = ProviderContainer(
-      overrides: [loanToPayoffProvider.overrideWithValue(loan)],
-    );
+  ProviderContainer containerOf() {
+    final container = ProviderContainer();
     addTearDown(container.dispose);
     return container;
   }
 
   test('defaults to settling the loan at the next installment', () {
-    final state = containerOf(loanOf()).read(loanPayoffProvider);
+    final loan = loanOf();
+    final state = containerOf().read(loanPayoffProvider(loan));
 
     expect(state.type, LoanEventType.earlyRepaymentTotal);
     expect(state.date, DateTime(2026, 7, 5));
@@ -42,26 +41,28 @@ void main() {
   });
 
   test('is invalid until a partial repayment has an amount', () {
-    final container = containerOf(loanOf());
-    final notifier = container.read(loanPayoffProvider.notifier);
+    final loan = loanOf();
+    final container = containerOf();
+    final notifier = container.read(loanPayoffProvider(loan).notifier);
 
     notifier.setType(LoanEventType.earlyRepaymentPartial);
-    expect(container.read(loanPayoffProvider).isValid, isFalse);
+    expect(container.read(loanPayoffProvider(loan)).isValid, isFalse);
 
     notifier.setAmount('2000');
-    expect(container.read(loanPayoffProvider).isValid, isTrue);
+    expect(container.read(loanPayoffProvider(loan)).isValid, isTrue);
   });
 
   test('requotes when the reamortization mode changes', () {
-    final container = containerOf(loanOf());
-    final notifier = container.read(loanPayoffProvider.notifier);
+    final loan = loanOf();
+    final container = containerOf();
+    final notifier = container.read(loanPayoffProvider(loan).notifier);
 
     notifier.setType(LoanEventType.earlyRepaymentPartial);
     notifier.setAmount('2000');
-    final shortened = container.read(loanPayoffProvider).quote!;
+    final shortened = container.read(loanPayoffProvider(loan)).quote!;
 
     notifier.setReamortizationMode(ReamortizationMode.reducePayment);
-    final lowered = container.read(loanPayoffProvider).quote!;
+    final lowered = container.read(loanPayoffProvider(loan)).quote!;
 
     expect(shortened.monthsSaved, greaterThan(0));
     expect(lowered.monthsSaved, 0);
@@ -69,14 +70,15 @@ void main() {
   });
 
   test('builds a persistable event carrying the loan id', () {
-    final container = containerOf(loanOf());
-    final notifier = container.read(loanPayoffProvider.notifier);
+    final loan = loanOf();
+    final container = containerOf();
+    final notifier = container.read(loanPayoffProvider(loan).notifier);
 
     notifier.setType(LoanEventType.earlyRepaymentPartial);
     notifier.setAmount('1500');
     notifier.setExemption(EarlyRepaymentExemption.death);
 
-    final event = container.read(loanPayoffProvider).toEventModel();
+    final event = container.read(loanPayoffProvider(loan)).toEventModel();
 
     expect(event.loanId, 7);
     expect(event.type, LoanEventType.earlyRepaymentPartial);

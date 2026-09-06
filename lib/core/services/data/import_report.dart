@@ -1,15 +1,6 @@
 import 'package:mybudget/core/services/data/import_entity_report.dart';
 
 class ImportReport {
-  final ImportEntityReport beneficiaries;
-  final ImportEntityReport accounts;
-  final ImportEntityReport categories;
-  final ImportEntityReport expenses;
-  final ImportEntityReport revenues;
-  final ImportEntityReport loans;
-  final ImportEntityReport loanEvents;
-  final ImportEntityReport transfers;
-
   const ImportReport({
     this.beneficiaries = const ImportEntityReport(entityName: 'Bénéficiaires'),
     this.accounts = const ImportEntityReport(entityName: 'Comptes'),
@@ -22,6 +13,14 @@ class ImportReport {
     ),
     this.transfers = const ImportEntityReport(entityName: 'Virements'),
   });
+  final ImportEntityReport beneficiaries;
+  final ImportEntityReport accounts;
+  final ImportEntityReport categories;
+  final ImportEntityReport expenses;
+  final ImportEntityReport revenues;
+  final ImportEntityReport loans;
+  final ImportEntityReport loanEvents;
+  final ImportEntityReport transfers;
 
   List<ImportEntityReport> get all => [
     beneficiaries,

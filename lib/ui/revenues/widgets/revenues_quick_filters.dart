@@ -1,19 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_chip.dart';
 
 class RevenuesQuickFilters extends StatelessWidget {
-  final RevenueGroupBy axis;
-  final List<CategoryDisplay> categories;
-  final List<String> selectedGroupKeys;
-  final VoidCallback onOpenGroupBy;
-  final ValueChanged<String> onCategoryTap;
-  final VoidCallback onClear;
-
   const RevenuesQuickFilters({
     required this.axis,
     required this.categories,
@@ -23,6 +16,12 @@ class RevenuesQuickFilters extends StatelessWidget {
     required this.onClear,
     super.key,
   });
+  final RevenueGroupBy axis;
+  final List<CategoryDisplay> categories;
+  final List<String> selectedGroupKeys;
+  final VoidCallback onOpenGroupBy;
+  final ValueChanged<String> onCategoryTap;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {

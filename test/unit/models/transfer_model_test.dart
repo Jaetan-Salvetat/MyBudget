@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/models/transfer_model.dart';
+
+final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);
 
 void main() {
   group('TransferModel', () {
@@ -11,13 +13,13 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       expect(transfer.frequencyEnum, Frequency.monthly);
 
       transfer.frequencyEnum = Frequency.annual;
-      expect(transfer.frequency, 'Annuel');
+      expect(transfer.frequency, Frequency.annual.storageKey);
     });
 
     test('copyWith should preserve other fields', () {
@@ -27,7 +29,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       )..id = 7;
 
       final copy = original.copyWith(name: 'Modifié');
@@ -37,7 +39,7 @@ void main() {
       expect(copy.amount, 300);
       expect(copy.fromAccountId, 1);
       expect(copy.toAccountId, 2);
-      expect(copy.frequency, 'Mensuel');
+      expect(copy.frequency, Frequency.monthly.storageKey);
     });
 
     test('copyWith should override specified fields', () {
@@ -47,21 +49,21 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 6, 15),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       final copy = original.copyWith(
         amount: 600,
         fromAccountId: 3,
         toAccountId: 4,
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       );
 
       expect(copy.name, 'Original');
       expect(copy.amount, 600);
       expect(copy.fromAccountId, 3);
       expect(copy.toAccountId, 4);
-      expect(copy.frequency, 'Annuel');
+      expect(copy.frequency, Frequency.annual.storageKey);
     });
 
     test('toJson should serialize all fields', () {
@@ -72,7 +74,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: date,
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       )..id = 10;
 
       final json = transfer.toJson();
@@ -83,7 +85,7 @@ void main() {
       expect(json['fromAccountId'], '1');
       expect(json['toAccountId'], '2');
       expect(json['startDate'], date.toIso8601String());
-      expect(json['frequency'], 'Mensuel');
+      expect(json['frequency'], Frequency.monthly.storageKey);
     });
 
     test('fromJson should deserialize all fields', () {
@@ -97,7 +99,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final transfer = TransferModel.fromJson(json);
+      final transfer = TransferModel.fromJson(json, now: _fixedNow);
 
       expect(transfer.id, 5);
       expect(transfer.name, 'Épargne');
@@ -105,20 +107,20 @@ void main() {
       expect(transfer.fromAccountId, 1);
       expect(transfer.toAccountId, 3);
       expect(transfer.startDate, DateTime(2024, 6, 1));
-      expect(transfer.frequency, 'Mensuel');
+      expect(transfer.frequency, Frequency.monthly.storageKey);
     });
 
     test('fromJson should handle missing fields with defaults', () {
       final json = <String, dynamic>{};
 
-      final transfer = TransferModel.fromJson(json);
+      final transfer = TransferModel.fromJson(json, now: _fixedNow);
 
       expect(transfer.id, 0);
       expect(transfer.name, '');
       expect(transfer.amount, 0.0);
       expect(transfer.fromAccountId, 0);
       expect(transfer.toAccountId, 0);
-      expect(transfer.frequency, '');
+      expect(transfer.frequency, Frequency.monthly.storageKey);
     });
 
     test('toJson then fromJson should produce equivalent model', () {
@@ -129,10 +131,13 @@ void main() {
         fromAccountId: 2,
         toAccountId: 5,
         startDate: date,
-        frequency: 'Annuel',
+        frequency: Frequency.annual,
       )..id = 42;
 
-      final restored = TransferModel.fromJson(original.toJson());
+      final restored = TransferModel.fromJson(
+        original.toJson(),
+        now: _fixedNow,
+      );
 
       expect(restored.id, original.id);
       expect(restored.name, original.name);
@@ -149,7 +154,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       )..id = 1;
 
       final withValues = original.copyWith(
@@ -175,7 +180,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
         endDate: DateTime(2024, 6, 15),
         parentId: 3,
       )..id = 1;
@@ -193,7 +198,7 @@ void main() {
         fromAccountId: 1,
         toAccountId: 2,
         startDate: DateTime(2024, 1, 1),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       final json = transfer.toJson();
@@ -215,7 +220,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final transfer = TransferModel.fromJson(json);
+      final transfer = TransferModel.fromJson(json, now: _fixedNow);
 
       expect(transfer.endDate, DateTime(2024, 6, 15));
       expect(transfer.parentId, 3);
@@ -232,7 +237,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final transfer = TransferModel.fromJson(json);
+      final transfer = TransferModel.fromJson(json, now: _fixedNow);
 
       expect(transfer.endDate, isNull);
       expect(transfer.parentId, isNull);
@@ -249,7 +254,7 @@ void main() {
         'frequency': 'Mensuel',
       };
 
-      final transfer = TransferModel.fromJson(json);
+      final transfer = TransferModel.fromJson(json, now: _fixedNow);
 
       expect(transfer.startDate, DateTime(2024, 3, 20));
     });

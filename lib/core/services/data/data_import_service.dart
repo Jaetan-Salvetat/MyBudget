@@ -4,13 +4,15 @@ import 'package:mybudget/core/repositories/category_memory_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/services/loan_service.dart';
 import 'package:mybudget/core/repositories/loan_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/repositories/transfer_repository.dart';
 import 'package:mybudget/core/services/data/import_entity_report.dart';
 import 'package:mybudget/core/services/data/import_report.dart';
 import 'package:mybudget/core/services/data/import_validation_result.dart';
+import 'package:mybudget/core/services/loan_service.dart';
+import 'package:mybudget/core/time/clock.dart';
+import 'package:mybudget/core/utils/json_fields.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/category_memory_model.dart';
@@ -22,17 +24,6 @@ import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 
 class DataImportService {
-  final AccountRepository accountRepo;
-  final BeneficiaryRepository beneficiaryRepo;
-  final CategoryOverrideRepository categoryOverrideRepo;
-  final CategoryMemoryRepository categoryMemoryRepo;
-  final ExpenseRepository expenseRepo;
-  final RevenueRepository revenueRepo;
-  final LoanRepository loanRepo;
-  final LoanEventRepository loanEventRepo;
-  final LoanService loanService;
-  final TransferRepository transferRepo;
-
   const DataImportService({
     required this.accountRepo,
     required this.beneficiaryRepo,
@@ -44,225 +35,147 @@ class DataImportService {
     required this.loanEventRepo,
     required this.loanService,
     required this.transferRepo,
+    required this.clock,
   });
+  final AccountRepository accountRepo;
+  final BeneficiaryRepository beneficiaryRepo;
+  final CategoryOverrideRepository categoryOverrideRepo;
+  final CategoryMemoryRepository categoryMemoryRepo;
+  final ExpenseRepository expenseRepo;
+  final RevenueRepository revenueRepo;
+  final LoanRepository loanRepo;
+  final LoanEventRepository loanEventRepo;
+  final LoanService loanService;
+  final TransferRepository transferRepo;
+  final Clock clock;
 
   ImportValidationResult validate(Map<String, dynamic> data) {
+    final DateTime now = clock();
     final errors = <String>[];
-    final beneficiaries = <ParsedBeneficiary>[];
-    final accounts = <ParsedAccount>[];
-    final categoryOverrides = <ParsedCategoryOverride>[];
-    final categoryMemory = <ParsedCategoryMemory>[];
-    final expenses = <ParsedExpense>[];
-    final revenues = <ParsedRevenue>[];
-    final loans = <ParsedLoan>[];
-    final loanEvents = <ParsedLoanEvent>[];
-    final transfers = <ParsedTransfer>[];
 
-    if (data['beneficiaries'] is List) {
-      for (final item in data['beneficiaries'] as List) {
+    List<P> parseSection<P>(
+      String key,
+      String label,
+      P Function(Map<String, dynamic> json) parse,
+    ) {
+      final section = data[key];
+      if (section is! List) return <P>[];
+
+      final parsed = <P>[];
+      for (final item in section) {
         try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldId = int.tryParse(json['id'].toString()) ?? 0;
-          json['id'] = '0';
-          beneficiaries.add(
-            ParsedBeneficiary(
-              oldId: oldId,
-              model: BeneficiaryModel.fromJson(json),
-            ),
-          );
-        } catch (e) {
-          errors.add('Bénéficiaire invalide : $e');
+          parsed.add(parse(Map<String, dynamic>.from(item as Map)));
+        } catch (error) {
+          errors.add('$label : $error');
         }
       }
-    }
-
-    if (data['accounts'] is List) {
-      for (final item in data['accounts'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldId = int.tryParse(json['id'].toString()) ?? 0;
-          json['id'] = '0';
-          accounts.add(
-            ParsedAccount(oldId: oldId, model: AccountModel.fromJson(json)),
-          );
-        } catch (e) {
-          errors.add('Compte invalide : $e');
-        }
-      }
-    }
-
-    if (data['categoryOverrides'] is List) {
-      for (final item in data['categoryOverrides'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          json['id'] = '0';
-          categoryOverrides.add(
-            ParsedCategoryOverride(model: CategoryOverrideModel.fromJson(json)),
-          );
-        } catch (e) {
-          errors.add('Personnalisation de catégorie invalide : $e');
-        }
-      }
-    }
-
-    if (data['categoryMemory'] is List) {
-      for (final item in data['categoryMemory'] as List) {
-        try {
-          categoryMemory.add(
-            ParsedCategoryMemory(
-              model: CategoryMemoryModel.fromJson(
-                Map<String, dynamic>.from(item as Map),
-              ),
-            ),
-          );
-        } catch (e) {
-          errors.add('Mémoire de catégorie invalide : $e');
-        }
-      }
-    }
-
-    if (data['expenses'] is List) {
-      for (final item in data['expenses'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldAccountId = int.tryParse(
-            json['accountId']?.toString() ?? '',
-          );
-          final oldBeneficiaryId = int.tryParse(
-            json['beneficiaryId']?.toString() ?? '',
-          );
-          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
-          json['id'] = '0';
-          json['parentId'] = null;
-          expenses.add(
-            ParsedExpense(
-              oldId: oldId,
-              model: ExpenseModel.fromJson(json),
-              oldAccountId: oldAccountId,
-              oldBeneficiaryId: oldBeneficiaryId,
-              oldParentId: oldParentId,
-            ),
-          );
-        } catch (e) {
-          errors.add('Dépense invalide : $e');
-        }
-      }
-    }
-
-    if (data['revenues'] is List) {
-      for (final item in data['revenues'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldAccountId = int.tryParse(
-            json['accountId']?.toString() ?? '',
-          );
-          final oldBeneficiaryId = int.tryParse(
-            json['beneficiaryId']?.toString() ?? '',
-          );
-          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
-          json['id'] = '0';
-          json['parentId'] = null;
-          revenues.add(
-            ParsedRevenue(
-              oldId: oldId,
-              model: RevenueModel.fromJson(json),
-              oldAccountId: oldAccountId,
-              oldBeneficiaryId: oldBeneficiaryId,
-              oldParentId: oldParentId,
-            ),
-          );
-        } catch (e) {
-          errors.add('Revenu invalide : $e');
-        }
-      }
-    }
-
-    if (data['loans'] is List) {
-      for (final item in data['loans'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldAccountId = int.tryParse(
-            (json['accountId'] ?? json['account_id'] ?? '').toString(),
-          );
-          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          json['id'] = '0';
-          loans.add(
-            ParsedLoan(
-              model: LoanModel.fromJson(json),
-              oldId: oldId,
-              oldAccountId: oldAccountId,
-            ),
-          );
-        } catch (e) {
-          errors.add('Emprunt invalide : $e');
-        }
-      }
-    }
-
-    if (data['loanEvents'] is List) {
-      for (final item in data['loanEvents'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldLoanId =
-              int.tryParse(
-                (json['loanId'] ?? json['loan_id'] ?? '').toString(),
-              ) ??
-              0;
-          json['id'] = '0';
-          loanEvents.add(
-            ParsedLoanEvent(
-              model: LoanEventModel.fromJson(json),
-              oldLoanId: oldLoanId,
-            ),
-          );
-        } catch (e) {
-          errors.add('Événement d\'emprunt invalide : $e');
-        }
-      }
-    }
-
-    if (data['transfers'] is List) {
-      for (final item in data['transfers'] as List) {
-        try {
-          final json = Map<String, dynamic>.from(item as Map);
-          final oldId = int.tryParse(json['id']?.toString() ?? '') ?? 0;
-          final oldFromAccountId = int.tryParse(
-            json['fromAccountId']?.toString() ?? '',
-          );
-          final oldToAccountId = int.tryParse(
-            json['toAccountId']?.toString() ?? '',
-          );
-          final oldParentId = int.tryParse(json['parentId']?.toString() ?? '');
-          json['id'] = '0';
-          json['parentId'] = null;
-          transfers.add(
-            ParsedTransfer(
-              oldId: oldId,
-              model: TransferModel.fromJson(json),
-              oldFromAccountId: oldFromAccountId,
-              oldToAccountId: oldToAccountId,
-              oldParentId: oldParentId,
-            ),
-          );
-        } catch (e) {
-          errors.add('Virement invalide : $e');
-        }
-      }
+      return parsed;
     }
 
     return ImportValidationResult(
       isValid: true,
-      beneficiaries: beneficiaries,
-      accounts: accounts,
-      categoryOverrides: categoryOverrides,
-      categoryMemory: categoryMemory,
-      expenses: expenses,
-      revenues: revenues,
-      loans: loans,
-      loanEvents: loanEvents,
-      transfers: transfers,
+      beneficiaries: parseSection('beneficiaries', 'Bénéficiaire invalide', (
+        json,
+      ) {
+        final oldId = json.readInt('id', 0);
+        json['id'] = '0';
+        return ParsedBeneficiary(
+          oldId: oldId,
+          model: BeneficiaryModel.fromJson(json),
+        );
+      }),
+      accounts: parseSection('accounts', 'Compte invalide', (json) {
+        final oldId = json.readInt('id', 0);
+        json['id'] = '0';
+        return ParsedAccount(oldId: oldId, model: AccountModel.fromJson(json));
+      }),
+      categoryOverrides: parseSection(
+        'categoryOverrides',
+        'Personnalisation de catégorie invalide',
+        (json) {
+          json['id'] = '0';
+          return ParsedCategoryOverride(
+            model: CategoryOverrideModel.fromJson(json),
+          );
+        },
+      ),
+      categoryMemory: parseSection(
+        'categoryMemory',
+        'Mémoire de catégorie invalide',
+        (json) => ParsedCategoryMemory(
+          model: CategoryMemoryModel.fromJson(json, now: now),
+        ),
+      ),
+      expenses: parseSection('expenses', 'Dépense invalide', (json) {
+        final oldId = json.readInt('id', 0);
+        final oldAccountId = json.readOptionalInt('accountId');
+        final oldBeneficiaryId = json.readOptionalInt('beneficiaryId');
+        final oldParentId = json.readOptionalInt('parentId');
+        json['id'] = '0';
+        json['parentId'] = null;
+        return ParsedExpense(
+          oldId: oldId,
+          model: ExpenseModel.fromJson(json, now: now),
+          oldAccountId: oldAccountId,
+          oldBeneficiaryId: oldBeneficiaryId,
+          oldParentId: oldParentId,
+        );
+      }),
+      revenues: parseSection('revenues', 'Revenu invalide', (json) {
+        final oldId = json.readInt('id', 0);
+        final oldAccountId = json.readOptionalInt('accountId');
+        final oldBeneficiaryId = json.readOptionalInt('beneficiaryId');
+        final oldParentId = json.readOptionalInt('parentId');
+        json['id'] = '0';
+        json['parentId'] = null;
+        return ParsedRevenue(
+          oldId: oldId,
+          model: RevenueModel.fromJson(json, now: now),
+          oldAccountId: oldAccountId,
+          oldBeneficiaryId: oldBeneficiaryId,
+          oldParentId: oldParentId,
+        );
+      }),
+      loans: parseSection('loans', 'Emprunt invalide', (json) {
+        final oldId = json.readInt('id', 0);
+        final oldAccountId =
+            json.readOptionalInt('accountId') ??
+            json.readOptionalInt('account_id');
+        json['id'] = '0';
+        return ParsedLoan(
+          model: LoanModel.fromJson(json, now: now),
+          oldId: oldId,
+          oldAccountId: oldAccountId,
+        );
+      }),
+      loanEvents: parseSection('loanEvents', 'Événement d\'emprunt invalide', (
+        json,
+      ) {
+        final oldLoanId =
+            json.readOptionalInt('loanId') ??
+            json.readOptionalInt('loan_id') ??
+            0;
+        json['id'] = '0';
+        return ParsedLoanEvent(
+          model: LoanEventModel.fromJson(json, now: now),
+          oldLoanId: oldLoanId,
+        );
+      }),
+      transfers: parseSection('transfers', 'Virement invalide', (json) {
+        final oldId = json.readInt('id', 0);
+        final oldFromAccountId = json.readOptionalInt('fromAccountId');
+        final oldToAccountId = json.readOptionalInt('toAccountId');
+        final oldParentId = json.readOptionalInt('parentId');
+        json['id'] = '0';
+        json['parentId'] = null;
+        return ParsedTransfer(
+          oldId: oldId,
+          model: TransferModel.fromJson(json, now: now),
+          oldFromAccountId: oldFromAccountId,
+          oldToAccountId: oldToAccountId,
+          oldParentId: oldParentId,
+        );
+      }),
       errors: errors,
     );
   }
@@ -347,10 +260,15 @@ class DataImportService {
 
     reportProgress('Importation des emprunts...');
     final Map<int, int> loanIdMap = {};
-    final loanReport = _importLoans(validated.loans, accountIdMap, loanIdMap, () {
-      processedItems++;
-      reportProgress('Importation des emprunts...');
-    });
+    final loanReport = _importLoans(
+      validated.loans,
+      accountIdMap,
+      loanIdMap,
+      () {
+        processedItems++;
+        reportProgress('Importation des emprunts...');
+      },
+    );
 
     reportProgress('Importation des remboursements anticipés...');
     final loanEventReport = _importLoanEvents(

@@ -34,17 +34,13 @@ void main() {
       testLoan = buildTestLoan(testLoanModel);
     });
 
-    ProviderContainer makeContainer(Loan loan) {
-      return ProviderContainer(
-        overrides: [loanToEditProvider.overrideWithValue(loan)],
-      );
-    }
+    ProviderContainer makeContainer() => ProviderContainer();
 
     test('should initialize with values from initial loan', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final state = container.read(loanEditProvider);
+      final state = container.read(loanEditProvider(testLoan));
 
       expect(state.name, 'Prêt Test');
       expect(state.lenderName, 'Banque Test');
@@ -73,20 +69,18 @@ void main() {
         insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
       );
 
-      final loan = buildTestLoan(
-        loanWithoutInsurance,
-      );
-      final container = makeContainer(loan);
+      final loan = buildTestLoan(loanWithoutInsurance);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(loanEditProvider).insuranceValue, 0.0);
+      expect(container.read(loanEditProvider(loan)).insuranceValue, 0.0);
     });
 
     test('should expose read-only fields from initial loan', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final state = container.read(loanEditProvider);
+      final state = container.read(loanEditProvider(testLoan));
 
       expect(state.capital, 10000);
       expect(state.signatureDate, DateTime(2024, 1, 1));
@@ -98,182 +92,196 @@ void main() {
     });
 
     test('should update name via setter', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setName('Nouveau Nom');
+      container
+          .read(loanEditProvider(testLoan).notifier)
+          .setName('Nouveau Nom');
 
-      expect(container.read(loanEditProvider).name, 'Nouveau Nom');
+      expect(container.read(loanEditProvider(testLoan)).name, 'Nouveau Nom');
     });
 
     test('should update lender name via setter', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
       container
-          .read(loanEditProvider.notifier)
+          .read(loanEditProvider(testLoan).notifier)
           .setLenderName('Nouvelle Banque');
 
-      expect(container.read(loanEditProvider).lenderName, 'Nouvelle Banque');
+      expect(
+        container.read(loanEditProvider(testLoan)).lenderName,
+        'Nouvelle Banque',
+      );
     });
 
     test('should update account id', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setAccountId(5);
+      container.read(loanEditProvider(testLoan).notifier).setAccountId(5);
 
-      expect(container.read(loanEditProvider).selectedAccountId, 5);
+      expect(container.read(loanEditProvider(testLoan)).selectedAccountId, 5);
     });
 
     test('should update day of month and clamp between 1 and 31', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
 
       notifier.setDayOfMonth(25);
-      expect(container.read(loanEditProvider).dayOfMonth, 25);
+      expect(container.read(loanEditProvider(testLoan)).dayOfMonth, 25);
 
       notifier.setDayOfMonth(0);
-      expect(container.read(loanEditProvider).dayOfMonth, 1);
+      expect(container.read(loanEditProvider(testLoan)).dayOfMonth, 1);
 
       notifier.setDayOfMonth(35);
-      expect(container.read(loanEditProvider).dayOfMonth, 31);
+      expect(container.read(loanEditProvider(testLoan)).dayOfMonth, 31);
     });
 
     test('should update insurance type', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
       container
-          .read(loanEditProvider.notifier)
+          .read(loanEditProvider(testLoan).notifier)
           .setInsuranceType(LoanInsuranceType.percentage);
 
       expect(
-        container.read(loanEditProvider).insuranceType,
+        container.read(loanEditProvider(testLoan)).insuranceType,
         LoanInsuranceType.percentage,
       );
     });
 
     test('should update insurance calculation mode', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
       container
-          .read(loanEditProvider.notifier)
+          .read(loanEditProvider(testLoan).notifier)
           .setInsuranceCalculationMode(
             InsuranceCalculationMode.remainingCapital,
           );
 
       expect(
-        container.read(loanEditProvider).insuranceCalcMode,
+        container.read(loanEditProvider(testLoan)).insuranceCalcMode,
         InsuranceCalculationMode.remainingCapital,
       );
     });
 
     test('should parse insurance value with comma support', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
 
       notifier.setInsuranceValue('30.5');
-      expect(container.read(loanEditProvider).insuranceValue, 30.5);
+      expect(container.read(loanEditProvider(testLoan)).insuranceValue, 30.5);
 
       notifier.setInsuranceValue('35,75');
-      expect(container.read(loanEditProvider).insuranceValue, 35.75);
+      expect(container.read(loanEditProvider(testLoan)).insuranceValue, 35.75);
 
       notifier.setInsuranceValue('invalid');
-      expect(container.read(loanEditProvider).insuranceValue, 0.0);
+      expect(container.read(loanEditProvider(testLoan)).insuranceValue, 0.0);
     });
 
     test('should calculate monthly insurance payment for fixed type', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setInsuranceType(LoanInsuranceType.fixed);
       notifier.setInsuranceValue('40');
 
-      expect(container.read(loanEditProvider).monthlyInsurancePayment, 40.0);
+      expect(
+        container.read(loanEditProvider(testLoan)).monthlyInsurancePayment,
+        40.0,
+      );
     });
 
     test('should calculate monthly insurance payment for percentage type', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setInsuranceType(LoanInsuranceType.percentage);
       notifier.setInsuranceValue('0.36');
 
       expect(
-        container.read(loanEditProvider).monthlyInsurancePayment,
+        container.read(loanEditProvider(testLoan)).monthlyInsurancePayment,
         closeTo(3.0, 0.01),
       );
     });
 
     test('should return 0 for monthly insurance payment when type is none', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setInsuranceType(LoanInsuranceType.none);
       notifier.setInsuranceValue('50');
 
-      expect(container.read(loanEditProvider).monthlyInsurancePayment, 0.0);
+      expect(
+        container.read(loanEditProvider(testLoan)).monthlyInsurancePayment,
+        0.0,
+      );
     });
 
     test('should return 0 for monthly insurance payment when value is 0', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setInsuranceType(LoanInsuranceType.fixed);
       notifier.setInsuranceValue('0');
 
-      expect(container.read(loanEditProvider).monthlyInsurancePayment, 0.0);
+      expect(
+        container.read(loanEditProvider(testLoan)).monthlyInsurancePayment,
+        0.0,
+      );
     });
 
     test('should validate correctly when all required fields are filled', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(loanEditProvider).isValid, true);
+      expect(container.read(loanEditProvider(testLoan)).isValid, true);
     });
 
     test('should not validate when name is empty', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setName('');
+      container.read(loanEditProvider(testLoan).notifier).setName('');
 
-      expect(container.read(loanEditProvider).isValid, false);
+      expect(container.read(loanEditProvider(testLoan)).isValid, false);
     });
 
     test('should not validate when lender name is empty', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setLenderName('');
+      container.read(loanEditProvider(testLoan).notifier).setLenderName('');
 
-      expect(container.read(loanEditProvider).isValid, false);
+      expect(container.read(loanEditProvider(testLoan)).isValid, false);
     });
 
     test('should not validate when account id is invalid', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      container.read(loanEditProvider.notifier).setAccountId(-1);
+      container.read(loanEditProvider(testLoan).notifier).setAccountId(-1);
 
-      expect(container.read(loanEditProvider).isValid, false);
+      expect(container.read(loanEditProvider(testLoan)).isValid, false);
     });
 
     test('should trim whitespace from name and lender name in final model', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setName('  Nom avec espaces  ');
       notifier.setLenderName('  Banque avec espaces  ');
 
@@ -283,10 +291,10 @@ void main() {
     });
 
     test('should create updated loan model with modified values', () {
-      final container = makeContainer(testLoan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(loanEditProvider.notifier);
+      final notifier = container.read(loanEditProvider(testLoan).notifier);
       notifier.setName('Nouveau Nom');
       notifier.setLenderName('Nouvelle Banque');
       notifier.setAccountId(3);
@@ -338,10 +346,10 @@ void main() {
       );
 
       final loan = buildTestLoan(loanWithDeferred);
-      final container = makeContainer(loan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(loanEditProvider).deferredMonths, 60);
+      expect(container.read(loanEditProvider(loan)).deferredMonths, 60);
     });
 
     test('should handle in fine loan type', () {
@@ -363,11 +371,11 @@ void main() {
       );
 
       final loan = buildTestLoan(inFineLoan);
-      final container = makeContainer(loan);
+      final container = makeContainer();
       addTearDown(container.dispose);
 
       expect(
-        container.read(loanEditProvider).repaymentType,
+        container.read(loanEditProvider(loan)).repaymentType,
         LoanRepaymentType.inFine,
       );
     });

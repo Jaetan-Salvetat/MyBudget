@@ -7,14 +7,13 @@ import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class ScanOutputSummary extends StatelessWidget {
-  final ReceiptScanResultModel result;
-  final CategoryDisplay? Function(String? slug) resolve;
-
   const ScanOutputSummary({
     required this.result,
     required this.resolve,
     super.key,
   });
+  final ReceiptScanResultModel result;
+  final CategoryDisplay? Function(String? slug) resolve;
 
   static String titleOf(int count) {
     if (count == 0) return 'Aucune dépense à créer';
@@ -61,10 +60,9 @@ class ScanOutputSummary extends StatelessWidget {
 }
 
 class _GroupLine extends StatelessWidget {
+  const _GroupLine({required this.group, required this.category});
   final ScannedExpenseGroup group;
   final CategoryDisplay? category;
-
-  const _GroupLine({required this.group, required this.category});
 
   @override
   Widget build(BuildContext context) {

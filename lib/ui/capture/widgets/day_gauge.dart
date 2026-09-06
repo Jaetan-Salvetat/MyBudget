@@ -4,13 +4,12 @@ import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 
 class DayGauge extends StatelessWidget {
+  const DayGauge({required this.segments, super.key});
   static const double thickness = 4;
   static const double gap = 3;
   static const int maxSegments = 5;
 
   final List<FrostedBarSegment> segments;
-
-  const DayGauge({required this.segments, super.key});
 
   static List<FrostedBarSegment> segmentsForDay(
     List<JournalEntry> entries,

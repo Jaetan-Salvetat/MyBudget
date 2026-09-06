@@ -47,9 +47,9 @@ void main() {
   });
 
   test('fills the defaults a v0.7.5 loan never stored', () async {
-    when(() => loans.getAll()).thenReturn([
-      _storedLoan(purposeId: '', hasIndemnityClause: false),
-    ]);
+    when(
+      () => loans.getAll(),
+    ).thenReturn([_storedLoan(purposeId: '', hasIndemnityClause: false)]);
 
     await migration.run();
 
@@ -71,9 +71,9 @@ void main() {
   });
 
   test('marks the migration done so it never runs twice', () async {
-    when(() => loans.getAll()).thenReturn([
-      _storedLoan(purposeId: '', hasIndemnityClause: false),
-    ]);
+    when(
+      () => loans.getAll(),
+    ).thenReturn([_storedLoan(purposeId: '', hasIndemnityClause: false)]);
 
     await migration.run();
     expect(PreferencesService.isLegacyLoanDefaultsMigrationDone(), isTrue);

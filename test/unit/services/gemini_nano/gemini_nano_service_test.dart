@@ -51,8 +51,7 @@ void main() {
   tearDown(() {
     debugDefaultTargetPlatformOverride = null;
     messenger.setMockMethodCallHandler(methods, null);
-    messenger.setMockStreamHandler(
-      events, null);
+    messenger.setMockStreamHandler(events, null);
   });
 
   group('status', () {
@@ -73,14 +72,20 @@ void main() {
     test('rend unavailable quand le canal échoue', () async {
       answer((_) async => throw PlatformException(code: '8'));
 
-      expect(await service.status(channel, preference), GeminiNanoStatus.unavailable);
+      expect(
+        await service.status(channel, preference),
+        GeminiNanoStatus.unavailable,
+      );
     });
 
     test('rend unavailable hors Android sans toucher au canal', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       answer((_) async => GeminiNanoStatus.available.id);
 
-      expect(await service.status(channel, preference), GeminiNanoStatus.unavailable);
+      expect(
+        await service.status(channel, preference),
+        GeminiNanoStatus.unavailable,
+      );
       expect(calls, isEmpty);
     });
   });
@@ -104,7 +109,12 @@ void main() {
     test('transmet la saisie et le nom du schéma', () async {
       answer((_) async => '{"category_slug":"divers.autre"}');
 
-      final raw = await service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference);
+      final raw = await service.generate(
+        prompt: 'resto',
+        schema: 'quick_add',
+        channel: channel,
+        preference: preference,
+      );
 
       expect(raw, '{"category_slug":"divers.autre"}');
       expect(calls.single.method, GeminiNanoService.generateMethod);
@@ -118,33 +128,35 @@ void main() {
       });
     });
 
-    test('ne transporte photo, chaleur et graine que si on les demande',
-        () async {
-      answer((_) async => '{}');
+    test(
+      'ne transporte photo, chaleur et graine que si on les demande',
+      () async {
+        answer((_) async => '{}');
 
-      await service.generate(
-        prompt: 'ticket',
-        schema: 'receiptStore',
-        channel: channel,
-        preference: preference,
-        image: Uint8List.fromList([1, 2, 3]),
-        temperature: 0.2,
-        seed: 42,
-        schemaInPrompt: true,
-        thinking: true,
-      );
+        await service.generate(
+          prompt: 'ticket',
+          schema: 'receiptStore',
+          channel: channel,
+          preference: preference,
+          image: Uint8List.fromList([1, 2, 3]),
+          temperature: 0.2,
+          seed: 42,
+          schemaInPrompt: true,
+          thinking: true,
+        );
 
-      final arguments = calls.single.arguments as Map<Object?, Object?>;
-      expect(arguments[GeminiNanoService.imageArgument], [1, 2, 3]);
-      expect(arguments[GeminiNanoService.temperatureArgument], 0.2);
-      expect(arguments[GeminiNanoService.seedArgument], 42);
-      expect(arguments[GeminiNanoService.schemaInPromptArgument], isTrue);
-      expect(arguments[GeminiNanoService.thinkingArgument], isTrue);
-      expect(
-        arguments.containsKey(GeminiNanoService.candidatesArgument),
-        isFalse,
-      );
-    });
+        final arguments = calls.single.arguments as Map<Object?, Object?>;
+        expect(arguments[GeminiNanoService.imageArgument], [1, 2, 3]);
+        expect(arguments[GeminiNanoService.temperatureArgument], 0.2);
+        expect(arguments[GeminiNanoService.seedArgument], 42);
+        expect(arguments[GeminiNanoService.schemaInPromptArgument], isTrue);
+        expect(arguments[GeminiNanoService.thinkingArgument], isTrue);
+        expect(
+          arguments.containsKey(GeminiNanoService.candidatesArgument),
+          isFalse,
+        );
+      },
+    );
 
     test('traduit le code d\'erreur natif en panne typée', () async {
       answer(
@@ -155,7 +167,12 @@ void main() {
       );
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
+        () => service.generate(
+          prompt: 'resto',
+          schema: 'quick_add',
+          channel: channel,
+          preference: preference,
+        ),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -170,7 +187,12 @@ void main() {
       answer((_) async => '');
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
+        () => service.generate(
+          prompt: 'resto',
+          schema: 'quick_add',
+          channel: channel,
+          preference: preference,
+        ),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -185,7 +207,12 @@ void main() {
       messenger.setMockMethodCallHandler(methods, null);
 
       expect(
-        () => service.generate(prompt: 'resto', schema: 'quick_add', channel: channel, preference: preference),
+        () => service.generate(
+          prompt: 'resto',
+          schema: 'quick_add',
+          channel: channel,
+          preference: preference,
+        ),
         throwsA(
           isA<GeminiNanoException>().having(
             (error) => error.failure,
@@ -224,7 +251,8 @@ void main() {
       emit([
         {
           GeminiNanoService.eventKey: GeminiNanoService.failedEvent,
-          GeminiNanoService.codeKey: '${GeminiNanoErrorCode.notEnoughDiskSpace}',
+          GeminiNanoService.codeKey:
+              '${GeminiNanoErrorCode.notEnoughDiskSpace}',
         },
       ]);
 

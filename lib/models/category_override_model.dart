@@ -3,18 +3,6 @@ import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class CategoryOverrideModel {
-  @Id()
-  int id = 0;
-
-  @Unique()
-  late String slug;
-
-  String? name;
-
-  String? icon;
-
-  int? color;
-
   CategoryOverrideModel();
 
   CategoryOverrideModel.create({
@@ -37,6 +25,17 @@ class CategoryOverrideModel {
 
     return model;
   }
+  @Id()
+  int id = 0;
+
+  @Unique()
+  late String slug;
+
+  String? name;
+
+  String? icon;
+
+  int? color;
 
   bool get isEmpty => name == null && icon == null && color == null;
 

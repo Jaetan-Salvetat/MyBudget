@@ -65,9 +65,7 @@ void main() {
         _line([
           _element('PAIN', const Rect.fromLTRB(0, 0, 60, 30)),
         ], angle: 2.0),
-        _line([
-          _element('LAIT', const Rect.fromLTRB(0, 40, 60, 70)),
-        ]),
+        _line([_element('LAIT', const Rect.fromLTRB(0, 40, 60, 70))]),
       ]);
 
       expect(recognizedAngles(recognized), [2.0]);

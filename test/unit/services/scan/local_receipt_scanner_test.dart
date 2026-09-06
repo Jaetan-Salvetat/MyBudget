@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/constants/receipt_schema.dart';
-import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';

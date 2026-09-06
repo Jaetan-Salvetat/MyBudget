@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
 import 'package:mybudget/models/quick_add_draft_model.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
@@ -27,14 +27,6 @@ final double _kFieldOffset =
     FrostedIconButtonSize.medium.box + QuickAddBar.gutter;
 
 class QuickAddBar extends ConsumerStatefulWidget {
-  static const double gutter = FrostedSpacing.sp4;
-
-  final bool focused;
-  final ValueChanged<bool> onFocusChanged;
-  final VoidCallback onNoAccount;
-
-  final ValueListenable<String>? hint;
-
   const QuickAddBar({
     required this.focused,
     required this.onFocusChanged,
@@ -42,6 +34,13 @@ class QuickAddBar extends ConsumerStatefulWidget {
     this.hint,
     super.key,
   });
+  static const double gutter = FrostedSpacing.sp4;
+
+  final bool focused;
+  final ValueChanged<bool> onFocusChanged;
+  final VoidCallback onNoAccount;
+
+  final ValueListenable<String>? hint;
 
   @override
   ConsumerState<QuickAddBar> createState() => QuickAddBarState();

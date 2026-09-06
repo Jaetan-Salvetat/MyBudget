@@ -7,9 +7,8 @@ import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanScheduleScreen extends StatelessWidget {
-  final Loan loan;
-
   const LoanScheduleScreen({required this.loan, super.key});
+  final Loan loan;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +195,9 @@ class LoanScheduleScreen extends StatelessWidget {
       parts.add('Assurance ${MoneyFormatter.format(installment.insurance)}');
     }
     if (installment.earlyPrincipal > 0) {
-      parts.add('Anticipé ${MoneyFormatter.format(installment.earlyPrincipal)}');
+      parts.add(
+        'Anticipé ${MoneyFormatter.format(installment.earlyPrincipal)}',
+      );
     }
     if (installment.indemnity > 0) {
       parts.add('IRA ${MoneyFormatter.format(installment.indemnity)}');

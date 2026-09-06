@@ -3,12 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 
 class RecurringSummaryCard extends StatelessWidget {
-  final int count;
-  final double total;
-  final bool expanded;
-  final VoidCallback onToggle;
-  final Widget? expandedContent;
-
   const RecurringSummaryCard({
     required this.count,
     required this.total,
@@ -17,6 +11,11 @@ class RecurringSummaryCard extends StatelessWidget {
     this.expandedContent,
     super.key,
   });
+  final int count;
+  final double total;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final Widget? expandedContent;
 
   static const Duration _duration = Duration(milliseconds: 250);
   static const Curve _curve = Curves.easeInOutCubic;

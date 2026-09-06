@@ -7,11 +7,10 @@ import 'package:mybudget/core/services/loan_schedule_service.dart';
 import 'package:mybudget/core/utils/money.dart';
 
 class LoanPayoffService {
+  const LoanPayoffService(this._scheduleService);
   static const double _bankMinimumRatio = 0.1;
 
   final LoanScheduleService _scheduleService;
-
-  const LoanPayoffService(this._scheduleService);
 
   EarlyRepaymentQuote? quote({required Loan loan, required LoanEvent event}) {
     final candidate = _scheduleService.build(

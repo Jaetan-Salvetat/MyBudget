@@ -127,9 +127,7 @@ void main() {
     });
 
     test('bills the first installment on the start date when immediate', () {
-      final schedule = service.build(
-        termsOf(immediateFirstPayment: true),
-      );
+      final schedule = service.build(termsOf(immediateFirstPayment: true));
 
       expect(schedule.installments.first.date, DateTime(2026, 1, 5));
       expect(schedule.endDate, DateTime(2026, 12, 5));
@@ -440,10 +438,7 @@ void main() {
         ],
       );
 
-      expect(
-        schedule.installments.where((i) => i.hasEarlyRepayment).length,
-        2,
-      );
+      expect(schedule.installments.where((i) => i.hasEarlyRepayment).length, 2);
       expectFullyRepaid(schedule);
     });
 
@@ -524,7 +519,10 @@ void main() {
       );
 
       expect(schedule.installments.first.interest, 0);
-      expect(schedule.installments.first.scheduledPayment, closeTo(768.64, 0.05));
+      expect(
+        schedule.installments.first.scheduledPayment,
+        closeTo(768.64, 0.05),
+      );
       expect(schedule.totalInterest, closeTo(74.41, 0.1));
       expectFullyRepaid(schedule);
     });
@@ -603,7 +601,9 @@ void main() {
     });
 
     test('handles a single installment loan', () {
-      final schedule = service.build(termsOf(amount: 500, rate: 0, duration: 1));
+      final schedule = service.build(
+        termsOf(amount: 500, rate: 0, duration: 1),
+      );
 
       expect(schedule.installmentCount, 1);
       expect(schedule.installments.single.scheduledPayment, 500);

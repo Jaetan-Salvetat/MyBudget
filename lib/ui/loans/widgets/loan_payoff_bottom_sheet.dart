@@ -13,9 +13,13 @@ import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/loans/providers/loan_payoff_provider.dart';
 
 class LoanPayoffBottomSheet extends ConsumerStatefulWidget {
+  const LoanPayoffBottomSheet({
+    required this.loan,
+    required this.onSubmit,
+    super.key,
+  });
+  final Loan loan;
   final void Function(LoanEventModel) onSubmit;
-
-  const LoanPayoffBottomSheet({required this.onSubmit, super.key});
 
   static void show({
     required BuildContext context,
@@ -26,10 +30,7 @@ class LoanPayoffBottomSheet extends ConsumerStatefulWidget {
       context: context,
       builder: (_) => FrostedBottomSheet(
         title: 'Remboursement anticipé',
-        child: ProviderScope(
-          overrides: [loanToPayoffProvider.overrideWithValue(loan)],
-          child: LoanPayoffBottomSheet(onSubmit: onSubmit),
-        ),
+        child: LoanPayoffBottomSheet(loan: loan, onSubmit: onSubmit),
       ),
     );
   }
@@ -39,8 +40,7 @@ class LoanPayoffBottomSheet extends ConsumerStatefulWidget {
       _LoanPayoffBottomSheetState();
 }
 
-class _LoanPayoffBottomSheetState
-    extends ConsumerState<LoanPayoffBottomSheet> {
+class _LoanPayoffBottomSheetState extends ConsumerState<LoanPayoffBottomSheet> {
   final _amountController = TextEditingController();
   final _dateFormat = DateFormatter.numericDate;
 
@@ -49,7 +49,7 @@ class _LoanPayoffBottomSheetState
     super.initState();
     _amountController.addListener(
       () => ref
-          .read(loanPayoffProvider.notifier)
+          .read(loanPayoffProvider(widget.loan).notifier)
           .setAmount(_amountController.text),
     );
   }
@@ -62,8 +62,8 @@ class _LoanPayoffBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(loanPayoffProvider);
-    final notifier = ref.read(loanPayoffProvider.notifier);
+    final state = ref.watch(loanPayoffProvider(widget.loan));
+    final notifier = ref.read(loanPayoffProvider(widget.loan).notifier);
 
     return ListView(
       shrinkWrap: true,
@@ -194,17 +194,29 @@ class _LoanPayoffBottomSheetState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _row(context, 'Échéance de règlement',
-                  _dateFormat.format(quote.settlementDate)),
+              _row(
+                context,
+                'Échéance de règlement',
+                _dateFormat.format(quote.settlementDate),
+              ),
               _divider(),
-              _row(context, 'Mensualité du mois',
-                  MoneyFormatter.format(quote.settlementPayment)),
+              _row(
+                context,
+                'Mensualité du mois',
+                MoneyFormatter.format(quote.settlementPayment),
+              ),
               _divider(),
-              _row(context, 'Capital remboursé',
-                  MoneyFormatter.format(quote.repaidCapital)),
+              _row(
+                context,
+                'Capital remboursé',
+                MoneyFormatter.format(quote.repaidCapital),
+              ),
               _divider(),
-              _row(context, 'Indemnité (IRA)',
-                  MoneyFormatter.format(quote.indemnity)),
+              _row(
+                context,
+                'Indemnité (IRA)',
+                MoneyFormatter.format(quote.indemnity),
+              ),
               _divider(),
               _row(
                 context,
@@ -213,8 +225,11 @@ class _LoanPayoffBottomSheetState
                 emphasized: true,
               ),
               _divider(),
-              _row(context, 'Économie réalisée',
-                  MoneyFormatter.format(quote.costSaved)),
+              _row(
+                context,
+                'Économie réalisée',
+                MoneyFormatter.format(quote.costSaved),
+              ),
               _divider(),
               _row(
                 context,
@@ -223,8 +238,11 @@ class _LoanPayoffBottomSheetState
               ),
               if (!quote.clearsTheLoan) ...[
                 _divider(),
-                _row(context, 'Nouvelle mensualité',
-                    MoneyFormatter.format(quote.newMonthlyPayment)),
+                _row(
+                  context,
+                  'Nouvelle mensualité',
+                  MoneyFormatter.format(quote.newMonthlyPayment),
+                ),
                 _divider(),
                 _row(
                   context,
@@ -250,7 +268,7 @@ class _LoanPayoffBottomSheetState
   }
 
   String _unavailableQuoteReason(BuildContext context) {
-    final state = ref.read(loanPayoffProvider);
+    final state = ref.read(loanPayoffProvider(widget.loan));
 
     if (!state.isTotal && state.amount <= 0) {
       return 'Renseignez un montant à rembourser pour estimer le solde.';
@@ -308,10 +326,7 @@ class _LoanPayoffBottomSheetState
           Icon(Symbols.info_rounded, size: 18, color: tone),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(fontSize: 12, color: tone),
-            ),
+            child: Text(message, style: TextStyle(fontSize: 12, color: tone)),
           ),
         ],
       ),

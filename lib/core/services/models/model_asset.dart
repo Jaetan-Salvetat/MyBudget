@@ -2,11 +2,7 @@ library;
 
 import 'package:flutter/services.dart';
 
-String selectModelAsset(
-  Iterable<String> assets,
-  RegExp pattern,
-  String label,
-) {
+String selectModelAsset(Iterable<String> assets, RegExp pattern, String label) {
   final matches = assets.where(pattern.hasMatch).toList(growable: false);
   if (matches.isEmpty) {
     throw StateError(

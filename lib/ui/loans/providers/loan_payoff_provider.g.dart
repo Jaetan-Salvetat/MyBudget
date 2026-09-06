@@ -9,68 +9,31 @@ part of 'loan_payoff_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(loanToPayoff)
-final loanToPayoffProvider = LoanToPayoffProvider._();
-
-final class LoanToPayoffProvider extends $FunctionalProvider<Loan, Loan, Loan>
-    with $Provider<Loan> {
-  LoanToPayoffProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'loanToPayoffProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$loanToPayoffHash();
-
-  @$internal
-  @override
-  $ProviderElement<Loan> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  Loan create(Ref ref) {
-    return loanToPayoff(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Loan value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Loan>(value),
-    );
-  }
-}
-
-String _$loanToPayoffHash() => r'58d8cee86ccd8400a7b4012b8a64cdc29b73c40e';
-
 @ProviderFor(LoanPayoffNotifier)
-final loanPayoffProvider = LoanPayoffNotifierProvider._();
+final loanPayoffProvider = LoanPayoffNotifierFamily._();
 
 final class LoanPayoffNotifierProvider
     extends $NotifierProvider<LoanPayoffNotifier, LoanPayoffState> {
-  LoanPayoffNotifierProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'loanPayoffProvider',
-        isAutoDispose: true,
-        dependencies: <ProviderOrFamily>[loanToPayoffProvider],
-        $allTransitiveDependencies: <ProviderOrFamily>[
-          LoanPayoffNotifierProvider.$allTransitiveDependencies0,
-        ],
-      );
-
-  static final $allTransitiveDependencies0 = loanToPayoffProvider;
+  LoanPayoffNotifierProvider._({
+    required LoanPayoffNotifierFamily super.from,
+    required Loan super.argument,
+  }) : super(
+         retry: null,
+         name: r'loanPayoffProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$loanPayoffNotifierHash();
+
+  @override
+  String toString() {
+    return r'loanPayoffProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -83,13 +46,51 @@ final class LoanPayoffNotifierProvider
       providerOverride: $SyncValueProvider<LoanPayoffState>(value),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LoanPayoffNotifierProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
 String _$loanPayoffNotifierHash() =>
-    r'c244b330776c28feaf0deab9ef079f9baaf0212c';
+    r'579052a5be49adb8adbaecd90fd8d369a0752fe5';
+
+final class LoanPayoffNotifierFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          LoanPayoffNotifier,
+          LoanPayoffState,
+          LoanPayoffState,
+          LoanPayoffState,
+          Loan
+        > {
+  LoanPayoffNotifierFamily._()
+    : super(
+        retry: null,
+        name: r'loanPayoffProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  LoanPayoffNotifierProvider call(Loan loan) =>
+      LoanPayoffNotifierProvider._(argument: loan, from: this);
+
+  @override
+  String toString() => r'loanPayoffProvider';
+}
 
 abstract class _$LoanPayoffNotifier extends $Notifier<LoanPayoffState> {
-  LoanPayoffState build();
+  late final _$args = ref.$arg as Loan;
+  Loan get loan => _$args;
+
+  LoanPayoffState build(Loan loan);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -102,6 +103,6 @@ abstract class _$LoanPayoffNotifier extends $Notifier<LoanPayoffState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

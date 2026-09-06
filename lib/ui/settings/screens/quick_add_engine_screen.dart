@@ -1,7 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
@@ -94,7 +93,7 @@ class QuickAddEngineScreen extends ConsumerWidget {
   Future<void> _openKeyScreen(BuildContext context) {
     return Navigator.push<void>(
       context,
-      MaterialPageRoute(builder: (_) => const GeminiCloudScreen()),
+      MaterialPageRoute<void>(builder: (_) => const GeminiCloudScreen()),
     );
   }
 }

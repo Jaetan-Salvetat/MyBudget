@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
+import 'package:mybudget/core/repositories/transaction_event_repository.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/revenues/revenues_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
@@ -29,7 +30,7 @@ void main() {
 
   RevenueModel subscription({
     required DateTime startDate,
-    String frequency = 'Mensuel',
+    Frequency frequency = Frequency.monthly,
   }) {
     final revenue = RevenueModel.create(
       name: 'Chomage',
@@ -157,7 +158,7 @@ void main() {
     test('is removed for good, whenever it was', () async {
       final revenue = subscription(
         startDate: today.subtract(const Duration(days: 3)),
-        frequency: 'Ponctuel',
+        frequency: Frequency.oneTime,
       );
 
       await (await notifierWith(revenue)).deleteRevenue(7);

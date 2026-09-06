@@ -11,9 +11,8 @@ const double _railWidth = 18;
 const double _dotSize = 7;
 
 class TransactionTimelineCard extends StatelessWidget {
-  final List<TransactionChangeEntry> entries;
-
   const TransactionTimelineCard({required this.entries, super.key});
+  final List<TransactionChangeEntry> entries;
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +36,14 @@ class TransactionTimelineCard extends StatelessWidget {
 }
 
 class _TimelineRow extends StatelessWidget {
-  final TransactionChangeEntry entry;
-  final String date;
-  final bool isLast;
-
   const _TimelineRow({
     required this.entry,
     required this.date,
     required this.isLast,
   });
+  final TransactionChangeEntry entry;
+  final String date;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +63,10 @@ class _TimelineRow extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 5),
                   width: _dotSize,
                   height: _dotSize,
-                  decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: tone,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 if (!isLast)
                   Expanded(

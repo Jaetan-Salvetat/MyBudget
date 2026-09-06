@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:mybudget/core/constants/quick_add_schema.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/frequency.dart';
@@ -9,12 +8,14 @@ import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_prompt.dart';
 import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
+import 'package:mybudget/core/time/clock.dart';
 
 class PromptQuickAddEngine implements QuickAddEngine {
   PromptQuickAddEngine({
     required this._client,
     required this._taxonomy,
     required this._prompt,
+    required this._clock,
   });
 
   static const int maxInputLength = 280;
@@ -24,11 +25,11 @@ class PromptQuickAddEngine implements QuickAddEngine {
   final AiChatClient _client;
   final CategoryTaxonomyService _taxonomy;
   final QuickAddPrompt _prompt;
-
+  final Clock _clock;
 
   @override
   Future<QuickAddClassification> classify(String input) async {
-    final facts = QuickAddTextReader.read(input);
+    final facts = QuickAddTextReader.read(input, today: _clock());
     final cleanedText = facts.modelText;
 
     final slugs = _taxonomy.selectableLeaves.map((node) => node.slug).toList();
@@ -48,9 +49,8 @@ class PromptQuickAddEngine implements QuickAddEngine {
     throw const AiRequestException(AiRequestFailure.malformedResponse);
   }
 
-  static String _truncate(String text) => text.length <= maxInputLength
-      ? text
-      : text.substring(0, maxInputLength);
+  static String _truncate(String text) =>
+      text.length <= maxInputLength ? text : text.substring(0, maxInputLength);
 
   Map<String, dynamic> _schemaFor(List<String> slugs) {
     return {

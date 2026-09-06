@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/account_balance_data.dart';
 import 'package:mybudget/core/services/home_widget_sync_service.dart';
 import 'package:mybudget/core/services/upcoming_item_data.dart';
@@ -5,7 +7,6 @@ import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/expenses/expense_queries.dart';
 import 'package:mybudget/ui/loans/loan_queries.dart';
 import 'package:mybudget/ui/revenues/revenue_queries.dart';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'home_widget_provider.g.dart';
@@ -15,7 +16,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
   @override
   DateTime build() {
     _syncAll();
-    return DateTime.now();
+    return ref.watch(clockProvider)();
   }
 
   Future<void> _syncAll() async {
@@ -25,7 +26,9 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
         _syncAccountBalances(),
         _syncUpcomingPayments(),
       ]);
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      debugPrint('Synchronisation du widget impossible : $error\n$stackTrace');
+    }
   }
 
   Future<void> _syncMonthlySummary() async {
@@ -43,7 +46,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
   }
 
   Future<void> _syncAccountBalances() async {
-    final accounts = ref.watch(accountProvider).value ?? [];
+    final accounts = ref.watch(accountProvider);
     final accountNotifier = ref.read(accountProvider.notifier);
 
     final balances = accounts
@@ -61,7 +64,7 @@ class HomeWidgetNotifier extends _$HomeWidgetNotifier {
   }
 
   Future<void> _syncUpcomingPayments() async {
-    final now = DateTime.now();
+    final now = ref.read(clockProvider)();
     final items = <UpcomingItemData>[];
 
     final expenses = ref.watch(upcomingExpensesProvider);

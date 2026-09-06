@@ -1,8 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/models/gemini_nano_download.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -157,7 +156,8 @@ class _Action extends ConsumerWidget {
         FrostedButton.filled(
           label: label,
           expanded: true,
-          onPressed: () => ref.read(geminiNanoDownloadProvider.notifier).start(),
+          onPressed: () =>
+              ref.read(geminiNanoDownloadProvider.notifier).start(),
         ),
       ],
     );

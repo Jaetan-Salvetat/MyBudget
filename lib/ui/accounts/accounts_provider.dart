@@ -11,47 +11,31 @@ part 'accounts_provider.g.dart';
 @Riverpod(keepAlive: true)
 class AccountNotifier extends _$AccountNotifier {
   @override
-  Future<List<AccountModel>> build() async {
+  List<AccountModel> build() {
     ref.watch(expenseProvider);
     ref.watch(revenueProvider);
     ref.watch(loanProvider);
     ref.watch(transferProvider);
 
-    final repo = ref.watch(accountRepositoryProvider);
-    return repo.getAll();
+    return ref.watch(accountRepositoryProvider).getAll();
   }
 
-  Future<void> addAccount(AccountModel account) async {
-    try {
-      final repo = ref.read(accountRepositoryProvider);
-      repo.add(account);
-      ref.invalidateSelf();
-      await future;
-    } catch (e) {
-      rethrow;
-    }
+  void addAccount(AccountModel account) {
+    final repo = ref.read(accountRepositoryProvider);
+    repo.add(account);
+    state = repo.getAll();
   }
 
-  Future<void> updateAccount(AccountModel account) async {
-    try {
-      final repo = ref.read(accountRepositoryProvider);
-      repo.update(account);
-      ref.invalidateSelf();
-      await future;
-    } catch (e) {
-      rethrow;
-    }
+  void updateAccount(AccountModel account) {
+    final repo = ref.read(accountRepositoryProvider);
+    repo.update(account);
+    state = repo.getAll();
   }
 
-  Future<void> deleteAccount(int id) async {
-    try {
-      final repo = ref.read(accountRepositoryProvider);
-      repo.delete(id);
-      ref.invalidateSelf();
-      await future;
-    } catch (e) {
-      rethrow;
-    }
+  void deleteAccount(int id) {
+    final repo = ref.read(accountRepositoryProvider);
+    repo.delete(id);
+    state = repo.getAll();
   }
 
   double getAccountBalance(int accountId) {

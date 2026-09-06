@@ -8,13 +8,6 @@ import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
 
 class EffortRateSection extends StatelessWidget {
-  static const double barThickness = 9;
-
-  final double? rate;
-  final double? annualRate;
-  final double recurringExpenses;
-  final double leftover;
-
   const EffortRateSection({
     super.key,
     required this.rate,
@@ -22,6 +15,12 @@ class EffortRateSection extends StatelessWidget {
     required this.recurringExpenses,
     required this.leftover,
   });
+  static const double barThickness = 9;
+
+  final double? rate;
+  final double? annualRate;
+  final double recurringExpenses;
+  final double leftover;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +100,10 @@ class EffortRateSection extends StatelessWidget {
   String? _referenceLabel(double rate) {
     final annualRate = this.annualRate;
     if (annualRate == null) return null;
-    if (PercentFormatter.formatShare(annualRate) == PercentFormatter.formatShare(rate)) return null;
+    if (PercentFormatter.formatShare(annualRate) ==
+        PercentFormatter.formatShare(rate)) {
+      return null;
+    }
     return '${PercentFormatter.formatShare(annualRate)} sur 12 mois, charges annuelles comprises';
   }
 
@@ -122,7 +124,6 @@ class EffortRateSection extends StatelessWidget {
     letterSpacingEm: 0.03,
     color: color,
   );
-
 }
 
 class _MissingIncome extends StatelessWidget {

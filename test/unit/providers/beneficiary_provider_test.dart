@@ -1,14 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 import 'package:mybudget/core/repositories/beneficiary_repository.dart';
 import 'package:mybudget/core/repositories/expense_repository.dart';
 import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/models/beneficiary_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/ui/settings/beneficiary_provider.dart';
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
 
@@ -168,7 +169,7 @@ void main() {
         accountId: 1,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       expense.beneficiaryId = 42;
 
@@ -193,7 +194,7 @@ void main() {
         amount: 500,
         accountId: 1,
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       revenue.beneficiaryId = 42;
 
@@ -219,7 +220,7 @@ void main() {
         accountId: 1,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       expense1.beneficiaryId = 42;
 
@@ -229,7 +230,7 @@ void main() {
         accountId: 1,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       expense2.beneficiaryId = 42;
 
@@ -363,7 +364,7 @@ void main() {
         accountId: 1,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       expense.beneficiaryId = 42;
 
@@ -372,7 +373,7 @@ void main() {
         amount: 500,
         accountId: 1,
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
       revenue.beneficiaryId = 7;
 
@@ -396,7 +397,7 @@ void main() {
         accountId: 1,
         categorySlug: 'restauration.cafe',
         startDate: DateTime.now(),
-        frequency: 'Mensuel',
+        frequency: Frequency.monthly,
       );
 
       when(() => mockExpenseRepo.getAll()).thenReturn([expense]);

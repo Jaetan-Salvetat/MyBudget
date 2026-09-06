@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/repositories/account_repository.dart';
 import 'package:mybudget/core/repositories/category_override_repository.dart';
@@ -80,7 +81,7 @@ void main() {
     amount: amount,
     accountId: 1,
     startDate: startDate,
-    frequency: 'Mensuel',
+    frequency: Frequency.monthly,
     categorySlug: categorySlug,
   );
 

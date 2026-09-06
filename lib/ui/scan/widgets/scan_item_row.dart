@@ -7,6 +7,15 @@ import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 
 class ScanItemRow extends StatefulWidget {
+  const ScanItemRow({
+    required this.item,
+    required this.category,
+    this.highlighted = false,
+    required this.onNameChanged,
+    required this.onAmountChanged,
+    required this.onPickCategory,
+    super.key,
+  });
   static const String unrankedLabel = 'Ranger cet article';
   static const String toConfirmSuffix = ' · à confirmer';
   static const String confirmedSuffix = ' · confirmé';
@@ -27,16 +36,6 @@ class ScanItemRow extends StatefulWidget {
   final ValueChanged<double> onAmountChanged;
   final VoidCallback onPickCategory;
 
-  const ScanItemRow({
-    required this.item,
-    required this.category,
-    this.highlighted = false,
-    required this.onNameChanged,
-    required this.onAmountChanged,
-    required this.onPickCategory,
-    super.key,
-  });
-
   @override
   State<ScanItemRow> createState() => _ScanItemRowState();
 }
@@ -52,7 +51,8 @@ class _ScanItemRowState extends State<ScanItemRow> {
   @override
   void didUpdateWidget(ScanItemRow oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.item.name != oldWidget.item.name && _name.text != widget.item.name) {
+    if (widget.item.name != oldWidget.item.name &&
+        _name.text != widget.item.name) {
       _name.text = widget.item.name;
     }
     final amount = _formatAmount(widget.item.effectiveAmount);
@@ -144,17 +144,14 @@ class _ScanItemRowState extends State<ScanItemRow> {
 }
 
 class _Pip extends StatelessWidget {
+  const _Pip({required this.item, required this.category});
   final ScannedItemModel item;
   final CategoryDisplay? category;
-
-  const _Pip({required this.item, required this.category});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = category == null
-        ? scheme.primary
-        : Color(category!.color);
+    final color = category == null ? scheme.primary : Color(category!.color);
 
     final BoxDecoration decoration;
     if (!item.isRanked) {
@@ -202,15 +199,14 @@ class _Pip extends StatelessWidget {
 }
 
 class _CategoryLine extends StatelessWidget {
-  final ScannedItemModel item;
-  final CategoryDisplay? category;
-  final VoidCallback onTap;
-
   const _CategoryLine({
     required this.item,
     required this.category,
     required this.onTap,
   });
+  final ScannedItemModel item;
+  final CategoryDisplay? category;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -263,15 +259,14 @@ class _CategoryLine extends StatelessWidget {
 }
 
 class _AmountField extends StatelessWidget {
-  final TextEditingController controller;
-  final double discount;
-  final VoidCallback onSubmit;
-
   const _AmountField({
     required this.controller,
     required this.discount,
     required this.onSubmit,
   });
+  final TextEditingController controller;
+  final double discount;
+  final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {

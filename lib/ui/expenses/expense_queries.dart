@@ -1,12 +1,12 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/stats_calculator.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/transaction_event_model.dart';
+import 'package:mybudget/core/services/stats_calculator.dart';
 import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/utils/history_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -52,7 +52,7 @@ double monthlyExpenses(Ref ref) {
 
 @Riverpod(keepAlive: true)
 double currentMonthExpenses(Ref ref) {
-  final now = DateTime.now();
+  final now = ref.watch(clockProvider)();
   return totalInMonth(
     ref.watch(expenseHistoryProvider),
     DateTime(now.year, now.month),
@@ -82,7 +82,7 @@ double annualExpenses(Ref ref) {
 @Riverpod(keepAlive: true)
 List<ExpenseModel> upcomingExpenses(Ref ref) {
   final expenses = ref.watch(activeExpensesProvider);
-  final now = DateTime.now();
+  final now = ref.watch(clockProvider)();
   final upcoming = expenses.where((expense) {
     switch (expense.frequencyEnum) {
       case Frequency.monthly:

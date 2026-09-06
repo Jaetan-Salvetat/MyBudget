@@ -14,6 +14,16 @@ import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 
 class ScanReceiptHeader extends StatefulWidget {
+  const ScanReceiptHeader({
+    required this.result,
+    required this.reveal,
+    required this.now,
+    this.progress = const ScanReadProgress(),
+    required this.onStoreChanged,
+    required this.onPickDate,
+    required this.onFillGap,
+    super.key,
+  });
   static const String readingLabel = 'Lecture du ticket';
   static const String verifiedLabel = 'Montants vérifiés sur le total';
   static const String storeFallback = 'Ticket';
@@ -27,20 +37,11 @@ class ScanReceiptHeader extends StatefulWidget {
   final ReceiptScanResultModel? result;
 
   final ScanReadProgress progress;
+  final DateTime now;
   final Animation<double> reveal;
   final ValueChanged<String> onStoreChanged;
   final VoidCallback onPickDate;
   final VoidCallback onFillGap;
-
-  const ScanReceiptHeader({
-    required this.result,
-    required this.reveal,
-    this.progress = const ScanReadProgress(),
-    required this.onStoreChanged,
-    required this.onPickDate,
-    required this.onFillGap,
-    super.key,
-  });
 
   @override
   State<ScanReceiptHeader> createState() => _ScanReceiptHeaderState();
@@ -64,9 +65,7 @@ class _ScanReceiptHeaderState extends State<ScanReceiptHeader> {
         return SizedBox(
           height: ScanReceiptHeader.height,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FrostedSpacing.sp5,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp5),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,6 +81,7 @@ class _ScanReceiptHeaderState extends State<ScanReceiptHeader> {
                 const SizedBox(height: FrostedSpacing.sp2),
                 _Meta(
                   date: _date,
+                  now: widget.now,
                   result: widget.result,
                   progress: t,
                   onPickDate: widget.onPickDate,
@@ -97,12 +97,11 @@ class _ScanReceiptHeaderState extends State<ScanReceiptHeader> {
 }
 
 class _Breathing extends StatefulWidget {
+  const _Breathing({required this.child});
   static const Duration period = Duration(milliseconds: 1400);
   static const double floor = 0.42;
 
   final Widget child;
-
-  const _Breathing({required this.child});
 
   @override
   State<_Breathing> createState() => _BreathingState();
@@ -147,17 +146,16 @@ Alignment headerAlignmentOf(double progress) =>
     Alignment.lerp(Alignment.center, Alignment.centerLeft, progress)!;
 
 class _Identity extends StatefulWidget {
-  final String? store;
-  final bool editable;
-  final double progress;
-  final ValueChanged<String> onStoreChanged;
-
   const _Identity({
     required this.store,
     required this.editable,
     required this.progress,
     required this.onStoreChanged,
   });
+  final String? store;
+  final bool editable;
+  final double progress;
+  final ValueChanged<String> onStoreChanged;
 
   @override
   State<_Identity> createState() => _IdentityState();
@@ -238,10 +236,9 @@ class _IdentityState extends State<_Identity> {
 }
 
 class _Amount extends StatelessWidget {
+  const _Amount({required this.amount, required this.progress});
   final double? amount;
   final double progress;
-
-  const _Amount({required this.amount, required this.progress});
 
   @override
   Widget build(BuildContext context) {
@@ -269,19 +266,20 @@ class _Amount extends StatelessWidget {
 }
 
 class _Meta extends StatelessWidget {
-  final DateTime? date;
-  final ReceiptScanResultModel? result;
-  final double progress;
-  final VoidCallback onPickDate;
-  final VoidCallback onFillGap;
-
   const _Meta({
     required this.date,
+    required this.now,
     required this.result,
     required this.progress,
     required this.onPickDate,
     required this.onFillGap,
   });
+  final DateTime? date;
+  final DateTime now;
+  final ReceiptScanResultModel? result;
+  final double progress;
+  final VoidCallback onPickDate;
+  final VoidCallback onFillGap;
 
   @override
   Widget build(BuildContext context) {
@@ -290,7 +288,7 @@ class _Meta extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final scan = result;
-    final read = date ?? DateTime.now();
+    final read = date ?? now;
 
     return Align(
       alignment: headerAlignmentOf(progress),
@@ -381,10 +379,9 @@ class _Separator extends StatelessWidget {
 }
 
 class _Tap extends StatelessWidget {
+  const _Tap({required this.onTap, required this.child, super.key});
   final VoidCallback onTap;
   final Widget child;
-
-  const _Tap({required this.onTap, required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
