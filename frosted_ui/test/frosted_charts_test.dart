@@ -294,6 +294,44 @@ void main() {
       expect(find.text('M6'), findsNothing);
     });
 
+    testWidgets('rounds a column with the chart radius', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedColumnChart(
+            columns: <FrostedColumnData>[FrostedColumnData(value: 100)],
+            height: 100,
+          ),
+          width: 40,
+        ),
+      );
+
+      expect(
+        tester.widget<ClipRRect>(find.byType(ClipRRect)).borderRadius,
+        BorderRadius.circular(FrostedChartTokens.columnRadius),
+      );
+    });
+
+    testWidgets('rounds a short column no further than it can carry', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedColumnChart(
+            columns: <FrostedColumnData>[FrostedColumnData(value: 100)],
+            height: 6,
+          ),
+          width: 200,
+        ),
+      );
+
+      expect(
+        tester.widget<ClipRRect>(find.byType(ClipRRect)).borderRadius,
+        BorderRadius.circular(3),
+      );
+    });
+
     testWidgets('reports the tapped column', (WidgetTester tester) async {
       int? tapped;
       await tester.pumpWidget(
@@ -388,15 +426,15 @@ void main() {
         ),
       );
 
-      const Radius full = Radius.circular(FrostedRadius.full);
+      const Radius end = Radius.circular(FrostedChartTokens.divergingRadius);
 
       expect(
         _radiiOf(tester, find.byType(FrostedDivergingBar).first),
-        <BorderRadius>[const BorderRadius.horizontal(right: full)],
+        <BorderRadius>[const BorderRadius.horizontal(right: end)],
       );
       expect(
         _radiiOf(tester, find.byType(FrostedDivergingBar).last),
-        <BorderRadius>[const BorderRadius.horizontal(left: full)],
+        <BorderRadius>[const BorderRadius.horizontal(left: end)],
       );
     });
   });

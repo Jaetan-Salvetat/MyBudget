@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_chart_tokens.dart';
@@ -130,26 +132,17 @@ class _Column extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: FractionallySizedBox(
           heightFactor: factor.clamp(FrostedChartTokens.columnMinFactor, 1.0),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(FrostedChartTokens.columnTopRadius),
-              bottom: Radius.circular(FrostedChartTokens.columnBottomRadius),
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                ColoredBox(color: trackColor),
-                if (data.value > 0)
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: FractionallySizedBox(
-                      widthFactor: 1,
-                      heightFactor: (data.fill / data.value).clamp(0.0, 1.0),
-                      child: ColoredBox(color: fillColor),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) =>
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    math.min(
+                      FrostedChartTokens.columnRadius,
+                      constraints.biggest.shortestSide / 2,
                     ),
                   ),
-              ],
-            ),
+                  child: _body(),
+                ),
           ),
         ),
       ),
@@ -163,4 +156,20 @@ class _Column extends StatelessWidget {
       child: column,
     );
   }
+
+  Widget _body() => Stack(
+    fit: StackFit.expand,
+    children: <Widget>[
+      ColoredBox(color: trackColor),
+      if (data.value > 0)
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: FractionallySizedBox(
+            widthFactor: 1,
+            heightFactor: (data.fill / data.value).clamp(0.0, 1.0),
+            child: ColoredBox(color: fillColor),
+          ),
+        ),
+    ],
+  );
 }

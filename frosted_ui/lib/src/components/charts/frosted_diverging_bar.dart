@@ -11,7 +11,7 @@ class FrostedDivergingBar extends StatelessWidget {
     required this.color,
     this.axisColor,
     this.thickness = FrostedChartTokens.barThickness,
-    this.radius = FrostedChartTokens.barRadius,
+    this.radius = FrostedChartTokens.divergingRadius,
     super.key,
   });
 

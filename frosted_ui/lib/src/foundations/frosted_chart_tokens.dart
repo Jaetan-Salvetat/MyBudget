@@ -18,11 +18,11 @@ class FrostedChartTokens {
   static const double columnChartHeight = 128;
   static const double columnGap = 4;
   static const double columnMinFactor = 0.02;
-  static const double columnTopRadius = 4;
-  static const double columnBottomRadius = 2;
+  static const double columnRadius = FrostedRadius.xs;
   static const double axisGap = 7;
   static const int axisLabelBudget = 6;
 
+  static const double divergingRadius = FrostedRadius.xs;
   static const double divergingAxisThickness = 1;
   static const double divergingVerticalPadding = 6;
 }
