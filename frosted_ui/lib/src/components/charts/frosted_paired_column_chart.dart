@@ -36,6 +36,11 @@ class FrostedPairedColumnChart extends StatelessWidget {
 
   static const double _labelRevealPoint = 0.5;
 
+  static const double _maxSlotWidth =
+      FrostedChartTokens.columnMaxBarWidth * 2 +
+      FrostedChartTokens.barGap +
+      FrostedChartTokens.columnGap;
+
   final List<FrostedPairedColumnData> columns;
   final double height;
   final Color? primaryColor;
@@ -85,6 +90,7 @@ class FrostedPairedColumnChart extends StatelessWidget {
         SizedBox(
           height: height,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               for (int index = 0; index < frames.length; index++)
@@ -109,6 +115,7 @@ class FrostedPairedColumnChart extends StatelessWidget {
         if (hasLabels) ...<Widget>[
           const SizedBox(height: FrostedChartTokens.axisGap),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               for (int index = 0; index < frames.length; index++)
                 SizedBox(
@@ -145,9 +152,9 @@ class FrostedPairedColumnChart extends StatelessWidget {
       return List<double>.filled(frames.length, 0);
     }
 
+    final double slot = math.min(maxWidth / total, _maxSlotWidth);
     return <double>[
-      for (final PairedColumnFrame frame in frames.frames)
-        maxWidth * frame.weight / total,
+      for (final PairedColumnFrame frame in frames.frames) slot * frame.weight,
     ];
   }
 

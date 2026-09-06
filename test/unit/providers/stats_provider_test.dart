@@ -114,16 +114,6 @@ void main() {
     return container.read(statsProvider);
   }
 
-  Future<StatsRange> readRange({
-    List<ExpenseModel> expenses = const [],
-    List<RevenueModel> revenues = const [],
-  }) async {
-    final container = containerWith(expenses: expenses, revenues: revenues);
-    await warmUp(container);
-
-    return container.read(statsRangeProvider);
-  }
-
   ExpenseModel expense({
     required double amount,
     required DateTime startDate,
@@ -306,56 +296,45 @@ void main() {
     });
   });
 
-  group('default range', () {
-    test('starts on two months while data covers two months at most', () async {
-      final range = await readRange(
+  group('quiet months', () {
+    test('leaves the months before the first move out of the chart', () async {
+      final state = await readState(
         expenses: [
           expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
         ],
       );
 
-      expect(range, StatsRange.twoMonths);
-    });
-
-    test('opens on six months once more than two months carry data', () async {
-      final range = await readRange(
-        expenses: [
-          for (var month = 0; month < 3; month++)
-            expense(
-              amount: 100,
-              startDate: monthsAgo(month),
-              frequency: 'Ponctuel',
-            ),
-        ],
-      );
-
-      expect(range, StatsRange.sixMonths);
-    });
-
-    test('never overrides the range the user picked', () async {
-      final container = containerWith(
-        expenses: [
-          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
-        ],
-      );
-      await warmUp(container);
-
-      container
-          .read(statsRangeProvider.notifier)
-          .select(StatsRange.twelveMonths);
-
-      when(() => mockExpenseRepo.getAll()).thenReturn([
-        for (var month = 0; month < 6; month++)
-          expense(
-            amount: 100,
-            startDate: monthsAgo(month),
-            frequency: 'Ponctuel',
-          ),
+      expect(state.flows.map((flow) => flow.month), [
+        DateTime(thisMonth.year, thisMonth.month - 1),
+        thisMonth,
       ]);
-      container.invalidate(expenseProvider);
-      await warmUp(container);
+    });
 
-      expect(container.read(statsRangeProvider), StatsRange.twelveMonths);
+    test('averages over the months that carry data only', () async {
+      final state = await readState(
+        revenues: [
+          revenue(amount: 600, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+        ],
+        expenses: [
+          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+        ],
+      );
+
+      expect(state.coveredMonths, 1);
+      expect(state.averageNet, 500);
+    });
+
+    test('holds a quiet month between two moves against the average', () async {
+      final state = await readState(
+        expenses: [
+          expense(amount: 100, startDate: monthsAgo(2), frequency: 'Ponctuel'),
+          expense(amount: 200, startDate: thisMonth, frequency: 'Ponctuel'),
+        ],
+      );
+
+      expect(state.flows, hasLength(3));
+      expect(state.coveredMonths, 2);
+      expect(state.averageNet, -150);
     });
   });
 

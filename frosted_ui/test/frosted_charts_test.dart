@@ -582,6 +582,148 @@ void main() {
       );
     });
 
+    testWidgets('never lets a bar grow into a slab when data is thin', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 100, secondary: 60, label: 'AO'),
+              FrostedPairedColumnData(primary: 80, secondary: 40, label: 'SE'),
+            ],
+          ),
+          width: 400,
+        ),
+      );
+
+      final List<double> widths = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => tester.getSize(find.byWidget(box)).width)
+          .toList();
+
+      expect(widths, everyElement(FrostedChartTokens.columnMaxBarWidth));
+    });
+
+    testWidgets('centres the whole run when data is thin', (
+      WidgetTester tester,
+    ) async {
+      const double width = 400;
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 100, secondary: 60, label: 'AO'),
+              FrostedPairedColumnData(primary: 80, secondary: 40, label: 'SE'),
+            ],
+          ),
+          width: width,
+        ),
+      );
+
+      final List<Rect> bars = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => tester.getRect(find.byWidget(box)))
+          .toList();
+
+      final Rect chart = tester.getRect(find.byType(FrostedPairedColumnChart));
+
+      expect(
+        (bars.first.left + bars.last.right) / 2,
+        moreOrLessEquals(chart.center.dx, epsilon: 0.5),
+      );
+      expect(
+        bars[1].right - bars[0].left,
+        moreOrLessEquals(
+          FrostedChartTokens.columnMaxBarWidth * 2 + FrostedChartTokens.barGap,
+        ),
+      );
+      expect(
+        bars[2].left - bars[1].right,
+        moreOrLessEquals(FrostedChartTokens.columnGap),
+      );
+    });
+
+    testWidgets('holds each pair over the label it belongs to', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 100, secondary: 60, label: 'AO'),
+              FrostedPairedColumnData(primary: 80, secondary: 40, label: 'SE'),
+            ],
+          ),
+          width: 400,
+        ),
+      );
+
+      final List<Rect> bars = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => tester.getRect(find.byWidget(box)))
+          .toList();
+
+      final Rect firstLabel = tester.getRect(find.text('AO'));
+      final Rect secondLabel = tester.getRect(find.text('SE'));
+
+      expect(
+        (bars[0].left + bars[1].right) / 2,
+        moreOrLessEquals(firstLabel.center.dx, epsilon: 0.5),
+      );
+      expect(
+        (bars[2].left + bars[3].right) / 2,
+        moreOrLessEquals(secondLabel.center.dx, epsilon: 0.5),
+      );
+    });
+
+    testWidgets('fills the slot it is given while data is dense', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              for (int index = 0; index < 12; index++)
+                const FrostedPairedColumnData(primary: 100, secondary: 60),
+            ],
+          ),
+          width: 400,
+        ),
+      );
+
+      final List<double> widths = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => tester.getSize(find.byWidget(box)).width)
+          .toList();
+
+      expect(
+        widths,
+        everyElement(lessThan(FrostedChartTokens.columnMaxBarWidth)),
+      );
+      expect(widths, everyElement(greaterThan(0)));
+    });
+
     testWidgets('paints one box per series', (WidgetTester tester) async {
       await tester.pumpWidget(
         _host(

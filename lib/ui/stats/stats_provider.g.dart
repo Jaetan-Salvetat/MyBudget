@@ -9,46 +9,6 @@ part of 'stats_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(statsActiveMonths)
-final statsActiveMonthsProvider = StatsActiveMonthsProvider._();
-
-final class StatsActiveMonthsProvider extends $FunctionalProvider<int, int, int>
-    with $Provider<int> {
-  StatsActiveMonthsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'statsActiveMonthsProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$statsActiveMonthsHash();
-
-  @$internal
-  @override
-  $ProviderElement<int> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  int create(Ref ref) {
-    return statsActiveMonths(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(int value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<int>(value),
-    );
-  }
-}
-
-String _$statsActiveMonthsHash() => r'15bbc540b35824f04b9632cb6a7e129067c83c1c';
-
 @ProviderFor(StatsRangeNotifier)
 final statsRangeProvider = StatsRangeNotifierProvider._();
 
@@ -82,7 +42,7 @@ final class StatsRangeNotifierProvider
 }
 
 String _$statsRangeNotifierHash() =>
-    r'66e177c5ad001b2ed56c9fc81641a60828749189';
+    r'356093f90927017ed56702ae30a8d368b6561fba';
 
 abstract class _$StatsRangeNotifier extends $Notifier<StatsRange> {
   StatsRange build();
@@ -134,7 +94,7 @@ final class StatsNotifierProvider
   }
 }
 
-String _$statsNotifierHash() => r'841d868fb155812c7a35fa2895cb4571c93e8c4a';
+String _$statsNotifierHash() => r'7c76779ccbd0ac3868465f45a91269c16ee8654c';
 
 abstract class _$StatsNotifier extends $Notifier<StatsState> {
   StatsState build();

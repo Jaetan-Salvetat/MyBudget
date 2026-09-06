@@ -17,6 +17,7 @@ class FrostedChartTokens {
 
   static const double columnChartHeight = 128;
   static const double columnGap = 4;
+  static const double columnMaxBarWidth = 40;
   static const double columnMinFactor = 0.02;
   static const double columnRadius = FrostedRadius.xs;
   static const double axisGap = 7;

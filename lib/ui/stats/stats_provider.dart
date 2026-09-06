@@ -79,35 +79,11 @@ class StatsState {
 }
 
 @Riverpod(keepAlive: true)
-int statsActiveMonths(Ref ref) {
-  final calculator = StatsCalculator(
-    expenses: ref.watch(expenseHistoryProvider),
-    revenues: ref.watch(revenueHistoryProvider),
-    loans: ref.watch(loanProvider).value ?? const [],
-    resolver: null,
-  );
-
-  final now = DateTime.now();
-  return calculator.activeMonthsOver(
-    StatsCalculator.monthsEndingAt(
-      DateTime(now.year, now.month),
-      StatsRange.twelveMonths.months,
-    ),
-  );
-}
-
-@Riverpod(keepAlive: true)
 class StatsRangeNotifier extends _$StatsRangeNotifier {
-  StatsRange? _picked;
-
   @override
-  StatsRange build() =>
-      _picked ?? StatsRange.defaultFor(ref.watch(statsActiveMonthsProvider));
+  StatsRange build() => StatsRange.sixMonths;
 
-  void select(StatsRange range) {
-    _picked = range;
-    state = range;
-  }
+  void select(StatsRange range) => state = range;
 }
 
 @Riverpod(keepAlive: true)
@@ -132,7 +108,7 @@ class StatsNotifier extends _$StatsNotifier {
       range.months,
     );
 
-    final flows = calculator.flowsOver(months);
+    final flows = calculator.flowsSinceFirstActivity(months);
     final previousFlows = calculator.flowsOver(earlier);
     final earliest = calculator.earliestMonth();
 
@@ -145,7 +121,7 @@ class StatsNotifier extends _$StatsNotifier {
       flows: flows,
       totalIncomes: flows.fold(0.0, (sum, flow) => sum + flow.incomes),
       totalExpenses: totalExpenses,
-      coveredMonths: _coveredMonths(months, earliest),
+      coveredMonths: _activeMonths(flows),
       previousIncomes: previousFlows.fold(
         0.0,
         (sum, flow) => sum + flow.incomes,
@@ -154,7 +130,7 @@ class StatsNotifier extends _$StatsNotifier {
         0.0,
         (sum, flow) => sum + flow.expenses,
       ),
-      previousCoveredMonths: _coveredMonths(earlier, earliest),
+      previousCoveredMonths: _activeMonths(previousFlows),
       recurringExpenses: calculator.recurringExpensesOver(months),
       previousRecurringExpenses: calculator.recurringExpensesOver(earlier),
       categories: _buildTrends(totals, previousTotals, totalExpenses, resolver),
@@ -162,10 +138,8 @@ class StatsNotifier extends _$StatsNotifier {
     );
   }
 
-  int _coveredMonths(List<DateTime> months, DateTime? earliest) {
-    if (earliest == null) return 0;
-    return months.where((month) => !month.isBefore(earliest)).length;
-  }
+  int _activeMonths(List<MonthlyFlow> flows) =>
+      flows.where((flow) => !flow.isEmpty).length;
 
   List<CategoryTrend> _buildTrends(
     Map<String, double> totals,

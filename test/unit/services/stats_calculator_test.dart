@@ -195,8 +195,29 @@ void main() {
     });
   });
 
-  group('activeMonthsOver', () {
-    test('counts only the months where something moved', () {
+  group('flowsSinceFirstActivity', () {
+    test('drops the months that precede the first move', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 100,
+            startDate: DateTime(2026, 3, 5),
+            frequency: 'Ponctuel',
+          ),
+        ],
+      );
+
+      final flows = calculator.flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
+
+      expect(flows.map((flow) => flow.month), [
+        DateTime(2026, 3),
+        DateTime(2026, 4),
+      ]);
+    });
+
+    test('keeps a quiet month sitting inside the window', () {
       final calculator = calculatorWith(
         expenses: [
           expense(
@@ -212,26 +233,23 @@ void main() {
         ],
       );
 
-      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
-
-      expect(calculator.activeMonthsOver(months), 2);
-    });
-
-    test('counts a recurring expense in every month it lands on', () {
-      final calculator = calculatorWith(
-        expenses: [expense(amount: 100, startDate: DateTime(2026, 2, 5))],
+      final flows = calculator.flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
       );
 
-      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
-
-      expect(calculator.activeMonthsOver(months), 3);
+      expect(flows.map((flow) => flow.month), [
+        DateTime(2026, 2),
+        DateTime(2026, 3),
+        DateTime(2026, 4),
+      ]);
     });
 
-    test('is zero when nothing happened over the window', () {
-      final calculator = calculatorWith();
-      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
+    test('keeps the whole window when nothing ever moved', () {
+      final flows = calculatorWith().flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
 
-      expect(calculator.activeMonthsOver(months), 0);
+      expect(flows, hasLength(4));
     });
   });
 
