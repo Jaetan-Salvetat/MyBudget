@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 
@@ -14,7 +14,7 @@ class MonthSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final selectedMonth = ref.watch(selectedMonthProvider);
-    final label = DateFormat('MMMM yyyy', 'fr_FR').format(selectedMonth);
+    final label = DateFormatter.monthYear.format(selectedMonth);
     final capitalizedLabel = label.replaceFirst(
       label[0],
       label[0].toUpperCase(),

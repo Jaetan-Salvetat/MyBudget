@@ -1,11 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:intl/intl.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
@@ -41,7 +42,6 @@ class CompactRevenueRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
     final categoryColor = category != null
         ? Color(category!.color)
@@ -49,14 +49,8 @@ class CompactRevenueRow extends StatelessWidget {
 
     final dateLabel = switch (revenue.frequencyEnum) {
       Frequency.monthly => 'Le ${revenue.startDate.day}',
-      Frequency.annual => DateFormat(
-        "'Le' d MMMM",
-        'fr_FR',
-      ).format(revenue.startDate),
-      Frequency.oneTime => DateFormat(
-        'd MMMM',
-        'fr_FR',
-      ).format(revenue.startDate),
+      Frequency.annual => 'Le ${DateFormatter.dayMonth.format(revenue.startDate)}',
+      Frequency.oneTime => DateFormatter.dayMonth.format(revenue.startDate),
     };
 
     final metaParts = <String>[
@@ -121,7 +115,7 @@ class CompactRevenueRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '+ ${formatter.format(revenue.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
+              '+ ${MoneyFormatter.format(revenue.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
               style: TextStyle(
                 fontSize: 15,
                 height: 20 / 15,

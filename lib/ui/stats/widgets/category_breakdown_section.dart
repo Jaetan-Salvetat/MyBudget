@@ -1,6 +1,7 @@
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
 import 'package:mybudget/ui/common/widgets/solid_card.dart';
@@ -106,7 +107,7 @@ class _CategoryRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '${(slice.share * 100).round()}%',
+              PercentFormatter.formatShare(slice.share),
               textAlign: TextAlign.right,
               style: AppTextStyles.mono(
                 fontSize: 10,
@@ -118,7 +119,7 @@ class _CategoryRow extends StatelessWidget {
             SizedBox(
               width: 66,
               child: Text(
-                _money(slice.amount),
+                MoneyFormatter.formatRounded(slice.amount),
                 textAlign: TextAlign.right,
                 style: AppTextStyles.mono(
                   fontSize: 12,
@@ -133,9 +134,4 @@ class _CategoryRow extends StatelessWidget {
     );
   }
 
-  String _money(double amount) => NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-    decimalDigits: 0,
-  ).format(amount);
 }

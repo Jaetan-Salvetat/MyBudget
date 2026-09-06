@@ -1,15 +1,15 @@
 import 'dart:ui' show lerpDouble;
-
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scan_read_progress_model.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 
@@ -260,7 +260,7 @@ class _Amount extends StatelessWidget {
       child: AnimatedAmount(
         amount: amount ?? 0,
         builder: (context, value) => Text(
-          amount == null ? '—' : scanCurrency.format(value),
+          amount == null ? '—' : MoneyFormatter.format(value),
           style: style,
         ),
       ),
@@ -306,7 +306,7 @@ class _Meta extends StatelessWidget {
                 onTap: onPickDate,
                 child: ScanSwap(
                   child: Text(
-                    scanDate.format(read),
+                    DateFormatter.longDate.format(read),
                     key: ValueKey(read),
                     style: style,
                   ),
@@ -328,7 +328,7 @@ class _Meta extends StatelessWidget {
                             key: const ValueKey('gap'),
                             onTap: onFillGap,
                             child: Text(
-                              'écart ${scanCurrency.format(scan.gap!)}',
+                              'écart ${MoneyFormatter.format(scan.gap!)}',
                               style: style?.copyWith(
                                 color: context.financeColors.expense,
                                 fontWeight: FontWeight.w500,

@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/entities/loan_installment.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class LoanScheduleScreen extends StatelessWidget {
@@ -35,7 +36,6 @@ class LoanScheduleScreen extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final currency = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -57,30 +57,30 @@ class LoanScheduleScreen extends StatelessWidget {
             _summaryLine(
               context,
               'Capital',
-              currency.format(loan.amount),
+              MoneyFormatter.format(loan.amount),
             ),
             _summaryLine(
               context,
               'Intérêts',
-              currency.format(loan.schedule.totalInterest),
+              MoneyFormatter.format(loan.schedule.totalInterest),
             ),
             _summaryLine(
               context,
               'Assurance',
-              currency.format(loan.schedule.totalInsurance),
+              MoneyFormatter.format(loan.schedule.totalInsurance),
             ),
             if (loan.schedule.totalIndemnity > 0)
               _summaryLine(
                 context,
                 'Indemnités',
-                currency.format(loan.schedule.totalIndemnity),
+                MoneyFormatter.format(loan.schedule.totalIndemnity),
               ),
             if (loan.fees > 0)
-              _summaryLine(context, 'Frais', currency.format(loan.fees)),
+              _summaryLine(context, 'Frais', MoneyFormatter.format(loan.fees)),
             _summaryLine(
               context,
               'Coût total',
-              currency.format(loan.totalCost),
+              MoneyFormatter.format(loan.totalCost),
               emphasized: true,
             ),
           ],
@@ -127,8 +127,7 @@ class LoanScheduleScreen extends StatelessWidget {
     LoanInstallment installment,
   ) {
     final scheme = Theme.of(context).colorScheme;
-    final currency = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final dateFormat = DateFormat('MM/yyyy');
+    final dateFormat = DateFormatter.numericMonthYear;
     final isSettled = !installment.date.isAfter(loan.asOf);
 
     return Opacity(
@@ -161,7 +160,7 @@ class LoanScheduleScreen extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    currency.format(installment.totalPayment),
+                    MoneyFormatter.format(installment.totalPayment),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -172,12 +171,12 @@ class LoanScheduleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                _breakdownOf(installment, currency),
+                _breakdownOf(installment),
                 style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
               ),
               const SizedBox(height: 2),
               Text(
-                'Restant dû ${currency.format(installment.closingCapital)}',
+                'Restant dû ${MoneyFormatter.format(installment.closingCapital)}',
                 style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
               ),
             ],
@@ -187,20 +186,20 @@ class LoanScheduleScreen extends StatelessWidget {
     );
   }
 
-  String _breakdownOf(LoanInstallment installment, NumberFormat currency) {
+  String _breakdownOf(LoanInstallment installment) {
     final parts = <String>[
-      'Capital ${currency.format(installment.principal)}',
-      'Intérêts ${currency.format(installment.interest)}',
+      'Capital ${MoneyFormatter.format(installment.principal)}',
+      'Intérêts ${MoneyFormatter.format(installment.interest)}',
     ];
 
     if (installment.insurance > 0) {
-      parts.add('Assurance ${currency.format(installment.insurance)}');
+      parts.add('Assurance ${MoneyFormatter.format(installment.insurance)}');
     }
     if (installment.earlyPrincipal > 0) {
-      parts.add('Anticipé ${currency.format(installment.earlyPrincipal)}');
+      parts.add('Anticipé ${MoneyFormatter.format(installment.earlyPrincipal)}');
     }
     if (installment.indemnity > 0) {
-      parts.add('IRA ${currency.format(installment.indemnity)}');
+      parts.add('IRA ${MoneyFormatter.format(installment.indemnity)}');
     }
 
     return parts.join(' · ');

@@ -1,17 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/scan_review_factory.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_list.dart';
-import 'package:mybudget/ui/scan/widgets/scan_output_summary.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
+import 'package:mybudget/ui/scan/widgets/scan_output_summary.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
-
-import '../../helpers/scan_review_factory.dart';
 
 ReceiptScanResultModel receipt({double? printedTotal}) {
   return scanResult(
@@ -205,7 +204,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(ScanReceiptHeader),
-        matching: find.text(scanDate.format(DateTime.now())),
+        matching: find.text(DateFormatter.longDate.format(DateTime.now())),
       ),
       findsOneWidget,
     );
@@ -218,7 +217,7 @@ void main() {
 
     final date = find.descendant(
       of: find.byType(ScanReceiptHeader),
-      matching: find.text(scanDate.format(DateTime(2026, 8, 31))),
+      matching: find.text(DateFormatter.longDate.format(DateTime(2026, 8, 31))),
     );
 
     expect(tester.getTopLeft(date).dx, FrostedSpacing.sp5);

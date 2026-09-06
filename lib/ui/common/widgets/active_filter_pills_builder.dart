@@ -1,4 +1,5 @@
 import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transaction_filter_data.dart';
@@ -95,10 +96,13 @@ class ActiveFilterPillsBuilder {
   }
 
   static String _amountLabel(TransactionFilterData filter) {
-    final min = filter.minAmount?.round();
-    final max = filter.maxAmount?.round();
-    if (min != null && max != null) return '$min – $max €';
-    if (min != null) return '≥ $min €';
-    return '≤ $max €';
+    final min = filter.minAmount;
+    final max = filter.maxAmount;
+    if (min != null && max != null) {
+      return '${MoneyFormatter.formatPlainRounded(min)} – '
+          '${MoneyFormatter.formatRounded(max)}';
+    }
+    if (min != null) return '≥ ${MoneyFormatter.formatRounded(min)}';
+    return '≤ ${MoneyFormatter.formatRounded(max!)}';
   }
 }

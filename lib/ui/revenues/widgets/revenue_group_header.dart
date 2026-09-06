@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -22,11 +23,6 @@ class RevenueGroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
     final color = group.color != null
         ? Color(group.color!)
         : context.financeColors.income;
@@ -58,7 +54,7 @@ class RevenueGroupHeader extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                _trailingLabel(formatter),
+                _trailingLabel(),
                 style: AppTextStyles.mono(
                   fontSize: 11,
                   color: scheme.onSurfaceVariant,
@@ -75,10 +71,10 @@ class RevenueGroupHeader extends StatelessWidget {
     );
   }
 
-  String _trailingLabel(NumberFormat formatter) {
-    final total = formatter.format(group.total);
+  String _trailingLabel() {
+    final total = MoneyFormatter.formatRounded(group.total);
     if (group.share >= _fullShare) return total;
-    return '$total · ${(group.share * 100).round()} %';
+    return '$total · ${PercentFormatter.formatShare(group.share)}';
   }
 }
 

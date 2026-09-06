@@ -1,13 +1,11 @@
 import 'dart:async';
-
 import 'package:app_updater/app_updater.dart';
-import 'package:material_ui/material_ui.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/feature_flags.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
+import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/models/feature_flag.dart';
 import 'package:mybudget/core/providers/feature_flags_provider.dart';
 import 'package:mybudget/core/providers/providers.dart';
@@ -15,6 +13,7 @@ import 'package:mybudget/core/services/ai/api_key_service.dart';
 import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/theme_provider.dart';
 import 'package:mybudget/ui/home_widget/home_widget_provider.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -34,7 +33,7 @@ void main() {
         featureFlags.map((FeatureFlag flag) => flag.id).toSet(),
       );
       await ApiKeyService().migrateLegacyGeminiKey();
-      await initializeDateFormatting('fr_FR', null);
+      await initializeDateFormatting(DisplayLocale.tag, null);
 
       final flavor = BuildFlavor.current;
       final packageInfo = await PackageInfo.fromPlatform();

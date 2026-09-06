@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
@@ -52,12 +52,6 @@ class TransferRow extends StatelessWidget {
     final meta = transfer.frequency == Frequency.oneTime
         ? freqLabel
         : '$freqLabel · Le $day';
-
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
 
     return InkWell(
       onTap: onEdit,
@@ -112,7 +106,7 @@ class TransferRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              '$signPrefix${formatter.format(transfer.amount.abs())}',
+              '$signPrefix${MoneyFormatter.format(transfer.amount.abs())}',
               style: AppTextStyles.amount(fontSize: 15, color: amountColor),
             ),
             SizedBox(

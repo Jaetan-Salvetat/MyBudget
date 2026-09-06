@@ -1,9 +1,10 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/flutter_material_mapper.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/update_provider.dart';
@@ -125,7 +126,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   Widget _buildUpdateAvailable(UpdateState state, ThemeData theme) {
     final release = state.availableUpdate!;
     final asset = release.defaultApkAsset;
-    final dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
+    final dateFormat = DateFormatter.longDate;
 
     final metaInfo = StringBuffer(
       'Publiée le ${dateFormat.format(release.publishedAt)}',
@@ -203,7 +204,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             FrostedLinearProgress(value: state.downloadProgress),
             const SizedBox(height: 8),
             Text(
-              'Téléchargement... ${(state.downloadProgress * 100).toStringAsFixed(0)}%',
+              'Téléchargement... ${PercentFormatter.formatShare(state.downloadProgress)}',
               style: theme.textTheme.bodyMedium,
             ),
           ] else ...[

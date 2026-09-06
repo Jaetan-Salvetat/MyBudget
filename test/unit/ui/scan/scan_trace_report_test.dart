@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/ui/scan/screens/scan_trace_report.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
@@ -46,7 +46,7 @@ void main() {
   test('une somme prouvée annonce sa référence', () async {
     final report = await reportOf('5,00');
     expect(report, contains('somme prouvée'));
-    expect(report, contains('référence 5.00'));
+    expect(report, contains('référence ${MoneyFormatter.formatPlain(5)}'));
   });
 
   test('une somme non prouvée le dit sans inventer d\'hypothèse', () async {
@@ -64,8 +64,8 @@ void main() {
 
   test('une ligne chiffrée porte ses candidats et son étiquette', () async {
     final report = await reportOf('5,00');
-    expect(report, contains('candidats 2.00'));
-    expect(report, contains('décodé article 2.00'));
+    expect(report, contains('candidats ${MoneyFormatter.formatPlain(2)}'));
+    expect(report, contains('décodé article ${MoneyFormatter.formatPlain(2)}'));
     expect(report, contains('décodé total'));
   });
 

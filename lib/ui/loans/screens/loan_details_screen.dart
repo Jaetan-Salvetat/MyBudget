@@ -1,21 +1,23 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/loans/widgets/loan_detail_hero.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_info_card.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_kpi_card.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_row.dart';
-import 'package:mybudget/ui/loans/screens/loan_schedule_screen.dart';
-import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
+import 'package:mybudget/ui/loans/loans_provider.dart';
 import 'package:mybudget/ui/loans/screens/loan_edit_screen.dart';
+import 'package:mybudget/ui/loans/screens/loan_schedule_screen.dart';
+import 'package:mybudget/ui/loans/widgets/loan_detail_hero.dart';
+import 'package:mybudget/ui/loans/widgets/loan_early_repayments_card.dart';
 import 'package:mybudget/ui/loans/widgets/loan_payoff_bottom_sheet.dart';
 
 class LoanDetailsScreen extends ConsumerStatefulWidget {
@@ -30,13 +32,7 @@ class LoanDetailsScreen extends ConsumerStatefulWidget {
 class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
   late Loan loan;
 
-  final _formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-  final _compactFormatter = NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-    decimalDigits: 0,
-  );
-  final _dateFormatter = DateFormat('dd/MM/yyyy');
+  final _dateFormatter = DateFormatter.numericDate;
 
   @override
   void initState() {
@@ -170,7 +166,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
         : '${_monthsBetween(loan.startDate, loan.endDate)}';
     return DetailKpiCard(
       leftLabel: 'Capital restant',
-      leftValue: _compactFormatter.format(loan.remainingCapital),
+      leftValue: MoneyFormatter.formatRounded(loan.remainingCapital),
       rightLabel: 'Mois restants',
       rightValue: '${loan.remainingMonths}',
       rightHint: 'sur $durationLabel',
@@ -181,11 +177,11 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     final rows = <DetailRow>[
       DetailRow(
         label: 'Montant emprunté',
-        value: _compactFormatter.format(loan.amount),
+        value: MoneyFormatter.formatRounded(loan.amount),
       ),
       DetailRow(
         label: 'Taux d\'intérêt',
-        value: '${loan.interestRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+        value: PercentFormatter.formatRate(loan.interestRate),
       ),
       DetailRow(
         label: 'Durée',
@@ -223,11 +219,11 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
       if (loan.fees > 0)
         DetailRow(
           label: 'Frais de dossier',
-          value: _formatter.format(loan.fees),
+          value: MoneyFormatter.format(loan.fees),
         ),
       DetailRow(
         label: 'Coût total',
-        value: _formatter.format(loan.totalCost),
+        value: MoneyFormatter.format(loan.totalCost),
       ),
       DetailRow(label: 'Type de prêt', value: loan.purpose.label),
       if (!loan.hasIndemnityClause)
@@ -238,7 +234,7 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
       DetailRow(
         label: 'TAEG',
         value:
-            '${loan.annualPercentageRate.toStringAsFixed(2).replaceAll('.', ',')} %',
+            PercentFormatter.formatRate(loan.annualPercentageRate),
         icon: Symbols.percent_rounded,
       ),
       DetailRow(
@@ -260,8 +256,8 @@ class _LoanDetailsScreenState extends ConsumerState<LoanDetailsScreen> {
     }
 
     final amountLabel = loan.insuranceType == LoanInsuranceType.fixed
-        ? '${_formatter.format(loan.insuranceValue)} / mois'
-        : '${loan.insuranceValue.toStringAsFixed(2).replaceAll('.', ',')} %';
+        ? '${MoneyFormatter.format(loan.insuranceValue)} / mois'
+        : PercentFormatter.formatRate(loan.insuranceValue);
 
     return [
       DetailRow(label: 'Type', value: loan.insuranceType.label),

@@ -1,7 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
@@ -94,7 +95,7 @@ class _ReceiptDemoViewState extends ConsumerState<ReceiptDemoView>
             ),
             const SizedBox(height: FrostedSpacing.sp1),
             Text(
-              DateFormat('dd/MM/yyyy', 'fr_FR').format(DateTime.now()),
+              DateFormatter.numericDate.format(DateTime.now()),
               textAlign: TextAlign.center,
               style: AppTextStyles.mono(
                 fontSize: 10,
@@ -175,16 +176,12 @@ class _ReceiptLine extends StatelessWidget {
           ),
           const SizedBox(width: FrostedSpacing.sp2),
           Expanded(child: Text(line.label, style: style)),
-          Text(_amount(line.amount), style: style),
+          Text(MoneyFormatter.formatPlain(line.amount), style: style),
         ],
       ),
     );
   }
 
-  String _amount(double value) => NumberFormat.decimalPatternDigits(
-    locale: 'fr_FR',
-    decimalDigits: 2,
-  ).format(value);
 }
 
 class _TotalLine extends StatelessWidget {
@@ -205,7 +202,7 @@ class _TotalLine extends StatelessWidget {
       children: [
         Expanded(child: Text('TOTAL', style: style)),
         Text(
-          NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(total),
+          MoneyFormatter.format(total),
           style: style,
         ),
       ],

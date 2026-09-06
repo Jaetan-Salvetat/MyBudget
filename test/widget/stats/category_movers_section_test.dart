@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/ui/stats/models/category_trend.dart';
 import 'package:mybudget/ui/stats/widgets/category_movers_section.dart';
 
@@ -86,8 +87,8 @@ void main() {
       ),
     );
 
-    expect(find.text('+271 €'), findsOneWidget);
-    expect(find.text('−266 €'), findsOneWidget);
+    expect(find.text('${MoneyFormatter.plusSign}${MoneyFormatter.formatRounded(271)}'), findsOneWidget);
+    expect(find.text('${MoneyFormatter.minusSign}${MoneyFormatter.formatRounded(266)}'), findsOneWidget);
     expect(find.text('vs 6 mois précédents'), findsOneWidget);
   });
 

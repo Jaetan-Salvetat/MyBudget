@@ -1,12 +1,13 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/early_repayment_quote.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/models/loan_event_model.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/loans/providers/loan_payoff_provider.dart';
@@ -41,8 +42,7 @@ class LoanPayoffBottomSheet extends ConsumerStatefulWidget {
 class _LoanPayoffBottomSheetState
     extends ConsumerState<LoanPayoffBottomSheet> {
   final _amountController = TextEditingController();
-  final _currency = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-  final _dateFormat = DateFormat('dd/MM/yyyy');
+  final _dateFormat = DateFormatter.numericDate;
 
   @override
   void initState() {
@@ -198,23 +198,23 @@ class _LoanPayoffBottomSheetState
                   _dateFormat.format(quote.settlementDate)),
               _divider(),
               _row(context, 'Mensualité du mois',
-                  _currency.format(quote.settlementPayment)),
+                  MoneyFormatter.format(quote.settlementPayment)),
               _divider(),
               _row(context, 'Capital remboursé',
-                  _currency.format(quote.repaidCapital)),
+                  MoneyFormatter.format(quote.repaidCapital)),
               _divider(),
               _row(context, 'Indemnité (IRA)',
-                  _currency.format(quote.indemnity)),
+                  MoneyFormatter.format(quote.indemnity)),
               _divider(),
               _row(
                 context,
                 'Total à payer',
-                _currency.format(quote.totalDue),
+                MoneyFormatter.format(quote.totalDue),
                 emphasized: true,
               ),
               _divider(),
               _row(context, 'Économie réalisée',
-                  _currency.format(quote.costSaved)),
+                  MoneyFormatter.format(quote.costSaved)),
               _divider(),
               _row(
                 context,
@@ -224,7 +224,7 @@ class _LoanPayoffBottomSheetState
               if (!quote.clearsTheLoan) ...[
                 _divider(),
                 _row(context, 'Nouvelle mensualité',
-                    _currency.format(quote.newMonthlyPayment)),
+                    MoneyFormatter.format(quote.newMonthlyPayment)),
                 _divider(),
                 _row(
                   context,

@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transfer_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -146,11 +146,6 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
   }
 
   void _showClosedTransferPicker(BuildContext context) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
     showFrostedDialog<void>(
       context: context,
       builder: (_) => FrostedDialog(
@@ -165,7 +160,7 @@ class _TransferBottomSheetState extends State<TransferBottomSheet> {
               final transfer = widget.closedTransfers[index];
               return FrostedListTile(
                 title: transfer.name,
-                subtitle: formatter.format(transfer.amount),
+                subtitle: MoneyFormatter.format(transfer.amount),
                 trailing: const Icon(Symbols.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(context);

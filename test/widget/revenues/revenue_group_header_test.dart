@@ -1,7 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/revenue_model.dart';
@@ -44,7 +45,7 @@ void main() {
     );
 
     expect(find.text('ALEX'), findsOneWidget);
-    expect(find.textContaining('63 %'), findsOneWidget);
+    expect(find.textContaining(PercentFormatter.formatWhole(63)), findsOneWidget);
     expect(find.textContaining('2'), findsWidgets);
   });
 

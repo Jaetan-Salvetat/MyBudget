@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 const String reportTag = '[scan-trace]';
@@ -51,7 +51,7 @@ List<String> _readReport(ReadTrace read) {
         '${decoding.priced.length} chiffrées, '
         '${read.proved ? 'somme prouvée' : 'somme NON prouvée'}',
     if (hypothesis != null)
-      '    référence ${_amount(hypothesis.referenceCents / 100)} '
+      '    référence ${MoneyFormatter.formatPlain(hypothesis.referenceCents / 100)} '
           '(sources ${hypothesis.sources.map((s) => s.name).join(',')})',
     if (hypothesis == null) '    aucune hypothèse : rien ne referme la somme',
     for (final (index, line) in read.merged.indexed)
@@ -72,13 +72,13 @@ String _lineReport(
   final buffer = StringBuffer('  ${index.toString().padLeft(3)} $role');
   if (priced != null) {
     buffer.write(
-      ' | candidats ${[for (final c in priced.candidates) _amount(c)].join(',')}',
+      ' | candidats ${[for (final c in priced.candidates) MoneyFormatter.formatPlain(c)].join(',')}',
     );
     if (decoding.laxRanks.contains(index)) buffer.write(' lâche');
     if (hypothesis != null && rank != null) {
       buffer.write(' | décodé ${_label(hypothesis.labels[rank])}');
       if (hypothesis.cents.isNotEmpty) {
-        buffer.write(' ${_amount(hypothesis.cents[rank] / 100)}');
+        buffer.write(' ${MoneyFormatter.formatPlain(hypothesis.cents[rank] / 100)}');
       }
     }
   }
@@ -94,4 +94,3 @@ String _label(int label) => switch (label) {
   _ => 'ignorée',
 };
 
-String _amount(double value) => value.toStringAsFixed(2);

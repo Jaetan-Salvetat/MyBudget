@@ -1,15 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:receipt_pipeline/receipt_pipeline.dart';
-
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_trace_report.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:receipt_pipeline/receipt_pipeline.dart';
 
 class ScanInspectorScreen extends ConsumerWidget {
   const ScanInspectorScreen({super.key});
@@ -346,4 +345,4 @@ class _Scrollable extends StatelessWidget {
 }
 
 String _amount(double? value) =>
-    value == null ? '—' : '${value.toStringAsFixed(2)} €';
+    value == null ? '—' : MoneyFormatter.format(value);

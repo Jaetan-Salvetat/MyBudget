@@ -1,9 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 
 class ScanOutputSummary extends StatelessWidget {
   final ReceiptScanResultModel result;
@@ -46,7 +47,7 @@ class ScanOutputSummary extends StatelessWidget {
             const SizedBox(height: FrostedSpacing.sp2),
             Text(
               'Nommées « ${result.storeName} — catégorie », '
-              'datées du ${scanDate.format(result.date)}, '
+              'datées du ${DateFormatter.longDate.format(result.date)}, '
               'photo conservée.',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -108,7 +109,7 @@ class _GroupLine extends StatelessWidget {
           ),
           const SizedBox(width: FrostedSpacing.sp2),
           Text(
-            scanCurrency.format(group.total),
+            MoneyFormatter.format(group.total),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
               fontFeatures: const [FontFeature.tabularFigures()],

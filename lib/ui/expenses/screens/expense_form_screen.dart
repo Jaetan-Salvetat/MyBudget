@@ -1,10 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/enums/frequency.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -336,11 +336,6 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   }
 
   void _showClosedExpensePicker() {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
     showFrostedDialog<void>(
       context: context,
       builder: (_) => FrostedDialog(
@@ -355,7 +350,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
               final expense = widget.closedExpenses[index];
               return FrostedListTile(
                 title: expense.name,
-                subtitle: formatter.format(expense.amount),
+                subtitle: MoneyFormatter.format(expense.amount),
                 trailing: const Icon(Symbols.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(context);

@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
@@ -112,10 +112,7 @@ class CaptureAnchor extends StatelessWidget {
   String _subtitle() {
     final now = DateTime.now();
     final daysLeft = DateTime(now.year, now.month + 1, 0).day - now.day + 1;
-    final revenues = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(monthlyRevenues);
+    final revenues = MoneyFormatter.format(monthlyRevenues);
     final days = daysLeft > 1 ? '$daysLeft jours' : '$daysLeft jour';
 
     return 'sur $revenues de revenus · $days';
@@ -132,10 +129,7 @@ class _Figure extends StatelessWidget {
     final color = amount < 0
         ? context.financeColors.expense
         : Theme.of(context).colorScheme.onSurface;
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount);
+    final formatted = MoneyFormatter.format(amount);
     final split = formatted.indexOf(',');
     final units = split == -1 ? formatted : formatted.substring(0, split);
     final cents = split == -1 ? '' : formatted.substring(split);

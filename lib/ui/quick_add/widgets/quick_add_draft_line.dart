@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/animated_amount.dart';
@@ -124,7 +124,7 @@ class _DraftAmount extends StatelessWidget {
     return AnimatedAmount(
       amount: amount,
       builder: (context, value) {
-        final parts = _split(value);
+        final parts = MoneyFormatter.splitParts(value);
         return RichText(
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -137,7 +137,8 @@ class _DraftAmount extends StatelessWidget {
             children: [
               TextSpan(text: '${signed ? '+ ' : ''}${parts.integer}'),
               TextSpan(
-                text: ',${parts.decimals} €',
+                text:
+                    '${MoneyFormatter.decimalSeparator}${parts.decimals}${MoneyFormatter.currencySuffix}',
                 style: AppTextStyles.displaySerifItalic(
                   fontSize: _decimalFontSize,
                   height: 1,
@@ -151,17 +152,6 @@ class _DraftAmount extends StatelessWidget {
     );
   }
 
-  ({String integer, String decimals}) _split(double value) {
-    final formatter = NumberFormat.decimalPattern('fr_FR')
-      ..minimumFractionDigits = 2
-      ..maximumFractionDigits = 2;
-    final segments = formatter.format(value.abs()).split(',');
-
-    return (
-      integer: segments[0],
-      decimals: segments.length > 1 ? segments[1] : '00',
-    );
-  }
 }
 
 class _CategoryPill extends StatelessWidget {

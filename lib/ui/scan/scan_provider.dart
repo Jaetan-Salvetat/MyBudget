@@ -1,32 +1,30 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-
+import 'dart:convert';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/exceptions/scan_exception.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
+import 'package:mybudget/core/exceptions/scan_exception.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/providers/providers.dart';
 import 'package:mybudget/core/services/ai/ai_chat_client.dart';
+import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/core/services/scan/cloud_receipt_reader.dart';
+import 'package:mybudget/core/services/scan/label_link_asset.dart';
+import 'package:mybudget/core/services/scan/label_span_asset.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scan.dart';
 import 'package:mybudget/core/services/scan/local_receipt_scanner.dart';
 import 'package:mybudget/core/services/scan/nano_receipt_reader.dart';
-import 'package:mybudget/core/services/scan/label_link_asset.dart';
-import 'package:mybudget/core/services/scan/label_span_asset.dart';
 import 'package:mybudget/core/services/scan/quick_add_receipt_line_classifier.dart';
 import 'package:mybudget/core/services/scan/receipt_line_recognizer.dart';
 import 'package:mybudget/core/services/scan/receipt_scan_composer.dart';
 import 'package:mybudget/core/services/scan/role_tagger_asset.dart';
 import 'package:mybudget/core/services/scan/store_classifier_asset.dart';
 import 'package:mybudget/core/services/scan/store_gazetteer_asset.dart';
-import 'package:mybudget/core/services/receipt_storage_service.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
 import 'package:mybudget/models/scan_read_progress_model.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
 import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 import 'package:mybudget/ui/settings/category_override_provider.dart';
 import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
@@ -312,7 +310,7 @@ class ScanNotifier extends _$ScanNotifier {
     for (final group in result.groupedByCategory) {
       final name = storeName != null
           ? '$storeName — ${group.label}'
-          : 'Ticket du ${scanDate.format(date)} — ${group.label}';
+          : 'Ticket du ${DateFormatter.longDate.format(date)} — ${group.label}';
 
       created.add(
         await expenseNotifier.addExpense(

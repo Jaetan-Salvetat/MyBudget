@@ -1,15 +1,15 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/entities/transaction_rule_version.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
 import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
-import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/accounts/accounts_provider.dart';
@@ -96,7 +96,6 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       resolver: resolver,
       accounts: accounts,
       beneficiaries: beneficiaries,
-      formatter: _formatter,
     );
 
     return TransactionDetailsView(
@@ -119,7 +118,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
           for (final event in ref.watch(expenseEventsProvider(rootId)))
             presenter.describe(event),
         ],
-        formatAmount: _formatter.format,
+        formatAmount: MoneyFormatter.format,
       ),
       isIncome: false,
       fallbackIcon: Symbols.receipt_long_rounded,
@@ -131,11 +130,6 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
       onDelete: _deleteExpense,
     );
   }
-
-  static final NumberFormat _formatter = NumberFormat.currency(
-    locale: 'fr_FR',
-    symbol: '€',
-  );
 
   List<TransactionRuleVersion> _versionsOf(
     List<ExpenseModel> chain,

@@ -1,5 +1,6 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/models/scanned_item_model.dart';
@@ -69,7 +70,7 @@ class _ScanItemRowState extends State<ScanItemRow> {
   }
 
   static String _formatAmount(double value) =>
-      value.toStringAsFixed(2).replaceAll('.', ',');
+      MoneyFormatter.formatPlain(value);
 
   void _submitName() {
     final value = _name.text.trim();
@@ -285,7 +286,7 @@ class _AmountField extends StatelessWidget {
       children: [
         if (discount > 0)
           Text(
-            '−${discount.toStringAsFixed(2).replaceAll('.', ',')}',
+            '${MoneyFormatter.minusSign}${MoneyFormatter.formatPlain(discount)}',
             style: theme.textTheme.labelSmall?.copyWith(
               color: context.financeColors.income,
               fontFeatures: const [FontFeature.tabularFigures()],

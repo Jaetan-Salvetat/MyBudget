@@ -1,6 +1,6 @@
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/section_header.dart';
@@ -190,8 +190,7 @@ class _MoverRow extends StatelessWidget {
   }
 
   String _signed(double delta) {
-    final formatter = NumberFormat.decimalPattern('fr_FR')
-      ..maximumFractionDigits = 0;
-    return '${delta >= 0 ? '+' : '−'}${formatter.format(delta.abs())} €';
+    return '${MoneyFormatter.signOf(delta)}'
+        '${MoneyFormatter.formatRounded(delta.abs())}';
   }
 }

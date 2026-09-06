@@ -1,7 +1,7 @@
-import 'package:intl/intl.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/entities/transaction_change_entry.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
@@ -10,13 +10,11 @@ class TransactionEventPresenter {
   final CategoryDisplayResolver? resolver;
   final List<AccountModel> accounts;
   final List<Beneficiary> beneficiaries;
-  final NumberFormat formatter;
 
   const TransactionEventPresenter({
     required this.resolver,
     required this.accounts,
     required this.beneficiaries,
-    required this.formatter,
   });
 
   TransactionChangeEntry describe(TransactionEventModel event) {
@@ -43,7 +41,7 @@ class TransactionEventPresenter {
 
   String _amountLabel(String raw) {
     final amount = double.tryParse(raw);
-    return amount == null ? raw : formatter.format(amount);
+    return amount == null ? raw : MoneyFormatter.format(amount);
   }
 
   String _accountLabel(String raw) {

@@ -1,9 +1,10 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/services/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
@@ -21,7 +22,6 @@ class ImportPreviewScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final analysis = _ImportAnalysis(validationResult);
 
     return FrostedScaffold(
@@ -122,7 +122,7 @@ class ImportPreviewScreen extends ConsumerWidget {
                   subtitle: e.model.frequency,
                   warning: warning,
                   trailing: Text(
-                    formatter.format(e.model.amount),
+                    MoneyFormatter.format(e.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: warning != null
                           ? theme.colorScheme.error
@@ -145,7 +145,7 @@ class ImportPreviewScreen extends ConsumerWidget {
                   title: r.model.name,
                   warning: warning,
                   trailing: Text(
-                    formatter.format(r.model.amount),
+                    MoneyFormatter.format(r.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -165,10 +165,11 @@ class ImportPreviewScreen extends ConsumerWidget {
                 return _ItemTile(
                   title: l.model.name,
                   subtitle:
-                      '${l.model.duration} mois · ${l.model.interestRate}%',
+                      '${l.model.duration} mois · '
+                      '${PercentFormatter.formatRate(l.model.interestRate)}',
                   warning: warning,
                   trailing: Text(
-                    formatter.format(l.model.amount),
+                    MoneyFormatter.format(l.model.amount),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

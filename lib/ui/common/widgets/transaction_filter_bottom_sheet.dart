@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/amount_slider_scale.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -198,7 +199,8 @@ class _TransactionFilterBottomSheetState
           _GroupLabel(
             text: 'Montant',
             hint:
-                '${_amountRange.start.round()} € – ${_amountRange.end.round()} €',
+                '${MoneyFormatter.formatPlainRounded(_amountRange.start)} – '
+                '${MoneyFormatter.formatRounded(_amountRange.end)}',
           ),
           const SizedBox(height: 4),
           FrostedRangeSlider(
@@ -213,8 +215,8 @@ class _TransactionFilterBottomSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _AmountBound(label: '0 €'),
-              _AmountBound(label: '${_amountScale.ceiling.round()} €'),
+              _AmountBound(label: MoneyFormatter.formatRounded(0)),
+              _AmountBound(label: MoneyFormatter.formatRounded(_amountScale.ceiling)),
             ],
           ),
           const SizedBox(height: 20),

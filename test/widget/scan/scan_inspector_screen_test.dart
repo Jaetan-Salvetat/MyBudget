@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
@@ -107,7 +108,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('article'), findsNWidgets(2));
-    expect(find.textContaining('candidats 2.00 €'), findsOneWidget);
+    expect(find.textContaining('candidats ${MoneyFormatter.format(2)}'), findsOneWidget);
     expect(find.textContaining('lecture lâche autorisée'), findsNWidgets(3));
   });
 }

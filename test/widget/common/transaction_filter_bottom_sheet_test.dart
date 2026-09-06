@@ -1,10 +1,10 @@
 import 'dart:async';
-
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -141,8 +141,11 @@ void main() {
   ) async {
     await pump(tester, highestAmount: 347.2);
 
-    expect(find.text('350 €'), findsOneWidget);
-    expect(find.text('0 € – 350 €'), findsOneWidget);
+    expect(find.text(MoneyFormatter.formatRounded(350)), findsOneWidget);
+    expect(find.text(
+        '${MoneyFormatter.formatPlainRounded(0)} – '
+        '${MoneyFormatter.formatRounded(350)}',
+      ), findsOneWidget);
   });
 
   testWidgets('pulls a stale amount range back under the cap', (tester) async {

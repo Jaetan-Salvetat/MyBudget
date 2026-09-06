@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
 class ExpenseDayHeader extends StatelessWidget {
@@ -19,7 +20,7 @@ class ExpenseDayHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final dayLabel = DateFormat('EEE d MMM', 'fr_FR').format(date);
+    final dayLabel = DateFormatter.weekdayDayMonth.format(date);
     final formattedLabel = _capitalize(dayLabel).toUpperCase();
     return _GroupHeader(
       title: isToday ? "$formattedLabel · AUJOURD'HUI" : formattedLabel,
@@ -54,8 +55,8 @@ class ExpenseWeekHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final startLabel = DateFormat('d', 'fr_FR').format(weekStart);
-    final endLabel = DateFormat('d MMM', 'fr_FR').format(weekEnd);
+    final startLabel = DateFormatter.dayNumber.format(weekStart);
+    final endLabel = DateFormatter.shortDayMonth.format(weekEnd);
     final label = 'SEM. $weekNumber · $startLabel – $endLabel'.toUpperCase();
     return _GroupHeader(
       title: label,
@@ -82,11 +83,6 @@ class _GroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 6, left: 2, right: 2),
       child: Row(
@@ -107,7 +103,7 @@ class _GroupHeader extends StatelessWidget {
             ),
           ),
           Text(
-            '${formatter.format(total)} · $count',
+            '${MoneyFormatter.formatRounded(total)} · $count',
             style: AppTextStyles.mono(
               fontSize: 11,
               color: scheme.onSurfaceVariant,

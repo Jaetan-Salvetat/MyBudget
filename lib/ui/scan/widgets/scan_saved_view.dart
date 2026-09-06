@@ -1,11 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 
 class ScanSavedView extends StatefulWidget {
   static const String doneLabel = 'Terminé';
@@ -62,7 +63,7 @@ class _ScanSavedViewState extends State<ScanSavedView>
     final theme = Theme.of(context);
     final groups = widget.result.groupedByCategory;
     final store = widget.result.storeName;
-    final date = scanDate.format(widget.result.date);
+    final date = DateFormatter.longDate.format(widget.result.date);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FrostedSpacing.sp6),
@@ -76,7 +77,7 @@ class _ScanSavedViewState extends State<ScanSavedView>
             animation: _stepAt(1),
             child: Center(
               child: Text(
-                scanCurrency.format(widget.result.itemsTotal),
+                MoneyFormatter.format(widget.result.itemsTotal),
                 style: AppTextStyles.displaySerifItalic(
                   fontSize: 40,
                   color: theme.colorScheme.onSurface,
@@ -230,7 +231,7 @@ class _GroupLine extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            scanCurrency.format(group.total),
+            MoneyFormatter.format(group.total),
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),

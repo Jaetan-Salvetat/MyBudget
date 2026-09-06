@@ -1,9 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
-import 'package:mybudget/ui/scan/scan_formats.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 
 class ScanCommitBar extends StatelessWidget {
@@ -13,7 +13,7 @@ class ScanCommitBar extends StatelessWidget {
       count > 1 ? 'Ranger $count articles' : 'Ranger 1 article';
 
   static String commitLabelOf(double total) =>
-      'Enregistrer ${scanCurrency.format(total)}';
+      'Enregistrer ${MoneyFormatter.format(total)}';
 
   final int pendingCount;
   final double total;

@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/account_model.dart';
@@ -25,12 +25,6 @@ class AccountHeroCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPositive = balance >= 0;
     final balanceColor = isPositive ? finance.income : finance.expense;
-
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -97,7 +91,7 @@ class AccountHeroCard extends StatelessWidget {
             const Eyebrow('Solde du mois'),
             const SizedBox(height: 4),
             Text(
-              '${isPositive ? '+' : '−'}${formatter.format(balance.abs())}',
+              '${isPositive ? '+' : '−'}${MoneyFormatter.format(balance.abs())}',
               style: AppTextStyles.displaySerifItalic(
                 fontSize: 48,
                 height: 52 / 48,

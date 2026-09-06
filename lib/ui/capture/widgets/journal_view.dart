@@ -1,11 +1,10 @@
-import 'dart:async';
-
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/quick_add_submission_model.dart';
@@ -438,10 +437,7 @@ class _BucketHeader extends StatelessWidget {
   }
 
   String _amountLabel(double amount) {
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(amount.abs());
+    final formatted = MoneyFormatter.format(amount.abs());
     return amount < 0 ? '+ $formatted' : '− $formatted';
   }
 }

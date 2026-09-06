@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/utils/history_utils.dart';
 
 class EffectiveMonthField extends StatelessWidget {
@@ -64,6 +64,6 @@ class EffectiveMonthField extends StatelessWidget {
       asOf: DateTime.now(),
       scope: value,
     );
-    return '$dueLabel le ${DateFormat('d MMMM', 'fr_FR').format(due)}.';
+    return '$dueLabel le ${DateFormatter.dayMonth.format(due)}.';
   }
 }

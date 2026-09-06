@@ -1,11 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/enums/effective_month.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/revenue_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
@@ -264,11 +264,6 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   }
 
   void _showClosedRevenuePicker() {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 2,
-    );
     showFrostedDialog<void>(
       context: context,
       builder: (_) => FrostedDialog(
@@ -283,7 +278,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
               final revenue = widget.closedRevenues[index];
               return FrostedListTile(
                 title: revenue.name,
-                subtitle: formatter.format(revenue.amount),
+                subtitle: MoneyFormatter.format(revenue.amount),
                 trailing: const Icon(Symbols.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(context);

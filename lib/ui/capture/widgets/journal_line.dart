@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -138,15 +139,12 @@ class JournalLine extends StatelessWidget {
   }
 
   String? _when() {
-    if (!keepsTheHour) return DateFormat('EEE d', 'fr_FR').format(entry.at);
-    return entry.hasTime ? DateFormat.Hm('fr_FR').format(entry.at) : null;
+    if (!keepsTheHour) return DateFormatter.weekdayDay.format(entry.at);
+    return entry.hasTime ? DateFormatter.time.format(entry.at) : null;
   }
 
   String _amountLabel() {
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(entry.amount);
+    final formatted = MoneyFormatter.format(entry.amount);
     return entry.isIncome ? '+ $formatted' : '− $formatted';
   }
 }

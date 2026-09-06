@@ -1,15 +1,18 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/locales.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/models/account_model.dart';
 import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
+import 'package:mybudget/ui/loans/providers/loan_edit_provider.dart';
 
 class LoanEditScreen extends ConsumerStatefulWidget {
   final List<AccountModel> accounts;
@@ -197,10 +200,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
           _buildReadOnlyField(
             context,
             'Capital',
-            NumberFormat.currency(
-              symbol: '€',
-              locale: 'fr_FR',
-            ).format(state.capital),
+            MoneyFormatter.format(state.capital),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
@@ -210,7 +210,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
           _buildReadOnlyField(
             context,
             'Date de signature',
-            DateFormat('dd/MM/yyyy').format(state.signatureDate),
+            DateFormatter.numericDate.format(state.signatureDate),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
@@ -226,7 +226,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
           _buildReadOnlyField(
             context,
             'Taux d\'intérêt',
-            '${state.interestRate} %',
+            PercentFormatter.formatRate(state.interestRate),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: FrostedSpacing.sp3),
@@ -379,7 +379,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
                   height: 40,
                 ),
                 children: const [
-                  Text('Fixe (€)'),
+                  Text('Fixe (${FinancialLocale.currencySymbol})'),
                   Text('Taux (%)'),
                   Text('Aucune'),
                 ],
@@ -443,7 +443,7 @@ class _LoanEditScreenState extends ConsumerState<LoanEditScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, left: 4),
                 child: Text(
-                  'Soit ${NumberFormat.currency(symbol: '€', locale: 'fr_FR').format(state.monthlyInsurancePayment)} / mois',
+                  'Soit ${MoneyFormatter.format(state.monthlyInsurancePayment)} / mois',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.secondary,

@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 
@@ -54,12 +54,9 @@ class AmountText extends StatelessWidget {
   }
 
   String _format() {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: decimals,
-    );
-    final formatted = formatter.format(amount.abs());
+    final formatted = decimals == 0
+        ? MoneyFormatter.formatRounded(amount.abs())
+        : MoneyFormatter.format(amount.abs());
     if (!showSign) return formatted;
     final prefix = direction == AmountDirection.income
         ? '+ '

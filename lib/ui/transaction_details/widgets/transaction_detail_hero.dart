@@ -1,8 +1,8 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
@@ -38,7 +38,6 @@ class TransactionDetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final finance = context.financeColors;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final amountColor = isClosed
         ? scheme.onSurfaceVariant
         : (isIncome ? finance.income : finance.expense);
@@ -96,7 +95,7 @@ class TransactionDetailHero extends StatelessWidget {
           Eyebrow(_amountLabel),
           const SizedBox(height: 4),
           Text(
-            '${isIncome ? '+' : '−'}${formatter.format(amount)}',
+            '${isIncome ? '+' : '−'}${MoneyFormatter.format(amount)}',
             style: AppTextStyles.displaySerifItalic(
               fontSize: 40,
               height: 44 / 40,

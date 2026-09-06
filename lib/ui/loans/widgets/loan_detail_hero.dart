@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
+import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
 import 'package:mybudget/models/loan_model.dart';
 
@@ -14,12 +15,6 @@ class LoanDetailHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
-    final compactFormatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-      decimalDigits: 0,
-    );
 
     final progress = loan.progressPercentage.clamp(0.0, 1.0);
     final progressPct = (progress * 100).round();
@@ -112,7 +107,7 @@ class LoanDetailHero extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              formatter.format(loan.currentMonthlyPayment),
+              MoneyFormatter.format(loan.currentMonthlyPayment),
               style: TextStyle(
                 fontSize: 36,
                 height: 40 / 36,
@@ -136,7 +131,7 @@ class LoanDetailHero extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '$progressPct%',
+                  PercentFormatter.formatWhole(progressPct),
                   style: TextStyle(
                     fontSize: 14,
                     height: 18 / 14,
@@ -156,7 +151,7 @@ class LoanDetailHero extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${compactFormatter.format(amortized)} remboursés',
+                  '${MoneyFormatter.formatRounded(amortized)} remboursés',
                   style: AppTextStyles.mono(
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
@@ -164,7 +159,7 @@ class LoanDetailHero extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'sur ${compactFormatter.format(loan.amount)}',
+                  'sur ${MoneyFormatter.formatRounded(loan.amount)}',
                   style: AppTextStyles.mono(
                     fontSize: 11,
                     fontWeight: FontWeight.w400,

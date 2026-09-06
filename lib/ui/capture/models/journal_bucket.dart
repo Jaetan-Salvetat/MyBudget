@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 
 enum JournalBucketKind {
@@ -29,7 +29,7 @@ class JournalBucket {
   });
 
   String get label => kind == JournalBucketKind.month
-      ? DateFormat('MMMM yyyy', 'fr_FR').format(anchor)
+      ? DateFormatter.monthYear.format(anchor)
       : kind.label;
 
   double get spent => entries.fold(

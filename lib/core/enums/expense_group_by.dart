@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/models/expense_model.dart';
 
 enum ExpenseGroupBy {
@@ -156,7 +156,7 @@ class ExpenseGroupingService {
 
 extension DateLabelExtension on DateTime {
   String get dayHeaderLabel {
-    final formatter = DateFormat("EEE d MMM", 'fr_FR');
+    final formatter = DateFormatter.weekdayDayMonth;
     final formatted = formatter.format(this);
     return formatted.replaceAll('.', '.').toUpperCase();
   }

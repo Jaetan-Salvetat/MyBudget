@@ -1,10 +1,11 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mybudget/core/enums/recurring_deletion.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/enums/recurring_deletion.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/models/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
@@ -39,7 +40,6 @@ class CompactExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
     final categoryColor = category != null
         ? Color(category!.color)
         : scheme.primary;
@@ -107,7 +107,7 @@ class CompactExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '− ${formatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
+              '− ${MoneyFormatter.format(expense.amount).replaceAll('−', '').replaceAll('-', '').trim()}',
               style: TextStyle(
                 fontSize: 15,
                 height: 20 / 15,
@@ -138,14 +138,8 @@ class CompactExpenseRow extends StatelessWidget {
   String _dateLabel() {
     return switch (expense.frequencyEnum) {
       Frequency.monthly => 'Le ${expense.startDate.day}',
-      Frequency.annual => DateFormat(
-        "'Le' d MMMM",
-        'fr_FR',
-      ).format(expense.startDate),
-      Frequency.oneTime => DateFormat(
-        'd MMMM',
-        'fr_FR',
-      ).format(expense.startDate),
+      Frequency.annual => 'Le ${DateFormatter.dayMonth.format(expense.startDate)}',
+      Frequency.oneTime => DateFormatter.dayMonth.format(expense.startDate),
     };
   }
 

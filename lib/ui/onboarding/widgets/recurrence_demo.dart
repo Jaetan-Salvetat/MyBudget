@@ -1,8 +1,9 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
+import 'package:mybudget/core/formatting/date_formatter.dart';
+import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
@@ -175,7 +176,7 @@ class _MonthRow extends StatelessWidget {
           SizedBox(
             width: 40,
             child: Text(
-              DateFormat.MMM('fr_FR').format(month).toUpperCase(),
+              DateFormatter.shortMonth.format(month).toUpperCase(),
               style: AppTextStyles.eyebrowMono(
                 color: scheme.onSurfaceVariant.withValues(
                   alpha: isFirst ? 1 : _pendingAlpha,
@@ -209,10 +210,7 @@ class _MonthRow extends StatelessWidget {
   }
 
   String _amount() {
-    final formatted = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: '€',
-    ).format(OnboardingDemo.recurrence.amount);
+    final formatted = MoneyFormatter.format(OnboardingDemo.recurrence.amount);
 
     return '− $formatted';
   }
