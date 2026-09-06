@@ -20,8 +20,10 @@ class StatsState {
   final List<MonthlyFlow> flows;
   final double totalIncomes;
   final double totalExpenses;
+  final int coveredMonths;
   final double previousIncomes;
   final double previousExpenses;
+  final int previousCoveredMonths;
   final double recurringExpenses;
   final double previousRecurringExpenses;
   final List<CategoryTrend> categories;
@@ -32,18 +34,24 @@ class StatsState {
     required this.flows,
     required this.totalIncomes,
     required this.totalExpenses,
+    required this.coveredMonths,
     required this.previousIncomes,
     required this.previousExpenses,
+    required this.previousCoveredMonths,
     required this.recurringExpenses,
     required this.previousRecurringExpenses,
     required this.categories,
     required this.trackedMonths,
   });
 
-  double get averageNet => (totalIncomes - totalExpenses) / range.months;
+  double get averageNet =>
+      _perMonth(totalIncomes - totalExpenses, coveredMonths);
 
   double get previousAverageNet =>
-      (previousIncomes - previousExpenses) / range.months;
+      _perMonth(previousIncomes - previousExpenses, previousCoveredMonths);
+
+  double _perMonth(double total, int months) =>
+      months <= 0 ? 0 : total / months;
 
   double get netDelta => averageNet - previousAverageNet;
 
@@ -102,6 +110,7 @@ class StatsNotifier extends _$StatsNotifier {
 
     final flows = calculator.flowsOver(months);
     final previousFlows = calculator.flowsOver(earlier);
+    final earliest = calculator.earliestMonth();
 
     final totals = calculator.expensesByGroupOver(months);
     final previousTotals = calculator.expensesByGroupOver(earlier);
@@ -112,6 +121,7 @@ class StatsNotifier extends _$StatsNotifier {
       flows: flows,
       totalIncomes: flows.fold(0.0, (sum, flow) => sum + flow.incomes),
       totalExpenses: totalExpenses,
+      coveredMonths: _coveredMonths(months, earliest),
       previousIncomes: previousFlows.fold(
         0.0,
         (sum, flow) => sum + flow.incomes,
@@ -120,11 +130,17 @@ class StatsNotifier extends _$StatsNotifier {
         0.0,
         (sum, flow) => sum + flow.expenses,
       ),
+      previousCoveredMonths: _coveredMonths(earlier, earliest),
       recurringExpenses: calculator.recurringExpensesOver(months),
       previousRecurringExpenses: calculator.recurringExpensesOver(earlier),
       categories: _buildTrends(totals, previousTotals, totalExpenses, resolver),
-      trackedMonths: _trackedMonths(calculator.earliestMonth(), anchor),
+      trackedMonths: _trackedMonths(earliest, anchor),
     );
+  }
+
+  int _coveredMonths(List<DateTime> months, DateTime? earliest) {
+    if (earliest == null) return 0;
+    return months.where((month) => !month.isBefore(earliest)).length;
   }
 
   List<CategoryTrend> _buildTrends(

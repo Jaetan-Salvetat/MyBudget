@@ -13,6 +13,7 @@ export 'src/components/charts/frosted_chart_dot.dart';
 export 'src/components/charts/frosted_chart_legend.dart';
 export 'src/components/charts/frosted_column_chart.dart';
 export 'src/components/charts/frosted_diverging_bar.dart';
+export 'src/components/charts/frosted_paired_column_chart.dart';
 export 'src/components/charts/frosted_stacked_bar.dart';
 export 'src/components/inputs/frosted_autocomplete.dart';
 export 'src/components/inputs/frosted_calendar.dart';

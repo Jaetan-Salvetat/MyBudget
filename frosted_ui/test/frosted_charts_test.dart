@@ -493,4 +493,196 @@ void main() {
       expect(decorations.last.borderRadius, BorderRadius.circular(3));
     });
   });
+
+  group('FrostedPairedColumnChart', () {
+    const List<FrostedPairedColumnData> columns = <FrostedPairedColumnData>[
+      FrostedPairedColumnData(primary: 100, secondary: 50, label: 'JAN'),
+      FrostedPairedColumnData(primary: 40, secondary: 80, label: 'FEV'),
+      FrostedPairedColumnData(primary: 0, secondary: 0, label: 'MAR'),
+    ];
+
+    List<double> heightFactors(WidgetTester tester) => tester
+        .widgetList<FractionallySizedBox>(
+          find.descendant(
+            of: find.byType(FrostedPairedColumnChart),
+            matching: find.byType(FractionallySizedBox),
+          ),
+        )
+        .map((FractionallySizedBox box) => box.heightFactor ?? 0)
+        .toList();
+
+    testWidgets('scales both series on the same tallest value', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(const FrostedPairedColumnChart(columns: columns)),
+      );
+
+      expect(heightFactors(tester), <double>[
+        1,
+        0.5,
+        0.4,
+        0.8,
+        FrostedChartTokens.columnMinFactor,
+        FrostedChartTokens.columnMinFactor,
+      ]);
+    });
+
+    testWidgets('keeps the taller series visible when it is the secondary', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 500, secondary: 900),
+            ],
+          ),
+        ),
+      );
+
+      expect(heightFactors(tester), <double>[500 / 900, 1]);
+    });
+
+    testWidgets('gives each bar the height its share of the peak buys', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 100, secondary: 25),
+            ],
+            height: 120,
+          ),
+        ),
+      );
+
+      final List<double> heights = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => tester.getSize(find.byWidget(box)).height)
+          .toList();
+
+      expect(heights, <double>[120, 30]);
+      expect(
+        tester
+            .widgetList<ColoredBox>(
+              find.descendant(
+                of: find.byType(FrostedPairedColumnChart),
+                matching: find.byType(ColoredBox),
+              ),
+            )
+            .map((ColoredBox box) => tester.getSize(find.byWidget(box)).width),
+        everyElement(greaterThan(0)),
+      );
+    });
+
+    testWidgets('paints one box per series', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _host(
+          const FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              FrostedPairedColumnData(primary: 100, secondary: 60),
+            ],
+            primaryColor: _red,
+            secondaryColor: _blue,
+          ),
+        ),
+      );
+
+      final List<Color> painted = tester
+          .widgetList<ColoredBox>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((ColoredBox box) => box.color)
+          .toList();
+
+      expect(painted, <Color>[_red, _blue]);
+    });
+
+    testWidgets('thins out the axis labels when there are too many', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              for (int index = 0; index < 8; index++)
+                FrostedPairedColumnData(
+                  primary: 10,
+                  secondary: 5,
+                  label: 'M$index',
+                ),
+            ],
+            maxAxisLabels: 6,
+          ),
+        ),
+      );
+
+      expect(find.text('M7'), findsOneWidget);
+      expect(find.text('M5'), findsOneWidget);
+      expect(find.text('M6'), findsNothing);
+    });
+
+    testWidgets('keeps a cramped axis label on a single line', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: <FrostedPairedColumnData>[
+              for (int index = 0; index < 12; index++)
+                FrostedPairedColumnData(
+                  primary: 10,
+                  secondary: 5,
+                  label: 'SEPT',
+                ),
+            ],
+            maxAxisLabels: 12,
+          ),
+          width: 120,
+        ),
+      );
+
+      expect(find.text('SEPT'), findsNWidgets(12));
+      expect(
+        tester
+            .widgetList<Text>(find.text('SEPT'))
+            .map((Text text) => text.maxLines),
+        everyElement(1),
+      );
+    });
+
+    testWidgets('reports the tapped column index', (WidgetTester tester) async {
+      int? tapped;
+
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: columns,
+            onColumnTap: (int index) => tapped = index,
+          ),
+        ),
+      );
+
+      await tester.tap(
+        find
+            .descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(GestureDetector),
+            )
+            .at(1),
+      );
+
+      expect(tapped, 1);
+    });
+  });
 }

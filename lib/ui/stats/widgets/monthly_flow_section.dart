@@ -171,17 +171,18 @@ class _Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final finance = context.financeColors;
 
-    return FrostedColumnChart(
+    return FrostedPairedColumnChart(
       columns: [
         for (final flow in flows)
-          FrostedColumnData(
-            value: flow.incomes > flow.expenses ? flow.incomes : flow.expenses,
-            fill: flow.expenses,
+          FrostedPairedColumnData(
+            primary: flow.incomes,
+            secondary: flow.expenses,
             label: _label(flow.month),
           ),
       ],
-      trackColor: finance.incomeSoft,
-      fillColor: finance.expense,
+      primaryColor: finance.income,
+      secondaryColor: finance.expense,
+      maxAxisLabels: flows.length,
       labelStyle: AppTextStyles.mono(
         fontSize: 8.5,
         lineHeight: 12,
