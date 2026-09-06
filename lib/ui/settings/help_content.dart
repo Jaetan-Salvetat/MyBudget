@@ -94,12 +94,14 @@ const List<HelpChapter> helpChapters = [
       ),
       HelpTopic(
         title: 'Stats',
-        summary: 'Où part l\'argent, ce qui arrive',
+        summary: 'Ce que ton budget fait sur la durée',
         icon: Symbols.bar_chart_rounded,
         paragraphs: [
-          'Le solde du mois — revenus, dépenses, écart —, la répartition par catégorie et les mouvements encore à venir.',
-          'Touche une catégorie pour n\'afficher que ses dépenses dans l\'onglet Transactions.',
-          'Le sélecteur de mois en haut vaut pour toute l\'app : Stats, Transactions et Comptes affichent le même mois.',
+          'Les Stats partent toujours du mois en cours et remontent le temps. Le sélecteur en haut choisit jusqu\'où : 6 ou 12 mois. Elles ne suivent pas le mois affiché dans Transactions et Comptes.',
+          'Flux mensuels : ce qui est entré et ce qui est sorti chaque mois, et ce que tu mets de côté en moyenne sur la période. Touche un mois pour ouvrir ses dépenses.',
+          'Part incompressible : la part de tes revenus déjà engagée par tes charges qui reviennent, et ce qu\'il te reste à vivre une fois qu\'elles sont payées.',
+          'Ce qui a bougé : les postes qui montent ou qui baissent, comparés à la période précédente de même durée.',
+          'Répartition : où part l\'argent ce mois-ci. Touche une catégorie pour n\'afficher que ses dépenses dans l\'onglet Transactions.',
         ],
       ),
       HelpTopic(

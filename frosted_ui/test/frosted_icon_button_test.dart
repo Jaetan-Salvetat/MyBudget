@@ -50,9 +50,8 @@ void main() {
       .color!;
 
   group('FrostedIconButton accent', () {
-    ColorScheme scheme(WidgetTester tester) => Theme.of(
-      tester.element(find.byType(FrostedIconButton)),
-    ).colorScheme;
+    ColorScheme scheme(WidgetTester tester) =>
+        Theme.of(tester.element(find.byType(FrostedIconButton))).colorScheme;
 
     testWidgets('a filled command carries the accent at rest', (
       WidgetTester tester,
@@ -116,13 +115,16 @@ void main() {
         FrostedIconButton.standard(icon: Icons.add, onPressed: () {}),
       );
 
-      expect(surfaceOf(tester).constraints!.maxWidth,
-          FrostedIconButtonSize.medium.box);
+      expect(
+        surfaceOf(tester).constraints!.maxWidth,
+        FrostedIconButtonSize.medium.box,
+      );
       expect(glyphSizeOf(tester), FrostedIconButtonSize.medium.glyph);
     });
 
-    testWidgets('small shrinks both the box and the glyph',
-        (WidgetTester tester) async {
+    testWidgets('small shrinks both the box and the glyph', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedIconButton.standard(
@@ -132,15 +134,20 @@ void main() {
         ),
       );
 
-      expect(surfaceOf(tester).constraints!.maxWidth,
-          FrostedIconButtonSize.small.box);
+      expect(
+        surfaceOf(tester).constraints!.maxWidth,
+        FrostedIconButtonSize.small.box,
+      );
       expect(glyphSizeOf(tester), FrostedIconButtonSize.small.glyph);
-      expect(FrostedIconButtonSize.small.box,
-          lessThan(FrostedIconButtonSize.medium.box));
+      expect(
+        FrostedIconButtonSize.small.box,
+        lessThan(FrostedIconButtonSize.medium.box),
+      );
     });
 
-    testWidgets('large grows both the box and the glyph',
-        (WidgetTester tester) async {
+    testWidgets('large grows both the box and the glyph', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedIconButton.filled(
@@ -150,15 +157,20 @@ void main() {
         ),
       );
 
-      expect(surfaceOf(tester).constraints!.maxWidth,
-          FrostedIconButtonSize.large.box);
+      expect(
+        surfaceOf(tester).constraints!.maxWidth,
+        FrostedIconButtonSize.large.box,
+      );
       expect(glyphSizeOf(tester), FrostedIconButtonSize.large.glyph);
-      expect(FrostedIconButtonSize.large.box,
-          greaterThan(FrostedIconButtonSize.medium.box));
+      expect(
+        FrostedIconButtonSize.large.box,
+        greaterThan(FrostedIconButtonSize.medium.box),
+      );
     });
 
-    testWidgets('the pill form stays a circle at every size',
-        (WidgetTester tester) async {
+    testWidgets('the pill form stays a circle at every size', (
+      WidgetTester tester,
+    ) async {
       for (final FrostedIconButtonSize size in FrostedIconButtonSize.values) {
         await pump(
           tester,
@@ -206,8 +218,10 @@ void main() {
 
       for (final FrostedIconButton button in buttons) {
         await pump(tester, button);
-        expect(surfaceOf(tester).constraints!.maxWidth,
-            FrostedIconButtonSize.small.box);
+        expect(
+          surfaceOf(tester).constraints!.maxWidth,
+          FrostedIconButtonSize.small.box,
+        );
       }
     });
   });

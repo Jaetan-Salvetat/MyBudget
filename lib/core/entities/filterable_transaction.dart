@@ -7,5 +7,6 @@ abstract interface class FilterableTransaction {
   int? get beneficiaryId;
   String? get categorySlug;
   DateTime get startDate;
+  DateTime? get endDate;
   Frequency get frequencyEnum;
 }

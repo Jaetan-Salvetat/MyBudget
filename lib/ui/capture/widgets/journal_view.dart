@@ -129,7 +129,7 @@ class _JournalViewState extends ConsumerState<JournalView> {
       );
       if (folded) continue;
 
-      final segments = GaugeSegment.forDay(bucket.entries, resolver, fallback);
+      final segments = DayGauge.segmentsForDay(bucket.entries, resolver, fallback);
       if (segments.isNotEmpty) rows.add(_GaugeRow(segments));
       if (bucket.entries.isEmpty) rows.add(const _EmptyRow());
 
@@ -336,7 +336,7 @@ class _HeaderRow extends _Row {
 }
 
 class _GaugeRow extends _Row {
-  final List<GaugeSegment> segments;
+  final List<FrostedBarSegment> segments;
 
   const _GaugeRow(this.segments);
 }

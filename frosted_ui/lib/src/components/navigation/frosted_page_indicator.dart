@@ -4,11 +4,7 @@ import '../../foundations/frosted_radius.dart';
 import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 
-enum FrostedPageIndicatorStyle {
-  dots,
-
-  bar,
-}
+enum FrostedPageIndicatorStyle { dots, bar }
 
 class FrostedPageIndicator extends StatelessWidget {
   const FrostedPageIndicator({

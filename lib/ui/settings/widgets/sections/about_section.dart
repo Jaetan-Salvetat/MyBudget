@@ -13,6 +13,7 @@ class AboutSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String version = ref.watch(appVersionProvider);
+    final String build = ref.watch(appBuildNumberProvider);
     final bool updatable = ref.watch(buildFlavorProvider).supportsInAppUpdate;
 
     return FrostedListSection(
@@ -20,7 +21,7 @@ class AboutSection extends ConsumerWidget {
       tiles: [
         FrostedListTile(
           title: 'Version',
-          subtitle: version,
+          subtitle: '$version ($build)',
           leading: const FrostedListAvatar(icon: Symbols.info_rounded),
           trailing: updatable ? _UpdateAffordance() : null,
           onTap: updatable ? () => _openUpdateScreen(context) : null,
@@ -40,8 +41,7 @@ class AboutSection extends ConsumerWidget {
 class _UpdateAffordance extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool hasUpdate =
-        ref.watch(updateProvider).availableUpdate != null;
+    final bool hasUpdate = ref.watch(updateProvider).availableUpdate != null;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

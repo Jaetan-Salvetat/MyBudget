@@ -35,6 +35,7 @@ void main() {
     Widget section, {
     UpdateState? update,
     String version = '1.2.3',
+    String buildNumber = '128',
     BuildFlavor flavor = BuildFlavor.prod,
   }) {
     return tester.pumpWidget(
@@ -42,6 +43,7 @@ void main() {
         overrides: [
           buildFlavorProvider.overrideWithValue(flavor),
           appVersionProvider.overrideWithValue(version),
+          appBuildNumberProvider.overrideWithValue(buildNumber),
           if (update != null)
             updateProvider.overrideWith(() => _StubUpdateNotifier(update)),
         ],
@@ -101,14 +103,19 @@ void main() {
       );
     });
 
-    testWidgets('help and support only offers the usage guide', (
+    testWidgets('help and support offers the usage guide then the labs', (
       WidgetTester tester,
     ) async {
       await pump(tester, const HelpAndSupportSection());
 
-      final FrostedListTile tile = sectionOf(tester).tiles.single;
+      final List<FrostedListTile> tiles = sectionOf(tester).tiles
+          .cast<FrostedListTile>()
+          .toList();
 
-      expect(tile.title, 'Guide d\'utilisation');
+      expect(
+        tiles.map((FrostedListTile tile) => tile.title),
+        <String>['Guide d\'utilisation', 'Labo'],
+      );
     });
 
     testWidgets('the appearance tile reads the current theme mode', (
@@ -131,7 +138,7 @@ void main() {
         update: const UpdateState(),
       );
 
-      expect(find.text('1.2.3'), findsOneWidget);
+      expect(find.text('1.2.3 (128)'), findsOneWidget);
       expect(find.byType(FrostedBadgeView), findsNothing);
     });
 
@@ -164,7 +171,7 @@ void main() {
 
       final FrostedListTile tile = sectionOf(tester).tiles.single;
 
-      expect(tile.subtitle, '1.2.3');
+      expect(tile.subtitle, '1.2.3 (128)');
       expect(tile.onTap, isNull);
       expect(tile.trailing, isNull);
       expect(find.byType(FrostedBadgeView), findsNothing);

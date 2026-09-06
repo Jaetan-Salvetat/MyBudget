@@ -9,11 +9,7 @@ import '../actions/_interactive_surface.dart';
 
 enum FrostedTilePosition { single, first, middle, last }
 
-enum FrostedListTileVariant {
-  filled,
-
-  plain,
-}
+enum FrostedListTileVariant { filled, plain }
 
 class FrostedListTile extends StatelessWidget {
   const FrostedListTile({

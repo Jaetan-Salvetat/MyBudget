@@ -24,8 +24,6 @@ class InputsPage extends StatelessWidget {
         SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Autocomplete', child: _AutocompleteDemo()),
         SizedBox(height: FrostedSpacing.sp6),
-        Section(title: 'Sliders', child: _SlidersDemo()),
-        SizedBox(height: FrostedSpacing.sp6),
         Section(title: 'Date & time', child: _DateTimeDemo()),
       ],
     );
@@ -189,53 +187,6 @@ class _AutocompleteDemo extends StatelessWidget {
       leadingIcon: Icons.location_city_outlined,
       options: _cities,
       onSelected: (_) {},
-    );
-  }
-}
-
-class _SlidersDemo extends StatefulWidget {
-  const _SlidersDemo();
-
-  @override
-  State<_SlidersDemo> createState() => _SlidersDemoState();
-}
-
-class _SlidersDemoState extends State<_SlidersDemo> {
-  double _single = 0.4;
-  double _stepped = 3;
-  RangeValues _range = const RangeValues(200, 800);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        FrostedSlider(
-          value: _single,
-          onChanged: (double v) => setState(() => _single = v),
-        ),
-        const SizedBox(height: FrostedSpacing.sp4),
-        FrostedSlider(
-          value: _stepped,
-          min: 0,
-          max: 10,
-          divisions: 10,
-          label: _stepped.round().toString(),
-          onChanged: (double v) => setState(() => _stepped = v),
-        ),
-        const SizedBox(height: FrostedSpacing.sp4),
-        FrostedRangeSlider(
-          values: _range,
-          min: 0,
-          max: 1000,
-          divisions: 20,
-          labels: RangeLabels(
-            _range.start.round().toString(),
-            _range.end.round().toString(),
-          ),
-          onChanged: (RangeValues v) => setState(() => _range = v),
-        ),
-      ],
     );
   }
 }

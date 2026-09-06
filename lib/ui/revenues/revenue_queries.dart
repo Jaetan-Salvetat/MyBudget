@@ -24,13 +24,7 @@ List<RevenueModel> monthRevenues(Ref ref) {
 
   return [
     for (final revenue in revenues)
-      if (occursInMonth(
-        revenue.startDate,
-        revenue.endDate,
-        revenue.frequencyEnum,
-        month,
-      ))
-        _datedOn(revenue, month),
+      if (occursIn(revenue, month)) _datedOn(revenue, month),
   ];
 }
 
@@ -46,37 +40,21 @@ List<RevenueModel> activeRevenues(Ref ref) {
   return revenues.where((r) => r.endDate == null).toList();
 }
 
-double _revenueAmountForMonth(RevenueModel revenue, DateTime month) {
-  final falls = occursInMonth(
-    revenue.startDate,
-    revenue.endDate,
-    revenue.frequencyEnum,
-    month,
-  );
-  return falls ? revenue.amount : 0.0;
-}
-
 @Riverpod(keepAlive: true)
 double monthlyRevenues(Ref ref) {
-  final revenues = ref.watch(revenueHistoryProvider);
-  final selectedMonth = ref.watch(selectedMonthProvider);
-  double total = 0.0;
-  for (final revenue in revenues) {
-    total += _revenueAmountForMonth(revenue, selectedMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(revenueHistoryProvider),
+    ref.watch(selectedMonthProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
 double currentMonthRevenues(Ref ref) {
-  final revenues = ref.watch(revenueHistoryProvider);
   final now = DateTime.now();
-  final currentMonth = DateTime(now.year, now.month);
-  double total = 0.0;
-  for (final revenue in revenues) {
-    total += _revenueAmountForMonth(revenue, currentMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(revenueHistoryProvider),
+    DateTime(now.year, now.month),
+  );
 }
 
 @Riverpod(keepAlive: true)

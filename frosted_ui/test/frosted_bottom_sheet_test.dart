@@ -94,10 +94,7 @@ void main() {
     });
   });
 
-  Future<void> openSheet(
-    WidgetTester tester, {
-    bool enableDrag = true,
-  }) async {
+  Future<void> openSheet(WidgetTester tester, {bool enableDrag = true}) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: seed),
@@ -154,7 +151,10 @@ void main() {
         const FrostedBottomSheet(title: 'Titre', child: Text('contenu')),
       );
 
-      expect(find.widgetWithIcon(FrostedIconButton, Icons.close), findsOneWidget);
+      expect(
+        find.widgetWithIcon(FrostedIconButton, Icons.close),
+        findsOneWidget,
+      );
     });
 
     testWidgets('an untitled sheet gets none', (WidgetTester tester) async {
@@ -182,7 +182,9 @@ void main() {
       await openSheet(tester);
 
       final double opened = _barrierSigma(tester);
-      final double height = tester.getSize(find.byType(FrostedBottomSheet)).height;
+      final double height = tester
+          .getSize(find.byType(FrostedBottomSheet))
+          .height;
       final TestGesture gesture = await tester.startGesture(
         tester.getCenter(find.byType(FrostedBottomSheet)),
       );
@@ -333,9 +335,10 @@ void main() {
 }
 
 double _barrierSigma(WidgetTester tester) {
-  final String filter =
-      tester.layers.whereType<BackdropFilterLayer>().first.filter.toString();
-  return double.parse(
-    RegExp(r'blur\(([0-9.]+)').firstMatch(filter)!.group(1)!,
-  );
+  final String filter = tester.layers
+      .whereType<BackdropFilterLayer>()
+      .first
+      .filter
+      .toString();
+  return double.parse(RegExp(r'blur\(([0-9.]+)').firstMatch(filter)!.group(1)!);
 }

@@ -32,6 +32,9 @@ class PreferencesService {
   static const String keyExpensesSortBy = 'expensesSortBy';
   static const String keyRevenuesGroupBy = 'revenuesGroupBy';
 
+  static const String keyFlagBlocklist = 'flagBlocklist';
+  static const String keyFlagChoicePrefix = 'flagChoice.';
+
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
@@ -181,5 +184,43 @@ class PreferencesService {
 
   static Future<void> clearAll() async {
     await _prefs.clear();
+  }
+
+  static String? getFlagBlocklist() {
+    return _prefs.getString(keyFlagBlocklist);
+  }
+
+  static Future<void> setFlagBlocklist(String payload) async {
+    await _prefs.setString(keyFlagBlocklist, payload);
+  }
+
+  static bool? getFlagChoice(String flagId) {
+    return _prefs.getBool('$keyFlagChoicePrefix$flagId');
+  }
+
+  static Future<void> setFlagChoice(String flagId, bool enabled) async {
+    await _prefs.setBool('$keyFlagChoicePrefix$flagId', enabled);
+  }
+
+  static Future<void> clearFlagChoices() async {
+    for (final String key in _flagChoiceKeys()) {
+      await _prefs.remove(key);
+    }
+  }
+
+  static Future<void> purgeUnknownFlagChoices(Set<String> knownIds) async {
+    for (final String key in _flagChoiceKeys()) {
+      if (knownIds.contains(key.substring(keyFlagChoicePrefix.length))) {
+        continue;
+      }
+      await _prefs.remove(key);
+    }
+  }
+
+  static Iterable<String> _flagChoiceKeys() {
+    return _prefs
+        .getKeys()
+        .where((String key) => key.startsWith(keyFlagChoicePrefix))
+        .toList(growable: false);
   }
 }

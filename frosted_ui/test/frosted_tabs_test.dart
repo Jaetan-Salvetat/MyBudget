@@ -62,29 +62,36 @@ Widget _scrollableHost(int currentIndex, {double width = 240}) {
 }
 
 void main() {
-  testWidgets('primary tab content is centered inside its equal-width cell',
-      (WidgetTester tester) async {
+  testWidgets('primary tab content is centered inside its equal-width cell', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_host(FrostedTabsVariant.primary, 0));
 
     const double cellWidth = _rowWidth / 3;
     for (int i = 0; i < 3; i++) {
-      final Rect label = tester.getRect(find.text(<String>[
-        'Profile',
-        'Posts',
-        'Photos',
-      ][i]));
-      final Rect icon = tester.getRect(find.byIcon(<IconData>[
-        Icons.person_outline,
-        Icons.article_outlined,
-        Icons.image_outlined,
-      ][i]));
+      final Rect label = tester.getRect(
+        find.text(<String>['Profile', 'Posts', 'Photos'][i]),
+      );
+      final Rect icon = tester.getRect(
+        find.byIcon(
+          <IconData>[
+            Icons.person_outline,
+            Icons.article_outlined,
+            Icons.image_outlined,
+          ][i],
+        ),
+      );
       final double contentCenter = (icon.left + label.right) / 2;
-      expect(contentCenter, moreOrLessEquals(cellWidth * (i + 0.5), epsilon: 1));
+      expect(
+        contentCenter,
+        moreOrLessEquals(cellWidth * (i + 0.5), epsilon: 1),
+      );
     }
   });
 
-  testWidgets('primary indicator is centered under the selected content',
-      (WidgetTester tester) async {
+  testWidgets('primary indicator is centered under the selected content', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_host(FrostedTabsVariant.primary, 1));
     await tester.pumpAndSettle();
 
@@ -100,28 +107,36 @@ void main() {
     );
   });
 
-  testWidgets('secondary tabs stay anchored to the leading edge',
-      (WidgetTester tester) async {
+  testWidgets('secondary tabs stay anchored to the leading edge', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_host(FrostedTabsVariant.secondary, 0));
 
     final Rect icon = tester.getRect(find.byIcon(Icons.person_outline));
     expect(icon.left, lessThan(_rowWidth / 3));
   });
 
-  testWidgets('secondary indicator spans the full tab width',
-      (WidgetTester tester) async {
+  testWidgets('secondary indicator spans the full tab width', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_scrollableHost(0, width: _rowWidth));
     await tester.pumpAndSettle();
 
     final Rect label = tester.getRect(find.text('Overview'));
-    final Rect indicator = tester.getRect(find.byType(AnimatedPositioned).first);
+    final Rect indicator = tester.getRect(
+      find.byType(AnimatedPositioned).first,
+    );
 
     expect(indicator.left, moreOrLessEquals(label.left - _hPad, epsilon: 1));
-    expect(indicator.width, moreOrLessEquals(label.width + _hPad * 2, epsilon: 1));
+    expect(
+      indicator.width,
+      moreOrLessEquals(label.width + _hPad * 2, epsilon: 1),
+    );
   });
 
-  testWidgets('secondary scrolls the newly selected tab into view',
-      (WidgetTester tester) async {
+  testWidgets('secondary scrolls the newly selected tab into view', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_scrollableHost(0));
     await tester.pumpAndSettle();
 
@@ -133,8 +148,9 @@ void main() {
     expect(tab.left, greaterThanOrEqualTo(0));
   });
 
-  testWidgets('primary falls back to a scrollable row when labels cannot fit',
-      (WidgetTester tester) async {
+  testWidgets('primary falls back to a scrollable row when labels cannot fit', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -162,7 +178,9 @@ void main() {
 
     final Rect label = tester.getRect(find.text(_scrollableLabels.first));
     final Rect icon = tester.getRect(find.byIcon(Icons.person_outline).first);
-    final Rect indicator = tester.getRect(find.byType(AnimatedPositioned).first);
+    final Rect indicator = tester.getRect(
+      find.byType(AnimatedPositioned).first,
+    );
 
     expect(indicator.left, moreOrLessEquals(icon.left, epsilon: 1));
     expect(indicator.right, moreOrLessEquals(label.right, epsilon: 1));

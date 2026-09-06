@@ -5,8 +5,9 @@ import 'package:frosted_ui/frosted_ui.dart';
 
 void main() {
   test('FrostedTheme attaches FrostedTokens to ThemeData', () {
-    final ThemeData theme =
-        FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF));
+    final ThemeData theme = FrostedTheme.dark(
+      seedColor: const Color(0xFF7C5CFF),
+    );
 
     expect(theme.extension<FrostedTokens>(), isNotNull);
     expect(theme.useMaterial3, isTrue);
@@ -22,8 +23,9 @@ void main() {
     }
   });
 
-  testWidgets('FrostedGlass renders with theme tokens',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass renders with theme tokens', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -42,8 +44,9 @@ void main() {
     expect(find.byType(FrostedGlass), findsOneWidget);
   });
 
-  testWidgets('FrostedGlass blurs with a bounded filter to avoid edge halo',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass blurs with a bounded filter to avoid edge halo', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -63,27 +66,29 @@ void main() {
   });
 
   testWidgets(
-      'FrostedGlass caps the blur sigma against a short chrome surface',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(_glassSized(const Size(600, 56)));
+    'FrostedGlass caps the blur sigma against a short chrome surface',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(_glassSized(const Size(600, 56)));
 
-    expect(_resolvedSigma(tester), 56 / 3);
-  });
+      expect(_resolvedSigma(tester), 56 / 3);
+    },
+  );
 
-  testWidgets('FrostedGlass keeps the token sigma on a large surface',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass keeps the token sigma on a large surface', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(_glassSized(const Size(600, 600)));
 
-    final FrostedGlassTokens glass =
-        FrostedTheme.dark(seedColor: Colors.deepPurple)
-            .extension<FrostedTokens>()!
-            .glass;
+    final FrostedGlassTokens glass = FrostedTheme.dark(
+      seedColor: Colors.deepPurple,
+    ).extension<FrostedTokens>()!.glass;
 
     expect(_resolvedSigma(tester), glass.ultraThick.blurSigma);
   });
 
-  testWidgets('FrostedGlass strokes every side by default',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass strokes every side by default', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -108,8 +113,9 @@ void main() {
     expect(border.right.style, BorderStyle.solid);
   });
 
-  testWidgets('FrostedGlass drops the sides left out of borderEdges',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass drops the sides left out of borderEdges', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -137,8 +143,9 @@ void main() {
     expect(border.right, BorderSide.none);
   });
 
-  testWidgets('FrostedGlass rejects partial edges under a rounded radius',
-      (WidgetTester tester) async {
+  testWidgets('FrostedGlass rejects partial edges under a rounded radius', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -161,8 +168,9 @@ void main() {
     expect(tester.takeException(), isAssertionError);
   });
 
-  testWidgets('FrostedTopBar only strokes the edge facing the content',
-      (WidgetTester tester) async {
+  testWidgets('FrostedTopBar only strokes the edge facing the content', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
@@ -195,20 +203,20 @@ Border _glassBorder(WidgetTester tester) {
 }
 
 Widget _glassSized(Size size) => MaterialApp(
-      theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: size.width,
-            height: size.height,
-            child: const FrostedGlass(
-              level: FrostedGlassLevel.ultraThick,
-              child: SizedBox.expand(),
-            ),
-          ),
+  theme: FrostedTheme.dark(seedColor: Colors.deepPurple),
+  home: Scaffold(
+    body: Center(
+      child: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: const FrostedGlass(
+          level: FrostedGlassLevel.ultraThick,
+          child: SizedBox.expand(),
         ),
       ),
-    );
+    ),
+  ),
+);
 
 String _glassFilter(WidgetTester tester) =>
     tester.layers.whereType<BackdropFilterLayer>().first.filter.toString();
@@ -216,5 +224,6 @@ String _glassFilter(WidgetTester tester) =>
 double _resolvedSigma(WidgetTester tester) {
   final String description = _glassFilter(tester);
   return double.parse(
-      RegExp(r'blur\(([0-9.]+)').firstMatch(description)!.group(1)!);
+    RegExp(r'blur\(([0-9.]+)').firstMatch(description)!.group(1)!,
+  );
 }

@@ -1,3 +1,14 @@
+## 0.5.0
+
+* Add the charts family, moved out of app-side one-off widgets:
+  `FrostedColumnChart` (vertical columns with a partial fill,
+  tappable, with a thinned-out label axis), `FrostedStackedBar` (weighted
+  segments on one bar, optionally animating between shapes),
+  `FrostedDivergingBar` (a signed bar around a shared axis), `FrostedChartDot`
+  and `FrostedChartLegend`.
+* Add `FrostedBarSegment` and `FrostedColumnData` as the data those charts read,
+  and `FrostedChartTokens` for their thicknesses, gaps and radii.
+
 ## 0.4.0
 
 * `FrostedListTile` takes a `variant`: `plain` drops the `surfaceContainer`

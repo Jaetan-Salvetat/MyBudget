@@ -27,9 +27,9 @@ Future<void> _press(WidgetTester tester, Finder target) async {
 }
 
 Widget _host(Widget child) => MaterialApp(
-      theme: FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF)),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF)),
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
   group('FrostedShape', () {
@@ -99,7 +99,9 @@ void main() {
   });
 
   group('FrostedButton shape morphing', () {
-    testWidgets('pill flattens to rounded on press', (WidgetTester tester) async {
+    testWidgets('pill flattens to rounded on press', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedButton.filled(
@@ -120,8 +122,9 @@ void main() {
       );
     });
 
-    testWidgets('rounded rounds out to pill on press',
-        (WidgetTester tester) async {
+    testWidgets('rounded rounds out to pill on press', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedButton.filled(
@@ -142,8 +145,9 @@ void main() {
       expect(_renderedRadius(tester, FrostedButton), BorderRadius.circular(23));
     });
 
-    testWidgets('keeps a fixed height so the pill radius is exact',
-        (WidgetTester tester) async {
+    testWidgets('keeps a fixed height so the pill radius is exact', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(FrostedButton.filled(label: 'Valider', onPressed: () {})),
       );
@@ -151,7 +155,9 @@ void main() {
       expect(tester.getSize(find.byType(FrostedButton)).height, 46);
     });
 
-    testWidgets('a disabled button does not morph', (WidgetTester tester) async {
+    testWidgets('a disabled button does not morph', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedButton.filled(
@@ -169,8 +175,9 @@ void main() {
   });
 
   group('FrostedFab shape morphing', () {
-    testWidgets('pill is a circle at rest and rounded on press',
-        (WidgetTester tester) async {
+    testWidgets('pill is a circle at rest and rounded on press', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(FrostedFab.large(icon: Icons.bolt, onPressed: () {})),
       );
@@ -185,8 +192,9 @@ void main() {
       );
     });
 
-    testWidgets('each size carries its own rounded radius',
-        (WidgetTester tester) async {
+    testWidgets('each size carries its own rounded radius', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedFab.small(
@@ -207,8 +215,9 @@ void main() {
       expect(_renderedRadius(tester, FrostedFab), BorderRadius.circular(20));
     });
 
-    testWidgets('an extended fab resolves the pill against its height',
-        (WidgetTester tester) async {
+    testWidgets('an extended fab resolves the pill against its height', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedFab.extended(
@@ -231,8 +240,9 @@ void main() {
   });
 
   group('FrostedIconButton shape morphing', () {
-    testWidgets('pill is a circle at rest and rounded on press',
-        (WidgetTester tester) async {
+    testWidgets('pill is a circle at rest and rounded on press', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedIconButton.filled(
@@ -256,7 +266,9 @@ void main() {
       );
     });
 
-    testWidgets('rounded becomes a circle on press', (WidgetTester tester) async {
+    testWidgets('rounded becomes a circle on press', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(
           FrostedIconButton.filled(

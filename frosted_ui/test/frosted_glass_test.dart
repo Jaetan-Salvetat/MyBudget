@@ -7,8 +7,9 @@ void main() {
   const Color seed = Color(0xFF7C5CFF);
 
   String blurDescription(WidgetTester tester) {
-    final BackdropFilterLayer layer =
-        tester.layers.whereType<BackdropFilterLayer>().first;
+    final BackdropFilterLayer layer = tester.layers
+        .whereType<BackdropFilterLayer>()
+        .first;
     return layer.filter.toString();
   }
 

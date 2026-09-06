@@ -69,6 +69,14 @@ class LoanSchedule {
 
   int remainingInstallmentsAt(DateTime date) => pendingAt(date).length;
 
+  double paymentsInMonth(DateTime month) => installments
+      .where(
+        (installment) =>
+            installment.date.year == month.year &&
+            installment.date.month == month.month,
+      )
+      .fold(0.0, (sum, installment) => sum + installment.totalPayment);
+
   LoanPaymentBreakdown cumulativeAt(DateTime date) {
     var capital = 0.0;
     var interest = 0.0;

@@ -19,6 +19,8 @@ import 'package:mybudget/ui/revenues/revenues_screen.dart';
 import 'package:mybudget/ui/revenues/screens/revenue_form_screen.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
 
+const double _kGroupBySegmentWidth = 70;
+
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
 
@@ -82,10 +84,18 @@ class TransactionsScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: _GroupByToggle(
-                      value: ref.watch(expensesGroupByProvider),
-                      onChanged: (value) =>
-                          ref.read(expensesGroupByProvider.notifier).set(value),
+                    child: FrostedSegmentedControl(
+                      segments: <String>[
+                        for (final option in ExpenseGroupBy.values)
+                          option.label,
+                      ],
+                      currentIndex: ExpenseGroupBy.values.indexOf(
+                        ref.watch(expensesGroupByProvider),
+                      ),
+                      segmentWidth: _kGroupBySegmentWidth,
+                      onTap: (index) => ref
+                          .read(expensesGroupByProvider.notifier)
+                          .set(ExpenseGroupBy.values[index]),
                     ),
                   ),
                 ],
@@ -224,119 +234,6 @@ class TransactionsScreen extends ConsumerWidget {
             onPressed: () => Navigator.pop(context),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _GroupByToggle extends StatelessWidget {
-  final ExpenseGroupBy value;
-  final ValueChanged<ExpenseGroupBy> onChanged;
-
-  const _GroupByToggle({required this.value, required this.onChanged});
-
-  static const Duration _animationDuration = Duration(milliseconds: 220);
-  static const Curve _animationCurve = Curves.easeOutCubic;
-  static const double _itemHeight = 28;
-  static const double _itemWidth = 70;
-  static const double _padding = 3;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final options = ExpenseGroupBy.values;
-    final selectedIndex = options.indexOf(value);
-
-    return Container(
-      padding: const EdgeInsets.all(_padding),
-      decoration: BoxDecoration(
-        color: scheme.onSurface.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(9999),
-      ),
-      child: SizedBox(
-        height: _itemHeight,
-        width: _itemWidth * options.length,
-        child: Stack(
-          children: [
-            AnimatedPositioned(
-              duration: _animationDuration,
-              curve: _animationCurve,
-              left: selectedIndex * _itemWidth,
-              top: 0,
-              bottom: 0,
-              width: _itemWidth,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: scheme.surface,
-                  borderRadius: BorderRadius.circular(9999),
-                  boxShadow: [
-                    BoxShadow(
-                      color: scheme.shadow.withValues(alpha: 0.06),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                for (final option in options)
-                  _ToggleItem(
-                    label: option.label,
-                    selected: option == value,
-                    width: _itemWidth,
-                    onTap: () => onChanged(option),
-                    duration: _animationDuration,
-                    curve: _animationCurve,
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ToggleItem extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final double width;
-  final VoidCallback onTap;
-  final Duration duration;
-  final Curve curve;
-
-  const _ToggleItem({
-    required this.label,
-    required this.selected,
-    required this.width,
-    required this.onTap,
-    required this.duration,
-    required this.curve,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: width,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Center(
-          child: AnimatedDefaultTextStyle(
-            duration: duration,
-            curve: curve,
-            style: TextStyle(
-              fontSize: 12,
-              height: 16 / 12,
-              fontWeight: FontWeight.w600,
-              color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
-            ),
-            child: Text(label),
-          ),
-        ),
       ),
     );
   }

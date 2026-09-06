@@ -21,10 +21,11 @@ void main() {
         matching: find.byType(container),
       ),
     );
-    final BoxDecoration decoration = (widget is DecoratedBox
-            ? widget.decoration
-            : (widget as AnimatedContainer).decoration!)
-        as BoxDecoration;
+    final BoxDecoration decoration =
+        (widget is DecoratedBox
+                ? widget.decoration
+                : (widget as AnimatedContainer).decoration!)
+            as BoxDecoration;
     return (decoration.borderRadius! as BorderRadius).topLeft.x;
   }
 
@@ -66,8 +67,9 @@ void main() {
       expect(topLeftRadiusOf(tester, DecoratedBox), FrostedRadius.xl);
     });
 
-    testWidgets('softens one step down while pressed',
-        (WidgetTester tester) async {
+    testWidgets('softens one step down while pressed', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedCard(
@@ -79,8 +81,9 @@ void main() {
 
       expect(topLeftRadiusOf(tester, AnimatedContainer), FrostedRadius.xl);
 
-      final TestGesture gesture =
-          await tester.startGesture(tester.getCenter(find.byType(FrostedCard)));
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(find.byType(FrostedCard)),
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -89,8 +92,9 @@ void main() {
       await gesture.up();
     });
 
-    testWidgets('applies the radius to every variant',
-        (WidgetTester tester) async {
+    testWidgets('applies the radius to every variant', (
+      WidgetTester tester,
+    ) async {
       for (final FrostedCardVariant variant in FrostedCardVariant.values) {
         await pump(
           tester,

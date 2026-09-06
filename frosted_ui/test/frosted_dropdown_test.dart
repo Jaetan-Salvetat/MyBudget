@@ -125,7 +125,9 @@ void main() {
       final Rect panel = tester.getRect(find.byType(FrostedMenuPanel));
       expect(
         panel.bottom,
-        lessThanOrEqualTo(tester.view.physicalSize.height / tester.view.devicePixelRatio),
+        lessThanOrEqualTo(
+          tester.view.physicalSize.height / tester.view.devicePixelRatio,
+        ),
       );
       expect(find.byType(Scrollable), findsWidgets);
     });

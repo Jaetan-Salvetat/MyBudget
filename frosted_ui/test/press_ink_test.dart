@@ -79,10 +79,8 @@ void main() {
     ),
     _Case(
       'FrostedExpansionTile',
-      () => const FrostedExpansionTile(
-        title: 'Détails',
-        child: Text('Contenu'),
-      ),
+      () =>
+          const FrostedExpansionTile(title: 'Détails', child: Text('Contenu')),
       () => find.text('Détails'),
     ),
     _Case(
@@ -205,11 +203,10 @@ void main() {
     int count = 0;
     expect(
       tester.renderObject(find.byType(MaterialApp)),
-      paints
-        ..everything((Symbol method, List<dynamic> arguments) {
-          if (method == #drawCircle) count++;
-          return true;
-        }),
+      paints..everything((Symbol method, List<dynamic> arguments) {
+        if (method == #drawCircle) count++;
+        return true;
+      }),
     );
     return count;
   }
@@ -296,12 +293,11 @@ void main() {
       Color? painted;
       expect(
         tester.renderObject(find.byType(FrostedButton)),
-        paints
-          ..something((Symbol method, List<dynamic> arguments) {
-            if (method != #drawCircle) return false;
-            painted = (arguments[2] as Paint).color;
-            return true;
-          }),
+        paints..something((Symbol method, List<dynamic> arguments) {
+          if (method != #drawCircle) return false;
+          painted = (arguments[2] as Paint).color;
+          return true;
+        }),
       );
       expect(painted, isNotNull);
       expect(

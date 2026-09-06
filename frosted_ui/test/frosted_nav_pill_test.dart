@@ -46,10 +46,7 @@ void main() {
     return (lighter + 0.05) / (darker + 0.05);
   }
 
-  Future<void> pumpThemed(
-    WidgetTester tester, {
-    required ThemeData theme,
-  }) {
+  Future<void> pumpThemed(WidgetTester tester, {required ThemeData theme}) {
     return tester.pumpWidget(
       MaterialApp(
         theme: theme,

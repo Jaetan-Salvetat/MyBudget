@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../foundations/frosted_type_scale.dart';
+import '../../foundations/frosted_slider_tokens.dart';
+import '_slider_theme.dart';
 
 class FrostedRangeSlider extends StatelessWidget {
   const FrostedRangeSlider({
@@ -20,30 +21,20 @@ class FrostedRangeSlider extends StatelessWidget {
   final int? divisions;
   final RangeLabels? labels;
 
-  static const double _trackHeight = 4;
-  static const double _knobRadius = 6;
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
 
     return SliderTheme(
-      data: SliderThemeData(
-        trackHeight: _trackHeight,
-        activeTrackColor: cs.primary,
-        inactiveTrackColor: cs.surfaceContainerHighest,
-        thumbColor: cs.primary,
-        rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
-        rangeThumbShape: const RoundRangeSliderThumbShape(
-          enabledThumbRadius: _knobRadius,
+      data: frostedSliderTheme(cs).copyWith(
+        rangeThumbShape: const HandleRangeSliderThumbShape(),
+        rangeTrackShape: const GappedRangeSliderTrackShape(),
+        rangeTickMarkShape: const RoundRangeSliderTickMarkShape(
+          tickMarkRadius: FrostedSliderTokens.tickSize / 2,
         ),
-        overlayColor: cs.primary.withValues(alpha: 0.12),
-        valueIndicatorColor: cs.inverseSurface,
-        valueIndicatorTextStyle: FrostedTypeScale.labelMedium.copyWith(
-          color: cs.onInverseSurface,
-        ),
-        rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
-        showValueIndicator: ShowValueIndicator.onlyForDiscrete,
+        rangeValueIndicatorShape:
+            const RoundedRectRangeSliderValueIndicatorShape(),
+        minThumbSeparation: 0,
       ),
       child: RangeSlider(
         values: values,

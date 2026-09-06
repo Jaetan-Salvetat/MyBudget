@@ -9,6 +9,59 @@ part of 'stats_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(StatsRangeNotifier)
+final statsRangeProvider = StatsRangeNotifierProvider._();
+
+final class StatsRangeNotifierProvider
+    extends $NotifierProvider<StatsRangeNotifier, StatsRange> {
+  StatsRangeNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'statsRangeProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$statsRangeNotifierHash();
+
+  @$internal
+  @override
+  StatsRangeNotifier create() => StatsRangeNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(StatsRange value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<StatsRange>(value),
+    );
+  }
+}
+
+String _$statsRangeNotifierHash() =>
+    r'356093f90927017ed56702ae30a8d368b6561fba';
+
+abstract class _$StatsRangeNotifier extends $Notifier<StatsRange> {
+  StatsRange build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<StatsRange, StatsRange>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<StatsRange, StatsRange>,
+              StatsRange,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(StatsNotifier)
 final statsProvider = StatsNotifierProvider._();
 
@@ -41,7 +94,7 @@ final class StatsNotifierProvider
   }
 }
 
-String _$statsNotifierHash() => r'4aa26feef1d2e727c9188b33df204216a1d3b12e';
+String _$statsNotifierHash() => r'7c76779ccbd0ac3868465f45a91269c16ee8654c';
 
 abstract class _$StatsNotifier extends $Notifier<StatsState> {
   StatsState build();

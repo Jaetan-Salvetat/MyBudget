@@ -1,6 +1,7 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/core/services/stats_calculator.dart';
 import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/models/transaction_event_model.dart';
 import 'package:mybudget/models/expense_model.dart';
@@ -25,13 +26,7 @@ List<ExpenseModel> monthExpenses(Ref ref) {
 
   return [
     for (final expense in expenses)
-      if (occursInMonth(
-        expense.startDate,
-        expense.endDate,
-        expense.frequencyEnum,
-        month,
-      ))
-        _datedOn(expense, month),
+      if (occursIn(expense, month)) _datedOn(expense, month),
   ];
 }
 
@@ -47,37 +42,21 @@ List<ExpenseModel> activeExpenses(Ref ref) {
   return expenses.where((e) => e.endDate == null).toList();
 }
 
-double _expenseAmountForMonth(ExpenseModel expense, DateTime month) {
-  final falls = occursInMonth(
-    expense.startDate,
-    expense.endDate,
-    expense.frequencyEnum,
-    month,
-  );
-  return falls ? expense.amount : 0.0;
-}
-
 @Riverpod(keepAlive: true)
 double monthlyExpenses(Ref ref) {
-  final expenses = ref.watch(expenseHistoryProvider);
-  final selectedMonth = ref.watch(selectedMonthProvider);
-  double total = 0.0;
-  for (final expense in expenses) {
-    total += _expenseAmountForMonth(expense, selectedMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(expenseHistoryProvider),
+    ref.watch(selectedMonthProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
 double currentMonthExpenses(Ref ref) {
-  final expenses = ref.watch(expenseHistoryProvider);
   final now = DateTime.now();
-  final currentMonth = DateTime(now.year, now.month);
-  double total = 0.0;
-  for (final expense in expenses) {
-    total += _expenseAmountForMonth(expense, currentMonth);
-  }
-  return total;
+  return totalInMonth(
+    ref.watch(expenseHistoryProvider),
+    DateTime(now.year, now.month),
+  );
 }
 
 @Riverpod(keepAlive: true)
@@ -132,14 +111,7 @@ Map<String, double> expensesByGroup(Ref ref) {
   final resolver = ref.watch(categoryDisplayResolverProvider).value;
   if (resolver == null) return const {};
 
-  final totals = <String, double>{};
-  for (final expense in expenses) {
-    final amount = _expenseAmountForMonth(expense, selectedMonth);
-    if (amount <= 0) continue;
-    final groupKey = resolver.groupKeyOrUncategorized(expense.categorySlug);
-    totals.update(groupKey, (value) => value + amount, ifAbsent: () => amount);
-  }
-  return totals;
+  return groupTotalsIn(expenses, selectedMonth, resolver);
 }
 
 @Riverpod(keepAlive: true)
