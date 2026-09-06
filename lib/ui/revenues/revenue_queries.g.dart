@@ -101,7 +101,7 @@ final class MonthRevenuesProvider
   }
 }
 
-String _$monthRevenuesHash() => r'29763dea45e1b5c160562307699e4e4d666fad0d';
+String _$monthRevenuesHash() => r'bbe604c1085ddf6b0eaeb1b329ad436dabcd4344';
 
 @ProviderFor(activeRevenues)
 final activeRevenuesProvider = ActiveRevenuesProvider._();
@@ -189,7 +189,7 @@ final class MonthlyRevenuesProvider
   }
 }
 
-String _$monthlyRevenuesHash() => r'b89eecd53b9cf9821488f73c0994fd7a4149f115';
+String _$monthlyRevenuesHash() => r'f87f1a7b5ef64d84f52e4ca7c250e55d789a612c';
 
 @ProviderFor(currentMonthRevenues)
 final currentMonthRevenuesProvider = CurrentMonthRevenuesProvider._();
@@ -231,7 +231,7 @@ final class CurrentMonthRevenuesProvider
 }
 
 String _$currentMonthRevenuesHash() =>
-    r'6ad5b8aa799b65b1f25ed3767aa5d3feaaa04739';
+    r'1488b8d5ed6f4b6f9dcfb5c49f086dc5cd7bde21';
 
 @ProviderFor(upcomingRevenues)
 final upcomingRevenuesProvider = UpcomingRevenuesProvider._();

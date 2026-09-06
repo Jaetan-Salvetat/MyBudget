@@ -79,11 +79,35 @@ class StatsState {
 }
 
 @Riverpod(keepAlive: true)
-class StatsRangeNotifier extends _$StatsRangeNotifier {
-  @override
-  StatsRange build() => StatsRange.sixMonths;
+int statsActiveMonths(Ref ref) {
+  final calculator = StatsCalculator(
+    expenses: ref.watch(expenseHistoryProvider),
+    revenues: ref.watch(revenueHistoryProvider),
+    loans: ref.watch(loanProvider).value ?? const [],
+    resolver: null,
+  );
 
-  void select(StatsRange range) => state = range;
+  final now = DateTime.now();
+  return calculator.activeMonthsOver(
+    StatsCalculator.monthsEndingAt(
+      DateTime(now.year, now.month),
+      StatsRange.twelveMonths.months,
+    ),
+  );
+}
+
+@Riverpod(keepAlive: true)
+class StatsRangeNotifier extends _$StatsRangeNotifier {
+  StatsRange? _picked;
+
+  @override
+  StatsRange build() =>
+      _picked ?? StatsRange.defaultFor(ref.watch(statsActiveMonthsProvider));
+
+  void select(StatsRange range) {
+    _picked = range;
+    state = range;
+  }
 }
 
 @Riverpod(keepAlive: true)

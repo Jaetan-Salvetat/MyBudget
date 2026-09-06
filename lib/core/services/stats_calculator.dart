@@ -54,6 +54,9 @@ class StatsCalculator {
       ),
   ];
 
+  int activeMonthsOver(List<DateTime> months) =>
+      flowsOver(months).where((flow) => !flow.isEmpty).length;
+
   Map<String, double> expensesByGroupOver(List<DateTime> months) {
     final resolver = this.resolver;
     if (resolver == null) return const {};

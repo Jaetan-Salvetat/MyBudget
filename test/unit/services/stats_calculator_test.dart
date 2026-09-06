@@ -195,6 +195,46 @@ void main() {
     });
   });
 
+  group('activeMonthsOver', () {
+    test('counts only the months where something moved', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 100,
+            startDate: DateTime(2026, 2, 5),
+            frequency: 'Ponctuel',
+          ),
+          expense(
+            amount: 40,
+            startDate: DateTime(2026, 4, 5),
+            frequency: 'Ponctuel',
+          ),
+        ],
+      );
+
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
+
+      expect(calculator.activeMonthsOver(months), 2);
+    });
+
+    test('counts a recurring expense in every month it lands on', () {
+      final calculator = calculatorWith(
+        expenses: [expense(amount: 100, startDate: DateTime(2026, 2, 5))],
+      );
+
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
+
+      expect(calculator.activeMonthsOver(months), 3);
+    });
+
+    test('is zero when nothing happened over the window', () {
+      final calculator = calculatorWith();
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4);
+
+      expect(calculator.activeMonthsOver(months), 0);
+    });
+  });
+
   group('expensesByGroupOver', () {
     test('sums a group over every month of the window', () {
       final calculator = calculatorWith(

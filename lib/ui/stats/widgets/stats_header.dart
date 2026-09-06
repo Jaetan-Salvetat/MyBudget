@@ -6,7 +6,7 @@ import 'package:mybudget/ui/stats/models/stats_range.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 
 class StatsHeader extends ConsumerWidget {
-  static const double selectorWidth = 176;
+  static const double segmentWidth = 72;
 
   const StatsHeader({super.key});
 
@@ -26,15 +26,13 @@ class StatsHeader extends ConsumerWidget {
               letterSpacing: -0.8,
             ),
           ),
-          SizedBox(
-            width: selectorWidth,
-            child: FrostedSegmentedControl(
-              segments: [for (final value in StatsRange.values) value.label],
-              currentIndex: range.index,
-              onTap: (index) => ref
-                  .read(statsRangeProvider.notifier)
-                  .select(StatsRange.values[index]),
-            ),
+          FrostedSegmentedControl(
+            segments: [for (final value in StatsRange.values) value.label],
+            currentIndex: range.index,
+            segmentWidth: segmentWidth,
+            onTap: (index) => ref
+                .read(statsRangeProvider.notifier)
+                .select(StatsRange.values[index]),
           ),
         ],
       ),

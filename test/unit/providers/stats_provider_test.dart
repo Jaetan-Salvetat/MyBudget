@@ -69,11 +69,10 @@ void main() {
     when(() => mockCategoryOverrideRepo.getAll()).thenReturn({});
   });
 
-  Future<StatsState> readState({
+  ProviderContainer containerWith({
     List<ExpenseModel> expenses = const [],
     List<RevenueModel> revenues = const [],
-    StatsRange range = StatsRange.sixMonths,
-  }) async {
+  }) {
     when(() => mockExpenseRepo.getAll()).thenReturn([...expenses]);
     when(() => mockExpenseRepo.getActive()).thenReturn([...expenses]);
     when(() => mockRevenueRepo.getAll()).thenReturn([...revenues]);
@@ -93,13 +92,36 @@ void main() {
     );
     addTearDown(container.dispose);
 
+    return container;
+  }
+
+  Future<void> warmUp(ProviderContainer container) async {
     await container.read(expenseProvider.future);
     await container.read(revenueProvider.future);
     await container.read(loanProvider.future);
     await container.read(categoryDisplayResolverProvider.future);
+  }
+
+  Future<StatsState> readState({
+    List<ExpenseModel> expenses = const [],
+    List<RevenueModel> revenues = const [],
+    StatsRange range = StatsRange.sixMonths,
+  }) async {
+    final container = containerWith(expenses: expenses, revenues: revenues);
+    await warmUp(container);
 
     container.read(statsRangeProvider.notifier).select(range);
     return container.read(statsProvider);
+  }
+
+  Future<StatsRange> readRange({
+    List<ExpenseModel> expenses = const [],
+    List<RevenueModel> revenues = const [],
+  }) async {
+    final container = containerWith(expenses: expenses, revenues: revenues);
+    await warmUp(container);
+
+    return container.read(statsRangeProvider);
   }
 
   ExpenseModel expense({
@@ -281,6 +303,59 @@ void main() {
         state.movers.map((trend) => trend.groupKey),
         isNot(contains('alimentation')),
       );
+    });
+  });
+
+  group('default range', () {
+    test('starts on two months while data covers two months at most', () async {
+      final range = await readRange(
+        expenses: [
+          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+        ],
+      );
+
+      expect(range, StatsRange.twoMonths);
+    });
+
+    test('opens on six months once more than two months carry data', () async {
+      final range = await readRange(
+        expenses: [
+          for (var month = 0; month < 3; month++)
+            expense(
+              amount: 100,
+              startDate: monthsAgo(month),
+              frequency: 'Ponctuel',
+            ),
+        ],
+      );
+
+      expect(range, StatsRange.sixMonths);
+    });
+
+    test('never overrides the range the user picked', () async {
+      final container = containerWith(
+        expenses: [
+          expense(amount: 100, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+        ],
+      );
+      await warmUp(container);
+
+      container
+          .read(statsRangeProvider.notifier)
+          .select(StatsRange.twelveMonths);
+
+      when(() => mockExpenseRepo.getAll()).thenReturn([
+        for (var month = 0; month < 6; month++)
+          expense(
+            amount: 100,
+            startDate: monthsAgo(month),
+            frequency: 'Ponctuel',
+          ),
+      ]);
+      container.invalidate(expenseProvider);
+      await warmUp(container);
+
+      expect(container.read(statsRangeProvider), StatsRange.twelveMonths);
     });
   });
 
