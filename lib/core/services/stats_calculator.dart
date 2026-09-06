@@ -86,14 +86,27 @@ class StatsCalculator {
   }
 
   double recurringExpensesOver(List<DateTime> months) {
+    double total = _recurringTotalOver(expenses, months);
+    for (final month in months) {
+      total += _loanPaymentsIn(month);
+    }
+    return total;
+  }
+
+  double recurringIncomesOver(List<DateTime> months) =>
+      _recurringTotalOver(revenues, months);
+
+  double _recurringTotalOver(
+    Iterable<FilterableTransaction> transactions,
+    List<DateTime> months,
+  ) {
     double total = 0;
     for (final month in months) {
-      for (final expense in expenses) {
-        if (expense.frequencyEnum == Frequency.oneTime) continue;
-        if (!occursIn(expense, month)) continue;
-        total += expense.amount;
+      for (final transaction in transactions) {
+        if (transaction.frequencyEnum == Frequency.oneTime) continue;
+        if (!occursIn(transaction, month)) continue;
+        total += transaction.amount;
       }
-      total += _loanPaymentsIn(month);
     }
     return total;
   }

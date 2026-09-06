@@ -356,4 +356,33 @@ void main() {
       expect(calculator.recurringExpensesOver(months), 300);
     });
   });
+
+  group('recurringIncomesOver', () {
+    test('counts recurring revenues only', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        revenues: [
+          revenue(amount: 2000, startDate: DateTime(2026, 1, 5)),
+          revenue(
+            amount: 800,
+            startDate: DateTime(2026, 2, 8),
+            frequency: 'Ponctuel',
+          ),
+        ],
+      );
+
+      expect(calculator.recurringIncomesOver(months), 6000);
+    });
+
+    test('counts a revenue only from the month it starts', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        revenues: [
+          revenue(amount: 2000, startDate: DateTime(2026, 3, 5)),
+        ],
+      );
+
+      expect(calculator.recurringIncomesOver(months), 2000);
+    });
+  });
 }

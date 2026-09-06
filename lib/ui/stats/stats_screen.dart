@@ -10,7 +10,7 @@ import 'package:mybudget/ui/home/home_navigation_provider.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 import 'package:mybudget/ui/stats/widgets/category_breakdown_section.dart';
 import 'package:mybudget/ui/stats/widgets/category_movers_section.dart';
-import 'package:mybudget/ui/stats/widgets/fixed_share_section.dart';
+import 'package:mybudget/ui/stats/widgets/effort_rate_section.dart';
 import 'package:mybudget/ui/stats/widgets/monthly_flow_section.dart';
 import 'package:mybudget/ui/stats/widgets/stats_header.dart';
 
@@ -78,12 +78,11 @@ class _Content extends ConsumerWidget {
             ),
             if (!state.hasHistory)
               _YoungBudgetNotice(monthsToGo: state.monthsUntilHistory),
-            FixedShareSection(
-              share: state.recurringShare,
-              shareDelta: state.recurringShareDelta,
-              recurringExpenses: state.recurringExpenses,
-              variableExpenses: state.variableExpenses,
-              hasComparison: state.hasComparison,
+            EffortRateSection(
+              rate: state.effortRate,
+              annualRate: state.annualEffortRate,
+              recurringExpenses: state.monthlyRecurringExpenses,
+              leftover: state.monthlyLeftover,
             ),
             CategoryMoversSection(
               movers: state.movers,

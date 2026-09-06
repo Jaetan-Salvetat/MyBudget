@@ -15,6 +15,7 @@ part 'stats_provider.g.dart';
 
 class StatsState {
   static const int minimumTrackedMonths = 3;
+  static const int effortReferenceMonths = 12;
 
   final StatsRange range;
   final List<MonthlyFlow> flows;
@@ -24,8 +25,10 @@ class StatsState {
   final double previousIncomes;
   final double previousExpenses;
   final int previousCoveredMonths;
-  final double recurringExpenses;
-  final double previousRecurringExpenses;
+  final double monthlyRecurringExpenses;
+  final double monthlyRecurringIncomes;
+  final double annualRecurringExpenses;
+  final double annualRecurringIncomes;
   final List<CategoryTrend> categories;
   final int trackedMonths;
 
@@ -38,8 +41,10 @@ class StatsState {
     required this.previousIncomes,
     required this.previousExpenses,
     required this.previousCoveredMonths,
-    required this.recurringExpenses,
-    required this.previousRecurringExpenses,
+    required this.monthlyRecurringExpenses,
+    required this.monthlyRecurringIncomes,
+    required this.annualRecurringExpenses,
+    required this.annualRecurringIncomes,
     required this.categories,
     required this.trackedMonths,
   });
@@ -55,15 +60,17 @@ class StatsState {
 
   double get netDelta => averageNet - previousAverageNet;
 
-  double get variableExpenses => totalExpenses - recurringExpenses;
+  double? get effortRate =>
+      _rateOf(monthlyRecurringExpenses, monthlyRecurringIncomes);
 
-  double get recurringShare =>
-      totalExpenses <= 0 ? 0 : recurringExpenses / totalExpenses;
+  double? get annualEffortRate =>
+      _rateOf(annualRecurringExpenses, annualRecurringIncomes);
 
-  double get previousRecurringShare =>
-      previousExpenses <= 0 ? 0 : previousRecurringExpenses / previousExpenses;
+  double get monthlyLeftover =>
+      monthlyRecurringIncomes - monthlyRecurringExpenses;
 
-  double get recurringShareDelta => recurringShare - previousRecurringShare;
+  double? _rateOf(double charges, double incomes) =>
+      incomes <= 0 ? null : charges / incomes;
 
   bool get hasHistory => trackedMonths >= minimumTrackedMonths;
 
@@ -108,6 +115,12 @@ class StatsNotifier extends _$StatsNotifier {
       range.months,
     );
 
+    final currentMonth = [anchor];
+    final referenceMonths = StatsCalculator.monthsEndingAt(
+      anchor,
+      StatsState.effortReferenceMonths,
+    );
+
     final flows = calculator.flowsSinceFirstActivity(months);
     final previousFlows = calculator.flowsOver(earlier);
     final earliest = calculator.earliestMonth();
@@ -131,8 +144,12 @@ class StatsNotifier extends _$StatsNotifier {
         (sum, flow) => sum + flow.expenses,
       ),
       previousCoveredMonths: _activeMonths(previousFlows),
-      recurringExpenses: calculator.recurringExpensesOver(months),
-      previousRecurringExpenses: calculator.recurringExpensesOver(earlier),
+      monthlyRecurringExpenses: calculator.recurringExpensesOver(currentMonth),
+      monthlyRecurringIncomes: calculator.recurringIncomesOver(currentMonth),
+      annualRecurringExpenses: calculator.recurringExpensesOver(
+        referenceMonths,
+      ),
+      annualRecurringIncomes: calculator.recurringIncomesOver(referenceMonths),
       categories: _buildTrends(totals, previousTotals, totalExpenses, resolver),
       trackedMonths: _trackedMonths(earliest, anchor),
     );

@@ -184,25 +184,79 @@ void main() {
     });
   });
 
-  group('recurring share', () {
-    test('splits recurring from one-off expenses', () async {
+  group('effort rate', () {
+    test('rates this month fixed charges against recurring income', () async {
       final state = await readState(
         expenses: [
-          expense(amount: 100, startDate: monthsAgo(5)),
-          expense(amount: 600, startDate: monthsAgo(1), frequency: 'Ponctuel'),
+          expense(amount: 600, startDate: monthsAgo(5)),
+          expense(amount: 900, startDate: monthsAgo(0), frequency: 'Ponctuel'),
+        ],
+        revenues: [revenue(amount: 2000, startDate: monthsAgo(5))],
+      );
+
+      expect(state.monthlyRecurringExpenses, 600);
+      expect(state.monthlyRecurringIncomes, 2000);
+      expect(state.effortRate, closeTo(0.3, 0.001));
+      expect(state.monthlyLeftover, 1400);
+    });
+
+    test('leaves one-off income out of the rate', () async {
+      final state = await readState(
+        expenses: [expense(amount: 600, startDate: monthsAgo(5))],
+        revenues: [
+          revenue(amount: 2000, startDate: monthsAgo(5)),
+          revenue(amount: 1000, startDate: monthsAgo(0), frequency: 'Ponctuel'),
         ],
       );
 
-      expect(state.recurringExpenses, 600);
-      expect(state.variableExpenses, 600);
-      expect(state.recurringShare, closeTo(0.5, 0.001));
+      expect(state.monthlyRecurringIncomes, 2000);
+      expect(state.effortRate, closeTo(0.3, 0.001));
     });
 
-    test('is zero when nothing was spent', () async {
-      final state = await readState();
+    test('has no rate without recurring income', () async {
+      final state = await readState(
+        expenses: [expense(amount: 600, startDate: monthsAgo(5))],
+      );
 
-      expect(state.recurringShare, 0);
-      expect(state.previousRecurringShare, 0);
+      expect(state.effortRate, isNull);
+      expect(state.annualEffortRate, isNull);
+    });
+
+    test('carries annual charges in the twelve month rate only', () async {
+      final state = await readState(
+        expenses: [
+          expense(amount: 600, startDate: monthsAgo(5)),
+          expense(amount: 300, startDate: monthsAgo(8), frequency: 'Annuel'),
+        ],
+        revenues: [revenue(amount: 2000, startDate: monthsAgo(5))],
+      );
+
+      expect(state.annualRecurringExpenses, 3900);
+      expect(state.annualRecurringIncomes, 12000);
+      expect(state.effortRate, closeTo(0.3, 0.001));
+      expect(state.annualEffortRate, closeTo(0.325, 0.001));
+    });
+
+    test('leaves the quiet months out of the twelve month rate', () async {
+      final state = await readState(
+        expenses: [expense(amount: 600, startDate: monthsAgo(3))],
+        revenues: [revenue(amount: 2000, startDate: monthsAgo(3))],
+      );
+
+      expect(state.annualRecurringExpenses, 2400);
+      expect(state.annualRecurringIncomes, 8000);
+      expect(state.annualEffortRate, state.effortRate);
+    });
+
+    test('keeps the twelve month rate when the range is six months', () async {
+      final state = await readState(
+        expenses: [expense(amount: 300, startDate: monthsAgo(8), frequency: 'Annuel')],
+        revenues: [revenue(amount: 2000, startDate: monthsAgo(11))],
+        range: StatsRange.sixMonths,
+      );
+
+      expect(state.annualRecurringExpenses, 300);
+      expect(state.annualRecurringIncomes, 24000);
     });
   });
 
