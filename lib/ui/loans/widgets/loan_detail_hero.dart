@@ -1,11 +1,11 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/loan.dart';
+import 'package:mybudget/core/enums/loan_status.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/values/loan.dart';
 
 class LoanDetailHero extends StatelessWidget {
   const LoanDetailHero({required this.loan, super.key});

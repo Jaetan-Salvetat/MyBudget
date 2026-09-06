@@ -1,6 +1,6 @@
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'onboarding_provider.g.dart';

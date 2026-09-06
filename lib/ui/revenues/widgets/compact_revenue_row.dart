@@ -1,17 +1,17 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class CompactRevenueRow extends StatelessWidget {
   const CompactRevenueRow({
@@ -29,7 +29,7 @@ class CompactRevenueRow extends StatelessWidget {
   });
   final RevenueModel revenue;
   final String accountName;
-  final Beneficiary? beneficiary;
+  final BeneficiaryModel? beneficiary;
   final CategoryDisplay? category;
   final bool showDivider;
 

@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/data/provider/quick_add_engine_provider.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
 import 'package:mybudget/ui/onboarding/onboarding_page.dart';
-import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});

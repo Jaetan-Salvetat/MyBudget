@@ -44,8 +44,6 @@ dependencies:
   objectbox: ^5.3.2
   objectbox_flutter_libs: ^5.3.2
   file_picker: ^12.0.0
-  app_updater:
-    path: ./app_updater
   google_fonts: ^8.2.1
   url_launcher: ^6.3.1
   flutter_riverpod: ^3.4.2
@@ -99,8 +97,6 @@ flutter_launcher_icons:
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
-
-# Aucune substitution de dépendance n'est nécessaire avec Isar
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -4,12 +4,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/provider/quick_add_recent_submissions_provider.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
-import 'package:mybudget/ui/quick_add/quick_add_recent_submissions_provider.dart';
 
 class JournalLine extends StatelessWidget {
   const JournalLine({

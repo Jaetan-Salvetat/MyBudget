@@ -4,7 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 import 'package:mybudget/ui/expenses/widgets/compact_expense_row.dart';
 
 final DateTime _fixedNow = DateTime(2026, 6, 15, 9, 30);

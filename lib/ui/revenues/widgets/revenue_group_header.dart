@@ -3,9 +3,9 @@ import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
-import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/data/service/revenue_grouping_service.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_menu.dart';
 
 class RevenueGroupHeader extends StatelessWidget {

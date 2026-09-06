@@ -6,8 +6,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
 import 'package:mybudget/ui/loans/screens/loan_creation_screen.dart';
 
 void main() {

@@ -1,25 +1,26 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 
-class BeneficiarySelector extends ConsumerStatefulWidget {
+class BeneficiarySelector extends StatefulWidget {
   const BeneficiarySelector({
+    required this.beneficiaries,
+    required this.onCreate,
     required this.onChanged,
     this.initialBeneficiaryId,
     super.key,
   });
+  final List<BeneficiaryModel> beneficiaries;
+  final Future<int?> Function(String name) onCreate;
   final int? initialBeneficiaryId;
   final ValueChanged<int?> onChanged;
 
   @override
-  ConsumerState<BeneficiarySelector> createState() =>
-      _BeneficiarySelectorState();
+  State<BeneficiarySelector> createState() => _BeneficiarySelectorState();
 }
 
-class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
+class _BeneficiarySelectorState extends State<BeneficiarySelector> {
   bool _enabled = false;
   int? _selectedId;
   bool _isCreating = false;
@@ -42,7 +43,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
     super.dispose();
   }
 
-  void _onToggle(bool value, List<Beneficiary> beneficiaries) {
+  void _onToggle(bool value, List<BeneficiaryModel> beneficiaries) {
     setState(() {
       _enabled = value;
       if (!value) {
@@ -63,8 +64,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
   }
 
   Future<void> _confirmCreate() async {
-    final beneficiaryNotifier = ref.read(beneficiaryProvider.notifier);
-    final beneficiaries = ref.read(beneficiaryProvider).value ?? [];
+    final beneficiaries = widget.beneficiaries;
     final name = _newNameController.text.trim();
     if (name.isEmpty) {
       setState(() => _createError = 'Le nom ne peut pas être vide');
@@ -83,7 +83,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
       _createError = null;
     });
 
-    final newId = await beneficiaryNotifier.createBeneficiary(name);
+    final newId = await widget.onCreate(name);
 
     if (!mounted) return;
 
@@ -105,7 +105,7 @@ class _BeneficiarySelectorState extends ConsumerState<BeneficiarySelector> {
 
   @override
   Widget build(BuildContext context) {
-    final beneficiaries = ref.watch(beneficiaryProvider).value ?? [];
+    final beneficiaries = widget.beneficiaries;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

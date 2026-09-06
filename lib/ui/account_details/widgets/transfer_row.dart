@@ -1,10 +1,10 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/transaction_actions_sheet.dart';
 
@@ -18,7 +18,7 @@ class TransferRow extends StatelessWidget {
     required this.onDelete,
     this.showDivider = true,
   });
-  final Transfer transfer;
+  final TransferModel transfer;
   final int currentAccountId;
   final String otherAccountName;
   final bool showDivider;
@@ -46,9 +46,9 @@ class TransferRow extends StatelessWidget {
         ? 'Vers $otherAccountName'
         : 'Depuis $otherAccountName';
 
-    final freqLabel = transfer.frequency.label;
+    final freqLabel = transfer.frequencyEnum.label;
     final day = transfer.startDate.day;
-    final meta = transfer.frequency == Frequency.oneTime
+    final meta = transfer.frequencyEnum == Frequency.oneTime
         ? freqLabel
         : '$freqLabel · Le $day';
 

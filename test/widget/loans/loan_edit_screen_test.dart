@@ -4,16 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/loan.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
 import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
 import 'package:mybudget/ui/loans/screens/loan_edit_screen.dart';
 
 import '../../helpers/loan_test_factory.dart';
+
+class MockLoanRepository extends Mock implements LoanRepository {}
 
 void main() {
   setUpAll(() => initializeDateFormatting(DisplayLocale.tag, null));
@@ -22,25 +27,33 @@ void main() {
 
   final account = AccountModel.create(name: 'Courant', bank: 'Banque')..id = 1;
 
-  Loan buildLoan() {
-    return buildTestLoan(
-      LoanModel.create(
-        name: 'Prêt Test',
-        amount: 10000,
-        lenderName: 'Banque Test',
-        accountId: account.id,
-        dayOfMonth: 15,
-        startDate: DateTime(2024, 1, 1),
-        endDate: DateTime(2025, 1, 1),
-        interestRate: 5.0,
-        duration: 12,
-        repaymentType: LoanRepaymentType.amortizable,
-        deferredMonths: 0,
-        insuranceType: LoanInsuranceType.fixed,
-        insuranceValue: 25.0,
-        insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
-      ),
+  LoanModel buildLoanModel() {
+    return LoanModel.create(
+      name: 'Prêt Test',
+      amount: 10000,
+      lenderName: 'Banque Test',
+      accountId: account.id,
+      dayOfMonth: 15,
+      startDate: DateTime(2024, 1, 1),
+      endDate: DateTime(2025, 1, 1),
+      interestRate: 5.0,
+      duration: 12,
+      repaymentType: LoanRepaymentType.amortizable,
+      deferredMonths: 0,
+      insuranceType: LoanInsuranceType.fixed,
+      insuranceValue: 25.0,
+      insuranceCalculationMode: InsuranceCalculationMode.initialCapital,
     );
+  }
+
+  LoanRepository loanRepository() {
+    final repository = MockLoanRepository();
+    when(() => repository.get(any())).thenReturn(buildLoanModel());
+    return repository;
+  }
+
+  Loan buildLoan() {
+    return buildTestLoan(buildLoanModel());
   }
 
   Future<LoanModel? Function()> pushForm(WidgetTester tester) async {
@@ -54,6 +67,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          loanRepositoryProvider.overrideWithValue(loanRepository()),
+        ],
         child: MaterialApp(
           theme: AppTheme.dark(),
           home: Builder(

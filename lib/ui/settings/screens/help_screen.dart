@@ -3,7 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
-import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/settings/help_content.dart';
 import 'package:mybudget/ui/settings/models/help_topic.dart';
 import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';

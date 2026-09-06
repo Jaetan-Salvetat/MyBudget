@@ -1,10 +1,10 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
@@ -27,7 +27,7 @@ class TransactionDetailHero extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final Color color;
-  final Beneficiary? beneficiary;
+  final BeneficiaryModel? beneficiary;
   final double amount;
   final Frequency frequency;
   final bool isIncome;

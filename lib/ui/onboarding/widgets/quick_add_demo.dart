@@ -4,10 +4,10 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_draft_line.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class QuickAddDemo extends ConsumerStatefulWidget {
   const QuickAddDemo({required this.isActive, super.key});

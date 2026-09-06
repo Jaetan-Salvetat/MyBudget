@@ -4,8 +4,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/cloud_engine_availability.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/quick_add_engine_provider.dart';
 import 'package:mybudget/ui/settings/screens/gemini_cloud_screen.dart';
 import 'package:mybudget/ui/settings/widgets/ai_cloud_consent_dialog.dart';
 

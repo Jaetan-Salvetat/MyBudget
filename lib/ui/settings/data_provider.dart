@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/data/data_export_service.dart';
-import 'package:mybudget/core/services/data/data_import_service.dart';
-import 'package:mybudget/core/services/data/import_report.dart';
-import 'package:mybudget/core/services/data/import_validation_result.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/data/data_export_service.dart';
+import 'package:mybudget/data/service/data/data_import_service.dart';
+import 'package:mybudget/data/service/data/import_report.dart';
+import 'package:mybudget/data/service/data/import_validation_result.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -67,6 +67,7 @@ class DataNotifier extends _$DataNotifier {
       loanEventRepo: ref.read(loanEventRepositoryProvider),
       loanService: ref.read(loanServiceProvider),
       transferRepo: ref.read(transferRepositoryProvider),
+      eraser: ref.read(userDataEraserProvider),
       clock: ref.read(clockProvider),
     );
   }
@@ -171,14 +172,7 @@ class DataNotifier extends _$DataNotifier {
 
       await Future<void>.delayed(ref.read(dataWipeFeedbackDelayProvider));
 
-      ref.read(beneficiaryRepositoryProvider).deleteAll();
-      ref.read(accountRepositoryProvider).deleteAll();
-      ref.read(expenseRepositoryProvider).deleteAll();
-      ref.read(revenueRepositoryProvider).deleteAll();
-      ref.read(loanRepositoryProvider).deleteAll();
-      ref.read(transferRepositoryProvider).deleteAll();
-      ref.read(categoryOverrideRepositoryProvider).deleteAll();
-      ref.read(categoryMemoryRepositoryProvider).deleteAll();
+      ref.read(userDataEraserProvider).eraseAll();
 
       await PreferencesService.clearAll();
     } catch (e) {

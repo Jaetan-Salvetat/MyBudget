@@ -2,22 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/transfer.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
 import 'package:mybudget/ui/account_details/widgets/transfer_row.dart';
 
 void main() {
-  Transfer transfer() => Transfer(
-    TransferModel.create(
-      name: 'Épargne',
-      amount: 150,
-      fromAccountId: 1,
-      toAccountId: 2,
-      startDate: DateTime(2026, 1, 5),
-      frequency: Frequency.monthly,
-    ),
+  TransferModel transfer() => TransferModel.create(
+    name: 'Épargne',
+    amount: 150,
+    fromAccountId: 1,
+    toAccountId: 2,
+    startDate: DateTime(2026, 1, 5),
+    frequency: Frequency.monthly,
   );
 
   Future<void> pumpRow(

@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/models/scan_read_progress_model.dart';
+import 'package:mybudget/data/model/scan_read_progress_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reading_thread.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';

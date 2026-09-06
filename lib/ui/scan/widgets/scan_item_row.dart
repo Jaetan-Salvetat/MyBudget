@@ -1,9 +1,9 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 
 class ScanItemRow extends StatefulWidget {

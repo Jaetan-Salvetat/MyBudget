@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 
 import 'harness/e2e_harness.dart';
@@ -126,22 +127,22 @@ void main() {
     test('un nouveau bénéficiaire apparaît dans la liste', () async {
       await beneficiaries().addBeneficiary('Agence');
 
-      final List<Beneficiary> all = await app.container.read(
+      final List<BeneficiaryModel> all = await app.container.read(
         beneficiaryProvider.future,
       );
 
-      expect(all.map((Beneficiary b) => b.name), <String>['Agence']);
+      expect(all.map((BeneficiaryModel b) => b.name), <String>['Agence']);
     });
 
     test('la liste est rangée par ordre alphabétique', () async {
       await beneficiaries().addBeneficiary('Zoé');
       await beneficiaries().addBeneficiary('Agence');
 
-      final List<Beneficiary> all = await app.container.read(
+      final List<BeneficiaryModel> all = await app.container.read(
         beneficiaryProvider.future,
       );
 
-      expect(all.map((Beneficiary b) => b.name), <String>['Agence', 'Zoé']);
+      expect(all.map((BeneficiaryModel b) => b.name), <String>['Agence', 'Zoé']);
     });
 
     test('un nom vide est refusé', () async {

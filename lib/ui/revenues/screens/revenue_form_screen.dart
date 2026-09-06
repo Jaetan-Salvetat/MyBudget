@@ -6,16 +6,18 @@ import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/ui/category_picker/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 import 'package:mybudget/ui/common/widgets/beneficiary_selector.dart';
 import 'package:mybudget/ui/common/widgets/category_field.dart';
-import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/form_text.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class RevenueFormScreen extends ConsumerStatefulWidget {
   const RevenueFormScreen({
@@ -165,7 +167,15 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         const SizedBox(height: 12),
         const FormFieldLabel('Catégorie'),
         const SizedBox(height: 8),
-        CategoryField(slug: _selectedCategorySlug, onTap: _pickCategory),
+        CategoryField(
+          category: _selectedCategorySlug == null
+              ? null
+              : ref
+                    .watch(categoryDisplayResolverProvider)
+                    .value
+                    ?.resolve(_selectedCategorySlug!),
+          onTap: _pickCategory,
+        ),
         FormFieldError(_categoryError),
         const SizedBox(height: 16),
         const FormFieldLabel('Compte associé'),
@@ -210,6 +220,9 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         ],
         const SizedBox(height: 24),
         BeneficiarySelector(
+          beneficiaries: ref.watch(beneficiaryProvider).value ?? const [],
+          onCreate: (name) =>
+              ref.read(beneficiaryProvider.notifier).createBeneficiary(name),
           initialBeneficiaryId: widget.revenue?.beneficiaryId,
           onChanged: (id) => setState(() {
             _selectedBeneficiaryId = id;

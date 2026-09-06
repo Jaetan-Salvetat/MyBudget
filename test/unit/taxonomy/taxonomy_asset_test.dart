@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/constants/quick_add_labels.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

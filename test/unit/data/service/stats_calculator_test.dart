@@ -1,0 +1,390 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mybudget/core/enums/frequency.dart';
+import 'package:mybudget/core/enums/loan_types.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/core/values/loan_installment.dart';
+import 'package:mybudget/core/values/loan_schedule.dart';
+import 'package:mybudget/core/values/loan_terms.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/data/service/stats_calculator.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late CategoryTaxonomyService taxonomy;
+
+  setUpAll(() async {
+    taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
+  });
+
+  ExpenseModel expense({
+    required double amount,
+    required DateTime startDate,
+    Frequency frequency = Frequency.monthly,
+    String? categorySlug,
+    DateTime? endDate,
+  }) {
+    final model = ExpenseModel.create(
+      name: 'Dépense',
+      amount: amount,
+      accountId: 1,
+      startDate: startDate,
+      frequency: frequency,
+      categorySlug: categorySlug,
+    );
+    return endDate == null ? model : model.copyWith(endDate: endDate);
+  }
+
+  RevenueModel revenue({
+    required double amount,
+    required DateTime startDate,
+    Frequency frequency = Frequency.monthly,
+  }) {
+    return RevenueModel.create(
+      name: 'Revenu',
+      amount: amount,
+      accountId: 1,
+      startDate: startDate,
+      frequency: frequency,
+    );
+  }
+
+  Loan loanPaying(double payment, List<DateTime> dates) {
+    final schedule = LoanSchedule(
+      borrowedAmount: 10000,
+      installments: [
+        for (var index = 0; index < dates.length; index++)
+          LoanInstallment(
+            number: index + 1,
+            date: dates[index],
+            openingCapital: 10000,
+            interest: 0,
+            insurance: 0,
+            principal: payment,
+            closingCapital: 10000 - payment * (index + 1),
+            kind: LoanInstallmentKind.amortizing,
+          ),
+      ],
+    );
+
+    return Loan(
+      id: 0,
+      name: 'Prêt',
+      lenderName: 'Banque',
+      accountId: 1,
+      notes: null,
+      purpose: LoanPurpose.other,
+      terms: LoanTerms(
+        amount: 10000,
+        annualInterestRate: 0,
+        durationInMonths: dates.length,
+        startDate: dates.first,
+        dayOfMonth: dates.first.day,
+      ),
+      schedule: schedule,
+      contractualSchedule: schedule,
+      events: const [],
+      annualPercentageRate: 0,
+      asOf: dates.last,
+    );
+  }
+
+  StatsCalculator calculatorWith({
+    List<ExpenseModel> expenses = const [],
+    List<RevenueModel> revenues = const [],
+    List<Loan> loans = const [],
+  }) {
+    return StatsCalculator(
+      expenses: expenses,
+      revenues: revenues,
+      loans: loans,
+      resolver: CategoryDisplayResolver(
+        taxonomy: taxonomy,
+        overrides: const {},
+      ),
+    );
+  }
+
+  group('monthsEndingAt', () {
+    test('returns the requested count, oldest first, ending on the anchor', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 4);
+
+      expect(months, [
+        DateTime(2025, 12),
+        DateTime(2026, 1),
+        DateTime(2026, 2),
+        DateTime(2026, 3),
+      ]);
+    });
+
+    test('crosses the year boundary backwards', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026), 2);
+
+      expect(months, [DateTime(2025, 12), DateTime(2026)]);
+    });
+  });
+
+  group('flowsOver', () {
+    test('spreads a monthly expense across every month of the window', () {
+      final calculator = calculatorWith(
+        expenses: [expense(amount: 100, startDate: DateTime(2026, 1, 5))],
+        revenues: [revenue(amount: 900, startDate: DateTime(2026, 1, 2))],
+      );
+
+      final flows = calculator.flowsOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3),
+      );
+
+      expect(flows.map((flow) => flow.expenses), [100, 100, 100]);
+      expect(flows.map((flow) => flow.incomes), [900, 900, 900]);
+      expect(flows.first.net, 800);
+    });
+
+    test('keeps a one-time expense in its own month', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 250,
+            startDate: DateTime(2026, 2, 14),
+            frequency: Frequency.oneTime,
+          ),
+        ],
+      );
+
+      final flows = calculator.flowsOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3),
+      );
+
+      expect(flows.map((flow) => flow.expenses), [0, 250, 0]);
+    });
+
+    test('counts a loan instalment in the month it falls', () {
+      final calculator = calculatorWith(
+        loans: [
+          loanPaying(180, [
+            DateTime(2026, 1, 10),
+            DateTime(2026, 2, 10),
+            DateTime(2026, 3, 10),
+          ]),
+        ],
+      );
+
+      final flows = calculator.flowsOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 3), 4),
+      );
+
+      expect(flows.map((flow) => flow.expenses), [0, 180, 180, 180]);
+    });
+
+    test('stops a closed expense after its end date', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 60,
+            startDate: DateTime(2026, 1, 3),
+            endDate: DateTime(2026, 2, 3),
+          ),
+        ],
+      );
+
+      final flows = calculator.flowsOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
+
+      expect(flows.map((flow) => flow.expenses), [60, 60, 0, 0]);
+    });
+  });
+
+  group('flowsSinceFirstActivity', () {
+    test('drops the months that precede the first move', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 100,
+            startDate: DateTime(2026, 3, 5),
+            frequency: Frequency.oneTime,
+          ),
+        ],
+      );
+
+      final flows = calculator.flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
+
+      expect(flows.map((flow) => flow.month), [
+        DateTime(2026, 3),
+        DateTime(2026, 4),
+      ]);
+    });
+
+    test('keeps a quiet month sitting inside the window', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 100,
+            startDate: DateTime(2026, 2, 5),
+            frequency: Frequency.oneTime,
+          ),
+          expense(
+            amount: 40,
+            startDate: DateTime(2026, 4, 5),
+            frequency: Frequency.oneTime,
+          ),
+        ],
+      );
+
+      final flows = calculator.flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
+
+      expect(flows.map((flow) => flow.month), [
+        DateTime(2026, 2),
+        DateTime(2026, 3),
+        DateTime(2026, 4),
+      ]);
+    });
+
+    test('keeps the whole window when nothing ever moved', () {
+      final flows = calculatorWith().flowsSinceFirstActivity(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 4), 4),
+      );
+
+      expect(flows, hasLength(4));
+    });
+  });
+
+  group('expensesByGroupOver', () {
+    test('sums a group over every month of the window', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 40,
+            startDate: DateTime(2026, 1, 5),
+            categorySlug: 'alimentation.courses',
+          ),
+          expense(
+            amount: 25,
+            startDate: DateTime(2026, 1, 5),
+            categorySlug: 'transport.essence',
+          ),
+        ],
+      );
+
+      final totals = calculator.expensesByGroupOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3),
+      );
+
+      expect(totals['alimentation'], 120);
+      expect(totals['transport'], 75);
+    });
+
+    test('books loan instalments under the finance group', () {
+      final calculator = calculatorWith(
+        loans: [
+          loanPaying(200, [DateTime(2026, 2, 10), DateTime(2026, 3, 10)]),
+        ],
+      );
+
+      final totals = calculator.expensesByGroupOver(
+        StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3),
+      );
+
+      expect(totals[StatsCalculator.loanGroupKey], 400);
+    });
+
+    test('sums to the same total as the flows', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 40,
+            startDate: DateTime(2026, 1, 5),
+            categorySlug: 'alimentation.courses',
+          ),
+          expense(amount: 10, startDate: DateTime(2026, 1, 5)),
+        ],
+        loans: [
+          loanPaying(200, [DateTime(2026, 2, 10)]),
+        ],
+      );
+
+      final totals = calculator.expensesByGroupOver(months);
+      final flowed = calculator
+          .flowsOver(months)
+          .fold<double>(0, (sum, flow) => sum + flow.expenses);
+
+      expect(
+        totals.values.fold<double>(0, (sum, value) => sum + value),
+        flowed,
+      );
+    });
+  });
+
+  group('recurringExpensesOver', () {
+    test('counts recurring expenses and loan instalments only', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        expenses: [
+          expense(amount: 30, startDate: DateTime(2026, 1, 5)),
+          expense(
+            amount: 500,
+            startDate: DateTime(2026, 2, 8),
+            frequency: Frequency.oneTime,
+          ),
+        ],
+        loans: [
+          loanPaying(120, [DateTime(2026, 3, 10)]),
+        ],
+      );
+
+      expect(calculator.recurringExpensesOver(months), 210);
+    });
+
+    test('counts an annual expense on its anniversary month', () {
+      final calculator = calculatorWith(
+        expenses: [
+          expense(
+            amount: 300,
+            startDate: DateTime(2025, 2, 20),
+            frequency: Frequency.annual,
+          ),
+        ],
+      );
+
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+
+      expect(calculator.recurringExpensesOver(months), 300);
+    });
+  });
+
+  group('recurringIncomesOver', () {
+    test('counts recurring revenues only', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        revenues: [
+          revenue(amount: 2000, startDate: DateTime(2026, 1, 5)),
+          revenue(
+            amount: 800,
+            startDate: DateTime(2026, 2, 8),
+            frequency: Frequency.oneTime,
+          ),
+        ],
+      );
+
+      expect(calculator.recurringIncomesOver(months), 6000);
+    });
+
+    test('counts a revenue only from the month it starts', () {
+      final months = StatsCalculator.monthsEndingAt(DateTime(2026, 3), 3);
+      final calculator = calculatorWith(
+        revenues: [revenue(amount: 2000, startDate: DateTime(2026, 3, 5))],
+      );
+
+      expect(calculator.recurringIncomesOver(months), 2000);
+    });
+  });
+}

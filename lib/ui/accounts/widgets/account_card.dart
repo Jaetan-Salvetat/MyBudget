@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 

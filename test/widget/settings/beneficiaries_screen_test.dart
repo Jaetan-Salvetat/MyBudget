@@ -5,13 +5,13 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/beneficiary_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
 import 'package:mybudget/ui/settings/screens/beneficiaries_screen.dart';
 
 class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}

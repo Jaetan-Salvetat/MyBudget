@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
+import 'package:mybudget/ui/shared/selected_month_provider.dart';
 
 import 'harness/e2e_harness.dart';
 

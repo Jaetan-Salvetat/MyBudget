@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/entities/monthly_flow.dart';
+import 'package:mybudget/core/values/monthly_flow.dart';
 import 'package:mybudget/ui/stats/models/stats_range.dart';
 import 'package:mybudget/ui/stats/stats_provider.dart';
 

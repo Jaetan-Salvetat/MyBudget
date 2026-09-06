@@ -1,10 +1,10 @@
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
-import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
-import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
-import 'package:mybudget/core/services/quick_add/quick_add_text_reader.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_classification.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_engine.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_text_reader.dart';
 
 class ScriptedClassification {
   const ScriptedClassification({

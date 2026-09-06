@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/theme/theme_mode_display.dart';
-import 'package:mybudget/core/theme/theme_provider.dart';
+import 'package:mybudget/ui/shared/theme_provider.dart';
 
 class ThemeScreen extends ConsumerWidget {
   const ThemeScreen({super.key});

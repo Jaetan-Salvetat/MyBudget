@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
-import 'package:mybudget/core/services/data/import_validation_result.dart';
+import 'package:mybudget/data/service/data/import_validation_result.dart';
 import 'package:mybudget/ui/common/widgets/frosted_container.dart';
 import 'package:mybudget/ui/settings/widgets/data_management_dialogs.dart';
 

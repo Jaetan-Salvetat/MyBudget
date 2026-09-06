@@ -1,15 +1,15 @@
 import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/transaction_filter_bottom_sheet.dart';
 
 void main() {
@@ -21,10 +21,10 @@ void main() {
     return model;
   }
 
-  Beneficiary beneficiary(int id, String name) {
+  BeneficiaryModel beneficiary(int id, String name) {
     final model = BeneficiaryModel.create(name: name);
     model.id = id;
-    return Beneficiary.fromModel(model);
+    return model;
   }
 
   CategoryDisplay category(String slug, String label) => CategoryDisplay(
@@ -44,7 +44,7 @@ void main() {
     TransactionFilterData initialFilterData = const TransactionFilterData(),
     List<CategoryDisplay> categories = const [],
     List<AccountModel> accounts = const [],
-    List<Beneficiary> beneficiaries = const [],
+    List<BeneficiaryModel> beneficiaries = const [],
     double highestAmount = 1000,
     int Function(TransactionFilterData)? resultCount,
   }) async {

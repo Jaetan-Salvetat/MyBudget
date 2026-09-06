@@ -8,9 +8,9 @@ import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/locales.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/loans/providers/loan_creation_provider.dart';
 

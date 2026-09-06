@@ -1,11 +1,11 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/filterable_transaction.dart';
+import 'package:mybudget/core/contracts/filterable_transaction.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/services/transaction_change_service.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/core/rules/transaction_change_rules.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
-import 'package:mybudget/utils/history_utils.dart';
 
 class RecurringEditScopeDialog {
   const RecurringEditScopeDialog._();
@@ -37,7 +37,7 @@ class RecurringEditScopeDialog {
   ) {
     return before.frequencyEnum != Frequency.oneTime &&
         offersEffectiveMonthChoice(after.frequencyEnum) &&
-        TransactionChangeService.changesTerms(before, after);
+        TransactionChangeRules.changesTerms(before, after);
   }
 
   static Future<EffectiveMonth?> _ask(

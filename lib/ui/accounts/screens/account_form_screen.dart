@@ -2,7 +2,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/banks_list.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
 
 class AccountFormScreen extends StatefulWidget {
   const AccountFormScreen({this.account, super.key});

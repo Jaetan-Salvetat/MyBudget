@@ -3,14 +3,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/frequency.dart';
-import 'package:mybudget/core/services/data/import_report.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_memory_model.dart';
-import 'package:mybudget/models/category_override_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/category_memory_model.dart';
+import 'package:mybudget/data/model/category_override_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
+import 'package:mybudget/data/service/data/import_report.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';
 
 import 'harness/e2e_harness.dart';
@@ -282,6 +282,10 @@ void main() {
       expect(app.transfers.getAll(), isEmpty);
       expect(app.categoryOverrides.getAll(), isEmpty);
       expect(app.categoryMemory.getAll(), isEmpty);
+      expect(app.loans.getAll(), isEmpty);
+      expect(app.loanEvents.getAll(), isEmpty);
+      expect(app.transactionEvents.table.all, isEmpty);
+      expect(app.legacyCategories.namesById(), isEmpty);
     });
   });
 }

@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/data/import_entity_report.dart';
-import 'package:mybudget/core/services/data/import_report.dart';
+import 'package:mybudget/data/service/data/import_entity_report.dart';
+import 'package:mybudget/data/service/data/import_report.dart';
 import 'package:mybudget/ui/settings/data_provider.dart';
-import 'package:mybudget/utils/app_utils.dart';
+import 'package:mybudget/ui/splash/app_restart.dart';
 
 class DataManagementDialogs {
   static void showImportConfirmationDialog(
@@ -162,7 +162,7 @@ class DataManagementDialogs {
           actions: [
             FrostedButton.filled(
               label: 'Redémarrer',
-              onPressed: () => AppUtils.restartApp(context),
+              onPressed: () => AppRestart.restartApp(context),
             ),
           ],
         ),
@@ -274,7 +274,7 @@ class DataManagementDialogs {
           actions: [
             FrostedButton.filled(
               label: 'Redémarrer',
-              onPressed: () => AppUtils.restartApp(context),
+              onPressed: () => AppRestart.restartApp(context),
             ),
           ],
         ),

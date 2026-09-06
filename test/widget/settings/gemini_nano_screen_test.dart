@@ -8,11 +8,11 @@ import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_failure.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
-import 'package:mybudget/core/models/gemini_nano_download.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/data/model/gemini_nano_download.dart';
+import 'package:mybudget/data/provider/gemini_nano_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/ai/gemini_nano_service.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/gemini_nano_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

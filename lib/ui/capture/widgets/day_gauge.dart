@@ -1,6 +1,6 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/data/service/category_display_resolver.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
 
 class DayGauge extends StatelessWidget {

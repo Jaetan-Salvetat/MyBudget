@@ -1,5 +1,5 @@
 import 'package:mybudget/core/formatting/date_formatter.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 
 enum ExpenseGroupBy {
   day,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/constants/quick_add_labels.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
 import 'package:mybudget/ui/onboarding/models/onboarding_demo.dart';
 

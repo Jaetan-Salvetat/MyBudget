@@ -2,24 +2,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
-import 'package:mybudget/core/entities/transaction_rule_version.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/transaction_rule_summary_service.dart';
-import 'package:mybudget/core/services/transaction_timeline_service.dart';
 import 'package:mybudget/core/theme/finance_colors.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/core/values/transaction_rule_version.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/beneficiary_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/expenses_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/transaction_rule_summary_service.dart';
+import 'package:mybudget/data/service/transaction_timeline_service.dart';
 import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/expenses/expenses_provider.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/settings/beneficiary_provider.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
 import 'package:mybudget/ui/transaction_details/transaction_event_presenter.dart';
 import 'package:mybudget/ui/transaction_details/widgets/missing_transaction_view.dart';
 import 'package:mybudget/ui/transaction_details/widgets/transaction_details_view.dart';
@@ -135,7 +135,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
   List<TransactionRuleVersion> _versionsOf(
     List<ExpenseModel> chain,
     List<AccountModel> accounts,
-    List<Beneficiary> beneficiaries,
+    List<BeneficiaryModel> beneficiaries,
   ) {
     return [
       for (final entry in chain)
@@ -159,7 +159,7 @@ class _ExpenseDetailsScreenState extends ConsumerState<ExpenseDetailsScreen> {
     ];
   }
 
-  Beneficiary? _beneficiaryOf(int? id, List<Beneficiary> beneficiaries) {
+  BeneficiaryModel? _beneficiaryOf(int? id, List<BeneficiaryModel> beneficiaries) {
     if (id == null) return null;
     return beneficiaries.where((b) => b.id == id).firstOrNull;
   }

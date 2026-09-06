@@ -14,17 +14,17 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'models/account_model.dart';
-import 'models/beneficiary_model.dart';
-import 'models/category_memory_model.dart';
-import 'models/category_override_model.dart';
-import 'models/expense_model.dart';
-import 'models/legacy_category_model.dart';
-import 'models/loan_event_model.dart';
-import 'models/loan_model.dart';
-import 'models/revenue_model.dart';
-import 'models/transaction_event_model.dart';
-import 'models/transfer_model.dart';
+import 'data/model/account_model.dart';
+import 'data/model/beneficiary_model.dart';
+import 'data/model/category_memory_model.dart';
+import 'data/model/category_override_model.dart';
+import 'data/model/expense_model.dart';
+import 'data/model/legacy_category_model.dart';
+import 'data/model/loan_event_model.dart';
+import 'data/model/loan_model.dart';
+import 'data/model/revenue_model.dart';
+import 'data/model/transaction_event_model.dart';
+import 'data/model/transfer_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -761,12 +761,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
         final object = AccountModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
-          ..bank = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 8, '');
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
+          ..bank = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '');
 
         return object;
       },
@@ -796,12 +794,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
         final object = LegacyCategoryModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
-          ..icon = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 8, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
+          ..icon = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '')
           ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
 
         return object;
@@ -850,9 +846,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final object = ExpenseModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
           ..amount = const fb.Float64Reader().vTableGet(
             buffer,
             rootOffset,
@@ -867,9 +862,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..startDate = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0),
           )
-          ..frequency = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 14, '')
+          ..frequency = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 14, '')
           ..accountId = const fb.Int64Reader().vTableGet(
             buffer,
             rootOffset,
@@ -889,12 +883,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
             rootOffset,
             22,
           )
-          ..receiptPath = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 24)
-          ..categorySlug = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 26);
+          ..receiptPath = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 24)
+          ..categorySlug = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 26);
 
         return object;
       },
@@ -954,18 +946,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           4,
           0,
         );
-        final nameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
+        final nameParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGet(buffer, rootOffset, 6, '');
         final amountParam = const fb.Float64Reader().vTableGet(
           buffer,
           rootOffset,
           8,
           0,
         );
-        final lenderNameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 10, '');
+        final lenderNameParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGet(buffer, rootOffset, 10, '');
         final accountIdParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -1032,18 +1022,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           44,
           0,
         );
-        final purposeIdParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 50, '');
+        final purposeIdParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGet(buffer, rootOffset, 50, '');
         final hasIndemnityClauseParam = const fb.BoolReader().vTableGet(
           buffer,
           rootOffset,
           48,
           false,
         );
-        final notesParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 22);
+        final notesParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGetNullable(buffer, rootOffset, 22);
         final object = LoanModel(
           id: idParam,
           name: nameParam,
@@ -1109,9 +1097,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final object = RevenueModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
           ..accountId = const fb.Int64Reader().vTableGet(
             buffer,
             rootOffset,
@@ -1132,9 +1119,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
             rootOffset,
             16,
           )
-          ..frequency = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 18, '')
+          ..frequency = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 18, '')
           ..endDate = endDateValue == null
               ? null
               : DateTime.fromMillisecondsSinceEpoch(endDateValue)
@@ -1143,9 +1129,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
             rootOffset,
             22,
           )
-          ..categorySlug = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 24);
+          ..categorySlug = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 24);
 
         return object;
       },
@@ -1173,9 +1158,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
         final object = BeneficiaryModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
           ..color = const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
 
         return object;
@@ -1215,9 +1199,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final object = TransferModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
           ..amount = const fb.Float64Reader().vTableGet(
             buffer,
             rootOffset,
@@ -1239,9 +1222,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..startDate = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0),
           )
-          ..frequency = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 16, '')
+          ..frequency = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 16, '')
           ..endDate = endDateValue == null
               ? null
               : DateTime.fromMillisecondsSinceEpoch(endDateValue)
@@ -1285,15 +1267,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
         final object = CategoryOverrideModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..slug = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
-          ..name = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 8)
-          ..icon = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 10)
+          ..slug = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
+          ..name = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 8)
+          ..icon = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 10)
           ..color = const fb.Int64Reader().vTableGetNullable(
             buffer,
             rootOffset,
@@ -1330,12 +1309,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
         final object = CategoryMemoryModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-          ..key = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 6, '')
-          ..slug = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 8, '')
+          ..key = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '')
+          ..slug = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '')
           ..corrections = const fb.Int64Reader().vTableGet(
             buffer,
             rootOffset,
@@ -1398,9 +1375,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final dateParam = DateTime.fromMillisecondsSinceEpoch(
           const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0),
         );
-        final typeIdParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 8, '');
+        final typeIdParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGet(buffer, rootOffset, 8, '');
         final amountParam = const fb.Float64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -1410,9 +1386,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final reamortizationModeIdParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 14, '');
-        final exemptionIdParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 16, '');
+        final exemptionIdParam = const fb.StringReader(asciiOptimization: true)
+            .vTableGet(buffer, rootOffset, 16, '');
         final object = LoanEventModel(
           id: idParam,
           loanId: loanIdParam,
@@ -1461,18 +1436,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final object = TransactionEventModel()
           ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
           ..rootId = const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0)
-          ..transactionType = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 8, '')
-          ..change = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGet(buffer, rootOffset, 10, '')
-          ..previousValue = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 12)
-          ..nextValue = const fb.StringReader(
-            asciiOptimization: true,
-          ).vTableGetNullable(buffer, rootOffset, 14)
+          ..transactionType = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '')
+          ..change = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 10, '')
+          ..previousValue = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 12)
+          ..nextValue = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 14)
           ..at = DateTime.fromMillisecondsSinceEpoch(
             const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0),
           );

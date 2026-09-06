@@ -2,15 +2,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/core/providers/providers.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/capture/capture_provider.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/capture/widgets/capture_anchor.dart';
 import 'package:mybudget/ui/capture/widgets/capture_dock.dart';
 import 'package:mybudget/ui/capture/widgets/journal_view.dart';
-import 'package:mybudget/ui/home/home_navigation_provider.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
 import 'package:mybudget/ui/settings/settings_screen.dart';
+import 'package:mybudget/ui/shared/home_navigation_provider.dart';
+import 'package:mybudget/ui/shared/revenue_queries.dart';
 
 class CaptureScreen extends ConsumerStatefulWidget {
   const CaptureScreen({super.key});

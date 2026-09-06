@@ -2,8 +2,8 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/common/widgets/eyebrow.dart';
 
 class ScanOutputSummary extends StatelessWidget {

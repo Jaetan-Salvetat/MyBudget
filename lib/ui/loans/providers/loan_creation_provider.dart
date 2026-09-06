@@ -1,13 +1,13 @@
-import 'package:mybudget/core/entities/loan_installment.dart';
-import 'package:mybudget/core/entities/loan_schedule.dart';
-import 'package:mybudget/core/entities/loan_terms.dart';
 import 'package:mybudget/core/enums/loan_enums.dart';
 import 'package:mybudget/core/enums/loan_types.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/annual_percentage_rate_service.dart';
-import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
-import 'package:mybudget/core/services/loan_schedule_service.dart';
-import 'package:mybudget/models/loan_model.dart';
+import 'package:mybudget/core/values/loan_installment.dart';
+import 'package:mybudget/core/values/loan_schedule.dart';
+import 'package:mybudget/core/values/loan_terms.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/annual_percentage_rate_service.dart';
+import 'package:mybudget/data/service/early_repayment_indemnity_service.dart';
+import 'package:mybudget/data/service/loan_schedule_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'loan_creation_provider.g.dart';

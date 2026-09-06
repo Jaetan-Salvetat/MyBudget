@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/widgets/sections/debug_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

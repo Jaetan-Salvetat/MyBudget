@@ -1,7 +1,7 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/models/feature_flag.dart';
+import 'package:mybudget/core/constants/feature_flag.dart';
 import 'package:mybudget/ui/settings/widgets/settings_note.dart';
 
 class FeatureFlagWarningDialog extends StatelessWidget {

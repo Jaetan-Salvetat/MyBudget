@@ -1,0 +1,339 @@
+import 'dart:convert';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/category_override_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/beneficiary_repository.dart';
+import 'package:mybudget/data/repository/category_memory_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/legacy_category_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/repository/transaction_event_repository.dart';
+import 'package:mybudget/data/repository/transfer_repository.dart';
+import 'package:mybudget/data/service/data/legacy_backup_upgrader.dart';
+import 'package:mybudget/data/service/data/legacy_category_mapper.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/ui/settings/data_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MockAccountRepository extends Mock implements AccountRepository {}
+
+class MockBeneficiaryRepository extends Mock implements BeneficiaryRepository {}
+
+class MockExpenseRepository extends Mock implements ExpenseRepository {}
+
+class MockRevenueRepository extends Mock implements RevenueRepository {}
+
+class MockLoanRepository extends Mock implements LoanRepository {}
+
+class MockLoanEventRepository extends Mock implements LoanEventRepository {}
+
+class MockTransferRepository extends Mock implements TransferRepository {}
+
+class MockLegacyCategoryRepository extends Mock
+    implements LegacyCategoryRepository {}
+
+class MockTransactionEventRepository extends Mock
+    implements TransactionEventRepository {}
+
+class FakeAccountModel extends Fake implements AccountModel {}
+
+class FakeExpenseModel extends Fake implements ExpenseModel {}
+
+class FakeBeneficiaryModel extends Fake implements BeneficiaryModel {}
+
+class FakeCategoryOverrideModel extends Fake implements CategoryOverrideModel {}
+
+class FakeRevenueModel extends Fake implements RevenueModel {}
+
+class FakeLoanModel extends Fake implements LoanModel {}
+
+class MockCategoryOverrideRepository extends Mock
+    implements CategoryOverrideRepository {}
+
+class MockCategoryMemoryRepository extends Mock
+    implements CategoryMemoryRepository {}
+
+void main() {
+  late MockAccountRepository mockAccountRepo;
+  late MockLegacyCategoryRepository mockLegacyCategoryRepo;
+  late MockTransactionEventRepository mockTransactionEventRepo;
+  late MockBeneficiaryRepository mockBeneficiaryRepo;
+  late MockExpenseRepository mockExpenseRepo;
+  late MockRevenueRepository mockRevenueRepo;
+  late MockLoanRepository mockLoanRepo;
+  late MockLoanEventRepository mockLoanEventRepo;
+  late MockTransferRepository mockTransferRepo;
+  late MockCategoryOverrideRepository mockCategoryOverrideRepo;
+  late MockCategoryMemoryRepository mockCategoryMemoryRepo;
+
+  late LegacyBackupUpgrader upgrader;
+
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    final taxonomy = CategoryTaxonomyService();
+    await taxonomy.load();
+    upgrader = LegacyBackupUpgrader(LegacyCategoryMapper(taxonomy));
+
+    registerFallbackValue(FakeAccountModel());
+    registerFallbackValue(FakeExpenseModel());
+    registerFallbackValue(FakeBeneficiaryModel());
+    registerFallbackValue(FakeCategoryOverrideModel());
+    registerFallbackValue(FakeRevenueModel());
+    registerFallbackValue(FakeLoanModel());
+  });
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await PreferencesService.init();
+
+    mockAccountRepo = MockAccountRepository();
+    mockLegacyCategoryRepo = MockLegacyCategoryRepository();
+    when(() => mockLegacyCategoryRepo.deleteAll()).thenReturn(null);
+    mockTransactionEventRepo = MockTransactionEventRepository();
+    when(() => mockTransactionEventRepo.deleteAll()).thenReturn(null);
+    mockBeneficiaryRepo = MockBeneficiaryRepository();
+    mockExpenseRepo = MockExpenseRepository();
+    mockRevenueRepo = MockRevenueRepository();
+    mockLoanRepo = MockLoanRepository();
+    mockLoanEventRepo = MockLoanEventRepository();
+    when(() => mockLoanEventRepo.getAll()).thenReturn([]);
+    mockTransferRepo = MockTransferRepository();
+    mockCategoryOverrideRepo = MockCategoryOverrideRepository();
+    mockCategoryMemoryRepo = MockCategoryMemoryRepository();
+  });
+
+  ProviderContainer makeContainer() {
+    return ProviderContainer(
+      overrides: [
+        accountRepositoryProvider.overrideWithValue(mockAccountRepo),
+        beneficiaryRepositoryProvider.overrideWithValue(mockBeneficiaryRepo),
+        expenseRepositoryProvider.overrideWithValue(mockExpenseRepo),
+        revenueRepositoryProvider.overrideWithValue(mockRevenueRepo),
+        loanRepositoryProvider.overrideWithValue(mockLoanRepo),
+        loanEventRepositoryProvider.overrideWithValue(mockLoanEventRepo),
+        transferRepositoryProvider.overrideWithValue(mockTransferRepo),
+        categoryOverrideRepositoryProvider.overrideWithValue(
+          mockCategoryOverrideRepo,
+        ),
+        legacyCategoryRepositoryProvider.overrideWithValue(
+          mockLegacyCategoryRepo,
+        ),
+        transactionEventRepositoryProvider.overrideWithValue(
+          mockTransactionEventRepo,
+        ),
+        categoryMemoryRepositoryProvider.overrideWithValue(
+          mockCategoryMemoryRepo,
+        ),
+        legacyBackupUpgraderProvider.overrideWithValue(upgrader),
+      ],
+    );
+  }
+
+  void stubDeleteAll() {
+    when(() => mockBeneficiaryRepo.deleteAll()).thenReturn(null);
+    when(() => mockAccountRepo.deleteAll()).thenReturn(null);
+    when(() => mockExpenseRepo.deleteAll()).thenReturn(null);
+    when(() => mockRevenueRepo.deleteAll()).thenReturn(null);
+    when(() => mockLoanRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryOverrideRepo.deleteAll()).thenReturn(null);
+    when(() => mockCategoryMemoryRepo.deleteAll()).thenReturn(null);
+    when(() => mockTransferRepo.deleteAll()).thenReturn(null);
+  }
+
+  test(
+    'importUserData should correctly map old account IDs to new ones',
+    () async {
+      final jsonContent = jsonEncode({
+        'accounts': [
+          {'id': '100', 'name': 'Old Account', 'bank': 'Bank A'},
+        ],
+        'expenses': [
+          {
+            'id': '500',
+            'name': 'Expense on Old Account',
+            'amount': 50.0,
+            'accountId': 100,
+            'date': DateTime.now().toIso8601String(),
+            'frequency': 'Mensuel',
+          },
+        ],
+        'revenues': <Map<String, dynamic>>[],
+        'loans': <Map<String, dynamic>>[],
+      });
+
+      stubDeleteAll();
+      when(() => mockAccountRepo.add(any())).thenReturn(200);
+      when(() => mockExpenseRepo.add(any())).thenReturn(1);
+
+      final container = makeContainer();
+      addTearDown(container.dispose);
+
+      await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+      verify(() => mockAccountRepo.deleteAll()).called(1);
+      verify(() => mockAccountRepo.add(any())).called(1);
+
+      final captured = verify(() => mockExpenseRepo.add(captureAny())).captured;
+      final addedExpense = captured.first as ExpenseModel;
+
+      expect(addedExpense.accountId, 200);
+    },
+  );
+
+  test('importUserData with invalid JSON sets error state', () async {
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container
+        .read(dataProvider.notifier)
+        .importUserData('NOT VALID JSON {{{');
+
+    expect(container.read(dataProvider).error, isNotEmpty);
+    expect(container.read(dataProvider).isImporting, isFalse);
+  });
+
+  test('importUserData correctly remaps beneficiaryId', () async {
+    final jsonContent = jsonEncode({
+      'beneficiaries': [
+        {'id': '10', 'name': 'Alice'},
+      ],
+      'accounts': [
+        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
+      ],
+      'expenses': [
+        {
+          'id': '1',
+          'name': 'Expense with beneficiary',
+          'amount': 50.0,
+          'accountId': 100,
+          'beneficiaryId': '10',
+          'date': DateTime.now().toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+      ],
+      'revenues': <Map<String, dynamic>>[],
+      'loans': <Map<String, dynamic>>[],
+    });
+
+    stubDeleteAll();
+    when(() => mockBeneficiaryRepo.add(any())).thenReturn(55);
+    when(() => mockAccountRepo.add(any())).thenReturn(200);
+    when(() => mockExpenseRepo.add(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+    final captured = verify(() => mockExpenseRepo.add(captureAny())).captured;
+    final addedExpense = captured.first as ExpenseModel;
+
+    expect(addedExpense.beneficiaryId, 55);
+  });
+
+  test('importUserData maps categories from a v0.7.5 backup', () async {
+    final jsonContent = jsonEncode({
+      'version': 2,
+      'accounts': [
+        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
+      ],
+      'categories': [
+        {'id': '1', 'name': 'Alimentation', 'icon': 'restaurant'},
+        {'id': '2', 'name': 'Chats', 'icon': 'pets'},
+      ],
+      'expenses': [
+        {
+          'id': '1',
+          'name': 'Courses',
+          'amount': 50.0,
+          'accountId': '100',
+          'categoryId': '1',
+          'date': DateTime(2026, 1, 5).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+        {
+          'id': '2',
+          'name': 'Croquettes',
+          'amount': 20.0,
+          'accountId': '100',
+          'categoryId': '2',
+          'date': DateTime(2026, 1, 6).toIso8601String(),
+          'frequency': 'Mensuel',
+        },
+      ],
+    });
+
+    stubDeleteAll();
+    when(() => mockAccountRepo.add(any())).thenReturn(200);
+    when(() => mockExpenseRepo.add(any())).thenReturn(1);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+    final imported = verify(
+      () => mockExpenseRepo.add(captureAny()),
+    ).captured.cast<ExpenseModel>();
+
+    expect(imported.map((e) => e.categorySlug), [
+      'alimentation.courses',
+      LegacyCategoryMapper.fallback,
+    ]);
+    expect(imported.first.startDate, DateTime(2026, 1, 5));
+  });
+
+  test('importUserData sets importReport on success', () async {
+    final jsonContent = jsonEncode({
+      'accounts': [
+        {'id': '100', 'name': 'Account', 'bank': 'Bank'},
+      ],
+    });
+
+    stubDeleteAll();
+    when(() => mockAccountRepo.add(any())).thenReturn(200);
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).importUserData(jsonContent);
+
+    final state = container.read(dataProvider);
+    expect(state.importReport, isNotNull);
+    expect(state.importReport!.accounts.imported, 1);
+    expect(state.isImporting, isFalse);
+    expect(state.error, isEmpty);
+  });
+
+  test('deleteAllUserData deletes all repositories', () async {
+    stubDeleteAll();
+
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    await container.read(dataProvider.notifier).deleteAllUserData();
+
+    verify(() => mockBeneficiaryRepo.deleteAll()).called(1);
+    verify(() => mockAccountRepo.deleteAll()).called(1);
+    verify(() => mockExpenseRepo.deleteAll()).called(1);
+    verify(() => mockRevenueRepo.deleteAll()).called(1);
+    verify(() => mockLoanRepo.deleteAll()).called(1);
+    verify(() => mockCategoryOverrideRepo.deleteAll()).called(1);
+
+    expect(container.read(dataProvider).isDeleting, isFalse);
+  });
+}

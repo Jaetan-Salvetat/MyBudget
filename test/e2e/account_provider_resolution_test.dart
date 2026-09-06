@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
 
 import 'harness/e2e_harness.dart';
 

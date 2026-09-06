@@ -3,14 +3,14 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/ui/capture/quick_add_provider.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_bar.dart';
 import 'package:mybudget/ui/capture/widgets/quick_add_hint_typer.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/expenses/screens/expense_form_screen.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_bar.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_no_account_dialog.dart';
 import 'package:mybudget/ui/scan/receipt_scan_launcher.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
 
 class CaptureDock extends ConsumerStatefulWidget {
   const CaptureDock({super.key});

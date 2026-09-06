@@ -1,9 +1,9 @@
 import 'dart:ui' show Tristate;
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosted_ui/frosted_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   const Color seed = Color(0xFF7C5CFF);

@@ -1,16 +1,16 @@
-import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/provider/loan_queries.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/capture/models/journal_bucket.dart';
 import 'package:mybudget/ui/capture/models/journal_entry.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/loans/loan_queries.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/utils/history_utils.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
+import 'package:mybudget/ui/shared/revenue_queries.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'capture_provider.g.dart';

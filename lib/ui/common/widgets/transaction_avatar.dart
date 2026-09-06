@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 
 const double _slotSize = 36;
 const double _avatarSize = 32;
@@ -20,7 +20,7 @@ class TransactionAvatar extends StatelessWidget {
   });
   final Color color;
   final IconData icon;
-  final Beneficiary? beneficiary;
+  final BeneficiaryModel? beneficiary;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class TransactionAvatar extends StatelessWidget {
 
 class _BeneficiaryBadge extends StatelessWidget {
   const _BeneficiaryBadge({required this.beneficiary});
-  final Beneficiary beneficiary;
+  final BeneficiaryModel beneficiary;
 
   @override
   Widget build(BuildContext context) {

@@ -11,10 +11,10 @@ import 'package:mybudget/core/enums/gemini_nano_channel.dart';
 import 'package:mybudget/core/enums/gemini_nano_preference.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
-import 'package:mybudget/core/services/ai/gemini_nano_service.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/ai/api_key_service.dart';
+import 'package:mybudget/data/service/ai/gemini_nano_service.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/widgets/sections/ai_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

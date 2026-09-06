@@ -1,8 +1,8 @@
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
 import 'package:mybudget/ui/common/widgets/active_filter_pills.dart';
 
 class ActiveFilterPillsBuilder {
@@ -14,7 +14,7 @@ class ActiveFilterPillsBuilder {
     required TransactionFilterData filter,
     required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
-    required List<Beneficiary> beneficiaries,
+    required List<BeneficiaryModel> beneficiaries,
     required void Function(TransactionFilterData filter) onChanged,
   }) {
     final pills = <ActiveFilterPill>[];

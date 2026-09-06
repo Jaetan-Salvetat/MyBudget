@@ -3,7 +3,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_list.dart';
 import 'package:mybudget/ui/scan/widgets/scan_item_row.dart';
 import 'package:mybudget/ui/scan/widgets/scan_output_summary.dart';

@@ -3,7 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/expense_sort_by.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/values/category_display.dart';
 
 class ExpensesQuickFilters extends StatelessWidget {
   const ExpensesQuickFilters({

@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_event_types.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/loan_event_model.dart';
-import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/loans/loan_queries.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/loan_event_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/loan_queries.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
 
 import 'harness/e2e_harness.dart';
 

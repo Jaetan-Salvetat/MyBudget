@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/expense_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
 import 'package:mybudget/ui/common/widgets/effective_month_field.dart';
 import 'package:mybudget/ui/common/widgets/recurring_edit_scope_dialog.dart';
 

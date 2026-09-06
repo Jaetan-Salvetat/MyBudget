@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/transaction_change_entry.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/transaction_change_entry.dart';
 import 'package:mybudget/ui/common/widgets/detail/detail_section.dart';
 
 const String _title = 'Historique';

@@ -2,17 +2,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/models/account_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/loans_provider.dart';
+import 'package:mybudget/data/provider/transfers_provider.dart';
 import 'package:mybudget/ui/account_details/screens/account_details_screen.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
 import 'package:mybudget/ui/accounts/screens/account_form_screen.dart';
 import 'package:mybudget/ui/accounts/widgets/account_card.dart';
 import 'package:mybudget/ui/accounts/widgets/add_account_tile.dart';
 import 'package:mybudget/ui/common/empty_state.dart';
-import 'package:mybudget/ui/expenses/expense_queries.dart';
-import 'package:mybudget/ui/loans/loans_provider.dart';
-import 'package:mybudget/ui/revenues/revenue_queries.dart';
-import 'package:mybudget/ui/transfers/transfers_provider.dart';
+import 'package:mybudget/ui/shared/expense_queries.dart';
+import 'package:mybudget/ui/shared/revenue_queries.dart';
 
 class AccountList extends ConsumerWidget {
   const AccountList({super.key});

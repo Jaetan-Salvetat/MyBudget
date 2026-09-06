@@ -1,11 +1,11 @@
-import 'package:mybudget/core/entities/early_repayment_quote.dart';
-import 'package:mybudget/core/entities/loan.dart';
-import 'package:mybudget/core/entities/loan_event.dart';
 import 'package:mybudget/core/enums/loan_event_types.dart';
-import 'package:mybudget/core/services/early_repayment_indemnity_service.dart';
-import 'package:mybudget/core/services/loan_payoff_service.dart';
-import 'package:mybudget/core/services/loan_schedule_service.dart';
-import 'package:mybudget/models/loan_event_model.dart';
+import 'package:mybudget/core/values/early_repayment_quote.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/core/values/loan_event.dart';
+import 'package:mybudget/data/model/loan_event_model.dart';
+import 'package:mybudget/data/service/early_repayment_indemnity_service.dart';
+import 'package:mybudget/data/service/loan_payoff_service.dart';
+import 'package:mybudget/data/service/loan_schedule_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'loan_payoff_provider.g.dart';

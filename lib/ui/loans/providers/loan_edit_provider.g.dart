@@ -58,7 +58,7 @@ final class LoanEditNotifierProvider
   }
 }
 
-String _$loanEditNotifierHash() => r'cbb29a6c5e31e44a037f9911e96ee2ca22ea1672';
+String _$loanEditNotifierHash() => r'215525a545665b90a2c207f4335c69dd3e5299a9';
 
 final class LoanEditNotifierFamily extends $Family
     with

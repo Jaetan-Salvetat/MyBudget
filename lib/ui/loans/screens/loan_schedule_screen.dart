@@ -1,10 +1,10 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/loan.dart';
-import 'package:mybudget/core/entities/loan_installment.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/core/values/loan_installment.dart';
 
 class LoanScheduleScreen extends StatelessWidget {
   const LoanScheduleScreen({required this.loan, super.key});

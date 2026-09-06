@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
-import 'package:mybudget/models/scan_read_progress_model.dart';
+import 'package:mybudget/data/model/scan_read_progress_model.dart';
 import 'package:mybudget/ui/scan/widgets/scan_motion.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reading_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_receipt_header.dart';

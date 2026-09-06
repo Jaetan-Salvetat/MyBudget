@@ -1,13 +1,13 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/core/services/amount_slider_scale.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transaction_filter_data.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/transaction_filter_data.dart';
+import 'package:mybudget/ui/shared/amount_slider_scale.dart';
 
 class TransactionFilterBottomSheet extends StatefulWidget {
   const TransactionFilterBottomSheet({
@@ -23,7 +23,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
   final TransactionFilterData initialFilterData;
   final List<CategoryDisplay> categories;
   final List<AccountModel> accounts;
-  final List<Beneficiary> beneficiaries;
+  final List<BeneficiaryModel> beneficiaries;
   final double highestAmount;
   final int Function(TransactionFilterData filter) resultCount;
   final void Function(TransactionFilterData filter) onApply;
@@ -34,7 +34,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required TransactionFilterData initialFilterData,
     required List<CategoryDisplay> categories,
     required List<AccountModel> accounts,
-    required List<Beneficiary> beneficiaries,
+    required List<BeneficiaryModel> beneficiaries,
     required double highestAmount,
     required int Function(TransactionFilterData filter) resultCount,
     required void Function(TransactionFilterData filter) onApply,

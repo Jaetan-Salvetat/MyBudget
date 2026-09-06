@@ -4,9 +4,9 @@ import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/recurring_deletion.dart';
 import 'package:mybudget/core/enums/transaction_change.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/transaction_event_model.dart';
-import 'package:mybudget/ui/revenues/revenues_provider.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/model/transaction_event_model.dart';
+import 'package:mybudget/data/provider/revenues_provider.dart';
 
 import 'harness/e2e_harness.dart';
 

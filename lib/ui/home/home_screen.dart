@@ -6,7 +6,7 @@ import 'package:mybudget/ui/accounts/accounts_screen.dart';
 import 'package:mybudget/ui/capture/capture_screen.dart';
 import 'package:mybudget/ui/capture/quick_add_landing.dart';
 import 'package:mybudget/ui/common/widgets/frosted_background.dart';
-import 'package:mybudget/ui/home/home_navigation_provider.dart';
+import 'package:mybudget/ui/shared/home_navigation_provider.dart';
 import 'package:mybudget/ui/stats/stats_screen.dart';
 import 'package:mybudget/ui/transactions/transactions_screen.dart';
 

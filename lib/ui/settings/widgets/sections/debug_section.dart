@@ -1,7 +1,7 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/splash/splash_screen.dart';
 
 class DebugSection extends StatelessWidget {

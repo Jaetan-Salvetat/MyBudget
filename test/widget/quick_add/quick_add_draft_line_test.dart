@@ -4,8 +4,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_draft_line.dart';
-import 'package:mybudget/ui/quick_add/widgets/quick_add_shimmer.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_draft_line.dart';
+import 'package:mybudget/ui/capture/widgets/quick_add_shimmer.dart';
 
 void main() {
   setUpAll(() async {

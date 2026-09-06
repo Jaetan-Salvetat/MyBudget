@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:mybudget/core/services/quick_add/quick_add_tokenizer_format.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_tokenizer_format.dart';
 
 /// Convertit le `tokenizer.json` HuggingFace en asset binaire embarque.
 ///

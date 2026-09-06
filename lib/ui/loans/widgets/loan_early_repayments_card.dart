@@ -1,12 +1,12 @@
 import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/loan.dart';
 import 'package:mybudget/core/enums/loan_event_types.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
 import 'package:mybudget/core/theme/text_styles.dart';
-import 'package:mybudget/models/loan_event_model.dart';
+import 'package:mybudget/core/values/loan.dart';
+import 'package:mybudget/data/model/loan_event_model.dart';
 
 class LoanEarlyRepaymentsCard extends StatelessWidget {
   const LoanEarlyRepaymentsCard({

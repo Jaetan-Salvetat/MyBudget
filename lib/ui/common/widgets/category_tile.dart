@@ -2,7 +2,7 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/category_defaults.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/values/category_display.dart';
 import 'package:mybudget/ui/common/widgets/category_icon.dart';
 
 class CategoryTile extends StatelessWidget {

@@ -3,8 +3,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/money_formatter.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
 import 'package:mybudget/ui/common/expense_frequency_date_section.dart';
 
 class TransferBottomSheet extends StatefulWidget {

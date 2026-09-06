@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/effective_month.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
-import 'package:mybudget/utils/history_utils.dart';
+import 'package:mybudget/core/rules/recurrence_rules.dart';
 
 class EffectiveMonthField extends StatelessWidget {
   const EffectiveMonthField({

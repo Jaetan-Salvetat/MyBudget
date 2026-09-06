@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/formatting/date_formatter.dart';
-import 'package:mybudget/core/providers/selected_month_provider.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
+import 'package:mybudget/ui/shared/selected_month_provider.dart';
 
 class MonthSelector extends ConsumerWidget {
   const MonthSelector({super.key, this.alignment = Alignment.center});

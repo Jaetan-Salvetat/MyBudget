@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
+import 'package:mybudget/core/values/category_display.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
 
 const CategoryDisplay boulangerie = CategoryDisplay(
   slug: 'alimentation.boulangerie',

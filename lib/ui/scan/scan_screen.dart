@@ -4,11 +4,12 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/exceptions/scan_exception.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/models/scanned_item_model.dart';
-import 'package:mybudget/ui/accounts/accounts_provider.dart';
-import 'package:mybudget/ui/common/widgets/category_picker_sheet.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/model/scanned_item_model.dart';
+import 'package:mybudget/data/provider/accounts_provider.dart';
+import 'package:mybudget/data/provider/category_override_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/ui/category_picker/category_picker_sheet.dart';
 import 'package:mybudget/ui/common/widgets/date_selector.dart';
 import 'package:mybudget/ui/scan/scan_provider.dart';
 import 'package:mybudget/ui/scan/screens/scan_inspector_screen.dart';
@@ -20,7 +21,6 @@ import 'package:mybudget/ui/scan/widgets/scan_reading_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_reveal.dart';
 import 'package:mybudget/ui/scan/widgets/scan_review_view.dart';
 import 'package:mybudget/ui/scan/widgets/scan_saved_view.dart';
-import 'package:mybudget/ui/settings/category_override_provider.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({required this.image, super.key});

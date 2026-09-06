@@ -1,23 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/entities/beneficiary.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
 import 'package:mybudget/ui/common/widgets/transaction_avatar.dart';
 
 void main() {
   const categoryColor = Color(0xFF4CAF50);
   const beneficiaryColor = 0xFFE91E63;
 
-  final beneficiary = Beneficiary.fromModel(
-    BeneficiaryModel.create(name: 'Jean Dupont', color: beneficiaryColor),
+  final beneficiary = BeneficiaryModel.create(
+    name: 'Jean Dupont',
+    color: beneficiaryColor,
   );
-  final colorlessBeneficiary = Beneficiary.fromModel(
-    BeneficiaryModel.create(name: 'Erwin'),
-  );
+  final colorlessBeneficiary = BeneficiaryModel.create(name: 'Erwin');
 
-  Future<void> pump(WidgetTester tester, Beneficiary? beneficiary) =>
+  Future<void> pump(WidgetTester tester, BeneficiaryModel? beneficiary) =>
       tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.dark(),

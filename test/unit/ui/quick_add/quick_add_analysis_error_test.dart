@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/exceptions/quick_add_exception.dart';
-import 'package:mybudget/core/services/quick_add/quick_add_classification.dart';
-import 'package:mybudget/core/services/quick_add/quick_add_engine.dart';
-import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
+import 'package:mybudget/data/provider/quick_add_engine_provider.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_classification.dart';
+import 'package:mybudget/data/service/quick_add/quick_add_engine.dart';
+import 'package:mybudget/ui/capture/quick_add_provider.dart';
 
 class _FailingEngine implements QuickAddEngine {
   const _FailingEngine(this.error);

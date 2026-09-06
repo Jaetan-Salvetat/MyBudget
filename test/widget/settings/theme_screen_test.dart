@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
 import 'package:mybudget/core/theme/theme_mode_display.dart';
-import 'package:mybudget/core/theme/theme_provider.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/theme_screen.dart';
+import 'package:mybudget/ui/shared/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

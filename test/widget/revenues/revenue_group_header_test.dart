@@ -3,9 +3,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/frequency.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
 import 'package:mybudget/core/formatting/percent_formatter.dart';
-import 'package:mybudget/core/services/revenue_grouping_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/revenue_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/service/revenue_grouping_service.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_header.dart';
 
 void main() {

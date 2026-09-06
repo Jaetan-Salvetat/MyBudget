@@ -3,9 +3,9 @@ import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/gemini_nano_status.dart';
-import 'package:mybudget/core/models/gemini_nano_download.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/ui/settings/gemini_nano_provider.dart';
+import 'package:mybudget/data/model/gemini_nano_download.dart';
+import 'package:mybudget/data/provider/gemini_nano_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
 import 'package:mybudget/ui/settings/widgets/settings_note.dart';
 
 const int _bytesPerMegabyte = 1024 * 1024;

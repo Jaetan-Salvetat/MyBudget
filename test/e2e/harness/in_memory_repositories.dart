@@ -1,24 +1,26 @@
 import 'package:mybudget/core/enums/transaction_type.dart';
-import 'package:mybudget/core/repositories/account_repository.dart';
-import 'package:mybudget/core/repositories/beneficiary_repository.dart';
-import 'package:mybudget/core/repositories/category_memory_repository.dart';
-import 'package:mybudget/core/repositories/category_override_repository.dart';
-import 'package:mybudget/core/repositories/expense_repository.dart';
-import 'package:mybudget/core/repositories/loan_event_repository.dart';
-import 'package:mybudget/core/repositories/loan_repository.dart';
-import 'package:mybudget/core/repositories/revenue_repository.dart';
-import 'package:mybudget/core/repositories/transaction_event_repository.dart';
-import 'package:mybudget/core/repositories/transfer_repository.dart';
-import 'package:mybudget/models/account_model.dart';
-import 'package:mybudget/models/beneficiary_model.dart';
-import 'package:mybudget/models/category_memory_model.dart';
-import 'package:mybudget/models/category_override_model.dart';
-import 'package:mybudget/models/expense_model.dart';
-import 'package:mybudget/models/loan_event_model.dart';
-import 'package:mybudget/models/loan_model.dart';
-import 'package:mybudget/models/revenue_model.dart';
-import 'package:mybudget/models/transaction_event_model.dart';
-import 'package:mybudget/models/transfer_model.dart';
+import 'package:mybudget/data/model/account_model.dart';
+import 'package:mybudget/data/model/beneficiary_model.dart';
+import 'package:mybudget/data/model/category_memory_model.dart';
+import 'package:mybudget/data/model/category_override_model.dart';
+import 'package:mybudget/data/model/expense_model.dart';
+import 'package:mybudget/data/model/legacy_category_model.dart';
+import 'package:mybudget/data/model/loan_event_model.dart';
+import 'package:mybudget/data/model/loan_model.dart';
+import 'package:mybudget/data/model/revenue_model.dart';
+import 'package:mybudget/data/model/transaction_event_model.dart';
+import 'package:mybudget/data/model/transfer_model.dart';
+import 'package:mybudget/data/repository/account_repository.dart';
+import 'package:mybudget/data/repository/beneficiary_repository.dart';
+import 'package:mybudget/data/repository/category_memory_repository.dart';
+import 'package:mybudget/data/repository/category_override_repository.dart';
+import 'package:mybudget/data/repository/expense_repository.dart';
+import 'package:mybudget/data/repository/legacy_category_repository.dart';
+import 'package:mybudget/data/repository/loan_event_repository.dart';
+import 'package:mybudget/data/repository/loan_repository.dart';
+import 'package:mybudget/data/repository/revenue_repository.dart';
+import 'package:mybudget/data/repository/transaction_event_repository.dart';
+import 'package:mybudget/data/repository/transfer_repository.dart';
 import 'package:objectbox/objectbox.dart';
 
 class InMemoryTable<T> {
@@ -244,6 +246,9 @@ class InMemoryLoanRepository implements LoanRepository {
   List<LoanModel> getAll() => table.all;
 
   @override
+  LoanModel? get(int id) => table.get(id);
+
+  @override
   int add(LoanModel loan) => table.put(loan);
 
   @override
@@ -437,4 +442,27 @@ TransactionEventModel _cloneEvent(TransactionEventModel row) {
     ..previousValue = row.previousValue
     ..nextValue = row.nextValue
     ..at = row.at;
+}
+
+class InMemoryLegacyCategoryRepository implements LegacyCategoryRepository {
+  final InMemoryTable<LegacyCategoryModel> table =
+      InMemoryTable<LegacyCategoryModel>(
+        idOf: (LegacyCategoryModel row) => row.id,
+        assignId: (LegacyCategoryModel row, int id) => row.id = id,
+        clone: _cloneLegacyCategory,
+      );
+
+  @override
+  Map<int, String> namesById() => <int, String>{
+    for (final LegacyCategoryModel row in table.all) row.id: row.name,
+  };
+
+  @override
+  void deleteAll() => table.removeAll();
+}
+
+LegacyCategoryModel _cloneLegacyCategory(LegacyCategoryModel source) {
+  return LegacyCategoryModel()
+    ..id = source.id
+    ..name = source.name;
 }

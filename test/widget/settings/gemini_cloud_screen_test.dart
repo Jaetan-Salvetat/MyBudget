@@ -7,12 +7,12 @@ import 'package:mybudget/core/enums/ai_model.dart';
 import 'package:mybudget/core/enums/ai_provider.dart';
 import 'package:mybudget/core/enums/ai_request_failure.dart';
 import 'package:mybudget/core/enums/quick_add_engine_mode.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/ai/ai_chat_client.dart';
-import 'package:mybudget/core/services/ai/api_key_service.dart';
-import 'package:mybudget/core/services/ai/api_key_verifier.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/ui/settings/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/ai_settings_provider.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/service/ai/ai_chat_client.dart';
+import 'package:mybudget/data/service/ai/api_key_service.dart';
+import 'package:mybudget/data/service/ai/api_key_verifier.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
 import 'package:mybudget/ui/settings/screens/gemini_cloud_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

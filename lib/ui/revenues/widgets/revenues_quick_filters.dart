@@ -3,7 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/constants/layout_insets.dart';
 import 'package:mybudget/core/enums/revenue_group_by.dart';
-import 'package:mybudget/core/services/category_display_resolver.dart';
+import 'package:mybudget/core/values/category_display.dart';
 import 'package:mybudget/ui/revenues/widgets/revenue_group_by_chip.dart';
 
 class RevenuesQuickFilters extends StatelessWidget {

@@ -7,16 +7,16 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/enums/build_flavor.dart';
 import 'package:mybudget/core/formatting/locales.dart';
-import 'package:mybudget/core/providers/providers.dart';
-import 'package:mybudget/core/services/preferences_service.dart';
-import 'package:mybudget/core/services/quick_add/category_taxonomy_service.dart';
 import 'package:mybudget/core/theme/app_theme.dart';
-import 'package:mybudget/models/receipt_scan_result_model.dart';
-import 'package:mybudget/ui/home/home_navigation_provider.dart';
+import 'package:mybudget/data/model/receipt_scan_result_model.dart';
+import 'package:mybudget/data/provider/providers.dart';
+import 'package:mybudget/data/provider/quick_add_engine_provider.dart';
+import 'package:mybudget/data/provider/receipt_reader_provider.dart';
+import 'package:mybudget/data/service/preferences_service.dart';
+import 'package:mybudget/data/service/quick_add/category_taxonomy_service.dart';
+import 'package:mybudget/ui/capture/quick_add_provider.dart';
 import 'package:mybudget/ui/home/home_screen.dart';
-import 'package:mybudget/ui/quick_add/quick_add_engine_provider.dart';
-import 'package:mybudget/ui/quick_add/quick_add_provider.dart';
-import 'package:mybudget/ui/scan/scan_provider.dart';
+import 'package:mybudget/ui/shared/home_navigation_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_quick_add_engine.dart';
@@ -54,6 +54,8 @@ class E2EHarness {
       InMemoryCategoryMemoryRepository();
   final InMemoryTransactionEventRepository transactionEvents =
       InMemoryTransactionEventRepository();
+  final InMemoryLegacyCategoryRepository legacyCategories =
+      InMemoryLegacyCategoryRepository();
 
   late final ProviderContainer container = ProviderContainer(
     overrides: [
@@ -81,6 +83,7 @@ class E2EHarness {
       categoryOverrideRepositoryProvider.overrideWithValue(categoryOverrides),
       categoryMemoryRepositoryProvider.overrideWithValue(categoryMemory),
       transactionEventRepositoryProvider.overrideWithValue(transactionEvents),
+      legacyCategoryRepositoryProvider.overrideWithValue(legacyCategories),
     ],
   );
 
