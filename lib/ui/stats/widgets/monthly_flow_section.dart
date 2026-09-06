@@ -183,6 +183,7 @@ class _Chart extends StatelessWidget {
       primaryColor: finance.income,
       secondaryColor: finance.expense,
       maxAxisLabels: flows.length,
+      animated: true,
       labelStyle: AppTextStyles.mono(
         fontSize: 8.5,
         lineHeight: 12,

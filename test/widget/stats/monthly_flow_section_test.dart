@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:frosted_ui/frosted_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mybudget/core/entities/monthly_flow.dart';
 import 'package:mybudget/ui/stats/widgets/monthly_flow_section.dart';
@@ -11,7 +12,10 @@ void main() {
     await initializeDateFormatting('fr_FR');
   });
 
-  Widget host(Widget child) => MaterialApp(home: Scaffold(body: child));
+  Widget host(Widget child) => MaterialApp(
+    theme: FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF)),
+    home: Scaffold(body: child),
+  );
 
   List<MonthlyFlow> flowsOf(List<List<double>> pairs) => [
     for (var index = 0; index < pairs.length; index++)
@@ -135,6 +139,43 @@ void main() {
         .toList();
 
     expect(factors, [1, 0.5, 0.5, 0.25]);
+  });
+
+  testWidgets('grows the bars into place instead of snapping', (tester) async {
+    await tester.pumpWidget(
+      section(
+        flowsOf([
+          [1000, 500],
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.pumpWidget(
+      section(
+        flowsOf([
+          [500, 1000],
+        ]),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 140));
+
+    final factors = tester
+        .widgetList<FractionallySizedBox>(find.byType(FractionallySizedBox))
+        .map((box) => box.heightFactor ?? 0)
+        .toList();
+
+    expect(factors.first, greaterThan(0.5));
+    expect(factors.first, lessThan(1));
+
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widgetList<FractionallySizedBox>(find.byType(FractionallySizedBox))
+          .map((box) => box.heightFactor ?? 0),
+      [0.5, 1],
+    );
   });
 
   testWidgets('reports the tapped month', (tester) async {

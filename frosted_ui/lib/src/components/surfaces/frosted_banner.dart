@@ -35,15 +35,13 @@ class FrostedBanner extends StatelessWidget {
     final bool dark = theme.brightness == Brightness.dark;
     final Color surface = switch (tone) {
       FrostedBannerTone.info => cs.secondaryContainer,
-      FrostedBannerTone.warning => dark
-          ? warningSurfaceDark
-          : warningSurfaceLight,
+      FrostedBannerTone.warning =>
+        dark ? warningSurfaceDark : warningSurfaceLight,
     };
     final Color content = switch (tone) {
       FrostedBannerTone.info => cs.onSecondaryContainer,
-      FrostedBannerTone.warning => dark
-          ? warningContentDark
-          : warningContentLight,
+      FrostedBannerTone.warning =>
+        dark ? warningContentDark : warningContentLight,
     };
 
     return Container(

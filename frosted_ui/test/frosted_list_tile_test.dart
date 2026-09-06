@@ -71,7 +71,10 @@ void main() {
     return (container.decoration! as BoxDecoration).color;
   }
 
-  Future<ColorScheme> pumpTile(WidgetTester tester, FrostedListTile tile) async {
+  Future<ColorScheme> pumpTile(
+    WidgetTester tester,
+    FrostedListTile tile,
+  ) async {
     late ColorScheme scheme;
     await tester.pumpWidget(
       MaterialApp(

@@ -14,7 +14,9 @@ Future<void> pumpBanner(
       theme: brightness == Brightness.dark
           ? FrostedTheme.dark(seedColor: const Color(0xFF2A55D3))
           : FrostedTheme.light(seedColor: const Color(0xFF2A55D3)),
-      home: Scaffold(body: FrostedBanner(message: message, tone: tone)),
+      home: Scaffold(
+        body: FrostedBanner(message: message, tone: tone),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -22,7 +24,9 @@ Future<void> pumpBanner(
 
 Color surfaceOf(WidgetTester tester) {
   final Container container = tester.widget<Container>(
-    find.ancestor(of: find.text(message), matching: find.byType(Container)).first,
+    find
+        .ancestor(of: find.text(message), matching: find.byType(Container))
+        .first,
   );
   return ((container.decoration! as BoxDecoration).color)!;
 }

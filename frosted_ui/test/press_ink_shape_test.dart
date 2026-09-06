@@ -105,12 +105,21 @@ void main() {
     ),
     _Case(
       'FrostedExpansionTile',
-      () => const FrostedExpansionTile(
-        title: 'Détails',
-        child: Text('Contenu'),
-      ),
+      () =>
+          const FrostedExpansionTile(title: 'Détails', child: Text('Contenu')),
       () => find.text('Détails'),
       root: () => find.byType(FrostedExpansionTile),
+    ),
+    _Case(
+      'FrostedSegmentedControl',
+      () => FrostedSegmentedControl(
+        segments: const <String>['6 mois', '12 mois'],
+        currentIndex: 0,
+        onTap: (int _) {},
+        segmentWidth: 88,
+      ),
+      () => find.text('12 mois'),
+      root: () => find.byType(FrostedSegmentedControl),
     ),
     _Case(
       'FrostedNavPill',
@@ -162,10 +171,9 @@ void main() {
   Future<void> pump(WidgetTester tester, Widget child) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: FrostedTheme.dark(seedColor: seed).copyWith(
-          splashFactory: InkSplash.splashFactory,
-          splashColor: splash,
-        ),
+        theme: FrostedTheme.dark(
+          seedColor: seed,
+        ).copyWith(splashFactory: InkSplash.splashFactory, splashColor: splash),
         home: Scaffold(body: Center(child: child)),
       ),
     );
@@ -181,46 +189,45 @@ void main() {
 
     expect(
       tester.renderObject(root),
-      paints
-        ..everything((Symbol method, List<dynamic> arguments) {
-          switch (method) {
-            case #save:
-            case #saveLayer:
-              savedOrigins.add(origin);
-              savedClipCounts.add(clips.length);
-            case #restore:
-              if (savedOrigins.isNotEmpty) {
-                origin = savedOrigins.removeLast();
-                clips.length = savedClipCounts.removeLast();
-              }
-            case #translate:
-              origin += Offset(arguments[0] as double, arguments[1] as double);
-            case #clipRect:
-              final Rect rect = (arguments[0] as Rect).shift(origin);
-              clips.add(rect.contains);
-            case #clipRRect:
-              final RRect rrect = (arguments[0] as RRect).shift(origin);
-              clips.add(rrect.contains);
-            case #clipPath:
-              final Path path = (arguments[0] as Path).shift(origin);
-              clips.add(path.contains);
-            case #drawRRect:
-              lastRRect = (arguments[0] as RRect).shift(origin);
-            case #drawCircle:
-              final Color color = (arguments[2] as Paint).color;
-              final bool isInk =
-                  color.r == splash.r &&
-                  color.g == splash.g &&
-                  color.b == splash.b;
-              if (isInk && frame == null && lastRRect != null) {
-                frame = _InkFrame(
-                  lastRRect!,
-                  List<bool Function(Offset)>.of(clips),
-                );
-              }
-          }
-          return true;
-        }),
+      paints..everything((Symbol method, List<dynamic> arguments) {
+        switch (method) {
+          case #save:
+          case #saveLayer:
+            savedOrigins.add(origin);
+            savedClipCounts.add(clips.length);
+          case #restore:
+            if (savedOrigins.isNotEmpty) {
+              origin = savedOrigins.removeLast();
+              clips.length = savedClipCounts.removeLast();
+            }
+          case #translate:
+            origin += Offset(arguments[0] as double, arguments[1] as double);
+          case #clipRect:
+            final Rect rect = (arguments[0] as Rect).shift(origin);
+            clips.add(rect.contains);
+          case #clipRRect:
+            final RRect rrect = (arguments[0] as RRect).shift(origin);
+            clips.add(rrect.contains);
+          case #clipPath:
+            final Path path = (arguments[0] as Path).shift(origin);
+            clips.add(path.contains);
+          case #drawRRect:
+            lastRRect = (arguments[0] as RRect).shift(origin);
+          case #drawCircle:
+            final Color color = (arguments[2] as Paint).color;
+            final bool isInk =
+                color.r == splash.r &&
+                color.g == splash.g &&
+                color.b == splash.b;
+            if (isInk && frame == null && lastRRect != null) {
+              frame = _InkFrame(
+                lastRRect!,
+                List<bool Function(Offset)>.of(clips),
+              );
+            }
+        }
+        return true;
+      }),
     );
     return frame;
   }

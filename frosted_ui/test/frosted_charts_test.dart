@@ -661,6 +661,96 @@ void main() {
       );
     });
 
+    testWidgets('unfolds the widening window from its oldest edge', (
+      WidgetTester tester,
+    ) async {
+      List<FrostedPairedColumnData> window(int count) =>
+          <FrostedPairedColumnData>[
+            for (int index = 0; index < count; index++)
+              const FrostedPairedColumnData(primary: 10, secondary: 5),
+          ];
+
+      List<double> slotWidths(WidgetTester tester) => tester
+          .widgetList<Opacity>(
+            find.descendant(
+              of: find.byType(FrostedPairedColumnChart),
+              matching: find.byType(Opacity),
+            ),
+          )
+          .map((Opacity box) => tester.getSize(find.byWidget(box)).width)
+          .toList();
+
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(columns: window(2), animated: true),
+          width: 120,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(columns: window(4), animated: true),
+          width: 120,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 140));
+
+      final List<double> midway = slotWidths(tester);
+      expect(midway.length, 4);
+      expect(midway.first, lessThan(midway.last));
+      expect(midway.first, greaterThan(0));
+
+      await tester.pumpAndSettle();
+
+      expect(slotWidths(tester), everyElement(closeTo(30, 0.01)));
+    });
+
+    testWidgets('holds the surviving labels steady while the window narrows', (
+      WidgetTester tester,
+    ) async {
+      List<FrostedPairedColumnData> window(
+        int first,
+        int count,
+      ) => <FrostedPairedColumnData>[
+        for (int index = first; index < first + count; index++)
+          FrostedPairedColumnData(primary: 10, secondary: 5, label: 'M$index'),
+      ];
+
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: window(0, 12),
+            maxAxisLabels: 12,
+            animated: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(
+        _host(
+          FrostedPairedColumnChart(
+            columns: window(6, 6),
+            maxAxisLabels: 6,
+            animated: true,
+          ),
+        ),
+      );
+
+      for (final Duration step in <Duration>[
+        const Duration(milliseconds: 1),
+        const Duration(milliseconds: 100),
+        const Duration(milliseconds: 200),
+        const Duration(milliseconds: 200),
+      ]) {
+        await tester.pump(step);
+        for (int index = 6; index < 12; index++) {
+          expect(find.text('M$index'), findsOneWidget, reason: 'M$index');
+        }
+      }
+    });
+
     testWidgets('reports the tapped column index', (WidgetTester tester) async {
       int? tapped;
 

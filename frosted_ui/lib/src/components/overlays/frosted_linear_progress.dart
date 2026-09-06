@@ -72,7 +72,9 @@ class _FrostedLinearProgressState extends State<FrostedLinearProgress>
 
   List<LinearProgressSegment> get _segments {
     if (widget.value != null) {
-      return <LinearProgressSegment>[LinearProgressSegment(0, animatedProgress)];
+      return <LinearProgressSegment>[
+        LinearProgressSegment(0, animatedProgress),
+      ];
     }
     final double time = _indeterminate.value * _cycleMs;
     return <LinearProgressSegment>[

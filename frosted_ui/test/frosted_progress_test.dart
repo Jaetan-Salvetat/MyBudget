@@ -13,15 +13,14 @@ CustomPaint _painterHost(WidgetTester tester, Type owner) => tester.widget(
   find.descendant(of: find.byType(owner), matching: find.byType(CustomPaint)),
 );
 
-Matcher _segments(List<List<double>> expected) => pairwiseCompare<
-    List<double>,
-    LinearProgressSegment
->(
-  expected,
-  (List<double> want, LinearProgressSegment got) =>
-      (got.tail - want[0]).abs() < 1e-9 && (got.head - want[1]).abs() < 1e-9,
-  'matches the expected track segments',
-);
+Matcher _segments(List<List<double>> expected) =>
+    pairwiseCompare<List<double>, LinearProgressSegment>(
+      expected,
+      (List<double> want, LinearProgressSegment got) =>
+          (got.tail - want[0]).abs() < 1e-9 &&
+          (got.head - want[1]).abs() < 1e-9,
+      'matches the expected track segments',
+    );
 
 LinearProgressPainter _painter(List<LinearProgressSegment> segments) =>
     LinearProgressPainter(
@@ -36,8 +35,9 @@ void main() {
   group('LinearProgressPainter.trackSegments', () {
     test('leaves a gap ahead of a determinate bar', () {
       expect(
-        _painter(const <LinearProgressSegment>[LinearProgressSegment(0, 0.5)])
-            .trackSegments(0.01),
+        _painter(const <LinearProgressSegment>[
+          LinearProgressSegment(0, 0.5),
+        ]).trackSegments(0.01),
         _segments(<List<double>>[
           <double>[0.51, 1],
         ]),
@@ -46,8 +46,9 @@ void main() {
 
     test('ramps the gap in while the bar is shorter than it', () {
       expect(
-        _painter(const <LinearProgressSegment>[LinearProgressSegment(0, 0.004)])
-            .trackSegments(0.01),
+        _painter(const <LinearProgressSegment>[
+          LinearProgressSegment(0, 0.004),
+        ]).trackSegments(0.01),
         _segments(<List<double>>[
           <double>[0.008, 1],
         ]),
@@ -82,8 +83,9 @@ void main() {
 
     test('covers the whole track when nothing is running', () {
       expect(
-        _painter(const <LinearProgressSegment>[LinearProgressSegment(0, 0)])
-            .trackSegments(0.01),
+        _painter(const <LinearProgressSegment>[
+          LinearProgressSegment(0, 0),
+        ]).trackSegments(0.01),
         _segments(<List<double>>[
           <double>[0, 1],
         ]),
@@ -171,7 +173,9 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        _host(const FrostedCircularProgress(value: 0.5, size: 64, thickness: 8)),
+        _host(
+          const FrostedCircularProgress(value: 0.5, size: 64, thickness: 8),
+        ),
       );
 
       expect(

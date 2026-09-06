@@ -6,11 +6,7 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-enum FrostedTabsVariant {
-  primary,
-
-  secondary,
-}
+enum FrostedTabsVariant { primary, secondary }
 
 class FrostedTab {
   const FrostedTab({required this.label, this.icon});

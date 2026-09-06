@@ -58,7 +58,10 @@ void main() {
       await pump(tester, const FrostedTextField(autofocus: true));
       await tester.pump();
 
-      expect(tester.widget<TextField>(find.byType(TextField)).autofocus, isTrue);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).autofocus,
+        isTrue,
+      );
       expect(
         FocusScope.of(tester.element(find.byType(TextField))).hasFocus,
         isTrue,

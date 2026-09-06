@@ -96,7 +96,9 @@ class _FrostedCircularProgressState extends State<FrostedCircularProgress>
     if (widget.value != null) return 0;
 
     final double global = _indeterminate.value * _globalRotationDegrees;
-    final double additional = _additionalRotation(_indeterminate.value * _cycleMs);
+    final double additional = _additionalRotation(
+      _indeterminate.value * _cycleMs,
+    );
     return (global + additional) * _degreesToRadians;
   }
 

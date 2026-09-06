@@ -71,19 +71,17 @@ void main() {
     double? radius;
     expect(
       tester.renderObject(find.byType(FrostedButton)),
-      paints
-        ..something((Symbol method, List<dynamic> arguments) {
-          if (method != #drawCircle) return false;
-          radius = arguments[1] as double;
-          return true;
-        }),
+      paints..something((Symbol method, List<dynamic> arguments) {
+        if (method != #drawCircle) return false;
+        radius = arguments[1] as double;
+        return true;
+      }),
     );
     return radius!;
   }
 
   group('FrostedButton press feedback', () {
-    testWidgets('splashes from the point pressed',
-        (WidgetTester tester) async {
+    testWidgets('splashes from the point pressed', (WidgetTester tester) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -98,10 +96,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 80));
 
-      expect(
-        tester.renderObject(button),
-        paints..circle(x: 12, y: 10),
-      );
+      expect(tester.renderObject(button), paints..circle(x: 12, y: 10));
 
       await gesture.up();
       await tester.pumpAndSettle();
@@ -132,12 +127,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('a disabled button raises no ink',
-        (WidgetTester tester) async {
-      await pump(
-        tester,
-        FrostedButton.text(label: 'Annuler', onPressed: null),
-      );
+    testWidgets('a disabled button raises no ink', (WidgetTester tester) async {
+      await pump(tester, FrostedButton.text(label: 'Annuler', onPressed: null));
       final Finder button = find.byType(FrostedButton);
 
       final TestGesture gesture = await tester.startGesture(
@@ -151,8 +142,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('fades its press layer in instead of popping it',
-        (WidgetTester tester) async {
+    testWidgets('fades its press layer in instead of popping it', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -176,8 +168,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('morphs the shape gradually rather than snapping',
-        (WidgetTester tester) async {
+    testWidgets('morphs the shape gradually rather than snapping', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -204,8 +197,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('holds the pressed shape past a tap too quick to read',
-        (WidgetTester tester) async {
+    testWidgets('holds the pressed shape past a tap too quick to read', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -222,8 +216,9 @@ void main() {
       expect(cornerRadiusOf(tester), resting);
     });
 
-    testWidgets('holds the pressed tint on a transparent text button',
-        (WidgetTester tester) async {
+    testWidgets('holds the pressed tint on a transparent text button', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -241,8 +236,9 @@ void main() {
       expect(backgroundOf(tester), Colors.transparent);
     });
 
-    testWidgets('releases the pressed state when the tap is cancelled',
-        (WidgetTester tester) async {
+    testWidgets('releases the pressed state when the tap is cancelled', (
+      WidgetTester tester,
+    ) async {
       await pump(
         tester,
         FrostedButton.text(label: 'Annuler', onPressed: () {}),
@@ -278,8 +274,9 @@ void main() {
   });
 
   group('FrostedButton destructive', () {
-    testWidgets('filled paints the error role instead of primary',
-        (WidgetTester tester) async {
+    testWidgets('filled paints the error role instead of primary', (
+      WidgetTester tester,
+    ) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.filled(
@@ -293,8 +290,9 @@ void main() {
       expect(labelColorOf(tester), cs.onError);
     });
 
-    testWidgets('text tints the label with the error role',
-        (WidgetTester tester) async {
+    testWidgets('text tints the label with the error role', (
+      WidgetTester tester,
+    ) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.text(
@@ -307,8 +305,7 @@ void main() {
       expect(labelColorOf(tester), cs.error);
     });
 
-    testWidgets('tonal fills the error container',
-        (WidgetTester tester) async {
+    testWidgets('tonal fills the error container', (WidgetTester tester) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.tonal(
@@ -322,8 +319,9 @@ void main() {
       expect(labelColorOf(tester), cs.onErrorContainer);
     });
 
-    testWidgets('outlined tints its border with the error role',
-        (WidgetTester tester) async {
+    testWidgets('outlined tints its border with the error role', (
+      WidgetTester tester,
+    ) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.outlined(
@@ -345,8 +343,9 @@ void main() {
       expect(labelColorOf(tester), cs.error);
     });
 
-    testWidgets('defaults to the primary role when not destructive',
-        (WidgetTester tester) async {
+    testWidgets('defaults to the primary role when not destructive', (
+      WidgetTester tester,
+    ) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.filled(label: 'Enregistrer', onPressed: () {}),
@@ -356,8 +355,9 @@ void main() {
       expect(labelColorOf(tester), cs.onPrimary);
     });
 
-    testWidgets('disabled keeps the neutral disabled roles',
-        (WidgetTester tester) async {
+    testWidgets('disabled keeps the neutral disabled roles', (
+      WidgetTester tester,
+    ) async {
       final ColorScheme cs = await pump(
         tester,
         FrostedButton.filled(

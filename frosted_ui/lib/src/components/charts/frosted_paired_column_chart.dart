@@ -4,6 +4,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/frosted_chart_tokens.dart';
 import '../../foundations/frosted_type_scale.dart';
+import '../../theme/frosted_motion_tokens.dart';
+import '../../theme/frosted_tokens.dart';
+import '_paired_column_frames.dart';
 
 @immutable
 class FrostedPairedColumnData {
@@ -26,9 +29,12 @@ class FrostedPairedColumnChart extends StatelessWidget {
     this.secondaryColor,
     this.labelStyle,
     this.maxAxisLabels = FrostedChartTokens.axisLabelBudget,
+    this.animated = false,
     this.onColumnTap,
     super.key,
   });
+
+  static const double _labelRevealPoint = 0.5;
 
   final List<FrostedPairedColumnData> columns;
   final double height;
@@ -36,14 +42,42 @@ class FrostedPairedColumnChart extends StatelessWidget {
   final Color? secondaryColor;
   final TextStyle? labelStyle;
   final int maxAxisLabels;
+  final bool animated;
   final ValueChanged<int>? onColumnTap;
 
   @override
   Widget build(BuildContext context) {
+    final PairedColumnFrames frames = PairedColumnFrames.of(
+      columns,
+      maxAxisLabels: maxAxisLabels,
+    );
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (!animated) return _chart(context, frames, constraints.maxWidth);
+
+        final FrostedMotion motion = context.frostedTokens.motion.fluid;
+        return TweenAnimationBuilder<PairedColumnFrames>(
+          tween: PairedColumnFramesTween(end: frames),
+          duration: motion.duration,
+          curve: motion.curve,
+          builder:
+              (BuildContext context, PairedColumnFrames value, Widget? child) =>
+                  _chart(context, value, constraints.maxWidth),
+        );
+      },
+    );
+  }
+
+  Widget _chart(
+    BuildContext context,
+    PairedColumnFrames frames,
+    double maxWidth,
+  ) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final double scale = _scale();
-    final bool hasLabels = columns.any(
-      (FrostedPairedColumnData column) => column.label.isNotEmpty,
+    final List<double> widths = _widthsIn(frames, maxWidth);
+    final bool hasLabels = frames.any(
+      (PairedColumnFrame frame) => frame.label.isNotEmpty,
     );
 
     return Column(
@@ -53,16 +87,20 @@ class FrostedPairedColumnChart extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              for (int index = 0; index < columns.length; index++)
-                Expanded(
-                  child: _Pair(
-                    data: columns[index],
-                    scale: scale,
-                    primaryColor: primaryColor ?? cs.primaryContainer,
-                    secondaryColor: secondaryColor ?? cs.primary,
-                    onTap: onColumnTap == null
-                        ? null
-                        : () => onColumnTap!(index),
+              for (int index = 0; index < frames.length; index++)
+                SizedBox(
+                  width: widths[index],
+                  child: Opacity(
+                    opacity: frames[index].weight.clamp(0.0, 1.0),
+                    child: _Pair(
+                      frame: frames[index],
+                      width: widths[index],
+                      primaryColor: primaryColor ?? cs.primaryContainer,
+                      secondaryColor: secondaryColor ?? cs.primary,
+                      onTap: onColumnTap == null
+                          ? null
+                          : () => onColumnTap!(index),
+                    ),
                   ),
                 ),
             ],
@@ -72,19 +110,23 @@ class FrostedPairedColumnChart extends StatelessWidget {
           const SizedBox(height: FrostedChartTokens.axisGap),
           Row(
             children: <Widget>[
-              for (int index = 0; index < columns.length; index++)
-                Expanded(
-                  child: Text(
-                    _tick(index),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.visible,
-                    style:
-                        labelStyle ??
-                        FrostedTypeScale.labelSmall.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+              for (int index = 0; index < frames.length; index++)
+                SizedBox(
+                  width: widths[index],
+                  child: Opacity(
+                    opacity: _labelOpacityOf(frames[index].weight),
+                    child: Text(
+                      frames[index].label,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                      style:
+                          labelStyle ??
+                          FrostedTypeScale.labelSmall.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
                   ),
                 ),
             ],
@@ -94,38 +136,46 @@ class FrostedPairedColumnChart extends StatelessWidget {
     );
   }
 
-  double _scale() {
-    double scale = 0;
-    for (final FrostedPairedColumnData column in columns) {
-      scale = math.max(scale, math.max(column.primary, column.secondary));
+  List<double> _widthsIn(PairedColumnFrames frames, double maxWidth) {
+    final double total = frames.frames.fold(
+      0,
+      (double sum, PairedColumnFrame frame) => sum + frame.weight,
+    );
+    if (total <= 0) {
+      return List<double>.filled(frames.length, 0);
     }
-    return scale;
+
+    return <double>[
+      for (final PairedColumnFrame frame in frames.frames)
+        maxWidth * frame.weight / total,
+    ];
   }
 
-  String _tick(int index) {
-    final bool kept = (columns.length - 1 - index).isEven;
-    if (columns.length > maxAxisLabels && !kept) return '';
-    return columns[index].label;
-  }
+  double _labelOpacityOf(double weight) =>
+      ((weight - _labelRevealPoint) / (1 - _labelRevealPoint)).clamp(0.0, 1.0);
 }
 
 class _Pair extends StatelessWidget {
   const _Pair({
-    required this.data,
-    required this.scale,
+    required this.frame,
+    required this.width,
     required this.primaryColor,
     required this.secondaryColor,
     required this.onTap,
   });
 
-  final FrostedPairedColumnData data;
-  final double scale;
+  final PairedColumnFrame frame;
+  final double width;
   final Color primaryColor;
   final Color secondaryColor;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final double barWidth =
+        (width - FrostedChartTokens.columnGap - FrostedChartTokens.barGap) / 2;
+    if (barWidth <= 0) return SizedBox(width: width);
+
     final Widget pair = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: FrostedChartTokens.columnGap / 2,
@@ -133,15 +183,14 @@ class _Pair extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: _Bar(factor: _factorOf(data.primary), color: primaryColor),
+          SizedBox(
+            width: barWidth,
+            child: _Bar(factor: frame.primary, color: primaryColor),
           ),
           const SizedBox(width: FrostedChartTokens.barGap),
-          Expanded(
-            child: _Bar(
-              factor: _factorOf(data.secondary),
-              color: secondaryColor,
-            ),
+          SizedBox(
+            width: barWidth,
+            child: _Bar(factor: frame.secondary, color: secondaryColor),
           ),
         ],
       ),
@@ -155,8 +204,6 @@ class _Pair extends StatelessWidget {
       child: pair,
     );
   }
-
-  double _factorOf(double value) => scale <= 0 ? 0 : value / scale;
 }
 
 class _Bar extends StatelessWidget {

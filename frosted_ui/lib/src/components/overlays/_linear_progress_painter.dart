@@ -14,7 +14,9 @@ class LinearProgressSegment {
 
   @override
   bool operator ==(Object other) =>
-      other is LinearProgressSegment && other.tail == tail && other.head == head;
+      other is LinearProgressSegment &&
+      other.tail == tail &&
+      other.head == head;
 
   @override
   int get hashCode => Object.hash(tail, head);

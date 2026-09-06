@@ -6,14 +6,19 @@ const Rect _track = Rect.fromLTRB(0, 0, 200, 16);
 
 Widget _host(Widget child) => MaterialApp(
   theme: FrostedTheme.dark(seedColor: const Color(0xFF7C5CFF)),
-  home: Scaffold(body: Center(child: SizedBox(width: 300, child: child))),
+  home: Scaffold(
+    body: Center(child: SizedBox(width: 300, child: child)),
+  ),
 );
 
 SliderThemeData _themeOf(WidgetTester tester, Type owner) {
   return tester
       .widget<SliderTheme>(
         find
-            .descendant(of: find.byType(owner), matching: find.byType(SliderTheme))
+            .descendant(
+              of: find.byType(owner),
+              matching: find.byType(SliderTheme),
+            )
             .first,
       )
       .data;
@@ -113,7 +118,10 @@ void main() {
         FrostedCenteredSliderTrackShape();
 
     test('grows from the centre towards a thumb on the right', () {
-      expect(shape.activeRect(_track, 160), const Rect.fromLTRB(100, 0, 160, 16));
+      expect(
+        shape.activeRect(_track, 160),
+        const Rect.fromLTRB(100, 0, 160, 16),
+      );
     });
 
     test('grows from the centre towards a thumb on the left', () {

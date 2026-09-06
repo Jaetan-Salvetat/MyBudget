@@ -60,7 +60,8 @@ class FrostedCenteredSliderTrackShape extends SliderTrackShape
     const Radius innerRadius = Radius.circular(
       FrostedSliderTokens.trackInsideCornerRadius,
     );
-    final double trackGap = sliderTheme.trackGap ?? FrostedSliderTokens.handleGap;
+    final double trackGap =
+        sliderTheme.trackGap ?? FrostedSliderTokens.handleGap;
     final double gapStart = math.max(trackRect.left, thumbCenter.dx - trackGap);
     final double gapEnd = math.min(trackRect.right, thumbCenter.dx + trackGap);
 
@@ -120,8 +121,20 @@ class FrostedCenteredSliderTrackShape extends SliderTrackShape
     context.canvas.restore();
 
     if (isDiscrete) return;
-    _paintStopIndicator(context, trackRect, thumbCenter, activePaint, edge: true);
-    _paintStopIndicator(context, trackRect, thumbCenter, activePaint, edge: false);
+    _paintStopIndicator(
+      context,
+      trackRect,
+      thumbCenter,
+      activePaint,
+      edge: true,
+    );
+    _paintStopIndicator(
+      context,
+      trackRect,
+      thumbCenter,
+      activePaint,
+      edge: false,
+    );
   }
 
   void _paintStopIndicator(

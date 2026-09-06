@@ -6,13 +6,7 @@ import '../../theme/frosted_motion_tokens.dart';
 import '../../theme/frosted_tokens.dart';
 import '../actions/_interactive_surface.dart';
 
-enum FrostedCardVariant {
-  filled,
-
-  outlined,
-
-  accent,
-}
+enum FrostedCardVariant { filled, outlined, accent }
 
 class FrostedCard extends StatelessWidget {
   const FrostedCard({
